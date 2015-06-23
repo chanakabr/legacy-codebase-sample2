@@ -10,19 +10,16 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace QueueWrapper
 {
     public class RabbitSingleConnection : IDisposable
     {
-
-        #region CONST
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private int FAIL_COUNT_LIMIT = 3;
-
-        #endregion
-
-        #region Members
 
         private IConnection m_Connection;
         private IModel m_Model;
@@ -30,19 +27,11 @@ namespace QueueWrapper
         private int m_FailCounter;
         private int m_FailCounterLimit;
         private RabbitConfigurationData m_Configuration;
-        #endregion
-
-        #region CTOR
 
         public RabbitSingleConnection(RabbitConfigurationData configuration)
         {
             m_Configuration = configuration;
         }
-
-        #endregion
-
-
-        #region Public Methods
 
         public bool Start()
         {
@@ -73,13 +62,17 @@ namespace QueueWrapper
                     if (this.m_Model != null)
                     {
                         ulong a = ulong.Parse(sAckId);
-                        m_Model.BasicAck(ulong.Parse(sAckId), false);
+
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
+                        {
+                            m_Model.BasicAck(ulong.Parse(sAckId), false);
+                        }
                         bResult = true;
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    log.Error("", ex);
                 }
             }
 
@@ -101,13 +94,17 @@ namespace QueueWrapper
                         {
                             var body = Encoding.UTF8.GetBytes(sMessage.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
-                            m_Model.BasicPublish(m_Configuration.Exchange, m_Configuration.RoutingKey, properties, body);
+                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
+                            {
+                                m_Model.BasicPublish(m_Configuration.Exchange, m_Configuration.RoutingKey, properties, body);
+                            }
                             isPublishSucceeded = true;
                             ResetFailCounter();
                         }
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
@@ -127,19 +124,22 @@ namespace QueueWrapper
                 {
                     if (this.m_Model != null)
                     {
-                        BasicGetResult bgr = m_Model.BasicGet(m_Configuration.QueueName, false);
-
-                        if (bgr != null && bgr.Body != null && bgr.Body.Length > 0)
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
                         {
-                            byte[] body = bgr.Body;
-                            sMessage = Encoding.UTF8.GetString(body);
-                            sAckId = bgr.DeliveryTag.ToString();
+                            BasicGetResult bgr = m_Model.BasicGet(m_Configuration.QueueName, false);
+
+                            if (bgr != null && bgr.Body != null && bgr.Body.Length > 0)
+                            {
+                                byte[] body = bgr.Body;
+                                sMessage = Encoding.UTF8.GetString(body);
+                                sAckId = bgr.DeliveryTag.ToString();
+                            }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    log.Error("", ex);
                 }
             }
 
@@ -159,7 +159,10 @@ namespace QueueWrapper
                 {
                     this.m_Model.Close();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    log.Error("", ex);
+                }
             }
 
             if (this.m_Connection != null)
@@ -168,16 +171,15 @@ namespace QueueWrapper
                 {
                     this.m_Connection.Close();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    log.Error("", ex);
+                }
             }
 
             this.m_Model = null;
             this.m_Connection = null;
         }
-
-        #endregion
-
-        #region Private Methods
 
         private void ResetFailCounter()
         {
@@ -241,6 +243,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         m_Connection = null;
                         m_Model = null;
                         IncreaseFailCounter();
@@ -285,15 +288,12 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
             finally
             {
                 this.m_FailCounterLimit = failCounterLimit;
             }
         }
-
-        #endregion
-
     }
 }

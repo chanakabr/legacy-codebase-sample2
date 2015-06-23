@@ -11,6 +11,7 @@ using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
+using KLogMonitor;
 using Logger;
 using TVinciShared;
 
@@ -19,7 +20,7 @@ namespace Catalog.Request
     [DataContract]
     public class ChannelsContainingMediaRequest : BaseRequest, IRequestImp
     {
-        protected static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<int> m_lChannles;
@@ -123,7 +124,7 @@ namespace Catalog.Request
                                              }
                                              catch (Exception ex)
                                              {
-                                                 _logger.Error(ex.Message, ex);
+                                                 log.Error(ex.Message, ex);
                                              }
                                          }, searchObjectIndex);
                                     channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -158,7 +159,7 @@ namespace Catalog.Request
                                     }
                                     catch (Exception ex)
                                     {
-                                        _logger.Error(ex.Message);
+                                        log.Error(ex.Message);
                                     }                                   
                                 }
                                 #endregion
@@ -170,7 +171,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.ErrorFormat("AllChannelsContainingMediaRequest failed ex={0} ", ex.Message);
+                log.ErrorFormat("AllChannelsContainingMediaRequest failed ex={0} ", ex.Message);
                 return null;
             }
         }

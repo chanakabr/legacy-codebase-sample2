@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using DAL;
+using KLogMonitor;
 using ODBCWrapper;
 
 namespace Notifiers
 {
     public class EutelsatMediaNotifier : BaseMediaNotifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public EutelsatMediaNotifier(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -35,11 +39,11 @@ namespace Notifiers
                     //errorMessage = string.Join("\n", errors);
                 }
 
-                Logger.Logger.Log("Notify", sMediaID + " : " + (resp.success ? "notification success" : errorMessage), "package_notifier");
+                log.Debug("Notify " + sMediaID + " : " + (resp.success ? "notification success" : errorMessage));
             }
             else
             {
-                Logger.Logger.Log("Notify", sMediaID + " : " + "No need to notify - media is off or expired", "media_notifier");
+                log.Debug("Notify " + sMediaID + " : " + "No need to notify - media is off or expired");
             }
         }
 
@@ -108,12 +112,12 @@ namespace Notifiers
                 if (isGoodUri)
                 {
                     string sRes = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent);
-                    res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(PackageNotificationResponse)) as PackageNotificationResponse;    
+                    res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(PackageNotificationResponse)) as PackageNotificationResponse;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Notify", sMediaID + " : " + ex.Message, "media_notifier");
+                log.ErrorFormat("Notify - MID: {0}, Exception: {1}", sMediaID, ex);
             }
 
 

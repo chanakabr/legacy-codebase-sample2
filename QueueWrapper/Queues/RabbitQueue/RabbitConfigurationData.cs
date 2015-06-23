@@ -7,11 +7,9 @@ namespace QueueWrapper
 {
     public class RabbitConfigurationData
     {
-        #region Properties
-
-        public string Exchange {get; set;}
+        public string Exchange { get; set; }
         public string QueueName { get; set; }
-        public string RoutingKey { get; set; } 
+        public string RoutingKey { get; set; }
         public string Host { get; set; }
         public string Password { get; set; }
         public string ExchangeType { get; set; }
@@ -19,10 +17,6 @@ namespace QueueWrapper
         public string VirtualHost { get; set; }
         public string Username { get; set; }
         public bool setContentType { get; set; }
-
-        #endregion
-
-        #region CTOR
 
         public RabbitConfigurationData(string sExchange, string sQueueName, string sRoutingKey, string sHost, string sPassword, string sExchangeType, string sVirtualPort, string sUsername, string sPort)
         {
@@ -42,8 +36,5 @@ namespace QueueWrapper
         {
             this.setContentType = false;
         }
-
-        #endregion
-
     }
 }

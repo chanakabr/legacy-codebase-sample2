@@ -2,15 +2,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.ServiceModel;
 using System.Text;
+using KLogMonitor;
 
 namespace Catalog.Searchers
 {
     public static class Helper
     {
-        private static ConcurrentDictionary<string, object> channelFactories = new ConcurrentDictionary<string,object>();
-        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static ConcurrentDictionary<string, object> channelFactories = new ConcurrentDictionary<string, object>();
+
         public static T GetFactoryChannel<T>(string address) where T : class
         {
             string key = typeof(T).ToString();
@@ -25,11 +28,11 @@ namespace Catalog.Searchers
 
             }
             object value;
-            if(channelFactories.TryGetValue(key, out value))
+            if (channelFactories.TryGetValue(key, out value))
             {
                 channel = ((ChannelFactory<T>)value).CreateChannel();
                 ((IClientChannel)channel).Open();
-            }            
+            }
 
             return channel;
         }
@@ -45,7 +48,7 @@ namespace Catalog.Searchers
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Close channel request", string.Format("exception thrown when closing channel"), "Catalog");
+                log.Error("Close channel request - " + string.Format("exception thrown when closing channel"), ex);
                 channel.Abort();
             }
         }
@@ -61,7 +64,7 @@ namespace Catalog.Searchers
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Abort channel request", string.Format("exception thrown when aborting channel"), "Catalog");
+                log.Error("Abort channel request - " + string.Format("exception thrown when aborting channel"), ex);
                 channel.Abort();
             }
         }

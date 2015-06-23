@@ -10,14 +10,14 @@ using System.Runtime.Serialization;
 using System.Text;
 using TVinciShared;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public abstract class BaseProtocolRequest : BaseRequest, IRequestImp
     {
-
-        protected static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected string sEndDate;
         protected int nDeviceID;
@@ -32,17 +32,17 @@ namespace Catalog.Request
         protected abstract int GetProtocolMaxResultsSize();
         #endregion
 
-        public BaseProtocolRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, 
+        public BaseProtocolRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID,
             Filter oFilter, string sSignature, string sSignString, string sSiteGuid, int nDomainId)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, nDomainId)
-        {            
+        {
         }
 
         public BaseProtocolRequest() : base() { }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            CheckSignature(oBaseRequest);           
+            CheckSignature(oBaseRequest);
             return ExecuteProtocol(oBaseRequest);
         }
 
@@ -65,7 +65,7 @@ namespace Catalog.Request
             }
             sw.Stop();
 
-            _logger.Info(string.Format("Protocol execution finished. Request: {0} , Time elapsed: {1}", oRequest.ToString(), sw.ElapsedMilliseconds));
+            log.Info(string.Format("Protocol execution finished. Request: {0} , Time elapsed: {1}", oRequest.ToString(), sw.ElapsedMilliseconds));
 
             response.m_nMediaIds = res;
             response.m_nTotalItems = res.Count;

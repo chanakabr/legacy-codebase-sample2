@@ -18,6 +18,7 @@ using GroupsCacheManager;
 using System.Threading.Tasks;
 using ApiObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -25,8 +26,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediaHitRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -80,7 +80,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaHitRequest.GetResponse", ex);
+                log.Error("MediaHitRequest.GetResponse", ex);
                 throw ex;
             }
         }
@@ -221,7 +221,7 @@ namespace Catalog.Request
         private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
         {
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
-                Logger.Logger.Log("Error", String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID), "MediaHitRequest");
+                log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
         }
 
     }

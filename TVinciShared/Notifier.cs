@@ -5,11 +5,15 @@ using System.Web;
 using System.Net;
 using System.IO;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
     public class Notifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected string m_sURL;
         protected string m_sXML;
         public Notifier(string sURL, string sXML)
@@ -25,10 +29,10 @@ namespace TVinciShared
             Int32 nStatus = 0;
             string sURLs = "";
             object oCachecleanURL = null;
-            Logger.Logger.Log("Clear Cache String", "Start Staging Clear Cache", "ClearCache");
-            if (WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH") != string.Empty) 
+            log.Debug("Clear Cache String - Start Staging Clear Cache");
+            if (WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH") != string.Empty)
             {
-                sURLs = WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH");                
+                sURLs = WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH");
             }
             else
             {
@@ -38,7 +42,7 @@ namespace TVinciShared
                     sURLs = oCachecleanURL.ToString();
                 }
             }
-            Logger.Logger.Log("Clear Cache String", "Start Staging Clear Cache - strng is " + sURLs, "ClearCache");
+            log.Debug("Clear Cache String - Start Staging Clear Cache - strng is " + sURLs);
             if (sURLs != "")
             {
                 //sURLs = oCachecleanURL.ToString();
@@ -88,7 +92,7 @@ namespace TVinciShared
 
         }
 
-        static public string SendXMLHttpReq(string sUrl, string sToSend , ref Int32 nStatus)
+        static public string SendXMLHttpReq(string sUrl, string sToSend, ref Int32 nStatus)
         {
             //Create the HTTP POST request and the authentication headers
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));
@@ -122,7 +126,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Notifier", "SendXMLHttpReq exception:" + ex.Message + " to: " + sUrl + " contnet: " + sToSend , "FTPUpload");
+                log.Error("Notifier - SendXMLHttpReq exception:" + ex.Message + " to: " + sUrl + " contnet: " + sToSend, ex);
                 nStatusCode = 404;
                 return "";
             }
@@ -133,7 +137,7 @@ namespace TVinciShared
             return SendGetHttpReq(sUrl, ref nStatus, "", "");
         }
 
-        static public string SendGetHttpReq(string sUrl, ref Int32 nStatus , string sUserName , string sPassword)
+        static public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
         {
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
             HttpWebResponse oWebResponse = null;
@@ -158,9 +162,8 @@ namespace TVinciShared
                 else
                 {
                     oWebResponse.Close();
-                    //Logger.Logger.Log("Big Get", sUrl + " : " + oWebResponse.ContentLength.ToString(), "Notifier", "Try to get long contnet: " + sUrl + "(" + oWebResponse.ContentLength.ToString() + " bytes)");
                 }
-                
+
                 oWebRequest = null;
                 oWebResponse = null;
                 nStatus = nStatusCode;
@@ -168,7 +171,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Notifier", "SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, "FTPUpload");
+                log.Error("Notifier - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ex);
                 if (oWebResponse != null)
                     oWebResponse.Close();
                 if (receiveStream != null)
@@ -182,7 +185,7 @@ namespace TVinciShared
         virtual public void Notify()
         {
             Int32 nStatus = 0;
-            for (int i = 0; i < 4; i++ )
+            for (int i = 0; i < 4; i++)
             {
                 try
                 {
@@ -214,7 +217,7 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Notifier", "Notify exception:" + ex.Message + " to: " + m_sURL, "FTPUpload");
+                    log.Error("Notifier - Notify exception:" + ex.Message + " to: " + m_sURL, ex);
                 }
             }
         }
@@ -227,7 +230,7 @@ namespace TVinciShared
                 try
                 {
                     SendGetHttpReq(m_sURL, ref nStatus);
-                    Logger.Logger.Log("NotifierGet", "message sent recieved stats: " + nStatus.ToString(), "FTPUpload");
+                    log.Debug("NotifierGet - message sent recieved stats: " + nStatus.ToString());
                     if (nStatus == 200)
                         break;
                     Int32 nToSleep = 1000;
@@ -253,7 +256,7 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Notifier", "NotifyGet exception:" + ex.Message + " to: " + m_sURL, "FTPUpload");
+                    log.Error("Notifier - NotifyGet exception:" + ex.Message + " to: " + m_sURL, ex);
                 }
             }
         }

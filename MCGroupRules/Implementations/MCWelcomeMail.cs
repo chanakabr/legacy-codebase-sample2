@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web.Script.Serialization;
+using KLogMonitor;
 using TVinciShared;
 
 namespace MCGroupRules.Implementations
 {
     public class MCWelcomeMail
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public int m_nRuleID;
         public int m_nGroupID;
 
@@ -40,10 +44,10 @@ namespace MCGroupRules.Implementations
                     mcObj = new MCObjByTemplate();
 
                     mcObj.key = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "mail_api_key", 0);
-                    mcObj.message.subject = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Mail_subject", 0); 
+                    mcObj.message.subject = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Mail_subject", 0);
                     mcObj.message.from_email = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Mail_From", 0);
                     mcObj.message.merge = true;
-                    mcObj.template_name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Template_Name", 0); 
+                    mcObj.template_name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "Template_Name", 0);
                 }
             }
             selectQuery.Finish();
@@ -59,7 +63,7 @@ namespace MCGroupRules.Implementations
 
                 MCPerRecipientMergeVars mcprmv = new MCPerRecipientMergeVars();
                 mcprmv.rcpt = sEmailAdd;
-                
+
                 MCGlobalMergeVars mvFirst = new MCGlobalMergeVars();
                 mvFirst.name = "FIRSTNAME";
                 mvFirst.content = sFirstName;
@@ -86,7 +90,7 @@ namespace MCGroupRules.Implementations
 
             to.email = sEmailAdd;
             to.name = sName;
-            
+
             mcObj.message.to.Add(to);
         }
 
@@ -99,7 +103,7 @@ namespace MCGroupRules.Implementations
                     JavaScriptSerializer jsSer = new JavaScriptSerializer();
                     string json = jsSer.Serialize(mcObj);
                     string sResp = WS_Utils.SendXMLHttpReq("https://mandrillapp.com/api/1.0/messages/send-template.json", json, null);
-                    Logger.Logger.Log("Mail Response", sResp, "MailRules");
+                    log.InfoFormat("Mail Response: {0}", sResp);
                     return true;
                 }
                 catch (Exception)
@@ -107,7 +111,7 @@ namespace MCGroupRules.Implementations
                     return false;
                 }
             }
-            
+
             return false;
         }
     }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
 using Tvinci.Core.DAL;
 
 namespace Catalog.Request
@@ -12,22 +14,23 @@ namespace Catalog.Request
     [DataContract]
     public class ChannelViewsRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes)
             : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
         {
-            
+
         }
 
         public ChannelViewsRequest(Int32 nPageSize, Int32 nPageIndex, string sIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sIP, nGroupID, oFilter, sSignature, sSignString)
         {
-            
+
         }
 
         public ChannelViewsRequest()
         {
-           
+
         }
 
         protected override void CheckRequestValidness()
@@ -42,7 +45,7 @@ namespace Catalog.Request
 
             CheckRequestValidness();
             CheckSignature(this);
-            
+
             try
             {
                 //Get Linear Media Type
@@ -71,12 +74,12 @@ namespace Catalog.Request
                 }
                 else
                 {
-                    Logger.Logger.Log("Error", String.Concat("GetChannelViewsResult returned no items. Req: ", ToString()), "ChannelViewsRequest");
+                    log.Error("Error - " + String.Concat("GetChannelViewsResult returned no items. Req: ", ToString()));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", String.Concat("Exception at ChannelViewsRequest. Req: ", ToString(), " Ex Msg: ", ex.Message, " ST: ", ex.StackTrace), "ChannelViewsRequest");
+                log.Error("Exception - " + String.Concat("Exception at ChannelViewsRequest. Req: ", ToString(), " Ex Msg: ", ex.Message, " ST: ", ex.StackTrace), ex);
                 throw ex;
             }
 

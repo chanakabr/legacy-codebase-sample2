@@ -481,16 +481,13 @@ namespace M1BL
 
         private MobileOneBusinessFascadeService.StandardStringArrayResult CallProximityAction(string inputXml)
         {
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "CallProximityAction - inputXml= " + inputXml, M1_ADSWRAPPER_LOG_FILE);
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             SingleSignOnService.ServiceFacade oSSOService = new SingleSignOnService.ServiceFacade();
 
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "m_sWsServiceFacadeUrl= " + m_sWsServiceFacadeUrl, M1_ADSWRAPPER_LOG_FILE);
             oSSOService.Url = m_sWsServiceFacadeUrl;
 
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, 
             //    "GetAuthenticationTicketForClients: PROXIMITY_WS_FACADE_USER_NAME: " + PROXIMITY_WS_FACADE_USER_NAME +
             //                    " PROXIMITY_WS_FACADE_PASSWORD: " + PROXIMITY_WS_FACADE_PASSWORD + 
             //                    " PROXIMITY_WS_FACADE_ACCOUNT_TYPE: " + PROXIMITY_WS_FACADE_ACCOUNT_TYPE,
@@ -502,7 +499,6 @@ namespace M1BL
             if (oTicket != null && oTicket.ActionResult != null && oTicket.ActionResult.ErrorCode != 0)
             {
                 //string exMsg = string.Format("Failure result from oSSOService.GetAuthenticationTicketForClients() error code:{0}", oTicket.ActionResult.ErrorCode);
-                //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "oTicket Exception: " + exMsg, M1_ADSWRAPPER_LOG_FILE);
                 throw new Exception();
                 //                return (new ADSResponse(M1_API_ResponseReason.SINGLESIGNON_SERVICE_TICKET_ERROR, false, string.Format("Failure result from oSSOService.GetAuthenticationTicketForClients() error code:{0}", oTicket.ActionResult.ErrorCode)));
             }
@@ -512,7 +508,6 @@ namespace M1BL
             //point to correct back-end server
             //myInterface.Url = myInterface.Url.Replace("localhost", this.serverName);
 
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "m_sWsServiceInterfaceUrl= " + m_sWsServiceInterfaceUrl, M1_ADSWRAPPER_LOG_FILE);
             myInterface.Url = m_sWsServiceInterfaceUrl;
             ////create authentication object
             MobileOneBusinessFascadeService.AuthenticationSoapHeader clTicket = new MobileOneBusinessFascadeService.AuthenticationSoapHeader();
@@ -523,12 +518,10 @@ namespace M1BL
             string userID = PROXIMITY_WS_INTERFACE_USER_ID;
             bool onErrorContinue = false;
 
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "MobileOneBusinessFascadeService: channelId= " + PROXIMITY_WS_INTERFACE_CHANNEL_ID +
             //    " userID= " + PROXIMITY_WS_INTERFACE_USER_ID
             //    , M1_ADSWRAPPER_LOG_FILE);
             MobileOneBusinessFascadeService.StandardStringArrayResult currResult = myInterface.Execute(inputXml, channelId, userID, onErrorContinue);
 
-            //Logger.Logger.Log(M1_ADSWRAPPER_LOG_HEADER, "MobileOneBusinessFascadeService Result= " + currResult.WebServiceResult., M1_ADSWRAPPER_LOG_FILE);
 
             return currResult;
         }

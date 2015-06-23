@@ -20,6 +20,7 @@ using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -32,7 +33,7 @@ namespace Catalog.Request
     [DataContract]
     public class ChannelRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public Int32 m_nChannelID;
@@ -85,7 +86,7 @@ namespace Catalog.Request
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("ChannelRequest", string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), "Catalog");
+                    log.Error("ChannelRequest - " + string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), ex);
                     group = null;
                     channel = null;
                 }
@@ -192,7 +193,7 @@ namespace Catalog.Request
                         response.m_nTotalItems = 0;
                         return response;
                     }
-                    
+
 
                     response.m_nTotalItems = nTotalItems;
 
@@ -215,8 +216,8 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ES Error", String.Concat("Exception. Req: ", ToString(), " Msg: ", ex.Message, " Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), "Elasticsearch");
-                
+                log.Error("ES Error - " + String.Concat("Exception. Req: ", ToString(), " Msg: ", ex.Message, " Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
+
                 throw ex;
             }
         }

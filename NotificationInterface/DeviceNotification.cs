@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Logger;
 using NotificationObj;
 
@@ -10,7 +11,7 @@ namespace NotificationInterface
 {
     public class DeviceNotification : NotificationBase, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public DeviceNotification()
             : base()
@@ -23,7 +24,7 @@ namespace NotificationInterface
             BaseImplementor implementor = ImplementorsFactory.GetImplementor(request);
             //get Notification Message Object for Device (push) 
             List<NotificationMessage> messagesList = implementor.GetMessages(request); // one pull message for each device            
-            _logger.Info(string.Format("{0}Implementor Type={1},Notification messages count={2}", "DeviceNotification.Send", implementor.GetType(), messagesList.Count));
+            log.Info(string.Format("{0}Implementor Type={1},Notification messages count={2}", "DeviceNotification.Send", implementor.GetType(), messagesList.Count));
             implementor.Send(messagesList, request.TriggerType != NotificationTriggerType.BadgeUpdate);
         }
     }

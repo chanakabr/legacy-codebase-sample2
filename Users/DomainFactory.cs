@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
     public static class DomainFactory
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static Domain GetDomain(int nGroupID, int nDomainID, bool checkAddMonkey = false)
         {
@@ -76,7 +79,7 @@ namespace Users
             // check if user is not already in another domain
             if (user.m_domianID != 0)
             {
-                Logger.Logger.Log("Error", string.Format("User exists in other domain so it cannot be added to a new one. DomainStatus : {0} , G ID: {1} , D Name: {2} , Master: {3}, OtherDomain: {4}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid, domain.m_nDomainID), "DomainFactory");
+                log.Error("Error - " + string.Format("User exists in other domain so it cannot be added to a new one. DomainStatus : {0} , G ID: {1} , D Name: {2} , Master: {3}, OtherDomain: {4}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid, domain.m_nDomainID));
 
                 domain.m_DomainStatus = DomainStatus.UserExistsInOtherDomains;
                 return domain;
@@ -179,7 +182,7 @@ namespace Users
                 {
                     oLimitationsManager = new LimitationsManager();
 
-                    #region GroupLevel + DLM Level 
+                    #region GroupLevel + DLM Level
                     if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0 &&
                         ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
@@ -189,7 +192,7 @@ namespace Users
                         {
                             oLimitationsManager.domianLimitID = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "ID");
                             oLimitationsManager.DomainLimitName = ODBCWrapper.Utils.GetSafeStr(drDLM, "NAME");
-                            int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");                            
+                            int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");
                             oLimitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
                             int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
                             oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
@@ -199,7 +202,7 @@ namespace Users
                             oLimitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
                             oLimitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.UserFrequency);
 
-                            oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);   
+                            oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);
                         }
                     }
                     #endregion
@@ -246,9 +249,9 @@ namespace Users
                                 }
                                 // if concurency / quntity is -1 take the value from the group itself.
                                 if (dfl.concurrency == -1)
-                                    dfl.concurrency =  oLimitationsManager.Concurrency;
+                                    dfl.concurrency = oLimitationsManager.Concurrency;
                                 if (dfl.quantity == -1)
-                                dfl.quantity = oLimitationsManager.Quantity;
+                                    dfl.quantity = oLimitationsManager.Quantity;
 
                                 oLimitationsManager.lDeviceFamilyLimitations.Add(dfl);
                             }
@@ -256,7 +259,7 @@ namespace Users
                     }
                     #endregion
                 }
-                    
+
                 return oLimitationsManager;
             }
             catch (Exception)

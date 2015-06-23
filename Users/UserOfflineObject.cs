@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Users
 {
     [Serializable]
     public class UserOfflineObject
     {
-        #region Member
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         //Site User ID
         public string m_SiteUserGUID;
         //Group ID
@@ -21,9 +24,7 @@ namespace Users
         public string m_CreateDate;
         //Update Date
         public string m_UpdateDate;
-        #endregion
 
-        #region Ctr
         public UserOfflineObject()
         {
             m_MediaID = "";
@@ -33,9 +34,7 @@ namespace Users
             m_CreateDate = "";
             m_UpdateDate = "";
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Get user offline items
         /// </summary>
@@ -87,7 +86,7 @@ namespace Users
             selectquery = null;
 
             //Write Log
-            Logger.Logger.Log("Get User Offline Items ", " Get All Media file ID by SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1", "users");
+            log.Debug("Get User Offline Items - Get All Media file ID by SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1");
 
             return res;
         }
@@ -151,7 +150,6 @@ namespace Users
         //    selectquery = null;
 
         //    //Write Log
-        //    Logger.Logger.Log("Get User Offline Items ", " Get Media file ID by file type " + sFileType + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1", "users");
 
         //    return res;
         //}
@@ -202,7 +200,7 @@ namespace Users
                         updatequery = null;
 
                         //Write Log
-                        Logger.Logger.Log("Add User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1", "users");
+                        log.Debug("Add User Offline Items - Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=1");
 
 
                     }
@@ -220,16 +218,10 @@ namespace Users
                         insertQuery = null;
 
                         //Write Log
-                        Logger.Logger.Log("Add User Offline Items ", " Add MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID, "users");
-
+                        log.Debug("Add User Offline Items - Add MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID);
                     }
                 }
-
-
-
-
             }
-
 
             return res;
         }
@@ -279,7 +271,7 @@ namespace Users
                         updatequery = null;
 
                         //Write Log
-                        Logger.Logger.Log("Remove User Offline Items ", " Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2", "users");
+                        log.Debug("Remove User Offline Items - Update Exist MediaID " + sMediaID + ", SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2");
                     }
                 }
             }
@@ -312,10 +304,7 @@ namespace Users
                 //TO DO
                 //
                 //Write to LOG
-                Logger.Logger.Log("Clear User Offline Items ", " Update Exist All MediaID, SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2", "users");
-
-
-
+                log.Debug("Clear User Offline Items - Update Exist All MediaID, SiteGuid " + sSiteGuid + "and GroupID " + nGroupID + " to status=2");
             }
 
             return res;
@@ -339,9 +328,7 @@ namespace Users
             return res;
 
         }
-        #endregion
 
-        #region Properte
         /// <summary>
         /// Get site user GUID.
         /// </summary>
@@ -362,8 +349,5 @@ namespace Users
         /// Get update date.
         /// </summary>
         public string UpdateDate { get { return m_UpdateDate; } }
-
-
-        #endregion
     }
 }

@@ -9,11 +9,15 @@ using System.IO;
 using System.Data;
 using System.Configuration;
 using System.Xml.Serialization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ADIFeeder
 {
     public class ADIFeeder : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public struct FileStruct
         {
             public string m_url;
@@ -279,7 +283,7 @@ namespace ADIFeeder
                 if (!isTagExist)
                 {
                     string logMassage = string.Format("Group tag: {0} doesn't exist", kvp.Key);
-                    Logger.Logger.Log("Tags Validation", logMassage, "IngetLog");
+                    log.Debug("Tags Validation - "+ logMassage);
                     continue;
                 }
 
@@ -664,7 +668,7 @@ namespace ADIFeeder
 
         private void ADDIngestToDBAndSaveFiles(string sOrigXML, string sNormXML, string sResponseXML)
         {
-            Logger.Logger.Log("AddIngestToFTP", "Start: Original: " + sOrigXML + " Normalized :" + sNormXML + " Response :" + sResponseXML, "IngetLog");
+            log.Debug("AddIngestToFTP - Start: Original: " + sOrigXML + " Normalized :" + sNormXML + " Response :" + sResponseXML);
             DateTime createDate = DateTime.UtcNow;
 
             int ingestID = IngestionUtils.InsertIngestToDB(createDate, 2, m_nGroupID);
@@ -676,7 +680,7 @@ namespace ADIFeeder
             string mediaID = XmlUtils.GetItemParameterVal(ref xn, "tvm_id");
             string status = XmlUtils.GetItemParameterVal(ref xn, "status");
             string coGuid = XmlUtils.GetItemParameterVal(ref xn, "co_guid");
-            Logger.Logger.Log("AddIngestToFTP", "After Parse", "IngetLog");
+            log.Debug("AddIngestToFTP - After Parse");
             int nTVMID = 0;
             if (!string.IsNullOrEmpty(mediaID))
             {
@@ -688,9 +692,9 @@ namespace ADIFeeder
             Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
             files.Add("original.xml", IngestionUtils.StringToBytes(sOrigXML));
             files.Add("normalized.xml", IngestionUtils.StringToBytes(sNormXML));
-            Logger.Logger.Log("AddIngestToFTP", "After Add To Dict", "IngetLog");
+            log.Debug("AddIngestToFTP - After Add To Dict");
             IngestionUtils.UploadIngestToFTP(ingestID, files);
-            Logger.Logger.Log("AddIngestToFTP", "End", "IngetLog");
+            log.Debug("AddIngestToFTP - End");
         }
 
         private string getFullLanguageStr(string isoLangStr)

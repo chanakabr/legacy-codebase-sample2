@@ -15,13 +15,14 @@ using Tvinci.Core.DAL;
 using System.Threading.Tasks;
 using ApiObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -79,7 +80,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
+                log.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
                 throw ex;
             }
         }
@@ -355,7 +356,7 @@ namespace Catalog.Request
             ApiDAL.Update_MediaViews(mediaID, mediaFileID);
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
             {
-                Logger.Logger.Log("Error", String.Concat("Failed to write firstplay into stats index. Req: ", ToString()), "MediaMarkRequest");
+                log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
             }
         }
 

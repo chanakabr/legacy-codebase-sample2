@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Notifiers
 {
-    public class TikleSubscriptionNotifier: BaseSubscriptionNotifier
+    public class TikleSubscriptionNotifier : BaseSubscriptionNotifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TikleSubscriptionNotifier(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -34,7 +38,7 @@ namespace Notifiers
             tikle_ws.Response resp = t.NotifySubscription(sSubscriptionID, m_nGroupID);
 
             response = resp.ResultDetail;
-            Logger.Logger.Log("Notify", sSubscriptionID + " : "  + response, "subscriptions_notifier");   
+            log.Debug("Notify sSubscriptionID + " + sSubscriptionID + " : " + response);
         }
 
     }

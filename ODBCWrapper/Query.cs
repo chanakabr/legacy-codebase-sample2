@@ -2,7 +2,9 @@ using System;
 using System.Data.SqlClient;
 using System.Collections;
 using System.Configuration;
-using log4net;
+using KLogMonitor;
+using System.Reflection;
+
 
 namespace ODBCWrapper
 {
@@ -11,7 +13,7 @@ namespace ODBCWrapper
     /// </summary>
     public abstract class Query
     {
-        protected static ILog logger = log4net.LogManager.GetLogger(typeof(Query));
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static Int32 m_nLongQueryTime = 0;
         private int m_nTimeout;
         protected string m_sErrorMsg;
@@ -51,7 +53,7 @@ namespace ODBCWrapper
         }
 
         static public Int32 GetLockTimeOut()
-        {                       
+        {
             //if (Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT") != string.Empty)
             //    return int.Parse(Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT"));
             return 1000;

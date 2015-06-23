@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using KLogMonitor;
 
 namespace GroupsCacheManager
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         internal static MutexSecurity CreateMutex()
         {
@@ -34,7 +37,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("BuildGroup", string.Format("failed nGroupIDwith nGroupID={0}, ex={1}", nGroupID, ex.Message), "Catalog");
+                log.Error("BuildGroup - " + string.Format("failed nGroupIDwith nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
             }
 
             return group;

@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Mailer
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
         {
             //Create the HTTP POST request and the authentication headers
@@ -54,7 +58,7 @@ namespace Mailer
                 {
                     return rdr.ReadToEnd();
                 }
-                
+
             }
         }
 
@@ -68,7 +72,7 @@ namespace Mailer
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("Mailer", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("Mailer - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }

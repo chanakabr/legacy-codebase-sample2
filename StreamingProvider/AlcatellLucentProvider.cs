@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
 using ApiObjects.Epg;
+using KLogMonitor;
 
 namespace StreamingProvider
 {
     public class AlcatellLucentProvider : BaseLSProvider
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public AlcatellLucentProvider()
             : base()
         {
@@ -26,7 +30,7 @@ namespace StreamingProvider
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("get VOD Url link", string.Format("fail getting the vod dynamic url - return empty url originalUrl ={0},  ex ={1}", vodUrl, ex.Message), "AlcatellLucentProvider");
+                log.Error("get VOD Url link - " + string.Format("fail getting the vod dynamic url - return empty url originalUrl ={0},  ex ={1}", vodUrl, ex.Message), ex);
                 return string.Empty;
             }
         }
@@ -40,7 +44,7 @@ namespace StreamingProvider
                 // Validate inputs
                 if (dParams == null || dParams.Count == 0)
                 {
-                    Logger.Logger.Log("get epg url link", string.Format("get no parameters - return empty url"), "AlcatellLucentProvider");
+                    log.Debug("get epg url link - " + string.Format("get no parameters - return empty url"));
                     return string.Empty;
                 }
 
@@ -50,7 +54,7 @@ namespace StreamingProvider
                 string sStartTime = string.Empty;
                 string sEndTime = string.Empty;
                 bool isDynamic = dParams.ContainsKey(EpgLinkConstants.IS_DYNAMIC) ? (bool)dParams[EpgLinkConstants.IS_DYNAMIC] : false;
-               
+
                 #endregion
 
                 bool bValid = ValidParameters(dParams); // validate that all needed parameters exsits with values 
@@ -102,10 +106,10 @@ namespace StreamingProvider
                 else
                 {
                     // to do write to log
-                    Logger.Logger.Log("get epg url link", string.Format("nmissing some parameters can't generate url  - return empty url"), "AlcatellLucentProvider");
+                    log.Debug("get epg url link - " + string.Format("nmissing some parameters can't generate url  - return empty url"));
                     return string.Empty;
-                }                  
-                
+                }
+
                 return url;
             }
             catch (Exception ex)
@@ -113,7 +117,7 @@ namespace StreamingProvider
                 StringBuilder sb = new StringBuilder("Exception at AlcatellLucentProvider GenerateLink. ");
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-                Logger.Logger.Log("GenerateLink", sb.ToString(), "AlcatellLucentProvider");
+                log.Error("GenerateLink - " + sb.ToString(), ex);
                 return string.Empty;
             }
         }
@@ -171,7 +175,7 @@ namespace StreamingProvider
                         if (string.IsNullOrEmpty(url))
                         {
                             //to do write to log
-                            Logger.Logger.Log("get dynamic url link", string.Format("the url return from httpRequest sendUrl ={0},  to AlcatellLucent is empty", url), "AlcatellLucentProvider");
+                            log.Debug("get dynamic url link - " + string.Format("the url return from httpRequest sendUrl ={0},  to AlcatellLucent is empty", url));
                             return string.Empty;
                         }
                         dynamicURL = sUrlNode;
@@ -180,7 +184,7 @@ namespace StreamingProvider
                 else
                 {
                     //to do write to log
-                    Logger.Logger.Log("get dynamic url link", string.Format("AlcatellLucent response to the url ={0} is null or empty", url), "AlcatellLucentProvider");
+                    log.Debug("get dynamic url link - " + string.Format("AlcatellLucent response to the url ={0} is null or empty", url));
                     dynamicURL = string.Empty;
                 }
 
@@ -189,7 +193,7 @@ namespace StreamingProvider
             catch (Exception ex)
             {
                 //to do write to log
-                Logger.Logger.Log("GetDynamicURL", string.Format("AlcatellLucent fail to get response from XMLHTTPREQUEST ex ={0}", ex.Message), "AlcatellLucentProvider");
+                log.Error("GetDynamicURL - " + string.Format("AlcatellLucent fail to get response from XMLHTTPREQUEST ex ={0}", ex.Message), ex);
                 return string.Empty;
             }
         }

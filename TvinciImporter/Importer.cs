@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using ScheduledTasks;
 using Uploader;
 
@@ -9,6 +11,8 @@ namespace TvinciImporter
 {
     public class Importer : BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static protected string m_locker = "";
         public Importer(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
@@ -95,7 +99,7 @@ namespace TvinciImporter
                             while (BaseUploader.m_nNumberOfRuningUploads != 0)
                             {
                                 System.Threading.Thread.Sleep(1000);
-                                Logger.Logger.Log("message", "IMPORTER Sync process finished, but uploads are still in progress - waiting message number: " + nCounter.ToString(), "IMPORTER");
+                                log.Debug("message - IMPORTER Sync process finished, but uploads are still in progress - waiting message number: " + nCounter.ToString());
                                 nCounter++;
                             }
                             lock (m_locker)
@@ -103,7 +107,7 @@ namespace TvinciImporter
                                 SetSyncStatus(nGroupID, 0);
                                 UpdateSyncStatus(nID, 1);
                             }
-                            Logger.Logger.Log("message", "IMPORTER process finished successfully", "IMPORTER");
+                            log.Debug("message - IMPORTER process finished successfully");
                             return true;
                         }
                     }
@@ -113,12 +117,12 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", "On function: DoTheTaskInner: " + ex.Message + " || " + ex.StackTrace, "IMPORTER");
+                log.Error("Exception - On function: DoTheTaskInner", ex);
                 Int32 nCounter = 1;
                 while (BaseUploader.m_nNumberOfRuningUploads != 0)
                 {
                     System.Threading.Thread.Sleep(1000);
-                    Logger.Logger.Log("message", "IMPORTER process finished with exceptions, but uploads are still in progress - waiting message number: " + nCounter.ToString() + "Error: " + ex.Message, "IMPORTER");
+                    log.Error("message - IMPORTER process finished with exceptions, but uploads are still in progress - waiting message number: " + nCounter.ToString(), ex);
                     nCounter++;
                 }
                 return false;

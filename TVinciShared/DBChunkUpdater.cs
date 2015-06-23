@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace TVinciShared
 {
     public class watchers_time_counters_row
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string m_sIdentifier;
-        public watchers_time_counters_row(Int32 nWatcherID, Int32 nGroupID , DateTime dNow)
+        public watchers_time_counters_row(Int32 nWatcherID, Int32 nGroupID, DateTime dNow)
         {
             m_nWatcherID = nWatcherID;
             m_nGroupID = nGroupID;
@@ -32,7 +36,7 @@ namespace TVinciShared
     public class media_eoh_row
     {
         public string m_sIdentifier;
-        
+
         public Int32 m_nWatcherID;
         public Int32 m_nDuration;
         public Int32 m_nGroupID;
@@ -89,11 +93,11 @@ namespace TVinciShared
                 m_nCountryID.ToString() + "|" + m_nPlayerID.ToString() + "|" + m_nFileQualityID.ToString() +
                 m_nFileFormatID.ToString() + "|" + m_dCountDate.Ticks.ToString() + "|" + m_sSessionID.ToString();
         }
-        public void AddCounters(Int32 nPlayCounter, Int32 nFirstPlayCounter ,
-            Int32 nLoadCounter, Int32 nPauseCounter , 
-            Int32 nStopCounter, Int32 nFullScreenCounter , 
-            Int32 nExitFullScreenCounter, Int32 nSendToFriendCounter , 
-            Int32 nPlayTimeCounter , Int32 nFinishCounter)
+        public void AddCounters(Int32 nPlayCounter, Int32 nFirstPlayCounter,
+            Int32 nLoadCounter, Int32 nPauseCounter,
+            Int32 nStopCounter, Int32 nFullScreenCounter,
+            Int32 nExitFullScreenCounter, Int32 nSendToFriendCounter,
+            Int32 nPlayTimeCounter, Int32 nFinishCounter)
         {
             m_nPlayCounter += nPlayCounter;
             m_nFirstPlayCounter += nFirstPlayCounter;
@@ -106,11 +110,12 @@ namespace TVinciShared
             m_nPlayTimeCounter += nPlayTimeCounter;
             m_nFinishCounter += nFinishCounter;
         }
-        
+
     }
-    
+
     public class WatchersTimeChunkUpdater
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static protected bool m_bIsUpdateing;
         static protected Int32 m_nTransactions;
         static private WatchersTimeChunkUpdater m_theChunkUpdater;
@@ -238,7 +243,7 @@ namespace TVinciShared
                 }
                 if (m_nTransactions >= 1000 || nUseChunk == 0)
                 {
-                    
+
                     System.Threading.ThreadStart job = new System.Threading.ThreadStart(DumpRows);
                     System.Threading.Thread thread = new System.Threading.Thread(job);
                     thread.Start();
@@ -248,13 +253,14 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " | " + ex.StackTrace, "ChunkUpdater");
+                log.Error("Exception - " + ex.Message + " | " + ex.StackTrace, ex);
             }
         }
     }
 
     public class MediaEOHChunkUpdater
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static protected bool m_bIsUpdateing;
         static protected Int32 m_nTransactions;
         static private MediaEOHChunkUpdater m_theChunkUpdater;
@@ -276,7 +282,7 @@ namespace TVinciShared
             return m_theChunkUpdater;
         }
 
-        
+
 
         protected void DumpRows()
         {
@@ -339,8 +345,8 @@ namespace TVinciShared
         }
 
         static protected Int32 InsertNewEOHStatistics(Int32 nGroupID, Int32 nOwnerGroupID,
-            Int32 nMediaID, Int32 nMediaFileID, Int32 nCountryID, Int32 nPlayerID ,
-            Int32 nFileQualityID, Int32 nFileFormatID , DateTime dCountDate , Int32 nWatcherID , string sSessionID ,
+            Int32 nMediaID, Int32 nMediaFileID, Int32 nCountryID, Int32 nPlayerID,
+            Int32 nFileQualityID, Int32 nFileFormatID, DateTime dCountDate, Int32 nWatcherID, string sSessionID,
             Int32 nDuration)
         {
 
@@ -368,7 +374,7 @@ namespace TVinciShared
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 0);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SESSION_ID", "=", sSessionID);
-            
+
             insertQuery.Execute();
             insertQuery.Finish();
             insertQuery = null;
@@ -378,13 +384,13 @@ namespace TVinciShared
 
         protected void UpdateDBRow(ref media_eoh_row theRow)
         {
-            Int32 nRowID = GetEOHStatistics(theRow.m_nGroupID, theRow.m_nOwnerGroupID, theRow.m_nMediaID , 
-                theRow.m_nMediaFileID , theRow.m_nCountryID , theRow.m_nPlayerID , theRow.m_nFileQualityID , 
-                theRow.m_nFileFormatID , theRow.m_dCountDate , theRow.m_nWatcherID , theRow.m_sSessionID);
+            Int32 nRowID = GetEOHStatistics(theRow.m_nGroupID, theRow.m_nOwnerGroupID, theRow.m_nMediaID,
+                theRow.m_nMediaFileID, theRow.m_nCountryID, theRow.m_nPlayerID, theRow.m_nFileQualityID,
+                theRow.m_nFileFormatID, theRow.m_dCountDate, theRow.m_nWatcherID, theRow.m_sSessionID);
             if (nRowID == 0)
-                nRowID = InsertNewEOHStatistics(theRow.m_nGroupID, theRow.m_nOwnerGroupID , theRow.m_nMediaID , 
-                    theRow.m_nMediaFileID , theRow.m_nCountryID , theRow.m_nPlayerID , theRow.m_nFileQualityID , 
-                    theRow.m_nFileFormatID , theRow.m_dCountDate , theRow.m_nWatcherID , theRow.m_sSessionID , 
+                nRowID = InsertNewEOHStatistics(theRow.m_nGroupID, theRow.m_nOwnerGroupID, theRow.m_nMediaID,
+                    theRow.m_nMediaFileID, theRow.m_nCountryID, theRow.m_nPlayerID, theRow.m_nFileQualityID,
+                    theRow.m_nFileFormatID, theRow.m_dCountDate, theRow.m_nWatcherID, theRow.m_sSessionID,
                     theRow.m_nDuration);
             if (nRowID != 0)
             {
@@ -486,11 +492,11 @@ namespace TVinciShared
                 Int32 nUseChunk = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("site_configuration", "USE_CHUNK_READER", 1).ToString());
                 if (m_bIsUpdateing == true || nUseChunk == 0)
                 {
-                    media_eoh_row tmp = new media_eoh_row(nGroupID , nOwnerGroupID , nMediaID, nMediaFileID , 
-                        nCountryID , nPlayerID , nFileQualityID , nFileFormatID , dCountDate , nWatcherID , 
-                        sSessionID , nDuration);
-                    tmp.AddCounters(nPlay, nFirstPlay , nLoad , nPause , nStop , nFull , nExitFull , nSendToFriend , 
-                        nPlayTime , nFinish);
+                    media_eoh_row tmp = new media_eoh_row(nGroupID, nOwnerGroupID, nMediaID, nMediaFileID,
+                        nCountryID, nPlayerID, nFileQualityID, nFileFormatID, dCountDate, nWatcherID,
+                        sSessionID, nDuration);
+                    tmp.AddCounters(nPlay, nFirstPlay, nLoad, nPause, nStop, nFull, nExitFull, nSendToFriend,
+                        nPlayTime, nFinish);
                     UpdateDBRow(ref tmp);
                 }
                 else
@@ -504,14 +510,14 @@ namespace TVinciShared
                             nFileFormatID.ToString() + "|" + dCountDate.Ticks.ToString() + "|" + sSessionID.ToString();
                         if (m_Rows.Contains(sIdentifier))
                         {
-                            ((media_eoh_row)(m_Rows[sIdentifier])).AddCounters(nPlay, nFirstPlay, nLoad, nPause, nStop, 
-                                nFull, nExitFull, nSendToFriend,nPlayTime, nFinish);
+                            ((media_eoh_row)(m_Rows[sIdentifier])).AddCounters(nPlay, nFirstPlay, nLoad, nPause, nStop,
+                                nFull, nExitFull, nSendToFriend, nPlayTime, nFinish);
                         }
                         else
                         {
-                            media_eoh_row tmp = new media_eoh_row(nGroupID, nOwnerGroupID, nMediaID , 
-                                nMediaFileID , nCountryID , nPlayerID , nFileQualityID , nFileFormatID , 
-                                dCountDate , nWatcherID , sSessionID , nDuration);
+                            media_eoh_row tmp = new media_eoh_row(nGroupID, nOwnerGroupID, nMediaID,
+                                nMediaFileID, nCountryID, nPlayerID, nFileQualityID, nFileFormatID,
+                                dCountDate, nWatcherID, sSessionID, nDuration);
                             tmp.AddCounters(nPlay, nFirstPlay, nLoad, nPause, nStop,
                                 nFull, nExitFull, nSendToFriend, nPlayTime, nFinish);
                             m_Rows[tmp.m_sIdentifier] = tmp;
@@ -531,7 +537,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " | " + ex.StackTrace, "ChunkUpdater");
+                log.Error("Exception - " + ex.Message + " | " + ex.StackTrace, ex);
             }
         }
     }

@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using ODBCWrapper;
 
 namespace Notifiers
 {
-    public class TikleMediaNotifier: BaseMediaNotifier
+    public class TikleMediaNotifier : BaseMediaNotifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TikleMediaNotifier(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -22,11 +26,11 @@ namespace Notifiers
                 string sTikleWSURL = Utils.GetWSURL("tikle_ws");
                 t.Url = sTikleWSURL;
                 tikle_ws.Response resp = t.NotifyProduct(sMediaID, m_nGroupID);
-                Logger.Logger.Log("Notify", sMediaID + " : " + resp.ResultDetail, "media_notifier");
+                log.Debug("Notify - MID: " + sMediaID + " : " + resp.ResultDetail);
             }
             else
             {
-                Logger.Logger.Log("Notify", sMediaID + " : " + "No need to notify - media is off or expired", "media_notifier");
+                log.Debug("Notify - MID: " + sMediaID + " : No need to notify - media is off or expired");
             }
         }
 

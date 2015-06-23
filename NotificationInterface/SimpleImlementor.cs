@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using DAL;
 using ODBCWrapper;
 using NotificationObj;
+using KLogMonitor;
+using System.Reflection;
 
 
 
@@ -19,63 +21,65 @@ namespace NotificationInterface
     /// </summary>
     public class SimpleImlementor : BaseImplementor
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-       #region Constructor
-       public SimpleImlementor(NotificationRequest request) : base(request)
-       {
+        #region Constructor
+        public SimpleImlementor(NotificationRequest request)
+            : base(request)
+        {
 
-       }
-       #endregion
+        }
+        #endregion
 
-       private const string SIMPLE_IMPLEMENTOR_LOG_FILE = "SimpleImplementor";
-       #region protected methods
-       /// <summary>
-       /// Send the messages in the messagesList param, 
-       /// the messages are sent synchronically and afterwards saved to db in a bulk operation.
-       /// </summary>
-       /// <param name="messagesList"></param>
+        private const string SIMPLE_IMPLEMENTOR_LOG_FILE = "SimpleImplementor";
+        #region protected methods
+        /// <summary>
+        /// Send the messages in the messagesList param, 
+        /// the messages are sent synchronically and afterwards saved to db in a bulk operation.
+        /// </summary>
+        /// <param name="messagesList"></param>
 
-       protected override void SendMessages(List<NotificationMessage> messagesList, bool bIsInsertBulkOfMessagesToDB)
-       {                 
+        protected override void SendMessages(List<NotificationMessage> messagesList, bool bIsInsertBulkOfMessagesToDB)
+        {
             foreach (NotificationMessage message in messagesList)
             {
                 try
                 {
-                        Logger.Logger.Log("SendMessages", "Notifictaion messages count==" + messagesList.Count.ToString(), SIMPLE_IMPLEMENTOR_LOG_FILE);
-                        ProcessOneMessage(message);
+                    log.Debug("SendMessages - Notification messages count==" + messagesList.Count.ToString());
+                    ProcessOneMessage(message);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     #region Logging
-                    Logger.Logger.Log("SendMessages", string.Format("Exception. Excpetion Message: {0} , Notification Message Guid: {1} , Notification ID: {2} , Notification Message Request ID: {3} ,  Notification Message ID: {4} ,  User ID: {5} , Notification Message Type: {6}", ex.Message, message.ID != null ? message.ID.ToString() : "null", message.NotificationID, message.NotificationRequestID, message.NotificationMessageID, message.UserID, message.Type), SIMPLE_IMPLEMENTOR_LOG_FILE);
+                    log.Error("SendMessages - " + string.Format("Exception. Exception Message: {0} , Notification Message Guid: {1} , Notification ID: {2} , Notification Message Request ID: {3} ,  Notification Message ID: {4} ,  User ID: {5} , Notification Message Type: {6}", ex.Message, message.ID != null ? message.ID.ToString() : "null", message.NotificationID, message.NotificationRequestID, message.NotificationMessageID, message.UserID, message.Type), ex);
                     #endregion
-                }                
+                }
             }
-           Logger.Logger.Log("SendMessages-Before bulk insert", "Notifictaion messages count==" + messagesList.Count.ToString(), SIMPLE_IMPLEMENTOR_LOG_FILE);
+            log.Debug("SendMessages-Before bulk insert - notification messages count==" + messagesList.Count.ToString());
 
-           if (bIsInsertBulkOfMessagesToDB && messagesList != null && messagesList.Count > 0)
-           {
-               try
-               {
-                   Task.Factory.StartNew(() => { InsertMessagesBulkCopy(messagesList); });
-               }
-               catch (Exception ex)
-               {
-                   #region Logging
-                   Logger.Logger.Log("SendMessages-bulk insert failed", "Exception=" + ex.ToString(), SIMPLE_IMPLEMENTOR_LOG_FILE);
-                   #endregion
-               }
-           }
+            if (bIsInsertBulkOfMessagesToDB && messagesList != null && messagesList.Count > 0)
+            {
+                try
+                {
+                    Task.Factory.StartNew(() => { InsertMessagesBulkCopy(messagesList); });
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    log.Error("SendMessages-bulk insert failed - Exception=" + ex.ToString(), ex);
+                    #endregion
+                }
+            }
         }
 
-       /// <summary>
-       /// Concrete implementation of the GetUsersDevices() method,
-       /// here the users devices is fetched by user id.
-       /// </summary>
-       /// <param name="groupID"></param>
-       /// <param name="userID"></param>
-       /// <returns></returns>
-       protected override DataTable GetUsersDevices(long groupID, long? userID, NotificationMessageType eType)
+        /// <summary>
+        /// Concrete implementation of the GetUsersDevices() method,
+        /// here the users devices is fetched by user id.
+        /// </summary>
+        /// <param name="groupID"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
+        protected override DataTable GetUsersDevices(long groupID, long? userID, NotificationMessageType eType)
         {
             DataTable res = null;
             switch (eType)
@@ -96,6 +100,6 @@ namespace NotificationInterface
 
             return res;
         }
-       #endregion
+        #endregion
     }
 }

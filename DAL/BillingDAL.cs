@@ -5,11 +5,15 @@ using System.Text;
 using System.Data;
 using System.Configuration;
 using ODBCWrapper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class BillingDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
 
         public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
@@ -233,7 +237,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return nImplID;
@@ -251,7 +255,7 @@ namespace DAL
             return null;
         }
 
-        public static bool Get_PurchaseMailData(string sPSPReference, ref long billingID, ref int groupID, 
+        public static bool Get_PurchaseMailData(string sPSPReference, ref long billingID, ref int groupID,
             ref string currencyCode, ref string siteGuid, ref double realPrice, ref double totalPrice, ref int billingMethod,
             ref string last4Digits, ref string customData, ref string ppvModuleCode, ref string subCode, ref string ppCode)
         {
@@ -530,7 +534,7 @@ namespace DAL
             return null;
         }
 
-        public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)  
+        public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)
         {
             ODBCWrapper.StoredProcedure spInsertM1File = new ODBCWrapper.StoredProcedure("Insert_M1FileHistoryRecord");
             spInsertM1File.SetConnectionKey("BILLING_CONNECTION_STRING");
@@ -538,25 +542,25 @@ namespace DAL
             spInsertM1File.AddParameter("@ItemType", nItemType);
             spInsertM1File.AddParameter("@FileCounter", nFileCounter);
             spInsertM1File.AddParameter("@FileName", sFileName);
-            
+
             int newFileID = spInsertM1File.ExecuteReturnValue<int>();
             return newFileID;
         }
 
-        public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)                                                  
+        public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertM1Transaction = new ODBCWrapper.StoredProcedure("Insert_M1Transaction");
             spInsertM1Transaction.SetConnectionKey("CONNECTION_STRING");
             spInsertM1Transaction.AddParameter("@GroupID", nGroupID);
-            spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);            
-            spInsertM1Transaction.AddParameter("@ItemType", nItemType);            
+            spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);
+            spInsertM1Transaction.AddParameter("@ItemType", nItemType);
             spInsertM1Transaction.AddParameter("@ChargedMobileNumber", sChargedMobileNumber);
             spInsertM1Transaction.AddParameter("@CustomerServiceID", sCustomerServiceID);
             spInsertM1Transaction.AddParameter("@Price", dPrice);
-            spInsertM1Transaction.AddParameter("@CustomDataID", nCustomDataID);                         
+            spInsertM1Transaction.AddParameter("@CustomDataID", nCustomDataID);
             spInsertM1Transaction.AddParameter("@Status", nStatus);
 
-            int newM1TransactionID =  spInsertM1Transaction.ExecuteReturnValue<int>();
+            int newM1TransactionID = spInsertM1Transaction.ExecuteReturnValue<int>();
             return newM1TransactionID;
         }
 
@@ -568,8 +572,8 @@ namespace DAL
             spUpdateM1Transactions.AddIDListParameter<int>("@M1TransactionsIDs", transactionIDs, "Id");
             spUpdateM1Transactions.AddParameter("@Status", nStatus);
             spUpdateM1Transactions.AddParameter("@FileRefID", nFileRefID);
-            
-            spUpdateM1Transactions.ExecuteNonQuery();          
+
+            spUpdateM1Transactions.ExecuteNonQuery();
         }
 
         public static DataTable Get_M1CustomerServiceType(int nGroupID)
@@ -838,7 +842,7 @@ namespace DAL
             {
                 res = true;
                 DataTable agp = ds.Tables[0];
-                if(agp != null && agp.Rows != null && agp.Rows.Count > 0) 
+                if (agp != null && agp.Rows != null && agp.Rows.Count > 0)
                 {
                     groupID = ODBCWrapper.Utils.GetIntSafeVal(agp.Rows[0]["group_id"]);
                     baseRedirectUrl = ODBCWrapper.Utils.GetSafeStr(agp.Rows[0]["base_redirect_url"]);
@@ -866,7 +870,7 @@ namespace DAL
         public static long Insert_NewOfflineTransaction(long p_nSiteGuid, double p_dPrice, string p_sCurrencyCode, int p_nGroupId, string p_sOfflineCustomData, int? p_nUpdaterId)
         {
             long lTransactionId = 0;
-            
+
             object oUpdaterId = DBNull.Value;
 
             if (p_nUpdaterId.HasValue)
@@ -890,7 +894,7 @@ namespace DAL
 
         public static string getEmailDateFormat(int groupId)
         {
-            string dateFormat = string.Empty; 
+            string dateFormat = string.Empty;
             StoredProcedure sp = new StoredProcedure("Get_EmailDateFormat");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);

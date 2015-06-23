@@ -5,11 +5,14 @@ using System.Text;
 using System.Data;
 using DAL;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
     public class User
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public User()
         {
             m_oBasicData = new UserBasicData();
@@ -322,7 +325,7 @@ namespace Users
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), "User");
+                log.Error("Exception - " + sb.ToString(), ex);
             }
 
             return false;
@@ -340,7 +343,7 @@ namespace Users
                 m_sSiteGUID = nUserID.ToString();
 
                 m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
-                
+
                 if (m_domianID <= 0)
                 {
                     m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
@@ -357,7 +360,7 @@ namespace Users
                 sb.Append(String.Concat(" Group ID: ", nGroupID));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), "User");
+                log.Error("Exception - " + sb.ToString(), ex);
                 res = false;
             }
 
@@ -384,7 +387,7 @@ namespace Users
                 sb.Append(String.Concat(" Is Domain Master: ", isDomainMaster.ToString().ToLower()));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), "User");
+                log.Error("Exception - " + sb.ToString(), ex);
                 res = false;
             }
 
@@ -521,7 +524,8 @@ namespace Users
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", m_sSiteGUID + " : " + ex.Message, "users_notifier");
+                    log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+
                 }
 
             }
@@ -554,7 +558,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", m_sSiteGUID + " : " + ex.Message, "users_notifier");
+                log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
             }
             return saved;
         }

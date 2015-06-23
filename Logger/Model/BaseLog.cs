@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Logger
 {
@@ -10,7 +12,7 @@ namespace Logger
     {
         #region Members
 
-        private readonly ILogger4Net logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string datePattern = @"yyyy-MM-dd HH:mm:ss.fff";
 
         private List<LogWithSeverity> logsFullMessage;
@@ -116,13 +118,13 @@ namespace Logger
             switch (item.LogSeverity)
             {
                 case "INFO":
-                    logger.Info(item.FullLogMessage);
+                    log.Info(item.FullLogMessage);
                     break;
                 case "DEBUG":
-                    logger.Debug(item.FullLogMessage);
+                    log.Debug(item.FullLogMessage);
                     break;
                 case "ERROR":
-                    logger.Error(item.FullLogMessage);
+                    log.Error(item.FullLogMessage);
                     break;
                 default:
                     break;

@@ -15,7 +15,6 @@ namespace Catalog
 {
     ////public class ChannelRepository
     ////{
-    ////    private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     ////    #region CONSTS
     ////    private static string META_END_SUFFIX = "_NAME";
@@ -121,7 +120,6 @@ namespace Catalog
     ////        }
     ////        catch (Exception ex)
     ////        {
-    ////            Logger.Logger.Log("Error", string.Format("Caugh exception when fetching EPG group tags and metas. Ex={0}", ex.Message), "ElasticSearch");
     ////        }
     ////    }
         
@@ -156,7 +154,6 @@ namespace Catalog
     ////                         }
     ////                         catch (Exception ex)
     ////                         {
-    ////                             Logger.Logger.Log("Error", string.Format("Error running SearchSubsciptionMedias. Exception {0} , Stack trace: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
     ////                         }
     ////                     }, i);
     ////            }
@@ -312,7 +309,7 @@ namespace Catalog
 
     ////        List<Channel> channels = null;
 
-    ////        _logger.Info("Getting channels for subscription");
+    ////        log.Info("Getting channels for subscription");
 
 
     ////        DataTable channelsData = Tvinci.Core.DAL.CatalogDAL.GetChanneslByChannelIds(lChannelIds);
@@ -325,7 +322,7 @@ namespace Catalog
                     
     ////                foreach (DataRow rowData in channelsData.Rows)
     ////                {
-    ////                    _logger.Info("new channel");
+    ////                    log.Info("new channel");
 
     ////                    Channel oChannel = new Channel();
     ////                    if (oChannel.m_lChannelTags == null)
@@ -348,7 +345,7 @@ namespace Catalog
     ////                    oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
                         
     ////                    int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
-    ////                    _logger.Info("Channel " + oChannel.m_nChannelID + " active: " + oChannel.m_nIsActive + " and status: " + oChannel.m_nStatus);
+    ////                    log.Info("Channel " + oChannel.m_nChannelID + " active: " + oChannel.m_nIsActive + " and status: " + oChannel.m_nStatus);
     ////                    if (oChannel.m_nIsActive == 1 && oChannel.m_nStatus == 1)
     ////                    {
     ////                        if (nIsAnd == 1)
@@ -362,12 +359,12 @@ namespace Catalog
     ////                            // Matching meta values against meta mapping dictionary
     ////                            if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
     ////                            {
-    ////                                _logger.Info("Got mapped value for group " + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
+    ////                                log.Info("Got mapped value for group " + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
     ////                                Dictionary<string, string> mappedValuesForGroupId = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID];
 
     ////                                if (mappedValuesForGroupId == null || mappedValuesForGroupId.Count == 0)
     ////                                {
-    ////                                    _logger.Info("llll" + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
+    ////                                    log.Info("llll" + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
     ////                                }                                    
                                     
     ////                                foreach (KeyValuePair<string, string> mapping in mappedValuesForGroupId)
@@ -411,10 +408,10 @@ namespace Catalog
     ////                            }
 
     ////                            // Collect all tags
-    ////                            _logger.Info("Collecting tags in channel " + oChannel.m_nChannelID);
+    ////                            log.Info("Collecting tags in channel " + oChannel.m_nChannelID);
 
     ////                            GetChannelTags(oChannel, group);
-    ////                            _logger.Info("Finished Collecting tags in channel " + oChannel.m_nChannelID);
+    ////                            log.Info("Finished Collecting tags in channel " + oChannel.m_nChannelID);
     ////                        }
     ////                        else // Manual Channel
     ////                        {
@@ -596,7 +593,7 @@ namespace Catalog
     ////        }
     ////        catch (Exception ex)
     ////        {
-    ////            //_logger.Error(ex.Message, ex);
+    ////            //log.Error(ex.Message, ex);
     ////        }
     ////    }
 

@@ -12,12 +12,16 @@ using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using System.Data;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class WatchHistoryRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public OrderDir OrderDir { get; set; }
 
@@ -127,13 +131,13 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error - WatchHistoryRequest",
+                log.Error("Error - WatchHistoryRequest - " +
                     string.Format("Exception: group = {0}, siteGuid = {1}, message = {2}, ST = {3}",
                     baseRequest.m_nGroupID,     // {0}
                     baseRequest.m_sSiteGuid,    // {1}
                     ex.Message,                 // {2}
                     ex.StackTrace               // {3}
-                    ), this.GetType().Name);
+                    ), ex);
 
 
                 response.status.Code = (int)eResponseStatus.Error;

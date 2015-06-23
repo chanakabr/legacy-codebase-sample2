@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Caching;
-using Logger;
 using System.Threading;
 using System.Security.Principal;
 using System.Security.AccessControl;
+using KLogMonitor;
+using System.Reflection;
+using Logger;
 
 namespace CachingProvider
 {
@@ -17,6 +19,7 @@ namespace CachingProvider
          * 1. MemoryCache is threadsafe, however the references it holds are not necessarily thread safe.
          * 2. MemoryCache should be properly disposed.
          */
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string SINGLE_IN_MEM_CACHE_LOG_FILE = "SingleInMemoryCache";
         private MemoryCache cache = null;
 
@@ -66,15 +69,13 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                #region Logging
                 StringBuilder sb = new StringBuilder("Exception at Set. ");
                 sb.Append(String.Concat(" Key: ", sKey));
                 sb.Append(String.Concat(" Val: ", oValue != null ? oValue.ToString() : "null"));
                 sb.Append(String.Concat(" Min Offset: ", nMinuteOffset));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), SINGLE_IN_MEM_CACHE_LOG_FILE);
-                #endregion
+                log.Error("Exception - " + sb.ToString(), ex);
             }
 
             return res;
@@ -234,10 +235,10 @@ namespace CachingProvider
                     return null;
 
                 iDict = cache.GetValues(keys);
-                
+
                 return iDict;
             }
-            catch 
+            catch
             {
                 return null;
             }

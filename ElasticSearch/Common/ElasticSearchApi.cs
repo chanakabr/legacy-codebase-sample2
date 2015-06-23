@@ -8,11 +8,15 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearch.Common
 {
     public class ElasticSearchApi
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string ES_URL = Common.Utils.GetWSURL("ES_URL");
         public static readonly string ALT_ES_URL = Common.Utils.GetWSURL("ALT_ES_URL");
         private const string ES_LOG_FILENAME = "Elasticsearch";
@@ -31,7 +35,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId), ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
                 sRes = string.Empty;
             }
 
@@ -113,13 +117,13 @@ namespace ElasticSearch.Common
                 bResult = (nStatus == 200) ? true : false;
 
                 if (!bResult)
-                    Logger.Logger.Log("Error", string.Format("Failed creating map. Explaination: {0}", sRetval), ES_LOG_FILENAME);
+                    log.Error("Error - " + string.Format("Failed creating map. Explaination: {0}", sRetval));
             }
 
             return bResult;
         }
 
-        public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting= null)
+        public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting = null)
         {
             bool bResult = false;
 
@@ -155,8 +159,7 @@ namespace ElasticSearch.Common
                 bResult = (nStatus == 200) ? true : false;
 
                 if (bResult == false)
-                    Logger.Logger.Log("Error", string.Format("error received when trying to switch indices. Message: {0}", sRetVal), ES_LOG_FILENAME);
-
+                    log.Error("Error - " + string.Format("error received when trying to switch indices. Message: {0}", sRetVal));
             }
 
             return bResult;
@@ -175,7 +178,7 @@ namespace ElasticSearch.Common
                     string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
                     if (nStatus != 200)
-                        Logger.Logger.Log("Error", string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval), ES_LOG_FILENAME);
+                        log.Error("Error - " + string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval));
                 }
 
             }
@@ -190,7 +193,7 @@ namespace ElasticSearch.Common
                 deleteResult = new ESDeleteResult();
                 return deleteResult;
             }
-                
+
 
             string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sId);
             int nStatus = 0;
@@ -211,7 +214,7 @@ namespace ElasticSearch.Common
                 int nStatus = 0;
 
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
-                Logger.Logger.Log("Status", string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery), ES_LOG_FILENAME);
+                log.Debug("Status - " + string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery));
                 bResult = nStatus == 200;
 
             }
@@ -224,7 +227,7 @@ namespace ElasticSearch.Common
                 sb.Append(String.Concat(" Query: ", sQuery));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), ES_LOG_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 bResult = false;
             }
 
@@ -279,7 +282,7 @@ namespace ElasticSearch.Common
             {
 
                 string sUrl = string.Format("{0}/{1}/_settings", ES_URL, sIndex);
-                int nStatus  = 0;
+                int nStatus = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
                 bRes = nStatus == 200;
@@ -334,14 +337,14 @@ namespace ElasticSearch.Common
 
             bRes = (nStatus == 200) ? true : false;
             if (!bRes)
-                Logger.Logger.Log("Error", string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes), ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes));
 
             return bRes;
         }
 
         public List<ESBulkRequestObj<T>> CreateBulkIndexRequest<T>(List<ESBulkRequestObj<T>> lBulkRequest)
         {
-            Logger.Logger.Log("STart ES Update", "Start Bulk Update ", "ESFeeder");
+            log.Debug("STart ES Update - Start Bulk Update ");
             StringBuilder sBulkRequest = new StringBuilder();
             List<ESBulkRequestObj<T>> sInvalidRecords = new List<ESBulkRequestObj<T>>();
 
@@ -377,17 +380,17 @@ namespace ElasticSearch.Common
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            Logger.Logger.Log("Finish ES Update", sRetVal, "ESFeeder");
+            log.Debug("Finish ES Update - " + sRetVal);
             //Will need to add treatment on objects that returned with an "ok": false
 
             return sInvalidRecords;
         }
 
-        public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType,  List<KeyValuePair<T, string>> lObjects, string sRouting = null)
+        public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
         {
-            Logger.Logger.Log("STart ES Update", "Start Bulk Update ", ES_LOG_FILENAME);
+            log.Debug("STart ES Update - Start Bulk Update ");
             StringBuilder sBulkRequest = new StringBuilder();
-            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T,string>>();
+            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
 
 
             if (lObjects != null)
@@ -395,7 +398,7 @@ namespace ElasticSearch.Common
                 foreach (KeyValuePair<T, string> sObj in lObjects)
                 {
                     sBulkRequest.Append("{ \"index\": { ");
-                    
+
 
                     sBulkRequest.AppendFormat("\"_index\": \"{0}\"", sIndex);
                     sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", sType);
@@ -410,12 +413,12 @@ namespace ElasticSearch.Common
                     sBulkRequest.AppendFormat("{0}\n", sObj.Value);
                 }
             }
-            
+
             string sUrl = string.Format("{0}/_bulk", ES_URL);
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            Logger.Logger.Log("Finish ES Update", sRetVal, ES_LOG_FILENAME);
+            log.Debug("Finish ES Update - " + sRetVal);
             //Will need to add treatment on objects that returned with an "ok": false
 
             return sInvalidRecords;
@@ -424,15 +427,15 @@ namespace ElasticSearch.Common
         public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
         {
             string sRes = string.Empty;
-            
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sSearchQuery) )
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sSearchQuery))
                 return sRes;
 
             string sUrl;
             if (routing != null && routing.Count > 0)
             {
                 string sRouting = routing.Aggregate((current, next) => current + "," + next);
-                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", ES_URL, sIndex, sType,sRouting);
+                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", ES_URL, sIndex, sType, sRouting);
             }
             else
             {
@@ -444,7 +447,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes), ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
                 sRes = string.Empty;
             }
 
@@ -490,7 +493,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search query failed. url={0};query={1}; Explanation={2}", sUrl, sb.ToString()), sRes, ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; Explanation={2}", sUrl, sb.ToString()));
                 sRes = string.Empty;
             }
 
@@ -511,7 +514,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                Logger.Logger.Log("Error", string.Format("Search Percolator query failed. url={0};doc={1}; Explanation={2}", sUrl, sDoc, retVal), ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Search Percolator query failed. url={0};doc={1}; Explanation={2}", sUrl, sDoc, retVal));
             }
             else
             {
@@ -534,7 +537,7 @@ namespace ElasticSearch.Common
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message), ES_LOG_FILENAME);
+                    log.Error("Error - " + string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message));
                 }
             }
 
@@ -559,7 +562,7 @@ namespace ElasticSearch.Common
             }
             else
             {
-                Logger.Logger.Log("Error", string.Format("Adding Query to Percolator failed. url={0};query={1}; Explanation={2}", sUrl, sQuery, sRetVal), ES_LOG_FILENAME);
+                log.Error("Error - " + string.Format("Adding Query to Percolator failed. url={0};query={1}; Explanation={2}", sUrl, sQuery, sRetVal));
             }
 
             return bResult;
@@ -626,7 +629,7 @@ namespace ElasticSearch.Common
                     {
                         res = string.Empty;
                         #region Logging
-                        Logger.Logger.Log("MultiGetIDs", string.Format("Http status code: {0} , Index: {1} , Type: {2} , typeof(T) : {3} Query sent: {4}", nHttpStatusCode, sIndex, sType, oIDsList[0].GetType().Name, sQuery), ES_LOG_FILENAME);
+                        log.Debug("MultiGetIDs - " + string.Format("Http status code: {0} , Index: {1} , Type: {2} , typeof(T) : {3} Query sent: {4}", nHttpStatusCode, sIndex, sType, oIDsList[0].GetType().Name, sQuery));
                         #endregion
                     }
                 }
@@ -645,7 +648,7 @@ namespace ElasticSearch.Common
                 case "int16":
                 case "int32":
                 case "int64":
-                    {                       
+                    {
                         sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
                         for (int i = 0; i < listLength; i++)
                         {
@@ -704,21 +707,23 @@ namespace ElasticSearch.Common
             string res = string.Empty;
             try
             {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null) { Database = sUrl })
                 {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
+                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                    HttpStatusCode sCode = webResponse.StatusCode;
+                    nStatusCode = GetResponseCode(sCode);
+                    StreamReader sr = null;
+                    try
+                    {
+                        sr = new StreamReader(webResponse.GetResponseStream());
+                        res = sr.ReadToEnd();
+                    }
+                    finally
+                    {
+                        if (sr != null)
+                            sr.Close();
+                    }
                 }
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
-                }
-
             }
             catch (WebException ex)
             {
@@ -782,7 +787,7 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Notifier", "SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ES_LOG_FILENAME);
+                log.Debug("Notifier - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl);
                 if (oWebResponse != null)
                     oWebResponse.Close();
                 if (receiveStream != null)

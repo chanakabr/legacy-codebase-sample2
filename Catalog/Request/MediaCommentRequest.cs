@@ -4,15 +4,18 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using KLogMonitor;
 using Logger;
 using Tvinci.Core.DAL;
 
 namespace Catalog.Request
 {
-   
+
     [DataContract]
     public class MediaCommentRequest : CommentRequest
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public MediaCommentRequest()
             : base()
         {
@@ -32,7 +35,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaCommentRequest", ex);
+                log.Error("MediaCommentRequest", ex);
                 throw ex;
             }
         }

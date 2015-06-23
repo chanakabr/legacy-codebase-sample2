@@ -5,11 +5,15 @@ using System.Text;
 using System.Data;
 using ODBCWrapper;
 using ApiObjects.Epg;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Core.DAL
 {
     public class EpgDal : BaseDal
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
         {
             StoredProcedure spGetEpgSchedule = new StoredProcedure("Get_EpgChannelsSchedule");
@@ -199,7 +203,7 @@ namespace Tvinci.Core.DAL
             StoredProcedure spGetEpgIDbyEPGIdentifier = new StoredProcedure("Get_EpgIDbyEPGIdentifier");
             spGetEpgIDbyEPGIdentifier.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEpgIDbyEPGIdentifier.AddIDListParameter<string>("@EPGIdentifiers", EPGIdentifiers, "Id");
-          
+
             DataSet ds = spGetEpgIDbyEPGIdentifier.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
@@ -217,7 +221,7 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-         
+
 
         public static DataTable Get_EPGTagValueIDs(int nGroupID, Dictionary<int, List<string>> lTagTypeAndValues)
         {
@@ -245,7 +249,7 @@ namespace Tvinci.Core.DAL
 
 
         /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
-        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID, int channelID= 0)
+        public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID, int channelID = 0)
         {
             StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -342,6 +346,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new Dictionary<string, List<EpgChannelObj>>();
             }
         }
@@ -379,6 +384,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new Dictionary<string, List<EpgChannelObj>>();
             }
         }
@@ -396,7 +402,7 @@ namespace Tvinci.Core.DAL
             return retVal;
         }
 
-        public static int UpdateEpgChannel(int GroupID, string channelID, int ID)            
+        public static int UpdateEpgChannel(int GroupID, string channelID, int ID)
         {
             StoredProcedure sp = new StoredProcedure("UpdateEpgChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -404,7 +410,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ChannelID", channelID);
             sp.AddParameter("@ID", ID);
 
-            
+
             int retVal = sp.ExecuteReturnValue<int>();
             return retVal;
         }

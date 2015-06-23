@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Couchbase;
 using CouchbaseManager;
 using Enyim.Caching.Memcached;
+using KLogMonitor;
 using Logger;
 
 
@@ -12,9 +14,10 @@ namespace CachingProvider
 {
     public class CouchBaseCache<T> : OutOfProcessCache
     {
-         #region C'tor
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         CouchbaseClient m_Client;
-            
+
         private CouchBaseCache(eCouchbaseBucket eCacheName)
         {
             m_Client = CouchbaseManager.CouchbaseManager.GetInstance(eCacheName);
@@ -22,7 +25,6 @@ namespace CachingProvider
             if (m_Client == null)
                 throw new Exception("Unable to create out of process cache instance");
         }
-        #endregion
 
         public static CouchBaseCache<T> GetInstance(string sCacheName)
         {
@@ -36,12 +38,12 @@ namespace CachingProvider
                 }
                 else
                 {
-                    Logger.Logger.Log("Error", string.Format("Unable to create OOP cache. Please check that cache of type {0} exists.", sCacheName), "CachingProvider");
+                    log.Error("Error - " + string.Format("Unable to create OOP cache. Please check that cache of type {0} exists.", sCacheName));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Unable to create OOP cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), "CachingProvider");
+                log.ErrorFormat("Error - "+ string.Format("Unable to create OOP cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return cache;
@@ -77,21 +79,21 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("CouchBaseCache", string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace), "GroupsCache");
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace),ex);
             }
 
             return baseModule;
         }
-        
+
         public override T Get<T>(string sKey)
         {
-            return m_Client.Get<T>(sKey);         
+            return m_Client.Get<T>(sKey);
         }
-        
+
         public override BaseModuleCache Remove(string sKey)
         {
             BaseModuleCache baseModule = new BaseModuleCache();
-            baseModule.result =  m_Client.Remove(sKey);
+            baseModule.result = m_Client.Remove(sKey);
             return baseModule;
         }
 
@@ -103,12 +105,12 @@ namespace CachingProvider
             try
             {
                 oRes = m_Client.GetWithCas<T>(sKey);
-                
+
                 if (oRes.StatusCode == 0)
                 {
                     baseModule.result = oRes.Result;
                     baseModule.version = oRes.Cas.ToString();
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -117,7 +119,7 @@ namespace CachingProvider
                 log.Error(log.Message, false);
             }
 
-            return baseModule; 
+            return baseModule;
         }
 
         // Add - insert the value + key to cache only if the key dosen't exsits already
@@ -129,8 +131,8 @@ namespace CachingProvider
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
-                bool bCas = ulong.TryParse(baseModule.version, out cas);                
-               
+                bool bCas = ulong.TryParse(baseModule.version, out cas);
+
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, dtExpiresAt, cas);
@@ -157,7 +159,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-               
+
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, cas);
 
                 if (casRes.StatusCode == 0)
@@ -183,7 +185,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-                
+
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, dtExpiresAt, cas);
@@ -210,7 +212,7 @@ namespace CachingProvider
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-              
+
                 CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, cas);
 
                 if (casRes.StatusCode == 0)
@@ -237,8 +239,18 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                return null;
+                if (keys != null && keys.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var item in keys)
+                        sb.Append(item + " ");
+
+                    log.ErrorFormat("Error while getting the following keys from CB: {0}. Exception: {1}", sb.ToString(), ex);
+                }
+                else
+                    log.Error("Error while getting keys from CB", ex);
             }
+            return null;
         }
 
         public override bool SetJson<T>(string sKey, T obj, double dCacheTT)

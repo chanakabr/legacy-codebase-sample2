@@ -12,11 +12,15 @@ using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EpgIngest
 {
     public class Ingest
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Member
         EpgChannels m_Channels;
         BaseEpgBL oEpgBL;
@@ -29,12 +33,12 @@ namespace EpgIngest
         #endregion
 
         public Ingest()
-        {            
+        {
         }
 
         public void Initialize(string Data)
         {
-            m_Channels = SerializeEpgChannel(Data);          
+            m_Channels = SerializeEpgChannel(Data);
             oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
             lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
@@ -64,7 +68,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SerializeEpgChannel", string.Format("exception={0}", ex.Message), "EpgIngest");
+                log.Error("SerializeEpgChannel - " + string.Format("exception={0}", ex.Message), ex);
                 epgchannel = null;
             }
             return epgchannel;
@@ -88,7 +92,7 @@ namespace EpgIngest
         {
             bool success = true;
             try
-            {                
+            {
                 int kalturaChannelID;
                 string channelID;
                 EpgChannelType epgChannelType;
@@ -120,7 +124,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SaveChannelPrograms", string.Format("exception={0}", ex.Message), "EpgIngest");
+                log.Error("SaveChannelPrograms - " + string.Format("exception={0}", ex.Message), ex);
                 return "false";
             }
         }
@@ -162,7 +166,7 @@ namespace EpgIngest
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
-                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", prog.start, prog.stop), "EpgIngest");
+                        log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", prog.start, prog.stop));
                         continue;
                     }
 
@@ -275,10 +279,10 @@ namespace EpgIngest
                     }
                     #endregion
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
                     success = false;
-                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, exc.Message), "EpgIngest");
+                    log.Error("Genarate Epgs - " + string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, ex.Message), ex);
                 }
             }
             #endregion
@@ -343,7 +347,7 @@ namespace EpgIngest
             success = true;
             return success;
         }
-        
+
         private Dictionary<string, List<string>> GetEpgProgramMetas(programme prog, string language)
         {
             try
@@ -372,7 +376,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgIngest");
+                log.Error("GetEpgProgramMetas - " + string.Format("faild due ex={0}", ex.Message), ex);
                 return new Dictionary<string, List<string>>();
             }
         }
@@ -404,7 +408,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgIngest");
+                log.Error("GetEpgProgramMetas - " + string.Format("faild due ex={0}", ex.Message), ex);
                 return new Dictionary<string, List<string>>();
             }
         }
@@ -497,7 +501,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "EpgIngest");
+                log.Error("KDG - " + string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), ex);
             }
         }
 
@@ -549,9 +553,9 @@ namespace EpgIngest
                     }
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgIngest");
+                log.Error("InsertEpgsDBBatches - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, ex.Message), ex);
                 return;
             }
         }
@@ -613,9 +617,9 @@ namespace EpgIngest
                 Utils.InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
                 Utils.InsertBulk(dtEpgPictures, "epg_multi_pictures", sConn);//insert Multi epg pictures to DB
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgIngest");
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, ex.Message), ex);
                 return;
             }
         }
@@ -756,7 +760,7 @@ namespace EpgIngest
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgIngest");
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
             }
@@ -778,7 +782,7 @@ namespace EpgIngest
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgIngest");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -921,7 +925,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "EpgIngest");
+                log.Error("KDG - " + string.Format("fail to DeleteEpgs ex = {0}", ex.Message), ex);
                 return null;
             }
         }
@@ -936,7 +940,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgIngest");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }

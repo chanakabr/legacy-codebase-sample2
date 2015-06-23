@@ -10,14 +10,15 @@ using ApiObjects.SearchObjects;
 using System.Diagnostics;
 using EpgBL;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class EpgRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = Catalog.GetCurrentRequestDaysOffset();
 
         [DataMember]
@@ -102,7 +103,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("Exception thrown at EpgRequest.GetResponse", ex);
+                log.Error("Exception thrown at EpgRequest.GetResponse", ex);
                 throw ex;
             }
 

@@ -6,6 +6,8 @@ using System.Threading;
 using System.Configuration;
 using Couchbase;
 using Couchbase.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace CouchbaseManager
@@ -14,9 +16,7 @@ namespace CouchbaseManager
 
     public class CouchbaseManager
     {
-
-        
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim();
@@ -44,6 +44,7 @@ namespace CouchbaseManager
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                     }
                     finally
                     {
@@ -61,6 +62,7 @@ namespace CouchbaseManager
                 }
                 catch (Exception ex)
                 {
+                    log.Error("", ex);
                 }
                 finally
                 {

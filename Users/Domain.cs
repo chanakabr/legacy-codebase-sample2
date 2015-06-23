@@ -13,6 +13,8 @@ using NPVR;
 using Newtonsoft.Json;
 using ApiObjects;
 using ApiObjects.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
@@ -23,7 +25,7 @@ namespace Users
     [JsonObject(Id = "Domain")]
     public class Domain
     {
-        #region Private Fields
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         //Name of the Domain       
         public string m_sName;
@@ -117,9 +119,6 @@ namespace Users
         [JsonProperty()]
         public int m_nRegion;
 
-        #endregion
-
-        #region Public Methods
 
         public Domain()
         {
@@ -217,7 +216,6 @@ namespace Users
                 m_totalNumOfUsers++;
             }
 
-            #region NPVR
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
             {
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
@@ -234,23 +232,21 @@ namespace Users
                         else
                         {
                             m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                            Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg), "Domain");
+                            log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
                         }
                     }
                     else
                     {
                         m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                        Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                        log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
-
                 }
                 else
                 {
-                    Logger.Logger.Log("Error", string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                 }
 
             }
-            #endregion
 
             return this;
         }
@@ -360,7 +356,6 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
 
-                #region NPVR
                 if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
@@ -377,22 +372,21 @@ namespace Users
                             else
                             {
                                 res = DomainResponseStatus.Error;
-                                Logger.Logger.Log("Error", string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg), "Domain");
+                                log.Error("Error - " + string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
                             }
                         }
                         else
                         {
                             res = DomainResponseStatus.Error;
-                            Logger.Logger.Log("Error", string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                            log.Error("Error - " + string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                         }
                     }
                     else
                     {
                         res = DomainResponseStatus.Error;
-                        Logger.Logger.Log("Error", string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID), "Domain");
+                        log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
                 }
-                #endregion
             }
             else
             {
@@ -687,7 +681,7 @@ namespace Users
 
                 if (!bUpdate)
                 {
-                    Logger.Logger.Log("RemoveDeviceFromDomain", String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID), "Domain");
+                    log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
                     return DomainResponseStatus.Error;
                 }
 
@@ -699,7 +693,7 @@ namespace Users
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("RemoveDeviceFromDomain", String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), "Domain");
+                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
                 }
 
                 int nDomainsDevicesCount = DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
@@ -779,7 +773,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("IsDeviceExistInDomain", string.Format("failed IsDeviceExistInDomain domainID= {0},sUDID ={1},  ex = {2}", domain != null ? domain.m_nDomainID : 0, sUDID, ex.Message), "Domain");
+                log.Error("IsDeviceExistInDomain - " + string.Format("failed IsDeviceExistInDomain domainID= {0},sUDID ={1},  ex = {2}", domain != null ? domain.m_nDomainID : 0, sUDID, ex.Message), ex);
                 return false;
             }
         }
@@ -847,7 +841,7 @@ namespace Users
                 }
                 else
                 {
-                    Logger.Logger.Log("ChangeDeviceDomainStatus", String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID), "Domain");
+                    log.Debug("ChangeDeviceDomainStatus - " + String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID));
                     eDomainResponseStatus = DomainResponseStatus.Error;
                 }
             }
@@ -935,7 +929,7 @@ namespace Users
                 bool bCached = oDomainCache.RemoveDomain(nDomainID);
                 if (!bCached)
                 {
-                    Logger.Logger.Log("AddUserToDomain Failed", String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster), "Domain");
+                    log.Debug("AddUserToDomain Failed - " + String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster));
                 }
             }
 
@@ -1003,7 +997,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDeviceDomains", String.Format("failed ex={0}, deviceID={1}, groupID={2}", ex.Message, deviceID, groupID), "Domain");
+                log.Error("GetDeviceDomains - " + String.Format("failed ex={0}, deviceID={1}, groupID={2}", ex.Message, deviceID, groupID), ex);
                 return null;
             }
         }
@@ -1363,10 +1357,6 @@ namespace Users
             return res;
         }
 
-        #endregion
-
-        #region Protected Methods
-
         protected internal void InitializeLimitationsManager(int nDomainLevelConcurrentLimit, int nGroupLevelConcurrentLimit, int nDeviceQuantityLimit, int nDeviceFrequencyLimit, DateTime dtLastActionDate)
         {
             if (m_oLimitationsManager == null)
@@ -1431,7 +1421,6 @@ namespace Users
                             break;
                         }
                     }
-                    //Logger.Logger.Log("DeviceFamiliesInitializer Error", String.Concat("DeviceContainer duplicate: ", dc.ToString()) , "Domain");
                 }
             }
         }
@@ -1611,10 +1600,6 @@ namespace Users
             return res;
         }
 
-        #endregion
-
-        #region Private Methods
-
         private void InitializeDomainDevicesData(DataTable dt)
         {
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -1649,15 +1634,11 @@ namespace Users
                         MapDeviceToFamily(device);
                         IncrementDeviceCount(device);
                     }
-                    else
-                    {
-                        // Logger.Logger.Log("InitializeDomainDevicesData", String.Concat("No device container was found. ", device.ToString()), "Domain");
-                    }
                 }
             }
             else
             {
-                Logger.Logger.Log("InitializeDomainDevicesData", String.Concat("No devices were extracted from DB. Domain ID: ", m_nDomainID), "Domain");
+                log.Debug("InitializeDomainDevicesData - " + String.Concat("No devices were extracted from DB. Domain ID: ", m_nDomainID));
             }
         }
 
@@ -1979,7 +1960,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetUserListFromCache", string.Format("failed ex = {0}, nDomainID={1}, int nGroupID={2}", ex.Message, nDomainID, nGroupID), "Domains");
+                log.Error("GetUserListFromCache - " + string.Format("failed ex = {0}, nDomainID={1}, int nGroupID={2}", ex.Message, nDomainID, nGroupID), ex);
                 return DomainResponseStatus.Error;
             }
         }
@@ -2023,7 +2004,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetUserListFromDB", string.Format("failed ex = {0}, nDomainID={1}, int nGroupID={2}", ex.Message, nDomainID, nGroupID), "Domains");
+                log.Error("GetUserListFromDB - " + string.Format("failed ex = {0}, nDomainID={1}, int nGroupID={2}", ex.Message, nDomainID, nGroupID), ex);
                 return DomainResponseStatus.Error;
             }
         }
@@ -2077,12 +2058,12 @@ namespace Users
             {
                 return DomainResponseStatus.ActionUserNotMaster;
             }
-            
+
             // Check if user already exists in domain and Its Status (active or pending)            
             DataTable dtUser = DomainDal.GetUserInDomain(nGroupID, nDomainID, nUserID);
 
-            int? userStatus = null ;
-            int? userIsActive  = null;
+            int? userStatus = null;
+            int? userIsActive = null;
             int nUserDomainID = 0;
 
             if (dtUser != null)
@@ -2092,11 +2073,11 @@ namespace Users
                 {
                     if (dtUser.DefaultView[0].Row["STATUS"] != null && dtUser.DefaultView[0].Row["STATUS"] != DBNull.Value)
                         userStatus = int.Parse(dtUser.DefaultView[0].Row["STATUS"].ToString());
-                    
+
                     if (dtUser.DefaultView[0].Row["IS_ACTIVE"] != null && dtUser.DefaultView[0].Row["IS_ACTIVE"] != DBNull.Value)
                         userIsActive = int.Parse(dtUser.DefaultView[0].Row["STATUS"].ToString());
 
-                        nUserDomainID = int.Parse(dtUser.DefaultView[0].Row["ID"].ToString());
+                    nUserDomainID = int.Parse(dtUser.DefaultView[0].Row["ID"].ToString());
                 }
             }
 
@@ -2318,8 +2299,6 @@ namespace Users
             return (new DomainResponseObject(this, DomainResponseStatus.UnKnown));
         }
 
-
-
         private DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device, out bool bRemove)
         {
             DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
@@ -2444,10 +2423,8 @@ namespace Users
             return statusRes == 2;
         }
 
-        #endregion
 
 
-        #region Internal Methods
         /***************************************************************************************************************
          * This method get MediaConcurrencyLimit (int) , domain and mediaID 
          * Get from CB all media play at the last 
@@ -2512,8 +2489,8 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ValidateNpvrConcurrency", String.Concat("Failed ex={0}, nNpvrConcurrencyLimit={1}, lDomainID={2}, sNPVR={3}",
-                    ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), "Domain");
+                log.Error("ValidateNpvrConcurrency - " + String.Concat("Failed ex={0}, nNpvrConcurrencyLimit={1}, lDomainID={2}, sNPVR={3}",
+                    ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), ex);
                 throw;
             }
         }
@@ -2522,9 +2499,6 @@ namespace Users
         {
             this.m_deviceFamilies = dc;
         }
-
-        #endregion
-
 
         internal bool CompareDLM(LimitationsManager oLimitationsManager, ref ChangeDLMObj oChangeDLMObj)
         {
@@ -2647,11 +2621,10 @@ namespace Users
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
             }
         }
-
-
     }
 }

@@ -7,12 +7,15 @@ using System.ServiceModel;
 using Catalog.Searchers;
 using ApiObjects;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog
 {
 
     public class LuceneWrapper : ISearcher
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected readonly string m_EndPointAddress;
         public LuceneWrapper()
         {
@@ -176,6 +179,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
             }
             finally
             {
