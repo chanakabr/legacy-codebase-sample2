@@ -237,7 +237,7 @@ namespace Catalog.Request
 
             if (status == null)
             {
-                return new Status((int)eResponseStatus.InternalError, string.Empty);
+                return new Status((int)eResponseStatus.Error, string.Empty);
             }
 
             if (status.Code != (int)eResponseStatus.OK)
@@ -264,7 +264,7 @@ namespace Catalog.Request
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("!=<=>=!~^".Contains(token)) // comparison operator - parse to enum and add to stack
+                    else if ("!=<=>=!~^:".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -372,6 +372,9 @@ namespace Catalog.Request
                 case "^":
                     comparisonOperator = ComparisonOperator.WordStartsWith;
                     break;
+                case ":":
+                    comparisonOperator = ComparisonOperator.In;
+                    break;
                 default:
                     comparisonOperator = ComparisonOperator.Contains;
                     break;
@@ -463,7 +466,7 @@ namespace Catalog.Request
                     buffer[lastBufferIndex] = '\0';
                     isOperand = true;
                 }
-                else if ((chr == ')' || chr == '~' || chr == '=' || chr == '^') && !isQuote) // single comparison operator or end of expression with operand - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
+                else if ((chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':') && !isQuote) // single comparison operator or end of expression with operand - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {

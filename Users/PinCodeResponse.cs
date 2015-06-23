@@ -17,7 +17,7 @@ namespace Users
 
         public PinCodeResponse()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             pinCode = string.Empty;
             expiredDate = DateTime.MinValue;
             siteGuid = string.Empty;

@@ -6,13 +6,12 @@ using System.Text;
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
-    {
+    {        
         OK = 0,
         Error = 1,
-        InternalError = 2,
        
         // Domain Section 1000 - 1999
-
+        
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
         DeviceTypeNotAllowed = 1002,
@@ -30,9 +29,21 @@ namespace ApiObjects.Response
         LimitationPeriod = 1014,//
         DeviceAlreadyExists = 1015, 
         DeviceExistsInOtherDomains = 1016,
+        NoUsersInDomain = 1017,
+        UserExistsInOtherDomains = 1018,
+        DeviceNotExists = 1019,
+        UserNotExistsInDomain = 1020,
+        ActionUserNotMaster = 1021,
+        ExceededUserLimit = 1022,
+        DomainNotInitialized = 1023,
+        DeviceNotConfirmed = 1024,
+        RequestFailed = 1025,
+        InvalidUser = 1026,
+        UserNotAllowed = 1027,
+        DuplicatePin = 1028,
         
         // User Section 2000 - 2999
-        UserNotExists = 2000, // don't use this one (use UserDoesNotExist)
+        UserDoesNotExist = 2000,
         UserSuspended = 2001,
         GenerateNewLoginPIN = 2002, 
         PinNotExists = 2003,
@@ -57,11 +68,8 @@ namespace ApiObjects.Response
         Activated = 2022,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
-        UserDoesNotExist = 2025,
         
-
         // CAS Section 3000 - 3999
-
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
         SubscriptionNotRenewable = 3002,

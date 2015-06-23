@@ -119,7 +119,6 @@ namespace Users
         [JsonProperty()]
         public int m_nRegion;
 
-
         public Domain()
         {
             m_sName = string.Empty;
@@ -240,7 +239,6 @@ namespace Users
                         m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                         log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
-
                 }
                 else
                 {
@@ -337,7 +335,6 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
                 return null;
             }
         }
@@ -401,6 +398,8 @@ namespace Users
             }
             return res;
         }
+
+
 
         /// <summary>
         /// Init new Domain Object according to GroupId and DomainId
@@ -681,7 +680,7 @@ namespace Users
 
                 if (!bUpdate)
                 {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
+                    log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
                     return DomainResponseStatus.Error;
                 }
 
@@ -841,7 +840,7 @@ namespace Users
                 }
                 else
                 {
-                    log.Error("ChangeDeviceDomainStatus - " + String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID));
+                    log.Debug("ChangeDeviceDomainStatus - " + String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID));
                     eDomainResponseStatus = DomainResponseStatus.Error;
                 }
             }
@@ -929,7 +928,7 @@ namespace Users
                 bool bCached = oDomainCache.RemoveDomain(nDomainID);
                 if (!bCached)
                 {
-                    log.Error("AddUserToDomain Failed - " + String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster));
+                    log.Debug("AddUserToDomain Failed - " + String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster));
                 }
             }
 
@@ -1052,7 +1051,10 @@ namespace Users
                         device.m_state = DeviceState.Activated;
                         eRetVal = DeviceResponseStatus.OK;
                         break;
-
+                    case DomainResponseStatus.DeviceTypeNotAllowed:
+                        device.m_state = DeviceState.Error;
+                        eRetVal = DeviceResponseStatus.Error;
+                        break;
                     default:
                         eRetVal = DeviceResponseStatus.DuplicatePin;
                         break;
@@ -1118,6 +1120,8 @@ namespace Users
 
         public DomainResponseStatus ChangeDomainMaster(int nGroupID, int nDomainID, int nCurrentMasterID, int nNewMasterID)
         {
+            #region Validations
+
             if (m_nDomainID <= 0)
             {
                 return DomainResponseStatus.DomainNotInitialized;
@@ -1160,6 +1164,8 @@ namespace Users
             {
                 return DomainResponseStatus.UserExistsInOtherDomains;
             }
+
+            #endregion
 
             int rowsAffected = DomainDal.SwitchDomainMaster(nGroupID, nDomainID, nCurrentMasterID, nNewMasterID);
 
@@ -1631,7 +1637,7 @@ namespace Users
             }
             else
             {
-                log.Error("InitializeDomainDevicesData - " + String.Concat("No devices were extracted from DB. Domain ID: ", m_nDomainID));
+                log.Debug("InitializeDomainDevicesData - " + String.Concat("No devices were extracted from DB. Domain ID: ", m_nDomainID));
             }
         }
 
@@ -1766,6 +1772,7 @@ namespace Users
 
         private Device GetDomainDevice(string udid, ref DeviceContainer cont)
         {
+            #region New part
             Device retVal = null;
             if (m_oUDIDToDeviceFamilyMapping.ContainsKey(udid) && m_oDeviceFamiliesMapping.ContainsKey(m_oUDIDToDeviceFamilyMapping[udid]))
             {
@@ -1781,6 +1788,7 @@ namespace Users
                 }
             }
 
+            #endregion
             if (m_deviceFamilies != null)
             {
                 foreach (DeviceContainer container in m_deviceFamilies)
@@ -1829,6 +1837,7 @@ namespace Users
 
         private DomainResponseStatus SubmitAddDeviceToDomainRequest(int nGroupID, string sDeviceUdid, string sDeviceName, ref Device device, out bool bRemoveDomain)
         {
+            #region Validations
             bRemoveDomain = false;
 
             if (this.m_nDomainID <= 0)
@@ -1871,6 +1880,8 @@ namespace Users
                     return DomainResponseStatus.DeviceAlreadyExists;
                 }
             }
+
+            #endregion
 
             if (isActive == 3)  // device pending activation in this or other domain; reset this association
             {
@@ -2259,8 +2270,6 @@ namespace Users
             return (new DomainResponseObject(this, DomainResponseStatus.UnKnown));
         }
 
-
-
         private DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device, out bool bRemove)
         {
             DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
@@ -2386,6 +2395,7 @@ namespace Users
         }
 
 
+
         /***************************************************************************************************************
          * This method get MediaConcurrencyLimit (int) , domain and mediaID 
          * Get from CB all media play at the last 
@@ -2461,13 +2471,13 @@ namespace Users
             this.m_deviceFamilies = dc;
         }
 
-
         internal bool CompareDLM(LimitationsManager oLimitationsManager, ref ChangeDLMObj oChangeDLMObj)
         {
             try
             {
                 if (oLimitationsManager != null) // initialize all fileds 
                 {
+                    #region Devices
                     List<string> devicesChange = new List<string>();
                     DeviceContainer currentDC = new DeviceContainer();
 
@@ -2554,7 +2564,9 @@ namespace Users
                         }
                     }
 
+                    #endregion
 
+                    #region Users limit
                     List<string> users = new List<string>();
                     if (this.m_nUserLimit > oLimitationsManager.nUserLimit && oLimitationsManager.nUserLimit != 0)
                     {
@@ -2569,6 +2581,7 @@ namespace Users
                             }
                         }
                     }
+                    #endregion
                 }
 
                 // change dlmid in domain table 
@@ -2580,7 +2593,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("", ex);
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
             }
         }

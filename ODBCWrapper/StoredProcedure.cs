@@ -15,7 +15,6 @@ namespace ODBCWrapper
     public class StoredProcedure
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         public StoredProcedure(string sProcedureName)
         {
             m_sProcedureName = sProcedureName;
@@ -46,7 +45,6 @@ namespace ODBCWrapper
                 return 2000;
             }
         }
-
 
         public void AddParameter(string sKey, object oValue)
         {
@@ -238,6 +236,7 @@ namespace ODBCWrapper
                             result = new DataTable();
                             result.Load(reader);
                         }
+
                         reader.Close();
                         reader.Dispose();
                     }
@@ -399,7 +398,7 @@ namespace ODBCWrapper
 
 
         /// <summary>
-        /// Execute stored procedure that execute some sql without return value or result set.
+        /// Execute stored prcoedure that execute some sql without return value or resultset.
         /// </summary>
         public void ExecuteNonQuery()
         {
@@ -451,21 +450,26 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                Type type = m_Parameters[item].GetType();
-                if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
-                    || type.FullName == typeof(System.DateTime).FullName)
+                if (m_Parameters[item] != null)
                 {
-                    command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                    Type type = m_Parameters[item].GetType();
+                    if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
+                        || type.FullName == typeof(System.DateTime).FullName)
+                    {
+                        command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                    }
+                    else
+                    {
+                        List<int> ids = (List<int>)m_Parameters[item];
+                        SqlParameter UrlParam = command.Parameters.AddWithValue(item, CreateDataTable(ids, "Id"));
+                        UrlParam.SqlDbType = SqlDbType.Structured;
+                        UrlParam.TypeName = "dbo.IDList";
+                    }
                 }
                 else
                 {
-                    List<int> ids = (List<int>)m_Parameters[item];
-                    SqlParameter UrlParam = command.Parameters.AddWithValue(item, CreateDataTable(ids, "Id"));
-                    UrlParam.SqlDbType = SqlDbType.Structured;
-                    UrlParam.TypeName = "dbo.IDList";
+                    command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }
-
-
             }
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
@@ -475,15 +479,14 @@ namespace ODBCWrapper
             {
                 try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    command.Connection = con;
-                    da.SelectCommand = command;
-                    DataTable dataTable = new DataTable();
-
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        da.SelectCommand = command;
+                        DataTable dataTable = new DataTable();
                         dataTable.BeginLoadData();
                         da.Fill(dataTable);
                         dataTable.EndLoadData();

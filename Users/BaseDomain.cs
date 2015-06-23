@@ -152,7 +152,7 @@ namespace Users
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                log.Debug("Exception " + sb.ToString());
+                log.Error("Exception - " + sb.ToString(), ex);
                 throw;
             }
 
@@ -172,7 +172,7 @@ namespace Users
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
-                log.Debug("AddDeviceToDomain - " + string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID));
+                log.Error("AddDeviceToDomain - " + string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID));
                 oDomainResponseObject.m_oDomain = null;
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
@@ -204,7 +204,8 @@ namespace Users
             if (!User.IsUserValid(nGroupID, userGuid))
             {
                 domain.m_DomainStatus = DomainStatus.Error;
-                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.InvalidUser);
+                return oDomainResponseObject;
             }
 
             //Init The Domain
@@ -232,7 +233,7 @@ namespace Users
 
             if (domain == null)
             {
-                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotInitialized));
+                return (new DomainResponseObject(null, DomainResponseStatus.DomainNotExists));
             }
 
             //Delete the User from Domain
@@ -547,6 +548,7 @@ namespace Users
 
                 // log
                 log.Debug("AddHomeNetworkToDomain - " + String.Concat("Failed to add to domain: ", lDomainID, " the home network: ", candidate.ToString()));
+
             }
             else
             {
@@ -706,7 +708,7 @@ namespace Users
 
             // validate domain
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
-            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
@@ -749,7 +751,7 @@ namespace Users
 
             // validate domain
             var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
-            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
                 result.Message = "Domain doesn't exist";
@@ -887,7 +889,8 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error("IsDevicePlayValid - " + string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, sSiteGUID, sDEVICE_NAME, userDomain != null ? userDomain.m_nDomainID : 0), ex);
+                log.Error("IsDevicePlayValid - " + string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, sSiteGUID, sDEVICE_NAME, userDomain != null ? userDomain.m_nDomainID : 0),
+                    ex);
                 isDeviceRecognized = false;
             }
 
@@ -1147,7 +1150,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("RemoveDLM - " + string.Format("Couldn't get nDlmID {0}, ex = {1}", nDlmID, ex.Message), ex);
-                resp.Code = (int)eResponseStatus.InternalError;
+                resp.Code = (int)eResponseStatus.Error;
                 return resp;
             }
 
@@ -1193,7 +1196,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("ChangeDLM - " + string.Format("failed to ChangeDLM DlmID = {0}, DomainID = {1}, nGroupID = {2}, ex = {3}", dlmID, domainID, nGroupID, ex.Message), ex);
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oChangeDLMObj;
             }
         }
@@ -1223,7 +1226,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("GetDLM - " + string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), ex);
-                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oDLMResponse;
             }
         }
@@ -1255,7 +1258,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("SetDomainRegion - " + string.Format("failed to SetDomainRegion domainId = {0}, extRegionId = {1}, lookupKey = {2}, ex = {3}", domainId, extRegionId, lookupKey, ex.Message), ex);
-                status = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, "Internal Error");
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
                 return status;
             }
 

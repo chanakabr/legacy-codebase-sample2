@@ -303,7 +303,8 @@ namespace ApiObjects
         GreaterThan,
         LessThanOrEqual,
         LessThan,
-        WordStartsWith
+        WordStartsWith,
+        In
     }
 
     [Serializable]

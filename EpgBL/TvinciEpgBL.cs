@@ -50,13 +50,13 @@ namespace EpgBL
                     }
                     else
                     {
-                        log.Debug("InsertEpg - " + string.Format("Failed insert to CB id={0}", nNewID));
+                        log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", nNewID));
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("InsertEpg - " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                log.Error("InsertEpg = " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
                    newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), ex);
             }
             return bRes;
@@ -92,7 +92,7 @@ namespace EpgBL
                     }
                     else
                     {
-                        log.Debug("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
+                        log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
                     }
                 }
             }
@@ -127,7 +127,7 @@ namespace EpgBL
                     }
                     else
                     {
-                        log.Debug("InsertEpg - " + string.Format("Failed insert to CB id={0}", nNewID));
+                        log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", nNewID));
                     }
                 }
             }
@@ -628,10 +628,10 @@ namespace EpgBL
                     {
                         continue;
                     }
+
+                    finalEpgPicture = new List<EpgPicture>();
                     if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
                     {
-                        finalEpgPicture = new List<EpgPicture>();
-
                         foreach (EpgPicture pict in oProgram.EPG_PICTURES)
                         {
                             List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
@@ -659,7 +659,7 @@ namespace EpgBL
 
                     // complete the picURL for back support                
                     baseEpgPicUrl = string.Empty;
-                    if (oProgram != null && pictures[group] != null)
+                    if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[group] != null)
                     {
                         EpgPicture pict = pictures[group].First();
                         if (pict != null && !string.IsNullOrEmpty(pict.Url))

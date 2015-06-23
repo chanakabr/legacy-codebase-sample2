@@ -7847,7 +7847,11 @@ namespace ConditionalAccess
                 {
                     UserBillingTransactionsResponse userBillingTransactions = new UserBillingTransactionsResponse();
                     userBillingTransactions.m_sSiteGUID = arrUserGUIDs[i];
-                    userBillingTransactions.m_BillingTransactionResponse = GetUserBillingHistoryExt(arrUserGUIDs[i], dStartDate, dEndDate);
+                    BillingTransactions billingTransactions = GetUserBillingHistoryExt(arrUserGUIDs[i], dStartDate, dEndDate);
+                    if (billingTransactions != null)
+                    {
+                        userBillingTransactions.m_BillingTransactionResponse = billingTransactions.transactions;
+                    }
                     lUserBillingTransactions.Add(userBillingTransactions);
                 }
                 catch (Exception ex)
@@ -7872,9 +7876,11 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactionsResponse GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
         {
+
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
+            BillingTransactions response = new BillingTransactions();
             TvinciPricing.mdoule m = null;
 
             try
@@ -7888,7 +7894,8 @@ namespace ConditionalAccess
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
-                    return theResp;
+                    response.resp = new Status((int)eResponseStatus.OK, "no history billing for user");
+                    return response;
                 }
 
                 int nCount = dvBillHistory.Count;
@@ -8076,6 +8083,14 @@ namespace ConditionalAccess
                         theResp.m_Transactions[i].m_Price.m_oCurrency = m.GetCurrencyValues(sWSUserName, sWSPass, sCurrencyCode);
                     }
                 } // for
+
+                response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.transactions = theResp;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetUserBillingHistoryExt - " + string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems, ex.Message), ex);
+                response.resp = new Status((int)eResponseStatus.Error, ex.Message);
             }
             finally
             {
@@ -8085,16 +8100,16 @@ namespace ConditionalAccess
                 }
             }
 
-            return theResp;
+            return response;
         }
 
 
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        public virtual BillingTransactionsResponse GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
+        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
         {
-            BillingTransactionsResponse res = null;
+            BillingTransactions res = null;
             try
             {
                 DateTime minDate = new DateTime(2000, 1, 1);
@@ -11919,6 +11934,44 @@ namespace ConditionalAccess
             return eservice;
         }
 
+        /// <summary>
+        /// Get User Subscriptions
+        /// </summary>
+
+
+
+        public virtual Entitlement GetUserSubscriptions(string sSiteGUID)
+        {
+            Entitlement response = new Entitlement();
+
+            try
+            {
+                PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0);
+                if (psc != null && psc.Length > 0)
+                {
+                    // fill Entitlement object
+                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.entitelments = new List<Entitlements>();
+                    foreach (PermittedSubscriptionContainer item in psc)
+                    {
+                        Entitlements ent = new Entitlements(item);
+                        response.entitelments.Add(ent);
+                    }
+                }
+                else
+                {
+                    response = new Entitlement();
+                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
+                response = new Entitlement();
+                response.resp = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
     }
 
 }

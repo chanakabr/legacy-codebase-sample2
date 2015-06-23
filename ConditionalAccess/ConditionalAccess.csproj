@@ -97,6 +97,7 @@
     <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
+    <Compile Include="Response\BillingTransactions.cs" />
     <Compile Include="Response\CancelDeleteResponse.cs" />
     <Compile Include="Commands\CancelNPVRCommand.cs" />
     <Compile Include="Commands\CancelSeriesNPVRCommand.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Commands\DeleteNPVRCommand.cs" />
     <Compile Include="Commands\DeleteSeriesNPVRCommand.cs" />
     <Compile Include="Response\DomainServicesResponse.cs" />
+    <Compile Include="Response\Entitlement.cs" />
     <Compile Include="Response\EntitlementResponse.cs" />
     <Compile Include="iTunesReceipt.cs">
       <SubType>Code</SubType>

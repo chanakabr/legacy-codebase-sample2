@@ -1489,8 +1489,12 @@ namespace DAL
                         {
                             ParentalRule newRule = CreateParentalRuleFromRow(row);
 
-                            // Map in dictionary for easy access
-                            rules.Add(newRule.id, newRule);
+                            // If rule is not positive, this means this is a dummy result: The user disabled the default
+                            if (newRule.id > 0)
+                            {
+                                // Map in dictionary for easy access
+                                rules.Add(newRule.id, newRule);
+                            }
                         }
                     }
 
@@ -1813,37 +1817,42 @@ namespace DAL
                     foreach (DataRow row in rulesAndTagsTable.Rows)
                     {
                         long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-                        ParentalRule currentRule = null;
 
-                        // First check if we have this rule already in dictionary
-                        if (!rules.TryGetValue(id, out currentRule))
+                        // If rule is not positive, this means this is a dummy result: The user disabled the default
+                        if (id > 0)
                         {
-                            currentRule = CreateParentalRuleFromRow(row);
+                            ParentalRule currentRule = null;
 
-                            // Map in dictionary for easy access
-                            rules[id] = currentRule;
-                        }
+                            // First check if we have this rule already in dictionary
+                            if (!rules.TryGetValue(id, out currentRule))
+                            {
+                                currentRule = CreateParentalRuleFromRow(row);
 
-                        eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+                                // Map in dictionary for easy access
+                                rules[id] = currentRule;
+                            }
 
-                        string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
-                        // According to asset, update the relevant list
-                        switch (assetType)
-                        {
-                            case eAssetTypes.EPG:
-                                {
-                                    currentRule.epgTagValues.Add(value);
-                                    break;
-                                }
-                            case eAssetTypes.MEDIA:
-                                {
-                                    currentRule.mediaTagValues.Add(value);
-                                    break;
-                                }
-                            default:
-                                {
-                                    break;
-                                }
+                            eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+
+                            string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                            // According to asset, update the relevant list
+                            switch (assetType)
+                            {
+                                case eAssetTypes.EPG:
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
+                                case eAssetTypes.MEDIA:
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        break;
+                                    }
+                            }
                         }
                     }
                 }

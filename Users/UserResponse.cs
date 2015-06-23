@@ -13,7 +13,7 @@ namespace Users
 
         public UserResponse()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.InternalError, string.Empty);
+            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             user = new UserResponseObject();
         }
 
