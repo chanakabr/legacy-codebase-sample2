@@ -159,25 +159,25 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetBillingCutomData(string sWUserName, string sWSPassword) {
+        public string GetBillingCutomData(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetBillingCutomData", new object[] {
-                        sWUserName,
+                        sWSUserName,
                         sWSPassword});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void GetBillingCutomDataAsync(string sWUserName, string sWSPassword) {
-            this.GetBillingCutomDataAsync(sWUserName, sWSPassword, null);
+        public void GetBillingCutomDataAsync(string sWSUserName, string sWSPassword) {
+            this.GetBillingCutomDataAsync(sWSUserName, sWSPassword, null);
         }
         
         /// <remarks/>
-        public void GetBillingCutomDataAsync(string sWUserName, string sWSPassword, object userState) {
+        public void GetBillingCutomDataAsync(string sWSUserName, string sWSPassword, object userState) {
             if ((this.GetBillingCutomDataOperationCompleted == null)) {
                 this.GetBillingCutomDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetBillingCutomDataOperationCompleted);
             }
             this.InvokeAsync("GetBillingCutomData", new object[] {
-                        sWUserName,
+                        sWSUserName,
                         sWSPassword}, this.GetBillingCutomDataOperationCompleted, userState);
         }
         
@@ -1051,6 +1051,8 @@ namespace WebAPI.Billing {
         
         private string version_external_identifierField;
         
+        private string expires_date_msField;
+        
         /// <remarks/>
         public string original_purchase_date_pst {
             get {
@@ -1230,6 +1232,16 @@ namespace WebAPI.Billing {
                 this.version_external_identifierField = value;
             }
         }
+        
+        /// <remarks/>
+        public string expires_date_ms {
+            get {
+                return this.expires_date_msField;
+            }
+            set {
+                this.expires_date_msField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -1240,6 +1252,8 @@ namespace WebAPI.Billing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class InAppReceipt {
         
+        private string iOSVersionField;
+        
         private string latest_receiptField;
         
         private string statusField;
@@ -1248,7 +1262,19 @@ namespace WebAPI.Billing {
         
         private iTunesReceipt latest_expired_receipt_infoField;
         
-        private iTunesReceipt latest_receipt_infoField;
+        private iTunesReceipt[] latest_receipt_infoField;
+        
+        private iTunesReceipt[] in_appField;
+        
+        /// <remarks/>
+        public string iOSVersion {
+            get {
+                return this.iOSVersionField;
+            }
+            set {
+                this.iOSVersionField = value;
+            }
+        }
         
         /// <remarks/>
         public string latest_receipt {
@@ -1291,12 +1317,22 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public iTunesReceipt latest_receipt_info {
+        public iTunesReceipt[] latest_receipt_info {
             get {
                 return this.latest_receipt_infoField;
             }
             set {
                 this.latest_receipt_infoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public iTunesReceipt[] in_app {
+            get {
+                return this.in_appField;
+            }
+            set {
+                this.in_appField = value;
             }
         }
     }
