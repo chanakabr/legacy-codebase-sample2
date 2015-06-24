@@ -635,10 +635,8 @@ public partial class MethodFinder
                 {
                     // override siteGuid in initObj
                     initObj.SiteGuid = siteGuid;
-                    HttpContext.Current.Items.Add("tokenization", null);
+                    HttpContext.Current.Items["tokenization"] = null;
                 }
-
-
             }
 
             object result = executer.ExecuteMethod(methodParameters);

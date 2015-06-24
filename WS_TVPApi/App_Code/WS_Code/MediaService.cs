@@ -69,12 +69,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retMedia;
@@ -96,12 +96,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retMedia;
@@ -123,12 +123,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -150,12 +150,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -183,12 +183,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -210,12 +210,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -238,12 +238,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bRet;
@@ -265,12 +265,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return result;
@@ -292,12 +292,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstComment;
@@ -322,12 +322,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return favoritesObj;
@@ -350,12 +350,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -380,12 +380,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -407,12 +407,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -434,12 +434,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -461,12 +461,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -488,12 +488,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -519,12 +519,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bRet;
@@ -546,12 +546,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -573,12 +573,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -599,12 +599,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -631,12 +631,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -662,12 +662,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -687,12 +687,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -717,12 +717,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -743,12 +743,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -769,12 +769,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -796,12 +796,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -823,12 +823,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -850,12 +850,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -875,12 +875,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return null;
@@ -902,12 +902,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retCategory;
@@ -928,12 +928,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retCategory;
@@ -955,12 +955,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -992,12 +992,12 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
 
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return programs;
@@ -1019,12 +1019,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -1046,12 +1046,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -1070,7 +1070,7 @@ namespace TVPApiServices
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -1146,12 +1146,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -1173,12 +1173,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             return retVal;
         }
@@ -1200,12 +1200,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             return retVal;
         }
@@ -1226,12 +1226,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             return retVal;
         }
@@ -1262,12 +1262,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -1291,12 +1291,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -1318,12 +1318,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return mediaMark;
@@ -1368,12 +1368,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return priceReason;
@@ -1402,12 +1402,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bRet;
@@ -1432,12 +1432,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return permittedMediaContainer;
@@ -1459,12 +1459,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -1486,12 +1486,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -1515,12 +1515,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return permitedSubscriptions;
@@ -1579,12 +1579,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return permittedPackages;
@@ -1606,11 +1606,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
             return response;
         }
@@ -1631,12 +1631,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return response;
@@ -1661,12 +1661,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return response;
@@ -1700,12 +1700,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return response;
@@ -1734,12 +1734,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return response;
@@ -1772,12 +1772,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return itemPrices;
@@ -1798,12 +1798,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return res;
@@ -1834,12 +1834,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return res;
@@ -1861,12 +1861,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return transactions;
@@ -1891,12 +1891,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             if (items == null)
@@ -1925,12 +1925,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             if (items == null)
@@ -1958,12 +1958,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return items;
@@ -1986,12 +1986,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return fResponse;
@@ -2013,12 +2013,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return oResponse.ToString();
@@ -2040,12 +2040,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bResponse;
@@ -2067,12 +2067,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bResponse;
@@ -2095,12 +2095,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return nResponse;
@@ -2124,12 +2124,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sResponse;
@@ -2154,12 +2154,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sResponse;
@@ -2181,12 +2181,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sResponse;
@@ -2205,12 +2205,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
         }
 
@@ -2234,12 +2234,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lResponse;
@@ -2260,12 +2260,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bResponse;
@@ -2286,12 +2286,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bResponse;
@@ -2312,12 +2312,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return bResponse;
@@ -2338,12 +2338,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -2364,12 +2364,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -2428,11 +2428,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
 
             return ret;
@@ -2463,11 +2463,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
 
             return sRet;
@@ -2514,12 +2514,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -2566,12 +2566,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sRet;
@@ -2596,12 +2596,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return response;
@@ -2622,12 +2622,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             return sRet;
         }
@@ -2647,12 +2647,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             return sRet;
         }
@@ -2675,12 +2675,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return nResponse;
@@ -2703,12 +2703,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return sResponse;
@@ -2792,12 +2792,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -2819,12 +2819,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -2859,12 +2859,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
             retVal = new List<EPGChannelProgrammeObject>();
             foreach (ProgramObj p in loaderResult)
@@ -2906,12 +2906,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -2938,12 +2938,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -2969,12 +2969,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -3015,12 +3015,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -3045,12 +3045,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return retVal;
@@ -3094,12 +3094,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return lstMedia;
@@ -3132,12 +3132,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return isMediaInBundle;
@@ -3161,12 +3161,12 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
             return buzzMeterData;
@@ -3207,11 +3207,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
             return sRet;
         }
@@ -3241,11 +3241,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
             return res;
         }
@@ -3275,11 +3275,11 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                 }
             }
             else
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
 
             return res;
         }
@@ -3366,14 +3366,14 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                     response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
                 response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
@@ -3513,14 +3513,14 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                     response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
                 response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
@@ -3581,14 +3581,14 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
-                    HttpContext.Current.Items.Add("Error", ex);
+                    HttpContext.Current.Items["Error"] = ex;
                     response = new WatchHistory();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
-                HttpContext.Current.Items.Add("Error", "Unknown group");
+                HttpContext.Current.Items["Error"] = "Unknown group";
                 response = new WatchHistory();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
