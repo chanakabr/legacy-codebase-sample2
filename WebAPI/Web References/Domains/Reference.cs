@@ -2756,6 +2756,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         DomainSuspended,
+        
+        /// <remarks/>
+        UserAlreadyInDomain,
     }
     
     /// <remarks/>

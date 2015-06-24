@@ -65,6 +65,9 @@
     <Reference Include="log4net">
       <HintPath>..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="log4stash">
+      <HintPath>..\packages\log4stash.1.0.2\lib\net45\log4stash.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.2.2\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
       <Private>True</Private>
@@ -137,7 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="post.sh" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
@@ -156,17 +158,32 @@
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
-    <Content Include="Service References\Catalog\Service1.disco" />
-    <Content Include="Service References\Notifications\NotificationService.disco" />
-    <Content Include="Service References\Notifications\configuration91.svcinfo" />
-    <Content Include="Service References\Notifications\configuration.svcinfo" />
-    <Content Include="Service References\Notifications\Reference.svcmap">
+    <None Include="Service References\Catalog\Service1.disco" />
+    <Content Include="Service References\Catalog\WebAPI.Catalog.epgResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\Notifications\configuration91.svcinfo" />
+    <None Include="Service References\Notifications\configuration.svcinfo" />
+    <Content Include="Service References\Notifications\NotificationService1.wsdl" />
+    <None Include="Service References\Notifications\NotificationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService54.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
-    <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
+    </None>
     <None Include="Service References\Catalog\Service14.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -212,8 +229,12 @@
     <None Include="Service References\Catalog\Service149.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Catalog\Service2.wsdl" />
-    <Content Include="Service References\Catalog\Service21.wsdl" />
+    <None Include="Service References\Catalog\Service2.wsdl" />
+    <None Include="Service References\Catalog\Service21.wsdl" />
+    <Content Include="Service References\Notifications\NotificationService1.disco" />
+    <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -224,7 +245,7 @@
     <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\module.disco" />
+    <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -259,6 +280,70 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\BillingStatusResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Api\api.wsdl" />
+    <Content Include="Web References\Api\CategoryObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\DeviceAvailabiltyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelProgrammeObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\FileTypeContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GenericWriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupOperator.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaConcurrencyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaInfoStructObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaMarkObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MeidaMaper.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RateMediaObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RegionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\Scheduling.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserIMRequestObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -320,7 +405,7 @@
     <Content Include="Web References\Pricing\MediaFilePPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Pricing\module.disco" />
+    <None Include="Web References\Pricing\module.disco" />
     <Content Include="Web References\Social\DoSocialActionResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -345,7 +430,7 @@
     <Content Include="Web References\Social\FriendWatchedObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Social\module.disco" />
+    <None Include="Web References\Social\module.disco" />
     <Content Include="Web References\Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -381,22 +466,22 @@
     <Content Include="Web References\Domains\ValidationResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Social\module.wsdl" />
-    <Content Include="Web References\Social\Reference.map">
+    <None Include="Web References\Social\module.wsdl" />
+    <None Include="Web References\Social\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Social\SocialActivityDoc.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Social\SocialObjectReponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\module.wsdl" />
-    <Content Include="Web References\Billing\Reference.map">
+    <None Include="Web References\Billing\module.wsdl" />
+    <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <None Include="Web References\ConditionalAccess\module.wsdl" />
     <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -438,7 +523,7 @@
     <Content Include="Web References\ConditionalAccess\UserPrePaidContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Pricing\module.wsdl" />
+    <None Include="Web References\Pricing\module.wsdl" />
     <Content Include="Web References\Pricing\PPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -454,65 +539,10 @@
     <Content Include="Web References\Pricing\PriceCode.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Pricing\Reference.map">
+    <None Include="Web References\Pricing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
-    <Content Include="Web References\Pricing\Subscription.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Pricing\UsageModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Api\api.wsdl" />
-    <Content Include="Web References\Api\CategoryObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\ChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\DeviceAvailabiltyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\EPGChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\EPGChannelProgrammeObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\FileTypeContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GenericWriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupOperator.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaConcurrencyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaInfoStructObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaMarkObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MeidaMaper.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\RateMediaObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\LanguageObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
+    </None>
     <Content Include="Web References\Api\ParentalRulesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -526,41 +556,16 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Web References\Api\RegionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\Scheduling.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\TagResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\UserIMRequestObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\UserStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\NotificationService.wsdl" />
-    <None Include="Service References\Notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Web References\Api\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\Subscription.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\UsageModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Users\module.disco" />
@@ -805,10 +810,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Api\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -838,10 +843,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Domains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -871,10 +876,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -924,8 +929,7 @@
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <PropertyGroup>
-    <PreBuildEvent>cd $(ProjectDir)
-"C:\Program Files (x86)\git\bin\bash.exe" post.sh</PreBuildEvent>
+    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; bash.exe DLLVersioning.sh $(ProjectDir))</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

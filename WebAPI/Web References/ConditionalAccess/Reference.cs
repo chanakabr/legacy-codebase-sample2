@@ -3991,27 +3991,27 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainServices", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainServicesResponse GetDomainServices(string wsUsername, string wsPassword, int domainID) {
+        public DomainServicesResponse GetDomainServices(string sWSUserName, string sWSPassword, int domainID) {
             object[] results = this.Invoke("GetDomainServices", new object[] {
-                        wsUsername,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         domainID});
             return ((DomainServicesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainServicesAsync(string wsUsername, string wsPassword, int domainID) {
-            this.GetDomainServicesAsync(wsUsername, wsPassword, domainID, null);
+        public void GetDomainServicesAsync(string sWSUserName, string sWSPassword, int domainID) {
+            this.GetDomainServicesAsync(sWSUserName, sWSPassword, domainID, null);
         }
         
         /// <remarks/>
-        public void GetDomainServicesAsync(string wsUsername, string wsPassword, int domainID, object userState) {
+        public void GetDomainServicesAsync(string sWSUserName, string sWSPassword, int domainID, object userState) {
             if ((this.GetDomainServicesOperationCompleted == null)) {
                 this.GetDomainServicesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainServicesOperationCompleted);
             }
             this.InvokeAsync("GetDomainServices", new object[] {
-                        wsUsername,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         domainID}, this.GetDomainServicesOperationCompleted, userState);
         }
         
