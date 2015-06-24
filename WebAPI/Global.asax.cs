@@ -11,7 +11,7 @@ using KLogMonitor;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
-    
+
 namespace WebAPI
 {
     public class WebApiApplication : System.Web.HttpApplication
@@ -32,22 +32,22 @@ namespace WebAPI
             // get group ID
             NameValueCollection queryParams = Request.Url.ParseQueryString();
             if (queryParams["partner_id"] != null)
-                HttpContext.Current.Items.Add(Constants.GROUP_ID, queryParams["partner_id"]);
+                HttpContext.Current.Items[Constants.GROUP_ID] = queryParams["partner_id"];
 
             if (queryParams["user_id"] != null)
-                HttpContext.Current.Items.Add(Constants.USER_ID, queryParams["user_id"]);
+                HttpContext.Current.Items[Constants.USER_ID] = queryParams["user_id"];
 
             // get user agent
             if (HttpContext.Current.Request.UserAgent != null)
-                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
+                HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
 
             // get host IP
             if (HttpContext.Current.Request.UserHostAddress != null)
-                HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
+                HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
 
             // get action name
             if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
-                HttpContext.Current.Items.Add(Constants.ACTION, HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath);
+                HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath;
         }
     }
 }

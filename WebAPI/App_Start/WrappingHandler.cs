@@ -22,7 +22,7 @@ namespace WebAPI.App_Start
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             // get request ID
-            HttpContext.Current.Items.Add(Constants.REQUEST_ID_KEY, request.GetCorrelationId());
+            HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
 
             // log request body
             log.DebugFormat("API Request - \n{0}\n{1}",
