@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
@@ -17,26 +19,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{AD5CFE
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		AllClients|Any CPU = AllClients|Any CPU
 		Debug|Any CPU = Debug|Any CPU
-		debug32|Any CPU = debug32|Any CPU
 		Release|Any CPU = Release|Any CPU
-		test|Any CPU = test|Any CPU
-		Yes|Any CPU = Yes|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.AllClients|Any CPU.Build.0 = Release|Any CPU
 		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.debug32|Any CPU.Build.0 = Debug|Any CPU
 		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.test|Any CPU.ActiveCfg = Release|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.test|Any CPU.Build.0 = Release|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Yes|Any CPU.ActiveCfg = Release|Any CPU
-		{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
