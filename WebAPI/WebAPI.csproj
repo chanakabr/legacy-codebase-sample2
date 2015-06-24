@@ -156,14 +156,32 @@
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
-    <Content Include="Service References\Catalog\Service1.disco" />
-    <Content Include="Service References\Notifications\NotificationService.disco" />
-    <Content Include="Service References\Notifications\configuration91.svcinfo" />
-    <Content Include="Service References\Notifications\configuration.svcinfo" />
-    <Content Include="Service References\Notifications\Reference.svcmap">
+    <None Include="Service References\Catalog\Service1.disco" />
+    <Content Include="Service References\Catalog\WebAPI.Catalog.epgResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\Notifications\configuration91.svcinfo" />
+    <None Include="Service References\Notifications\configuration.svcinfo" />
+    <Content Include="Service References\Notifications\NotificationService1.wsdl" />
+    <None Include="Service References\Notifications\NotificationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService54.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <None Include="Service References\Catalog\Service14.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -209,8 +227,9 @@
     <None Include="Service References\Catalog\Service149.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Catalog\Service2.wsdl" />
-    <Content Include="Service References\Catalog\Service21.wsdl" />
+    <None Include="Service References\Catalog\Service2.wsdl" />
+    <None Include="Service References\Catalog\Service21.wsdl" />
+    <Content Include="Service References\Notifications\NotificationService1.disco" />
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -532,22 +551,6 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Service References\Notifications\NotificationService.wsdl" />
-    <None Include="Service References\Notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -820,10 +823,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -864,10 +867,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
