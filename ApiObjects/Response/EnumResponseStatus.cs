@@ -40,6 +40,7 @@ namespace ApiObjects.Response
         InvalidUser = 1026,
         UserNotAllowed = 1027,
         DuplicatePin = 1028,
+        UserAlreadyInDomain=1029,
         
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,

@@ -116,7 +116,7 @@ namespace Users
 
         [JsonProperty()]
         public int m_nRegion;
-        
+
         #endregion
 
         #region Public Methods
@@ -1263,7 +1263,7 @@ namespace Users
             if (m_oDeviceFamiliesMapping != null)
             {
                 DeviceContainer deviceFamily = GetDeviceFamilyByUDID(sUDID);
-                
+
                 if (deviceFamily != null)
                 {
                     if (deviceFamily.m_oLimitationsManager != null)
@@ -2077,27 +2077,55 @@ namespace Users
             {
                 return DomainResponseStatus.ActionUserNotMaster;
             }
+            
+            // Check if user already exists in domain and Its Status (active or pending)            
+            DataTable dtUser = DomainDal.GetUserInDomain(nGroupID, nDomainID, nUserID);
 
-            // Check if user already exists in domain (active or pending)
-            int nUserDomainID = DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
+            int? userStatus = null ;
+            int? userIsActive  = null;
+            int nUserDomainID = 0;
 
+            if (dtUser != null)
+            {
+                int nCount = dtUser.DefaultView.Count;
+                if (nCount > 0)
+                {
+                    if (dtUser.DefaultView[0].Row["STATUS"] != null && dtUser.DefaultView[0].Row["STATUS"] != DBNull.Value)
+                        userStatus = int.Parse(dtUser.DefaultView[0].Row["STATUS"].ToString());
+                    
+                    if (dtUser.DefaultView[0].Row["IS_ACTIVE"] != null && dtUser.DefaultView[0].Row["IS_ACTIVE"] != DBNull.Value)
+                        userIsActive = int.Parse(dtUser.DefaultView[0].Row["STATUS"].ToString());
+
+                        nUserDomainID = int.Parse(dtUser.DefaultView[0].Row["ID"].ToString());
+                }
+            }
+
+            // user exist
             if (nUserDomainID > 0)  // If user exists, update its status to active
             {
-                int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
-
-                if (rowsAffected < 1)
+                //in case user already exist, Do nothing , return userAlreadyexistInDomain
+                if (userStatus.HasValue && userStatus == 1 && userIsActive.HasValue && userIsActive == 1)
                 {
-                    eDomainResponseStatus = DomainResponseStatus.Error;
+                    eDomainResponseStatus = DomainResponseStatus.UserAlreadyInDomain;
                 }
                 else
                 {
-                    bRemove = true;
-                    eDomainResponseStatus = GetUserList(nDomainID, nGroupID, false);
+                    //in case user exists, but pendding , update its status to active, return OK
+                    int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
+
+                    if (rowsAffected < 1)
+                    {
+                        eDomainResponseStatus = DomainResponseStatus.Error;
+                    }
+                    else
+                    {
+                        bRemove = true;
+                        eDomainResponseStatus = GetUserList(nDomainID, nGroupID, false);
+                    }
                 }
 
                 return eDomainResponseStatus;
             }
-
 
             // Process New User
 
