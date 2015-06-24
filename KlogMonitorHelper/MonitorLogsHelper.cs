@@ -53,15 +53,15 @@ namespace KlogMonitorHelper
             if (!string.IsNullOrEmpty(requestString))
             {
                 // get request ID
-                HttpContext.Current.Items.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
+                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
 
                 // get user agent
                 if (HttpContext.Current.Request.UserAgent != null)
-                    HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
+                    HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
 
                 // get host IP
                 if (HttpContext.Current.Request.UserHostAddress != null)
-                    HttpContext.Current.Items.Add(Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
+                    HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
 
                 try
                 {
@@ -71,15 +71,15 @@ namespace KlogMonitorHelper
                     // get action name
                     XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
                     if (tempXmlNodeList.Count > 0)
-                        HttpContext.Current.Items.Add(Constants.ACTION, tempXmlNodeList[0].ChildNodes[0].Name);
+                        HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
                     else
-                        HttpContext.Current.Items.Add(Constants.ACTION, "null");
+                        HttpContext.Current.Items[Constants.ACTION] = "null";
 
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
                     XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
                     if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
-                        HttpContext.Current.Items.Add(Constants.GROUP_ID, GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText));
+                        HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText);
                 }
                 catch (Exception ex)
                 {
@@ -87,7 +87,7 @@ namespace KlogMonitorHelper
                 }
 
                 // start k-monitor
-                HttpContext.Current.Items.Add(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
+                HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                 // log request
                 log.Debug(requestString);
@@ -105,24 +105,24 @@ namespace KlogMonitorHelper
                     if (requestMessage.Headers.Action != null)
                     {
                         string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
-                        OperationContext.Current.IncomingMessageProperties.Add(Constants.ACTION, actionName);
+                        OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = actionName;
                     }
                     else
-                        OperationContext.Current.IncomingMessageProperties.Add(Constants.ACTION, "null");
+                        OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = "null";
                 }
 
                 // get request ID
-                OperationContext.Current.IncomingMessageProperties.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
 
                 // get user agent
-                OperationContext.Current.IncomingMessageProperties.Add(Constants.CLIENT_TAG, Dns.GetHostName());
+                OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] = Dns.GetHostName();
 
                 // get host IP
                 if (requestMessage.Properties != null && requestMessage.Properties[RemoteEndpointMessageProperty.Name] != null)
-                    OperationContext.Current.IncomingMessageProperties.Add(Constants.HOST_IP, (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address);
+                    OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] = (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address;
 
                 // start k-monitor
-                OperationContext.Current.IncomingMessageProperties.Add(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
+                OperationContext.Current.IncomingMessageProperties[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                 // log request
                 log.Debug(requestString);
