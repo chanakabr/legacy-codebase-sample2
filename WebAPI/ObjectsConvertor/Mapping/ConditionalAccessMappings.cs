@@ -92,7 +92,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.currencySign, opt => opt.MapFrom(src => src.m_sCurrencySign))
                .ForMember(dest => dest.currencyID, opt => opt.MapFrom(src => src.m_nCurrencyID));
 
-
+            // BillingResponse
+            Mapper.CreateMap<ConditionalAccess.BillingResponse, BillingResponse>()
+               .ForMember(dest => dest.ReceiptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
+               .ForMember(dest => dest.ExternalReceiptCode, opt => opt.MapFrom(src => src.m_sExternalReceiptCode));
         }
     }
 }

@@ -50,7 +50,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -89,7 +89,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -127,7 +127,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -163,7 +163,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -199,7 +199,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -237,7 +237,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

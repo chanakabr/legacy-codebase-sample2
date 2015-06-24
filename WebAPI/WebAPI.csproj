@@ -258,6 +258,9 @@
     <Content Include="Web References\ConditionalAccess\BillingTransactions.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\BillingStatusResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -603,12 +606,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
+    <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
+    <Compile Include="Models\ConditionalAccess\Charge.cs" />
+    <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />
@@ -820,10 +827,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

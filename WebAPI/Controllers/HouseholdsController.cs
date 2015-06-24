@@ -492,7 +492,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the household model<br/>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// MasterEmailAlreadyExists = 1004, Household does not exist = 1006, HouseholdUserFailed = 1007
+        /// Household does not exist = 1006, Household user failed = 1007
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
@@ -602,7 +602,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household<br/>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
+        /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>

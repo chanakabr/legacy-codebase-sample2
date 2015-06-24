@@ -8,6 +8,7 @@ using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -163,6 +164,89 @@ namespace WebAPI.Clients
             transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.BillingTransactions>(response.transactions);
 
             return transactions;
+        }
+
+        internal BillingResponse ChargeUserForMediaFile(int groupId, string siteGuid, double price, string currency, int fileId, string ppvModuleCode, string couponCode, 
+            string extraParams,string udid, string encryptedCvv)
+        {
+            BillingResponse result = null;
+            WebAPI.ConditionalAccess.BillingStatusResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.CC_ChargeUserForMediaFile(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, fileId, 
+                        ppvModuleCode, couponCode, Utils.Utils.GetClientIP(), extraParams, string.Empty, string.Empty, udid, string.Empty, encryptedCvv);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.BillingResponse == null || response.BillingResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<BillingResponse>(response.BillingResponse);
+
+            return result;
+        }
+
+        internal BillingResponse ChargeUserForSubscription(int groupId, string siteGuid, double price, string currency, string subscriptionId, string couponCode, string extraParams, string udid, string encryptedCvv)
+        {
+            BillingResponse result = null;
+            WebAPI.ConditionalAccess.BillingStatusResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.CC_ChargeUserForSubscription(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, subscriptionId,
+                        couponCode, Utils.Utils.GetClientIP(), extraParams, string.Empty, string.Empty, udid, string.Empty, encryptedCvv);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.BillingResponse == null || response.BillingResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<BillingResponse>(response.BillingResponse);
+
+            return result;
         }
     }
 }
