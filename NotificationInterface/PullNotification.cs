@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using DAL;
+using KLogMonitor;
 using Logger;
 using NotificationObj;
 
@@ -12,7 +13,7 @@ namespace NotificationInterface
 {
     public class PullNotification : NotificationBase, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public PullNotification()
             : base()

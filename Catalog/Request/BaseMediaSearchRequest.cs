@@ -10,13 +10,14 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public abstract class BaseMediaSearchRequest : BaseRequest, IRequestImp
     {
-        protected static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public bool m_bExact;
@@ -91,7 +92,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("GetSearchMediaWithSearcher", ex);
+                log.Error("GetSearchMediaWithSearcher", ex);
                 throw ex;
             }
         }

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
@@ -14,6 +16,7 @@ namespace Catalog.Request
     [DataContract]
     public class AssetInfoRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Data Members
 
@@ -46,7 +49,7 @@ namespace Catalog.Request
         /// <param name="sSiteGuid"></param>
         /// <param name="mediaIds"></param>
         /// <param name="epgIds"></param>
-        public AssetInfoRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, 
+        public AssetInfoRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature,
             string sSignString, string sSiteGuid, int domainId,
             List<long> mediaIds, List<long> epgIds)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, domainId)
@@ -55,7 +58,7 @@ namespace Catalog.Request
             this.epgIds = epgIds;
         }
 
-        
+
         #endregion
 
         #region Public Methods
@@ -84,7 +87,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Failed at GetResponse of AssetInfoRequest. ex = {0}, ST = {1}", ex.Message, ex.StackTrace), "AssetInfoRequest");
+                log.Error("Error - " + string.Format("Failed at GetResponse of AssetInfoRequest. ex = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
 

@@ -8,14 +8,18 @@ using Amazon.S3.Model;
 using System.Threading;
 using Amazon;
 using System.Security.Cryptography;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Uploader
 {
     public class AmazonUploader : BaseUploader
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private string m_sRegion;
 
-        public AmazonUploader(int nGroupID,string sAddress, string sUN, string sPass, string sPrefix, string sRegion)
+        public AmazonUploader(int nGroupID, string sAddress, string sUN, string sPass, string sPrefix, string sRegion)
         {
             m_nGroupID = nGroupID;
             m_sAddress = sAddress;
@@ -32,7 +36,7 @@ namespace Uploader
             if (m_sAddress.Trim() == "")
                 return true;
 
-            Logger.Logger.Log("Upload - Start.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+            log.Debug("Upload - Start. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
             FileStream fs = null;
 
@@ -79,13 +83,13 @@ namespace Uploader
                         }
                     }
 
-                    Logger.Logger.Log("Upload - Finish.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                    log.Debug("Upload - Finish. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                     if (deleteFileAfterUpload)
                     {
                         fileInf.Delete();
 
-                        Logger.Logger.Log("Upload - Delete File After Upload.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                        log.Debug("Upload - Delete File After Upload. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
                     }
 
                     isSuccess = true;
@@ -95,15 +99,13 @@ namespace Uploader
             {
                 isSuccess = false;
 
-                Logger.Logger.Log("Upload - Error.", "File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, "AmazonUploader");
+                log.Error("Upload - Error. - File: " + fileToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass + ", Exception: " + " || " + ex.Message + " || " + ex.StackTrace, ex);
             }
             finally
             {
                 if (fs != null)
                 {
                     fs.Close();
-
-                    //Logger.Logger.Log("ProccessJob, File Stream Closed: ", fileToUpload, "AmazonUploader");
                 }
             }
 
@@ -117,7 +119,7 @@ namespace Uploader
 
             if (!Directory.Exists(directoryToUpload))
             {
-                Logger.Logger.Log("UploadDirectory - Dirctory does not exist.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                log.Debug("UploadDirectory - Directory does not exist. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                 return;
             }
@@ -132,13 +134,13 @@ namespace Uploader
 
                 AddUploadGroup();
 
-                Logger.Logger.Log("UploadDirectory - Start.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                log.Debug("UploadDirectory - Start. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                 foreach (string file in files)
                 {
                     if (failCount > 3)
                     {
-                        Logger.Logger.Log("UploadDirectory - Fail Count Limit Exceeded.", "Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                        log.Debug("UploadDirectory - Fail Count Limit Exceeded. - Directory: " + directoryToUpload + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
 
                         RemoveUploadGroup();
 
@@ -149,7 +151,7 @@ namespace Uploader
                     {
                         failCount++;
 
-                        Logger.Logger.Log("UploadDirectory - Error.", "Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass, "AmazonUploader");
+                        log.Debug("UploadDirectory - Error. - Directory: " + directoryToUpload + ", File: " + file + ", To: " + m_sAddress + " With Username: " + m_sUserName + ", Password: " + m_sPass);
                     }
                 }
 
@@ -166,7 +168,7 @@ namespace Uploader
 
             try
             {
-                Logger.Logger.Log("ProccessJob - Start.", "Job: " + job.ToString(), "AmazonUploader");
+                log.Debug("ProccessJob - Start. - Job: " + job.ToString());
 
                 fileInf = new FileInfo(file);
 
@@ -214,7 +216,7 @@ namespace Uploader
 
                         job.upload_status = UploadJobStatus.FINISHED;
 
-                        Logger.Logger.Log("ProccessJob - Finish.", "Job: " + job.ToString(), "AmazonUploader");
+                        log.Debug("ProccessJob - Finish. - Job: " + job.ToString());
                     }
                     catch (Exception ex)
                     {
@@ -222,7 +224,7 @@ namespace Uploader
 
                         job.fail_count++;
 
-                        Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "AmazonUploader");
+                        log.Error("ProccessJob - Error. - Job: " + job.ToString() + ", Exception: " + ex.Message, ex);
                     }
                     finally
                     {
@@ -230,7 +232,7 @@ namespace Uploader
                         {
                             fileInf.Delete();
 
-                            Logger.Logger.Log("ProccessJob - Delete.", "Job: " + job.ToString(), "AmazonUploader");
+                            log.Debug("ProccessJob - Delete. - Job: " + job.ToString());
                         }
                     }
                 }
@@ -238,10 +240,8 @@ namespace Uploader
             catch (Exception ex)
             {
                 Interlocked.Add(ref nFailCount, 1);
-
                 job.fail_count++;
-
-                Logger.Logger.Log("ProccessJob - Error.", "Job: " + job.ToString() + ", Exception: " + ex.Message, "AmazonUploader");
+                log.Error("ProccessJob - Error. - Job: " + job.ToString() + ", Exception: " + ex.Message, ex);
             }
             finally
             {

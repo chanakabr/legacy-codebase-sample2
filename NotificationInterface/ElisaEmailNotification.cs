@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using KLogMonitor;
 using Logger;
 using NotificationObj;
 
@@ -13,7 +14,7 @@ namespace NotificationInterface
     //Use mandrillapp Service
     public class ElisaEmailNotification : EmailNotification
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public ElisaEmailNotification()
             : base()
@@ -24,7 +25,7 @@ namespace NotificationInterface
         {
             //get Notification Message Object for EMAIL
             NotificationMessage emailMessage = GetEmailMessage(request);
-            _logger.Info("EmailNotification.Send "+ emailMessage.MessageText);
+            log.Info("EmailNotification.Send " + emailMessage.MessageText);
             SendMail(emailMessage);
         }
 
@@ -61,7 +62,7 @@ namespace NotificationInterface
                 if (sWSURL != "")
                     clientAPI.Url = sWSURL;
 
-                Logger.Logger.Log("SendMail", "api_ws = " + clientAPI.Url, "ElisaEmailNotification");
+                log.Debug("SendMail - api_ws = " + clientAPI.Url);
 
                 //Build mailRequest from the message 
                 WS_Api.EmailNotificationRequest emailRequest = new WS_Api.EmailNotificationRequest();
@@ -122,7 +123,7 @@ namespace NotificationInterface
 
                     #endregion
 
-                    emailRequest.m_sTemplateName = message.TagNotificationParams.templateEmail;                    
+                    emailRequest.m_sTemplateName = message.TagNotificationParams.templateEmail;
                     emailRequest.m_emailKey = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("groups_operators", "EmailKey", "group_id", "=", message.nGroupID, "MESSAGE_BOX_CONNECTION_STRING"));
                 }
 
@@ -133,17 +134,17 @@ namespace NotificationInterface
                 bool bSend = clientAPI.SendMailTemplate(sWSUserName, sWSPass, emailRequest);
                 message.Status = NotificationMessageStatus.Successful;
             }
-            
+
             catch (Exception ex)
             {
-                _logger.Error(string.Format("{0}Exception = {1}", "SendMail failed", ex.ToString()));
-                Logger.Logger.Log("SendMail", string.Format("Exception = {0}", ex.ToString()), "EmailNotifications");
+                log.Error(string.Format("{0}Exception = {1}", "SendMail failed", ex.ToString()));
+                log.Error("SendMail - " + string.Format("Exception = {0}", ex.ToString()), ex);
                 message.Status = NotificationMessageStatus.Failed;
             }
         }
 
         private static void GetMediaDetails(NotificationMessage message, ref WS_Api.EmailNotificationRequest emailRequest, List<WS_Api.TagPair> lMediaTagsMetas)
-        {          
+        {
             //get Media Details from Tvinci DB 
             DataSet ds = DAL.NotificationDal.GetMediaForEmail(message.TagNotificationParams.mediaID);
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -241,7 +242,7 @@ namespace NotificationInterface
             return sFollowByTags;
         }
 
-       
+
 
         private static string UserFollowTags(NotificationMessage message, int nGroupID)
         {
@@ -267,7 +268,7 @@ namespace NotificationInterface
                 followList.Add(string.Format("{0} : {1}", tag.Key, string.Join(",", valueList)));
 
             }
-           
+
             string followstr = string.Join(" , ", followList.ToArray());
             return followstr;
         }
@@ -307,10 +308,10 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("{0}Exception = {1}", "GetUserNotifications", ex.ToString()));
-                Logger.Logger.Log("GetUserNotifications", string.Format("Exception = {0}",  ex.ToString()), "EmailNotifications");
+                log.Error(string.Format("{0}Exception = {1}", "GetUserNotifications", ex.ToString()));
+                log.Error("GetUserNotifications - " + string.Format("Exception = {0}", ex.ToString()), ex);
                 return null;
             }
         }
-    }  
+    }
 }

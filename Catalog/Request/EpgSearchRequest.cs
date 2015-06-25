@@ -9,6 +9,7 @@ using ApiObjects;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
 using EpgBL;
+using KLogMonitor;
 using Logger;
 using Tvinci.Core.DAL;
 
@@ -17,7 +18,7 @@ namespace Catalog.Request
     [DataContract]
     public class EpgSearchRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public bool m_bExact;
@@ -120,7 +121,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("GetSearchMediaWithSearcher", ex);
+                log.Error("GetSearchMediaWithSearcher", ex);
                 throw ex;
             }
         }

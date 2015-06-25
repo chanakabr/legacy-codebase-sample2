@@ -14,6 +14,7 @@ using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Request;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog
 {
@@ -21,7 +22,7 @@ namespace Catalog
     /*  Get Channels List + media ID and return true / false value */
     public class DoesMediaBelongToChannels : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<int> m_lChannelIDs;
@@ -57,7 +58,7 @@ namespace Catalog
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
                 if (searcher == null)
-                    _logger.Error("could not load ISearcher from Bootstrap");
+                    log.Error("could not load ISearcher from Bootstrap");
 
                 #region get subscription medias in lucene
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
@@ -100,7 +101,7 @@ namespace Catalog
                                      }
                                      catch (Exception ex)
                                      {
-                                         _logger.Error(ex.Message, ex);
+                                         log.Error(ex.Message, ex);
                                      }
                                  }, searchObjectIndex);
                             channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -134,7 +135,7 @@ namespace Catalog
                             }
                             catch (Exception ex)
                             {
-                                _logger.Error(ex.Message);
+                                log.Error(ex.Message);
                             }
                         }
                     }
@@ -160,7 +161,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

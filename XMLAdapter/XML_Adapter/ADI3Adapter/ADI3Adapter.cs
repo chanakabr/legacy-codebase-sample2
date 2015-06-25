@@ -6,11 +6,15 @@ using System.Xml;
 using System.Data;
 using System.Data.OleDb;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace XMLAdapter
 {
     public sealed class ADI3Adapter : BaseXMLAdapter
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         // handle genre and languages excel files
         private DataSet m_ExcelGenreDS;
         private DataSet m_ExcelLanguagesDS;
@@ -18,10 +22,10 @@ namespace XMLAdapter
         private int m_offerNumber = 0;
 
         // TODO: later on, read these configuration information from outside
-        string EXCEL_GENRE_FILE_PATH            = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "\\";
-        string EXCEL_LANGUAGES_FILE_PATH        = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "\\";
-        const string EXCEL_LANGUAGES_FILE_NAME  = "Languages_table.xls";
-        const string EXCEL_GENRE_FILE_NAME      = "Genre.xls";
+        string EXCEL_GENRE_FILE_PATH = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "\\";
+        string EXCEL_LANGUAGES_FILE_PATH = ConfigurationManager.AppSettings["XSL_PATH"].ToString() + "\\";
+        const string EXCEL_LANGUAGES_FILE_NAME = "Languages_table.xls";
+        const string EXCEL_GENRE_FILE_NAME = "Genre.xls";
 
         // callback function for handling genre information
         public override string HandleGenre(string filter, string language)
@@ -204,7 +208,7 @@ namespace XMLAdapter
             // select all the rows which have the genre id  and the subgenre filter arguments
             sExpression = "GENRE_ID = " + sGenreID + "and SUB_GENRE_ID = " + sSubGenreID;
 
-            DataTable dd = m_ExcelGenreDS.Tables[0].Copy();    
+            DataTable dd = m_ExcelGenreDS.Tables[0].Copy();
             DataRow[] dr = dd.Select(sExpression);
 
             if (isSub == true)
@@ -272,8 +276,9 @@ namespace XMLAdapter
                 ExcelConnection.Close();
                 return ExcelDataSet;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                log.Error("", ex);
                 return null;
             }
         }

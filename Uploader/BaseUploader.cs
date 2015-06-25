@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Uploader
 {
     public abstract class BaseUploader
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected string m_sBasePath;
 
         protected string m_sAddress;
@@ -111,7 +114,7 @@ namespace Uploader
 
             if (!Directory.Exists(sBasePath))
             {
-                Logger.Logger.Log("Directory does not exist: " + sBasePath, "Directory does not exist: " + sBasePath, "UploadQueue");
+                log.Debug("Directory does not exist: " + sBasePath + " Directory does not exist: " + sBasePath);
                 return;
             }
 
@@ -121,7 +124,7 @@ namespace Uploader
             int nTotalJobs = 0;
             int nFailJobs = 0;
 
-            Logger.Logger.Log("Start Queue", "group : " + m_nGroupID + ", " + sBasePath + ", max connections : " + nMaxThreads + ", rows : " + nMaxRows, "UploadQueue");
+            log.Debug("Start Queue - group : " + m_nGroupID + ", " + sBasePath + ", max connections : " + nMaxThreads + ", rows : " + nMaxRows);
 
             List<UploadJob> pendingJobs = UploadHelper.GetGroupPendingJobs(m_nGroupID, nID, nMaxRows);
 
@@ -176,8 +179,7 @@ namespace Uploader
                 pendingJobs = UploadHelper.GetGroupPendingJobs(m_nGroupID, nID, nMaxRows);
             }
 
-            Logger.Logger.Log("Finish Queue", string.Format("group : {0}, jobs : {1}, fail : {2}", m_nGroupID.ToString(), nTotalJobs, nFailJobs), "UploadQueue");
+            log.Debug("Finish Queue - " + string.Format("group : {0}, jobs : {1}, fail : {2}", m_nGroupID.ToString(), nTotalJobs, nFailJobs));
         }
-
     }
 }

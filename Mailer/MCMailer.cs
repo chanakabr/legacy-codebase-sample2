@@ -5,16 +5,20 @@ using System.Text;
 using ApiObjects;
 using System.Configuration;
 using System.Web.Script.Serialization;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Mailer
 {
     public class MCMailer : IMailer
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public bool SendMailTemplate(ApiObjects.MailRequestObj request)
         {
             try
             {
-                Logger.Logger.Log("Mail Responses", "Start Send " + request.m_sSenderTo, "Mailer");
+                log.Debug("Mail Responses - Start Send " + request.m_sSenderTo);
                 bool retVal = false;
                 JavaScriptSerializer jsSer = new JavaScriptSerializer();
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
@@ -23,17 +27,17 @@ namespace Mailer
                     mcObj.key = request.m_emailKey;
 
                 //Patch until going live!!
-                Logger.Logger.Log("Mail Responses", mcObj.template_name, "Mailer");
+                log.Debug("Mail Responses - " + mcObj.template_name);
                 if (mcObj.template_name.Contains("."))
                 {
                     mcObj.template_name = mcObj.template_name.Remove(mcObj.template_name.IndexOf('.'));
-                    Logger.Logger.Log("Mail Responses", mcObj.template_name, "Mailer");
+                    log.Debug("Mail Responses - " + mcObj.template_name);
                 }
-                Logger.Logger.Log("Mail Responses", mcObj.template_name, "Mailer");
+                log.Debug("Mail Responses - " + mcObj.template_name);
                 string json = jsSer.Serialize(mcObj);
                 string sResp = Utils.SendXMLHttpReq(Utils.GetTcmConfigValue("MCURL"), json, null);
-                Logger.Logger.Log("Mail Responses", "Start Send to url" + Utils.GetTcmConfigValue("MCURL") + " key:" +Utils.GetTcmConfigValue("MCKey") , "Mailer");
-                Logger.Logger.Log("Mail Responses", sResp, "Mailer");
+                log.Debug("Mail Responses - Start Send to url" + Utils.GetTcmConfigValue("MCURL") + " key:" + Utils.GetTcmConfigValue("MCKey"));
+                log.Debug("Mail Responses - " + sResp);
                 if (sResp.Contains("sent"))
                 {
                     retVal = true;
@@ -58,7 +62,7 @@ namespace Mailer
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Mail Responses", "Exception " + request.m_sSenderTo + " : " + ex.Message, "Mailer");
+                log.Error("Mail Responses - Exception " + request.m_sSenderTo + " : " + ex.Message);
                 return false;
             }
         }

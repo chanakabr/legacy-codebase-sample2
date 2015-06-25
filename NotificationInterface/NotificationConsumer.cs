@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using KLogMonitor;
+using System.Reflection;
 
 namespace NotificationInterface
 {
@@ -15,20 +17,21 @@ namespace NotificationInterface
     /// <typeparam name="T"></typeparam>
     public class NotificationConsumer<T> where T : class
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region private Properties
         private bool processing = true;
         private ConcurrentQueue<T> m_Queue = null;
-        private Action<T> m_ActionQueueItem;     
+        private Action<T> m_ActionQueueItem;
         private int m_SleepNum = 0;
         private int m_SleepInidicatorNum = 0;
         #endregion
 
         #region Constructor
         public NotificationConsumer(ConcurrentQueue<T> queue, Action<T> actionQueueItem, int sleepNum, int sleepIndicatorNum)
-        {          
+        {
             m_ActionQueueItem = actionQueueItem;
-            m_Queue = queue;      
+            m_Queue = queue;
             m_SleepNum = sleepNum;
             m_SleepInidicatorNum = sleepIndicatorNum;
         }
@@ -46,7 +49,7 @@ namespace NotificationInterface
             {
                 Process();
             });
-            return task;             
+            return task;
         }
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace NotificationInterface
         /// and process it by calling the method responsible for processing the object(m_ActionQueueItem member). 
         /// </summary>
         private void Process()
-        {          
+        {
             int counter = 0;
             while (processing == true)
             {
@@ -70,7 +73,8 @@ namespace NotificationInterface
                         }
                         catch (Exception ex)
                         {
-                           //TBD:Handle exception                           
+                            log.Error("", ex);
+                            //TBD:Handle exception                           
                         }
                         counter++;
                     }
@@ -79,7 +83,7 @@ namespace NotificationInterface
                 {
                     processing = false;
                 }
-                
+
                 if (counter % m_SleepInidicatorNum == 0)
                 {
                     Thread.Sleep(m_SleepNum);

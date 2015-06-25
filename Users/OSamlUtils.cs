@@ -5,11 +5,10 @@ using System.Text;
 using TVinciShared;
 using System.Data;
 using DAL;
-using Logger;
 using System.Security.Cryptography;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Security;      
+using System.Security;
 using System.Xml;
 using System.Security.Cryptography.Xml;
 using Users.Saml;
@@ -23,20 +22,20 @@ using ComponentSpace.SAML2;
 using ComponentSpace.SAML2.Assertions;
 using ComponentSpace.SAML2.Protocols;
 using ComponentSpace.SAML2.Metadata;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace Users
 {
     public static class OSamlUtils
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static SamlResponseObject HandleCredentials(SamlCredentialObject credsObj, SamlProviderObject prov)
         {
             try
             {
-                Logger.Logger.Log("SAML ", " HandleCredentials " , "SamlLogFile");
-
                 SamlResponseObject oResponseObject = null;
                 DataTable dt = DAL.SSODal.IsUserExsits(credsObj.Customer_ID, prov.ID);
                 if (dt != null && dt.DefaultView.Count > 0)// This User already Exists
@@ -47,23 +46,21 @@ namespace Users
                 }
                 else //Create new user
                 {
-                    Logger.Logger.Log("SAML ", " Add new User  ", "SamlLogFile");
                     oResponseObject = AddNewUser(prov, credsObj);
-                    Logger.Logger.Log("SAML ", string.Format(" new User : tvinciID={0} ", oResponseObject.Tvinci_ID), "SamlLogFile");
+                    log.Debug(string.Format("new User : tvinciID={0} ", oResponseObject.Tvinci_ID));
                 }
 
                 return oResponseObject;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SAML ", string.Format(" OSamlUtils.HandleCredentials ex={0} ", ex.Message), "SamlLogFile");
-                _logger.Error(string.Format("OSamlUtils.HandleCredentials , Exception={0}", ex.Message));
+                log.Error("OSamlUtils.HandleCredentials", ex);
                 return null;
             }
         }
 
         private static SamlResponseObject UpdateUser(string sSiteGuid, SamlCredentialObject credsObj, int providerID)
-        {            
+        {
             int update = DAL.SSODal.Update_UserOperator(credsObj.Customer_ID, providerID, sSiteGuid);
             return new SamlResponseObject
             {
@@ -99,21 +96,21 @@ namespace Users
                 string message = "success to create new user or user is exists ";
                 if (wsRespObject.m_user != null)
                     message = string.Format(" success to create new user or user is exists  {0}", wsRespObject.m_user.m_sSiteGUID);
-                Logger.Logger.Log("SAML ", message, "SamlLogFile");
+                log.Debug("SAML - " + message);
                 if (wsRespObject.m_RespStatus != ResponseStatus.UserExists)
                 {
 
                     Domain d = new Domain();
                     string Customer_ID = credsObj.Customer_ID + "'s Domain";
-                    Customer_ID = Customer_ID.Substring(0,Math.Min(Customer_ID.Length , 255)); // column "name" in table domains declare with 255 chars .
-                    d.CreateNewDomain(Customer_ID , string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), "");
+                    Customer_ID = Customer_ID.Substring(0, Math.Min(Customer_ID.Length, 255)); // column "name" in table domains declare with 255 chars .
+                    d.CreateNewDomain(Customer_ID, string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), "");
                     domain_id = d.m_nDomainID;
                 }
                 else
                 {
                     domain_id = wsRespObject.m_user.m_domianID;
                 }
-                Logger.Logger.Log("SAML ", string.Format("success to create new domain = {0}", domain_id), "SamlLogFile");
+                log.Debug("SAML - " + string.Format("success to create new domain = {0}", domain_id));
 
                 int update = SSODal.Create_UserOperator(credsObj.Customer_ID, prov.ID);
 
@@ -166,7 +163,7 @@ namespace Users
         private static SamlProviderObject Get_Provider(string entityId, int? providerId)
         {
             SamlProviderObject oProviderObject = null;
-            DataTable dt = DAL.SSODal.Get_ProviderDetails(entityId, providerId );
+            DataTable dt = DAL.SSODal.Get_ProviderDetails(entityId, providerId);
             if (dt != null)
             {
                 if (dt.DefaultView.Count > 0) // This Provider Exists
@@ -189,7 +186,7 @@ namespace Users
             return oProviderObject;
         }
 
-        
+
         #region Encode/Decode Methods
 
         public static string EncodeTo64(string toEncode)
@@ -258,8 +255,8 @@ namespace Users
                 return string.Empty;
             }
         }
-        #endregion     
-        
+        #endregion
+
         private static XmlElement DecryptAssertion(XmlElement xmlElement, RSACryptoServiceProvider rsa)
         {
             EncryptedAssertion encryptedAssertion = new EncryptedAssertion(xmlElement);
@@ -285,9 +282,9 @@ namespace Users
             string x509Verify = string.Empty;
             try
             {
-                Logger.Logger.Log("SAML ", "VerifyUser", "SamlLogFile");
-                #region Get All Values From Response               
-               
+                log.Debug("SAML - VerifyUser");
+                #region Get All Values From Response
+
                 ComponentSpace.SAML2.Protocols.SAMLResponse samlResponseObj = new ComponentSpace.SAML2.Protocols.SAMLResponse(xSamlResponse.DocumentElement);
                 //Create the RSACryptoServiceProvider to decrypte the saml assertion response
                 string privateKey = samlConfig.privateKey;
@@ -299,7 +296,7 @@ namespace Users
                 XmlElement xmlSAMLAssertion = null;
                 SAMLAssertion samlAssertion = null;
 
-                Logger.Logger.Log("SAML ", "start loop all the EncryptedAssertions() of samlResponse ", "SamlLogFile");
+                log.Debug("SAML - start loop all the EncryptedAssertions() of samlResponse");
                 foreach (ComponentSpace.SAML2.Assertions.EncryptedAssertion item in encryptedAssertionList)
                 {
                     xmlSAMLAssertion = item.DecryptToXml(rsa);
@@ -309,9 +306,9 @@ namespace Users
                     if (samlAssertion.Subject != null && samlAssertion.Subject.NameID != null)
                         nameID = samlAssertion.Subject.NameID.NameIdentifier;
                     if (samlResponseObj.IsSuccess())
-                        statusCode = "Success";                    
+                        statusCode = "Success";
                     inResponseTo = samlResponseObj.InResponseTo;
-                    assertionID = samlAssertion.ID;                   
+                    assertionID = samlAssertion.ID;
 
                     foreach (AuthnStatement authnStatement in samlAssertion.GetAuthenticationStatements())
                     {
@@ -347,18 +344,18 @@ namespace Users
                             }
                         }
                     }
-                    Logger.Logger.Log("SAML ", "Finish loop all the EncryptedAssertions() of samlResponse ", "SamlLogFile");
+                    log.Debug("SAML - Finish loop all the EncryptedAssertions() of samlResponse");
                 }
 
                 #region OLD CODE
                 //XmlNode xNode = xSamlResponse.GetElementsByTagName("samlp:StatusCode")[0]; // StatusCode
                 //if (xNode != null)
                 //    statusCode = xNode.Attributes["Value"].Value;
-                  
+
                 //xNode = xSamlResponse.GetElementsByTagName("saml:Issuer")[0]; //issuer
                 //if (xNode != null)
                 //    issuer = xNode.InnerText;  
-            
+
 
                 //xNode = xSamlResponse.GetElementsByTagName("samlp:Response")[0]; //InResponseTo
                 // if (xNode != null)
@@ -371,90 +368,90 @@ namespace Users
                 //xNode = xSamlResponse.GetElementsByTagName("saml:AuthnStatement")[0]; //SessionIndex
                 // if (xNode != null)
                 //     sessionID = xNode.Attributes["SessionIndex"].Value;
-                              
-                 //xNode = xSamlResponse.GetElementsByTagName("saml:Assertion")[0]; //AssertionID 
-                 //if (xNode != null)
-                 //    assertionID = xNode.Attributes["ID"].Value;
 
-                 //if (xSamlResponse.GetElementsByTagName("saml:AttributeStatement") != null && xSamlResponse.GetElementsByTagName("saml:AttributeStatement")[0] != null)
-                 //{
-                 //    XmlNodeList attributeStatement = xSamlResponse.GetElementsByTagName("saml:AttributeStatement")[0].ChildNodes;
-                 //    foreach (XmlNode attribute in attributeStatement)
-                 //    {
-                 //        foreach (XmlAttribute att in attribute.Attributes)
-                 //        {
-                 //            switch (att.Value)
-                 //            {
-                 //                case "saml2Film1ID":
-                 //                    coGuid = attribute.InnerText;
-                 //                    break;
-                 //                case "saml2Film1Status"://user status
-                 //                    coGuidStatus = attribute.InnerText;
-                 //                    break;
-                 //                default:
-                 //                    break;
-                 //            }
-                 //        }
-                 //    }
-                 //}
+                //xNode = xSamlResponse.GetElementsByTagName("saml:Assertion")[0]; //AssertionID 
+                //if (xNode != null)
+                //    assertionID = xNode.Attributes["ID"].Value;
 
-                 //Decrypt the SAML xml
-                 //string encrypteDataString = string.Empty;
-                 //xNode = xSamlResponse.GetElementsByTagName("xenc:EncryptedData")[0];
-                 //XmlNode encryptedDataNode = xSamlResponse.GetElementsByTagName("saml:EncryptedAssertion")[0];
+                //if (xSamlResponse.GetElementsByTagName("saml:AttributeStatement") != null && xSamlResponse.GetElementsByTagName("saml:AttributeStatement")[0] != null)
+                //{
+                //    XmlNodeList attributeStatement = xSamlResponse.GetElementsByTagName("saml:AttributeStatement")[0].ChildNodes;
+                //    foreach (XmlNode attribute in attributeStatement)
+                //    {
+                //        foreach (XmlAttribute att in attribute.Attributes)
+                //        {
+                //            switch (att.Value)
+                //            {
+                //                case "saml2Film1ID":
+                //                    coGuid = attribute.InnerText;
+                //                    break;
+                //                case "saml2Film1Status"://user status
+                //                    coGuidStatus = attribute.InnerText;
+                //                    break;
+                //                default:
+                //                    break;
+                //            }
+                //        }
+                //    }
+                //}
 
-                 //if (xNode != null)
-                 //{
-                 //    XmlNodeList attributeEncryptedData = xNode.ChildNodes;
-                 //    foreach (XmlNode encryptedData in attributeEncryptedData)
-                 //    {
-                 //        if (encryptedData.Name.ToLower().Equals("xenc:cipherdata"))
-                 //        {
-                 //            XmlNodeList attributeCipherData = xNode.ChildNodes;
-                 //            foreach (XmlNode cipherData in attributeCipherData)
-                 //            {
-                 //                if (cipherData.Name.ToLower().Equals("xenc:cipherdata"))
-                 //                {
+                //Decrypt the SAML xml
+                //string encrypteDataString = string.Empty;
+                //xNode = xSamlResponse.GetElementsByTagName("xenc:EncryptedData")[0];
+                //XmlNode encryptedDataNode = xSamlResponse.GetElementsByTagName("saml:EncryptedAssertion")[0];
 
-                 //                    encrypteDataString = cipherData.InnerText;
-                 //                    /*
-                 //                    XmlNodeList cipherValue = cipherData.ChildNodes;//.GetElementsByTagName("xenc:CipherValue")[0];
-                 //                    foreach (XmlNode cipherValueNode in cipherValue)
-                 //                    {
-                 //                        if (cipherData.Name.ToLower().Equals("xenc:ciphervalue"))
+                //if (xNode != null)
+                //{
+                //    XmlNodeList attributeEncryptedData = xNode.ChildNodes;
+                //    foreach (XmlNode encryptedData in attributeEncryptedData)
+                //    {
+                //        if (encryptedData.Name.ToLower().Equals("xenc:cipherdata"))
+                //        {
+                //            XmlNodeList attributeCipherData = xNode.ChildNodes;
+                //            foreach (XmlNode cipherData in attributeCipherData)
+                //            {
+                //                if (cipherData.Name.ToLower().Equals("xenc:cipherdata"))
+                //                {
 
-                 //                            encrypteDataString = cipherValueNode.InnerText;
-                 //                    }
-                 //                     * */
-                 //                }
-                 //            }
-                 //        }
-                 //    }
-                 //}
+                //                    encrypteDataString = cipherData.InnerText;
+                //                    /*
+                //                    XmlNodeList cipherValue = cipherData.ChildNodes;//.GetElementsByTagName("xenc:CipherValue")[0];
+                //                    foreach (XmlNode cipherValueNode in cipherValue)
+                //                    {
+                //                        if (cipherData.Name.ToLower().Equals("xenc:ciphervalue"))
 
-                 // The SAML response contains a signed SAML assertion
+                //                            encrypteDataString = cipherValueNode.InnerText;
+                //                    }
+                //                     * */
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
+
+                // The SAML response contains a signed SAML assertion
                 // XmlElement samlAssertionElement = samlResponseObj.Signature.GetElementsByTagName("ds:X509Certificate")[0] as XmlElement;
-                   //  xSamlResponse.GetSignedAssertions()[0];
+                //  xSamlResponse.GetSignedAssertions()[0];
 
-                 //Verify the SAML assertion signature
-                 //result = ComponentSpace.SAML2.Protocols.SAMLMessageSignature.Verify(samlAssertionElement);
+                //Verify the SAML assertion signature
+                //result = ComponentSpace.SAML2.Protocols.SAMLMessageSignature.Verify(samlAssertionElement);
 
-              //   XmlElement decryptedElement = encryptedAssertionNode.DecryptToXml(x509Certificate, null);
-
-
-            //   IList<ComponentSpace.SAML2.Assertions.AttributeStatement> asset = samlAssertion.GetAttributeStatements();//    xSamlResponse
+                //   XmlElement decryptedElement = encryptedAssertionNode.DecryptToXml(x509Certificate, null);
 
 
+                //   IList<ComponentSpace.SAML2.Assertions.AttributeStatement> asset = samlAssertion.GetAttributeStatements();//    xSamlResponse
 
-                 //Get response Private Key 
-               /*  XmlDocument encryptedXmlDoc = new XmlDocument();
-                 encryptedXmlDoc.LoadXml(xSamlResponse.InnerXml);//encryptedDataNode.InnerXml); // get all the xenc:EncryptedData
-                 EncryptedXml exml = new EncryptedXml(encryptedXmlDoc);
-                string keyName = string.Empty;
 
-                exml.AddKeyNameMapping(keyName, rsa);
-                exml.DecryptDocument();
-                */
+
+                //Get response Private Key 
+                /*  XmlDocument encryptedXmlDoc = new XmlDocument();
+                  encryptedXmlDoc.LoadXml(xSamlResponse.InnerXml);//encryptedDataNode.InnerXml); // get all the xenc:EncryptedData
+                  EncryptedXml exml = new EncryptedXml(encryptedXmlDoc);
+                 string keyName = string.Empty;
+
+                 exml.AddKeyNameMapping(keyName, rsa);
+                 exml.DecryptDocument();
+                 */
 
 
                 /*   if (!string.IsNullOrEmpty(encrypteDataString))
@@ -506,86 +503,86 @@ namespace Users
                 #endregion
                 #endregion
 
-                 bool result = true; ;
-                 if (coGuidStatus.ToLower() != "active")
-                 {
-                     result = false;
-                     //"The user is not Active;
-                     samlResponse = new SamlResponseObject();
-                     samlResponse.Error = "user is not Active";
-                     samlResponse.Status = "Error";
-                     samlResponse.Customer_ID = coGuid;
-                     samlResponse.Guid_ID = inResponseTo;
-                     samlResponse.Name_ID = nameID;
-                     samlResponse.Session_ID = sessionID;
-                     samlResponse.Assertion_ID = assertionID;
-                     samlResponse.Scope = string.Empty;
-                 }
-                 else
-                 {  
-                     // Verifies XML digital signatures                  
-                     verified = VerifySignature(samlResponseObj, rsa);
-                     Logger.Logger.Log("SAML ", string.Format("VerifySignature = {0} ", verified), "SamlLogFile");
-                     // The SAML response contains a signed SAML assertion
-                     XmlElement samlAssertionElement = samlResponseObj.Signature.GetElementsByTagName("ds:X509Certificate")[0] as XmlElement;
+                bool result = true; ;
+                if (coGuidStatus.ToLower() != "active")
+                {
+                    result = false;
+                    //"The user is not Active;
+                    samlResponse = new SamlResponseObject();
+                    samlResponse.Error = "user is not Active";
+                    samlResponse.Status = "Error";
+                    samlResponse.Customer_ID = coGuid;
+                    samlResponse.Guid_ID = inResponseTo;
+                    samlResponse.Name_ID = nameID;
+                    samlResponse.Session_ID = sessionID;
+                    samlResponse.Assertion_ID = assertionID;
+                    samlResponse.Scope = string.Empty;
+                }
+                else
+                {
+                    // Verifies XML digital signatures                  
+                    verified = VerifySignature(samlResponseObj, rsa);
+                    log.Debug("SAML - " + string.Format("VerifySignature = {0} ", verified));
+                    // The SAML response contains a signed SAML assertion
+                    XmlElement samlAssertionElement = samlResponseObj.Signature.GetElementsByTagName("ds:X509Certificate")[0] as XmlElement;
 
-                     //check that both certification equel
-                     if (samlConfig.x509.Trim() != samlAssertionElement.InnerText.Trim())
-                     {
-                         result = false;
-                     }
-                     Logger.Logger.Log("SAML ", string.Format("x509 equel = {0} ", result), "SamlLogFile");
-                     if (!result || !verified)
-                         result = false;
+                    //check that both certification equel
+                    if (samlConfig.x509.Trim() != samlAssertionElement.InnerText.Trim())
+                    {
+                        result = false;
+                    }
+                    log.Debug("SAML - " + string.Format("x509 equel = {0} ", result));
 
-                     if (result)
-                     {
-                         //return to the client with id user 
-                         if (!string.IsNullOrEmpty(statusCode) && statusCode.ToLower().Contains("success")
-                         && !string.IsNullOrEmpty(issuer) && issuer.Contains(samlConfig.entityID)
-                         && !string.IsNullOrEmpty(coGuid))
-                         {
-                             Logger.Logger.Log("SAML ", string.Format("user is ok to logIn coGuid = {0}",coGuid ),"SamlLogFile");
-                             SamlCredentialObject credsObj = new SamlCredentialObject();
-                             credsObj.Customer_ID = coGuid;
-                             samlResponse = OSamlUtils.HandleCredentials(credsObj, prov);
-                             samlResponse.Status = "OK";
-                             samlResponse.Guid_ID = inResponseTo;
-                             samlResponse.Name_ID = nameID;
-                             samlResponse.Session_ID = sessionID;
-                             samlResponse.Assertion_ID = assertionID;
-                             samlResponse.Scope = string.Empty;
-                         }
-                     }
-                     else
-                     {
-                         Logger.Logger.Log("SAML ", string.Format("The XML signature is not valid coGuid = {0}", coGuid), "SamlLogFile");
-                         //"The XML signature is not valid.");
-                         samlResponse = new SamlResponseObject();
-                         samlResponse.Error = "The XML signature is not valid";
-                         samlResponse.Status = "Error";
-                         samlResponse.Customer_ID = coGuid;
-                         samlResponse.Guid_ID = inResponseTo;
-                         samlResponse.Name_ID = nameID;
-                         samlResponse.Session_ID = sessionID;
-                         samlResponse.Assertion_ID = assertionID;
-                         samlResponse.Scope = string.Empty;
-                     }
-                 }
+                    if (!result || !verified)
+                        result = false;
+
+                    if (result)
+                    {
+                        //return to the client with id user 
+                        if (!string.IsNullOrEmpty(statusCode) && statusCode.ToLower().Contains("success")
+                        && !string.IsNullOrEmpty(issuer) && issuer.Contains(samlConfig.entityID)
+                        && !string.IsNullOrEmpty(coGuid))
+                        {
+                            log.Debug("SAML - " + string.Format("user is ok to logIn coGuid = {0}", coGuid));
+                            SamlCredentialObject credsObj = new SamlCredentialObject();
+                            credsObj.Customer_ID = coGuid;
+                            samlResponse = OSamlUtils.HandleCredentials(credsObj, prov);
+                            samlResponse.Status = "OK";
+                            samlResponse.Guid_ID = inResponseTo;
+                            samlResponse.Name_ID = nameID;
+                            samlResponse.Session_ID = sessionID;
+                            samlResponse.Assertion_ID = assertionID;
+                            samlResponse.Scope = string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        log.Debug("SAML - " + string.Format("The XML signature is not valid coGuid = {0}", coGuid));
+                        //"The XML signature is not valid.");
+                        samlResponse = new SamlResponseObject();
+                        samlResponse.Error = "The XML signature is not valid";
+                        samlResponse.Status = "Error";
+                        samlResponse.Customer_ID = coGuid;
+                        samlResponse.Guid_ID = inResponseTo;
+                        samlResponse.Name_ID = nameID;
+                        samlResponse.Session_ID = sessionID;
+                        samlResponse.Assertion_ID = assertionID;
+                        samlResponse.Scope = string.Empty;
+                    }
+                }
                 return samlResponse;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SAML ", string.Format("VerifyUser ex = {0}", ex.Message), "SamlLogFile");
-                _logger.Error(string.Format("{0} - {1}","VerifyUser" , ex.Message));
+                log.Error("VerifyUser", ex);
                 samlResponse = new SamlResponseObject();
                 samlResponse.Status = "Error";
                 samlResponse.Error = ex.Message;
                 return samlResponse;
             }
         }
-   
-        //Recived the LogOut Response and verify it 
+
+        // received the LogOut Response and verify it 
         public static SamlResponseObject VerifyLogOut(XmlDocument xSamlResponse, SAML samlConfig, SamlProviderObject prov)
         {
             string statusCode = string.Empty;
@@ -593,7 +590,6 @@ namespace Users
             SamlResponseObject samlResponse = null;
             try
             {
-                Logger.Logger.Log("SAML ", "VerifyLogOut", "SamlLogFile");
                 if (xSamlResponse != null)
                 {
                     ComponentSpace.SAML2.Protocols.LogoutResponse samlResponseObj = new ComponentSpace.SAML2.Protocols.LogoutResponse(xSamlResponse.DocumentElement);
@@ -610,14 +606,13 @@ namespace Users
                     inResponseTo = samlResponseObj.InResponseTo;
                     samlResponse.Assertion_ID = inResponseTo;
                     samlResponse.Provider_ID = prov.ID;
-                    Logger.Logger.Log("SAML ", string.Format("LogOutResponse  Status={0}, inResponseTo={1}", samlResponse.Status, inResponseTo), "SamlLogFile");
+                    log.Debug("SAML - " + string.Format("LogOutResponse  Status={0}, inResponseTo={1}", samlResponse.Status, inResponseTo));
                 }
                 return samlResponse;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SAML ", string.Format("VerifyLogOut ex = {0}", ex.Message), "SamlLogFile");
-                _logger.Error(string.Format("{0} - {1}", "VerifyLogOut", ex.Message));
+                log.Error("VerifyLogOut", ex);
                 samlResponse = new SamlResponseObject();
                 samlResponse.Status = "Error";
                 samlResponse.Error = ex.Message;
@@ -639,7 +634,7 @@ namespace Users
                     sRespURL += samlResponse.ToJSON();
                 }
             }
-            Logger.Logger.Log("SAML ", string.Format("create redirect to IdP  = {0}", sRespURL), "SamlLogFile");
+            log.Debug("SAML - " + string.Format("create redirect to IdP  = {0}", sRespURL));
             return sRespURL;
         }
 
@@ -705,8 +700,7 @@ namespace Users
             }
             catch (CryptographicException e)
             {
-                Logger.Logger.Log("SAML ", string.Format("{0}-{1}", "HashAndSignBytes  login failed ", e.Message), "SamlLogFile");
-                _logger.Error(string.Format("{0}-{1}", "HashAndSignBytes  login failed ", e.Message));
+                log.Error("HashAndSignBytes login failed ", e);
                 return null;
             }
         }
@@ -718,10 +712,11 @@ namespace Users
             bool verified = false;
             try
             {
-                Logger.Logger.Log("SAML ","VerifySignature ", "SamlLogFile");
+                log.Debug("SAML - VerifySignature");
+
 
                 XmlElement xElementVerified = DecryptAssertion(samlResponseObj.GetEncryptedAssertion().ToXml(), rsa);
-                
+
                 switch (xElementVerified.NamespaceURI)
                 {
                     case ComponentSpace.SAML2.Utility.SAML.NamespaceURIs.Assertion:
@@ -741,18 +736,14 @@ namespace Users
             }
             catch (ComponentSpace.SAML2.Exceptions.SAMLSignatureException sx)
             {
-                Logger.Logger.Log("SAML ", string.Format("{0} - {1}", "VerifySignature", sx.Message), "SamlLogFile");
-                _logger.Error(string.Format("{0} - {1}", "VerifySignature", sx.Message));
+                log.Error("VerifySignature", sx);
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("{0} - {1}", "VerifySignature", ex.Message));
+                log.Error("VerifySignature", ex);
                 return false;
             }
         }
-
-     
-
     }
 }

@@ -5,12 +5,15 @@ using System.Threading;
 using Couchbase.Configuration;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace CouchbaseWrapper
 {
 
     public class CouchbaseManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static volatile Dictionary<string, GenericCouchbaseClient> m_CouchbaseInstances = new Dictionary<string, GenericCouchbaseClient>();
         private static object locker = new object();
 
@@ -41,7 +44,7 @@ namespace CouchbaseWrapper
                             sb.Append(String.Concat(" Ex type: ", ex.GetType().Name));
                             sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
 
-                            Logger.Logger.Log("Exception", sb.ToString(), "CBWrapper");
+                            log.Error("Exception - " + sb.ToString(), ex);
                             #endregion
                         }
                     }

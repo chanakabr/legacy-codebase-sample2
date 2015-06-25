@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
+using KLogMonitor;
 
 namespace StreamingProvider
 {
     public class HarmonicProvider : BaseLSProvider
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int LEFT_MARGIN = 3;
         private const int RIGHT_MARGIN = 8;
 
@@ -33,7 +35,7 @@ namespace StreamingProvider
 
                 bool bValid = ValidParameters(dParams);
                 // sBasicLink
-                
+
                 host = (new Uri(dParams[EpgLinkConstants.BASIC_LINK].ToString())).Host;
                 if (!string.IsNullOrEmpty(host))
                 {
@@ -101,7 +103,7 @@ namespace StreamingProvider
                 StringBuilder sb = new StringBuilder("Exception at HarmonicProvider GenerateLink. ");
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-                Logger.Logger.Log("GetEPGLink", sb.ToString(), "GetEPGLink");
+                log.Error("GetEPGLink - " + sb.ToString(), ex);
                 return string.Empty;
             }
         }

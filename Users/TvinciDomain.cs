@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Users.Cache;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Users
 {
     public class TvinciDomain : BaseDomain
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected TvinciDomain()
         {
         }
@@ -61,9 +64,9 @@ namespace Users
         {
             // get domain by domain id from Cache 
             DomainsCache oDomainCache = DomainsCache.Instance();
-            
-            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);            
-                       
+
+            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);
+
             return domain;
         }
 
@@ -79,7 +82,7 @@ namespace Users
                 {
                     case DomainStatus.OK: // add domain to Cache
                         oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                        DomainsCache oDomainCache = DomainsCache.Instance();                      
+                        DomainsCache oDomainCache = DomainsCache.Instance();
                         bool bInsertDomain = oDomainCache.InsertDomain(domain);
                         break;
                     case DomainStatus.UserExistsInOtherDomains:
@@ -95,7 +98,7 @@ namespace Users
                         oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
                         break;
                     default:
-                        Logger.Logger.Log("Error", string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid), GetLogFilename());
+                        log.Error("Error - " + string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid));
                         break;
                 }
 
@@ -113,7 +116,8 @@ namespace Users
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
+
                 throw;
             }
         }
@@ -165,7 +169,7 @@ namespace Users
                 {
                     // failed to update db. log and return err
 
-                    Logger.Logger.Log("RemoveDomainHomeNetworkInner", GetUpdateHomeNetworkErrMsg("Failed to delete in DB. ", lDomainID, existingNetwork, frequency, numOfAllowedNetworks, numOfActiveNetworks), "TvinciDomain");
+                    log.Error("RemoveDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("Failed to delete in DB. ", lDomainID, existingNetwork, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
                     res.eReason = NetworkResponseStatus.Error;
                     res.bSuccess = false;
@@ -195,7 +199,8 @@ namespace Users
                 else
                 {
                     // failed to update in db. log and return error
-                    Logger.Logger.Log("UpdateDomainHomeNetworkInner", GetUpdateHomeNetworkErrMsg("DB failed to update. In if candidate.IsActive == existingHomeNetwork.IsActive", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks), "TvinciDomain");
+                    log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update. In if candidate.IsActive == existingHomeNetwork.IsActive", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
+
 
                     res.eReason = NetworkResponseStatus.Error;
                     res.bSuccess = false;
@@ -218,7 +223,7 @@ namespace Users
                         else
                         {
                             // failed to update db. log and return error
-                            Logger.Logger.Log("UpdateDomainHomeNetworkInner", GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks), "TvinciDomain");
+                            log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
                             res.eReason = NetworkResponseStatus.Error;
                             res.bSuccess = false;
@@ -248,7 +253,7 @@ namespace Users
                         else
                         {
                             // failed to update data in db. log and return error
-                            Logger.Logger.Log("UpdateDomainHomeNetworkInner", GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks), "TvinciDomain");
+                            log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
                             res.eReason = NetworkResponseStatus.Error;
                             res.bSuccess = false;
@@ -267,6 +272,6 @@ namespace Users
         }
 
 
-       
+
     }
 }

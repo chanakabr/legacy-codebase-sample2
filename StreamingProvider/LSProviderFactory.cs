@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace StreamingProvider
 {
     public static class LSProviderFactory
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static object tokenImplLocker = new object();
         private static Dictionary<string, ILSProvider> dLSProviderImpl = new Dictionary<string, ILSProvider>();
 
@@ -58,6 +62,7 @@ namespace StreamingProvider
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 provider = null;
             }
 

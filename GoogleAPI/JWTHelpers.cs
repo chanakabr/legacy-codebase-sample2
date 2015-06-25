@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinic.GoogleAPI
 {
     public static class JWTHelpers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /// <summary>
         /// DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).Ticks = 621355968000000000
         /// </summary>
@@ -24,16 +28,16 @@ namespace Tvinic.GoogleAPI
         /// <returns>Base64url string</returns>
         /// <remarks></remarks>
         private static string jwtEncodeB64Url(string jsonString)
-{
-            if (!string.IsNullOrEmpty(jsonString)) 
-{
+        {
+            if (!string.IsNullOrEmpty(jsonString))
+            {
                 return convertToBase64url(System.Convert.ToBase64String(new UTF8Encoding(true, true).GetBytes(jsonString)));
-}
+            }
             else
             {
                 throw new ArgumentNullException("jsonString", "String is required.");
             }
-            
+
         }
 
         /// <summary>
@@ -55,8 +59,8 @@ namespace Tvinic.GoogleAPI
                     {
                         switch (m)
                         {
-                            case 2 :
-                            case 3 :
+                            case 2:
+                            case 3:
                                 return new UTF8Encoding(true, true).GetString(System.Convert.FromBase64String(base64UrlString.PadRight(base64UrlString.Length + (4 - m), '=')));
                             default:
                                 return string.Empty;
@@ -67,11 +71,11 @@ namespace Tvinic.GoogleAPI
                         return new UTF8Encoding(true, true).GetString(System.Convert.FromBase64String(base64UrlString));
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new ArgumentException("String is malformed/invalid base64 string.", "base64UrlString", ex);
                 }
-                
+
             }
             else
             {
@@ -90,11 +94,11 @@ namespace Tvinic.GoogleAPI
         {
             if (!string.IsNullOrEmpty(jwtHeaderAndClaim) && !string.IsNullOrEmpty(sellerSecret))
             {
-                UTF8Encoding _utf8 =  new UTF8Encoding(true, true);
+                UTF8Encoding _utf8 = new UTF8Encoding(true, true);
                 byte[] _key = _utf8.GetBytes(sellerSecret);
                 byte[] _btxt = _utf8.GetBytes(jwtHeaderAndClaim);
                 string _str = string.Empty;
-                using (HMACSHA256 hmac  = new HMACSHA256(_key))
+                using (HMACSHA256 hmac = new HMACSHA256(_key))
                 {
                     _str = convertToBase64url(System.Convert.ToBase64String(hmac.ComputeHash(_btxt)));
                     hmac.Clear();
@@ -115,12 +119,12 @@ namespace Tvinic.GoogleAPI
         /// <param name="sellerSecret">Your Seller Secret</param>
         /// <returns>JWT string</returns>
         /// <remarks></remarks>
-        public static string buildJWT(JWTHeaderObject HeaderObj, InAppItemObject ClaimObj, string sellerSecret) 
+        public static string buildJWT(JWTHeaderObject HeaderObj, InAppItemObject ClaimObj, string sellerSecret)
         {
-            if (HeaderObj !=null &&  ClaimObj!=null && !string.IsNullOrEmpty(sellerSecret))
+            if (HeaderObj != null && ClaimObj != null && !string.IsNullOrEmpty(sellerSecret))
             {
                 try
-                    {
+                {
                     string _jh = jwtEncodeB64Url(JSONHelpers.dataContractToJSON(HeaderObj));
                     string _jp = jwtEncodeB64Url(JSONHelpers.dataContractToJSON(ClaimObj));
                     string _sig = string.Empty;
@@ -132,7 +136,7 @@ namespace Tvinic.GoogleAPI
                         case JWTHeaderObject.JWTHash.HS384:
                             _sig = jwtHMAC384(String.Concat(_jh, ".", _jp), sellerSecret);
                             break;
-                        case JWTHeaderObject.JWTHash.HS512 :
+                        case JWTHeaderObject.JWTHash.HS512:
                             _sig = jwtHMAC512(String.Concat(_jh, ".", _jp), sellerSecret);
                             break;
                         default:
@@ -142,13 +146,13 @@ namespace Tvinic.GoogleAPI
                     return string.Concat(_jh, ".", _jp, ".", _sig);
                 }
                 catch (Exception ex)
-                    {
+                {
                     throw new Exception(ex.Message.ToString());
                 }
             }
             else
             {
-                throw new ArgumentNullException(HeaderObj==null ? new JWTHeaderObject().ToString() : ClaimObj == null ? new InAppItemObject().ToString() : "sellerSecret", "Null Argument");
+                throw new ArgumentNullException(HeaderObj == null ? new JWTHeaderObject().ToString() : ClaimObj == null ? new InAppItemObject().ToString() : "sellerSecret", "Null Argument");
             }
         }
         public static string buildJWT(JWTHeaderObject HeaderObj, InAppItemSubscriptionObject ClaimObj, string sellerSecret)
@@ -218,6 +222,7 @@ namespace Tvinic.GoogleAPI
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         return false;
                     }
                 }
@@ -231,8 +236,8 @@ namespace Tvinic.GoogleAPI
                 return false;
             }
         }
-            
-        
+
+
 
         /// <summary>
         ///  A stricter JWT verification routine. Verifies values in header and payload (not just signuature matching).
@@ -270,7 +275,7 @@ namespace Tvinic.GoogleAPI
                             ClaimObj = JSONHelpers.dataContractJSONToObj(_jwtp, new InAppItemObject()) as InAppItemObject;
                             //ClaimObj must have request and response
                             //*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
-                            if(ClaimObj != null && ClaimObj.request != null && ClaimObj.response != null)
+                            if (ClaimObj != null && ClaimObj.request != null && ClaimObj.response != null)
                             {
                                 bool _validexp = true;
                                 long _myservertime = myServerClock();
@@ -294,27 +299,28 @@ namespace Tvinic.GoogleAPI
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         return false;
                     }
                 }
-            
+
+                else
+                {
+
+
+                    return false;
+                }
+            }
             else
             {
 
 
-                    return false;
-            }
-            }
-                else
-            {
-
-
-                    return false;
+                return false;
             }
         }
-           
 
-#endregion
+
+        #endregion
 
         #region "Utils"
 
@@ -326,12 +332,12 @@ namespace Tvinic.GoogleAPI
         /// <remarks></remarks>
         public static JWTHeaderObject.JWTHash parseJWTHashEnum(string algString)
         {
-            if(!string.IsNullOrEmpty(algString))
+            if (!string.IsNullOrEmpty(algString))
             {
-                JWTHeaderObject.JWTHash _ci; 
+                JWTHeaderObject.JWTHash _ci;
 
                 //bool boolFunc = Enum.TryParse(algString, out _ci);
-                object d = Enum.Parse(typeof(JWTHeaderObject.JWTHash), algString,true);
+                object d = Enum.Parse(typeof(JWTHeaderObject.JWTHash), algString, true);
 
 
                 if (d != null)
@@ -380,23 +386,23 @@ namespace Tvinic.GoogleAPI
         /// <param name="sellerSecret">YOUR SELLER KEY</param>
         /// <returns>Boolean</returns>
         /// <remarks></remarks>
-        public static bool verifySignature(string alg, string jwtHeader, string jwtClaim, string jwtSignature, string sellerSecret) 
+        public static bool verifySignature(string alg, string jwtHeader, string jwtClaim, string jwtSignature, string sellerSecret)
         {
             switch (parseJWTHashEnum(alg))
             {
-                case JWTHeaderObject.JWTHash.HS256 : 
+                case JWTHeaderObject.JWTHash.HS256:
                     return string.Equals(jwtSignature, jwtHMAC256(String.Concat(jwtHeader, ".", jwtClaim), sellerSecret), StringComparison.Ordinal);
-                case JWTHeaderObject.JWTHash.HS384 : 
+                case JWTHeaderObject.JWTHash.HS384:
                     return string.Equals(jwtSignature, jwtHMAC384(String.Concat(jwtHeader, ".", jwtClaim), sellerSecret), StringComparison.Ordinal);
-                case JWTHeaderObject.JWTHash.HS512 :
+                case JWTHeaderObject.JWTHash.HS512:
                     return string.Equals(jwtSignature, jwtHMAC512(String.Concat(jwtHeader, ".", jwtClaim), sellerSecret), StringComparison.Ordinal);
-                default :
+                default:
                     return false;
-                    
+
             }
         }
 
-#endregion
+        #endregion
 
         #region "Not used for Google In-App Payments"
 
@@ -408,13 +414,13 @@ namespace Tvinic.GoogleAPI
         /// <returns></returns>
         /// <remarks></remarks>
         private static string jwtHMAC384(string jwtHeaderAndClaim, string sellerSecret)
-    {
+        {
             if (!string.IsNullOrEmpty(jwtHeaderAndClaim) && (!string.IsNullOrEmpty(sellerSecret)))
-    {
+            {
                 UTF8Encoding _utf8 = new UTF8Encoding(true, true);
-                byte[] _key  = _utf8.GetBytes(sellerSecret);
+                byte[] _key = _utf8.GetBytes(sellerSecret);
                 byte[] _btxt = _utf8.GetBytes(jwtHeaderAndClaim);
-                string _str  = String.Empty;
+                string _str = String.Empty;
                 using (HMACSHA384 hmac = new HMACSHA384(_key))
                 {
                     _str = System.Convert.ToBase64String(hmac.ComputeHash(_btxt)).Replace("=", String.Empty).Replace("+", "-").Replace("/", "_");
@@ -422,7 +428,7 @@ namespace Tvinic.GoogleAPI
                 }
                 Debug.WriteLine(string.Format("From hash: {0}", _str));
                 return _str;
-    }
+            }
             else
             {
                 throw new ArgumentNullException(string.IsNullOrEmpty(jwtHeaderAndClaim) ? "jwtHeaderAndClaim" : "sellerSecret", "Argument cannot be null/empty");
@@ -442,7 +448,7 @@ namespace Tvinic.GoogleAPI
             {
                 UTF8Encoding _utf8 = new UTF8Encoding(true, true);
                 byte[] _key = _utf8.GetBytes(sellerSecret);
-                byte[]_btxt = _utf8.GetBytes(jwtHeaderAndClaim);
+                byte[] _btxt = _utf8.GetBytes(jwtHeaderAndClaim);
                 string _str = String.Empty;
                 using (HMACSHA512 hmac = new HMACSHA512(_key))
                 {
@@ -454,13 +460,13 @@ namespace Tvinic.GoogleAPI
             }
             else
             {
-                throw new ArgumentNullException(string.IsNullOrEmpty(jwtHeaderAndClaim) ? "jwtHeaderAndClaim" : "sellerSecret" , "Argument cannot be null/empty");
+                throw new ArgumentNullException(string.IsNullOrEmpty(jwtHeaderAndClaim) ? "jwtHeaderAndClaim" : "sellerSecret", "Argument cannot be null/empty");
             }
-            
+
         }
 
-#endregion
-    
+        #endregion
+
     }
 
 }

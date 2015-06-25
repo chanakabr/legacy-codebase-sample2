@@ -3,12 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearch.Common.DeleteResults
 {
     [Serializable]
     public class ESDeleteResult
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [JsonProperty("ok")]
         public bool Ok { get; set; }
         [JsonProperty("found")]
@@ -32,7 +36,7 @@ namespace ElasticSearch.Common.DeleteResults
             catch (Exception ex)
             {
                 result = new ESDeleteResult();
-                Logger.Logger.Log("Error", string.Format("Could not convert ES delete response json. input={0}; ex={1}; stack={2}", response, ex.Message, ex.StackTrace), "Elasticsearch");
+                log.Error("Error - " + string.Format("Could not convert ES delete response json. input={0}; ex={1}; stack={2}", response, ex.Message, ex.StackTrace));
             }
 
             return result;

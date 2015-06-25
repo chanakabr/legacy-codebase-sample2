@@ -9,11 +9,13 @@ using System.Web.Script.Serialization;
 using System.IO;
 using System.Reflection;
 using System.Configuration;
+using KLogMonitor;
 
 namespace Users
 {
     public class KalturaSSOUsers : KalturaUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());   
         public int OperatorId { get; set; }
 
         public KalturaSSOUsers(Int32 nGroupID, int operatorId)
@@ -42,7 +44,7 @@ namespace Users
                 {
                     defaultOperatorId = DAL.UsersDal.GetDefaultGroupOperator(GroupId);
                     if (defaultOperatorId == 0)
-                        Logger.Logger.Log("Default operatorId is 0", "", "GetSSOImplementation error");
+                        log.Debug("Default operatorId is 0");
                     else
                         UsersCache.AddItem(key, defaultOperatorId);
                 }

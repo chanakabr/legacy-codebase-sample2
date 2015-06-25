@@ -12,11 +12,14 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Security.AccessControl;
 using Users.Cache;
+using KLogMonitor;
 
 namespace Users
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public const int USER_COGUID_LENGTH = 15;
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
         internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
@@ -27,7 +30,7 @@ namespace Users
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
             if (nGroupID == 0)
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+                log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
 
             return nGroupID;
         }
@@ -42,7 +45,7 @@ namespace Users
             }
             else
             {
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+                log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
             }
             return nGroupID;
         }
@@ -55,7 +58,7 @@ namespace Users
             if (nGroupID != 0)
                 Utils.GetBaseUsersImplModuleName(ref user, nGroupID, "User", operatorId);
             else
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass, "users");
+                log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
 
             return nGroupID;
         }
@@ -68,7 +71,7 @@ namespace Users
             if (nGroupID != 0)
                 Utils.GetBaseDomainsImpl(ref t, nGroupID);
             else
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
+                log.Debug("WS ignored - eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass);
 
             return nGroupID;
         }
@@ -80,7 +83,7 @@ namespace Users
             if (nGroupID != 0)
                 Utils.GetBaseDeviceImpl(ref t, nGroupID);
             else
-                Logger.Logger.Log("WS ignored", " eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass, "domains");
+                log.Debug("WS ignored - eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass);
             return nGroupID;
         }
 
@@ -142,7 +145,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetBaseUsersImplModuleName Error", string.Format(" Error while trying to get user implementation for group ID: {0} error: {1}", nGroupID, ex.Message), "users");
+                log.Error("GetBaseUsersImplModuleName Error - " + string.Format(" Error while trying to get user implementation for group ID: {0} error: {1}", nGroupID, ex.Message), ex);
             }
         }
 
@@ -413,7 +416,7 @@ namespace Users
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("GetUserOperatorAndHouseholdIDs", sb.ToString(), "Users.Utils");
+                log.Debug("GetUserOperatorAndHouseholdIDs - " + sb.ToString());
 
                 return false;
             }
@@ -578,7 +581,7 @@ namespace Users
 
         internal static string DateToFilename(DateTime dateTime)
         {
-            return 
+            return
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
     }

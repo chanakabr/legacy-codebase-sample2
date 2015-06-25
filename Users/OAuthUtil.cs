@@ -8,20 +8,17 @@ using System.IO;
 using System.Data;
 using Users;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
     public static class OAuthUtil
     {
-
-        #region Internal members
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static byte[] data;
         private static JavaScriptSerializer serializer = new JavaScriptSerializer();
-
-        #endregion
-
-        #region Public OAuth Methods
 
         // Get OAuth provider details
         public static ProviderObject GetProviderDetails(int providerId)
@@ -48,7 +45,7 @@ namespace TVinciShared
                         URL_Creds = dt.Rows[0]["URL_CREDS"].ToString(),
                         URL_Refesh = dt.Rows[0]["URL_REFRESH"].ToString(),
                         ClientId = dt.Rows[0]["Client_Id"].ToString(),
-                        ClientSecret = dt.Rows[0]["Client_Secret"].ToString(),                       
+                        ClientSecret = dt.Rows[0]["Client_Secret"].ToString(),
                         RedirectURL = TVinciShared.WS_Utils.GetTcmConfigValue(sKey) + providerId
                     };
                 }
@@ -76,18 +73,13 @@ namespace TVinciShared
         {
             AuthenticationObject AuthenticationObj = null;
             string sAuthenticationJSON = GetResponse(prov, sToken, Type);
-            Logger.Logger.Log("oAuth", sAuthenticationJSON + ":" + prov.GroupID, "oAuth");
+            log.Debug("oAuth - " + sAuthenticationJSON + ":" + prov.GroupID);
             if (!string.IsNullOrEmpty(sAuthenticationJSON))
             {
                 AuthenticationObj = serializer.Deserialize<AuthenticationObject>(sAuthenticationJSON);
             }
             return AuthenticationObj;
         }
-
-        #endregion
-
-
-        #region DB Methods
 
         private static int GetDomainID(string sSiteGuid)
         {
@@ -128,11 +120,11 @@ namespace TVinciShared
 
             if (wsRespObject.m_RespStatus == ResponseStatus.OK || wsRespObject.m_RespStatus == ResponseStatus.UserExists)
             {
-                
+
                 if (wsRespObject.m_RespStatus != ResponseStatus.UserExists)
                 {
-                     Domain d = new Domain();
-                     d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID),"");
+                    Domain d = new Domain();
+                    d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), "");
                     domain_id = d.m_nDomainID;
                 }
                 else
@@ -168,14 +160,14 @@ namespace TVinciShared
             {
                 return new ResponseObject
                     {
-                    Provider_ID = prov.ID,
-                    Tvinci_ID = wsRespObject.m_user.m_sSiteGUID,
-                    Customer_ID = credsObj.Customer_ID,
-                    Status = "Error",
-                    Error = "Internal Error: " + wsRespObject.m_RespStatus,
-                    Domain_ID = domain_id,
-                    Scope = authenticationObj.scope
-                };
+                        Provider_ID = prov.ID,
+                        Tvinci_ID = wsRespObject.m_user.m_sSiteGUID,
+                        Customer_ID = credsObj.Customer_ID,
+                        Status = "Error",
+                        Error = "Internal Error: " + wsRespObject.m_RespStatus,
+                        Domain_ID = domain_id,
+                        Scope = authenticationObj.scope
+                    };
             }
 
         }
@@ -204,22 +196,15 @@ namespace TVinciShared
 
             return new ResponseObject
                 {
-                Provider_ID = prov.ID,
-                Tvinci_ID = sSiteGuid,
-                Customer_ID = credsObj.Customer_ID,
-                Status = bRes ? "OK" : "Error",
-                Error = bRes ? string.Empty : "Internal error in update users_operators",
-                Domain_ID = GetDomainID(sSiteGuid),
-                Scope = authenticationObj.scope
-            };
+                    Provider_ID = prov.ID,
+                    Tvinci_ID = sSiteGuid,
+                    Customer_ID = credsObj.Customer_ID,
+                    Status = bRes ? "OK" : "Error",
+                    Error = bRes ? string.Empty : "Internal error in update users_operators",
+                    Domain_ID = GetDomainID(sSiteGuid),
+                    Scope = authenticationObj.scope
+                };
         }
-
-        #endregion
-
-
-        #region Private Methods
-
-       
 
         // Creates a web request, initializes the content and returns the response as a string
         private static string GetResponse(ProviderObject prov, string sToken, eRequestType type)
@@ -230,11 +215,11 @@ namespace TVinciShared
             {
                 case eRequestType.Credentials:
                     req = (HttpWebRequest)WebRequest.Create(prov.URL_Creds + "?client_id=" + prov.ClientId);
-                    Logger.Logger.Log("oAuth", prov.URL_Creds + "?client_id=" + prov.ClientId, "oAuth");
+                    log.Debug("oAuth - " + prov.URL_Creds + "?client_id=" + prov.ClientId);
                     break;
                 case eRequestType.AccessToken:
                     req = (HttpWebRequest)WebRequest.Create(prov.URL_Code);
-                    Logger.Logger.Log("oAuth", prov.URL_Code, "oAuth");
+                    log.Debug("oAuth - " + prov.URL_Code);
                     break;
                 case eRequestType.Refresh:
                     req = (HttpWebRequest)WebRequest.Create(prov.URL_Refesh);
@@ -259,7 +244,7 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-
+                    log.Error("", ex);
                     return string.Empty;
                 }
 
@@ -346,12 +331,7 @@ namespace TVinciShared
                                                         )
                                           );
         }
-        #endregion
-
-
     }
-
-    #region Objects
 
     public class AuthenticationObject
     {
@@ -400,7 +380,5 @@ namespace TVinciShared
         public string Status { get; set; }
         public string Error { get; set; }
     }
-
-    #endregion
 }
 

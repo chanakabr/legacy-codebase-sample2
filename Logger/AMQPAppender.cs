@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using QueueWrapper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Logger
 {
     public class AMQPAppender : log4net.Appender.AppenderSkeleton
     {
-        #region Members
-
         // Note: all members' values are loaded from the log4net.config file. Please be aware that the members name must be compatible to those you defined 
         //       in the config file!
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private string password;
         private string userName;
@@ -25,10 +26,6 @@ namespace Logger
         private string exchange;
         private string queue;
         private string exchangeType;
-
-        #endregion
-
-        #region Properties
 
         public string Password
         {
@@ -95,9 +92,6 @@ namespace Logger
             get { return this.exchangeType; }
             set { this.exchangeType = value; }
         }
-        #endregion
-
-        #region Override Functions
 
         protected override void Append(log4net.Core.LoggingEvent loggingEvent)
         {
@@ -134,10 +128,8 @@ namespace Logger
             if (!bIsPublishSucceeded)
             {
                 string countError = RabbitConnection.Instance.GetQueueFailCounter() == RabbitConnection.Instance.GetQueueFailCountLimit() ? "Reached the limit of queue failures" : string.Format("Num of writing failures: {0}", RabbitConnection.Instance.GetQueueFailCounter());
-                Logger.Log("AMQP Write Fail", string.Format("{0}, msg: {1}", countError, sMessageToWrite), "Logger");
+                log.Error("AMQP Write Fail - " + string.Format("{0}, msg: {1}", countError, sMessageToWrite));
             }
         }
-
-        #endregion
     }
 }

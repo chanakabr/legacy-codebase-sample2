@@ -5,14 +5,16 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace M1BL
 {
     public class M1Logic
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string M1_LOGIC_LOG_FILE = "M1Logic";
         private const string M1_LOGIC_LOG_HEADER = "M1 Logic";
-
 
         public static M1Response CheckFirstPurchasePermissions(string sAppID, string sSessionToken, string sMsisdn, out int nGroupId, out string sCustomerServiceID, out string sBaseRedirectUrl, out string sFixedMailAddress)
         {
@@ -23,7 +25,7 @@ namespace M1BL
 
             nGroupId = 0;
             sCustomerServiceID = string.Empty;
-            sBaseRedirectUrl =string.Empty;
+            sBaseRedirectUrl = string.Empty;
             sFixedMailAddress = string.Empty;
 
             try
@@ -36,8 +38,8 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
-              
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
+
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
@@ -62,7 +64,7 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER,  "Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);            
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
@@ -87,15 +89,15 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "CallBackLoginCode=" + sCallBackLoginCode + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);           
+                log.Error(M1_LOGIC_LOG_HEADER + " CallBackLoginCode=" + sCallBackLoginCode + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
-                result.description = "Exception on parsing CallBackLoginCode"; 
+                result.description = "Exception on parsing CallBackLoginCode";
             }
             return result;
-        } 
+        }
 
-     
+
 
         public static M1Response CanAccessVas(int nGroupID, string sMsisdn)
         {
@@ -112,11 +114,11 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, ",GroupID=" + nGroupID.ToString()  + ",Msisdn=" + sMsisdn +  ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
+                log.Error(M1_LOGIC_LOG_HEADER + ", GroupID=" + nGroupID.ToString() + ",Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
-            return result; 
+            return result;
         }
 
 
@@ -135,7 +137,7 @@ namespace M1BL
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
@@ -155,11 +157,11 @@ namespace M1BL
                 ADSResponse response = adsWrapper.CreateDummyVas(sMsisdn, nServiceID);
                 result.is_succeeded = response.is_succeeded;
                 result.reason = response.reason.ToString();
-                result.description = response.description; 
+                result.description = response.description;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
@@ -175,14 +177,14 @@ namespace M1BL
             try
             {
                 M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
-                ADSResponse response=  adsWrapper.RemoveDummyVas(sMsisdn, nServiceID);      
+                ADSResponse response = adsWrapper.RemoveDummyVas(sMsisdn, nServiceID);
                 result.is_succeeded = response.is_succeeded;
                 result.reason = response.reason.ToString();
                 result.description = response.description;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }
@@ -202,11 +204,11 @@ namespace M1BL
                 ADSResponse response = adsWrapper.RemoveDummyVas(sMsisdn, sCustomerServiceID);
                 result.is_succeeded = response.is_succeeded;
                 result.reason = response.reason.ToString();
-                result.description = response.description;  
+                result.description = response.description;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(M1_LOGIC_LOG_HEADER, "Msisdn=" + sMsisdn + ",CustomerServiceID=" + sCustomerServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, M1_LOGIC_LOG_FILE);
+                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",CustomerServiceID=" + sCustomerServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
                 result.is_succeeded = false;
                 result.reason = ex.Message;
             }

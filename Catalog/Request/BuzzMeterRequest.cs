@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
 using Logger;
 using StatisticsBL;
 
@@ -14,7 +15,8 @@ namespace Catalog.Request
     [DataContract]
     public class BuzzMeterRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public string m_sKey;
 
@@ -39,12 +41,12 @@ namespace Catalog.Request
 
                 BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(request.m_nGroupID);
                 response.m_buzzAverScore = staticticsBL.GetBuzzAverScore(request.m_sKey);
-    
+
                 return response;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("BuzzMeterRequest", string.Format("ex={0}", ex.Message), "Catalog");
+                log.Error("BuzzMeterRequest - " + string.Format("ex={0}", ex.Message), ex);
                 throw ex;
             }
         }

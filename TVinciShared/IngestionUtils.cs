@@ -6,11 +6,15 @@ using System.IO;
 using System.Data;
 using System.Configuration;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
     public class LanguageString
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public LanguageString(string sLang, string sVal, bool bIsMainLang)
         {
             m_sLang = sLang;
@@ -21,8 +25,10 @@ namespace TVinciShared
         public string m_sVal;
         bool m_bIsMainLang;
     }
+
     public class TranslatorStringHolder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public System.Collections.Hashtable m_theTable;
 
         public TranslatorStringHolder()
@@ -56,6 +62,8 @@ namespace TVinciShared
 
     public class IngestionUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
         {
             bool b = false;
@@ -280,7 +288,7 @@ namespace TVinciShared
             {
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
-            }           
+            }
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -611,17 +619,18 @@ namespace TVinciShared
                             Stream requestStream = request.GetRequestStream();
                             requestStream.Write(zip, 0, zip.Length);
                             requestStream.Close();
-                            FtpWebResponse response = (FtpWebResponse) request.GetResponse();
+                            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
                             response.Close();
                             shouldRetry = false;
                         }
                         if (retryCount == 10)
                         {
-                           Logger.Logger.Log("Failed to upload files to FTP", "Ingest ID = " + ingestID , "IngestLog" ); 
+                            log.Error("Failed to upload files to FTP Ingest ID = " + ingestID);
                         }
                     }
                     catch (Exception ex)
                     {
+                        log.Error("", ex);
                         Thread.Sleep(60000);
                         retryCount++;
                     }
@@ -643,8 +652,7 @@ namespace TVinciShared
 
         static public int InsertIngestToDB(DateTime createDate, int ingestType, int nGroupID)
         {
-
-            Logger.Logger.Log("Ingest", "DB insert start", "IngestLog");
+            log.Debug("Ingest - DB insert start");
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ingest");
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ingest_type", ingestType);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", nGroupID);
@@ -660,7 +668,7 @@ namespace TVinciShared
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("create_date", "=", createDate);
             DataTable dt = selectQuery.Execute("query", true);
             selectQuery.Finish();
-            Logger.Logger.Log("Ingest", "DB insert end", "IngestLog");
+            log.Debug("Ingest - DB insert end");
             int ingestID = 0;
 
             if (dt != null)

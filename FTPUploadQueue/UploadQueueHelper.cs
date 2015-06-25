@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace UploadQueue
 {
     public class UploadQueueHelper
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static public int AddJobToQueue(int nGroupID, string sFileName)
         {
             int nJobID = 0;
@@ -73,7 +77,7 @@ namespace UploadQueue
 
             if (nTotalJobs > 0)
             {
-                Logger.Logger.Log("SetJobsForUpload", string.Format("GroupID={0}, Total={1}", nGroupID, nTotalJobs), "UploadQueue");
+                log.Debug("SetJobsForUpload - " + string.Format("GroupID={0}, Total={1}", nGroupID, nTotalJobs));
 
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ftp_upload_queue");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("upload_runtime_status", "=", 0);

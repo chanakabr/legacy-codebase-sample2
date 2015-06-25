@@ -1,24 +1,28 @@
 using System;
 using System.Data.SqlClient;
+using System.Reflection;
+using KLogMonitor;
 
 namespace ODBCWrapper
 {
-	/// <summary>
-	/// Summary description for DirectQuery.
-	/// </summary>
-	public class DirectQuery : Query
-	{
-		public DirectQuery()
-		{
+    /// <summary>
+    /// Summary description for DirectQuery.
+    /// </summary>
+    public class DirectQuery : Query
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public DirectQuery()
+        {
             m_bIsWritable = true;
-		}
+        }
 
-		public override bool Execute()
-		{
-			return Execute(m_sOraStr.ToString());
-		}
+        public override bool Execute()
+        {
+            return Execute(m_sOraStr.ToString());
+        }
 
-		~DirectQuery(){}
+        ~DirectQuery() { }
 
         public bool SetLockTimeOut(ref SqlConnection con)
         {
@@ -33,24 +37,27 @@ namespace ODBCWrapper
                 if (con.State != System.Data.ConnectionState.Open)
                     con.Open();
                 command.Connection = con;
-                command.ExecuteNonQuery();
+
+                SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                {
+                    command.ExecuteNonQuery();
+                }
             }
             catch (Exception ex)
             {
-                logger.Error("Failed to execute sql statment", ex);
-                m_sErrorMsg = ex.Message;
-                string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception accured: " + ex.Message;
-                Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net");
+                string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                log.Error(sMes, ex);
                 return false;
             }
             return true;
         }
 
-		protected virtual bool Execute(string oraStr)
-		{
+        protected virtual bool Execute(string oraStr)
+        {
             m_sErrorMsg = "";
-			m_sOraStr = new System.Text.StringBuilder(oraStr);
-			int_Execute();
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
                 return false;
@@ -62,38 +69,34 @@ namespace ODBCWrapper
                     con.Open();
                     SetLockTimeOut(con);
                     command.Connection = con;
-                    DateTime dStart = DateTime.Now;
-                    command.ExecuteNonQuery();
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > m_nLongQueryTime)
+
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
-                        string sMes = t.TotalMilliseconds.ToString() + "ms: " + m_sLastExecutedOraStr;
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        command.ExecuteNonQuery();
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Error("Failed to execute sql statment", ex);
-                    m_sErrorMsg = ex.Message;
-                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return false;
                 }
             }
-			return true;
-		}
+            return true;
+        }
 
-		public static DirectQuery operator +(DirectQuery p, object sOraStr)
-		{
-			if (sOraStr.GetType() == System.Type.GetType("ODBCWrapper.Parameter"))
-			{
-				p.AddParameter(((Parameter)sOraStr).m_sParName , 
-					((Parameter)sOraStr).m_sType , 
-					((Parameter)sOraStr).m_sParVal);
-			}
-			else
-				p.m_sOraStr.Append(" ").Append(sOraStr);
-			return p;
-		}
-	}
+        public static DirectQuery operator +(DirectQuery p, object sOraStr)
+        {
+            if (sOraStr.GetType() == System.Type.GetType("ODBCWrapper.Parameter"))
+            {
+                p.AddParameter(((Parameter)sOraStr).m_sParName,
+                    ((Parameter)sOraStr).m_sType,
+                    ((Parameter)sOraStr).m_sParVal);
+            }
+            else
+                p.m_sOraStr.Append(" ").Append(sOraStr);
+            return p;
+        }
+    }
 }

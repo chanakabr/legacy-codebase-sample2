@@ -3,19 +3,22 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using ApiObjects;
+using KLogMonitor;
 using Logger;
 
 namespace EpgBL
 {
     public class YesEpgBL : BaseEpgBL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #region Consts       
+        #region Consts
         protected static readonly Regex HebrewRegex = new Regex(@"\p{IsHebrew}");
         protected static readonly Regex RussianRegex = new Regex(@"\p{IsCyrillic}");
         protected static readonly Regex ArabicRegex = new Regex(@"\p{IsArabic}");
@@ -23,7 +26,7 @@ namespace EpgBL
 
         public YesEpgBL(int nGroupID)
         {
-            this.m_nGroupID = nGroupID;           
+            this.m_nGroupID = nGroupID;
         }
 
         #region Public
@@ -55,7 +58,7 @@ namespace EpgBL
 
             foreach (string scid in scids)
             {
-                EPGChannelProgrammeObject res = GetProgramData("scid", scid, eLang, duration); 
+                EPGChannelProgrammeObject res = GetProgramData("scid", scid, eLang, duration);
                 if (res != null && !string.IsNullOrEmpty(res.EPG_CHANNEL_ID))
                 {
                     progs.Add(res);
@@ -91,7 +94,7 @@ namespace EpgBL
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
             {
-                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);               
+                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
                 DateTime now = DateTime.UtcNow;
                 int nTotalPrograms = Math.Abs(nPrevTop) + Math.Abs(nNextTop) + 1;
                 int nTotalMinutes = 0;
@@ -133,11 +136,11 @@ namespace EpgBL
             }
         }
 
-        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)            
+        public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
         {
             //TvinciEpgBL Bl = new TvinciEpgBL(this.m_nGroupID);
             //return Bl.InsertEpg(newEpgItem, out  epgID, cas);
-            
+
             epgID = 0;
             return false;
         }
@@ -193,7 +196,7 @@ namespace EpgBL
         {
             using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
             {
-                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);                
+                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
 
                 if (lChannelIDs != null && lChannelIDs.Count > 0)
                 {
@@ -216,7 +219,7 @@ namespace EpgBL
                                          int nTotalMinutes = (int)(toDate - fromDate).TotalMinutes;
                                          if (nTotalMinutes > 0)
                                          {
-                                             List<EPGChannelProgrammeObject>  lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), fromDate, nTotalMinutes, 0);
+                                             List<EPGChannelProgrammeObject> lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), fromDate, nTotalMinutes, 0);
                                              if (lRes != null && lRes.Count > 0)
                                                  dChannelEpgList[taskChannelID].AddRange(lRes);
                                          }
@@ -332,7 +335,7 @@ namespace EpgBL
             }
 
             double dTT = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
-            Logger.Logger.Log("GetEPGChannelPrograms", string.Format("TT:{0}, ct:{1}, nt:{2}, URL:{3}", dTT, dCiscoTime, dTT - dCiscoTime, url), "Cisco");
+            log.Debug("GetEPGChannelPrograms - " + string.Format("TT:{0}, ct:{1}, nt:{2}, URL:{3}", dTT, dCiscoTime, dTT - dCiscoTime, url));
 
             return res;
         }
@@ -340,7 +343,7 @@ namespace EpgBL
         private string GetYesRestUrl(DateTime startDate, string sEPGChannelID, int nTotalMinutes, int nTotalPrograms)
         {
             string day = startDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
             url.AppendFormat("schedules?");
@@ -364,7 +367,7 @@ namespace EpgBL
         {
             List<EPGChannelProgrammeObject> programs = new List<EPGChannelProgrammeObject>();
 
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -487,7 +490,7 @@ namespace EpgBL
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -545,7 +548,7 @@ namespace EpgBL
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -640,90 +643,90 @@ namespace EpgBL
             return program;
         }
 
-       /* private EPGChannelProgrammeObject GetProgramDataByScid(string scid, Language eLang, int nDuration)
-        {
-            EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
+        /* private EPGChannelProgrammeObject GetProgramDataByScid(string scid, Language eLang, int nDuration)
+         {
+             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
-            string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = ConfigurationManager.AppSettings["EPGUrl"];
-            //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
-            StringBuilder url = new StringBuilder();
-            url.AppendFormat(epgURL);
-            url.AppendFormat("schedules?");
-            url.AppendFormat("regionId=Israel");
-            url.AppendFormat("&startTime={0}", date);
-            url.AppendFormat("&filters=scid:equals:{0}", scid);
-            url.AppendFormat("&locale={0}", GetLanguageConvertor(eLang));
-            url.AppendFormat("&duration={0}", nDuration);
+             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+             string epgURL = ConfigurationManager.AppSettings["EPGUrl"];
+             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
+             StringBuilder url = new StringBuilder();
+             url.AppendFormat(epgURL);
+             url.AppendFormat("schedules?");
+             url.AppendFormat("regionId=Israel");
+             url.AppendFormat("&startTime={0}", date);
+             url.AppendFormat("&filters=scid:equals:{0}", scid);
+             url.AppendFormat("&locale={0}", GetLanguageConvertor(eLang));
+             url.AppendFormat("&duration={0}", nDuration);
 
-            string rest = TVinciShared.WS_Utils.SendXMLHttpReq(url.ToString(), "", "");
+             string rest = TVinciShared.WS_Utils.SendXMLHttpReq(url.ToString(), "", "");
 
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(rest);
+             XmlDocument doc = new XmlDocument();
+             doc.LoadXml(rest);
 
-            XmlNode evt = doc.SelectSingleNode("/xml/schedules/evt");
-            if (evt != null)
-            {
-                string cn = TVinciShared.XmlUtils.GetNodeValue(ref evt, "cns/cn");
-                string seid = TVinciShared.XmlUtils.GetNodeValue(ref evt, "seid");
+             XmlNode evt = doc.SelectSingleNode("/xml/schedules/evt");
+             if (evt != null)
+             {
+                 string cn = TVinciShared.XmlUtils.GetNodeValue(ref evt, "cns/cn");
+                 string seid = TVinciShared.XmlUtils.GetNodeValue(ref evt, "seid");
 
-                string name = TVinciShared.XmlUtils.GetNodeValue(ref evt, "ts");
-                if (string.IsNullOrEmpty(name))
-                {
-                    name = TVinciShared.XmlUtils.GetNodeValue(ref evt, "ept");
-                }
+                 string name = TVinciShared.XmlUtils.GetNodeValue(ref evt, "ts");
+                 if (string.IsNullOrEmpty(name))
+                 {
+                     name = TVinciShared.XmlUtils.GetNodeValue(ref evt, "ept");
+                 }
 
-                string description = TVinciShared.XmlUtils.GetNodeValue(ref evt, "dss");
+                 string description = TVinciShared.XmlUtils.GetNodeValue(ref evt, "dss");
 
-                string sdt = TVinciShared.XmlUtils.GetNodeValue(ref evt, "sdt");
-                string edt = TVinciShared.XmlUtils.GetNodeValue(ref evt, "edt");
+                 string sdt = TVinciShared.XmlUtils.GetNodeValue(ref evt, "sdt");
+                 string edt = TVinciShared.XmlUtils.GetNodeValue(ref evt, "edt");
 
-                string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
-                DateTime startDate = DateTime.ParseExact(sdt, format, null);
-                DateTime endDate = DateTime.ParseExact(edt, format, null);
+                 string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
+                 DateTime startDate = DateTime.ParseExact(sdt, format, null);
+                 DateTime endDate = DateTime.ParseExact(edt, format, null);
 
-                string pic = TVinciShared.XmlUtils.GetNodeValue(ref evt, "is/i");
-                string status = "1";
-                string active = "1";
-                string media = string.Empty;
+                 string pic = TVinciShared.XmlUtils.GetNodeValue(ref evt, "is/i");
+                 string status = "1";
+                 string active = "1";
+                 string media = string.Empty;
 
-                string createDate = string.Empty;
-                string updateDate = string.Empty;
-                string publishDate = string.Empty;
+                 string createDate = string.Empty;
+                 string updateDate = string.Empty;
+                 string publishDate = string.Empty;
 
-                List<EPGDictionary> metas = new List<EPGDictionary>();
-                List<EPGDictionary> tags = new List<EPGDictionary>();
+                 List<EPGDictionary> metas = new List<EPGDictionary>();
+                 List<EPGDictionary> tags = new List<EPGDictionary>();
 
-                XmlNodeList genres = evt.SelectNodes("gs/g");
-                for (int j = 0; j < genres.Count; j++)
-                {
-                    XmlNode genre = genres[j];
-                    string g = genre.InnerText;
-                    if (!string.IsNullOrEmpty(g))
-                    {
-                        EPGDictionary ed = new EPGDictionary();
-                        ed.Key = "Genre";
-                        ed.Value = g;
-                        tags.Add(ed);
-                    }
-                }
+                 XmlNodeList genres = evt.SelectNodes("gs/g");
+                 for (int j = 0; j < genres.Count; j++)
+                 {
+                     XmlNode genre = genres[j];
+                     string g = genre.InnerText;
+                     if (!string.IsNullOrEmpty(g))
+                     {
+                         EPGDictionary ed = new EPGDictionary();
+                         ed.Key = "Genre";
+                         ed.Value = g;
+                         tags.Add(ed);
+                     }
+                 }
 
-                string flag = TVinciShared.XmlUtils.GetNodeValue(ref evt, "flags");
-                if (flag.Equals("fls"))
-                {
-                    EPGDictionary ed = new EPGDictionary();
-                    ed.Key = "BlackOUT";
-                    ed.Value = "True";
-                    tags.Add(ed);
-                }
-                long epgID = 0;
-                bool res =  long.TryParse(scid, out epgID);
-                program.Initialize(epgID, cn, cn, name, description, startDate.ToString(), endDate.ToString(), pic, status, active, m_nGroupID.ToString(),
-                    string.Empty, createDate, publishDate, updateDate, tags, metas, media, 0);
-            }
+                 string flag = TVinciShared.XmlUtils.GetNodeValue(ref evt, "flags");
+                 if (flag.Equals("fls"))
+                 {
+                     EPGDictionary ed = new EPGDictionary();
+                     ed.Key = "BlackOUT";
+                     ed.Value = "True";
+                     tags.Add(ed);
+                 }
+                 long epgID = 0;
+                 bool res =  long.TryParse(scid, out epgID);
+                 program.Initialize(epgID, cn, cn, name, description, startDate.ToString(), endDate.ToString(), pic, status, active, m_nGroupID.ToString(),
+                     string.Empty, createDate, publishDate, updateDate, tags, metas, media, 0);
+             }
 
-            return program;
-        }*/
+             return program;
+         }*/
         #endregion
-    }    
+    }
 }

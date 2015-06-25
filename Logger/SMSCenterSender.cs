@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Logger
 {
     class SMSCenterSender
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static protected string GetWSUN()
         {
             if (Utils.GetTcmConfigValue("SMS_WS_UN") != string.Empty)
@@ -16,16 +20,16 @@ namespace Logger
 
         static protected string GetWSPass()
         {
-            if ( Utils.GetTcmConfigValue("SMS_WS_PASS") != string.Empty) 
+            if (Utils.GetTcmConfigValue("SMS_WS_PASS") != string.Empty)
                 return Utils.GetTcmConfigValue("SMS_WS_PASS");
             return "";
         }
 
-        public static bool SendSMS(string sSenderName, string sMessage,string AppSmsKey)
+        public static bool SendSMS(string sSenderName, string sMessage, string AppSmsKey)
         {
             try
             {
-               
+
                 string sUserName = GetWSUN();
                 string sPassword = GetWSPass();
                 string[] sep = { ";" };
@@ -41,24 +45,22 @@ namespace Logger
                     sender.Url = Utils.GetTcmConfigValue("SMS_WS_URL");
                     il.co.smscenter.www.SendMessageReturnValues ret = sender.SendMessages(sUserName, sPassword, sSenderName,
                         sPhones, sSMSMessage, sMails, il.co.smscenter.www.SMSOperation.Push, "", il.co.smscenter.www.DeliveryReportMask.MessageExpired, 0, 60);
-                    Logger.Log("SMS sent - returnd: " + ret.ToString(), sMessage, "SMSer");
+                    log.Debug("SMS sent - returned: " + ret.ToString() + sMessage);
                     return true;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-
-               
-                Logger.Log("SMS send", ex.Message + "||" + ex.StackTrace, "SMSer");
+                log.Error("SMS send - " + ex.Message + "||" + ex.StackTrace, ex);
                 return false;
             }
         }
-        public static bool SendSMS(string sSenderName , string sMessage)
+        public static bool SendSMS(string sSenderName, string sMessage)
         {
             return SendSMS(sSenderName, sMessage, "SMS_WS_PHONES");
 
-           
+
         }
     }
 }

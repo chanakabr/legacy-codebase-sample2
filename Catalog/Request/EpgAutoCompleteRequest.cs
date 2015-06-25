@@ -7,13 +7,15 @@ using System.Text;
 using Logger;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class EpgAutoCompleteRequest : BaseRequest, IRequestImp, IEpgSearchable
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+ 
 
         [DataMember]
         public string m_sSearch;
@@ -80,7 +82,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("GetSearchMediaWithSearcher", ex);
+                log.Error("GetSearchMediaWithSearcher", ex);
                 throw ex;
             }
         }

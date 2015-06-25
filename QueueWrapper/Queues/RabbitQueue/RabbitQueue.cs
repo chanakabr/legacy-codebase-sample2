@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using RabbitMQ.Client.Impl;
 
 namespace QueueWrapper
 {
     public class RabbitQueue : IQueueImpl
     {
-        #region Members
+        private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private string m_sHostName = string.Empty;
         private string m_sUserName = string.Empty;
@@ -22,26 +24,18 @@ namespace QueueWrapper
         private bool m_bSetContentType = false;
         private ConfigType m_eConfigType = ConfigType.DefaultConfig;
 
-        #endregion
-
-        #region CTOR
-
         public RabbitQueue()
         {
             ReadRabbitParameters();
         }
 
-        //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
+        //the parameter will ensure that the configuration values are the ones relevant for the specific Queue Type 
         public RabbitQueue(ConfigType eType, bool bSetContentType)
         {
             m_eConfigType = eType;
             m_bSetContentType = bSetContentType;
             ReadRabbitParameters();
         }
-
-        #endregion
-
-        #region IQueuable Methods
 
         public virtual bool Enqueue(string sDataToIndex, string sRouteKey)
         {
@@ -62,6 +56,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
             }
 
             return bIsEnqueueSucceeded;
@@ -109,10 +104,6 @@ namespace QueueWrapper
 
             return bResult;
         }
-
-        #endregion
-
-        #region Private Methods
 
         private void ReadRabbitParameters()
         {
@@ -202,9 +193,9 @@ namespace QueueWrapper
 
             RabbitConfigurationData configData = null;
 
-            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) && 
-                !string.IsNullOrEmpty(this.m_sPort) && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) && 
-                !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost) && 
+            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) &&
+                !string.IsNullOrEmpty(this.m_sPort) && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) &&
+                !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost) &&
                 !string.IsNullOrEmpty(this.m_sExchangeType))
             {
                 configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
@@ -221,10 +212,5 @@ namespace QueueWrapper
         {
             RabbitConnection.Instance.Dispose();
         }
-
-        #endregion
-
-
-
     }
 }

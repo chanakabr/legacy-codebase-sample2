@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace ODBCWrapper
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
 
         static public string GetSafeStr(object o)
@@ -473,13 +479,13 @@ namespace ODBCWrapper
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
                 if (string.IsNullOrEmpty(result))
                 {
-                    throw new Exception("miising key");
+                    throw new Exception("missing key");
                 }
             }
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("ODBCWRapper", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("Key=" + sKey, ex);
             }
             return result;
         }
@@ -511,7 +517,7 @@ namespace ODBCWrapper
             catch
             {
                 return res;
-            }          
+            }
         }
 
         /// <summary>
@@ -696,6 +702,65 @@ namespace ODBCWrapper
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+        }
+
+        public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
+        {
+            SqlQueryInfo sqlInfo = new SqlQueryInfo();
+
+            if (command != null)
+            {
+                // update db name
+                sqlInfo.Database = command.Connection != null ? command.Connection.Database : "unknown";
+
+                if (command.CommandType == System.Data.CommandType.StoredProcedure)
+                {
+                    // stored procedure
+                    sqlInfo.QueryType = KLogEnums.eDBQueryType.EXECUTE;
+                    sqlInfo.Table = command.CommandText != null ? command.CommandText : "stored_procedure_unknown";
+                }
+                else
+                {
+                    string query = string.Empty;
+                    if (!string.IsNullOrEmpty(command.CommandText))
+                    {
+                        query = command.CommandText.Trim().ToLower();
+
+                        // update query type
+                        if (query.StartsWith("select"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.SELECT;
+                        else if (query.StartsWith("delete"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.DELETE;
+                        else if (query.StartsWith("insert"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.INSERT;
+                        else if (query.StartsWith("update"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
+                        else if (query.StartsWith("set"))
+                        {
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.COMMAND;
+                            sqlInfo.Table = command.CommandText != null ? command.CommandText : "command unknown";
+                        }
+
+                        // get table name
+                        Regex tableNameReegx = new Regex(REGEX_TABLE_NAME, RegexOptions.Singleline);
+                        var allMatches = tableNameReegx.Matches(query);
+                        if (allMatches != null && allMatches.Count > 0)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 0; i < allMatches.Count; i++)
+                            {
+                                if (i == 0)
+                                    sb.Append(allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
+                                else
+                                    sb.Append(" " + allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
+                            }
+
+                            sqlInfo.Table = sb.ToString();
+                        }
+                    }
+                }
+            }
+            return sqlInfo;
         }
     }
 }

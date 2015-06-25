@@ -19,7 +19,6 @@ namespace Notifiers
             //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
             //t.Url = sTikleWSURL;
             //tikle_ws.Response resp = t.NotifyCustomer(sSiteGUID);
-            //Logger.Logger.Log("Notify", sSiteGUID + " : " + resp.ResultDetail, "users_notifier");
             
         }
     }

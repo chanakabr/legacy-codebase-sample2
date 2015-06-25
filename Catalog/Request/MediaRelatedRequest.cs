@@ -12,6 +12,7 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -21,7 +22,8 @@ namespace Catalog.Request
     [DataContract]
     public class MediaRelatedRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public Int32 m_nMediaID;
         [DataMember]
@@ -101,7 +103,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("GetMediaRelated", ex);
+                log.Error("GetMediaRelated", ex);
                 throw ex;
             }
         }

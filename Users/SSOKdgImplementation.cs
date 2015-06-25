@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using ApiObjects;
+using KLogMonitor;
 using Newtonsoft.Json;
 
 namespace Users
 {
     public class SSOKdgImplementation : SSOUsers, ISSOProvider
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public SSOKdgImplementation(int groupId, int operatorId)
             : base(groupId, operatorId)
         {
@@ -24,12 +27,12 @@ namespace Users
                 KdgLoginResp kdgLoginResp = ValidateCredentials(username, pass, sIP);
                 if (kdgLoginResp != null)
                 {
-                    Logger.Logger.Log("KDG-SSO", string.Format("ValidateCredentials res:{0}", kdgLoginResp.Status), "KDG-SSO");
+                    log.Debug("KDG-SSO - " + string.Format("ValidateCredentials res:{0}", kdgLoginResp.Status));
 
                     if (kdgLoginResp.Status == eKdgStatus.ServerDown)
                     {
                         retResponseObject.m_RespStatus = ResponseStatus.LoginServerDown;
-                        Logger.Logger.Log("KDG-SSO", string.Format("No response from KDG Login Server down: UN:{0} Pass:{1}", username, pass), "KDG-SSO");
+                        log.Debug("KDG-SSO - " + string.Format("No response from KDG Login Server down: UN:{0} Pass:{1}", username, pass));
                     }
                     else if (kdgLoginResp.Status != eKdgStatus.BadCredsOutOfNetwork &&
                             kdgLoginResp.Status != eKdgStatus.BadCredsInNetwork &&
@@ -42,7 +45,7 @@ namespace Users
             catch (Exception ex)
             {
                 retResponseObject.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
-                Logger.Logger.Log("KDG-SSO", string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.ToString(), username, pass), "KDG-SSO");
+                log.Debug("KDG-SSO - " + string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.ToString(), username, pass));
             }
 
             return retResponseObject;
@@ -93,7 +96,7 @@ namespace Users
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Error adding user to domain", string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber), "KDG - SSO");
+                                    log.Error("Error adding user to domain - " + string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber));
                                 }
                             }
                         }
@@ -105,7 +108,7 @@ namespace Users
                                 bool updateUserSuccess = usersImplementation.SetUserDynamicData(user.m_user.m_sSiteGUID, new List<KeyValuePair>() { new KeyValuePair("ext_status", ((int)kdgLoginResp.Status).ToString()) }, user);
                                 if (!updateUserSuccess)
                                 {
-                                    Logger.Logger.Log("Error updating user dynamic data", string.Format("UN:{0} Pass:{1}", username, pass), "KDG - SSO");
+                                    log.Error("Error updating user dynamic data - " + string.Format("UN:{0} Pass:{1}", username, pass));
                                 }
                             }
                         }
@@ -120,7 +123,7 @@ namespace Users
                             if (!isChangeCoGuidSuccess)
                             {
                                 user.m_RespStatus = ResponseStatus.InternalError;
-                                Logger.Logger.Log("Error updating domainCoGuid", string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID), "KDG - SSO");
+                                log.Error("Error updating domainCoGuid - " + string.Format("username:{0} newDomainCoGuid:{1} domainID:{2}", username, kdgLoginResp.CustomerAccountNumber, user.m_user.m_domianID));
                             }
                         }
                         //User doesn't exist: Add new user and domain
@@ -138,7 +141,7 @@ namespace Users
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Error creating domain", string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber), "KDG-SSO");
+                                    log.Error("Error creating domain - " + string.Format("username:{0} domainCoGuid:{1}", username, kdgLoginResp.CustomerAccountNumber));
                                 }
                             }
                         }
@@ -153,7 +156,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG-SSO", string.Format("Error Handing SignIn: ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), "KDG-SSO");
+                log.Error("KDG-SSO - " + string.Format("Error Handing SignIn: ex:{0} UN|PASS={1}|{2}", ex.Message, username, pass), ex);
             }
 
             return retResponse;
@@ -183,7 +186,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG-SSO", string.Format("Error adding new user - ex:{0} UN|PASS={1}|{2}", ex.Message, username, password), "KDG-SSO");
+                log.Error("KDG-SSO - " + string.Format("Error adding new user - ex:{0} UN|PASS={1}|{2}", ex.Message, username, password), ex);
                 return new UserResponseObject() { m_RespStatus = ResponseStatus.ErrorOnSaveUser };
             }
 
@@ -193,7 +196,7 @@ namespace Users
         {
             try
             {
-                Logger.Logger.Log("ValidateCredentials", string.Format("username:{0}, password:{1}, clientIp:{3}", username, password, clientIp), "KDG-SSO");
+                log.Debug("ValidateCredentials - " + string.Format("username:{0}, password:{1}, clientIp:{3}", username, password, clientIp));
                 KdgLoginResp kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
                 string kdgUrl = TCMClient.Settings.Instance.GetValue<string>("KDG-AuthURL");
 
@@ -205,26 +208,27 @@ namespace Users
                         string reqStr = JsonConvert.SerializeObject(loginReq);
                         string kdgRespStr = client.UploadString(kdgUrl, reqStr);
 
-                        Logger.Logger.Log("ValidateCredentials", string.Format("reqStr:{0}, kdgRespStr:{1}", reqStr, kdgRespStr), "KDG-SSO");
+                        log.Debug("ValidateCredentials - " + string.Format("reqStr:{0}, kdgRespStr:{1}", reqStr, kdgRespStr));
+
 
                         kdgLoginRespObj = JsonConvert.DeserializeObject<KdgLoginResp>(kdgRespStr);
                     }
                 }
                 else
                 {
-                    Logger.Logger.Log("KDG-SSO", "Error getting KDG URL From TCM", string.Format("{0}-KDG-SSO", DateTime.UtcNow.Date));
+                    log.Error("KDG-SSO - Error getting KDG URL From TCM");
                 }
 
                 return kdgLoginRespObj;
             }
             catch (WebException we)
             {
-                //Logger.Logger.Log("KDG-SSO", string.Format("No response from KDG Login Server down: ex:{0} UN:{1} Pass:{2}", we.ToString(), username, password), "KDG-SSO");
+                log.Error("", we);
                 return new KdgLoginResp() { Status = eKdgStatus.ServerDown };
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG-SSO", string.Format("Error validating credentials with KDG: ex:{0} UN:{1} Pass:{2}", ex.ToString(), username, password), "KDG-SSO");
+                log.Error("KDG-SSO - " + string.Format("Error validating credentials with KDG: ex:{0} UN:{1} Pass:{2}", ex.ToString(), username, password), ex);
                 return new KdgLoginResp() { Status = eKdgStatus.Unknown };
             }
         }

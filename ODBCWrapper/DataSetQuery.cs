@@ -4,25 +4,29 @@ using System.Web;
 using System.Web.SessionState;
 using System.Configuration;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
-	/// <summary>
-	/// Summary description for DataSetQuery.
-	/// </summary>
-	public class DataSetQuery : Query
-	{
-		protected DataSetQuery()
-		{				
-			m_myDataSet = new System.Data.DataSet();
+    /// <summary>
+    /// Summary description for DataSetQuery.
+    /// </summary>
+    public class DataSetQuery : Query
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        protected DataSetQuery()
+        {
+            m_myDataSet = new System.Data.DataSet();
             m_myDataSet.RemotingFormat = System.Data.SerializationFormat.Binary;
-			command = null;
-             
-            if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("ODBC_CACH_SEC"))) 
+            command = null;
+
+            if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("ODBC_CACH_SEC")))
             {
                 m_nCachedSec = int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
             }
-			else if (HttpContext.Current != null && HttpContext.Current.Session != null)
+            else if (HttpContext.Current != null && HttpContext.Current.Session != null)
             {
                 if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
                     m_nCachedSec = int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
@@ -32,58 +36,58 @@ namespace ODBCWrapper
             else
                 m_nCachedSec = 60;
             m_bIsWritable = false;
-		}
+        }
 
-		public override void Finish()
-		{
-			base.Finish();
+        public override void Finish()
+        {
+            base.Finish();
 
             //if (m_myDataSet != null)
             //    m_myDataSet.Clear();
 
-			m_myDataSet = null;
+            m_myDataSet = null;
 
-		}
-
-		~DataSetQuery(){}
-
-		public virtual System.Data.DataTable Execute(string sVirtualTableName , bool bForceQuery)
-		{
-			return ExecuteQuery(m_sOraStr.ToString() , sVirtualTableName , bForceQuery);
-		}
-
-		public override bool Execute()
-		{
-			System.Data.DataTable t = ExecuteQuery(m_sOraStr.ToString() , "temp" , true);
-			if (t == null)
-				return false;
-			m_myDataSet.Tables["temp"].Clear();
-			return true;
-		}
-
-		protected virtual void FillQueryString(string oraStr)
-		{
-			m_sOraStr = new System.Text.StringBuilder(oraStr);
         }
-        
-        protected virtual System.Data.DataTable ExecuteQuery(string oraStr , string sVirtualTableName , bool bForceQuery)
-		{
-			if (bForceQuery)
-			{
-				if (m_myDataSet.Tables.Contains(sVirtualTableName ))
-					m_myDataSet.Tables[sVirtualTableName].Clear();
-			}
-			else
-			{
-				if (m_myDataSet.Tables.Contains(sVirtualTableName ))
-				{
-					Clean();
-					return m_myDataSet.Tables[sVirtualTableName];
-				}
-			}
-			FillQueryString(oraStr);
+
+        ~DataSetQuery() { }
+
+        public virtual System.Data.DataTable Execute(string sVirtualTableName, bool bForceQuery)
+        {
+            return ExecuteQuery(m_sOraStr.ToString(), sVirtualTableName, bForceQuery);
+        }
+
+        public override bool Execute()
+        {
+            System.Data.DataTable t = ExecuteQuery(m_sOraStr.ToString(), "temp", true);
+            if (t == null)
+                return false;
+            m_myDataSet.Tables["temp"].Clear();
+            return true;
+        }
+
+        protected virtual void FillQueryString(string oraStr)
+        {
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+        }
+
+        protected virtual System.Data.DataTable ExecuteQuery(string oraStr, string sVirtualTableName, bool bForceQuery)
+        {
+            if (bForceQuery)
+            {
+                if (m_myDataSet.Tables.Contains(sVirtualTableName))
+                    m_myDataSet.Tables[sVirtualTableName].Clear();
+            }
+            else
+            {
+                if (m_myDataSet.Tables.Contains(sVirtualTableName))
+                {
+                    Clean();
+                    return m_myDataSet.Tables[sVirtualTableName];
+                }
+            }
+            FillQueryString(oraStr);
             string sCachStr = GetCachStr();
-            System.Data.DataTable dCached =  SelectCacher.GetCachedDataTable(sCachStr , m_nCachedSec);
+            System.Data.DataTable dCached = SelectCacher.GetCachedDataTable(sCachStr, m_nCachedSec);
             if (dCached == null)
             {
                 string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
@@ -100,19 +104,22 @@ namespace ODBCWrapper
                     adapter.SelectCommand = command;
                     try
                     {
-                        DataTable dataTable = new DataTable(sVirtualTableName);
-                        dataTable.BeginLoadData();
-                        adapter.Fill(dataTable);
-                        dataTable.EndLoadData();
-                        m_myDataSet.EnforceConstraints = false;
-                        m_myDataSet.Tables.Add(dataTable);
-
-                       // adapter.Fill(m_myDataSet, sVirtualTableName);
+                        SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                        {
+                            DataTable dataTable = new DataTable(sVirtualTableName);
+                            dataTable.BeginLoadData();
+                            adapter.Fill(dataTable);
+                            dataTable.EndLoadData();
+                            m_myDataSet.EnforceConstraints = false;
+                            m_myDataSet.Tables.Add(dataTable);
+                        }
+                        // adapter.Fill(m_myDataSet, sVirtualTableName);
                     }
                     catch (Exception ex)
                     {
-                        string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception accured: " + ex.Message;
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                        string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                        log.Error(sMes, ex);
                         adapter = null;
                         Finish();
                         return null;
@@ -132,35 +139,35 @@ namespace ODBCWrapper
                 m_myDataSet.Tables.Add(dCached);
             }
             return m_myDataSet.Tables[sVirtualTableName];
-			
-		}
 
-		protected override void Clean()
-		{
-			m_sInsertStructure = "(";
-			m_sInsertValues = "(";
-			m_sOraStr = new System.Text.StringBuilder();
-		}
+        }
 
-		public System.Data.DataTable Table(string sVirtualTableName)
-		{
-			return m_myDataSet.Tables[sVirtualTableName];
-		}
+        protected override void Clean()
+        {
+            m_sInsertStructure = "(";
+            m_sInsertValues = "(";
+            m_sOraStr = new System.Text.StringBuilder();
+        }
 
-		public void InsertTable(System.Data.DataTable theNewTable)
-		{
-			m_myDataSet.Tables.Add(theNewTable);
-		}
+        public System.Data.DataTable Table(string sVirtualTableName)
+        {
+            return m_myDataSet.Tables[sVirtualTableName];
+        }
+
+        public void InsertTable(System.Data.DataTable theNewTable)
+        {
+            m_myDataSet.Tables.Add(theNewTable);
+        }
 
         public void SetCachedSec(Int32 nCachedSec)
         {
             m_nCachedSec = nCachedSec;
         }
 
-		
-		protected System.Data.DataSet m_myDataSet;
-		protected string m_sInsertStructure = "(";
-		protected string m_sInsertValues = "(";
+
+        protected System.Data.DataSet m_myDataSet;
+        protected string m_sInsertStructure = "(";
+        protected string m_sInsertValues = "(";
         protected Int32 m_nCachedSec;
-	}
+    }
 }

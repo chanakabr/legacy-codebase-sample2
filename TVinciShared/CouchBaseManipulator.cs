@@ -7,11 +7,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
     public class CouchBaseManipulator : DBManipulator
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         //updates the epg object and returns its ID 
         public static int DoTheWork(ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
         {
@@ -56,7 +60,7 @@ namespace TVinciShared
                 epg.CreateDate = DateTime.UtcNow;
             }
 
-            setBasicEpgData(ref coll, ref epg);           
+            setBasicEpgData(ref coll, ref epg);
             setEpgPictures(ref epg);
 
 
@@ -82,11 +86,11 @@ namespace TVinciShared
                     epgPicture = new ApiObjects.Epg.EpgPicture();
                     epgPicture.Url = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL");
                     epgPicture.Ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
-                    
+
                     if (!epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio))
                     {
                         epg.pictures.Add(epgPicture);
-                    }                    
+                    }
                 }
             }
         }
@@ -152,7 +156,7 @@ namespace TVinciShared
 
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgTags with epg ID :" + epg.EpgID, "Exceptions");
+                log.Error("Exception - " + ex.Message + " || On function: setEpgTags with epg ID :" + epg.EpgID, ex);
             }
         }
 
@@ -236,7 +240,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, "Exceptions");
+                log.Error("Exception - " + ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, ex);
             }
         }
 
@@ -353,7 +357,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, "Exceptions");
+                log.Error("Exception - " + ex.Message + " || On function: setEpgMeta with epg ID :" + epg.EpgID, ex);
                 LoginManager.LogoutFromSite("login.html");
                 return;
             }
@@ -362,13 +366,12 @@ namespace TVinciShared
         private static void doTheWorkOnFile(int nCounter, int nGroupID, ref NameValueCollection coll, ref bool bValid, ref EpgCB epg)
         {
 
-            #region intialize string values from 'coll'
             bool bIsNew = false;
             int picID = 0;
             string sPicName = string.Empty;
             string sPicDescription = string.Empty;
             string baseURL = string.Empty;
-            string sBasePath = PageUtils.GetBasePicURL(nGroupID);                            
+            string sBasePath = PageUtils.GetBasePicURL(nGroupID);
             string sFileObjName = nCounter.ToString() + "_val";
             HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
             string sUploadedFile = "";
@@ -390,22 +393,19 @@ namespace TVinciShared
             {
                 ratioIndex = coll[nCounter.ToString() + "_ratioIndex"].ToString();
             }
-            Logger.Logger.Log("Ratio index found", "Ratio index is " + ratioIndex, "Ratio");
+            log.Debug("Ratio index found - Ratio index is " + ratioIndex);
             string selectedRatioVal = string.Empty;
 
-          
+
             if (coll[ratioIndex + "_val"] != null && coll[ratioIndex + "_val"].Trim().ToString() != "")
             {
                 selectedRatioVal = coll[ratioIndex + "_val"].Trim().ToString();
-                Logger.Logger.Log("Selected Ratio Found", "Selected Ratio is :" + selectedRatioVal, "Ratio");
+                log.Debug("Selected Ratio Found - Selected Ratio is :" + selectedRatioVal);
             }
             else
             {
-                Logger.Logger.Log("Selected Ratio Not Found", "ratio index is :" + ratioIndex, "Ratio");
+                log.Debug("Selected Ratio Not Found - ratio index is :" + ratioIndex);
             }
-
-
-            #endregion
 
             //check if the file is an image file
             bool bIsImage = false;
@@ -421,11 +421,11 @@ namespace TVinciShared
                     bValid = true;
                     sPicDescription = string.Format("{0}_{1}_{2}", epg.ChannelID, selectedRatioVal, theFile.FileName);
                     ImageUtils.GetDateEpgImageDetails(sPicDescription, nGroupID, ref bIsNew, ref sPicName, ref picID, ref baseURL);
-                    Dictionary<string,string> ratios =  Tvinci.Core.DAL.EpgDal.Get_PicsEpgRatios();
+                    Dictionary<string, string> ratios = Tvinci.Core.DAL.EpgDal.Get_PicsEpgRatios();
 
 
                     string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                   
+
                     //use the rabbit Queue
                     if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
                     {
@@ -456,20 +456,20 @@ namespace TVinciShared
                                 coll[nCounter.ToString() + "_picDim_ratio_" + count.ToString()].Trim().ToString() != "")
                                 {
                                     sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + count.ToString()].ToString();
-                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                    log.Debug("Ratio found - Ratio is :" + sRatio);
                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                     {
-                                        Logger.Logger.Log("Ratio un-matched", selectedRatioVal, "Ratio");
+                                        log.Debug("Ratio un-matched - "+ selectedRatioVal);
                                         isResize = false;
                                     }
                                     else
                                     {
-                                        Logger.Logger.Log("Ratio matched", "for: " + sDirectory + "/" + baseURL + sEndName, "Ratio");
+                                        log.Debug("Ratio matched - for: " + sDirectory + "/" + baseURL + sEndName);
                                     }
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Ratio not found", "for: " + sDirectory + "/" + baseURL + sEndName, "Ratio");
+                                    log.Debug("Ratio not found - for: " + sDirectory + "/" + baseURL + sEndName);
                                 }
                                 if (isResize)
                                 {
@@ -500,11 +500,11 @@ namespace TVinciShared
                         {
                             epg.pictures.RemoveAll(x => x.Ratio == epgPicture.Ratio);
                         }
-                        epg.pictures.Add(epgPicture);   
+                        epg.pictures.Add(epgPicture);
 
                         updateEpgAndDB(ref epg, ref coll, epg.PicUrl, nGroupID, bIsNew, bValid, selectedRatioVal);
                     }
-                    else                 
+                    else
                     {
                         sBasePath = HttpContext.Current.Server.MapPath("");
                         string sPicUploaderPath = GetWSURL("pic_uploader_path");
@@ -559,20 +559,20 @@ namespace TVinciShared
                                 coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
                                 {
                                     sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                    Logger.Logger.Log("Ratio found", "Ratio is :" + sRatio, "Ratio");
+                                    log.Debug("Ratio found - Ratio is :" + sRatio);
                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                     {
-                                        Logger.Logger.Log("Ratio un-matched", sTmpImage, "Ratio");
+                                        log.Debug("Ratio un-matched - " + sTmpImage);
                                         isResize = false;
                                     }
                                     else
                                     {
-                                        Logger.Logger.Log("Ratio matched", sTmpImage, "Ratio");
+                                        log.Debug("Ratio matched - "+ sTmpImage);
                                     }
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Ratio not found", sTmpImage, "Ratio");
+                                    log.Debug("Ratio not found - "+ sTmpImage);
                                 }
                                 if (isResize)
                                 {
@@ -629,7 +629,7 @@ namespace TVinciShared
                 //epg.PicID = int.Parse(coll["id"].ToString());
             }
             else //insert a new Epg_pic
-            {               
+            {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("EPG_pics");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
