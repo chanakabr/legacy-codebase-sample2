@@ -20,7 +20,15 @@ namespace ConditionalAccess
         EntitledToPreviewModule = 9,
         FirstDeviceLimitation =10,
         CollectionPurchased = 11,
-        UserSuspended
+        UserSuspended = 12,
+        NotForPurchase = 13        
+    }
+
+    public enum MediaFileStatus
+    {
+        OK = 0,
+        NotForPurchase = 1,
+        ValidOnlyIfPurchase = 2
     }
 
     public enum BillingItemsType

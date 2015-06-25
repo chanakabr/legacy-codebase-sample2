@@ -1536,7 +1536,7 @@ namespace ConditionalAccess
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
-            return GetMediaFileFinalPrice(nMediaFileID, ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
+            return GetMediaFileFinalPrice(nMediaFileID, MediaFileStatus.OK, ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
                 ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate);
@@ -1634,7 +1634,7 @@ namespace ConditionalAccess
             return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
         }
 
-        internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
+        internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, bool bIsValidForPurchase, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
             ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
@@ -1744,6 +1744,10 @@ namespace ConditionalAccess
                             }
                         }
                         bEnd = true;
+                    }
+                    else if (lstFileIDs.Count > 0 && eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase) // user didn't purchase and mediaFileREson is ValidOnlyIfPurchase
+                    {
+                        theReason = PriceReason.NotForPurchase;
                     }
                     else
                     {
@@ -1870,7 +1874,7 @@ namespace ConditionalAccess
                         {
                             theReason = PriceReason.Free;
                         }
-                        else if (theReason != PriceReason.ForPurchaseSubscriptionOnly)
+                        else if (theReason != PriceReason.ForPurchaseSubscriptionOnly && theReason != PriceReason.NotForPurchase)
                         {
                             theReason = PriceReason.ForPurchase;
                         }

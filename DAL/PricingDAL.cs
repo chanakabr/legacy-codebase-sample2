@@ -579,5 +579,19 @@ namespace DAL
             return subscriptionsServices;
         }
 
+
+        public static DataTable Get_PPVModuleForMediaFiles(int groupID, List<int> mediaFileList)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleForMediaFiles");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@MediaFileList", mediaFileList, "id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
     }
 }
