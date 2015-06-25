@@ -1983,23 +1983,6 @@ namespace DAL
             return res;
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGwID, int householdID)
-        {
-            bool res = false;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGW");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddParameter("@paymentGwID", paymentGwID);
-                sp.AddParameter("@householdID", householdID);
-
-                res = sp.ExecuteReturnValue<bool>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-            return res;        
-        }
+       
     } 
 }
