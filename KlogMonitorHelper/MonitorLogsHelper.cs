@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Threading;
 using System.Web;
 using System.Xml;
 using ApiObjects;
@@ -17,6 +15,7 @@ namespace KlogMonitorHelper
     public class MonitorLogsHelper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string K_MON_KEY = "kmon";
         private const string PREFIX_UNIQUE_ID = @"urn:uuid:";
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
@@ -169,6 +168,55 @@ namespace KlogMonitorHelper
             }
         }
 
+        public static void UpdateWcfContextData(MessageProperties wcfData)
+        {
+            if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null && wcfData != null)
+            {
+                object temp;
+                if (wcfData.TryGetValue(Constants.CLIENT_TAG, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] = temp;
+
+                if (wcfData.TryGetValue(Constants.HOST_IP, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] = temp;
+
+                if (wcfData.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] = temp;
+
+                if (wcfData.TryGetValue(Constants.GROUP_ID, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = temp;
+
+                if (wcfData.TryGetValue(Constants.ACTION, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = temp;
+
+                if (wcfData.TryGetValue(Constants.USER_ID, out temp))
+                    OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = temp;
+            }
+        }
+
+        public static void UpdateWsContextData(IDictionary wsData)
+        {
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && wsData != null)
+            {
+                if (wsData[Constants.CLIENT_TAG] != null)
+                    HttpContext.Current.Items[Constants.CLIENT_TAG] = wsData[Constants.CLIENT_TAG];
+
+                if (wsData[Constants.HOST_IP] != null)
+                    HttpContext.Current.Items[Constants.HOST_IP] = wsData[Constants.HOST_IP];
+
+                if (wsData[Constants.REQUEST_ID_KEY] != null)
+                    HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = wsData[Constants.REQUEST_ID_KEY];
+
+                if (wsData[Constants.GROUP_ID] != null)
+                    HttpContext.Current.Items[Constants.GROUP_ID] = wsData[Constants.GROUP_ID];
+
+                if (wsData[Constants.ACTION] != null)
+                    HttpContext.Current.Items[Constants.ACTION] = wsData[Constants.ACTION];
+
+                if (wsData[Constants.USER_ID] != null)
+                    HttpContext.Current.Items[Constants.USER_ID] = wsData[Constants.USER_ID];
+            }
+        }
+
         static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
         {
             try
@@ -184,3 +232,4 @@ namespace KlogMonitorHelper
         }
     }
 }
+  
