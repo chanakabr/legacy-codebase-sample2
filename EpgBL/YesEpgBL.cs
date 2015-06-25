@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using ApiObjects;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Logger;
 
 namespace EpgBL
@@ -102,6 +103,9 @@ namespace EpgBL
                 {
                     int nChannelCount = lChannelIDs.Count;
 
+                    // save monitor and logs context data
+                    ContextData contextData = new ContextData();
+
                     //Start MultiThread Call
                     Task[] tasks = new Task[nChannelCount];
                     for (int i = 0; i < nChannelCount; i++)
@@ -111,6 +115,9 @@ namespace EpgBL
                         tasks[i] = Task.Factory.StartNew(
                              (obj) =>
                              {
+                                 // load monitor and logs context data
+                                 contextData.Load();
+
                                  try
                                  {
                                      int taskChannelID = (int)obj;
@@ -202,6 +209,9 @@ namespace EpgBL
                 {
                     int nChannelCount = lChannelIDs.Count;
 
+                    // save monitor and logs context data
+                    ContextData contextData = new ContextData();
+
                     //Start MultiThread Call
                     Task[] tasks = new Task[nChannelCount];
                     for (int i = 0; i < nChannelCount; i++)
@@ -211,6 +221,9 @@ namespace EpgBL
                         tasks[i] = Task.Factory.StartNew(
                              (obj) =>
                              {
+                                 // load monitor and logs context data
+                                 contextData.Load();
+
                                  try
                                  {
                                      int taskChannelID = (int)obj;

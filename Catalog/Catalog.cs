@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using ApiObjects;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
@@ -20,6 +23,7 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
@@ -149,6 +153,9 @@ namespace Catalog
             int nParentGroupID = catalogCache.GetParentGroup(groupId);
             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
+            // save monitor and logs context data
+            ContextData contextData = new ContextData();
+
             //complete media id details 
             for (int i = nStartIndex; i < nEndIndex; i++)
             {
@@ -156,6 +163,9 @@ namespace Catalog
 
                 tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
                 {
+                    // load monitor and logs context data
+                    contextData.Load();
+
                     try
                     {
                         int taskMediaID = (int)obj;
@@ -2874,12 +2884,18 @@ namespace Catalog
                                 log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             // bring social actions from CB social bucket
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);
@@ -2944,12 +2960,18 @@ namespace Catalog
                             // we bring data from ES statistics index.
                             //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             // we bring data from social bucket in CB.
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);

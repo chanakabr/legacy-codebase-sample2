@@ -15,6 +15,7 @@ using GroupsCacheManager;
 using Catalog.Request;
 using Catalog.Response;
 using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -27,7 +28,7 @@ namespace Catalog
         [DataMember]
         public List<int> m_lChannelIDs;
         [DataMember]
-        public int m_nMediaID;       
+        public int m_nMediaID;
 
         public DoesMediaBelongToChannels()
             : base()
@@ -63,11 +64,11 @@ namespace Catalog
                 #region get subscription medias in lucene
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
                 {
-                    
+
                     GroupManager groupManager = new GroupManager();
                     CatalogCache catalogCache = CatalogCache.Instance();
                     int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                    Group groupInCache = groupManager.GetGroup(nParentGroupID); 
+                    Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                     List<int> channelIds = request.m_lChannelIDs;
                     List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
@@ -80,8 +81,10 @@ namespace Catalog
                         if (request.m_oFilter != null)
                             nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
 
-                        Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
+                        // save monitor and logs context data
+                        ContextData contextData = new ContextData();
 
+                        Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
                         // Building search object for each channel
                         for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
@@ -89,6 +92,9 @@ namespace Catalog
                             channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                  (obj) =>
                                  {
+                                     // load monitor and logs context data
+                                     contextData.Load();
+
                                      try
                                      {
                                          if (groupInCache != null)
@@ -155,7 +161,7 @@ namespace Catalog
                         response.m_nTotalItems = 0;
                     }
                 }
-                
+
 
                 return response;
             }
