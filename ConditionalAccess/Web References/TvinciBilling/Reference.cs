@@ -47,6 +47,8 @@ namespace ConditionalAccess.TvinciBilling {
         
         private System.Threading.SendOrPostCallback CC_ChargeUserOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdatePurchaseIDInBillingOperationCompleted;
+        
         private System.Threading.SendOrPostCallback DD_ChargeUserOperationCompleted;
         
         private System.Threading.SendOrPostCallback InApp_ChargeUserOperationCompleted;
@@ -69,7 +71,7 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost/WS_Billing_B/module.asmx";
+            this.Url = "http://localhost/WS_Billing/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -129,6 +131,9 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         public event CC_ChargeUserCompletedEventHandler CC_ChargeUserCompleted;
+        
+        /// <remarks/>
+        public event UpdatePurchaseIDInBillingCompletedEventHandler UpdatePurchaseIDInBillingCompleted;
         
         /// <remarks/>
         public event DD_ChargeUserCompletedEventHandler DD_ChargeUserCompleted;
@@ -480,6 +485,41 @@ namespace ConditionalAccess.TvinciBilling {
             if ((this.CC_ChargeUserCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.CC_ChargeUserCompleted(this, new CC_ChargeUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePurchaseIDInBilling", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool UpdatePurchaseIDInBilling(string sWSUserName, string sWSPassword, long purchaseID, long billingRefTransactionID) {
+            object[] results = this.Invoke("UpdatePurchaseIDInBilling", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        purchaseID,
+                        billingRefTransactionID});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdatePurchaseIDInBillingAsync(string sWSUserName, string sWSPassword, long purchaseID, long billingRefTransactionID) {
+            this.UpdatePurchaseIDInBillingAsync(sWSUserName, sWSPassword, purchaseID, billingRefTransactionID, null);
+        }
+        
+        /// <remarks/>
+        public void UpdatePurchaseIDInBillingAsync(string sWSUserName, string sWSPassword, long purchaseID, long billingRefTransactionID, object userState) {
+            if ((this.UpdatePurchaseIDInBillingOperationCompleted == null)) {
+                this.UpdatePurchaseIDInBillingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePurchaseIDInBillingOperationCompleted);
+            }
+            this.InvokeAsync("UpdatePurchaseIDInBilling", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        purchaseID,
+                        billingRefTransactionID}, this.UpdatePurchaseIDInBillingOperationCompleted, userState);
+        }
+        
+        private void OnUpdatePurchaseIDInBillingOperationCompleted(object arg) {
+            if ((this.UpdatePurchaseIDInBillingCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdatePurchaseIDInBillingCompleted(this, new UpdatePurchaseIDInBillingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -906,7 +946,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -927,7 +967,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1008,7 +1048,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1245,7 +1285,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1338,7 +1378,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1371,7 +1411,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1428,7 +1468,7 @@ namespace ConditionalAccess.TvinciBilling {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34234")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum BillingResponseStatus {
@@ -1675,6 +1715,32 @@ namespace ConditionalAccess.TvinciBilling {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((BillingResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdatePurchaseIDInBillingCompletedEventHandler(object sender, UpdatePurchaseIDInBillingCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdatePurchaseIDInBillingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdatePurchaseIDInBillingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }

@@ -55,21 +55,23 @@ namespace ConditionalAccess
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule,
             ref TvinciBilling.module bm);
 
+        protected abstract bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword,
+          long purchaseID, long billingRefTransactionID, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
+        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData,
-            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
+            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
+        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
-            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID);
+            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
+        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
-            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
+            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
         /*
          * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
@@ -5806,9 +5808,9 @@ namespace ConditionalAccess
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
 
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                 sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
-                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref wsBillingService);
 
                                             // Enqueue notification for PS so they know a media file was charged
                                             var dicData = new Dictionary<string, object>()
@@ -7094,9 +7096,9 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
+                HandleChargeUserForSubscriptionBillingSuccess(sBillingUsername, sBillingPassword, sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
-                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                 // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                 if (theSub.m_nDomainLimitationModule != 0)
@@ -7139,11 +7141,11 @@ namespace ConditionalAccess
 
             log.Debug("CustomData - " + string.Format("Collection custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData));
 
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+
             if (p.m_dPrice != 0 || bDummy)
             {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-
                 InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
                 ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
@@ -7159,8 +7161,8 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
-                    sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
+                HandleChargeUserForCollectionBillingSuccess(sWSUserName, sWSPass, sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                    sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID, ref bm);
 
                 // Enqueue notification for PS so they know a collection was charged
                 var dicData = new Dictionary<string, object>()
@@ -7662,7 +7664,7 @@ namespace ConditionalAccess
             string sWSURL = Utils.GetWSURL("billing_ws");
             if (!string.IsNullOrEmpty(sWSURL))
             {
-                bm.Url = sWSURL;
+                bm.Url = "http://localhost/WS_Billing/module.asmx";//sWSURL;
             }
         }
 
@@ -10202,9 +10204,9 @@ namespace ConditionalAccess
                                         {
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
-                                                                                       thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                                                       thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                                             // Enqueue notification for PS so they know a collection was charged
                                             var dicData = new Dictionary<string, object>()
@@ -10436,9 +10438,9 @@ namespace ConditionalAccess
 
                                     long lBillingTransactionID = 0;
                                     long lPurchaseID = 0;
-                                    HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, theSub, dPrice, sCurrency, sCouponCode,
+                                    HandleChargeUserForSubscriptionBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, theSub, dPrice, sCurrency, sCouponCode,
                                                                                   sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
-                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                                     // Enqueue notification for PS so they know a collection was charged
                                     var dicData = new Dictionary<string, object>()
@@ -10532,7 +10534,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-        protected void UpdatePurchaseIDInExternalBillingTable(long lBillingTransactionID, long lPurchaseID)
+        protected void UpdatePurchaseIDInExternalBillingTable(string sWSUsername, string sWSPassword, long lBillingTransactionID, long lPurchaseID, ref TvinciBilling.module wsBillingService)
         {
             int nExternalTransactionID = 0;
             int nBillingProvider = 0;
@@ -10563,46 +10565,7 @@ namespace ConditionalAccess
 
             if (nExternalTransactionID > 0 && nBillingProvider > 0 && Enum.IsDefined(typeof(eBillingProvider), nBillingProvider))
             {
-                eBillingProvider billingProvider = (eBillingProvider)nBillingProvider;
-                string sTableName = string.Empty;
-
-                switch (billingProvider)
-                {
-                    case eBillingProvider.Adyen:
-                        sTableName = "adyen_transactions";
-                        break;
-                    case eBillingProvider.M1:
-                        sTableName = "m1_transactions";
-                        break;
-                    case eBillingProvider.Cinepolis:
-                        sTableName = "cinepolis_transactions";
-                        break;
-                    default:
-                        log.Debug("UpdatePurchaseIDInExternalBillingTable - " + string.Format("No table name assigned. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID));
-                        break;
-                }
-                if (sTableName.Length > 0)
-                {
-                    ODBCWrapper.DirectQuery directQuery = null;
-                    try
-                    {
-                        directQuery = new ODBCWrapper.DirectQuery();
-                        directQuery.SetConnectionKey("BILLING_CONNECTION");
-                        directQuery += "update  " + sTableName + " set  ";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", lPurchaseID);
-                        directQuery += "where";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nExternalTransactionID);
-
-                        directQuery.Execute();
-                    }
-                    finally
-                    {
-                        if (directQuery != null)
-                        {
-                            directQuery.Finish();
-                        }
-                    }
-                }
+                UpdatePurchaseIDInBilling(sWSUsername, sWSPassword, lPurchaseID, lBillingTransactionID, ref wsBillingService);
             }
             else
             {
