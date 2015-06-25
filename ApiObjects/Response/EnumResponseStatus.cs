@@ -89,5 +89,9 @@ namespace ApiObjects.Response
         // Api 5000 - 5999
         NoPinDefined = 5001,
         PinMismatch = 5002
+
+
+        // Billing 6000-6999
+
     }
 }

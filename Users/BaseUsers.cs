@@ -1086,5 +1086,39 @@ namespace Users
             }
             return response;
         }
+
+        public ApiObjects.Response.Status SetPaymentGW(int groupID, int paymentGwID, int houseHoldID)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                if (paymentGwID == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "no payment id sent");
+                }
+                else if (houseHoldID == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "no houseHold id sent");
+                }
+                else
+                {
+                    bool isSet = DAL.UsersDal.SetPaymentGW(groupID, paymentGwID, houseHoldID);
+                    if (isSet)
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gaeway set to household");
+                    }
+                    else
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gaeway faild set  to household");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                Logger.Logger.Log("GetPaymentGW", string.Format("Failed ex={0}, groupID ={1}, paymentGwID ={2}, houseHoldID= {3}, ", ex.Message, groupID, paymentGwID, houseHoldID), "Users_PGW");
+            }
+            return response;
+        }
     }
 }

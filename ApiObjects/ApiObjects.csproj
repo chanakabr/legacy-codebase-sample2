@@ -89,6 +89,11 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="Billing\PaymentGW.cs" />
+    <Compile Include="Billing\PaymentGWConfig.cs" />
+    <Compile Include="Billing\PaymentGWConfigs.cs" />
+    <Compile Include="Billing\PaymentGWConfigResponse.cs" />
+    <Compile Include="Billing\PaymentGWResponse.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />

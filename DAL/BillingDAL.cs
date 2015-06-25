@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using System.Configuration;
 using ODBCWrapper;
+using ApiObjects.Billing;
 
 namespace DAL
 {
@@ -967,5 +968,153 @@ namespace DAL
             return sRet;
         }
 
+
+        public static List<PaymentGWConfig> GetPaymentGWConfigurationList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<PaymentGWConfig> res = new List<PaymentGWConfig>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWConfigurationList");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGWConfig pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGWConfig();
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            pgw.isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            pgw.isDefault = isDefault == 1 ? true : false;
+                            
+                            DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
+                            foreach (DataRow drp in drpc)
+                            {
+                                string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                int statusConfig = ODBCWrapper.Utils.GetIntSafeVal(drp, "status");
+
+                                pgw.configs.Add(new PaymentGWConfigs(key, value, statusConfig));
+                            }     
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGWConfig>();
+            }
+            return res;
+        }
+
+        public static bool SetPaymentGW(int groupID, PaymentGWConfig pgw)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", pgw.id);
+                sp.AddParameter("@name", pgw.name);
+                sp.AddParameter("@isDefault", pgw.isDefault);
+                sp.AddParameter("@isActive", pgw.isActive);
+
+                DataTable dt = CreateDataTable(pgw.configs);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        private static DataTable CreateDataTable(List<PaymentGWConfigs> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("key", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+                resultTable.Columns.Add("status", typeof(int));
+
+                foreach (PaymentGWConfigs item in list)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["key"] = item.key;
+                    row["value"] = item.value;
+                    row["status"] = item.statusConfig;
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {   
+                return null;
+            }
+
+            return resultTable;
+        }
+
+        public static bool DeletePaymentGW(int groupID, int paymentGwID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGwID);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<PaymentGW> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<PaymentGW> res = new List<PaymentGW>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayList");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];                  
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGW pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGW();
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                                    
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGW>();
+            }
+            return res;
+        }
     }
 }
