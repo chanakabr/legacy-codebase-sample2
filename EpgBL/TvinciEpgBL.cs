@@ -11,6 +11,7 @@ using Logger;
 using ApiObjects.Epg;
 using KLogMonitor;
 using System.Reflection;
+using KlogMonitorHelper;
 
 namespace EpgBL
 {
@@ -376,12 +377,18 @@ namespace EpgBL
 
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 Task<List<EpgCB>>[] tChannelTasks = new Task<List<EpgCB>>[lChannelIDs.Count];
                 for (int i = 0; i < lChannelIDs.Count; i++)
                 {
                     tChannelTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
                         (index) =>
                         {
+                            // load monitor and logs context data
+                            contextData.Load();
+
                             return GetChannelPrograms(nPageSize, nStartIndex, lChannelIDs[(int)index], fromUTCDay, toUTCDay);
                         }, i);
                 }
@@ -455,6 +462,9 @@ namespace EpgBL
 
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 Task[] tasks = new Task[lChannelIDs.Count];
 
                 for (int i = 0; i < lChannelIDs.Count; i++)
@@ -464,6 +474,9 @@ namespace EpgBL
                     tasks[i] = Task.Factory.StartNew(
                          (obj) =>
                          {
+                             // load monitor and logs context data
+                             contextData.Load();
+
                              int taskChannelID = 0;
                              try
                              {
@@ -513,6 +526,9 @@ namespace EpgBL
             int nGoBack = -1;
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 //Start MultiThread Call
                 Task[] tasks = new Task[lChannelIDs.Count];
                 for (int i = 0; i < lChannelIDs.Count; i++)
@@ -522,6 +538,9 @@ namespace EpgBL
                     tasks[i] = Task.Factory.StartNew(
                          (obj) =>
                          {
+                             // load monitor and logs context data
+                             contextData.Load();
+
                              int taskChannelID = 0;
                              try
                              {

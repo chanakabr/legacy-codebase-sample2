@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
 using KLogMonitor;
+using KlogMonitorHelper;
 //using CouchbaseManager;
 //using Couchbase;
 //using NotificationBL;
@@ -73,12 +74,21 @@ namespace NotificationInterface
                 }
                 if (requestsList != null && requestsList.Count > 0)
                 {
+                    // save monitor and logs context data
+                    ContextData contextData = new ContextData();
+
                     Task[] tasks = new Task[requestsList.Count];
                     //send push notification to device + send SMS
                     for (int i = 0; i < requestsList.Count; i++)
                     {
                         int j = i;
-                        tasks[j] = Task.Factory.StartNew(() => HandleOneRequest(requestsList[j]));
+                        tasks[j] = Task.Factory.StartNew(() =>
+                            {
+                                // load monitor and logs context data
+                                contextData.Load();
+
+                                HandleOneRequest(requestsList[j]);
+                            });
                     }
                     Task.WaitAll(tasks);
                 }

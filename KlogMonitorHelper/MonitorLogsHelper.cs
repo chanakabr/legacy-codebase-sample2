@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Threading;
 using System.Web;
 using System.Xml;
 using ApiObjects;
@@ -17,6 +15,7 @@ namespace KlogMonitorHelper
     public class MonitorLogsHelper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string K_MON_KEY = "kmon";
         private const string PREFIX_UNIQUE_ID = @"urn:uuid:";
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";

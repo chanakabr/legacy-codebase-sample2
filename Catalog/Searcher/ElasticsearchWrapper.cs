@@ -16,6 +16,7 @@ using GroupsCacheManager;
 using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -532,6 +533,9 @@ namespace Catalog
 
             if (lDateAliases.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 Task<string>[] tAliasRequests = new Task<string>[lDateAliases.Count];
 
                 for (int i = 0; i < lDateAliases.Count; i++)
@@ -539,6 +543,9 @@ namespace Catalog
                     tAliasRequests[i] = Task.Factory.StartNew<string>(
                          (index) =>
                          {
+                             // load monitor and logs context data
+                             contextData.Load();
+
                              string sIndex = lDateAliases[(int)index];
                              return (m_oESApi.IndexExists(sIndex)) ? sIndex : string.Empty;
                          }, i);

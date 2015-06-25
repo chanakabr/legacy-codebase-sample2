@@ -258,10 +258,16 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
+        protected override bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword, long purchaseID, long billingRefTransactionID, ref TvinciBilling.module wsBillingService)
+        {
+            return wsBillingService.UpdatePurchaseIDInBilling(sWSUsername, sWSPassword, purchaseID, billingRefTransactionID);
+                     
+        }
+
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
-            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService)
         {
             bool res = true;
             HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
@@ -303,7 +309,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                        UpdatePurchaseIDInExternalBillingTable(sWSUsername, sWSPassword, lPurchaseID, lBillingTransactionID, ref wsBillingService);
                     }
                 }
                 else
@@ -329,10 +335,10 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
-            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
+            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref TvinciBilling.module wsBillingService)
         {
             bool res = true;
             Int32 nColCode;
@@ -373,7 +379,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                        UpdatePurchaseIDInExternalBillingTable(sWSUsername, sWSPassword, lBillingTransactionID, lPurchaseID, ref wsBillingService);
                     }
                 }
                 else
@@ -399,10 +405,10 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
+        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID,
             TvinciPricing.Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
-            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
+            TvinciPricing.PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService)
         {
             bool res = true;
 
@@ -443,7 +449,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                        UpdatePurchaseIDInExternalBillingTable(sWSUsername, sWSPassword, lBillingTransactionID, lPurchaseID, ref wsBillingService);
                     }
                 }
                 else

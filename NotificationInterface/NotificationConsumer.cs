@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using KLogMonitor;
 using System.Reflection;
+using KlogMonitorHelper;
 
 namespace NotificationInterface
 {
@@ -43,10 +44,13 @@ namespace NotificationInterface
         /// the job consuming job itself is implemented by the Process() method.
         /// </summary>
         /// <returns></returns>
-        public Task Start()
+        public Task Start(ContextData contextData)
         {
             Task task = Task.Factory.StartNew(() =>
             {
+                // load monitor and logs context data
+                contextData.Load();
+
                 Process();
             });
             return task;

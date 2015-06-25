@@ -11,6 +11,7 @@ using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Logger;
 using TVinciShared;
 
@@ -69,6 +70,9 @@ namespace Catalog.Request
                         {
                             List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
                             int[] nDeviceRuleId = null;
 
@@ -81,6 +85,9 @@ namespace Catalog.Request
                                 channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                      (obj) =>
                                      {
+                                         // load monitor and logs context data
+                                         contextData.Load();
+
                                          try
                                          {
                                              if (groupInCache != null)
