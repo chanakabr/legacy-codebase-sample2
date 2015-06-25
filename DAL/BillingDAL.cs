@@ -1121,16 +1121,17 @@ namespace DAL
             return res;
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGwID, int householdID)
+        public static bool SetPaymentGW(int groupID, int paymentGwID, int householdID, int status = 1)
         {
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGW");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway_Household");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@paymentGwID", paymentGwID);
+                sp.AddParameter("@PaymentGWID", paymentGwID);
                 sp.AddParameter("@householdID", householdID);
-
+                sp.AddParameter("@status", status);
+                sp.AddParameter("@groupID", groupID);
                 res = sp.ExecuteReturnValue<bool>();
             }
             catch (Exception ex)
