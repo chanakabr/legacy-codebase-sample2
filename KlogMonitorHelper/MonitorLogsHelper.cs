@@ -82,7 +82,7 @@ namespace KlogMonitorHelper
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error while getting log and monitor information", ex);
+                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString), ex);
                 }
 
                 // start k-monitor
@@ -161,9 +161,9 @@ namespace KlogMonitorHelper
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // ignore error - this will happen when updating WCF reference
+                // ignore error - this will happen when updating WCF reference - NO NEED TO LOG
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
         }
