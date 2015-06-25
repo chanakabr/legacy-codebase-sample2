@@ -7079,16 +7079,11 @@ namespace ConditionalAccess
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-            if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && bIsEntitledToPreviewModule))
+            if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && (bIsEntitledToPreviewModule || !string.IsNullOrEmpty(sCouponCode))))
             {
                 ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                    bDummy, bIsEntitledToPreviewModule, ref bm);
-            }
-
-            if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
-            {
-                ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+                    true, bIsEntitledToPreviewModule, ref bm);
             }
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
