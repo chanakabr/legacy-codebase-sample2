@@ -7658,7 +7658,7 @@ namespace ConditionalAccess
             string sWSURL = Utils.GetWSURL("billing_ws");
             if (!string.IsNullOrEmpty(sWSURL))
             {
-                bm.Url = "http://localhost/WS_Billing/module.asmx";//sWSURL;
+                bm.Url = sWSURL;
             }
         }
 
