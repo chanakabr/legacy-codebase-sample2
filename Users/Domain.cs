@@ -1596,6 +1596,11 @@ namespace Users
                     }
                 }
             }
+            else // nothing return - DomainNotExists
+            {
+                this.m_DomainStatus = DomainStatus.DomainNotExists;
+                res = true;
+            }
 
             return res;
         }
