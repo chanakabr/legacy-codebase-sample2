@@ -982,7 +982,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtPG = ds.Tables[0];
@@ -998,16 +998,19 @@ namespace DAL
                             pgw.isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.isDefault = isDefault == 1 ? true : false;
-                            
-                            DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
-                            foreach (DataRow drp in drpc)
-                            {
-                                string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
-                                string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
-                                int statusConfig = ODBCWrapper.Utils.GetIntSafeVal(drp, "status");
 
-                                pgw.configs.Add(new PaymentGWConfigs(key, value, statusConfig));
-                            }     
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    int statusConfig = ODBCWrapper.Utils.GetIntSafeVal(drp, "status");
+
+                                    pgw.configs.Add(new PaymentGWConfigs(key, value, statusConfig));
+                                }
+                            }
                             res.Add(pgw);
                         }
                     }
@@ -1020,7 +1023,7 @@ namespace DAL
             return res;
         }
 
-        public static bool SetPaymentGW(int groupID, PaymentGWConfig pgw)
+        public static bool SetPaymentGWConfiguration(int groupID, PaymentGWConfig pgw)
         {
             try
             {
@@ -1121,7 +1124,7 @@ namespace DAL
             return res;
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGwID, int householdID, int status = 1)
+        public static bool SetPaymentGWHouseHold(int groupID, int paymentGwID, int householdID, int status = 1)
         {
             bool res = false;
             try
