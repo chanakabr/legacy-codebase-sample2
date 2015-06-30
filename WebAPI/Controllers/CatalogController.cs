@@ -31,13 +31,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -109,13 +108,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003
+        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
         /// <param name="request">The search asset request parameters</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -126,8 +124,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns related media by media identifier<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns related media by media identifier<br />        
         /// </summary>
         /// <param name="request">The related media request parameters</param>
         /// <param name="media_id">Media Identifier</param>
@@ -135,7 +132,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -170,8 +167,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns all channel media<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns all channel media        
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="channel_id">Channel Identifier</param>
@@ -179,7 +175,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -214,8 +210,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media by media identifiers<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns media by media identifiers        
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
         /// <param name="media_ids">Media Identifiers separated by , </param>
@@ -223,7 +218,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -275,15 +270,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns channel info<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns channel info        
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
@@ -320,15 +314,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns category by category identifier<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns category by category identifier        
         /// </summary>
         /// <param name="category_id">Category Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
