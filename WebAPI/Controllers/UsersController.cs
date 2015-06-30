@@ -331,28 +331,28 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </summary>        
         /// <param name="partner_id">Household ID</param>
-        /// <param name="sign_up">SignUp Object</param>
+        /// <param name="request">SignUp Object</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("signup"), HttpPost]
-        public User SignUp([FromUri] string partner_id, [FromBody] SignUp sign_up)
+        [Route(""), HttpPost]
+        public User SignUp([FromUri] string partner_id, [FromBody] SignUp request)
         {
             User response = null;
 
-            if (sign_up == null || sign_up.userBasicData == null)
+            if (request == null || request.userBasicData == null)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignUp or UserBasicData is null");
             }
-            if (string.IsNullOrEmpty(sign_up.userBasicData.Username) || string.IsNullOrEmpty(sign_up.password))
+            if (string.IsNullOrEmpty(request.userBasicData.Username) || string.IsNullOrEmpty(request.password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SignUp(int.Parse(partner_id), sign_up.userBasicData, sign_up.userDynamicData, sign_up.password, sign_up.affiliateCode);
+                response = ClientsManager.UsersClient().SignUp(int.Parse(partner_id), request.userBasicData, request.userDynamicData, request.password, request.affiliateCode);
             }
             catch (ClientException ex)
             {
@@ -527,18 +527,18 @@ namespace WebAPI.Controllers
         /// Retrieving users' data
         /// </summary>
         /// <param name="partner_id">Household ID</param>
-        /// <param name="user_ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        /// <param name="user_id">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
-        [Route("{user_ids}"), HttpGet]
-        public List<User> GetUsersData([FromUri] string partner_id, string user_ids)
+        [Route("{user_id}"), HttpGet]
+        public List<User> GetUsersData([FromUri] string partner_id, string user_id)
         {
             List<int> usersIds;
             try
             {
-                usersIds = user_ids.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
             }
             catch
             {
