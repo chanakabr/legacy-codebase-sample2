@@ -658,7 +658,7 @@ namespace ConditionalAccess
         }
 
 
-        private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, int nGroupID,
+        private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
             ref Subscription[] subsRes, ref Collection[] collsRes,
             ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
@@ -673,7 +673,7 @@ namespace ConditionalAccess
 
                 List<string> subsToBundleCreditDownloadedQuery = new List<string>();
                 List<string> colsToBundleCreditDownloadedQuery = new List<string>();
-
+                
                 // iterate over subscriptions
                 DataTable subs = ds.Tables[0];
                 int nWaiver = 0;
@@ -692,7 +692,16 @@ namespace ConditionalAccess
                         dEndDate = DateTime.MinValue;
 
                         GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
-                        if (IsUserCanStillUseSub(numOfUses, maxNumOfUses))
+
+                        // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
+                        //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+
+
+                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(numOfUses, maxNumOfUses))
+                        {
+                            subsToBundleCreditDownloadedQuery.Add(bundleCode);                            
+                        }
+                        else
                         {
                             // add to Catalog's BundlesContainingMediaRequest
                             int subCode = 0;
@@ -715,12 +724,6 @@ namespace ConditionalAccess
                                 // log
                             }
                         }
-                        else
-                        {
-                            // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
-                            //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                            subsToBundleCreditDownloadedQuery.Add(bundleCode);
-                        }
                     }
                 }
 
@@ -738,7 +741,16 @@ namespace ConditionalAccess
                         dEndDate = DateTime.MinValue;
 
                         GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
-                        if (IsUserCanStillUseCol(numOfUses, maxNumOfUses))
+
+                        // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
+                        //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                        // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
+                        
+                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseCol(numOfUses, maxNumOfUses))
+                        {
+                            colsToBundleCreditDownloadedQuery.Add(bundleCode);
+                        }
+                        else
                         {
                             // add to Catalog's BundlesContainingMediaRequest
                             int collCode = 0;
@@ -760,50 +772,59 @@ namespace ConditionalAccess
                             {
                                 //log
                             }
-                        }
-                        else
-                        {
-                            colsToBundleCreditDownloadedQuery.Add(bundleCode);
-                            // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
-                            //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                            // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
-                        }
+                        }                      
                     }
                 }
 
                 HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery,
                     nMediaFileID, nGroupID, lstUserIDs, relatedMediaFiles, sPricingUsername, sPricingPassword, ref subsToSendToCatalog,
-                    ref collsToSendToCatalog);
+                    ref collsToSendToCatalog);               
 
-                // get distinct subs from subs list, same for collection
-                List<int> distinctSubs = subsToSendToCatalog.Distinct().ToList<int>();
-                List<int> distinctColls = collsToSendToCatalog.Distinct().ToList<int>();
-
-                List<int> validatedSubs = null;
-                List<int> validatedColls = null;
-
-                if (distinctSubs.Count > 0 || distinctColls.Count > 0)
+                // the subs / colls already purchased (no need to download creadit ) - can return it as OK 
+                if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase)
                 {
-                    ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
-                }
-
-                if (validatedSubs != null && validatedSubs.Count > 0)
-                {
-                    subsRes = GetSubscriptionsDataWithCaching(validatedSubs, sPricingUsername, sPricingPassword, nGroupID);
-                }
-
-                // now validate bulk collections - PPV_CreditNeedToDownloadedUsingCollection
-
-                if (validatedColls != null && validatedColls.Count > 0)
-                {
-                    Dictionary<int, bool> collsAfterPPVCreditValidation = PPVBulkDoCreditNeedToDownloadedUsingCollections(nGroupID,
-                        nMediaFileID, lstUserIDs, validatedColls, sPricingUsername, sPricingPassword);
-                    List<int> finalCollCodes = GetFinalCollectionCodes(collsAfterPPVCreditValidation);
-                    if (finalCollCodes != null && finalCollCodes.Count > 0)
+                    if (subsToSendToCatalog != null && subsToSendToCatalog.Count > 0)
                     {
-                        collsRes = GetCollectionsDataWithCaching(finalCollCodes, sPricingUsername, sPricingPassword, nGroupID);
+                        // check if credit need to be downloaded for specific mediafile 
+                        subsRes = GetSubscriptionsDataWithCaching(subsToSendToCatalog, sPricingUsername, sPricingPassword, nGroupID);
+                    }
+                    if (collsToSendToCatalog != null && collsToSendToCatalog.Count > 0)
+                    {
+                        collsRes = GetCollectionsDataWithCaching(collsToSendToCatalog, sPricingUsername, sPricingPassword, nGroupID);
+                    }
+                }
+                else // only if in the gap between end date to final end date - continue the check
+                {
+                    // get distinct subs from subs list, same for collection
+                    List<int> distinctSubs = subsToSendToCatalog.Distinct().ToList<int>();
+                    List<int> distinctColls = collsToSendToCatalog.Distinct().ToList<int>();
+
+                    List<int> validatedSubs = null;
+                    List<int> validatedColls = null;
+
+                    if (distinctSubs.Count > 0 || distinctColls.Count > 0)
+                    {
+                        ValidateMediaContainedInBundles(nMediaID, nGroupID, distinctSubs, distinctColls, ref validatedSubs, ref validatedColls);
                     }
 
+                    if (validatedSubs != null && validatedSubs.Count > 0)
+                    {
+                        subsRes = GetSubscriptionsDataWithCaching(validatedSubs, sPricingUsername, sPricingPassword, nGroupID);
+                    }
+
+                    // now validate bulk collections - PPV_CreditNeedToDownloadedUsingCollection
+
+                    if (validatedColls != null && validatedColls.Count > 0)
+                    {
+                        Dictionary<int, bool> collsAfterPPVCreditValidation = PPVBulkDoCreditNeedToDownloadedUsingCollections(nGroupID,
+                            nMediaFileID, lstUserIDs, validatedColls, sPricingUsername, sPricingPassword);
+                        List<int> finalCollCodes = GetFinalCollectionCodes(collsAfterPPVCreditValidation);
+                        if (finalCollCodes != null && finalCollCodes.Count > 0)
+                        {
+                            collsRes = GetCollectionsDataWithCaching(finalCollCodes, sPricingUsername, sPricingPassword, nGroupID);
+                        }
+
+                    }
                 }
             }
             else
@@ -910,7 +931,7 @@ namespace ConditionalAccess
 
         private static void ValidateMediaContainedInBundles(int nMediaID, int nGroupID, List<int> distinctSubs, List<int> distinctColls,
             ref List<int> subsRes, ref List<int> collsRes)
-        {
+        {               
             WS_Catalog.BundlesContainingMediaRequest request = InitializeCatalogRequest(nGroupID, nMediaID, distinctSubs, distinctColls);
             WS_Catalog.IserviceClient client = null;
 
@@ -919,30 +940,38 @@ namespace ConditionalAccess
             try
             {
                 client = new WS_Catalog.IserviceClient();
-                string sCatalogUrl = GetWSURL("WS_Catalog");
+                string sCatalogUrl = GetWSURL("WS_Catalog");               
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
-                WS_Catalog.BundlesContainingMediaResponse response = client.GetResponse(request) as WS_Catalog.BundlesContainingMediaResponse;
-                if (response != null && response.m_oBundles != null && response.m_oBundles.Length > 0)
+                try
                 {
-                    for (int i = 0; i < response.m_oBundles.Length; i++)
+                    
+                    WS_Catalog.BundlesContainingMediaResponse response = client.GetResponse(request) as WS_Catalog.BundlesContainingMediaResponse;
+                    if (response != null && response.m_oBundles != null && response.m_oBundles.Length > 0)
                     {
-                        WS_Catalog.BundleTriple bt = response.m_oBundles[i];
-                        if (bt.m_bIsContained)
+                        for (int i = 0; i < response.m_oBundles.Length; i++)
                         {
-                            switch (bt.m_eBundleType)
+                            WS_Catalog.BundleTriple bt = response.m_oBundles[i];
+                            if (bt.m_bIsContained)
                             {
-                                case WS_Catalog.eBundleType.SUBSCRIPTION:
-                                    subsRes.Add(bt.m_nBundleCode);
-                                    break;
-                                case WS_Catalog.eBundleType.COLLECTION:
-                                    collsRes.Add(bt.m_nBundleCode);
-                                    break;
-                                default:
-                                    break;
+                                switch (bt.m_eBundleType)
+                                {
+                                    case WS_Catalog.eBundleType.SUBSCRIPTION:
+                                        subsRes.Add(bt.m_nBundleCode);
+                                        break;
+                                    case WS_Catalog.eBundleType.COLLECTION:
+                                        collsRes.Add(bt.m_nBundleCode);
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                }
+               
             }
             finally
             {
@@ -1770,7 +1799,7 @@ namespace ConditionalAccess
                     Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
                     Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
+                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
                         ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)

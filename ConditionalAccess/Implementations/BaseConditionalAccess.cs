@@ -3649,7 +3649,7 @@ namespace ConditionalAccess
 
 
         public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
-        {          
+        {
             return new LicensedLinkResponse();
         }
 
@@ -6938,7 +6938,7 @@ namespace ConditionalAccess
                                         }
                                     case eBundleType.COLLECTION:
                                         {
-                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, uObj.m_user.m_domianID,dPrice, sCurrency, sCouponCode,
+                                            ret = ExecuteCCCollectionPurchaseFlow(theBundle as TvinciPricing.Collection, sBundleCode, sSiteGUID, uObj.m_user.m_domianID, dPrice, sCurrency, sCouponCode,
                                                                         sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bIsEntitledToPreviewModule, bDummy, sExtraParams,
                                                                         sPaymentMethodID, sEncryptedCVV, p, ref bm);
 
@@ -6969,28 +6969,28 @@ namespace ConditionalAccess
                             switch (theReason)
                             {
                                 case PriceReason.Free:
-                                {
-                                    ret.m_sStatusDescription = string.Format("The {0} is free", collectionOrSubscription);
-                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                    {
+                                        ret.m_sStatusDescription = string.Format("The {0} is free", collectionOrSubscription);
+                                        WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
 
-                                    break;
-                                }
+                                        break;
+                                    }
                                 case PriceReason.SubscriptionPurchased:
                                 case PriceReason.CollectionPurchased:
-                                {
-                                    ret.m_sStatusDescription = string.Format("The {0} is already purchased", collectionOrSubscription);
-                                    WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
-                                    break;
-                                }
+                                    {
+                                        ret.m_sStatusDescription = string.Format("The {0} is already purchased", collectionOrSubscription);
+                                        WriteToUserLog(sSiteGUID, "while trying to purchase " + collectionOrSubscription + "(CC): " + " error returned: " + ret.m_sStatusDescription);
+                                        break;
+                                    }
                                 default:
-                                {
-                                    Logger.Logger.Log("ChargeUserForBundle",
-                                        string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
-                                        "price reason = {1} for site guid = {2} and bundle id = {3}",
-                                        collectionOrSubscription, theReason, sSiteGUID, sBundleCode), 
-                                        this.GetLogFilename());
-                                    break;
-                                }
+                                    {
+                                        Logger.Logger.Log("ChargeUserForBundle",
+                                            string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
+                                            "price reason = {1} for site guid = {2} and bundle id = {3}",
+                                            collectionOrSubscription, theReason, sSiteGUID, sBundleCode),
+                                            this.GetLogFilename());
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -7151,7 +7151,7 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID ,theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
                     sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
 
                 // Enqueue notification for PS so they know a collection was charged
@@ -7387,34 +7387,34 @@ namespace ConditionalAccess
 
                 // get details about files + media (validity about files)
                 Dictionary<int, MediaFileStatus> validMediaFiles = new Dictionary<int, MediaFileStatus>();
-                checkMediaAndFilesValid(ref nMediaFiles, ref validMediaFiles);
-               
-                    //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
-                    List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
-                    MediaFileItemPricesContainer tempItemPricesContainer = null;
-                    foreach (int mf in validMediaFiles.Keys)
+                ValidateMediaFiles(ref nMediaFiles, ref validMediaFiles);
+
+                //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
+                List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
+                MediaFileItemPricesContainer tempItemPricesContainer = null;
+                foreach (int mf in validMediaFiles.Keys)
+                {
+                    switch (validMediaFiles[mf])
                     {
-                        switch (validMediaFiles[mf])
-                        {
-                            case MediaFileStatus.NotForPurchase:
-                                tempItemPricesContainer = new MediaFileItemPricesContainer();
-                                tempItemPricesContainer.m_nMediaFileID = mf;
-                                tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
-                                tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
-                                tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
-                                tempItemPricesContainer.m_sProductCode = string.Empty;
-                                tempRet.Add(tempItemPricesContainer);
-                                break;
-                            default:
-                                break;
-                        }
+                        case MediaFileStatus.NotForPurchase:
+                            tempItemPricesContainer = new MediaFileItemPricesContainer();
+                            tempItemPricesContainer.m_nMediaFileID = mf;
+                            tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
+                            tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
+                            tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
+                            tempItemPricesContainer.m_sProductCode = string.Empty;
+                            tempRet.Add(tempItemPricesContainer);
+                            break;
+                        default:
+                            break;
                     }
-                    if (nMediaFiles == null || nMediaFiles.Count() == 0)
-                    {
-                        ret = tempRet.ToArray();
-                        return ret;
-                    }
-                
+                }
+                if (nMediaFiles == null || nMediaFiles.Count() == 0)
+                {
+                    ret = tempRet.ToArray();
+                    return ret;
+                }
+
 
                 InitializePricingModule(ref objPricingModule);
                 oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -7466,8 +7466,8 @@ namespace ConditionalAccess
                                 List<int> relatedMediaFileIDs = new List<int>();
                                 DateTime? dtEntitlementStartDate = null;
                                 DateTime? dtEntitlementEndDate = null;
-
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID] , ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
+                                
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
@@ -7503,15 +7503,7 @@ namespace ConditionalAccess
                                     // has been purchased and is is still valid for watching
 
                                     bool isValidForPurchase = ppvModules[j].IsValidForPurchase;
-                                    //if (isValidForPurchase && theReason == PriceReason.NotForPurchase)
-                                    //{
-                                    //    tempItemPriceContainer = new ItemPriceContainer();
-                                    //    tempItemPriceContainer.m_PriceReason = theReason;
-                                    //    tempItemPriceContainer.
-                                    //    itemPriceCont.Add(tempItemPriceContainer);
-                                    //}
-                                    //else 
-                                        if (isValidForPurchase || ( !isValidForPurchase && theReason == PriceReason.PPVPurchased ))
+                                    if (isValidForPurchase || (!isValidForPurchase && theReason == PriceReason.PPVPurchased))
                                     {
                                         if (!bOnlyLowest)
                                         {
@@ -7539,7 +7531,6 @@ namespace ConditionalAccess
                                             }
                                         }
                                     }
-
                                 }
                             } // end for
 
@@ -7559,17 +7550,10 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
+                            ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
+                            priceContainer[0] = GetFreeItemPriceContainer();
 
-                            foreach (int mediaFileID in nMediaFiles)
-                            {
-                                ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-                                priceContainer[0] = GetFreeItemPriceContainer();
-
-                                mf.Initialize(mediaFileID, priceContainer);
-                            } // end foreach
-
-                            ret[0] = mc;
+                            mf.Initialize(nMediaFileID, priceContainer);
                         }
 
                         ret[i] = mf;
@@ -7588,11 +7572,10 @@ namespace ConditionalAccess
 
                         mc.Initialize(mediaFileID, priceContainer);
                     }
-                    ret[0] = mc;
                 }
 
                 // add all files that are not for purchased
-                
+
                 tempRet.AddRange(ret);
                 ret = tempRet.ToArray();
 
@@ -7637,11 +7620,12 @@ namespace ConditionalAccess
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        private void checkMediaAndFilesValid(ref int[] nMediaFiles, ref Dictionary<int, MediaFileStatus> mediaFilesStatus)
+        private void ValidateMediaFiles(ref int[] nMediaFiles, ref Dictionary<int, MediaFileStatus> mediaFilesStatus)
         {
             try
             {
                 MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+                //initialize all status as OK 
                 foreach (int mf in nMediaFiles)
                 {
                     if (!mediaFilesStatus.ContainsKey(mf))
@@ -7653,101 +7637,66 @@ namespace ConditionalAccess
                 DataSet ds = Tvinci.Core.DAL.CatalogDAL.Get_FileAndMediaBasicDetails(nMediaFiles);
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    
-                    DataTable dtMedia = ds.Tables[0];
-                    DataTable dtMediaFiles = null;
-                    if (ds.Tables.Count > 1)
-                    {
-                        dtMediaFiles = ds.Tables[1];
-                    }
-                    
-                    int mediaFileID;
-                    int isActive = 0;
-                    int status = 0;
-                    DateTime startDate;
-                    DateTime endDate;
-                    DateTime finalEndDate;
-                    DateTime dbCurrentDate;
-                    
-                    bool isMediaValid = true;
-                    if (dtMedia != null && dtMedia.Rows != null && dtMedia.Rows.Count > 0)
-                    {
-                        
-                        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(dtMedia.Rows[0], "id");
-                        isActive = ODBCWrapper.Utils.GetIntSafeVal(dtMedia.Rows[0], "IS_ACTIVE");
-                        status = ODBCWrapper.Utils.GetIntSafeVal(dtMedia.Rows[0], "STATUS");
-                        startDate = ODBCWrapper.Utils.GetDateSafeVal(dtMedia.Rows[0], "START_DATE");
-                        endDate = ODBCWrapper.Utils.GetDateSafeVal(dtMedia.Rows[0], "END_DATE");
-                        finalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dtMedia.Rows[0], "FINAL_END_DATE");
-                        dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dtMedia.Rows[0], "dbCurrentDate");
-                        if (isActive != 1 || status != 1)
-                        {
-                            isMediaValid = false;
-                            eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                        }
-                        if (startDate > dbCurrentDate)
-                        {
-                            isMediaValid = false;
-                            eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                        }
-                        if (finalEndDate < dbCurrentDate)
-                        {
-                            isMediaValid = false;
-                            eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                        }
-                        if (dbCurrentDate > endDate && dbCurrentDate < finalEndDate) // cun see only if purchased
-                        {
-                            eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
-                        }
-                    }
-                    if (isMediaValid)
-                    {
-                        if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
-                        {
-                            foreach (DataRow dr in dtMediaFiles.Rows)
-                            {
-                                mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                                isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE");
-                                status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
-                                startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
-                                endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-                                dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
+                    DataTable dtMediaFiles = ds.Tables[0];
 
-                                if (isActive != 1 || status != 1)
+                    int mediaFileID;
+                    int mediaIsActive = 0 , mediaFileIsActive = 0;
+                    int mediaStatus = 0, mediaFileStatus = 0;
+                    DateTime mediaStartDate , mediaFileStartDate;
+                    DateTime mediaEndDate , mediaFileEndDate;
+                    DateTime mediaFinalEndDate;
+                    DateTime dbCurrentDate;
+                   
+                    if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in dtMediaFiles.Rows)
+                        {
+                            dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
+                            //media
+                            mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
+                            mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
+                            mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
+                            mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date");
+                            mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date");
+
+                            //mediaFiles
+                            mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
+                            mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
+                            mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
+                            mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
+                            mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
+
+                            if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if (mediaStartDate > dbCurrentDate || mediaFileStartDate > dbCurrentDate)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if (mediaFinalEndDate < dbCurrentDate || mediaFileEndDate < dbCurrentDate)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if ( mediaEndDate < dbCurrentDate && mediaFinalEndDate > dbCurrentDate) // cun see only if purchased
+                            {
+                                eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
+                            }
+
+                            if (eMediaFileStatus != MediaFileStatus.OK)
+                            {
+                                if (mediaFilesStatus.ContainsKey(mediaFileID))
                                 {
-                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                    mediaFilesStatus[mediaFileID] = eMediaFileStatus;
                                 }
-                                if (startDate > dbCurrentDate)
+                                else
                                 {
-                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                                }
-                                if (endDate < dbCurrentDate)
-                                {
-                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                                }
-                                if (eMediaFileStatus != MediaFileStatus.OK)
-                                {
-                                    if (mediaFilesStatus.ContainsKey(mediaFileID))
-                                    {
-                                        mediaFilesStatus[mediaFileID] = eMediaFileStatus;
-                                    }
-                                    else
-                                    {
-                                        mediaFilesStatus.Add(mediaFileID, eMediaFileStatus);
-                                    }
+                                    mediaFilesStatus.Add(mediaFileID, eMediaFileStatus);
                                 }
                             }
                         }
                     }
-                    else
-                    {
-                        foreach (int mf in mediaFilesStatus.Keys)
-                        {
-                            mediaFilesStatus[mf] = eMediaFileStatus;
-                        }
-                    }
                 }
-
                 nMediaFiles = mediaFilesStatus.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
             }
             catch (Exception ex)
@@ -10312,7 +10261,7 @@ namespace ConditionalAccess
                                         {
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID ,relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
                                                                                        thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
@@ -11063,24 +11012,24 @@ namespace ConditionalAccess
                             switch (p_enmTransactionType)
                             {
                                 case eTransactionType.PPV:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 case eTransactionType.Subscription:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 case eTransactionType.Collection:
-                                {
-                                    bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                    break;
-                                }
+                                    {
+                                        bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                        break;
+                                    }
                                 default:
-                                {
-                                    break;
-                                }
+                                    {
+                                        break;
+                                    }
                             }
 
                             if (bResult)
@@ -11550,7 +11499,7 @@ namespace ConditionalAccess
                                     {
                                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString(); 
+                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
                                         res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
 
                                         Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
@@ -11572,7 +11521,7 @@ namespace ConditionalAccess
                             {
                                 res.altUrl = GetErrorLicensedLink(sBasicLink);
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidFileData.ToString(); 
+                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
                                 res.Status.Code = (int)eResponseStatus.Error;
 
                                 Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
@@ -11592,7 +11541,7 @@ namespace ConditionalAccess
                     {
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                        res.status = eLicensedLinkStatus.InvalidPrice.ToString(); 
+                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
                         res.Status.Code = (int)eResponseStatus.Error;
 
                         Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
@@ -11602,7 +11551,7 @@ namespace ConditionalAccess
                 {
                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                    res.status = eLicensedLinkStatus.InvalidInput.ToString(); 
+                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
                     res.Status.Code = (int)eResponseStatus.Error;
 
                     Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
@@ -11934,7 +11883,7 @@ namespace ConditionalAccess
         {
             DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
             PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
-            
+
             if (domainSubscriptions != null)
             {
                 List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
@@ -11960,7 +11909,7 @@ namespace ConditionalAccess
                     }
                 }
             }
-            
+
             return domainServicesResponse;
         }
 
@@ -12013,7 +11962,7 @@ namespace ConditionalAccess
 
                 // check if the service is allowed for the domain
                 ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
-                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 && 
+                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
                     allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
                 {
                     return true;
