@@ -72,6 +72,13 @@ namespace WebAPI.App_Start
             {
                 message = "success";
             }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                //Web API Bad Request global error
+                content = null;
+                subCode = (int)StatusCode.BadRequest;
+                message = handleError("Bad Request", "");
+            }
             else
             {
                 content = null;
