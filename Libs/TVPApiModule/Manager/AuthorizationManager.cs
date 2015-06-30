@@ -255,7 +255,7 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            return GetTokenResponseObject(apiToken, groupConfig);
+            return GetTokenResponseObject(apiToken);
         }
 
         public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, out string siteGuid, out bool isAdmin)
@@ -269,14 +269,14 @@ namespace TVPApiModule.Manager
                 return true;
             }
 
-            string apiTokenId = APIToken.GetAPITokenId(accessToken);
-
             if (string.IsNullOrEmpty(accessToken))
             {
                 logger.ErrorFormat("ValidateAccessToken: empty accessToken or siteGuid. access_token = {0}", accessToken);
                 returnError(403);
                 return false;
             }
+
+            string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
             APIToken apiToken = _client.Get<APIToken>(apiTokenId);
             if (apiToken == null)
@@ -430,7 +430,7 @@ namespace TVPApiModule.Manager
             }
         }
 
-        private object GetTokenResponseObject(APIToken apiToken, GroupConfiguration groupConfig)
+        public object GetTokenResponseObject(APIToken apiToken)
         {
             if (apiToken == null)
                 return null;
@@ -457,6 +457,59 @@ namespace TVPApiModule.Manager
         public static bool IsTokenizationEnabled()
         {
             return HttpContext.Current.Items.Contains("tokenization");
+        }
+
+        public static bool IsSwitchingUsersAllowed(int groupId)
+        {
+            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
+
+            return groupConfig.IsSwitchingUsersAllowed;
+        }
+
+
+        // Updates the siteguid of the token 
+        public object UpdateUserInToken(string accessToken, string siteGuid, int groupId)
+        {
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(siteGuid))
+            {
+                logger.ErrorFormat("UpdateUserInToken: accessToken or siteGuid empty");
+                returnError(403);
+                return false;
+            }
+
+            // get token
+            string apiTokenId = APIToken.GetAPITokenId(accessToken);
+            APIToken apiToken = _client.Get<APIToken>(apiTokenId);
+            if (apiToken == null)
+            {
+                logger.ErrorFormat("UpdateUserInToken: access token not found. access_token = {0}", accessToken);
+                returnError(403);
+                return false;
+            }
+
+            // get group configurations
+            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
+            if (groupConfig == null)
+            {
+                logger.ErrorFormat("ValidateAccessToken: group configuration was not found for groupId = {0}", groupId);
+                returnError(403);
+                return false;
+            }
+
+            apiToken.SiteGuid = siteGuid;
+
+            // access token is valid - extend refreshToken if extendable
+            if (groupConfig.IsRefreshTokenExtendable)
+            {
+                apiToken.RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            }
+
+            // store the updated token
+            _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration));
+
+
+            // return token response
+            return Instance.GetTokenResponseObject(apiToken);
         }
     }
 }

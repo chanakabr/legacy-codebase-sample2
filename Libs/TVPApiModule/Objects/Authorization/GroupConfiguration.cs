@@ -26,6 +26,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("refresh_expiration_for_pin_login_seconds")]
         public long RefreshExpirationForPinLoginSeconds { get; set; }
 
+        [JsonProperty("is_switching_users_allowed")]
+        public bool IsSwitchingUsersAllowed { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
