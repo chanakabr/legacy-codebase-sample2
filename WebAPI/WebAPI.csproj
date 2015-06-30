@@ -621,6 +621,15 @@
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\Pricing\CouponsGroup.cs" />
+    <Compile Include="Models\Pricing\DiscountModule.cs" />
+    <Compile Include="Models\Pricing\ItemPrice.cs" />
+    <Compile Include="Models\Pricing\PreviewModule.cs" />
+    <Compile Include="Models\Pricing\PriceCode.cs" />
+    <Compile Include="Models\Pricing\PriceReason.cs" />
+    <Compile Include="Models\ConditionalAccess\PremiumService.cs" />
+    <Compile Include="Models\Pricing\PricePlan.cs" />
+    <Compile Include="Models\Pricing\UsageModule.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />
@@ -629,9 +638,9 @@
     <Compile Include="Models\Domains\HouseholdRestriction.cs" />
     <Compile Include="Models\Domains\HouseholdState.cs" />
     <Compile Include="Models\Domains\HomeNetwork.cs" />
-    <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
     <Compile Include="Models\Domains\With.cs" />
+    <Compile Include="Models\Pricing\Subscription.cs" />
     <Compile Include="Models\Users\SlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />

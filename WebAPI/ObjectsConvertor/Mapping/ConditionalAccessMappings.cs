@@ -83,13 +83,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             
             Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.Price>()
                .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency));
-
-            Mapper.CreateMap<ConditionalAccess.Currency, Models.Pricing.Currency>()
-               .ForMember(dest => dest.currencyCD2, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
-               .ForMember(dest => dest.currencyCD3, opt => opt.MapFrom(src => src.m_sCurrencyCD3))
-               .ForMember(dest => dest.currencySign, opt => opt.MapFrom(src => src.m_sCurrencySign))
-               .ForMember(dest => dest.currencyID, opt => opt.MapFrom(src => src.m_nCurrencyID));
+               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
 
             // BillingResponse
             Mapper.CreateMap<ConditionalAccess.BillingResponse, BillingResponse>()

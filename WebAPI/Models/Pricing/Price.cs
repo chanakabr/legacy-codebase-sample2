@@ -25,6 +25,6 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "currency")]
         [JsonProperty("currency")]
-        public Currency currency { get; set; }
+        public string currency { get; set; }
     }
 }
