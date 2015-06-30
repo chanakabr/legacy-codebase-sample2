@@ -637,8 +637,6 @@ public partial class MethodFinder
                     initObj.SiteGuid = siteGuid;
                     HttpContext.Current.Items.Add("tokenization", null);
                 }
-
-
             }
 
             object result = executer.ExecuteMethod(methodParameters);

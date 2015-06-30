@@ -1491,6 +1491,37 @@ namespace TVPApiServices
         }
 
 
+        [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
+        public object GetUserSecurityToken(InitializationObject initObj, string siteGuid)
+        {
+            object response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RefreshAccessToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                if (AuthorizationManager.IsTokenizationEnabled() && AuthorizationManager.IsSwitchingUsersAllowed(groupID) &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+                try
+                {
+                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
         // Delete later
         //[WebMethod(EnableSession = true, Description = "Generate Application Credentials")]
         //public AppCredentials GenerateAppCredentials(InitializationObject initObj)
