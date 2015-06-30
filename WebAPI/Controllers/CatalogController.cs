@@ -110,34 +110,85 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
-        /// <param name="request">The search asset request parameters</param>
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array</param>
+        /// <param name="filter_types">List of asset types to search within.
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system). 
+        /// If omitted – all types should be included. </param>
+        /// <param name="order_by"> Required sort option to apply for the identified assets. If omitted – will use newest.</param>
+        /// <param name="size">Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5</param>
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper Autocomplete(string partner_id, [FromUri] Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper Autocomplete(string partner_id, string query, [FromUri] List<With> with = null, string filter_types = null, Order? order_by = null, int? size = null, string language = null)
         {
-            return PostAutocomplete(partner_id, request);
+            SlimAssetInfoWrapper response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            // parse filter_types (are separated with commas) 
+            List<int> filterTypes = null;
+            if (!string.IsNullOrEmpty(filter_types))
+            {
+                string[] types = filter_types.Split(',');
+                filterTypes = new List<int>();
+                try
+                {
+                    foreach (var type in types)
+                    {
+                        filterTypes.Add(int.Parse(type));
+                    }
+                }
+                catch
+                {
+                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "types must be integers");
+                }
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (size == null || size > 10 || size < 1)
+            {
+                size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filterTypes, with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
 
         /// <summary>
         /// Returns related media by media identifier<br />        
         /// </summary>
         /// <param name="request">The related media request parameters</param>
-        /// <param name="media_id">Media Identifier</param>
+        /// <param name="media_id">Media identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <param name="media_types">Related media types list - possible values:
+        /// any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri] List<int> media_types = null, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
             
@@ -149,14 +200,14 @@ namespace WebAPI.Controllers
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (page_size == null || page_size > 10 || page_size < 1)
             {
-                request.page_size = 5;
+                page_size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, media_id, request.media_types, request.with);
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, media_id, media_types, with);
             }
             catch (ClientException ex)
             {
@@ -170,17 +221,22 @@ namespace WebAPI.Controllers
         /// Returns all channel media        
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
-        /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <param name="channel_id">Channel identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use channel default ordering.</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -192,14 +248,14 @@ namespace WebAPI.Controllers
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (page_size == null || page_size > 10 || page_size < 1)
             {
-                request.page_size = 5;
+                page_size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, channel_id, request.order_by.Value, request.with);
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, channel_id, order_by.Value, with);
             }
             catch (ClientException ex)
             {
@@ -213,18 +269,22 @@ namespace WebAPI.Controllers
         /// Returns media by media identifiers        
         /// </summary>
         /// <param name="request">The channel media request parameters</param>
-        /// <param name="media_ids">Media Identifiers separated by , </param>
+        /// <param name="media_ids">Media identifiers separated by , </param>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -246,14 +306,14 @@ namespace WebAPI.Controllers
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (page_size == null || page_size > 10 || page_size < 1)
             {
-                request.page_size = 5;
+                page_size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, page_index, page_size, mediaIds, with);
 
                 // if no response - return not found status 
                 if (response == null || response.Assets == null || response.Assets.Count == 0)

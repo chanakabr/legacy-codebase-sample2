@@ -35,12 +35,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "days")]
         public int days { get; set; }
 
-        /// <summary>
-        /// Additional data to return per asset, formatted as a comma-separated array. 
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.
-        /// </summary>
-        [DataMember(Name = "with")]
-        [JsonProperty(PropertyName = "with")]
-        public List<With> with { get; set; }
     }
 }

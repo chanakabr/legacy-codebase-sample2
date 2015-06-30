@@ -226,18 +226,74 @@ namespace WebAPI.Controllers
         /// Get recently watched media for user, ordered by recently watched first.    
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="partner_id" >Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="language">Language Code</param>
+        /// <param name="partner_id" >Partner identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="filter_types">List of asset types to search within. The list is a string separated be comma.
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="filter_status">Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
+        /// If omitted or specified filter = all – return all types.
+        /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.</param>
+        /// <param name="days">How many days back to return the watched media. If omitted, default to 7 days</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, [FromUri] WatchHistory request, string language = null)
+        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null, 
+            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null)
         {
-            return PostWatchHistory(partner_id, user_id, request, language);
+            WatchHistoryAssetWrapper response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            // page size - 5 <= size <= 50
+            if (page_size == null || page_size == 0)
+            {
+                page_size = 25;
+            }
+            else if (page_size > 50)
+            {
+                page_size = 50;
+            }
+            else if (page_size < 5)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+            }
+
+            List<int> filterTypes = null;
+            if (!string.IsNullOrEmpty(filter_types))
+            {
+                try
+                {
+                    filterTypes = filter_types.Split(',').Select(x => int.Parse(x)).ToList();
+                }
+                catch
+                {
+                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "invalid filter types");
+                }
+            }
+
+            // days - default value 7
+            if (days == 0)
+                days = 7;
+            try
+            {
+                // call client
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, page_index, page_size, filter_status, days, filterTypes, with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
 
         ///// <summary>

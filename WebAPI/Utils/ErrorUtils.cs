@@ -12,6 +12,7 @@ namespace WebAPI.Utils
     public class ErrorUtils
     {
         private static Dictionary<int, HttpStatusCode> statuses = new Dictionary<int, HttpStatusCode>() { 
+            { 0, HttpStatusCode.OK },
             { 1006, HttpStatusCode.NotFound },
             { 2000, HttpStatusCode.NotFound },
             { 2010, HttpStatusCode.BadRequest },
@@ -52,6 +53,10 @@ namespace WebAPI.Utils
 
             switch (statuses[ex.Code])
             {
+                case HttpStatusCode.OK:
+                    break;
+                case HttpStatusCode.InternalServerError:
+                    throw new InternalServerErrorException(ex.Code, ex.ExceptionMessage);
                 case HttpStatusCode.BadRequest:
                     throw new BadRequestException(ex.Code, ex.ExceptionMessage);
                 case HttpStatusCode.NotFound:
