@@ -23,8 +23,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the parental rules that applies to the household. 
         /// Can include rules that have been associated in account or household.
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -33,6 +31,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
         /// <returns>List of parental rules applied to the household</returns>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Household does not exist = 1006</remarks>
         [Route("{household_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] int household_id)
         {
@@ -55,9 +54,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Enabled a parental rule for a specific household.
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
         /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006</remarks>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -87,10 +86,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables a parental rule for a specific household.
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
-        /// </summary>
+        /// Disables a parental rule for a specific household.        
+        /// </summary>        
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -120,10 +117,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the parental PIN that applies for the household..
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
+        /// Retrieve the parental PIN that applies for the household.
         /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006</remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
@@ -152,10 +149,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the parental PIN that applies for the household.
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
+        /// Set the parental PIN that applies for the household.        
         /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006</remarks>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to set</param>
@@ -185,10 +182,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the purchase settings that applies for the household.
+        /// Retrieve the purchase settings that applies for the household.        
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// Household does not exist = 1006
-        /// </summary>
+        /// </remarks>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
@@ -217,10 +216,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the purchase settings that applies for the household.
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006
+        /// Set the purchase settings that applies for the household.        
         /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006</remarks>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="setting">New settings to apply</param>
@@ -250,10 +249,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve the purchase PIN that applies for the household.
+        /// Retrieve the purchase PIN that applies for the household.        
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// 5001 = No PIN defined, Household does not exist = 1006
-        /// </summary>
+        /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <response code="200">OK</response>
@@ -282,10 +283,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the purchase PIN that applies for the household.
+        /// Set the purchase PIN that applies for the household.        
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// Household does not exist = 1006
-        /// </summary>
+        /// </remarks>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to apply</param>
@@ -315,10 +318,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables the partner's default rule for this household
+        /// Disables the partner's default rule for this household        
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// Household does not exist = 1006
-        /// </summary>
+        /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -356,15 +361,14 @@ namespace WebAPI.Controllers
         #region ConditionalAccess
         /// <summary>
         /// Immediately cancel a household subscription. 
-        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.        
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription identifier</param>        
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -378,15 +382,14 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Immediately cancel a household PPV. 
-        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.        
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="ppv_id">PPV identifier</param>        
-        ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
-        /// <remarks></remarks>
+        /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -400,15 +403,14 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Immediately cancel a household Collection. 
-        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005
+        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.       
         /// </summary>        
         /// <param name="partner_id">Partner ID</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="collection_id">Collection identifier</param>        
-        ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
-        /// <remarks></remarks>
+        /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -448,14 +450,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
-        ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300
+        /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription Code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -490,14 +491,13 @@ namespace WebAPI.Controllers
         #endregion
 
         /// <summary>
-        /// Returns the household model<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household does not exist = 1006, Household user failed = 1007
+        /// Returns the household model       
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -559,13 +559,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a household for the user<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007
+        /// Creates a household for the user      
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="request">Request parameters</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -600,15 +599,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Removes a user from household<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
-        /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027
+        /// Removes a user from household   
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="user_id">User identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
+        /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -631,16 +629,16 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Adds a user to household<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
+        /// Adds a user to household       
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="master_user_id">Identifier of household master</param>
         /// <param name="is_master">True if the new user should be set to be master</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
+        /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -663,14 +661,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Removes a device from household<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021
+        /// Removes a device from household
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">device UDID</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -693,15 +690,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Registers a device to a household using pin code<br/>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019
+        /// Registers a device to a household using pin code    
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="device_name">Device name</param>
         /// <param name="pin">Pin code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
