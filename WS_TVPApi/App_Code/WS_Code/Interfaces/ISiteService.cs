@@ -160,6 +160,6 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(InitializationObject initObj, string siteGuid, long epgId);
 
         [OperationContract]
-        object GetUserSecurityToken(InitializationObject initObj, string siteGuid);
+        object ChangeProfile(InitializationObject initObj, string siteGuid);
     }
 }

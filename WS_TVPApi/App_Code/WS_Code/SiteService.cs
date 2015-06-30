@@ -1492,7 +1492,8 @@ namespace TVPApiServices
 
 
         [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
-        public object GetUserSecurityToken(InitializationObject initObj, string siteGuid)
+        [PrivateMethod]
+        public object ChangeProfile(InitializationObject initObj, string siteGuid)
         {
             object response = null;
 
