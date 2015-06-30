@@ -18,10 +18,12 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Charges a user for a media file with the given PPV module entitlements 
+        /// Charges a user for a media file with the given PPV module entitlements         
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
-        /// </summary>
+        /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="ppv_id">PPV module identifier</param>
@@ -52,10 +54,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Charges a user for subscription
+        /// Charges a user for subscription        
+        /// </summary>
+        /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
-        /// </summary>
+        /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="sub_id">Subscription identifier</param>
