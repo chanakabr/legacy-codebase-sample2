@@ -23,7 +23,7 @@ namespace WebAPI.Utils
             { 4004, HttpStatusCode.BadRequest },
             { 4005, HttpStatusCode.BadRequest },
             { 6001, HttpStatusCode.BadRequest },
-            { (int)StatusCode.InternalConnectionIssue, HttpStatusCode.BadRequest },
+            { (int)StatusCode.InternalConnectionIssue, HttpStatusCode.InternalServerError },
             { (int)StatusCode.Timeout, HttpStatusCode.GatewayTimeout },
             { (int)StatusCode.Error, HttpStatusCode.InternalServerError }
         };
