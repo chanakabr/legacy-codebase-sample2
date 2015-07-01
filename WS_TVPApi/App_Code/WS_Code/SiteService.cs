@@ -1551,7 +1551,7 @@ namespace TVPApiServices
         //}
 
         [WebMethod(EnableSession = true, Description = "Get regions: if regionIds supplied by the ids, if not returns all group regions")]
-        public RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids)
+        public RegionsResponse GetRegions(InitializationObject initObj, string[] region_ids)
         {
             RegionsResponse response = null;
 
