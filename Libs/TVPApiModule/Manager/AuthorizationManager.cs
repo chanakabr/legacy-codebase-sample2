@@ -50,8 +50,8 @@ namespace TVPApiModule.Manager
 
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
                 {
-                    logger.ErrorFormat("AuthorizationManager: Configuration for authorization is missing!");
-                    throw new Exception("Configuration for authorization is missing!");
+                    logger.ErrorFormat("AuthorizationManager: Configuration Authorization.GroupConfigsTtlSeconds is missing!");
+                    throw new Exception("Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                 }
             }
             catch (Exception ex)
