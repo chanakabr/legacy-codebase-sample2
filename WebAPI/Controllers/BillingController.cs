@@ -30,7 +30,9 @@ namespace WebAPI.Controllers
         /// <param name="request">Charge request parameters</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
         public BillingResponse ChargeUserForMediaFile([FromUri] string partner_id, [FromUri] string ppv_id, [FromBody] ChargePPV request, [FromUri]string udid = null)
@@ -66,7 +68,9 @@ namespace WebAPI.Controllers
         /// <param name="request">Charge request parameters</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("subscriptions/{sub_id}/buy"), HttpPost]
         public BillingResponse ChargeUserForSubscription([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] Charge request, [FromUri]string udid = null)
