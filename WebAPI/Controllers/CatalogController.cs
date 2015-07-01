@@ -176,7 +176,11 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri] List<int> media_types = null, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, 
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
+            int page_index = 0, int? page_size = null, 
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null, 
+            string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -223,7 +227,9 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by = null, int page_index = 0, int? page_size = null, 
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null, 
+            string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -270,7 +276,9 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null, 
+            string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
