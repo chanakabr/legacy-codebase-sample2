@@ -158,8 +158,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Returns related media by media identifier<br />        
-        /// </summary>
-        /// <param name="request">The related media request parameters</param>
+        /// </summary>        
         /// <param name="media_id">Media identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="media_types">Related media types list - possible values:
@@ -209,7 +208,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all channel media        
         /// </summary>
-        /// <param name="request">The channel media request parameters</param>
         /// <param name="channel_id">Channel identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use channel default ordering.</param>
@@ -257,7 +255,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="request">The channel media request parameters</param>
         /// <param name="media_ids">Media identifiers separated by , </param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
@@ -330,8 +327,7 @@ namespace WebAPI.Controllers
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="404">Not found</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>        
         [Route("channels/{channel_id}"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
