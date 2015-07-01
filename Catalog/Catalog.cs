@@ -4040,9 +4040,10 @@ namespace Catalog
             return res;
         }
 
-        internal static List<RecordedSeriesObject> GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
+        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
         {
-            List<RecordedSeriesObject> res = null;
+            NPVRSeriesResponse nPVRSeriesResponse = new NPVRSeriesResponse();
+
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
             {
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
@@ -4051,17 +4052,29 @@ namespace Catalog
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
+                        if (request.m_nPageIndex < 0)
+                        {
+                            throw new Exception("Bad Request.");
+                        }
+                        // In case Page Size is 0  set Page size to default (5)
+                        if (request.m_nPageSize == 0)
+                        {
+                            request.m_nPageSize = 5; // default
+                        }
+
                         NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
                         if (response != null)
                         {
                             if (response.isOK)
                             {
-                                res = response.results;
+                                nPVRSeriesResponse.totalItems = response.results.Count;
+                                SetRecordedSeriesListAccordingToPaging(ref response, request.m_nPageSize, request.m_nPageIndex);
+                                nPVRSeriesResponse.recordedSeries = response.results;
                             }
                             else
                             {
                                 log.Error("Error - " + string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg));
-                                res = new List<RecordedSeriesObject>(0);
+                                nPVRSeriesResponse.recordedSeries = new List<RecordedSeriesObject>(0);
                             }
                         }
                         else
@@ -4085,7 +4098,7 @@ namespace Catalog
                 throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
             }
 
-            return res;
+            return nPVRSeriesResponse;
         }
 
         internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
@@ -4234,6 +4247,22 @@ namespace Catalog
             channelIds = CatalogDAL.Get_EpgIdentifier_ByRegion(epgSearchRequest.m_nGroupID, regionIds);
 
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
+        }
+
+        private static void SetRecordedSeriesListAccordingToPaging(ref NPVRRetrieveSeriesResponse res, int pageSize, int pageIndex)
+        {
+            int validNumberOfMediasRange = pageSize;
+            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(res.totalItems, pageIndex, ref validNumberOfMediasRange))
+            {
+                if (validNumberOfMediasRange > 0)
+                {
+                    res.results = res.results.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
+                }
+            }
+            else
+            {
+                res.results.Clear();
+            }
         }
     }
 }
