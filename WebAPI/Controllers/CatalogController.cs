@@ -136,30 +136,14 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper Autocomplete(string partner_id, string query, [FromUri] List<With> with = null, string filter_types = null, Order? order_by = null, int? size = null, string language = null)
+        public SlimAssetInfoWrapper Autocomplete(string partner_id, string query,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
+            Order? order_by = null, int? size = null, string language = null)
         {
             SlimAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
-
-            // parse filter_types (are separated with commas) 
-            List<int> filterTypes = null;
-            if (!string.IsNullOrEmpty(filter_types))
-            {
-                string[] types = filter_types.Split(',');
-                filterTypes = new List<int>();
-                try
-                {
-                    foreach (var type in types)
-                    {
-                        filterTypes.Add(int.Parse(type));
-                    }
-                }
-                catch
-                {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "types must be integers");
-                }
-            }
+            int groupId = int.Parse(partner_id);            
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (size == null || size > 10 || size < 1)
@@ -169,7 +153,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filterTypes, with);
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filter_types, with);
             }
             catch (ClientException ex)
             {
@@ -203,7 +187,7 @@ namespace WebAPI.Controllers
         public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri] List<int> media_types = null, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (media_id == 0)
@@ -402,7 +386,7 @@ namespace WebAPI.Controllers
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             Category response = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (category_id == 0)
