@@ -307,7 +307,7 @@ namespace WebAPI.Controllers
         }
 
         ///// <summary>
-        ///// Retrieving users' data
+        ///// Retrieve users' data.
         ///// </summary>
         ///// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         ///// <remarks></remarks>
@@ -651,7 +651,7 @@ namespace WebAPI.Controllers
 
         }
 
-        /// <summary>Edit user details info.        
+        /// <summary>Edit user details.        
         /// </summary>
         /// <param name="partner_id">Household ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
