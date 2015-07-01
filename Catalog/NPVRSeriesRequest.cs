@@ -25,13 +25,12 @@ namespace Catalog
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             NPVRSeriesResponse res = new NPVRSeriesResponse();
+
             try
             {
                 CheckRequestValidness();
                 CheckSignature(this);
-                res.recordedSeries = Catalog.GetSeriesRecordings(m_nGroupID, this);
-                res.totalItems = res.recordedSeries.Count;
-
+                res = Catalog.GetSeriesRecordings(m_nGroupID, this);
 
             }
             catch (Exception ex)
