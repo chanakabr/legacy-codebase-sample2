@@ -55,6 +55,20 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "images", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
         public List<Image> Images { get; set; }
+
+        /// <summary>
+        /// Files
+        /// </summary>
+        [DataMember(Name = "files", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
+        public List<File> Files { get; set; }
+
+        /// <summary>
+        /// Collection of add-on statistical information for the media. See AssetStats model for more information
+        /// </summary>
+        [DataMember(Name = "stats", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
+        public AssetStats Statistics { get; set; }
       
     }
 }
