@@ -35,7 +35,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/pin/generate"), HttpPost]
         public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
@@ -77,7 +79,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("login/pin"), HttpPost]
         public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
         {
@@ -121,8 +125,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/pin"), HttpPost]
         public void SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
@@ -152,8 +158,10 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/pin"), HttpDelete]
         public void ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
         {
@@ -244,9 +252,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null, 
+        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null,
             int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
@@ -304,7 +314,9 @@ namespace WebAPI.Controllers
         ///// <returns>WebAPI.Models.User</returns>
         ///// <response code="200">OK</response>
         ///// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         ///// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         //[Route("{ids}"), HttpGet]
         ////[ApiAuthorize()]
         //[ApiExplorerSettings(IgnoreApi = true)]
@@ -346,7 +358,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("login"), HttpPost]
         public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string udid = null)
         {
@@ -391,7 +405,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route(""), HttpPost]
         public User SignUp([FromUri] string partner_id, [FromBody] SignUp request)
         {
@@ -430,7 +446,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{username}/password/send"), HttpPost]
         public bool SendNewPassword([FromUri] string partner_id, [FromUri] string username)
         {
@@ -469,7 +487,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User does not exist = 2025, Wrong username or password = 1011</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{username}/password/reset"), HttpPost]
         public bool RenewPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string password)
         {
@@ -506,7 +526,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("token/{token}"), HttpGet]
         public User CheckPasswordToken([FromUri] string partner_id, [FromUri] string token)
         {
@@ -546,7 +568,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{username}/password"), HttpPut]
         public bool ChangeUserPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string old_password, [FromUri] string new_password)
         {
@@ -583,7 +607,9 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}"), HttpGet]
         public List<User> GetUsersData([FromUri] string partner_id, string user_id)
         {
@@ -634,7 +660,9 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}"), HttpPut]
         public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
         {
@@ -677,7 +705,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
@@ -714,7 +744,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
         public bool EnableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
@@ -751,7 +783,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
@@ -785,7 +819,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
@@ -820,7 +856,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to set</param>
@@ -850,7 +888,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
@@ -885,7 +925,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
@@ -921,7 +963,9 @@ namespace WebAPI.Controllers
         /// 5001 = No PIN defined, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
@@ -956,7 +1000,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to apply</param>
@@ -992,7 +1038,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
@@ -1034,7 +1082,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG identifier</param>
@@ -1076,7 +1126,9 @@ namespace WebAPI.Controllers
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
@@ -1117,7 +1169,9 @@ namespace WebAPI.Controllers
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
@@ -1158,7 +1212,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>Success / fail</returns>
@@ -1200,7 +1256,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/subscriptions/permitted"), HttpGet]
         public List<Entitlement> GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
@@ -1235,7 +1293,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/transactions"), HttpGet]
         public BillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
         {

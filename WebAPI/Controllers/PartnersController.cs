@@ -24,7 +24,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <returns>The parental rules defined for the account</returns>
         [Route("{partner_id}/parental/rules"), HttpGet]
         public List<ParentalRule> GetParentalRules([FromUri] string partner_id)
