@@ -449,7 +449,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPApiModule.Objects.Responses.RegionsResponse GetRegions(int[] regionIds)
+        public TVPApiModule.Objects.Responses.RegionsResponse GetRegions(string[] externalRegionIds)
         {
             TVPApiModule.Objects.Responses.RegionsResponse response = null;
 
@@ -458,7 +458,7 @@ namespace TVPApiModule.Services
                 TVPPro.SiteManager.TvinciPlatform.api.RegionsResponse regionsResult = new TVPPro.SiteManager.TvinciPlatform.api.RegionsResponse();
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    regionsResult = m_Module.GetRegions(m_wsUserName, m_wsPassword, regionIds);
+                    regionsResult = m_Module.GetRegions(m_wsUserName, m_wsPassword, externalRegionIds);
                 }
                 response = new TVPApiModule.Objects.Responses.RegionsResponse();
                 if (regionsResult != null && regionsResult.Regions != null)

@@ -112,7 +112,7 @@ namespace TVPApiServices
         object RefreshAccessToken(InitializationObject initObj, string refreshToken);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, int[] region_ids);
+        TVPApiModule.Objects.Responses.RegionsResponse GetRegions(InitializationObject initObj, string[] externalRegionIds);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalRules(InitializationObject initObj);
