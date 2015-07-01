@@ -30,14 +30,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
-        private System.Threading.SendOrPostCallback GetParentalMediaRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetParentalEPGRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback DisableUserDefaultParentalRuleOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback DisableDomainDefaultParentalRuleOperationCompleted;
-        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -208,6 +200,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Threading.SendOrPostCallback ValidatePurchasePINOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetParentalMediaRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetParentalEPGRulesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DisableUserDefaultParentalRuleOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DisableDomainDefaultParentalRuleOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -245,18 +245,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
-        /// <remarks/>
-        public event GetParentalMediaRulesCompletedEventHandler GetParentalMediaRulesCompleted;
-        
-        /// <remarks/>
-        public event GetParentalEPGRulesCompletedEventHandler GetParentalEPGRulesCompleted;
-        
-        /// <remarks/>
-        public event DisableUserDefaultParentalRuleCompletedEventHandler DisableUserDefaultParentalRuleCompleted;
-        
-        /// <remarks/>
-        public event DisableDomainDefaultParentalRuleCompletedEventHandler DisableDomainDefaultParentalRuleCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -514,146 +502,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         public event ValidatePurchasePINCompletedEventHandler ValidatePurchasePINCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalMediaRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetParentalMediaRules(string userName, string password, string siteGuid, long mediaId, long domainId) {
-            object[] results = this.Invoke("GetParentalMediaRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        mediaId,
-                        domainId});
-            return ((ParentalRulesResponse)(results[0]));
-        }
+        public event GetParentalMediaRulesCompletedEventHandler GetParentalMediaRulesCompleted;
         
         /// <remarks/>
-        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId) {
-            this.GetParentalMediaRulesAsync(userName, password, siteGuid, mediaId, domainId, null);
-        }
+        public event GetParentalEPGRulesCompletedEventHandler GetParentalEPGRulesCompleted;
         
         /// <remarks/>
-        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId, object userState) {
-            if ((this.GetParentalMediaRulesOperationCompleted == null)) {
-                this.GetParentalMediaRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalMediaRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetParentalMediaRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        mediaId,
-                        domainId}, this.GetParentalMediaRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetParentalMediaRulesOperationCompleted(object arg) {
-            if ((this.GetParentalMediaRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetParentalMediaRulesCompleted(this, new GetParentalMediaRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event DisableUserDefaultParentalRuleCompletedEventHandler DisableUserDefaultParentalRuleCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalEPGRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ParentalRulesResponse GetParentalEPGRules(string userName, string password, string siteGuid, long epgId, long domainId) {
-            object[] results = this.Invoke("GetParentalEPGRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        epgId,
-                        domainId});
-            return ((ParentalRulesResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId) {
-            this.GetParentalEPGRulesAsync(userName, password, siteGuid, epgId, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId, object userState) {
-            if ((this.GetParentalEPGRulesOperationCompleted == null)) {
-                this.GetParentalEPGRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalEPGRulesOperationCompleted);
-            }
-            this.InvokeAsync("GetParentalEPGRules", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        epgId,
-                        domainId}, this.GetParentalEPGRulesOperationCompleted, userState);
-        }
-        
-        private void OnGetParentalEPGRulesOperationCompleted(object arg) {
-            if ((this.GetParentalEPGRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetParentalEPGRulesCompleted(this, new GetParentalEPGRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableUserDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status DisableUserDefaultParentalRule(string userName, string webServicePassword, string siteGuid, int domainId) {
-            object[] results = this.Invoke("DisableUserDefaultParentalRule", new object[] {
-                        userName,
-                        webServicePassword,
-                        siteGuid,
-                        domainId});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId) {
-            this.DisableUserDefaultParentalRuleAsync(userName, webServicePassword, siteGuid, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId, object userState) {
-            if ((this.DisableUserDefaultParentalRuleOperationCompleted == null)) {
-                this.DisableUserDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableUserDefaultParentalRuleOperationCompleted);
-            }
-            this.InvokeAsync("DisableUserDefaultParentalRule", new object[] {
-                        userName,
-                        webServicePassword,
-                        siteGuid,
-                        domainId}, this.DisableUserDefaultParentalRuleOperationCompleted, userState);
-        }
-        
-        private void OnDisableUserDefaultParentalRuleOperationCompleted(object arg) {
-            if ((this.DisableUserDefaultParentalRuleCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.DisableUserDefaultParentalRuleCompleted(this, new DisableUserDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableDomainDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status DisableDomainDefaultParentalRule(string userName, string webServicePassword, int domainId) {
-            object[] results = this.Invoke("DisableDomainDefaultParentalRule", new object[] {
-                        userName,
-                        webServicePassword,
-                        domainId});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId) {
-            this.DisableDomainDefaultParentalRuleAsync(userName, webServicePassword, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId, object userState) {
-            if ((this.DisableDomainDefaultParentalRuleOperationCompleted == null)) {
-                this.DisableDomainDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableDomainDefaultParentalRuleOperationCompleted);
-            }
-            this.InvokeAsync("DisableDomainDefaultParentalRule", new object[] {
-                        userName,
-                        webServicePassword,
-                        domainId}, this.DisableDomainDefaultParentalRuleOperationCompleted, userState);
-        }
-        
-        private void OnDisableDomainDefaultParentalRuleOperationCompleted(object arg) {
-            if ((this.DisableDomainDefaultParentalRuleCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.DisableDomainDefaultParentalRuleCompleted(this, new DisableDomainDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event DisableDomainDefaultParentalRuleCompletedEventHandler DisableDomainDefaultParentalRuleCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3193,28 +3051,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetRegions", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RegionsResponse GetRegions(string sWSUserName, string sWSPassword, int[] regionIds) {
+        public RegionsResponse GetRegions(string sWSUserName, string sWSPassword, string[] externalRegionList) {
             object[] results = this.Invoke("GetRegions", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        regionIds});
+                        externalRegionList});
             return ((RegionsResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds) {
-            this.GetRegionsAsync(sWSUserName, sWSPassword, regionIds, null);
+        public void GetRegionsAsync(string sWSUserName, string sWSPassword, string[] externalRegionList) {
+            this.GetRegionsAsync(sWSUserName, sWSPassword, externalRegionList, null);
         }
         
         /// <remarks/>
-        public void GetRegionsAsync(string sWSUserName, string sWSPassword, int[] regionIds, object userState) {
+        public void GetRegionsAsync(string sWSUserName, string sWSPassword, string[] externalRegionList, object userState) {
             if ((this.GetRegionsOperationCompleted == null)) {
                 this.GetRegionsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRegionsOperationCompleted);
             }
             this.InvokeAsync("GetRegions", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        regionIds}, this.GetRegionsOperationCompleted, userState);
+                        externalRegionList}, this.GetRegionsOperationCompleted, userState);
         }
         
         private void OnGetRegionsOperationCompleted(object arg) {
@@ -3721,6 +3579,148 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalMediaRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ParentalRulesResponse GetParentalMediaRules(string userName, string password, string siteGuid, long mediaId, long domainId) {
+            object[] results = this.Invoke("GetParentalMediaRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        mediaId,
+                        domainId});
+            return ((ParentalRulesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId) {
+            this.GetParentalMediaRulesAsync(userName, password, siteGuid, mediaId, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetParentalMediaRulesAsync(string userName, string password, string siteGuid, long mediaId, long domainId, object userState) {
+            if ((this.GetParentalMediaRulesOperationCompleted == null)) {
+                this.GetParentalMediaRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalMediaRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetParentalMediaRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        mediaId,
+                        domainId}, this.GetParentalMediaRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetParentalMediaRulesOperationCompleted(object arg) {
+            if ((this.GetParentalMediaRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetParentalMediaRulesCompleted(this, new GetParentalMediaRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalEPGRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ParentalRulesResponse GetParentalEPGRules(string userName, string password, string siteGuid, long epgId, long domainId) {
+            object[] results = this.Invoke("GetParentalEPGRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        epgId,
+                        domainId});
+            return ((ParentalRulesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId) {
+            this.GetParentalEPGRulesAsync(userName, password, siteGuid, epgId, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetParentalEPGRulesAsync(string userName, string password, string siteGuid, long epgId, long domainId, object userState) {
+            if ((this.GetParentalEPGRulesOperationCompleted == null)) {
+                this.GetParentalEPGRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetParentalEPGRulesOperationCompleted);
+            }
+            this.InvokeAsync("GetParentalEPGRules", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        epgId,
+                        domainId}, this.GetParentalEPGRulesOperationCompleted, userState);
+        }
+        
+        private void OnGetParentalEPGRulesOperationCompleted(object arg) {
+            if ((this.GetParentalEPGRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetParentalEPGRulesCompleted(this, new GetParentalEPGRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableUserDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DisableUserDefaultParentalRule(string userName, string webServicePassword, string siteGuid, int domainId) {
+            object[] results = this.Invoke("DisableUserDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId) {
+            this.DisableUserDefaultParentalRuleAsync(userName, webServicePassword, siteGuid, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void DisableUserDefaultParentalRuleAsync(string userName, string webServicePassword, string siteGuid, int domainId, object userState) {
+            if ((this.DisableUserDefaultParentalRuleOperationCompleted == null)) {
+                this.DisableUserDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableUserDefaultParentalRuleOperationCompleted);
+            }
+            this.InvokeAsync("DisableUserDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        siteGuid,
+                        domainId}, this.DisableUserDefaultParentalRuleOperationCompleted, userState);
+        }
+        
+        private void OnDisableUserDefaultParentalRuleOperationCompleted(object arg) {
+            if ((this.DisableUserDefaultParentalRuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DisableUserDefaultParentalRuleCompleted(this, new DisableUserDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DisableDomainDefaultParentalRule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DisableDomainDefaultParentalRule(string userName, string webServicePassword, int domainId) {
+            object[] results = this.Invoke("DisableDomainDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId) {
+            this.DisableDomainDefaultParentalRuleAsync(userName, webServicePassword, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void DisableDomainDefaultParentalRuleAsync(string userName, string webServicePassword, int domainId, object userState) {
+            if ((this.DisableDomainDefaultParentalRuleOperationCompleted == null)) {
+                this.DisableDomainDefaultParentalRuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDisableDomainDefaultParentalRuleOperationCompleted);
+            }
+            this.InvokeAsync("DisableDomainDefaultParentalRule", new object[] {
+                        userName,
+                        webServicePassword,
+                        domainId}, this.DisableDomainDefaultParentalRuleOperationCompleted, userState);
+        }
+        
+        private void OnDisableDomainDefaultParentalRuleOperationCompleted(object arg) {
+            if ((this.DisableDomainDefaultParentalRuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DisableDomainDefaultParentalRuleCompleted(this, new DisableDomainDefaultParentalRuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3745,29 +3745,101 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ParentalRulesResponse {
+    public partial class InitializationObject {
         
-        private Status statusField;
+        private PicObject[] m_oPicObjectsField;
         
-        private ParentalRule[] rulesField;
+        private FileRequestObject[] m_oFileRequestObjectsField;
+        
+        private PlayerIMRequestObject m_oPlayerIMRequestObjectField;
+        
+        private UserIMRequestObject m_oUserIMRequestObjectField;
+        
+        private LanguageRequestObject m_oLanguageRequestObjectField;
+        
+        private ExtraRequestObject m_oExtraRequestObjectField;
+        
+        private string m_sDeviceField;
+        
+        private string m_sAdminTokenField;
         
         /// <remarks/>
-        public Status status {
+        public PicObject[] m_oPicObjects {
             get {
-                return this.statusField;
+                return this.m_oPicObjectsField;
             }
             set {
-                this.statusField = value;
+                this.m_oPicObjectsField = value;
             }
         }
         
         /// <remarks/>
-        public ParentalRule[] rules {
+        public FileRequestObject[] m_oFileRequestObjects {
             get {
-                return this.rulesField;
+                return this.m_oFileRequestObjectsField;
             }
             set {
-                this.rulesField = value;
+                this.m_oFileRequestObjectsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PlayerIMRequestObject m_oPlayerIMRequestObject {
+            get {
+                return this.m_oPlayerIMRequestObjectField;
+            }
+            set {
+                this.m_oPlayerIMRequestObjectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserIMRequestObject m_oUserIMRequestObject {
+            get {
+                return this.m_oUserIMRequestObjectField;
+            }
+            set {
+                this.m_oUserIMRequestObjectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageRequestObject m_oLanguageRequestObject {
+            get {
+                return this.m_oLanguageRequestObjectField;
+            }
+            set {
+                this.m_oLanguageRequestObjectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ExtraRequestObject m_oExtraRequestObject {
+            get {
+                return this.m_oExtraRequestObjectField;
+            }
+            set {
+                this.m_oExtraRequestObjectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDevice {
+            get {
+                return this.m_sDeviceField;
+            }
+            set {
+                this.m_sDeviceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sAdminToken {
+            get {
+                return this.m_sAdminTokenField;
+            }
+            set {
+                this.m_sAdminTokenField = value;
             }
         }
     }
@@ -3778,29 +3850,110 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Status {
+    public partial class PicObject {
         
-        private int codeField;
+        private int m_nPicWidthField;
         
-        private string messageField;
+        private int m_nPicHeightField;
+        
+        private FileRequestObject m_oFileRequestObjField;
+        
+        private string m_sPicURLField;
+        
+        private int m_nPicBrandHeightField;
+        
+        private int m_nPicBrandRecurringTypeField;
         
         /// <remarks/>
-        public int Code {
+        public int m_nPicWidth {
             get {
-                return this.codeField;
+                return this.m_nPicWidthField;
             }
             set {
-                this.codeField = value;
+                this.m_nPicWidthField = value;
             }
         }
         
         /// <remarks/>
-        public string Message {
+        public int m_nPicHeight {
             get {
-                return this.messageField;
+                return this.m_nPicHeightField;
             }
             set {
-                this.messageField = value;
+                this.m_nPicHeightField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public FileRequestObject m_oFileRequestObj {
+            get {
+                return this.m_oFileRequestObjField;
+            }
+            set {
+                this.m_oFileRequestObjField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPicURL {
+            get {
+                return this.m_sPicURLField;
+            }
+            set {
+                this.m_sPicURLField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nPicBrandHeight {
+            get {
+                return this.m_nPicBrandHeightField;
+            }
+            set {
+                this.m_nPicBrandHeightField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nPicBrandRecurringType {
+            get {
+                return this.m_nPicBrandRecurringTypeField;
+            }
+            set {
+                this.m_nPicBrandRecurringTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class FileRequestObject {
+        
+        private string m_sFileFormatField;
+        
+        private string m_sFileQualityField;
+        
+        /// <remarks/>
+        public string m_sFileFormat {
+            get {
+                return this.m_sFileFormatField;
+            }
+            set {
+                this.m_sFileFormatField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sFileQuality {
+            get {
+                return this.m_sFileQualityField;
+            }
+            set {
+                this.m_sFileQualityField = value;
             }
         }
     }
@@ -3860,6 +4013,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.levelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
             }
         }
     }
@@ -3938,6 +4124,208 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.levelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ParentalRule {
+        
+        private long idField;
+        
+        private string nameField;
+        
+        private string descriptionField;
+        
+        private int orderField;
+        
+        private int mediaTagTypeIdField;
+        
+        private int epgTagTypeIdField;
+        
+        private bool blockAnonymousAccessField;
+        
+        private eParentalRuleType ruleTypeField;
+        
+        private string[] mediaTagValuesField;
+        
+        private string[] epgTagValuesField;
+        
+        private bool isDefaultField;
+        
+        private eRuleLevel levelField;
+        
+        /// <remarks/>
+        public long id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int order {
+            get {
+                return this.orderField;
+            }
+            set {
+                this.orderField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int mediaTagTypeId {
+            get {
+                return this.mediaTagTypeIdField;
+            }
+            set {
+                this.mediaTagTypeIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int epgTagTypeId {
+            get {
+                return this.epgTagTypeIdField;
+            }
+            set {
+                this.epgTagTypeIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool blockAnonymousAccess {
+            get {
+                return this.blockAnonymousAccessField;
+            }
+            set {
+                this.blockAnonymousAccessField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eParentalRuleType ruleType {
+            get {
+                return this.ruleTypeField;
+            }
+            set {
+                this.ruleTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] mediaTagValues {
+            get {
+                return this.mediaTagValuesField;
+            }
+            set {
+                this.mediaTagValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] epgTagValues {
+            get {
+                return this.epgTagValuesField;
+            }
+            set {
+                this.epgTagValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool isDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eRuleLevel level {
+            get {
+                return this.levelField;
+            }
+            set {
+                this.levelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eParentalRuleType {
+        
+        /// <remarks/>
+        All,
+        
+        /// <remarks/>
+        Movies,
+        
+        /// <remarks/>
+        TVSeries,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ParentalRulesResponse {
+        
+        private Status statusField;
+        
+        private ParentalRule[] rulesField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ParentalRule[] rules {
+            get {
+                return this.rulesField;
+            }
+            set {
+                this.rulesField = value;
             }
         }
     }
@@ -8244,120 +8632,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PicObject {
-        
-        private int m_nPicWidthField;
-        
-        private int m_nPicHeightField;
-        
-        private FileRequestObject m_oFileRequestObjField;
-        
-        private string m_sPicURLField;
-        
-        private int m_nPicBrandHeightField;
-        
-        private int m_nPicBrandRecurringTypeField;
-        
-        /// <remarks/>
-        public int m_nPicWidth {
-            get {
-                return this.m_nPicWidthField;
-            }
-            set {
-                this.m_nPicWidthField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nPicHeight {
-            get {
-                return this.m_nPicHeightField;
-            }
-            set {
-                this.m_nPicHeightField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public FileRequestObject m_oFileRequestObj {
-            get {
-                return this.m_oFileRequestObjField;
-            }
-            set {
-                this.m_oFileRequestObjField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPicURL {
-            get {
-                return this.m_sPicURLField;
-            }
-            set {
-                this.m_sPicURLField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nPicBrandHeight {
-            get {
-                return this.m_nPicBrandHeightField;
-            }
-            set {
-                this.m_nPicBrandHeightField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nPicBrandRecurringType {
-            get {
-                return this.m_nPicBrandRecurringTypeField;
-            }
-            set {
-                this.m_nPicBrandRecurringTypeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class FileRequestObject {
-        
-        private string m_sFileFormatField;
-        
-        private string m_sFileQualityField;
-        
-        /// <remarks/>
-        public string m_sFileFormat {
-            get {
-                return this.m_sFileFormatField;
-            }
-            set {
-                this.m_sFileFormatField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sFileQuality {
-            get {
-                return this.m_sFileQualityField;
-            }
-            set {
-                this.m_sFileQualityField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class FileTypeContainer {
         
         private int m_nFileTypeIDField;
@@ -9103,280 +9377,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class InitializationObject {
-        
-        private PicObject[] m_oPicObjectsField;
-        
-        private FileRequestObject[] m_oFileRequestObjectsField;
-        
-        private PlayerIMRequestObject m_oPlayerIMRequestObjectField;
-        
-        private UserIMRequestObject m_oUserIMRequestObjectField;
-        
-        private LanguageRequestObject m_oLanguageRequestObjectField;
-        
-        private ExtraRequestObject m_oExtraRequestObjectField;
-        
-        private string m_sDeviceField;
-        
-        private string m_sAdminTokenField;
-        
-        /// <remarks/>
-        public PicObject[] m_oPicObjects {
-            get {
-                return this.m_oPicObjectsField;
-            }
-            set {
-                this.m_oPicObjectsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public FileRequestObject[] m_oFileRequestObjects {
-            get {
-                return this.m_oFileRequestObjectsField;
-            }
-            set {
-                this.m_oFileRequestObjectsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PlayerIMRequestObject m_oPlayerIMRequestObject {
-            get {
-                return this.m_oPlayerIMRequestObjectField;
-            }
-            set {
-                this.m_oPlayerIMRequestObjectField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UserIMRequestObject m_oUserIMRequestObject {
-            get {
-                return this.m_oUserIMRequestObjectField;
-            }
-            set {
-                this.m_oUserIMRequestObjectField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageRequestObject m_oLanguageRequestObject {
-            get {
-                return this.m_oLanguageRequestObjectField;
-            }
-            set {
-                this.m_oLanguageRequestObjectField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ExtraRequestObject m_oExtraRequestObject {
-            get {
-                return this.m_oExtraRequestObjectField;
-            }
-            set {
-                this.m_oExtraRequestObjectField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDevice {
-            get {
-                return this.m_sDeviceField;
-            }
-            set {
-                this.m_sDeviceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAdminToken {
-            get {
-                return this.m_sAdminTokenField;
-            }
-            set {
-                this.m_sAdminTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ParentalRule {
-        
-        private long idField;
-        
-        private string nameField;
-        
-        private string descriptionField;
-        
-        private int orderField;
-        
-        private int mediaTagTypeIdField;
-        
-        private int epgTagTypeIdField;
-        
-        private bool blockAnonymousAccessField;
-        
-        private eParentalRuleType ruleTypeField;
-        
-        private string[] mediaTagValuesField;
-        
-        private string[] epgTagValuesField;
-        
-        private bool isDefaultField;
-        
-        private eRuleLevel levelField;
-        
-        /// <remarks/>
-        public long id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int order {
-            get {
-                return this.orderField;
-            }
-            set {
-                this.orderField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int mediaTagTypeId {
-            get {
-                return this.mediaTagTypeIdField;
-            }
-            set {
-                this.mediaTagTypeIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int epgTagTypeId {
-            get {
-                return this.epgTagTypeIdField;
-            }
-            set {
-                this.epgTagTypeIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool blockAnonymousAccess {
-            get {
-                return this.blockAnonymousAccessField;
-            }
-            set {
-                this.blockAnonymousAccessField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eParentalRuleType ruleType {
-            get {
-                return this.ruleTypeField;
-            }
-            set {
-                this.ruleTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] mediaTagValues {
-            get {
-                return this.mediaTagValuesField;
-            }
-            set {
-                this.mediaTagValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] epgTagValues {
-            get {
-                return this.epgTagValuesField;
-            }
-            set {
-                this.epgTagValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool isDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eRuleLevel level {
-            get {
-                return this.levelField;
-            }
-            set {
-                this.levelField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eParentalRuleType {
-        
-        /// <remarks/>
-        All,
-        
-        /// <remarks/>
-        Movies,
-        
-        /// <remarks/>
-        TVSeries,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum UserStatus {
         
@@ -9451,110 +9451,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         Subscription,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetParentalMediaRulesCompletedEventHandler(object sender, GetParentalMediaRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetParentalMediaRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetParentalMediaRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ParentalRulesResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ParentalRulesResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetParentalEPGRulesCompletedEventHandler(object sender, GetParentalEPGRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetParentalEPGRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetParentalEPGRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ParentalRulesResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ParentalRulesResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void DisableUserDefaultParentalRuleCompletedEventHandler(object sender, DisableUserDefaultParentalRuleCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class DisableUserDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal DisableUserDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void DisableDomainDefaultParentalRuleCompletedEventHandler(object sender, DisableDomainDefaultParentalRuleCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class DisableDomainDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal DisableDomainDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
     }
     
     /// <remarks/>
@@ -11786,6 +11682,110 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private object[] results;
         
         internal ValidatePurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetParentalMediaRulesCompletedEventHandler(object sender, GetParentalMediaRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetParentalMediaRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetParentalMediaRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ParentalRulesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetParentalEPGRulesCompletedEventHandler(object sender, GetParentalEPGRulesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetParentalEPGRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetParentalEPGRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ParentalRulesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ParentalRulesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DisableUserDefaultParentalRuleCompletedEventHandler(object sender, DisableUserDefaultParentalRuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DisableUserDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DisableUserDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DisableDomainDefaultParentalRuleCompletedEventHandler(object sender, DisableDomainDefaultParentalRuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DisableDomainDefaultParentalRuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DisableDomainDefaultParentalRuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
