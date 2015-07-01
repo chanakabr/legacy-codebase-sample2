@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User doesnt not exist = 2000, User suspended = 2001
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
@@ -466,7 +466,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Household ID</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User does not exist = 2025, Wrong username or password = 1011</remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User does not exist = 2000, Wrong username or password = 1011</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
@@ -630,7 +630,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Household ID</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
         /// <param name="user_id"> User identifiers</param>
-        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User suspended = 2001,User does not exist = 2000
+        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, User suspended = 2001, User does not exist = 2000
         /// </remarks>        
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>

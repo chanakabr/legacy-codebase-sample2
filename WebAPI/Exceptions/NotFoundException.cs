@@ -10,8 +10,8 @@ namespace WebAPI.Exceptions
 {
     public class NotFoundException : ApiException
     {
-        public NotFoundException() : base(HttpStatusCode.NotFound, (int)StatusCode.NotFound, "Not Found") { }
+        public NotFoundException() : base(HttpStatusCode.NotFound, (int)StatusCode.NotFound, "not found") { }
 
-        public NotFoundException(int code, string msg) : base(HttpStatusCode.NotFound, code, msg) { }
+        public NotFoundException(int code, string msg) : base(HttpStatusCode.NotFound, code, !string.IsNullOrEmpty(msg) ? msg : "not found") { }
     }
 }

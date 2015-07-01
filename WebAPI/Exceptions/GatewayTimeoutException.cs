@@ -12,6 +12,6 @@ namespace WebAPI.Utils
     {
         public GatewayTimeoutException() : base(HttpStatusCode.GatewayTimeout, (int)StatusCode.Timeout, "timeout") { }
 
-        public GatewayTimeoutException(int code, string msg) : base(HttpStatusCode.GatewayTimeout, code, msg) { }
+        public GatewayTimeoutException(int code, string msg) : base(HttpStatusCode.GatewayTimeout, code, !string.IsNullOrEmpty(msg) ? msg : "timeout") { }
     }
 }

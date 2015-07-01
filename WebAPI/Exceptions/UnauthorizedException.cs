@@ -9,8 +9,8 @@ namespace WebAPI.Exceptions
 {
     public class UnauthorizedException : ApiException
     {
-        public UnauthorizedException() : base(HttpStatusCode.Unauthorized, (int)StatusCode.Unauthorized, "Unauthorized") { }
+        public UnauthorizedException() : base(HttpStatusCode.Unauthorized, (int)StatusCode.Unauthorized, "unauthorized") { }
 
-        public UnauthorizedException(int code, string msg) : base(HttpStatusCode.Unauthorized, code, msg) { }
+        public UnauthorizedException(int code, string msg) : base(HttpStatusCode.Unauthorized, code, !string.IsNullOrEmpty(msg) ? msg : "unauthorized") { }
     }
 }

@@ -28,8 +28,8 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Household does not exist = 1006</remarks>
         [Route("{household_id}/parental/rules"), HttpGet]
@@ -462,10 +462,8 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
-        public bool CancelSubscriptionRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
+        public void CancelSubscriptionRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
-            bool response = false;
-
             int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(sub_id))
@@ -475,18 +473,12 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, sub_id);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, sub_id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            if (response == false)
-            {
-                throw new InternalServerErrorException();
-            }
-            return response;
         }
         #endregion
 

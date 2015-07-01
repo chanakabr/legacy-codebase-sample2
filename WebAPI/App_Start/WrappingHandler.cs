@@ -12,6 +12,7 @@ using System.Web.Http;
 using KLogMonitor;
 using WebAPI.Models;
 using WebAPI.Models.General;
+using WebAPI.Exceptions;
 
 namespace WebAPI.App_Start
 {
@@ -60,7 +61,8 @@ namespace WebAPI.App_Start
                     message = handleError(error.ExceptionMessage, error.StackTrace);
                 }
             }
-            else if (!response.IsSuccessStatusCode && content != null)
+            else if ((!response.IsSuccessStatusCode && content != null) || 
+                (response.IsSuccessStatusCode && (content is ApiException && ((ApiException.ExceptionPayload)content).code != 0)))
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
