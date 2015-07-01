@@ -14,6 +14,11 @@ using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
 using System.Net.Http;
 using KLogMonitor;
+using WebAPI.Filters;
+using System.Web.Http.ModelBinding.Binders;
+using System.Web.Http.Controllers;
+using System.ComponentModel;
+using System.Web.Http.ModelBinding;
 
 
 namespace WebAPI.Controllers
@@ -22,6 +27,13 @@ namespace WebAPI.Controllers
     public class CatalogController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        [Route("test"), HttpGet]
+        public string test([ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] 
+            List<int> filter_types)
+        {
+            return "hi";
+        }
 
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
