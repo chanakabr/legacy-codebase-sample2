@@ -255,7 +255,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="media_ids">Media identifiers separated by , </param>
+        /// <param name="media_ids">Media identifiers separated by ',' </param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
         /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
@@ -267,8 +267,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
         /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>        
         [Route("media/{media_ids}"), HttpGet]
         public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null, string user_id = null, int household_id = 0)
         {
