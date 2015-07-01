@@ -28,13 +28,6 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        [Route("test"), HttpGet]
-        public string test([ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] 
-            List<int> filter_types)
-        {
-            return "hi";
-        }
-
         [Route("search"), HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
         public AssetInfoWrapper SearchAssets(string partner_id, [FromUri] SearchAssets search_assets, [FromUri] string language = null)
