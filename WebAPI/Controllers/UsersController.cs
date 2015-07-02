@@ -647,8 +647,8 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            return response;
 
+            return response;
         }
 
         /// <summary>Edit user details.        

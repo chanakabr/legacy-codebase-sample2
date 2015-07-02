@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
             {
                 return methodInfo.Invoke(obj, convParams);
             }
-            catch (TargetInvocationException)
+            catch (TargetInvocationException ex)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
                            string.Format("Method invocation failed - {0}", methodName));
@@ -104,7 +104,9 @@ namespace WebAPI.Controllers
                             {
                                 if (property.GetCustomAttributes(typeof(DataMemberAttribute), true)[0].Name == tokens[1])
                                 {
-                                    request[i].parameters[j] = string.Format("{0}={1}", kv[0], respType.GetProperty(property.Name).GetValue(response[0], null).ToString());
+                                    request[i].parameters[j] = string.Format("{0}={1}", kv[0], 
+                                        respType.GetProperty(property.Name).GetValue(response[0], null).ToString());
+
                                     found = true;
                                     break;
                                 }
