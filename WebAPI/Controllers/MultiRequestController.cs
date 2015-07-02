@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Web.Http;
 using WebAPI.Exceptions;
+using WebAPI.Models.General;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Controllers
 {
@@ -61,7 +63,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return methodInfo.Invoke(obj, convParams);
+                return new StatusWrapper(0, Request.GetCorrelationId(), methodInfo.Invoke(obj, convParams), "success");
             }
             catch (TargetInvocationException ex)
             {
@@ -71,13 +73,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
                            string.Format("Method invocation failed - {0}", methodName));
             }
-        }
-
-        public class MultiRequest
-        {
-            public string service { get; set; }
-            public string action { get; set; }
-            public string[] parameters { get; set; }
         }
 
         [Route(""), HttpPost]
@@ -99,16 +94,17 @@ namespace WebAPI.Controllers
                         {
                             int respIdx = int.Parse(tokens[0]);
                             dynamic response = responses[respIdx];
+                            var innerResult = response.Result[0];
 
-                            Type respType = response[0].GetType();
-                            var properties = response[0].GetType().GetProperties();
+                            Type respType = innerResult.GetType();
+                            var properties = innerResult.GetType().GetProperties();
                             bool found = false;
                             foreach (var property in properties)
                             {
                                 if (property.GetCustomAttributes(typeof(DataMemberAttribute), true)[0].Name == tokens[1])
                                 {
-                                    request[i].parameters[j] = string.Format("{0}={1}", kv[0], 
-                                        respType.GetProperty(property.Name).GetValue(response[0], null).ToString());
+                                    request[i].parameters[j] = string.Format("{0}={1}", kv[0],
+                                        respType.GetProperty(property.Name).GetValue(innerResult, null).ToString());
 
                                     found = true;
                                     break;
