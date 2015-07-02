@@ -857,5 +857,47 @@ namespace TVPApiModule.Services
 
             return status;
         }
+
+        public Objects.Responses.GenericRulesResponse GetMediaRules(string siteGuid, long mediaId, long domainId, string ip, string udid)
+        {
+            TVPApiModule.Objects.Responses.GenericRulesResponse response = new Objects.Responses.GenericRulesResponse();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId, ip, udid);
+                    response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetMediaRules."), ex);
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
+
+        public Objects.Responses.GenericRulesResponse GetEpgRules(string siteGuid, long epgId, int mediaId, long domainId, string ip, string udid)
+        {
+            TVPApiModule.Objects.Responses.GenericRulesResponse response = new Objects.Responses.GenericRulesResponse();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var webServiceResponse = m_Module.GetEPGRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, epgId, domainId, ip, udid);
+                    response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(string.Format("Error while trying to GetEpgRules."), ex);
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+            }
+
+            return response;
+        }
     }
 }

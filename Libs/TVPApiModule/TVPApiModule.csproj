@@ -205,6 +205,8 @@
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
+    <Compile Include="Objects\Responses\Rules\GenericRule.cs" />
+    <Compile Include="Objects\Responses\Rules\GenericRulesResponse.cs" />
     <Compile Include="Objects\Responses\Rules\PinResponse.cs" />
     <Compile Include="Objects\Responses\Program.cs" />
     <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
