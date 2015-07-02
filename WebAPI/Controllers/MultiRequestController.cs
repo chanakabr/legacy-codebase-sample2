@@ -1,6 +1,7 @@
 ﻿using Jil;
 using KLogMonitor;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Web.Http;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
@@ -67,9 +69,18 @@ namespace WebAPI.Controllers
             }
             catch (TargetInvocationException ex)
             {
-                if (ex.InnerException is ApiException)                
-                    throw ex.InnerException;
-                
+                if (ex.InnerException is ApiException)
+                {
+                    ApiException.ExceptionPayload content = null;
+                    var e = (ApiException)ex.InnerException;
+                    e.Response.TryGetContentValue(out content);
+
+                    return new StatusWrapper(
+                        content.code,
+                        Request.GetCorrelationId(), null, WrappingHandler.HandleError(content.error.ExceptionMessage,
+                        ex.InnerException.StackTrace));
+                }
+
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
                            string.Format("Method invocation failed - {0}", methodName));
             }
@@ -94,7 +105,11 @@ namespace WebAPI.Controllers
                         {
                             int respIdx = int.Parse(tokens[0]);
                             dynamic response = responses[respIdx];
-                            var innerResult = response.Result[0];
+
+                            //TODO: Fix if array or not
+                            var innerResult = response.Result;
+                            if (response.Result is IEnumerable)
+                                innerResult = response.Result[0];
 
                             Type respType = innerResult.GetType();
                             var properties = innerResult.GetType().GetProperties();

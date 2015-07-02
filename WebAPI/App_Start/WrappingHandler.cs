@@ -58,7 +58,7 @@ namespace WebAPI.App_Start
                 if (error != null)
                 {
                     content = null;
-                    message = handleError(error.ExceptionMessage, error.StackTrace);
+                    message = HandleError(error.ExceptionMessage, error.StackTrace);
                 }
             }
             else if ((!response.IsSuccessStatusCode && content != null) || 
@@ -67,7 +67,7 @@ namespace WebAPI.App_Start
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
                 subCode = payload.code;
-                message = handleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
                 content = null;
             }
             else if (response.IsSuccessStatusCode)
@@ -79,13 +79,13 @@ namespace WebAPI.App_Start
                 //Web API Bad Request global error
                 content = null;
                 subCode = (int)StatusCode.BadRequest;
-                message = handleError("Bad Request", "");
+                message = HandleError("Bad Request", "");
             }
             else
             {
                 content = null;
                 subCode = (int)StatusCode.Error;
-                message = handleError("Unknown error", "");
+                message = HandleError("Unknown error", "");
             }
 
             Guid reqID = request.GetCorrelationId();
@@ -99,7 +99,7 @@ namespace WebAPI.App_Start
             return newResponse;
         }
 
-        private static string handleError(string errorMsg, string stack)
+        public static string HandleError(string errorMsg, string stack)
         {
             string message = "";
             string errMsg = string.Concat(errorMsg, stack);
