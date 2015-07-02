@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// Charges a user for a media file with the given PPV module entitlements         
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         /// Charges a user for subscription        
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003,
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
