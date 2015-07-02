@@ -1453,17 +1453,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="EmailNotificationRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1493,6 +1482,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="SendAdminTokenRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
         <s:complexType>
@@ -2669,6 +2669,66 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetMediaRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaRulesResult" type="tns:GenericRuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GenericRuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Rules" type="tns:ArrayOfGenericRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfGenericRule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="GenericRule" nillable="true" type="tns:GenericRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="GenericRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RuleType" type="tns:eGroupRuleType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEPGRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPGRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEPGRulesResult" type="tns:GenericRuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2692,6 +2752,7 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
+      <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -3239,6 +3300,18 @@
   </wsdl:message>
   <wsdl:message name="DisableDomainDefaultParentalRuleSoapOut">
     <wsdl:part name="parameters" element="tns:DisableDomainDefaultParentalRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaRules" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEPGRules" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEPGRulesResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3838,6 +3911,31 @@
   <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="GetMediaRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="mediaId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="mediaId" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
+  </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -4195,6 +4293,14 @@
       <wsdl:input message="tns:DisableDomainDefaultParentalRuleSoapIn" />
       <wsdl:output message="tns:DisableDomainDefaultParentalRuleSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <wsdl:input message="tns:GetMediaRulesSoapIn" />
+      <wsdl:output message="tns:GetMediaRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGRules">
+      <wsdl:input message="tns:GetEPGRulesSoapIn" />
+      <wsdl:output message="tns:GetEPGRulesSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
     <wsdl:operation name="InsertEPGSchedule">
@@ -4452,6 +4558,14 @@
     <wsdl:operation name="DisableDomainDefaultParentalRule">
       <wsdl:input message="tns:DisableDomainDefaultParentalRuleHttpPostIn" />
       <wsdl:output message="tns:DisableDomainDefaultParentalRuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <wsdl:input message="tns:GetMediaRulesHttpPostIn" />
+      <wsdl:output message="tns:GetMediaRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGRules">
+      <wsdl:input message="tns:GetEPGRulesHttpPostIn" />
+      <wsdl:output message="tns:GetEPGRulesHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -5250,6 +5364,24 @@
     </wsdl:operation>
     <wsdl:operation name="DisableDomainDefaultParentalRule">
       <soap:operation soapAction="http://api.tvinci.com/DisableDomainDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetEPGRules" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6061,6 +6193,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetEPGRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
@@ -6633,6 +6783,24 @@
     </wsdl:operation>
     <wsdl:operation name="DisableDomainDefaultParentalRule">
       <http:operation location="/DisableDomainDefaultParentalRule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <http:operation location="/GetMediaRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGRules">
+      <http:operation location="/GetEPGRules" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
