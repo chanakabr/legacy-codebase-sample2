@@ -65,6 +65,9 @@ namespace WebAPI.Controllers
             }
             catch (TargetInvocationException ex)
             {
+                if (ex.InnerException is ApiException)                
+                    throw ex.InnerException;
+                
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
                            string.Format("Method invocation failed - {0}", methodName));
             }
