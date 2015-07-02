@@ -49,35 +49,108 @@ public partial class adm_users_settings : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
+        object t = null;
+
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
         {
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = LoginManager.GetLoginGroupID();
-        //get the table id by group_id 
-        int tableID = ODBCWrapper.Utils.GetIntSafeVal(
-            ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "ID", "GROUP_ID", "=", t, 0, "users_connection_string"));       
+      
+        object groupId = LoginManager.GetLoginGroupID();
 
-        string sBack = "adm_users_settings.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", tableID, sBack, "");
-        theRecord.SetConnectionKey("users_connection_string");
-        
-        DataRecordCheckBoxField dr_LoginViaPin = new DataRecordCheckBoxField(true);
-        dr_LoginViaPin.Initialize("Enable log-in via PIN", "adm_table_header_nbg", "FormInput", "login_via_pin", false);
-        theRecord.AddRecord(dr_LoginViaPin);
-
-        DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
-        dr_SecurityQuestion.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
-        theRecord.AddRecord(dr_SecurityQuestion);
+        // check ig groupid is parent , if so show page with all filed else (not parent show a message)
+        int tableID = GetUserSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId));
+        bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
 
 
-        DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
-        dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
-        theRecord.AddRecord(dr_pin_must_hours);
+        string sTable = string.Empty;
+        if (!isParentGroup)
+        {
+            sTable = (PageUtils.GetPreHeader() + ": Module is not implemented");
+        }
+        else
+        {
+            if (tableID > 0) // a new record
+            {
+                t = tableID;
+            }
+            string sBack = "adm_users_settings.aspx?search_save=1";
+            DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+            theRecord.SetConnectionKey("users_connection_string");
 
-        string sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
+            DataRecordCheckBoxField dr_LoginViaPin = new DataRecordCheckBoxField(true);
+            dr_LoginViaPin.Initialize("Enable log-in via PIN", "adm_table_header_nbg", "FormInput", "login_via_pin", false);
+            theRecord.AddRecord(dr_LoginViaPin);
 
+            DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
+            dr_SecurityQuestion.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
+            theRecord.AddRecord(dr_SecurityQuestion);
+
+
+            DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
+            dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
+            theRecord.AddRecord(dr_pin_must_hours);
+
+            sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
+        }
         return sTable;
+    }
+
+    private bool IsParentGroup(int groupID)
+    {
+        bool res = false;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select * from F_Get_GroupsParent(" + groupID.ToString() + ")";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    int parentGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "PARENT_GROUP_ID");
+                    if (parentGroupID == 1)
+                    {
+                        res = true;
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            res = false;
+        }
+        return res;
+    }
+
+    private int GetUserSettingsID(int groupID)
+    {
+        int userSettingId = 0;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("users_connection_string");
+            selectQuery += "select ID from groups_parameters where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    userSettingId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "ID");
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            userSettingId = 0;
+        }
+        return userSettingId;
     }
 }

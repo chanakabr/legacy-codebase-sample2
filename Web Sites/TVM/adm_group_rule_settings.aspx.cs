@@ -93,10 +93,21 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
 
+        // Check if it's new recored or not
         object groupId = LoginManager.GetLoginGroupID();
 
+        int tableID = GetGroupRuleID(ODBCWrapper.Utils.GetIntSafeVal(groupId));
+        
+        object t = null;
+
         string backPage = "adm_group_rule_settings.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("group_rule_settings", "adm_table_pager", backPage, "", "ID", groupId, backPage, "");
+        DBRecordWebEditor theRecord;
+        if (tableID > 0) // a new record
+        {
+            t = tableID;            
+        }
+
+        theRecord = new DBRecordWebEditor("group_rule_settings", "adm_table_pager", backPage, "", "ID", t, backPage, "");
 
         DataRecordDropDownField dr_default_parental_rule_movies = new DataRecordDropDownField("parental_rules", "NAME", "id", "", null, 60, true);
         dr_default_parental_rule_movies.SetSelectsQuery(parentalRulesQuery);
@@ -117,8 +128,39 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
         dr_default_purchase_settings.Initialize("Default purchase rules", "adm_table_header_nbg", "FormInput", "DEFAULT_PURCHASE_SETTINGS", true);
         theRecord.AddRecord(dr_default_purchase_settings);
 
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
+
         string sTable = theRecord.GetTableHTML("adm_group_rule_settings.aspx?submited=1");
 
         return sTable;
+    }
+
+    private int GetGroupRuleID(int groupID)
+    {
+        int groupRuleId = 0;
+        try
+        {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select ID from group_rule_settings where status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                groupRuleId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "ID");                
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            groupRuleId = 0;
+        }
+        return groupRuleId;
     }
 }
