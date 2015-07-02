@@ -612,6 +612,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\BillingController.cs" />
+    <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
