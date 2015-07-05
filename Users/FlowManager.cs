@@ -213,20 +213,20 @@ namespace Users
             return passed;
         }
 
-        public static UserResponseObject GetUserData(KalturaBaseUsers user, string siteGuid, List<KeyValuePair> keyValueList)
+        public static UserResponseObject GetUserData(KalturaBaseUsers user, string siteGuid, List<KeyValuePair> keyValueList, string userIP)
         {
             UserResponseObject userResponse = new UserResponseObject();
 
             try
             {
                 // pre
-                userResponse = user.PreGetUserData(siteGuid, ref keyValueList);
+                userResponse = user.PreGetUserData(siteGuid, ref keyValueList, userIP);
 
                 // mid
-                user.MidGetUserData(ref userResponse, siteGuid);
+                user.MidGetUserData(ref userResponse, siteGuid, userIP);
 
                 // post
-                user.PostGetUserData(ref userResponse, siteGuid, ref keyValueList);
+                user.PostGetUserData(ref userResponse, siteGuid, ref keyValueList, userIP);
             }
             catch (Exception ex)
             {
@@ -235,20 +235,20 @@ namespace Users
             return userResponse;
         }
 
-        public static List<UserResponseObject> GetUsersData(KalturaBaseUsers user, List<string> siteGuids, List<KeyValuePair> keyValueList)
+        public static List<UserResponseObject> GetUsersData(KalturaBaseUsers user, List<string> siteGuids, List<KeyValuePair> keyValueList, string userIP)
         {
             List<UserResponseObject> userResponses = new List<UserResponseObject>();
 
             try
             {
                 // pre
-                userResponses = user.PreGetUsersData(siteGuids, ref keyValueList);
+                userResponses = user.PreGetUsersData(siteGuids, ref keyValueList, userIP);
 
                 // mid
-                user.MidGetUsersData(ref userResponses, siteGuids, ref keyValueList);
+                user.MidGetUsersData(ref userResponses, siteGuids, ref keyValueList, userIP);
 
                 // post
-                user.PostGetUsersData(ref userResponses, siteGuids, ref keyValueList);
+                user.PostGetUsersData(ref userResponses, siteGuids, ref keyValueList, userIP);
             }
             catch (Exception ex)
             {

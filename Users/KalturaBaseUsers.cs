@@ -94,14 +94,14 @@ namespace Users
         public abstract void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList);
 
         // get user data
-        public abstract UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList);
-        internal abstract void MidGetUserData(ref UserResponseObject userResponse, string sSiteGUID);
-        public abstract void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList);
+        public abstract UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
+        internal abstract void MidGetUserData(ref UserResponseObject userResponse, string sSiteGUID, string userIP);
+        public abstract void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
 
         // get users data
-        public abstract List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
-        internal abstract void MidGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
-        public abstract void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList);
+        public abstract List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
+        internal abstract void MidGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
+        public abstract void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
 
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
