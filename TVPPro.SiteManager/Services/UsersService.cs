@@ -907,7 +907,7 @@ namespace TVPPro.SiteManager.Services
 
         public bool IsOfflineModeEnabled()
         {
-            var offlineMode = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID()).m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode" && x.m_sValue == "true").FirstOrDefault();
+            var offlineMode = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID(), TVPPro.SiteManager.Helper.SiteHelper.GetClientIP()).m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "IsOfflineMode" && x.m_sValue == "true").FirstOrDefault();
 
             if (offlineMode == null)
                 return false;
@@ -941,7 +941,7 @@ namespace TVPPro.SiteManager.Services
         {
             if (!IsOfflineModeEnabled())
             {
-                var userData = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID());
+                var userData = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID(), TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                 var curDynamicData = userData.m_user.m_oDynamicData;
                 var isOfflineMode = curDynamicData.m_sUserData.Where(x => x != null && x.m_sDataType == "IsOfflineMode").Count() > 0;
                 var newDynamicData = cloneDynamicData(curDynamicData, !isOfflineMode);
@@ -960,7 +960,7 @@ namespace TVPPro.SiteManager.Services
             }
             else
             {
-                var userData = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID());
+                var userData = UsersService.Instance.GetUserData(UsersService.Instance.GetUserID(), TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                 var curDynamicData = userData.m_user.m_oDynamicData;
                 var newDynamicData = cloneDynamicData(curDynamicData, false);
 
@@ -1016,12 +1016,12 @@ namespace TVPPro.SiteManager.Services
         //    return StatesList;
         //}
 
-        public UserResponseObject GetUserData(string sSiteGUID)
+        public UserResponseObject GetUserData(string sSiteGUID, string sUserIP)
         {
             UserResponseObject response = null;
             try
             {
-                response = PlatUserService.GetUserData(wsUserName, wsPassword, sSiteGUID);
+                response = PlatUserService.GetUserData(wsUserName, wsPassword, sSiteGUID, sUserIP);
                 //UserContext.UserResponse = response;
             }
             catch (Exception ex)
@@ -1037,7 +1037,7 @@ namespace TVPPro.SiteManager.Services
             UserResponseObject[] response = null;
             try
             {
-                response = PlatUserService.GetUsersData(wsUserName, wsPassword, sSiteGUID);
+                response = PlatUserService.GetUsersData(wsUserName, wsPassword, sSiteGUID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
             }
             catch (Exception ex)
             {
@@ -1270,7 +1270,7 @@ namespace TVPPro.SiteManager.Services
         public void RefreshUserData()
         {
             if (UserContext.UserResponse != null && UserContext.UserResponse.m_user != null && !string.IsNullOrEmpty(UserContext.UserResponse.m_user.m_sSiteGUID))
-                UserContext.UserResponse = GetUserData(UserContext.UserResponse.m_user.m_sSiteGUID);
+                UserContext.UserResponse = GetUserData(UserContext.UserResponse.m_user.m_sSiteGUID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
         }
 
         public UserGroupRuleResponse CheckParentalPINToken(string sChangePinToken)
@@ -1402,7 +1402,7 @@ namespace TVPPro.SiteManager.Services
                 //Login the user in case he is RememberMe & Anonymous
                 if (UserContext.OnlineStatus == Enums.eUserOnlineStatus.Recognised)
                 {
-                    UserContext.UserResponse = GetUserData(sGuid);
+                    UserContext.UserResponse = GetUserData(sGuid, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                     if (UserContext.UserResponse.m_user.m_oDynamicData.m_sUserData != null &&
                         UserContext.UserResponse.m_user.m_oDynamicData.m_sUserData.Length > 0 &&
                         UserContext.UserResponse.m_user.m_oDynamicData.m_sUserData[0].m_sDataType.Equals("IsAnonymous"))
