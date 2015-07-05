@@ -2159,7 +2159,7 @@ namespace TVPApiServices
         /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media 
         /// </summary>
         [WebMethod(EnableSession = true, Description = "Gets rules that apply to media")]
-        public GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId, string ip)
+        public GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId)
         {
             GenericRulesResponse response = null;
 
@@ -2171,7 +2171,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetMediaRules(userGuid, mediaId, initObj.DomainID, ip, initObj.UDID);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetMediaRules(userGuid, mediaId, initObj.DomainID, SiteHelper.GetClientIP(), initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -2190,7 +2190,7 @@ namespace TVPApiServices
         /// Retrieve all the rules (parental) that applies for this EPG program 
         /// </summary>
         [WebMethod(EnableSession = true, Description = "Gets rules that apply to media")]
-        public GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId, int mediaId, string ip)
+        public GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId)
         {
             GenericRulesResponse response = null;
 
@@ -2202,7 +2202,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEpgRules(userGuid, epgId, mediaId, initObj.DomainID, ip, initObj.UDID);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEpgRules(userGuid, epgId, initObj.DomainID);
                 }
                 catch (Exception ex)
                 {

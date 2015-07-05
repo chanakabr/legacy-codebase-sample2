@@ -879,7 +879,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public Objects.Responses.GenericRulesResponse GetEpgRules(string siteGuid, long epgId, int mediaId, long domainId, string ip, string udid)
+        public Objects.Responses.GenericRulesResponse GetEpgRules(string siteGuid, long epgId, long domainId)
         {
             TVPApiModule.Objects.Responses.GenericRulesResponse response = new Objects.Responses.GenericRulesResponse();
 
@@ -887,7 +887,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceResponse = m_Module.GetEPGRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, epgId, domainId, ip, udid);
+                    var webServiceResponse = m_Module.GetEpgRules(m_wsUserName, m_wsPassword, siteGuid, epgId, domainId);
                     response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
                 }
             }
