@@ -9,7 +9,7 @@ namespace ApiObjects.Rules
     {
         public long Id { get; set; }
 
-        public eGroupRuleType RuleType { get; set; }
+        public RuleType RuleType { get; set; }
 
         public string Name { get; set; }
 
