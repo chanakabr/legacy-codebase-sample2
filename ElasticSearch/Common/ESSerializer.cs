@@ -235,7 +235,6 @@ namespace ElasticSearch.Common
 
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
-            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -479,7 +478,7 @@ namespace ElasticSearch.Common
             {
                 mappingObj.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
                 {
-                    name = "description.autucomplete",
+                    name = "description.autocomplete",
                     type = ElasticSearch.Common.eESFieldType.STRING,
                     null_value = "",
                     analyzed = true,
@@ -533,7 +532,7 @@ namespace ElasticSearch.Common
                     {
                         tags.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
                         {
-                            name = string.Format("{0}.autucomplete", sTagName.ToLower()),
+                            name = string.Format("{0}.autocomplete", sTagName.ToLower()),
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             analyzed = true,
@@ -576,7 +575,7 @@ namespace ElasticSearch.Common
                     {
                         metas.AddProperty(new ElasticSearch.Common.BasicMappingProperty()
                         {
-                            name = string.Format("{0}.autucomplete", sMetaName.ToLower()),
+                            name = string.Format("{0}.autocomplete", sMetaName.ToLower()),
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             analyzed = true,
