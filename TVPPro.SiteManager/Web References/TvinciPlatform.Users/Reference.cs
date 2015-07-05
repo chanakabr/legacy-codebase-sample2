@@ -169,6 +169,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         private System.Threading.SendOrPostCallback RenewPasswordOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ReplacePasswordOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback CheckPasswordTokenOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetUsersOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetUserOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -416,6 +424,18 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         public event RenewPasswordCompletedEventHandler RenewPasswordCompleted;
+        
+        /// <remarks/>
+        public event ReplacePasswordCompletedEventHandler ReplacePasswordCompleted;
+        
+        /// <remarks/>
+        public event CheckPasswordTokenCompletedEventHandler CheckPasswordTokenCompleted;
+        
+        /// <remarks/>
+        public event GetUsersCompletedEventHandler GetUsersCompleted;
+        
+        /// <remarks/>
+        public event SetUserCompletedEventHandler SetUserCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1193,28 +1213,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserData", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserResponseObject GetUserData(string sWSUserName, string sWSPassword, string sSiteGUID) {
+        public UserResponseObject GetUserData(string sWSUserName, string sWSPassword, string sSiteGUID, string sUserIp) {
             object[] results = this.Invoke("GetUserData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUID});
+                        sSiteGUID,
+                        sUserIp});
             return ((UserResponseObject)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserDataAsync(string sWSUserName, string sWSPassword, string sSiteGUID) {
-            this.GetUserDataAsync(sWSUserName, sWSPassword, sSiteGUID, null);
+        public void GetUserDataAsync(string sWSUserName, string sWSPassword, string sSiteGUID, string sUserIp) {
+            this.GetUserDataAsync(sWSUserName, sWSPassword, sSiteGUID, sUserIp, null);
         }
         
         /// <remarks/>
-        public void GetUserDataAsync(string sWSUserName, string sWSPassword, string sSiteGUID, object userState) {
+        public void GetUserDataAsync(string sWSUserName, string sWSPassword, string sSiteGUID, string sUserIp, object userState) {
             if ((this.GetUserDataOperationCompleted == null)) {
                 this.GetUserDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserDataOperationCompleted);
             }
             this.InvokeAsync("GetUserData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUID}, this.GetUserDataOperationCompleted, userState);
+                        sSiteGUID,
+                        sUserIp}, this.GetUserDataOperationCompleted, userState);
         }
         
         private void OnGetUserDataOperationCompleted(object arg) {
@@ -1226,28 +1248,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUsersData", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserResponseObject[] GetUsersData(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
+        public UserResponseObject[] GetUsersData(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIp) {
             object[] results = this.Invoke("GetUsersData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUIDs});
+                        sSiteGUIDs,
+                        userIp});
             return ((UserResponseObject[])(results[0]));
         }
         
         /// <remarks/>
-        public void GetUsersDataAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
-            this.GetUsersDataAsync(sWSUserName, sWSPassword, sSiteGUIDs, null);
+        public void GetUsersDataAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIp) {
+            this.GetUsersDataAsync(sWSUserName, sWSPassword, sSiteGUIDs, userIp, null);
         }
         
         /// <remarks/>
-        public void GetUsersDataAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, object userState) {
+        public void GetUsersDataAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIp, object userState) {
             if ((this.GetUsersDataOperationCompleted == null)) {
                 this.GetUsersDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsersDataOperationCompleted);
             }
             this.InvokeAsync("GetUsersData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUIDs}, this.GetUsersDataOperationCompleted, userState);
+                        sSiteGUIDs,
+                        userIp}, this.GetUsersDataOperationCompleted, userState);
         }
         
         private void OnGetUsersDataOperationCompleted(object arg) {
@@ -2945,6 +2969,148 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ReplacePassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ReplacePassword(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword) {
+            object[] results = this.Invoke("ReplacePassword", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userName,
+                        oldPassword,
+                        newPassword});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ReplacePasswordAsync(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword) {
+            this.ReplacePasswordAsync(sWSUserName, sWSPassword, userName, oldPassword, newPassword, null);
+        }
+        
+        /// <remarks/>
+        public void ReplacePasswordAsync(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword, object userState) {
+            if ((this.ReplacePasswordOperationCompleted == null)) {
+                this.ReplacePasswordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnReplacePasswordOperationCompleted);
+            }
+            this.InvokeAsync("ReplacePassword", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userName,
+                        oldPassword,
+                        newPassword}, this.ReplacePasswordOperationCompleted, userState);
+        }
+        
+        private void OnReplacePasswordOperationCompleted(object arg) {
+            if ((this.ReplacePasswordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ReplacePasswordCompleted(this, new ReplacePasswordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckPasswordToken", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserResponse CheckPasswordToken(string sWSUserName, string sWSPassword, string token) {
+            object[] results = this.Invoke("CheckPasswordToken", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        token});
+            return ((UserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPasswordTokenAsync(string sWSUserName, string sWSPassword, string token) {
+            this.CheckPasswordTokenAsync(sWSUserName, sWSPassword, token, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPasswordTokenAsync(string sWSUserName, string sWSPassword, string token, object userState) {
+            if ((this.CheckPasswordTokenOperationCompleted == null)) {
+                this.CheckPasswordTokenOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPasswordTokenOperationCompleted);
+            }
+            this.InvokeAsync("CheckPasswordToken", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        token}, this.CheckPasswordTokenOperationCompleted, userState);
+        }
+        
+        private void OnCheckPasswordTokenOperationCompleted(object arg) {
+            if ((this.CheckPasswordTokenCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPasswordTokenCompleted(this, new CheckPasswordTokenCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUsers", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsersResponse GetUsers(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP) {
+            object[] results = this.Invoke("GetUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUIDs,
+                        userIP});
+            return ((UsersResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP) {
+            this.GetUsersAsync(sWSUserName, sWSPassword, sSiteGUIDs, userIP, null);
+        }
+        
+        /// <remarks/>
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP, object userState) {
+            if ((this.GetUsersOperationCompleted == null)) {
+                this.GetUsersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsersOperationCompleted);
+            }
+            this.InvokeAsync("GetUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUIDs,
+                        userIP}, this.GetUsersOperationCompleted, userState);
+        }
+        
+        private void OnGetUsersOperationCompleted(object arg) {
+            if ((this.GetUsersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUsersCompleted(this, new GetUsersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetUser", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserResponse SetUser(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData) {
+            object[] results = this.Invoke("SetUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        basicData,
+                        dynamicData});
+            return ((UserResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetUserAsync(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData) {
+            this.SetUserAsync(sWSUserName, sWSPassword, siteGUID, basicData, dynamicData, null);
+        }
+        
+        /// <remarks/>
+        public void SetUserAsync(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData, object userState) {
+            if ((this.SetUserOperationCompleted == null)) {
+                this.SetUserOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserOperationCompleted);
+            }
+            this.InvokeAsync("SetUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        basicData,
+                        dynamicData}, this.SetUserOperationCompleted, userState);
+        }
+        
+        private void OnSetUserOperationCompleted(object arg) {
+            if ((this.SetUserCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetUserCompleted(this, new SetUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3552,11 +3718,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class UserResponse {
+    public partial class UsersResponse {
         
         private Status respField;
         
-        private UserResponseObject userField;
+        private UserResponseObject[] usersField;
         
         /// <remarks/>
         public Status resp {
@@ -3569,12 +3735,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public UserResponseObject user {
+        public UserResponseObject[] users {
             get {
-                return this.userField;
+                return this.usersField;
             }
             set {
-                this.userField = value;
+                this.usersField = value;
             }
         }
     }
@@ -3608,6 +3774,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserResponse {
+        
+        private Status respField;
+        
+        private UserResponseObject userField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserResponseObject user {
+            get {
+                return this.userField;
+            }
+            set {
+                this.userField = value;
             }
         }
     }
@@ -5962,6 +6161,110 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ReplacePasswordCompletedEventHandler(object sender, ReplacePasswordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ReplacePasswordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ReplacePasswordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPasswordTokenCompletedEventHandler(object sender, CheckPasswordTokenCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPasswordTokenCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPasswordTokenCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUsersCompletedEventHandler(object sender, GetUsersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUsersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUsersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsersResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsersResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetUserCompletedEventHandler(object sender, SetUserCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserResponse)(this.results[0]));
             }
         }
     }
