@@ -614,6 +614,8 @@ namespace WebAPI.Controllers
         [Route("{user_id}"), HttpGet]
         public List<User> GetUsersData([FromUri] string partner_id, string user_id)
         {
+            List<User> response = null;
+
             List<int> usersIds;
             try
             {
@@ -623,17 +625,13 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each user id must be int");
             }
-
-            List<User> response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
             if (usersIds == null || usersIds.Count == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user id in list");
             }
+
+            int groupId = int.Parse(partner_id);
+
             try
             {
                 // call client
@@ -715,12 +713,7 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -754,12 +747,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -793,12 +781,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -831,11 +814,7 @@ namespace WebAPI.Controllers
         {
             PinResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -900,11 +879,7 @@ namespace WebAPI.Controllers
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -938,11 +913,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -975,11 +946,7 @@ namespace WebAPI.Controllers
         {
             PurchaseSettingsResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1013,11 +980,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1051,18 +1014,13 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (media_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
             }
-
             try
             {
                 // call client
@@ -1095,13 +1053,9 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (epg_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
@@ -1139,12 +1093,9 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
@@ -1182,12 +1133,9 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
@@ -1224,12 +1172,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
