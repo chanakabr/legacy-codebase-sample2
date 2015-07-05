@@ -538,6 +538,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIp" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -554,6 +555,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUIDs" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2242,6 +2244,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sUserIp" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserDataHttpPostOut">
     <wsdl:part name="Body" element="tns:UserResponseObject" />
@@ -2250,6 +2253,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUIDs" type="s1:StringArray" />
+    <wsdl:part name="userIp" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUsersDataHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfUserResponseObject" />
