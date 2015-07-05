@@ -543,9 +543,9 @@ namespace Users
 
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList) { }
 
-        public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList) { return new UserResponseObject(); }
+        public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { return new UserResponseObject(); }
 
-        internal override void MidGetUserData(ref UserResponseObject userResponse, string siteGuid)
+        internal override void MidGetUserData(ref UserResponseObject userResponse, string siteGuid, string userIP)
         {
             try
             {
@@ -583,11 +583,11 @@ namespace Users
             }
         }
 
-        public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList) { }
+        public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
 
-        public override List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList) { return new List<UserResponseObject>(); }
+        public override List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { return new List<UserResponseObject>(); }
 
-        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList)
+        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList, string userIP)
         {
             try
             {
@@ -595,7 +595,7 @@ namespace Users
                 {
                     try
                     {
-                        UserResponseObject temp = FlowManager.GetUserData(this, siteGuids[i], keyValueList);
+                        UserResponseObject temp = FlowManager.GetUserData(this, siteGuids[i], keyValueList, userIP);
                         if (temp != null)
                             userResponses.Add(temp);
                     }
@@ -609,6 +609,6 @@ namespace Users
             }
         }
 
-        public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList) { }
+        public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
     }
 }
