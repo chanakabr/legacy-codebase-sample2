@@ -1208,11 +1208,7 @@ namespace WebAPI.Controllers
         {
             List<Entitlement> response = new List<Entitlement>();
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1245,11 +1241,7 @@ namespace WebAPI.Controllers
         {
             BillingTransactions response = new BillingTransactions();
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
