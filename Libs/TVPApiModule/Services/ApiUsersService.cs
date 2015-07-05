@@ -299,7 +299,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid);
+                    response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -318,7 +318,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids);
+                    response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());                    
                 }
             }
             catch (Exception ex)
