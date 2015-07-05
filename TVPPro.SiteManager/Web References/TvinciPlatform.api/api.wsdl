@@ -2703,29 +2703,34 @@
       <s:complexType name="GenericRule">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="RuleType" type="tns:eGroupRuleType" />
+          <s:element minOccurs="1" maxOccurs="1" name="RuleType" type="tns:RuleType" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="GetEPGRules">
+      <s:simpleType name="RuleType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Parental" />
+          <s:enumeration value="Geo" />
+          <s:enumeration value="UserType" />
+          <s:enumeration value="Device" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetEpgRules">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetEPGRulesResponse">
+      <s:element name="GetEpgRulesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetEPGRulesResult" type="tns:GenericRuleResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetEpgRulesResult" type="tns:GenericRuleResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3307,11 +3312,11 @@
   <wsdl:message name="GetMediaRulesSoapOut">
     <wsdl:part name="parameters" element="tns:GetMediaRulesResponse" />
   </wsdl:message>
-  <wsdl:message name="GetEPGRulesSoapIn">
-    <wsdl:part name="parameters" element="tns:GetEPGRules" />
+  <wsdl:message name="GetEpgRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEpgRules" />
   </wsdl:message>
-  <wsdl:message name="GetEPGRulesSoapOut">
-    <wsdl:part name="parameters" element="tns:GetEPGRulesResponse" />
+  <wsdl:message name="GetEpgRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEpgRulesResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3923,17 +3928,14 @@
   <wsdl:message name="GetMediaRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
   </wsdl:message>
-  <wsdl:message name="GetEPGRulesHttpPostIn">
+  <wsdl:message name="GetEpgRulesHttpPostIn">
     <wsdl:part name="userName" type="s:string" />
     <wsdl:part name="webServicePassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="mediaId" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="ip" type="s:string" />
-    <wsdl:part name="udid" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetEPGRulesHttpPostOut">
+  <wsdl:message name="GetEpgRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
   </wsdl:message>
   <wsdl:portType name="APISoap">
@@ -4297,9 +4299,9 @@
       <wsdl:input message="tns:GetMediaRulesSoapIn" />
       <wsdl:output message="tns:GetMediaRulesSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetEPGRules">
-      <wsdl:input message="tns:GetEPGRulesSoapIn" />
-      <wsdl:output message="tns:GetEPGRulesSoapOut" />
+    <wsdl:operation name="GetEpgRules">
+      <wsdl:input message="tns:GetEpgRulesSoapIn" />
+      <wsdl:output message="tns:GetEpgRulesSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
@@ -4563,9 +4565,9 @@
       <wsdl:input message="tns:GetMediaRulesHttpPostIn" />
       <wsdl:output message="tns:GetMediaRulesHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetEPGRules">
-      <wsdl:input message="tns:GetEPGRulesHttpPostIn" />
-      <wsdl:output message="tns:GetEPGRulesHttpPostOut" />
+    <wsdl:operation name="GetEpgRules">
+      <wsdl:input message="tns:GetEpgRulesHttpPostIn" />
+      <wsdl:output message="tns:GetEpgRulesHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -5380,8 +5382,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetEPGRules">
-      <soap:operation soapAction="http://api.tvinci.com/GetEPGRules" style="document" />
+    <wsdl:operation name="GetEpgRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetEpgRules" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6202,8 +6204,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetEPGRules">
-      <soap12:operation soapAction="http://api.tvinci.com/GetEPGRules" style="document" />
+    <wsdl:operation name="GetEpgRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetEpgRules" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -6799,8 +6801,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetEPGRules">
-      <http:operation location="/GetEPGRules" />
+    <wsdl:operation name="GetEpgRules">
+      <http:operation location="/GetEpgRules" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

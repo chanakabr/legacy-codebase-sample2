@@ -210,7 +210,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Threading.SendOrPostCallback GetMediaRulesOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetEPGRulesOperationCompleted;
+        private System.Threading.SendOrPostCallback GetEpgRulesOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -521,7 +521,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         public event GetMediaRulesCompletedEventHandler GetMediaRulesCompleted;
         
         /// <remarks/>
-        public event GetEPGRulesCompletedEventHandler GetEPGRulesCompleted;
+        public event GetEpgRulesCompletedEventHandler GetEpgRulesCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3772,45 +3772,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetEPGRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public GenericRuleResponse GetEPGRules(string userName, string webServicePassword, string siteGuid, int mediaId, long epgId, long domainId, string ip, string udid) {
-            object[] results = this.Invoke("GetEPGRules", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetEpgRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public GenericRuleResponse GetEpgRules(string userName, string webServicePassword, string siteGuid, long epgId, long domainId) {
+            object[] results = this.Invoke("GetEpgRules", new object[] {
                         userName,
                         webServicePassword,
                         siteGuid,
-                        mediaId,
                         epgId,
-                        domainId,
-                        ip,
-                        udid});
+                        domainId});
             return ((GenericRuleResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetEPGRulesAsync(string userName, string webServicePassword, string siteGuid, int mediaId, long epgId, long domainId, string ip, string udid) {
-            this.GetEPGRulesAsync(userName, webServicePassword, siteGuid, mediaId, epgId, domainId, ip, udid, null);
+        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long domainId) {
+            this.GetEpgRulesAsync(userName, webServicePassword, siteGuid, epgId, domainId, null);
         }
         
         /// <remarks/>
-        public void GetEPGRulesAsync(string userName, string webServicePassword, string siteGuid, int mediaId, long epgId, long domainId, string ip, string udid, object userState) {
-            if ((this.GetEPGRulesOperationCompleted == null)) {
-                this.GetEPGRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEPGRulesOperationCompleted);
+        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long domainId, object userState) {
+            if ((this.GetEpgRulesOperationCompleted == null)) {
+                this.GetEpgRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEpgRulesOperationCompleted);
             }
-            this.InvokeAsync("GetEPGRules", new object[] {
+            this.InvokeAsync("GetEpgRules", new object[] {
                         userName,
                         webServicePassword,
                         siteGuid,
-                        mediaId,
                         epgId,
-                        domainId,
-                        ip,
-                        udid}, this.GetEPGRulesOperationCompleted, userState);
+                        domainId}, this.GetEpgRulesOperationCompleted, userState);
         }
         
-        private void OnGetEPGRulesOperationCompleted(object arg) {
-            if ((this.GetEPGRulesCompleted != null)) {
+        private void OnGetEpgRulesOperationCompleted(object arg) {
+            if ((this.GetEpgRulesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetEPGRulesCompleted(this, new GetEPGRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.GetEpgRulesCompleted(this, new GetEpgRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4062,7 +4056,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private long idField;
         
-        private eGroupRuleType ruleTypeField;
+        private RuleType ruleTypeField;
         
         private string nameField;
         
@@ -4079,7 +4073,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public eGroupRuleType RuleType {
+        public RuleType RuleType {
             get {
                 return this.ruleTypeField;
             }
@@ -4113,22 +4107,19 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eGroupRuleType {
-        
-        /// <remarks/>
-        Unknown,
+    public enum RuleType {
         
         /// <remarks/>
         Parental,
         
         /// <remarks/>
-        Purchase,
+        Geo,
+        
+        /// <remarks/>
+        UserType,
         
         /// <remarks/>
         Device,
-        
-        /// <remarks/>
-        EPG,
     }
     
     /// <remarks/>
@@ -5959,6 +5950,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         AnonymousAccessBlock,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eGroupRuleType {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        Parental,
+        
+        /// <remarks/>
+        Purchase,
+        
+        /// <remarks/>
+        Device,
+        
+        /// <remarks/>
+        EPG,
     }
     
     /// <remarks/>
@@ -12011,17 +12024,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
-    public delegate void GetEPGRulesCompletedEventHandler(object sender, GetEPGRulesCompletedEventArgs e);
+    public delegate void GetEpgRulesCompletedEventHandler(object sender, GetEpgRulesCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetEPGRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class GetEpgRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetEPGRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal GetEpgRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
