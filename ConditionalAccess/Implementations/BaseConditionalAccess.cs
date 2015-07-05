@@ -3564,7 +3564,11 @@ namespace ConditionalAccess
                         {
                             domainsWS.Url = sWSURL;
                         }
-                        userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        var res = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        if (res != null)
+                        {
+                            userDomain = res.Domain;
+                        }
                         if (userDomain != null)
                         {
                             TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;

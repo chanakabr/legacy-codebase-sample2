@@ -3032,7 +3032,11 @@ namespace ConditionalAccess
                         svcDomains.Url = sWSURL;
                     }
 
-                    oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+                    var res = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+                    if (res != null)
+                    {
+                        oDomain = res.Domain; 
+                    }
                 }
 
             }

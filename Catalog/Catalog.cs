@@ -1320,7 +1320,12 @@ namespace Catalog
                         string url = Utils.GetWSURL("ws_domains");
                         domainsWebService.Url = url;
 
-                        var domain = domainsWebService.GetDomainInfo(userName, password, domainId);
+                        WS_Domains.Domain domain = null; 
+                        var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
+                        if (domainRes != null)
+                        {
+                            domain = domainRes.Domain;
+                        }
 
                         // If the domain is not associated to a domain - get default region
                         if (domain.m_nRegion == 0)
@@ -3962,7 +3967,11 @@ namespace Catalog
                 sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                domainsResp = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
+                var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
+                if (domainRes != null)
+                {
+                    domainsResp = domainRes.Domain;
+                }
             }
 
             if (domainsResp != null)
