@@ -68,7 +68,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
+        public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
         {
             WebAPI.ConditionalAccess.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -94,8 +94,6 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.Code, response.Message);
             }
-
-            return true;
         }
 
         public List<Models.ConditionalAccess.Entitlement> GetUserSubscriptions(int groupId, string user_id)

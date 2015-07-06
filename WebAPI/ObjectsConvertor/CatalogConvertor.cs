@@ -78,12 +78,38 @@ namespace WebAPI.ObjectsConvertor
         {
             List<IAssetable> result = new List<IAssetable>();
 
+            List<AssetStats> mediaAssetsStats = new List<AssetStats>();
+            List<AssetStats> epgAssetsStats = new List<AssetStats>();
+
+            if (with != null)
+            {
+                if (with.Contains(With.stats))
+                {
+                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
+                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+
+                    // get media IDs for assets statistics
+                    List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
+                    if (mediaBaseListIds != null && mediaBaseListIds.Count > 0)
+                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(AssetType.Media));
+
+                    // get EPG IDs for assets statistics
+                    List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
+                    if (epgBaseListIds != null && epgBaseListIds.Count > 0)
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.Epg));
+                }
+            }
+
             foreach (var item in assetBaseList)
             {
                 var assetInfo = Mapper.Map<SlimAssetInfo>(item);
 
                 if (with != null)
                 {
+                    // get files data (media only)
+                    if (with.Contains(With.files) && item.AssetType == eAssetTypes.MEDIA)
+                        assetInfo.Files = Mapper.Map<List<File>>(((MediaObj)item).m_lFiles);
+
                     // get images data
                     if (with.Contains(With.images))
                     {
@@ -91,6 +117,15 @@ namespace WebAPI.ObjectsConvertor
                             assetInfo.Images = Mapper.Map<List<Image>>(((MediaObj)item).m_lPicture);
                         else
                             assetInfo.Images = Mapper.Map<List<Image>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                    }
+
+                    // get statistics data
+                    if (with.Contains(With.stats))
+                    {
+                        if (item.AssetType == eAssetTypes.MEDIA)
+                            assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                        else
+                            assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
                     }
                 }
                 result.Add(assetInfo);

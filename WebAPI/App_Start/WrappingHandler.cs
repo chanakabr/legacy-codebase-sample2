@@ -12,6 +12,7 @@ using System.Web.Http;
 using KLogMonitor;
 using WebAPI.Models;
 using WebAPI.Models.General;
+using WebAPI.Exceptions;
 
 namespace WebAPI.App_Start
 {
@@ -57,26 +58,34 @@ namespace WebAPI.App_Start
                 if (error != null)
                 {
                     content = null;
-                    message = handleError(error.ExceptionMessage, error.StackTrace);
+                    message = HandleError(error.ExceptionMessage, error.StackTrace);
                 }
             }
-            else if (!response.IsSuccessStatusCode && content != null)
+            else if ((!response.IsSuccessStatusCode && content != null) || 
+                (response.IsSuccessStatusCode && (content is ApiException && ((ApiException.ExceptionPayload)content).code != 0)))
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
                 subCode = payload.code;
-                message = handleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
                 content = null;
             }
             else if (response.IsSuccessStatusCode)
             {
                 message = "success";
             }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                //Web API Bad Request global error
+                content = null;
+                subCode = (int)StatusCode.BadRequest;
+                message = HandleError("Bad Request", "");
+            }
             else
             {
                 content = null;
                 subCode = (int)StatusCode.Error;
-                message = handleError("Unknown error", "");
+                message = HandleError("Unknown error", "");
             }
 
             Guid reqID = request.GetCorrelationId();
@@ -90,7 +99,7 @@ namespace WebAPI.App_Start
             return newResponse;
         }
 
-        private static string handleError(string errorMsg, string stack)
+        public static string HandleError(string errorMsg, string stack)
         {
             string message = "";
             string errMsg = string.Concat(errorMsg, stack);

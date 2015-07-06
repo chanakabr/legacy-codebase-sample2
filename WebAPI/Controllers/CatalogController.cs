@@ -14,6 +14,11 @@ using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
 using System.Net.Http;
 using KLogMonitor;
+using WebAPI.Filters;
+using System.Web.Http.ModelBinding.Binders;
+using System.Web.Http.Controllers;
+using System.ComponentModel;
+using System.Web.Http.ModelBinding;
 
 
 namespace WebAPI.Controllers
@@ -31,16 +36,17 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005
+        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("search"), HttpPost]
         public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
         {
@@ -109,57 +115,42 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Bad search request = 4002, Missing index = 4003
+        /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
-        /// <param name="request">The search asset request parameters</param>
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array</param>
+        /// <param name="filter_types">List of asset types to search within.
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system). 
+        /// If omitted – all types should be included. </param>
+        /// <param name="order_by"> Required sort option to apply for the identified assets. If omitted – will use newest.</param>
+        /// <param name="size">Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5</param>
         /// <param name="language">Language Code</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper Autocomplete(string partner_id, [FromUri] Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper Autocomplete(string partner_id, string query,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
+            Order? order_by = null, int? size = null, string language = null)
         {
-            return PostAutocomplete(partner_id, request);
-        }
+            SlimAssetInfoWrapper response = null;
 
-        /// <summary>
-        /// Returns related media by media identifier<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
-        /// </summary>
-        /// <param name="request">The related media request parameters</param>
-        /// <param name="media_id">Media Identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
-        [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id, [FromUri]RelatedMedia request, string language = null, string user_id = null, int household_id = 0)
-        {
-            AssetInfoWrapper response = null;
-            
             int groupId = int.Parse(partner_id);
 
-            if (media_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be 0");
-            }
-
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (size == null || size > 10 || size < 1)
             {
-                request.page_size = 5;
+                size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, media_id, request.media_types, request.with);
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filter_types, with);
             }
             catch (ClientException ex)
             {
@@ -170,21 +161,83 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns all channel media<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
-        /// </summary>
-        /// <param name="request">The channel media request parameters</param>
-        /// <param name="channel_id">Channel Identifier</param>
+        /// Returns related media by media identifier<br />        
+        /// </summary>        
+        /// <param name="media_id">Media identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <param name="media_types">Related media types list - possible values:
+        /// any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        [Route("media/{media_id}/related"), HttpGet]
+        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
+            int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            string language = null, string user_id = null, int household_id = 0)
+        {
+            AssetInfoWrapper response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be 0");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (page_size == null || page_size > 10 || page_size < 1)
+            {
+                page_size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, media_id, media_types, with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns all channel media        
+        /// </summary>
+        /// <param name="channel_id">Channel identifier</param>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use channel default ordering.</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, [FromUri]ChannelMedia request, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by = null, int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -196,14 +249,14 @@ namespace WebAPI.Controllers
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (page_size == null || page_size > 10 || page_size < 1)
             {
-                request.page_size = 5;
+                page_size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, channel_id, request.order_by.Value, request.with);
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, channel_id, order_by.Value, with);
             }
             catch (ClientException ex)
             {
@@ -214,22 +267,28 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media by media identifiers<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="request">The channel media request parameters</param>
-        /// <param name="media_ids">Media Identifiers separated by , </param>
+        /// <param name="media_ids">Media identifiers separated by ',' </param>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
-        /// <response code="500">Internal Server Error</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="404">Not Found</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>        
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, [FromUri]BaseAssetsRequest request, string language = null, string user_id = null, int household_id = 0)
+        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            string language = null, string user_id = null, int household_id = 0)
         {
             AssetInfoWrapper response = null;
 
@@ -251,14 +310,14 @@ namespace WebAPI.Controllers
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.page_size == null || request.page_size > 10 || request.page_size < 1)
+            if (page_size == null || page_size > 10 || page_size < 1)
             {
-                request.page_size = 5;
+                page_size = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, request.page_index, request.page_size, mediaIds, request.with);
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, page_index, page_size, mediaIds, with);
 
                 // if no response - return not found status 
                 if (response == null || response.Assets == null || response.Assets.Count == 0)
@@ -275,20 +334,20 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns channel info<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns channel info        
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="404">Not found</response>
         /// <response code="500">Internal Server Error</response>
-        /// <response code="404">Not Found</response>
+        /// <response code="504">Gateway Timeout</response>        
         [Route("channels/{channel_id}"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
@@ -320,24 +379,25 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns category by category identifier<br />
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003
+        /// Returns category by category identifier        
         /// </summary>
         /// <param name="category_id">Category Identifier</param>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>        
         [Route("categories/{category_id}"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             Category response = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (category_id == 0)

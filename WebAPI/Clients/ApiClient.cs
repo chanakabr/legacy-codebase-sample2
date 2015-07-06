@@ -938,6 +938,75 @@ namespace WebAPI.Clients
             return success;
         }
 
+        internal List<Models.API.GenericRule> GetMediaRules(int groupId, string userId, long mediaId, int domainId, string udid)
+        {
+            GenericRuleResponse response = null;
+            List<Models.API.GenericRule> rules = new List<Models.API.GenericRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.GenericRule>>(response.Rules);
+
+            return rules;
+        }
+
+        internal List<Models.API.GenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId)
+        {
+            GenericRuleResponse response = null;
+            List<Models.API.GenericRule> rules = new List<Models.API.GenericRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.GenericRule>>(response.Rules);
+
+            return rules;
+        }
         #endregion
 
     }

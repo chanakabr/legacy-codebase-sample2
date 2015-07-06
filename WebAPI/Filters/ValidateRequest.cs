@@ -13,7 +13,7 @@ namespace WebAPI.App_Start
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            var qs = HttpUtility.ParseQueryString(actionContext.Request.RequestUri.PathAndQuery);
+            var qs = HttpUtility.ParseQueryString(actionContext.Request.RequestUri.Query);
             if (qs["user_id"] != null)
             {
                 if (string.IsNullOrEmpty((string)qs["user_id"]))
