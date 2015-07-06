@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Pricing
 {
@@ -81,11 +82,25 @@ namespace WebAPI.Models.Pricing
         public DiscountModule DiscountModule { get; set; }
 
         /// <summary>
+        /// Coupons group for the subscription
+        /// </summary>
+        [DataMember(Name = "coupons_group")]
+        [JsonProperty("coupons_group")]
+        public CouponsGroup CouponsGroup { get; set; }
+
+        /// <summary>
         /// A dictionary of the name of the subscription on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
-        public Dictionary<string, string> Name { get; set; }
+        public Dictionary<string, string> Names { get; set; }
+
+        /// <summary>
+        /// A dictionary of the descriptions of the subscriptions on different languages (language code and translation)
+        /// </summary>
+        [DataMember(Name = "descriptions")]
+        [JsonProperty("descriptions")]
+        public Dictionary<string, string> Descriptions { get; set; }
 
         /// <summary>
         /// Identifier of the media associated with the subscription
@@ -165,6 +180,13 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_waiver_enabled")]
         [JsonProperty("is_waiver_enabled")]
         public bool IsWaiverEnabled { get; set; }
+
+        /// <summary>
+        /// List of permitted user types for the subscription
+        /// </summary>
+        [DataMember(Name = "user_types")]
+        [JsonProperty("user_types")]
+        public List<UserType> UserTypes { get; set; }
 
         #endregion
     }
