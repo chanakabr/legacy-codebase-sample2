@@ -398,7 +398,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<string> siteGuids = usersIds.Select(x => x.ToString()).ToList();
-                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuids.ToArray());
+                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuids.ToArray(), Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
