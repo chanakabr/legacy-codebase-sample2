@@ -3040,28 +3040,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUsers", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UsersResponse GetUsers(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
+        public UsersResponse GetUsers(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP) {
             object[] results = this.Invoke("GetUsers", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUIDs});
+                        sSiteGUIDs,
+                        userIP});
             return ((UsersResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs) {
-            this.GetUsersAsync(sWSUserName, sWSPassword, sSiteGUIDs, null);
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP) {
+            this.GetUsersAsync(sWSUserName, sWSPassword, sSiteGUIDs, userIP, null);
         }
         
         /// <remarks/>
-        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, object userState) {
+        public void GetUsersAsync(string sWSUserName, string sWSPassword, string[] sSiteGUIDs, string userIP, object userState) {
             if ((this.GetUsersOperationCompleted == null)) {
                 this.GetUsersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUsersOperationCompleted);
             }
             this.InvokeAsync("GetUsers", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        sSiteGUIDs}, this.GetUsersOperationCompleted, userState);
+                        sSiteGUIDs,
+                        userIP}, this.GetUsersOperationCompleted, userState);
         }
         
         private void OnGetUsersOperationCompleted(object arg) {
