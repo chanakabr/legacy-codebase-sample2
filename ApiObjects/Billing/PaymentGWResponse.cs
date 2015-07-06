@@ -8,7 +8,7 @@ namespace ApiObjects.Billing
 {
     public class PaymentGWResponse
     {
- public ApiObjects.Response.Status resp { get; set; }
+        public ApiObjects.Response.Status resp { get; set; }
         public List<PaymentGW> pgw { get; set; }
 
         public PaymentGWResponse()
@@ -22,6 +22,5 @@ namespace ApiObjects.Billing
             this.resp = resp;
             this.pgw = pgw;
         }
-
     }
 }
