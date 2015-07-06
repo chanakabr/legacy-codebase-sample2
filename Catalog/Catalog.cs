@@ -4076,8 +4076,7 @@ namespace Catalog
                         {
                             if (response.isOK)
                             {
-                                nPVRSeriesResponse.totalItems = response.results.Count;
-                                SetRecordedSeriesListAccordingToPaging(ref response, request.m_nPageSize, request.m_nPageIndex);
+                                nPVRSeriesResponse.totalItems = response.totalItems;
                                 nPVRSeriesResponse.recordedSeries = response.results;
                             }
                             else
@@ -4258,20 +4257,6 @@ namespace Catalog
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
 
-        private static void SetRecordedSeriesListAccordingToPaging(ref NPVRRetrieveSeriesResponse res, int pageSize, int pageIndex)
-        {
-            int validNumberOfMediasRange = pageSize;
-            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(res.totalItems, pageIndex, ref validNumberOfMediasRange))
-            {
-                if (validNumberOfMediasRange > 0)
-                {
-                    res.results = res.results.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
-                }
-            }
-            else
-            {
-                res.results.Clear();
-            }
-        }
+      
     }
 }

@@ -1510,6 +1510,11 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetRetrieveSeriesResponse(responseJson, args, res);
+
+                            res.totalItems = res.results.Count;
+
+                            SetRecordedSeriesListAccordingToPaging(ref res, args.PageSize, args.PageIndex);
+
                         }
                         else
                         {
@@ -1534,6 +1539,22 @@ namespace NPVR
             }
 
             return res;
+        }
+
+        private static void SetRecordedSeriesListAccordingToPaging(ref NPVRRetrieveSeriesResponse res, int pageSize, int pageIndex)
+        {
+            int validNumberOfMediasRange = pageSize;
+            if (TVinciShared.WS_Utils.ValidatePageSizeAndPageIndexAgainstToltalList(res.totalItems, pageIndex, ref validNumberOfMediasRange))
+            {
+                if (validNumberOfMediasRange > 0)
+                {
+                    res.results = res.results.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
+                }
+            }
+            else
+            {
+                res.results.Clear();
+            }
         }
 
     }
