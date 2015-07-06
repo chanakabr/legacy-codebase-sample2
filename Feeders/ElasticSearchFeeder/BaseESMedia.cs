@@ -180,22 +180,26 @@ namespace ElasticSearchFeeder
                 // create dictionary by languages                 
                 foreach (LanguageObj lang in lLanguage)
                 {
-                    List<EpgCB> tempEpgs = lEpg.Where(x => x.Language.ToLower() == lang.Code.ToLower()).ToList();
+                    List<EpgCB> tempEpgs = lEpg.Where(x => x.Language.ToLower() == lang.Code.ToLower() || (lang.IsDefault && string.IsNullOrEmpty(x.Language))).ToList();
 
-                    List<KeyValuePair<ulong, string>> lKvp = new List<KeyValuePair<ulong, string>>();
-                    string sSerializedEpg;
-                    foreach (EpgCB epg in tempEpgs)
+                    if (tempEpgs != null && tempEpgs.Count > 0)
                     {
-                        sSerializedEpg = m_oESSerializer.SerializeEpgObject(epg);
-                        lKvp.Add(new KeyValuePair<ulong, string>(epg.EpgID, sSerializedEpg));
+
+                        List<KeyValuePair<ulong, string>> lKvp = new List<KeyValuePair<ulong, string>>();
+                        string sSerializedEpg;
+                        foreach (EpgCB epg in tempEpgs)
+                        {
+                            sSerializedEpg = m_oESSerializer.SerializeEpgObject(epg);
+                            lKvp.Add(new KeyValuePair<ulong, string>(epg.EpgID, sSerializedEpg));
+                        }
+                        string sAlias = Utils.GetEpgGroupAliasStr(m_nGroupID);
+
+                        string sType = Utils.GetTanslationType(EPG, oGroup.GetLanguage(lang.ID));
+
+                        m_oESApi.CreateBulkIndexRequest(sAlias, sType, lKvp);
+
+                        bRes = true;
                     }
-                    string sAlias = Utils.GetEpgGroupAliasStr(m_nGroupID);
-
-                    string sType = Utils.GetTanslationType(EPG, oGroup.GetLanguage(lang.ID));
-
-                    m_oESApi.CreateBulkIndexRequest(sAlias, sType, lKvp);
-
-                    bRes = true;
                 }
             }
             catch { }
