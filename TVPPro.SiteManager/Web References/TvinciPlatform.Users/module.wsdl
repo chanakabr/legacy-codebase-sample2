@@ -1541,7 +1541,6 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUIDs" type="tns:ArrayOfString" />
-            <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2601,7 +2600,6 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUIDs" type="s1:StringArray" />
-    <wsdl:part name="userIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUsersHttpPostOut">
     <wsdl:part name="Body" element="tns:UsersResponse" />
