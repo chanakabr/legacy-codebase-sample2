@@ -216,7 +216,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID);
+                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID, string.Empty);
                 if (uObj.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     if (uObj.m_user != null)
@@ -454,7 +454,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -839,7 +839,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
                     //get user data
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         //return UnKnownUser 
@@ -1224,7 +1224,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -2172,7 +2172,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -2425,7 +2425,7 @@ namespace ConditionalAccess
                     }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3035,7 +3035,7 @@ namespace ConditionalAccess
                     }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3418,7 +3418,7 @@ namespace ConditionalAccess
                 {
 
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3551,7 +3551,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
                     int domainID = userRepObj.m_user.m_domianID;
@@ -4396,7 +4396,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -4590,7 +4590,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -5691,7 +5691,7 @@ namespace ConditionalAccess
                     {
                         wsUsersService.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -5967,7 +5967,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                 if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     retVal = 0;
@@ -6132,7 +6132,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         retVal = 0;
@@ -6254,7 +6254,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         retVal = 0;
@@ -6428,7 +6428,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -6681,7 +6681,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -6871,7 +6871,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -7898,7 +7898,7 @@ namespace ConditionalAccess
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
-                    response.resp = new Status((int)eResponseStatus.OK, "no history billing for user");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for user");
                     return response;
                 }
 
@@ -8088,13 +8088,13 @@ namespace ConditionalAccess
                     }
                 } // for
 
-                response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.transactions = theResp;
             }
             catch (Exception ex)
             {
                 log.Error("GetUserBillingHistoryExt - " + string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems, ex.Message), ex);
-                response.resp = new Status((int)eResponseStatus.Error, ex.Message);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
             }
             finally
             {
@@ -8630,7 +8630,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
@@ -8990,7 +8990,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
@@ -10090,7 +10090,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -10363,7 +10363,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -11915,7 +11915,7 @@ namespace ConditionalAccess
                 if (psc != null && psc.Length > 0)
                 {
                     // fill Entitlement object
-                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
                     response.entitelments = new List<Entitlements>();
                     foreach (PermittedSubscriptionContainer item in psc)
                     {
@@ -11926,14 +11926,14 @@ namespace ConditionalAccess
                 else
                 {
                     response = new Entitlement();
-                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
                 }
             }
             catch (Exception ex)
             {
                 log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
                 response = new Entitlement();
-                response.resp = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             return response;
         }

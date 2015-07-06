@@ -23,9 +23,9 @@ namespace ElasticSearch.Common
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
             sRecord.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, \"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", \"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", \"description\": \"{16}\", \"cache_date\": \"{17}\", ",
-                            oMedia.m_nMediaID, oMedia.m_nGroupID, oMedia.m_nMediaTypeID, oMedia.m_nWPTypeID, oMedia.m_nIsActive, oMedia.m_nDeviceRuleId, oMedia.m_nLikeCounter, 
+                            oMedia.m_nMediaID, oMedia.m_nGroupID, oMedia.m_nMediaTypeID, oMedia.m_nWPTypeID, oMedia.m_nIsActive, oMedia.m_nDeviceRuleId, oMedia.m_nLikeCounter,
                             oMedia.m_nViews, oMedia.m_dRating, oMedia.m_nVotes, oMedia.m_sStartDate, oMedia.m_sEndDate, oMedia.m_sFinalEndDate, oMedia.m_sCreateDate, oMedia.m_sUpdateDate,
-                            Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sName), Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sDescription), 
+                            Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sName), Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sDescription),
                             DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
 
             #region add media file types
@@ -170,7 +170,7 @@ namespace ElasticSearch.Common
 
         }
 
-        public string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags, string sIndexAnalyzer, string sSearchAnalyzer, 
+        public string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags, string sIndexAnalyzer, string sSearchAnalyzer,
             string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
@@ -198,7 +198,7 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingProperty() { name = "cache_date", type = eESFieldType.DATE, analyzed = false });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "user_types", type = eESFieldType.INTEGER, analyzed = false });
 
-            ElasticSearch.Common.MultiFieldMappingProperty nameProperty = new MultiFieldMappingProperty() { name = "name"};
+            ElasticSearch.Common.MultiFieldMappingProperty nameProperty = new MultiFieldMappingProperty() { name = "name" };
             nameProperty.fields.Add(new BasicMappingProperty()
             {
                 name = "name",
@@ -519,6 +519,7 @@ namespace ElasticSearch.Common
                 if (!string.IsNullOrEmpty(sTagName))
                 {
                     MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty()
+
                     {
                         name = sTagName
                     };
@@ -629,7 +630,7 @@ namespace ElasticSearch.Common
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": " +
                 "\"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description), 
+                Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
                 /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"));
 
@@ -680,7 +681,7 @@ namespace ElasticSearch.Common
                     {
                         List<string> lTagValues = oEpg.Tags[sTagName];
                         if (lTagValues != null && lTagValues.Count > 0)
-                        {                            
+                        {
                             for (int i = 0; i < lTagValues.Count; i++)
                             {
                                 if (!string.IsNullOrEmpty(lTagValues[i]))
@@ -707,6 +708,6 @@ namespace ElasticSearch.Common
             return sRecord.ToString();
         }
 
-        
+
     }
 }
