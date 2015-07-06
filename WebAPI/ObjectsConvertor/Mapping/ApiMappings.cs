@@ -67,7 +67,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.PurchaseSettingsResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type))); 
+                .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)));
+
+            // Purchase Settings
+            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.GenericRule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
 
             #endregion
 
@@ -136,6 +143,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");
 
+            }
+
+            return result;
+        }
+
+        private static Models.API.RuleType ConvertRuleType(WebAPI.Api.RuleType type)
+        {
+            WebAPI.Models.API.RuleType result;
+
+            switch (type)
+            {
+                case RuleType.Parental:
+                    result = Models.API.RuleType.Parental;
+                    break;
+                case RuleType.Geo:
+                    result = Models.API.RuleType.Geo;
+                    break;
+                case RuleType.UserType:
+                    result = Models.API.RuleType.UserType;
+                    break;
+                case RuleType.Device:
+                    result = Models.API.RuleType.Device;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown rule type");
             }
 
             return result;

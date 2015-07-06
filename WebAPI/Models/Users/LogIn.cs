@@ -30,10 +30,10 @@ namespace WebAPI.Models.Users
         public string Password { get; set; }
 
         /// <summary>
-        /// keyValues
+        /// Additional extra parameters
         /// </summary>        
-        [DataMember(Name = "keyValues")]
-        [JsonProperty("keyValues")]        
-        public Dictionary<string, string> keyValues { get; set; }
+        [DataMember(Name = "extra_params")]
+        [JsonProperty("extra_params")]        
+        public Dictionary<string, string> ExtraParams { get; set; }
     }
 }
