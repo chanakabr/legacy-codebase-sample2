@@ -592,5 +592,37 @@ namespace TVinciShared
 
             return res;
         }
+
+        /// <summary>
+        /// This function gets the number of items in a collection, a page index and a range. It checks whether the range of items is valid among the
+        /// the totlal list number. 
+        /// </summary>
+        /// <param name="nNumOfMedias">Number of items in a collection</param>
+        /// <param name="nPageIndex">The requested page index</param>
+        /// <param name="nValidRange">The range of items request within a page index (updated if required)</param>
+        /// <returns>True if valid, false if not valid</returns>
+        public static bool ValidatePageSizeAndPageIndexAgainstToltalList(int nNumOfMedias, int nPageIndex, ref int nValidRange)
+        {
+            bool bIsValidRange = false;
+            if (nValidRange > 0 || nPageIndex > 0)
+            {
+                int nSizePageIndexMultiplicity = nPageIndex * nValidRange;
+                if (nSizePageIndexMultiplicity < nNumOfMedias)
+                {
+                    if (nNumOfMedias - nSizePageIndexMultiplicity < nValidRange)
+                    {
+                        nValidRange = nNumOfMedias - nSizePageIndexMultiplicity;
+                    }
+
+                    bIsValidRange = true;
+                }
+            }
+            else if (nValidRange == 0 && nPageIndex == 0)   // Returning all items in collection
+            {
+                bIsValidRange = true;
+            }
+
+            return bIsValidRange;
+        }
     }
 }
