@@ -1002,13 +1002,16 @@ namespace DAL
                             if (dtConfig != null)
                             {
                                 DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
+                               
                                 foreach (DataRow drp in drpc)
                                 {
                                     string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
                                     string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
-                                    int statusConfig = ODBCWrapper.Utils.GetIntSafeVal(drp, "status");
-
-                                    pgw.configs.Add(new PaymentGWConfigs(key, value, statusConfig));
+                                    if (pgw.configs == null)
+                                    {
+                                        pgw.configs = new List<PaymentGWConfigs>();
+                                    }
+                                    pgw.configs.Add(new PaymentGWConfigs(key, value));
                                 }
                             }
                             res.Add(pgw);
@@ -1050,15 +1053,13 @@ namespace DAL
             try
             {
                 resultTable.Columns.Add("key", typeof(string));
-                resultTable.Columns.Add("value", typeof(string));
-                resultTable.Columns.Add("status", typeof(int));
+                resultTable.Columns.Add("value", typeof(string));                
 
                 foreach (PaymentGWConfigs item in list)
                 {
                     DataRow row = resultTable.NewRow();
                     row["key"] = item.key;
-                    row["value"] = item.value;
-                    row["status"] = item.statusConfig;
+                    row["value"] = item.value;                    
                     resultTable.Rows.Add(row);
                 }
             }
@@ -1156,12 +1157,12 @@ namespace DAL
             return res;
         }
 
-        public static bool SetPaymentGWHouseHold(int groupID, int paymentGwID, int householdID, int status = 1)
+        public static bool InsertPaymentGWHouseHold(int groupID, int paymentGwID, int householdID, int status = 1)
         {
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway_Household");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGateway_Household");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@PaymentGWID", paymentGwID);
                 sp.AddParameter("@householdID", householdID);
@@ -1196,7 +1197,7 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, int isDefault, int isActive)
+        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, int? isDefault, int? isActive)
         {
             try
             {
@@ -1261,6 +1262,25 @@ namespace DAL
             {
                 return false;
             }
+        }
+
+        public static bool DeletePaymentGWHouseHold(int groupID, int paymentGwID, int houseHoldID)
+        {
+            bool res = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGW_HouseHold");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@PaymentGWID", paymentGwID);
+                sp.AddParameter("@householdID", houseHoldID);                
+                sp.AddParameter("@groupID", groupID);
+                res = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return res;
         }
     }
 }
