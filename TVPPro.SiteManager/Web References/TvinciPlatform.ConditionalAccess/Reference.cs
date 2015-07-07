@@ -1808,7 +1808,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetSubscriptionsPricesWithCoupon", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(string sWSUserName, string sWSPassword, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP) {
+        public SubscriptionsPricesResponse GetSubscriptionsPricesWithCoupon(string sWSUserName, string sWSPassword, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP) {
             object[] results = this.Invoke("GetSubscriptionsPricesWithCoupon", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1819,7 +1819,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sLanguageCode3,
                         sDeviceName,
                         sClientIP});
-            return ((SubscriptionsPricesContainer[])(results[0]));
+            return ((SubscriptionsPricesResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -5686,21 +5686,54 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PrePaidPricesContainer {
+    public partial class SubscriptionsPricesResponse {
         
-        private string m_sPrePaidCodeField;
+        private SubscriptionsPricesContainer[] subscriptionsPricesField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public SubscriptionsPricesContainer[] SubscriptionsPrices {
+            get {
+                return this.subscriptionsPricesField;
+            }
+            set {
+                this.subscriptionsPricesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SubscriptionsPricesContainer {
+        
+        private string m_sSubscriptionCodeField;
         
         private Price m_oPriceField;
         
         private PriceReason m_PriceReasonField;
         
         /// <remarks/>
-        public string m_sPrePaidCode {
+        public string m_sSubscriptionCode {
             get {
-                return this.m_sPrePaidCodeField;
+                return this.m_sSubscriptionCodeField;
             }
             set {
-                this.m_sPrePaidCodeField = value;
+                this.m_sSubscriptionCodeField = value;
             }
         }
         
@@ -5777,21 +5810,21 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CollectionsPricesContainer {
+    public partial class PrePaidPricesContainer {
         
-        private string m_sCollectionCodeField;
+        private string m_sPrePaidCodeField;
         
         private Price m_oPriceField;
         
         private PriceReason m_PriceReasonField;
         
         /// <remarks/>
-        public string m_sCollectionCode {
+        public string m_sPrePaidCode {
             get {
-                return this.m_sCollectionCodeField;
+                return this.m_sPrePaidCodeField;
             }
             set {
-                this.m_sCollectionCodeField = value;
+                this.m_sPrePaidCodeField = value;
             }
         }
         
@@ -5822,21 +5855,21 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SubscriptionsPricesContainer {
+    public partial class CollectionsPricesContainer {
         
-        private string m_sSubscriptionCodeField;
+        private string m_sCollectionCodeField;
         
         private Price m_oPriceField;
         
         private PriceReason m_PriceReasonField;
         
         /// <remarks/>
-        public string m_sSubscriptionCode {
+        public string m_sCollectionCode {
             get {
-                return this.m_sSubscriptionCodeField;
+                return this.m_sCollectionCodeField;
             }
             set {
-                this.m_sSubscriptionCodeField = value;
+                this.m_sCollectionCodeField = value;
             }
         }
         
@@ -9390,10 +9423,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public SubscriptionsPricesContainer[] Result {
+        public SubscriptionsPricesResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((SubscriptionsPricesContainer[])(this.results[0]));
+                return ((SubscriptionsPricesResponse)(this.results[0]));
             }
         }
     }
