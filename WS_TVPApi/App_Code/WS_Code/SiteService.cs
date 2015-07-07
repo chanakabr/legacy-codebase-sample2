@@ -2155,6 +2155,68 @@ namespace TVPApiServices
             return response;
         }
 
+        /// <summary>
+        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media 
+        /// </summary>
+        [WebMethod(EnableSession = true, Description = "Gets rules that apply to media")]
+        public GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId)
+        {
+            GenericRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetMediaRules(userGuid, mediaId, initObj.DomainID, SiteHelper.GetClientIP(), initObj.UDID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrieve all the rules (parental) that applies for this EPG program 
+        /// </summary>
+        [WebMethod(EnableSession = true, Description = "Gets rules that apply to media")]
+        public GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId)
+        {
+            GenericRulesResponse response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetEpgRules", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
+
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEpgRules(userGuid, epgId, initObj.DomainID);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
         #endregion
 
     }

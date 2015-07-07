@@ -7,6 +7,7 @@ using System.Text;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Authorization;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Social;
 
@@ -161,5 +162,11 @@ namespace TVPApiServices
 
         [OperationContract]
         object ChangeProfile(InitializationObject initObj, string siteGuid);
+
+        [OperationContract]
+        GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId);
+
+        [OperationContract]
+        GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId);
     }
 }
