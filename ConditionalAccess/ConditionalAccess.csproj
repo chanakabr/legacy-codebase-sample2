@@ -121,6 +121,7 @@
     <Compile Include="Commands\RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
     <Compile Include="Commands\RetrieveQuotaNPVRCommand.cs" />
+    <Compile Include="Response\SubscriptionsPricesResponse.cs" />
     <Compile Include="Response\UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
     <Compile Include="Implementations\EutelsatConditionalAccess.cs" />
