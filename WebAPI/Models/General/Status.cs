@@ -35,6 +35,11 @@ namespace WebAPI.Models.General
     [DataContract]
     public class StatusWrapper
     {
+        public StatusWrapper()
+        {
+
+        }
+
         public StatusWrapper(int code, Guid reqID, object result = null, string msg = null)
         {
             Status = new Status(code, msg, reqID);

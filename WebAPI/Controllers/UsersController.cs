@@ -16,6 +16,9 @@ using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Filters;
 using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace WebAPI.Controllers
 {
@@ -612,7 +615,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}"), HttpGet]
-        public List<User> GetUsersData([FromUri] string partner_id, string user_id)
+        public UsersList GetUsersData([FromUri] string partner_id, string user_id)
         {
             List<int> usersIds;
             try
@@ -649,7 +652,9 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return response;
+            UsersList l = new UsersList();
+            l.AddRange(response);
+            return l;
         }
 
         /// <summary>Edit user details.        

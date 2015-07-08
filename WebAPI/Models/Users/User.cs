@@ -10,6 +10,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// User
     /// </summary>
+    [DataContract(Name="user")]
     public class User
     {
         /// <summary>
@@ -31,14 +32,14 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "basic_data")]
         [JsonProperty("basic_data")]
-        public UserBasicData BasicDate { get; set; }
+        public UserBasicData BasicData { get; set; }
 
         /// <summary>
         /// Dynamic data
         /// </summary>
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
-        public Dictionary<string,string> DynamicDate { get; set; }
+        public SerializableDictionary<string, string> DynamicData { get; set; }
 
         /// <summary>
         /// Is the user the household master

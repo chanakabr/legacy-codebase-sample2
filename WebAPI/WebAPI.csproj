@@ -611,6 +611,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
@@ -631,6 +632,7 @@
     <Compile Include="Models\Domains\HouseholdRestriction.cs" />
     <Compile Include="Models\Domains\HouseholdState.cs" />
     <Compile Include="Models\Domains\HomeNetwork.cs" />
+    <Compile Include="Models\General\SerializeableDictionary.cs" />
     <Compile Include="Models\MultiRequest\MultiRequest.cs" />
     <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
@@ -657,6 +659,7 @@
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\HouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\UserData.cs" />
+    <Compile Include="Models\Users\UsersList.cs" />
     <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
