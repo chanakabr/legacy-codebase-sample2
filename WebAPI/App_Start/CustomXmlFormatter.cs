@@ -75,7 +75,7 @@ namespace WebAPI.App_Start
             return Task.Factory.StartNew(() =>
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
-                XmlReponseWrapper xrw = new XmlReponseWrapper() { Result = wrapper.Result };
+                XmlReponseWrapper xrw = new XmlReponseWrapper() { Result = wrapper.Result, ExecutionTime = wrapper.Status.ExecutionTime };
 
                 XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
                 var otype = doc.CreateElement("objectType");

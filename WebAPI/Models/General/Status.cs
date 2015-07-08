@@ -20,11 +20,15 @@ namespace WebAPI.Models.General
         [DataMember(Name = "request_id")]
         public string RequestID { get; set; }
 
-        public Status(int code, string message, Guid reqID)
+        [DataMember(Name = "execution_time")]
+        public float ExecutionTime { get; set; }
+
+        public Status(int code, string message, Guid reqID, float executionTime)
         {
             Code = code;
             Message = message;
             RequestID = reqID.ToString();
+            ExecutionTime = executionTime;
         }
 
         public Status()
@@ -40,9 +44,9 @@ namespace WebAPI.Models.General
 
         }
 
-        public StatusWrapper(int code, Guid reqID, object result = null, string msg = null)
+        public StatusWrapper(int code, Guid reqID, float executionTime, object result = null, string msg = null)
         {
-            Status = new Status(code, msg, reqID);
+            Status = new Status(code, msg, reqID, executionTime);
             Result = result;
         }
 

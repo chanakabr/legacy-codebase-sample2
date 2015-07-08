@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return new StatusWrapper(0, Request.GetCorrelationId(), methodInfo.Invoke(obj, convParams), "success");
+                return new StatusWrapper(0, Request.GetCorrelationId(), 0, methodInfo.Invoke(obj, convParams), "success");
             }
             catch (TargetInvocationException ex)
             {
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
 
                     return new StatusWrapper(
                         content.code,
-                        Request.GetCorrelationId(), null, WrappingHandler.HandleError(content.error.ExceptionMessage,
+                        Request.GetCorrelationId(), 0, null, WrappingHandler.HandleError(content.error.ExceptionMessage,
                         ex.InnerException.StackTrace));
                 }
 
