@@ -36,11 +36,13 @@ namespace WebAPI
             //Removing Newton and adding Jil
             config.Formatters.RemoveAt(0);
             config.Formatters.Insert(0, new JilFormatter());
+            config.Formatters.Add(new CustomXmlFormatter());
+            config.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 
             config.Filters.Add(new ValidateModelAttribute());
             config.Filters.Add(new ValidateRequest());
             config.Filters.Add(new VoidActionFilter());
-            config.MessageHandlers.Add(new WrappingHandler());            
+            config.MessageHandlers.Add(new WrappingHandler());
 
             GlobalConfiguration.Configuration.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));
         }
