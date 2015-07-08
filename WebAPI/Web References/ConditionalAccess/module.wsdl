@@ -1006,10 +1006,16 @@
       <s:element name="GetSubscriptionsPricesWithCouponResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesWithCouponResult" type="tns:ArrayOfSubscriptionsPricesContainer" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsPricesWithCouponResult" type="tns:SubscriptionsPricesResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="SubscriptionsPricesResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SubscriptionsPrices" type="tns:ArrayOfSubscriptionsPricesContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetCollectionsPricesWithCoupon">
         <s:complexType>
           <s:sequence>
@@ -2238,8 +2244,8 @@
       <s:element name="GetDomainServices">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -2325,6 +2331,7 @@
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
       <s:element name="ArrayOfCollectionsPricesContainer" nillable="true" type="tns:ArrayOfCollectionsPricesContainer" />
       <s:element name="ArrayOfPrePaidPricesContainer" nillable="true" type="tns:ArrayOfPrePaidPricesContainer" />
+      <s:element name="SubscriptionsPricesResponse" nillable="true" type="tns:SubscriptionsPricesResponse" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
       <s:element name="BillingStatusResponse" nillable="true" type="tns:BillingStatusResponse" />
       <s:element name="int" type="s:int" />
@@ -3424,7 +3431,7 @@
     <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+    <wsdl:part name="Body" element="tns:SubscriptionsPricesResponse" />
   </wsdl:message>
   <wsdl:message name="GetCollectionsPricesWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4074,8 +4081,8 @@
     <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainServicesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="wsUsername" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainServicesHttpPostOut">

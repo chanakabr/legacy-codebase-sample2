@@ -733,6 +733,11 @@ namespace WebAPI.Controllers
         public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
             Device device = null;
+            
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+            }
 
             int groupId = int.Parse(partner_id);
 

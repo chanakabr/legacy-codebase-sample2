@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
@@ -25,11 +26,11 @@ namespace WebAPI.Models.Pricing
 
 
         /// <summary>
-        /// A dictionary of the descriptions of the coupon group on different languages (language code and translation)
+        /// A list of the descriptions of the coupon group on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        public Dictionary<string, string> Descriptions { get; set; }
+        public List<TranslationContainer> Descriptions { get; set; } 
 
         /// <summary>
         /// The first date the coupons in this coupons group are valid

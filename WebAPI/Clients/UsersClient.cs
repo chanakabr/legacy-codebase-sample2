@@ -34,7 +34,7 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.User Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> keyValueList)
+        public WebAPI.Models.Users.User Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> extraParams)
         {
             WebAPI.Models.Users.User user = null;
             UserResponse response = null;
@@ -44,9 +44,13 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    string ip = Utils.Utils.GetClientIP();
-                    List<KeyValuePair> lKeyvalue = keyValueList.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
-                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, ip, deviceId, group.ShouldSupportSingleLogin, lKeyvalue.ToArray());
+                    List<KeyValuePair> keyValueList = new List<KeyValuePair>();
+                    if (extraParams != null)
+                    {
+                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
+                    }
+                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId, 
+                        group.ShouldSupportSingleLogin, keyValueList.ToArray());
                 }
             }
             catch (Exception ex)

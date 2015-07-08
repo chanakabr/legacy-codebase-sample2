@@ -1271,7 +1271,6 @@ namespace WebAPI.Controllers
 
         #endregion
 
-
         #region ConditionalAccess
 
         /// <summary>
@@ -1337,7 +1336,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
+        
         #endregion
 
         ///// <summary>

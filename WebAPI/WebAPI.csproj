@@ -380,6 +380,9 @@
     <Content Include="Web References\Domains\DeviceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\SubscriptionsPricesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -615,6 +618,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\BillingController.cs" />
+    <Compile Include="Controllers\BundlesController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
@@ -622,20 +626,23 @@
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\GenericRule.cs" />
     <Compile Include="Models\API\RuleType.cs" />
+    <Compile Include="Models\Catalog\SlimChannel.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\General\TranslationContainer.cs" />
     <Compile Include="Models\Pricing\CouponsGroup.cs" />
     <Compile Include="Models\Pricing\DiscountModule.cs" />
     <Compile Include="Models\Pricing\ItemPrice.cs" />
     <Compile Include="Models\Pricing\PreviewModule.cs" />
     <Compile Include="Models\Pricing\PriceCode.cs" />
-    <Compile Include="Models\Pricing\PriceReason.cs" />
+    <Compile Include="Models\Pricing\PurchaseStatus.cs" />
     <Compile Include="Models\ConditionalAccess\PremiumService.cs" />
     <Compile Include="Models\Pricing\PricePlan.cs" />
+    <Compile Include="Models\Pricing\SubscriptionPrice.cs" />
     <Compile Include="Models\Pricing\UsageModule.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />

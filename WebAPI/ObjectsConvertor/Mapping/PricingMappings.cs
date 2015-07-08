@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
+using WebAPI.Exceptions;
+using WebAPI.Models.General;
 
 
 namespace WebAPI.Mapping.ObjectsConvertor
@@ -36,16 +38,16 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_bWaiver))
                .ForMember(dest => dest.ProrityInOrder, opt => opt.MapFrom(src => src.m_Priority))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
-               .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => ConvertBundleCodeContainerToDictionary(src.m_sCodes)))
-               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => ConvertLanguageContainerToDictionary(src.m_sDescription)))
+               .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
+               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
-               .ForMember(dest => dest.Names, opt => opt.MapFrom(src => ConvertLanguageContainerToDictionary(src.m_sName)))
+               .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.m_sName))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
 
             // CouponsGroup
             Mapper.CreateMap<Pricing.CouponsGroup, Models.Pricing.CouponsGroup>()
-               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => ConvertLanguageContainerToDictionary(src.m_sDescription)))
+               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dEndDate))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sGroupName))
@@ -55,7 +57,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             // PriceCode
             Mapper.CreateMap<Pricing.PriceCode, Models.Pricing.PriceCode>()
-               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => ConvertLanguageContainerToDictionary(src.m_sDescription)))
+               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrise));
@@ -96,39 +98,74 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                .ForMember(dest => dest.NonRenewablePeriod, opt => opt.MapFrom(src => src.m_tsNonRenewPeriod));
 
-            // ServiceObject
+            // ServiceObject to PremiumService
             Mapper.CreateMap<Pricing.ServiceObject, Models.ConditionalAccess.PremiumService>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            // LanguageContainer to TranslationContainer
+            Mapper.CreateMap<Pricing.LanguageContainer, Models.General.TranslationContainer>()
+               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
+
+            // BundleCodeContainer to SlimChannel
+            Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.SlimChannel>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
+
+            // BundleCodeContainer to SlimChannel
+            Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, Models.Pricing.SubscriptionPrice>()
+               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice));
+
         }
 
-        private static Dictionary<string, string> ConvertBundleCodeContainerToDictionary(WebAPI.Pricing.BundleCodeContainer[] container)
+        private static WebAPI.Models.Pricing.PurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)
         {
-            Dictionary<string, string> result = null;
-
-            if (container != null)
+            WebAPI.Models.Pricing.PurchaseStatus result;
+            switch (priceReason)
             {
-                result = new Dictionary<string, string>();
-                foreach (var item in container)
-                {
-                    result.Add(item.m_sCode, item.m_sName);
-                }
+                case WebAPI.ConditionalAccess.PriceReason.PPVPurchased:
+                    result = Models.Pricing.PurchaseStatus.ppv_purchased;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.Free:
+                    result = Models.Pricing.PurchaseStatus.free;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.ForPurchaseSubscriptionOnly:
+                    result = Models.Pricing.PurchaseStatus.for_purchase_subscription_only;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchased:
+                    result = Models.Pricing.PurchaseStatus.subscription_purchased;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.ForPurchase:
+                    result = Models.Pricing.PurchaseStatus.for_purchase;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchasedWrongCurrency:
+                    result = Models.Pricing.PurchaseStatus.subscription_purchased_wrong_currency;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.PrePaidPurchased:
+                    result = Models.Pricing.PurchaseStatus.pre_paid_purchased;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.GeoCommerceBlocked:
+                    result = Models.Pricing.PurchaseStatus.geo_commerce_blocked;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.EntitledToPreviewModule:
+                    result = Models.Pricing.PurchaseStatus.entitled_to_preview_module;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.FirstDeviceLimitation:
+                    result = Models.Pricing.PurchaseStatus.first_device_limitation;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.CollectionPurchased:
+                    result = Models.Pricing.PurchaseStatus.collection_purchased;
+                    break;
+                case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
+                    result = Models.Pricing.PurchaseStatus.user_suspended;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
             }
-            return result;
-        }
 
-        private static Dictionary<string, string> ConvertLanguageContainerToDictionary(WebAPI.Pricing.LanguageContainer[] container)
-        {
-            Dictionary<string, string> result = null;
-
-            if (container != null)
-            {
-                result = new Dictionary<string, string>();
-                foreach (var item in container)
-                {
-                    result.Add(item.m_sLanguageCode3, item.m_sValue);
-                }
-            }
             return result;
         }
     }

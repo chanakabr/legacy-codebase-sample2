@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Pricing
@@ -19,11 +21,11 @@ namespace WebAPI.Models.Pricing
         public string Id { get; set; }
 
         /// <summary>
-        /// A list of channels associated with this subscription (identifier and name) 
+        /// A list of channels associated with this subscription 
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty("channels")]
-        public Dictionary<string, string> Channels { get; set; }
+        public List<SlimChannel> Channels { get; set; } 
 
         /// <summary>
         /// The first date the subscription is available for purchasing 
@@ -89,18 +91,18 @@ namespace WebAPI.Models.Pricing
         public CouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
-        /// A dictionary of the name of the subscription on different languages (language code and translation)
+        /// A list of the name of the subscription on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
-        public Dictionary<string, string> Names { get; set; }
+        public List<TranslationContainer> Names { get; set; } // TODO: change to object
 
         /// <summary>
-        /// A dictionary of the descriptions of the subscriptions on different languages (language code and translation)
+        /// A list of the descriptions of the subscriptions on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        public Dictionary<string, string> Descriptions { get; set; }
+        public List<TranslationContainer> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
         /// Identifier of the media associated with the subscription
