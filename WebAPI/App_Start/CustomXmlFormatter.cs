@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Runtime.Serialization;
 using WebAPI.Models.General;
+using System.Text;
 
 namespace WebAPI.App_Start
 {
@@ -40,20 +41,50 @@ namespace WebAPI.App_Start
             public object Result { get; set; }
         }
 
-        public override Task WriteToStreamAsync(Type type, object value,
-            Stream writeStream, System.Net.Http.HttpContent content,
+        private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
+        {
+            XmlSerializer ser = new XmlSerializer(input.GetType(), new Type[] { wrapper.Result.GetType() });
+
+            XmlDocument xd = null;
+
+            using (MemoryStream memStm = new MemoryStream())
+            {
+                ser.Serialize(memStm, input);
+
+                memStm.Position = 0;
+
+                XmlReaderSettings settings = new XmlReaderSettings();
+                settings.IgnoreWhitespace = true;
+
+                using (var xtr = XmlReader.Create(memStm, settings))
+                {
+                    xd = new XmlDocument();
+                    xd.Load(xtr);
+                }
+            }
+
+            return xd;
+        }
+
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
             System.Net.TransportContext transportContext)
         {
             return Task.Factory.StartNew(() =>
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
                 XmlReponseWrapper xrw = new XmlReponseWrapper() { Result = wrapper.Result };
-                XmlSerializer xs = new XmlSerializer(typeof(XmlReponseWrapper), new Type[] { wrapper.Result.GetType() });
+                //XmlSerializer xs = new XmlSerializer(typeof(XmlReponseWrapper), new Type[] { wrapper.Result.GetType() });
 
-                using (System.IO.StringWriter sw = new System.IO.StringWriter())
-                using (XmlWriter writer = XmlWriter.Create(sw))
+                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
+                var otype = doc.CreateElement("objectType");
+                otype.InnerText = wrapper.Result.GetType().Name;
+                doc.GetElementsByTagName("result")[0].PrependChild(otype);
+                //using (System.IO.StringWriter sw = new System.IO.StringWriter())
+                //using (XmlWriter writer = XmlWriter.Create(sw))
                 {
-                    xs.Serialize(writeStream, xrw);
+                    var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                    writeStream.Write(buf, 0, buf.Length);
+                    //xs.Serialize(writeStream, xrw);
                 }
             });
         }
