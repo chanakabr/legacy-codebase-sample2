@@ -1097,7 +1097,8 @@ namespace Catalog
 
             foreach (var mediaType in groupMediaTypes)
             {
-                if (mediaType.parentId > 0)
+                // Validate that this media type is defined for parent/association tag
+                if (mediaType.parentId > 0 && !string.IsNullOrEmpty(mediaType.associationTag))
                 {
                     // If this is relevant for the search at all
                     if (relevantMediaTypes.Contains(mediaType.parentId) ||
