@@ -10,8 +10,10 @@ namespace WebAPI.Models.Users
 {
     [DataContract(Name = "Users", Namespace = "")]
     [XmlRoot("Users")]
-    public class UsersList : List<User>
+    public class UsersList
     {
-
+        [DataMember(Name = "users")]
+        [JsonProperty("users")]
+        public List<User> Users;
     }
 }

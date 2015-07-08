@@ -39,6 +39,9 @@ namespace WebAPI.App_Start
         {
             [XmlElement("result")]
             public object Result { get; set; }
+
+            [XmlElement("executionTime")]
+            public float ExecutionTime { get; set; }
         }
 
         private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
@@ -73,19 +76,19 @@ namespace WebAPI.App_Start
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
                 XmlReponseWrapper xrw = new XmlReponseWrapper() { Result = wrapper.Result };
-                //XmlSerializer xs = new XmlSerializer(typeof(XmlReponseWrapper), new Type[] { wrapper.Result.GetType() });
 
                 XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
                 var otype = doc.CreateElement("objectType");
                 otype.InnerText = wrapper.Result.GetType().Name;
-                doc.GetElementsByTagName("result")[0].PrependChild(otype);
-                //using (System.IO.StringWriter sw = new System.IO.StringWriter())
-                //using (XmlWriter writer = XmlWriter.Create(sw))
-                {
-                    var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                    writeStream.Write(buf, 0, buf.Length);
-                    //xs.Serialize(writeStream, xrw);
-                }
+                var resnode = doc.GetElementsByTagName("result")[0];
+                resnode.PrependChild(otype);
+
+                // Removing unnecessary attributes such as NS, and type
+                resnode.Attributes.RemoveAll();
+                doc.GetElementsByTagName("xml")[0].Attributes.RemoveAll();
+
+                var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                writeStream.Write(buf, 0, buf.Length);
             });
         }
     }

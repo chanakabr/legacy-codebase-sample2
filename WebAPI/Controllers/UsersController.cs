@@ -649,10 +649,8 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-
-            UsersList l = new UsersList();
-            l.AddRange(response);
-            return l;
+            
+            return new UsersList() { Users = response };
         }
 
         /// <summary>Edit user details.        
