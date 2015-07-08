@@ -56,13 +56,14 @@ namespace WebAPI.App_Start
 
                 memStm.Position = 0;
 
-                XmlReaderSettings settings = new XmlReaderSettings();
+                XmlReaderSettings settings = new XmlReaderSettings();                
                 settings.IgnoreWhitespace = true;
 
                 using (var xtr = XmlReader.Create(memStm, settings))
                 {
-                    xd = new XmlDocument();
+                    xd = new XmlDocument();                    
                     xd.Load(xtr);
+                    xd.FirstChild.InnerText = "version=\"1.0\" encoding=\"utf-8\"";
                 }
             }
 
@@ -75,9 +76,13 @@ namespace WebAPI.App_Start
             return Task.Factory.StartNew(() =>
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
-                XmlReponseWrapper xrw = new XmlReponseWrapper() { Result = wrapper.Result, ExecutionTime = wrapper.Status.ExecutionTime };
+                XmlReponseWrapper xrw = new XmlReponseWrapper()
+                {
+                    Result = wrapper.Result,
+                    ExecutionTime = wrapper.Status.ExecutionTime
+                };
 
-                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
+                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);                
                 var otype = doc.CreateElement("objectType");
                 otype.InnerText = wrapper.Result.GetType().Name;
                 var resnode = doc.GetElementsByTagName("result")[0];
