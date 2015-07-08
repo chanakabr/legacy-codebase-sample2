@@ -622,6 +622,7 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\GenericRule.cs" />
+    <Compile Include="Models\API\GenericRulesList.cs" />
     <Compile Include="Models\API\RuleType.cs" />
     <Compile Include="Models\API\ParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
@@ -630,6 +631,7 @@
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\ConditionalAccess\EntitlementsList.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />

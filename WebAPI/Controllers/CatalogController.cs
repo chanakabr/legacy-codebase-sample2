@@ -43,10 +43,10 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
+        
         [Route("search"), HttpPost]
         public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
         {
@@ -128,10 +128,10 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
+        
         [Route("autocomplete"), HttpGet]
         public SlimAssetInfoWrapper Autocomplete(string partner_id, string query,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
@@ -177,10 +177,10 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
+        
         [Route("media/{media_id}/related"), HttpGet]
         public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
@@ -230,10 +230,10 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
+        
         [Route("channels/{channel_id}/media"), HttpGet]
         public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by = null, int page_index = 0, int? page_size = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
@@ -280,11 +280,11 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="404">Not Found</response>
+        
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>        
+                
         [Route("media/{media_ids}"), HttpGet]
         public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
@@ -343,11 +343,11 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="404">Not found</response>
+        
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>        
+                
         [Route("channels/{channel_id}"), HttpGet]
         public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
@@ -388,11 +388,11 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
+        
+        
         /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>        
+        
+                
         [Route("categories/{category_id}"), HttpGet]
         public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
