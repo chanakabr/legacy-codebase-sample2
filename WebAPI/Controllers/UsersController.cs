@@ -352,8 +352,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// login with user name and password.
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
-        /// <param name="details">LogIn Object</param>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="request">User details parameters</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
@@ -365,24 +365,24 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
         [Route("login"), HttpPost]
-        public User Login([FromUri] string partner_id, [FromBody] LogIn details, [FromUri] string udid = null)
+        public User Login([FromUri] string partner_id, [FromBody] LogIn request, [FromUri] string udid = null)
         {
             User response = null;
 
             int groupId = int.Parse(partner_id);
 
-            if (details == null)
+            if (request == null)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "Login details are null");
             }
-            if (string.IsNullOrEmpty(details.Username) || string.IsNullOrEmpty(details.Password))
+            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(groupId, details.Username, details.Password, udid, details.keyValues);
+                response = ClientsManager.UsersClient().Login(groupId, request.Username, request.Password, udid, request.ExtraParams);
             }
             catch (ClientException ex)
             {
@@ -617,6 +617,8 @@ namespace WebAPI.Controllers
         [Route("{user_id}"), HttpGet]
         public UsersList GetUsersData([FromUri] string partner_id, string user_id)
         {
+            List<User> response = null;
+
             List<int> usersIds;
             try
             {
@@ -626,17 +628,13 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each user id must be int");
             }
-
-            List<User> response = null;
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
             if (usersIds == null || usersIds.Count == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user id in list");
             }
+
+            int groupId = int.Parse(partner_id);
+
             try
             {
                 // call client
@@ -720,12 +718,7 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -759,12 +752,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -798,12 +786,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -836,11 +819,7 @@ namespace WebAPI.Controllers
         {
             PinResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -905,11 +884,7 @@ namespace WebAPI.Controllers
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -943,11 +918,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -980,11 +951,7 @@ namespace WebAPI.Controllers
         {
             PurchaseSettingsResponse pinResponse = null;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1018,11 +985,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1056,18 +1019,13 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (media_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
             }
-
             try
             {
                 // call client
@@ -1100,13 +1058,9 @@ namespace WebAPI.Controllers
         {
             List<ParentalRule> response = null;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (epg_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
@@ -1144,12 +1098,9 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
@@ -1187,12 +1138,9 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
+            // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
@@ -1229,12 +1177,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // parameters validation
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be an integer");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1247,6 +1190,88 @@ namespace WebAPI.Controllers
             }
 
             return success;
+        }
+
+        /// <summary>
+        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media.        
+        /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="media_id">Media identifier</param>
+        /// <param name="household_id">Media identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
+        [Route("{user_id}/rules/media/{media_id}"), HttpGet]
+        public List<GenericRule> GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        {
+            List<GenericRule> response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            // parameters validation
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetMediaRules(groupId, user_id, media_id, household_id, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrieve all the rules (parental) that applies for this EPG program      
+        /// </summary>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="epg_id">EPG program identifier</param>
+        /// <param name="household_id">Media identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
+        [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
+        public List<GenericRule> GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
+        {
+            List<GenericRule> response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            // parameters validation
+            if (epg_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetEpgRules(groupId, user_id, epg_id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
 
         #endregion
@@ -1270,11 +1295,7 @@ namespace WebAPI.Controllers
         {
             List<Entitlement> response = new List<Entitlement>();
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -1307,11 +1328,7 @@ namespace WebAPI.Controllers
         {
             BillingTransactions response = new BillingTransactions();
 
-            int groupId;
-            if (!int.TryParse(partner_id, out groupId))
-            {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
-            }
+            int groupId = int.Parse(partner_id);
 
             try
             {

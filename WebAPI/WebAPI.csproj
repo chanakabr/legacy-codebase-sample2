@@ -245,6 +245,9 @@
     <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\GenericRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -618,6 +621,8 @@
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
+    <Compile Include="Models\API\GenericRule.cs" />
+    <Compile Include="Models\API\RuleType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />
@@ -816,10 +821,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Api\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
