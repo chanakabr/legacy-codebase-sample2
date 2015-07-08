@@ -623,6 +623,7 @@
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\GenericRule.cs" />
     <Compile Include="Models\API\RuleType.cs" />
+    <Compile Include="Models\API\ParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />

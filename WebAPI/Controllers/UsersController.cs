@@ -712,7 +712,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
+        public ParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
 
@@ -728,7 +728,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1013,7 +1013,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
-        public List<ParentalRule> GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
+        public ParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
 
@@ -1034,7 +1034,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1052,7 +1052,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
-        public List<ParentalRule> GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
+        public ParentalRulesList GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
 
@@ -1074,7 +1074,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
