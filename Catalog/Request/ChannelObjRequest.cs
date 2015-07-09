@@ -43,6 +43,12 @@ namespace Catalog.Request
 
             if (channel != null)
             {
+                if (channel.m_nMediaType.Contains(0))
+                {
+                    var item = channel.m_nMediaType.Single(x => x == 0);
+                    channel.m_nMediaType.Remove(item);
+                }
+
                 response = new ChannelObjResponse
                 {
                     ChannelObj = channel,
