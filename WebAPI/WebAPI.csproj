@@ -436,6 +436,9 @@
     <Content Include="Web References\Social\FriendWatchedObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Pricing\SubscriptionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Social\module.disco" />
     <Content Include="Web References\Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -885,10 +888,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/pricing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Pricing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_pricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

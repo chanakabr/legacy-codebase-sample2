@@ -1184,10 +1184,22 @@
       <s:element name="GetSubscriptionsDataResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsDataResult" type="tns:ArrayOfSubscription" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsDataResult" type="tns:SubscriptionsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="SubscriptionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Subscriptions" type="tns:ArrayOfSubscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetCollectionsData">
         <s:complexType>
           <s:sequence>
@@ -1239,6 +1251,7 @@
       <s:element name="CouponsStatus" type="tns:CouponsStatus" />
       <s:element name="PreviewModule" nillable="true" type="tns:PreviewModule" />
       <s:element name="ArrayOfPreviewModule" nillable="true" type="tns:ArrayOfPreviewModule" />
+      <s:element name="SubscriptionsResponse" nillable="true" type="tns:SubscriptionsResponse" />
       <s:element name="ArrayOfCollection" nillable="true" type="tns:ArrayOfCollection" />
     </s:schema>
     <s:schema targetNamespace="http://pricing.tvinci.com/AbstractTypes">
@@ -1968,7 +1981,7 @@
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsDataHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfSubscription" />
+    <wsdl:part name="Body" element="tns:SubscriptionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetCollectionsDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3606,13 +3619,13 @@
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap:address location="http://localhost/ws_pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap12:address location="http://localhost/ws_pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <http:address location="http://localhost/ws_pricing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -236,7 +236,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get recently watched media for user, ordered by recently watched first.    
         /// </summary>
-        /// <param name="request">The search asset request parameter</param>
         /// <param name="partner_id" >Partner identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="filter_types">List of asset types to search within. The list is a string separated be comma.
@@ -1204,8 +1203,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG program identifier</param>
-        /// <param name="household_id">Media identifier</param>
-        /// <param name="udid">Device UDID</param>
+        /// <param name="household_id">Media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
         public GenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
