@@ -437,9 +437,6 @@
     <Content Include="Web References\Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Users\FavoritObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Users\KeyValuePair.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -571,6 +568,9 @@
     <Content Include="Web References\Pricing\UsageModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Users\FavoriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -640,6 +640,8 @@
     <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
     <Compile Include="Models\Domains\With.cs" />
+    <Compile Include="Models\Users\AddUserFavorite.cs" />
+    <Compile Include="Models\Users\Favorite.cs" />
     <Compile Include="Models\Users\SlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />

@@ -54,7 +54,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while Login. Username: {0}, PAssword: {1}, exception: {2}", userName, password, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-           
+
             if (response == null || response.user == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -83,7 +83,7 @@ namespace WebAPI.Clients
                 {
                     WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
                     WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
-                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, affiliateCode);                     
+                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, affiliateCode);
                 }
             }
             catch (Exception ex)
@@ -110,7 +110,7 @@ namespace WebAPI.Clients
         public bool SendNewPassword(int groupId, string userName)
         {
             WebAPI.Users.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);              
+            Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -293,14 +293,14 @@ namespace WebAPI.Clients
         }
 
         public Models.Users.User CheckPasswordToken(int groupId, string token)
-        {            
+        {
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
             WebAPI.Models.Users.User user = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {   
+                {
                     response = Users.CheckPasswordToken(group.UsersCredentials.Username, group.UsersCredentials.Password, token);
                 }
             }
@@ -359,7 +359,7 @@ namespace WebAPI.Clients
         public bool ClearLoginPIN(int groupId, string userId)
         {
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             WebAPI.Users.Status response = null;
             try
             {
@@ -458,5 +458,100 @@ namespace WebAPI.Clients
 
             return user;
         }
+
+        public void AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Users.Status response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.AddUserFavorit(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, deviceUDID, mediaType, mediaId, extraData);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        public void RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Users.Status response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.RemoveUserFavorit(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIDs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        public List<Models.Users.Favorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType)
+        {
+            List<WebAPI.Models.Users.Favorite> favorites = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            FavoriteResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetUserFavorites(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, udid, mediaType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null | response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            favorites = Mapper.Map<List<WebAPI.Models.Users.Favorite>>(response.Favorites);
+
+            return favorites;
+        }
+
     }
 }
