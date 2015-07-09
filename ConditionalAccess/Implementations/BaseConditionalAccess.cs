@@ -5666,22 +5666,6 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    // check if file is avilable 
-                    // get details about files + media (validity about files)
-                    Dictionary<int, MediaFileStatus> validMediaFiles = new Dictionary<int, MediaFileStatus>();
-                    int[] mediaFiles = new int[1];
-                    mediaFiles[0] = nMediaFileID;
-                    ValidateMediaFiles(ref mediaFiles, ref validMediaFiles);
-
-                    if (validMediaFiles.Count > 0 && validMediaFiles[nMediaFileID] != MediaFileStatus.OK)
-                    {
-                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                        oResponse.m_sRecieptCode = string.Empty;
-                        oResponse.m_sStatusDescription = "File is not valid for purchase";
-                        return oResponse;
-                    }
-
-
                     wsUsersService = new ConditionalAccess.TvinciUsers.UsersService();
 
                     string sWSUserName = string.Empty;
@@ -7397,39 +7381,33 @@ namespace ConditionalAccess
                 TvinciPricing.MediaFilePPVContainer[] oModules = null;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-
-                Int32[] origionMediaFiles = new Int32[nMediaFiles.Count()];
-                nMediaFiles.CopyTo(origionMediaFiles, 0);
-
-                // get details about files + media (validity about files)
-                Dictionary<int, MediaFileStatus> validMediaFiles = new Dictionary<int, MediaFileStatus>();
-                ValidateMediaFiles(ref nMediaFiles, ref validMediaFiles);
+                
+                // get details about files + media (validity about files)                
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles);
 
                 //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
                 List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
                 MediaFileItemPricesContainer tempItemPricesContainer = null;
-                foreach (int mf in validMediaFiles.Keys)
+
+                List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
+                nMediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
+
+                foreach (int mf in notForPurchaseFiles)
                 {
-                    switch (validMediaFiles[mf])
-                    {
-                        case MediaFileStatus.NotForPurchase:
-                            tempItemPricesContainer = new MediaFileItemPricesContainer();
-                            tempItemPricesContainer.m_nMediaFileID = mf;
-                            tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
-                            tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
-                            tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
-                            tempItemPricesContainer.m_sProductCode = string.Empty;
-                            tempRet.Add(tempItemPricesContainer);
-                            break;
-                        default:
-                            break;
-                    }
+                    tempItemPricesContainer = new MediaFileItemPricesContainer();
+                    tempItemPricesContainer.m_nMediaFileID = mf;
+                    tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
+                    tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
+                    tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
+                    tempItemPricesContainer.m_sProductCode = string.Empty;
+                    tempRet.Add(tempItemPricesContainer);
                 }
-                if (nMediaFiles == null || nMediaFiles.Count() == 0)
+                if (nMediaFiles.Count() == 0) // all file not for purchase - return
                 {
                     ret = tempRet.ToArray();
                     return ret;
                 }
+
 
 
                 InitializePricingModule(ref objPricingModule);
@@ -7635,91 +7613,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-        // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        private void ValidateMediaFiles(ref int[] nMediaFiles, ref Dictionary<int, MediaFileStatus> mediaFilesStatus)
-        {
-            try
-            {
-                MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
-                //initialize all status as OK 
-                foreach (int mf in nMediaFiles)
-                {
-                    if (!mediaFilesStatus.ContainsKey(mf))
-                    {
-                        mediaFilesStatus.Add(mf, eMediaFileStatus);
-                    }
-                }
-
-                DataSet ds = Tvinci.Core.DAL.CatalogDAL.Get_FileAndMediaBasicDetails(nMediaFiles);
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-                    DataTable dtMediaFiles = ds.Tables[0];
-
-                    int mediaFileID;
-                    int mediaIsActive = 0 , mediaFileIsActive = 0;
-                    int mediaStatus = 0, mediaFileStatus = 0;
-                    DateTime mediaStartDate , mediaFileStartDate;
-                    DateTime mediaEndDate , mediaFileEndDate;
-                    DateTime mediaFinalEndDate;
-                    DateTime dbCurrentDate;
-                   
-                    if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in dtMediaFiles.Rows)
-                        {
-                            dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
-                            //media
-                            mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
-                            mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
-                            mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
-                            mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date");
-                            mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date");
-
-                            //mediaFiles
-                            mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
-                            mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
-                            mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
-                            mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
-                            mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
-
-                            if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
-                            {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if (mediaStartDate > dbCurrentDate || mediaFileStartDate > dbCurrentDate)
-                            {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if (mediaFinalEndDate < dbCurrentDate || mediaFileEndDate < dbCurrentDate)
-                            {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if ( mediaEndDate < dbCurrentDate && mediaFinalEndDate > dbCurrentDate) // cun see only if purchased
-                            {
-                                eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
-                            }
-
-                            if (eMediaFileStatus != MediaFileStatus.OK)
-                            {
-                                if (mediaFilesStatus.ContainsKey(mediaFileID))
-                                {
-                                    mediaFilesStatus[mediaFileID] = eMediaFileStatus;
-                                }
-                                else
-                                {
-                                    mediaFilesStatus.Add(mediaFileID, eMediaFileStatus);
-                                }
-                            }
-                        }
-                    }
-                }
-                nMediaFiles = mediaFilesStatus.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
+       
 
         /*
          * 1. This method is a helper function for GetItemsPrices.

@@ -1528,6 +1528,9 @@ namespace ConditionalAccess
             Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
 
+            // check if file is avilable             
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1]{nMediaFileID});
+
             if (nMediaFileID > 0)
             {
                 nMediaFileTypeID = GetMediaFileTypeID(nGroupID, nMediaFileID, sAPIUsername, sAPIPassword);
@@ -1565,7 +1568,7 @@ namespace ConditionalAccess
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
-            return GetMediaFileFinalPrice(nMediaFileID, MediaFileStatus.OK, ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
+            return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
                 ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate);
@@ -3090,6 +3093,92 @@ namespace ConditionalAccess
             return changeDLMObj;
         }
 
-        
+
+         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles)
+        {
+            Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int,MediaFileStatus>();
+            try
+            {
+                MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+                //initialize all status as OK 
+                foreach (int mf in nMediaFiles)
+                {
+                    if (!mediaFilesStatus.ContainsKey(mf))
+                    {
+                        mediaFilesStatus.Add(mf, eMediaFileStatus);
+                    }
+                }
+
+                DataSet ds = Tvinci.Core.DAL.CatalogDAL.Get_FileAndMediaBasicDetails(nMediaFiles);
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtMediaFiles = ds.Tables[0];
+
+                    int mediaFileID;
+                    int mediaIsActive = 0 , mediaFileIsActive = 0;
+                    int mediaStatus = 0, mediaFileStatus = 0;
+                    DateTime mediaStartDate , mediaFileStartDate;
+                    DateTime mediaEndDate , mediaFileEndDate;
+                    DateTime mediaFinalEndDate;
+                    DateTime dbCurrentDate;
+                   
+                    if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in dtMediaFiles.Rows)
+                        {
+                            dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
+                            //media
+                            mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
+                            mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
+                            mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
+                            mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date");
+                            mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date");
+
+                            //mediaFiles
+                            mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
+                            mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
+                            mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
+                            mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
+                            mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
+
+                            if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if (mediaStartDate > dbCurrentDate || mediaFileStartDate > dbCurrentDate)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if (mediaFinalEndDate < dbCurrentDate || mediaFileEndDate < dbCurrentDate)
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
+                            else if ( mediaEndDate < dbCurrentDate && mediaFinalEndDate > dbCurrentDate) // cun see only if purchased
+                            {
+                                eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
+                            }
+
+                            if (eMediaFileStatus != MediaFileStatus.OK)
+                            {
+                                if (mediaFilesStatus.ContainsKey(mediaFileID))
+                                {
+                                    mediaFilesStatus[mediaFileID] = eMediaFileStatus;
+                                }
+                                else
+                                {
+                                    mediaFilesStatus.Add(mediaFileID, eMediaFileStatus);
+                                }
+                            }
+                        }
+                    }
+                }                
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return mediaFilesStatus;
+        }
     }
 }
