@@ -5666,6 +5666,22 @@ namespace ConditionalAccess
                 }
                 else
                 {
+                    // check if file is avilable 
+                    // get details about files + media (validity about files)
+                    Dictionary<int, MediaFileStatus> validMediaFiles = new Dictionary<int, MediaFileStatus>();
+                    int[] mediaFiles = new int[1];
+                    mediaFiles[0] = nMediaFileID;
+                    ValidateMediaFiles(ref mediaFiles, ref validMediaFiles);
+
+                    if (validMediaFiles.Count > 0 && validMediaFiles[nMediaFileID] != MediaFileStatus.OK)
+                    {
+                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                        oResponse.m_sRecieptCode = string.Empty;
+                        oResponse.m_sStatusDescription = "File is not valid for purchase";
+                        return oResponse;
+                    }
+
+
                     wsUsersService = new ConditionalAccess.TvinciUsers.UsersService();
 
                     string sWSUserName = string.Empty;
