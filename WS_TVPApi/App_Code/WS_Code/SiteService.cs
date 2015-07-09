@@ -376,6 +376,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj)
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
@@ -966,6 +967,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user CA status")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus GetUserCAStatus(InitializationObject initObj)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus response = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus.Annonymus;

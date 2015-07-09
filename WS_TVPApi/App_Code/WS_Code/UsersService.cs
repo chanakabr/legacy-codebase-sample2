@@ -88,6 +88,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user facebook ID")]
+        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
         {
             UserResponseObject response = new UserResponseObject();
@@ -114,6 +115,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user by username")]
+        [PrivateMethod]
         public UserResponseObject GetUserByUsername(InitializationObject initObj, string userName)
         {
             UserResponseObject response = new UserResponseObject();
