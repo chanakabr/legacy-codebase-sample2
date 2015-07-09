@@ -125,7 +125,7 @@ namespace TVPApiModule.Manager
             if (string.IsNullOrEmpty(siteGuid))
             {
                 logger.ErrorFormat("GenerateAccessToken: siteGuid is missing");
-                returnError(403);
+                returnError(400);
                 return null;
             }
 
@@ -134,7 +134,7 @@ namespace TVPApiModule.Manager
             if (groupConfig == null)
             {
                 logger.ErrorFormat("GenerateAccessToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(403);
+                returnError(500);
                 return null;
             }
 
@@ -145,7 +145,7 @@ namespace TVPApiModule.Manager
             if (!_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
             {
                 logger.ErrorFormat("GenerateAccessToken: access token already exists. token = {0}, ", apiToken.AccessToken);
-                returnError(403);
+                returnError(500);
                 return null;
             }
 
@@ -175,7 +175,7 @@ namespace TVPApiModule.Manager
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
             {
                 logger.ErrorFormat("RefreshAccessToken: Bad request refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
-                returnError(403);
+                returnError(400);
                 return null;
             }
 
@@ -185,7 +185,7 @@ namespace TVPApiModule.Manager
             if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
             {
                 logger.ErrorFormat("RefreshAccessToken: refreshToken expired. refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
-                returnError(403);
+                returnError(401);
                 return null;
             }
 
@@ -195,19 +195,11 @@ namespace TVPApiModule.Manager
             if (apiToken.RefreshToken != refreshToken)
             {
                 logger.ErrorFormat("RefreshAccessToken: refreshToken not valid. refreshToken = {0}, accessToken = {1}", refreshToken, accessToken);
-                returnError(403);
+                returnError(401);
                 return null;
             }
 
             string siteGuid = apiToken.SiteGuid;
-
-            // validate siteGuid
-            if (apiToken.SiteGuid != siteGuid)
-            {
-                logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
-                returnError(403);
-                return null;
-            }
 
             // validate user
             UserResponseObject user = null;
@@ -218,7 +210,7 @@ namespace TVPApiModule.Manager
             catch (Exception ex)
             {
                 logger.ErrorFormat("RefreshAccessToken: error while getting user. siteGuid = {0}, refreshToken = {1}, accessToken = {2}, exception = {3}", siteGuid, refreshToken, accessToken, ex);
-                returnError(403);
+                returnError(500);
                 return null;
             }
             if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered &&
@@ -226,7 +218,7 @@ namespace TVPApiModule.Manager
                 user.m_RespStatus != ResponseStatus.UserSuspended))
             {
                 logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}, refreshToken = {1}, accessToken = {2}", siteGuid, refreshToken, accessToken);
-                returnError(403);
+                returnError(401);
                 return null;
             }
 
@@ -235,7 +227,7 @@ namespace TVPApiModule.Manager
             if (groupConfig == null)
             {
                 logger.ErrorFormat("RefreshAccessToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(403);
+                returnError(500);
                 return null;
             }
 
@@ -251,7 +243,7 @@ namespace TVPApiModule.Manager
             else
             {
                 logger.ErrorFormat("RefreshAccessToken: Failed to store new token, returning 403");
-                returnError(403);
+                returnError(500);
                 return null;
             }
 
@@ -272,7 +264,7 @@ namespace TVPApiModule.Manager
             if (string.IsNullOrEmpty(accessToken))
             {
                 logger.ErrorFormat("ValidateAccessToken: empty accessToken or siteGuid. access_token = {0}", accessToken);
-                returnError(403);
+                returnError(401);
                 return false;
             }
 
@@ -282,7 +274,7 @@ namespace TVPApiModule.Manager
             if (apiToken == null)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token not found. access_token = {0}", accessToken);
-                returnError(403);
+                returnError(401);
                 return false;
             }
 
@@ -294,7 +286,7 @@ namespace TVPApiModule.Manager
             if (groupConfig == null)
             {
                 logger.ErrorFormat("ValidateAccessToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(403);
+                returnError(500);
                 return false;
             }
 
@@ -302,7 +294,7 @@ namespace TVPApiModule.Manager
             if (TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration) < DateTime.UtcNow)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token expired. access_token = {0}", accessToken);
-                returnError(403);
+                returnError(401);
                 return false;
             }
 
@@ -354,7 +346,7 @@ namespace TVPApiModule.Manager
             if (string.IsNullOrEmpty(initSiteGuid))
             {
                 logger.ErrorFormat("ValidateRequestParameters: initSiteGuid or siteGuid are empty. initSiteGuid {0}, siteGuid = {1}", initSiteGuid, siteGuid);
-                returnError(403);
+                returnError(400);
                 return false;
             }
 
@@ -473,7 +465,7 @@ namespace TVPApiModule.Manager
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(siteGuid))
             {
                 logger.ErrorFormat("UpdateUserInToken: accessToken or siteGuid empty");
-                returnError(403);
+                returnError(400);
                 return false;
             }
 
@@ -483,7 +475,7 @@ namespace TVPApiModule.Manager
             if (apiToken == null)
             {
                 logger.ErrorFormat("UpdateUserInToken: access token not found. access_token = {0}", accessToken);
-                returnError(403);
+                returnError(401);
                 return false;
             }
 
@@ -491,8 +483,8 @@ namespace TVPApiModule.Manager
             GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
             if (groupConfig == null)
             {
-                logger.ErrorFormat("ValidateAccessToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(403);
+                logger.ErrorFormat("UpdateUserInToken: group configuration was not found for groupId = {0}", groupId);
+                returnError(500);
                 return false;
             }
 
