@@ -80,7 +80,7 @@ namespace WebAPI
                         }
                     }
 
-                    runOnProperties(context, type.GetProperties());
+                    runOnProperties(context, x, type.FullName, type.GetProperties());
                     context.Response.Write("</class>\n");
                 }
             }
@@ -93,18 +93,41 @@ namespace WebAPI
                 var methods = controller.GetMethods();
                 foreach (var method in methods)
                 {
-                    //Read only HTTPOST as we will have duplicates otherwise
+                    //Read only HTTP POST as we will have duplicates otherwise
                     if (method.GetCustomAttributes<HttpPostAttribute>(false).Count() == 0)
                         continue;
 
                     var attr = method.GetCustomAttribute<RouteAttribute>(false);
                     if (attr != null)
                     {
-                        context.Response.Write(string.Format("\t<action name='{0}'>\n", ((RouteAttribute)attr).Template));
+                        var classNode = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]", controller.FullName, method.Name));
+
+                        string desc = "";
+                        //No documentation
+                        if (classNode.Count > 0 && classNode[0].ChildNodes != null)
+                        {
+                            for (int i = 0; i < classNode[0].ChildNodes.Count; i++)
+                            {
+                                if (classNode[0].ChildNodes[i].Name == "summary")
+                                {
+                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
+                                    break;
+                                }
+                            }
+                        }
+
+                        context.Response.Write(string.Format("\t<action name='{0}' description='{1}'>\n", ((RouteAttribute)attr).Template, desc.Trim().Replace('\'', '"')));
                         foreach (var par in method.GetParameters())
                         {
-                            context.Response.Write(string.Format("\t\t<param name='{0}' type='{1}'/>\n", par.Name,
-                                getTypeFriendlyName(par.ParameterType)));
+                            var descs = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", 
+                                controller.FullName, method.Name, par.Name));
+
+                            string pdesc = "";
+                            if (descs.Count > 0)
+                                pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
+
+                            context.Response.Write(string.Format("\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
+                                getTypeFriendlyName(par.ParameterType), pdesc));
                         }
                         context.Response.Write(string.Format("\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
                         context.Response.Write("\t</action>\n");
@@ -115,22 +138,30 @@ namespace WebAPI
             }
         }
 
-        private void runOnProperties(HttpContext context, MemberInfo[] members)
+        private void runOnProperties(HttpContext context, XmlDocument x, string className, MemberInfo[] members)
         {
             foreach (var property in members)
             {
                 if (property is PropertyInfo)
                 {
                     var pi = (PropertyInfo)property;
+
+                    var descs = x.SelectNodes(string.Format("//member[@name='P:{0}.{1}']//summary",
+                                className, pi.Name));
+
+                    string pdesc = "";
+                    if (descs.Count > 0)
+                        pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
+
                     if (pi.PropertyType.IsEnum)
                     {
-                        context.Response.Write(string.Format("\t<property name='{0}' type='string' enumType='{1}' />\n", pi.Name,
-                            getTypeFriendlyName(pi.PropertyType)));
+                        context.Response.Write(string.Format("\t<property name='{0}' type='string' enumType='{1}' description='{2}' />\n", pi.Name,
+                            getTypeFriendlyName(pi.PropertyType), pdesc));
                     }
                     else
                     {
-                        context.Response.Write(string.Format("\t<property name='{0}' type='{1}' />\n", pi.Name,
-                        getTypeFriendlyName(pi.PropertyType)));
+                        context.Response.Write(string.Format("\t<property name='{0}' type='{1}' description='{2}' />\n", pi.Name,
+                        getTypeFriendlyName(pi.PropertyType), pdesc));
                     }
                 }
                 else
