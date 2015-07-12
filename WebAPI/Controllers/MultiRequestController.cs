@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return new StatusWrapper(0, Request.GetCorrelationId(), methodInfo.Invoke(obj, convParams), "success");
+                return new StatusWrapper(0, Request.GetCorrelationId(), 0, methodInfo.Invoke(obj, convParams), "success");
             }
             catch (TargetInvocationException ex)
             {
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
 
                     return new StatusWrapper(
                         content.code,
-                        Request.GetCorrelationId(), null, WrappingHandler.HandleError(content.error.ExceptionMessage,
+                        Request.GetCorrelationId(), 0, null, WrappingHandler.HandleError(content.error.ExceptionMessage,
                         ex.InnerException.StackTrace));
                 }
 
@@ -89,6 +89,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Run a multi request call 
         /// </summary>
+        ///
         /// <remarks>Example:<br />
         ///<![CDATA[ [{"service": "Users", "action": "GetUsersData", "parameters": ["partner_id=215", "user_id=425421"] }, {"service": "Households", "action": "GetHousehold", "parameters": ["partner_id=215", "household_id=0:household_id"] }, {"service": "Households", "action": "GetParentalPIN", "parameters": ["partner_id=215", "household_id=1:id"] } ] ]]>
         ///</remarks>

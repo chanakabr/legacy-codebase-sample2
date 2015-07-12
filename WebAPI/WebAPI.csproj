@@ -631,6 +631,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
@@ -638,17 +639,20 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\GenericRule.cs" />
+    <Compile Include="Models\API\GenericRulesList.cs" />
     <Compile Include="Models\API\RuleType.cs" />
     <Compile Include="Models\Billing\PaymentGWBasic.cs" />
     <Compile Include="Models\Billing\PaymentGW.cs" />
     <Compile Include="Models\Billing\PaymentGWSettingsResponse.cs" />
     <Compile Include="Models\Billing\PaymentGWResponse.cs" />
+    <Compile Include="Models\API\ParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\ConditionalAccess\EntitlementsList.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
     <Compile Include="Models\Domains\DeviceFamily.cs" />
@@ -657,6 +661,7 @@
     <Compile Include="Models\Domains\HouseholdRestriction.cs" />
     <Compile Include="Models\Domains\HouseholdState.cs" />
     <Compile Include="Models\Domains\HomeNetwork.cs" />
+    <Compile Include="Models\General\SerializeableDictionary.cs" />
     <Compile Include="Models\MultiRequest\MultiRequest.cs" />
     <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
@@ -683,6 +688,7 @@
     <Compile Include="Models\Users\UserBasicData.cs" />
     <Compile Include="Models\Users\HouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\UserData.cs" />
+    <Compile Include="Models\Users\UsersList.cs" />
     <Compile Include="Models\Users\UserState.cs" />
     <Compile Include="Models\Users\UserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />

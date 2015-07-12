@@ -58,9 +58,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // User
             Mapper.CreateMap<Users.UserResponseObject, User>()
-                .ForMember(dest => dest.BasicDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
+                .ForMember(dest => dest.BasicData, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
-                .ForMember(dest => dest.DynamicDate, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
                 .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
@@ -69,9 +69,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // SlimUser
             Mapper.CreateMap<User, SlimUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.BasicDate.Username))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicDate.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicDate.LastName));
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.BasicData.Username))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicData.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicData.LastName));
 
             // UserId to SlimUser
             Mapper.CreateMap<int, SlimUser>()

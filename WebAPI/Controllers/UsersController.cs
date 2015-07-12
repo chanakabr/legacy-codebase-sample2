@@ -16,6 +16,9 @@ using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Filters;
 using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace WebAPI.Controllers
 {
@@ -304,47 +307,7 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
-
-        ///// <summary>
-        ///// Retrieve users' data.
-        ///// </summary>
-        ///// <param name="ids">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
-        ///// <remarks></remarks>
-        ///// <returns>WebAPI.Models.User</returns>
-        ///// <response code="200">OK</response>
-        ///// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        ///// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        //[Route("{ids}"), HttpGet]
-        ////[ApiAuthorize()]
-        //[ApiExplorerSettings(IgnoreApi = true)]
-        //public List<ClientUser> GetUsersData(string ids)
-        //{
-        //    var c = new Users.UsersService();
-
-        //    //XXX: Example of using the unmasking
-        //    string[] unmaskedIds = null;
-        //    try
-        //    {
-        //        unmaskedIds = ids.Split(',').Select(x => SerializationUtils.UnmaskSensitiveObject(x)).Distinct().ToArray();
-        //    }
-        //    catch
-        //    {
-        //        /*
-        //         * We don't want to return 500 here, because if something went bad in the parameters, it means 400, but since
-        //         * the model is valid (we can't really validate the unmasking thing on the model), we are doing it manually.
-        //        */
-        //        throw new BadRequestException();
-        //    }
-
-        //    var res = c.GetUsersData("users_215", "11111", unmaskedIds);
-        //    List<ClientUser> dto = Mapper.Map<List<ClientUser>>(res);
-        //    return dto;
-        //}
-
-
+        }        
 
         /// <summary>
         /// login with user name and password.
@@ -612,7 +575,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}"), HttpGet]
-        public List<User> GetUsersData([FromUri] string partner_id, string user_id)
+        public UsersList GetUsersData([FromUri] string partner_id, string user_id)
         {
             List<User> response = null;
 
@@ -646,8 +609,8 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-
-            return response;
+            
+            return new UsersList() { Users = response };
         }
 
         /// <summary>Edit user details.        
@@ -709,7 +672,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
+        public ParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<ParentalRule> response = null;
 
@@ -725,7 +688,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1010,7 +973,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
-        public List<ParentalRule> GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
+        public ParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<ParentalRule> response = null;
 
@@ -1031,7 +994,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1049,7 +1012,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
-        public List<ParentalRule> GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
+        public ParentalRulesList GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
             List<ParentalRule> response = null;
 
@@ -1071,7 +1034,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new ParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1204,7 +1167,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/media/{media_id}"), HttpGet]
-        public List<GenericRule> GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        public GenericRulesList GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
         {
             List<GenericRule> response = null;
 
@@ -1225,7 +1188,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new GenericRulesList() { GenericRules = response };
         }
 
         /// <summary>
@@ -1245,7 +1208,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
-        public List<GenericRule> GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
+        public GenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
         {
             List<GenericRule> response = null;
 
@@ -1266,7 +1229,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new GenericRulesList() { GenericRules = response };
         }
 
         #endregion
@@ -1286,7 +1249,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
         [Route("{user_id}/subscriptions/permitted"), HttpGet]
-        public List<Entitlement> GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
+        public EntitlementsList GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<Entitlement> response = new List<Entitlement>();
 
@@ -1302,7 +1265,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new EntitlementsList() { Entitlements = response };
         }
 
         /// <summary>

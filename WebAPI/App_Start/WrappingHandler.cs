@@ -34,12 +34,12 @@ namespace WebAPI.App_Start
             {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
-                var wrappedResponse = await BuildApiResponse(request, response);
+                var wrappedResponse = await BuildApiResponse(request, response, float.Parse(km.ExecutionTime));
                 return wrappedResponse;
             }
         }
 
-        private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response)
+        private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
         {
             if (request.GetRouteData().Route.RouteTemplate.ToLower().Contains("swagger"))
                 return response;
@@ -89,7 +89,7 @@ namespace WebAPI.App_Start
             }
 
             Guid reqID = request.GetCorrelationId();
-            var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, content, message));
+            var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
             foreach (var header in response.Headers)
             {
