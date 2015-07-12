@@ -9,7 +9,7 @@ using System.Web;
 namespace WebAPI.Models.Billing
 {
     /// <summary>
-    /// PaymentGWSettings Response
+    /// Payment Gateway Settings
     /// </summary>
     public class PaymentGWSettingsResponse
     {

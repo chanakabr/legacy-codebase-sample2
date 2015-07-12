@@ -102,7 +102,7 @@ namespace WebAPI.Clients
             return paymentGW;
         }
 
-        public Models.Billing.PaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid)
+        public Models.Billing.PaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid, string householdID)
         {
             Models.Billing.PaymentGWResponse paymentGW = null;
             WebAPI.Billing.PaymentGWResponse response = null;
@@ -112,7 +112,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetHouseHoldPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid);
+                    int house_hold_id = int.Parse(householdID);
+                    response = Billing.GetHouseHoldPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, house_hold_id);
                 }
             }
             catch (Exception ex)
@@ -229,7 +230,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool DeletePaymentGWParams(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        public bool DeletePaymentGWSettings(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -238,7 +239,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Billing.PaymentGWSettings[] settings = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
-                    response = Billing.DeletePaymentGWParams(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, settings);
+                    response = Billing.DeletePaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, settings);
                 }
             }
             catch (Exception ex)
@@ -260,7 +261,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool DeletePaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid)
+        public bool DeletePaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid, string householdID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -268,7 +269,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.DeletePaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid);
+                    int house_hold_id = int.Parse(householdID);
+                    response = Billing.DeletePaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, house_hold_id);
                 }
             }
             catch (Exception ex)
@@ -354,7 +356,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid)
+        public bool InsertPaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid, string householdID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -363,7 +365,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.InsertPaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid);
+                    int house_hold_id = int.Parse(householdID);
+                    response = Billing.InsertPaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, house_hold_id);
                 }
             }
             catch (Exception ex)

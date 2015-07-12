@@ -754,10 +754,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="household_id">User Identifier</param>
+        /// <param name="household_id">House Hold Identifier</param>
+        /// <param name="user_id">User Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
@@ -765,7 +766,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("householdes/{household_id}/payment_gateways/get"), HttpGet]
-        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id)
+        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             Models.Billing.PaymentGWResponse response = null;
 
@@ -774,7 +775,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetHouseHoldPaymentGW(groupId, household_id);
+                response = ClientsManager.BillingClient().GetHouseHoldPaymentGW(groupId, user_id, household_id);
             }
             catch (ClientException ex)
             {
@@ -789,11 +790,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        /// <param name="household_id">User Identifier</param>
+        /// <param name="household_id">House Hold Identifier</param>
+        /// <param name="user_id">User Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
@@ -801,7 +803,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("householdes/{household_id}/payment_gateways/delete"), HttpPost]
-        public bool DeletePaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id)
+        public bool DeletePaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             bool response = false;
 
@@ -810,7 +812,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGWHouseHold(groupId, payment_gateway_id, household_id);
+                response = ClientsManager.BillingClient().DeletePaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
             }
             catch (ClientException ex)
             {
@@ -825,11 +827,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="household_id">User Identifier</param>
+        /// /// <param name="household_id">House Hold Identifier</param>
+        /// <param name="user_id">User Identifier</param>
         /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
@@ -837,7 +840,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("householdes/{household_id}/payment_gateways/add"), HttpPost]
-        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id)
+        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             bool response = false;
 
@@ -846,7 +849,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, household_id);
+                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
             }
             catch (ClientException ex)
             {
