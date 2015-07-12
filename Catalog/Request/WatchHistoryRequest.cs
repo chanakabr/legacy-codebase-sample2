@@ -83,7 +83,8 @@ namespace Catalog.Request
                         Location = item.Location,
                         AssetId = item.AssetId,
                         UserID = item.UserID,
-                        AssetTypeId = item.AssetTypeId
+                        AssetTypeId = item.AssetTypeId,
+                        m_dUpdateDate = item.UpdateDate
                     };
 
                     switch (item.AssetTypeId)
@@ -102,28 +103,6 @@ namespace Catalog.Request
                 response.m_nTotalItems = totalItems;
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
-
-                // get last updated date of media (exclude NPVR)
-                if (response != null && response.result != null && response.result.Count() > 0)
-                {
-                    List<int> mediaIds = response.result.Where(x => x.AssetTypeId != (int)eAssetTypes.NPVR).Select(item => int.Parse(item.AssetId)).ToList();
-                    DataTable dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
-                    if (dt != null)
-                    {
-                        if (dt.Columns != null)
-                        {
-                            for (int i = 0; i < dt.Rows.Count; i++)
-                            {
-                                // get relevant watch history item and validate the updated asset is not NPVR (in case they have the same ID as the media asset)
-                                var historyWatchItem = response.result.Where(x => x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                                                                                  int.Parse(x.AssetId) == Utils.GetIntSafeVal(dt.Rows[i], "ID")).FirstOrDefault();
-                                // update date 
-                                if (historyWatchItem != null && dt.Rows[i]["UPDATE_DATE"] != null)
-                                    historyWatchItem.m_dUpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                            }
-                        }
-                    }
-                }
             }
             catch (Exception ex)
             {

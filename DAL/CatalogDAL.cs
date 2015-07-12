@@ -190,6 +190,17 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static DataTable GetActiveMedia(List<int> mediaIds)
+        {
+            ODBCWrapper.StoredProcedure spGet_MediaUpdateDate = new ODBCWrapper.StoredProcedure("Get_ActiveMedia");
+            spGet_MediaUpdateDate.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGet_MediaUpdateDate.AddIDListParameter("@MediaID", mediaIds, "Id");
+            DataSet ds = spGet_MediaUpdateDate.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable Get_UserSocialMedias(string sSiteGuid, int nSocialPlatform, int nSocialAction)
         {
             ODBCWrapper.StoredProcedure spUserSocial = new ODBCWrapper.StoredProcedure("Get_UserSocialMedias");
@@ -1548,6 +1559,34 @@ namespace Tvinci.Core.DAL
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
+                    // validate media on DB
+                    DataTable dt = CatalogDAL.GetActiveMedia(unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                                                                         x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                                                                         .Select(x => int.Parse(x.AssetId)).ToList());
+
+                    // get active media list and update updated date
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        List<int> activeMediaIds = new List<int>();
+                        int mediaId;
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            mediaId = Utils.GetIntSafeVal(dt.Rows[i], "ID");
+                            activeMediaIds.Add(mediaId);
+
+                            // get update date
+                            unFilteredresult.First(x => int.Parse(x.AssetId) == mediaId &&
+                                                        x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                                        x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                                        .UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
+                        }
+
+                        // remove medias that are not active
+                        unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                                        x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                                                        !activeMediaIds.Contains(int.Parse(x.AssetId)));
+                    }
+
                     // filter status 
                     switch (filterStatus)
                     {
@@ -2769,7 +2808,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<int, List<EpgPicture>> GetGroupTreeMultiPicEpgUrl(int parentGroupID)
         {
             Dictionary<int, List<EpgPicture>> res = null;
-            
+
             StoredProcedure sp = new StoredProcedure("GetGroupTreeMultiPicEpgUrl");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@ParentGroupID", parentGroupID);
@@ -2785,7 +2824,7 @@ namespace Tvinci.Core.DAL
 
                 if (groupRatioTable != null && groupRatioTable.Rows != null && groupRatioTable.Rows.Count > 0)
                 {
-                    res = new Dictionary<int, List<EpgPicture>>();                
+                    res = new Dictionary<int, List<EpgPicture>>();
                     foreach (DataRow dr in groupRatioTable.Rows)
                     {
                         int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
@@ -2815,7 +2854,7 @@ namespace Tvinci.Core.DAL
                 }
                 if (ds.Tables.Count > 1)
                 {
-                    DataTable groupEpgRatioTable = ds.Tables[1];                    
+                    DataTable groupEpgRatioTable = ds.Tables[1];
                     width = 0;
                     height = 0;
                     ratio = string.Empty;
@@ -2830,11 +2869,11 @@ namespace Tvinci.Core.DAL
                         {
                             int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
                             if (groupID > 0)
-                            {                               
+                            {
                                 width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
                                 height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
                                 ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
-                              
+
                                 EpgPicture picture = new EpgPicture();
                                 picture.Initialize(width, height, ratio, baseUrl);
                                 if (!res.ContainsKey(groupID))
