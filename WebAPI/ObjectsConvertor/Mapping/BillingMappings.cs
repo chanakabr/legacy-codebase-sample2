@@ -1,0 +1,94 @@
+﻿using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using WebAPI.Billing;
+
+namespace WebAPI.ObjectsConvertor.Mapping
+{
+    public class BillingMappings
+    {
+        public static void RegisterMappings()
+        {
+            //PaymentGWConfigResponse to PaymentGWConfigResponse
+            Mapper.CreateMap<PaymentGWSettingsResponse, WebAPI.Models.Billing.PaymentGWSettingsResponse>()
+                .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
+
+            //PaymentGWConfigResponse to PaymentGWConfigResponse
+            Mapper.CreateMap<PaymentGW, WebAPI.Models.Billing.PaymentGW>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.url, opt => opt.MapFrom(src => src.url))
+                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.isActive))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
+                .ForMember(dest => dest.settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.settings)));
+
+
+            Mapper.CreateMap<PaymentGWResponse, WebAPI.Models.Billing.PaymentGWResponse>()
+                 .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
+
+            Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.PaymentGWBasic>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name));
+          
+            //from local object to WS object
+            //PaymentGWConfigResponse to PaymentGWConfigResponse
+            Mapper.CreateMap<WebAPI.Models.Billing.PaymentGW, PaymentGW>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.url, opt => opt.MapFrom(src => src.url))
+                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.isActive))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
+                .ForMember(dest => dest.settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.settings)));
+        }
+
+
+        public static Billing.PaymentGWSettings[] ConvertPaymentGatewaySettings(Dictionary<string, string> settings)
+        {
+            List<Billing.PaymentGWSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<PaymentGWSettings>();
+                Billing.PaymentGWSettings pc;
+                foreach (KeyValuePair<string, string> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Billing.PaymentGWSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, string> ConvertPaymentGatewaySettings(Billing.PaymentGWSettings[] settings)
+        {
+            Dictionary<string, string> result = null;
+
+            if (settings != null && settings.Count() > 0)
+            {
+                result = new Dictionary<string, string>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, data.value);
+                    }
+                }
+            }
+            return result;
+        }
+    }
+}

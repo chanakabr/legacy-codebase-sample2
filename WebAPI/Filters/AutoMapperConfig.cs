@@ -13,6 +13,7 @@ namespace WebAPI.Filters
             PricingMappings.RegisterMappings();
             ConditionalAccessMappings.RegisterMappings();
             DomainsMappings.RegisterMappings();
+            BillingMappings.RegisterMappings();
         }
     }
 }

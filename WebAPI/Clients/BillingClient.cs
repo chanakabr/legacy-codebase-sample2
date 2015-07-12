@@ -1,14 +1,23 @@
-﻿using System;
+﻿using AutoMapper;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
     public class BillingClient : BaseClient
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public BillingClient()
         {
             
@@ -21,5 +30,361 @@ namespace WebAPI.Clients
                 return (Module as WebAPI.Billing.module);
             }
         }
+
+
+        #region Payment GateWay
+
+        public Models.Billing.PaymentGWSettingsResponse GetPaymentGWSettings(int groupId)
+        {
+            Models.Billing.PaymentGWSettingsResponse paymentGWSettings = null;
+            WebAPI.Billing.PaymentGWSettingsResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPaymentGWSettings.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            paymentGWSettings = Mapper.Map<WebAPI.Models.Billing.PaymentGWSettingsResponse>(response);
+
+            return paymentGWSettings;
+        }
+
+        public Models.Billing.PaymentGWResponse GetPaymentGW(int groupId)
+        {
+            Models.Billing.PaymentGWResponse paymentGW = null;
+            WebAPI.Billing.PaymentGWResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPaymentGW.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            paymentGW = Mapper.Map<WebAPI.Models.Billing.PaymentGWResponse>(response);
+
+            return paymentGW;
+        }
+
+        public Models.Billing.PaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid)
+        {
+            Models.Billing.PaymentGWResponse paymentGW = null;
+            WebAPI.Billing.PaymentGWResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetHouseHoldPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetHouseHoldPaymentGW.  groupID: {0}, siteGuid: {1}, exception: {1}", groupId, siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            paymentGW = Mapper.Map<WebAPI.Models.Billing.PaymentGWResponse>(response);
+
+            return paymentGW;
+        }
+
+        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string url, int? isDefault, int? isActive)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, url, isDefault, isActive);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPaymentGW.  groupID: {0}, paymentGWID: {1}, name: {2}, url: {3}, isDefault: {4}, isActive: {5}, exception: {6}", 
+                    groupId, paymentGWID, name, url, isDefault, isActive, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool SetPaymentGWParams(int groupId, int paymentGWID, Dictionary<string, string> payment_gateway_settings)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Billing.PaymentGWSettings[] configs = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    response = Billing.SetPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, configs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPaymentGWParams.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGWID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool DeletePaymentGW(int groupId, int paymentGwID)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.DeletePaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeletePaymentGW.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGwID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool DeletePaymentGWParams(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Billing.PaymentGWSettings[] settings = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    response = Billing.DeletePaymentGWParams(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, settings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeletePaymentGWParams.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGwID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool DeletePaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.DeletePaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeletePaymentGWHouseHold.  groupID: {0}, paymentGWID: {1}, siteGuid: {2}, exception: {3}", groupId, paymentGwID, siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool InsertPaymentGW(int groupId, Models.Billing.PaymentGW pgw)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Billing.PaymentGW request = Mapper.Map<WebAPI.Billing.PaymentGW>(pgw);
+                    response = Billing.InsertPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertPaymentGW.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool InsertPaymentGWParams(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Billing.PaymentGWSettings[] request = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    response = Billing.InsertPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertPaymentGWParams.  groupID: {0}, paymentGwID: {1} ,exception: {2}", groupId, paymentGwID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool InsertPaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.InsertPaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertPaymentGWHouseHold.  groupID: {0}, paymentGwID: {1} ,siteGuid: {2}, exception: {3}", groupId, paymentGwID, siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+        
+        #endregion
     }
 }
