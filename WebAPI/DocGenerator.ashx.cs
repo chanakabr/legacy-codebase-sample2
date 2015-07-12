@@ -47,49 +47,65 @@ namespace WebAPI
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             var x = XMLFromAssemblyNonCached(asm);
+            List<Type> enums = new List<Type>();
+            List<Type> classes = new List<Type>();
 
             //Running on models first
             foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")))
             {
-                var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", type.FullName));
+                if (type.BaseType == typeof(Enum))
+                    enums.Add(type);
+                else
+                    classes.Add(type);
+            }
+
+            //Printing enums
+            context.Response.Write("<enums>\n");
+            foreach (Type t in enums)
+            {
+                context.Response.Write(string.Format("\t<enum name='{0}' enumType='string'>\n", t.Name));
+
+                //Print values
+                foreach (var v in Enum.GetValues(t))
+                    context.Response.Write(string.Format("\t\t<const name='{0}' />\n", v));
+
+                context.Response.Write("\t</enum>\n");
+            }
+            context.Response.Write("</enums>\n");
+
+            //Running on classes
+            context.Response.Write("<classes>\n");
+            foreach (Type t in classes)
+            {
+                var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
                 if (classNode == null)
                     continue;
 
-                if (type.BaseType == typeof(Enum))
-                {
-                    context.Response.Write(string.Format("<enum name='{0}' enumType='string'>\n", type.Name));
-
-                    //Print values
-                    foreach (var v in Enum.GetValues(type))
-                        context.Response.Write(string.Format("\t<const name='{0}' />\n", v));
-
-                    context.Response.Write("</enum>\n");
-                }
+                //No documentation
+                if (classNode.Count == 0 || classNode[0].ChildNodes == null)
+                    context.Response.Write(string.Format("\t<class name='{0}' description=''>\n", t.Name));
                 else
                 {
-                    //No documentation
-                    if (classNode.Count == 0 || classNode[0].ChildNodes == null)
-                        context.Response.Write(string.Format("<class name='{0}' description=''>\n", type.Name));
-                    else
+                    foreach (XmlElement child in classNode[0].ChildNodes)
                     {
-                        foreach (XmlElement child in classNode[0].ChildNodes)
-                        {
-                            context.Response.Write(string.Format("<class name='{0}' description='{1}'>\n", type.Name,
-                                child.InnerText.Trim()));
-                        }
+                        context.Response.Write(string.Format("\t<class name='{0}' description='{1}'>\n", t.Name,
+                            child.InnerText.Trim()));
                     }
-
-                    runOnProperties(context, x, type.FullName, type.GetProperties());
-                    context.Response.Write("</class>\n");
                 }
+
+                runOnProperties(context, x, t.FullName, t.GetProperties());
+                context.Response.Write("\t</class>\n");
             }
 
+            context.Response.Write("</classes>\n");
+
             //Running on methods
+            context.Response.Write("<services>\n");
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
                 t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")))
             {
-                context.Response.Write(string.Format("<service name='{0}'>\n", controller.Name.Replace("Controller", "")));
+                context.Response.Write(string.Format("\t<service name='{0}'>\n", controller.Name.Replace("Controller", "")));
                 var methods = controller.GetMethods();
                 foreach (var method in methods)
                 {
@@ -116,26 +132,27 @@ namespace WebAPI
                             }
                         }
 
-                        context.Response.Write(string.Format("\t<action name='{0}' description='{1}'>\n", ((RouteAttribute)attr).Template, desc.Trim().Replace('\'', '"')));
+                        context.Response.Write(string.Format("\t\t<action name='{0}' description='{1}'>\n", ((RouteAttribute)attr).Template, desc.Trim().Replace('\'', '"')));
                         foreach (var par in method.GetParameters())
                         {
-                            var descs = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", 
+                            var descs = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']",
                                 controller.FullName, method.Name, par.Name));
 
                             string pdesc = "";
                             if (descs.Count > 0)
                                 pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
-                            context.Response.Write(string.Format("\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
+                            context.Response.Write(string.Format("\t\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
                                 getTypeFriendlyName(par.ParameterType), pdesc));
                         }
-                        context.Response.Write(string.Format("\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
-                        context.Response.Write("\t</action>\n");
+                        context.Response.Write(string.Format("\t\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
+                        context.Response.Write("\t\t</action>\n");
                     }
                 };
 
-                context.Response.Write(string.Format("</service>\n"));
+                context.Response.Write(string.Format("\t</service>\n"));
             }
+            context.Response.Write("</services>\n");
         }
 
         private void runOnProperties(HttpContext context, XmlDocument x, string className, MemberInfo[] members)
@@ -155,18 +172,18 @@ namespace WebAPI
 
                     if (pi.PropertyType.IsEnum)
                     {
-                        context.Response.Write(string.Format("\t<property name='{0}' type='string' enumType='{1}' description='{2}' />\n", pi.Name,
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
                             getTypeFriendlyName(pi.PropertyType), pdesc));
                     }
                     else
                     {
-                        context.Response.Write(string.Format("\t<property name='{0}' type='{1}' description='{2}' />\n", pi.Name,
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
                         getTypeFriendlyName(pi.PropertyType), pdesc));
                     }
                 }
                 else
                 {
-                    context.Response.Write(string.Format("\t<property name='{0}' type='{1}' />\n", property.Name,
+                    context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' readOnly='0' insertOnly='0' />\n", property.Name,
                     "error"));
                 }
             }
