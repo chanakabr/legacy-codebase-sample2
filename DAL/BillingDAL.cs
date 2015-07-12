@@ -973,9 +973,9 @@ namespace DAL
         }
 
 
-        public static List<PaymentGWConfig> GetPaymentGWConfigurationList(int groupID, int status = 1, int isActive = 1)
+        public static List<PaymentGW> GetPaymentGWSettingsList(int groupID, int status = 1, int isActive = 1)
         {
-            List<PaymentGWConfig> res = new List<PaymentGWConfig>();
+            List<PaymentGW> res = new List<PaymentGW>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWConfigurationList");
@@ -989,10 +989,10 @@ namespace DAL
                     DataTable dtConfig = ds.Tables[1];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGWConfig pgw = null;
+                        PaymentGW pgw = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGWConfig();
+                            pgw = new PaymentGW();
                             pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             pgw.isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
@@ -1007,11 +1007,11 @@ namespace DAL
                                 {
                                     string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
                                     string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
-                                    if (pgw.configs == null)
+                                    if (pgw.settings == null)
                                     {
-                                        pgw.configs = new List<PaymentGWConfigs>();
+                                        pgw.settings = new List<PaymentGWSettings>();
                                     }
-                                    pgw.configs.Add(new PaymentGWConfigs(key, value));
+                                    pgw.settings.Add(new PaymentGWSettings(key, value));
                                 }
                             }
                             res.Add(pgw);
@@ -1021,12 +1021,12 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<PaymentGWConfig>();
+                res = new List<PaymentGW>();
             }
             return res;
-        }      
+        }
 
-        public static bool SetPaymentGWParams(int groupID, int paymentGWID, List<PaymentGWConfigs> parameters)
+        public static bool SetPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
         {
             try
             {
@@ -1035,7 +1035,7 @@ namespace DAL
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", paymentGWID);
 
-                DataTable dt = CreateDataTable(parameters);
+                DataTable dt = CreateDataTable(settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
@@ -1047,15 +1047,15 @@ namespace DAL
             }
         }
 
-        private static DataTable CreateDataTable(List<PaymentGWConfigs> list)
+        private static DataTable CreateDataTable(List<PaymentGWSettings> list)
         {
             DataTable resultTable = new DataTable("resultTable"); ;
             try
             {
                 resultTable.Columns.Add("key", typeof(string));
-                resultTable.Columns.Add("value", typeof(string));                
+                resultTable.Columns.Add("value", typeof(string));
 
-                foreach (PaymentGWConfigs item in list)
+                foreach (PaymentGWSettings item in list)
                 {
                     DataRow row = resultTable.NewRow();
                     row["key"] = item.key;
@@ -1088,9 +1088,9 @@ namespace DAL
             }
         }
 
-        public static List<PaymentGW> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
+        public static List<PaymentGWBasic> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
         {
-            List<PaymentGW> res = new List<PaymentGW>();
+            List<PaymentGWBasic> res = new List<PaymentGWBasic>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayList");
@@ -1103,10 +1103,10 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];                  
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGW pgw = null;
+                        PaymentGWBasic pgw = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGW();
+                            pgw = new PaymentGWBasic();
                             pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                                     
@@ -1117,14 +1117,14 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<PaymentGW>();
+                res = new List<PaymentGWBasic>();
             }
             return res;
         }
 
-        public static List<PaymentGW> GetHHPaymentGWList(int groupID, int houseHoldID, int status = 1, int isActive = 1)
+        public static List<PaymentGWBasic> GetHHPaymentGWList(int groupID, int houseHoldID, int status = 1, int isActive = 1)
         {
-            List<PaymentGW> res = new List<PaymentGW>();
+            List<PaymentGWBasic> res = new List<PaymentGWBasic>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentHHGatewayList");
@@ -1138,10 +1138,10 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGW pgw = null;
+                        PaymentGWBasic pgw = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGW();
+                            pgw = new PaymentGWBasic();
                             pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
 
@@ -1152,7 +1152,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<PaymentGW>();
+                res = new List<PaymentGWBasic>();
             }
             return res;
         }
@@ -1177,7 +1177,7 @@ namespace DAL
             return res;
         }
 
-        public static bool DeletePaymentGW(int groupID, int paymentGwID, List<PaymentGWConfigs> parameters)
+        public static bool DeletePaymentGW(int groupID, int paymentGwID, List<PaymentGWSettings> settings)
         {
             try
             {
@@ -1185,7 +1185,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", paymentGwID);
-                DataTable dt = CreateDataTable(parameters);
+                DataTable dt = CreateDataTable(settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 bool isDelete = sp.ExecuteReturnValue<bool>();
@@ -1219,7 +1219,7 @@ namespace DAL
             }
         }
 
-        public static bool InsertPaymentGW(int groupID, PaymentGWConfig pgw)
+        public static bool InsertPaymentGW(int groupID, PaymentGW pgw)
         {
             try
             {
@@ -1231,7 +1231,7 @@ namespace DAL
                 sp.AddParameter("@isDefault", pgw.isDefault);
                 sp.AddParameter("@isActive", pgw.isActive);
                 
-                DataTable dt = CreateDataTable(pgw.configs);
+                DataTable dt = CreateDataTable(pgw.settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 bool isInsert = sp.ExecuteReturnValue<bool>();
@@ -1243,7 +1243,7 @@ namespace DAL
             }
         }
 
-        public static bool InsertPaymentGWParams(int groupID, int paymentGWID, List<PaymentGWConfigs> parameters)
+        public static bool InsertPaymentGWParams(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
         {
             try
             {
@@ -1252,7 +1252,7 @@ namespace DAL
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", paymentGWID);
 
-                DataTable dt = CreateDataTable(parameters);
+                DataTable dt = CreateDataTable(settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 bool isInsert = sp.ExecuteReturnValue<bool>();

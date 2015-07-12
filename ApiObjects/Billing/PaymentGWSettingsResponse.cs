@@ -6,18 +6,18 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGWConfigResponse
+    public class PaymentGWSettingsResponse
     {
         public ApiObjects.Response.Status resp { get; set; }
-        public List<PaymentGWConfig> pgw { get; set; }
+        public List<PaymentGW> pgw { get; set; }
 
-        public PaymentGWConfigResponse()
+        public PaymentGWSettingsResponse()
         {
             resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
-            pgw = new List<PaymentGWConfig>();
+            pgw = new List<PaymentGW>();
         }
 
-        public PaymentGWConfigResponse(ApiObjects.Response.Status resp, List<PaymentGWConfig> pgw)
+        public PaymentGWSettingsResponse(ApiObjects.Response.Status resp, List<PaymentGW> pgw)
         {
             this.resp = resp;
             this.pgw = pgw;

@@ -94,7 +94,9 @@ namespace ApiObjects.Response
         UnKnownPPVModule = 6001,
         ExpiredCard = 6002,
         CellularPermissionsError = 6003,
-        UnKnownBillingProvider = 6004
+        UnKnownBillingProvider = 6004,
+        PaymentGateWayIDMissing = 6005,
+        PaymentGateWayParamsMissing = 6006
 
     }
 }
