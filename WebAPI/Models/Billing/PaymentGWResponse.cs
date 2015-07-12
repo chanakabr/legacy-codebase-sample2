@@ -8,7 +8,7 @@ using System.Web;
 namespace WebAPI.Models.Billing
 {
     /// <summary>
-    /// PaymentGWResponse Response
+    /// Payment Gateway
     /// </summary>
     public class PaymentGWResponse
     {

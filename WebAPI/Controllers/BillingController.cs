@@ -217,7 +217,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/delete"), HttpPost]
-        public bool DeletePaymentGWParams([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        public bool DeletePaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
             bool response = false;
 
@@ -226,7 +226,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGWParams(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().DeletePaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {
