@@ -624,10 +624,14 @@ public partial class MethodFinder
                 string siteGuid = null;
                 bool isAdmin = false;
                 // validate unauthorized methods and extract relevant siteGuid
-                if (executer.m_MetodInfo.Name != "RefreshAccessToken" && !AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid, out isAdmin) ||
-                    (executer.m_MetodInfo.GetCustomAttributes(typeof(PrivateMethodAttribute), false).Length > 0 && string.IsNullOrEmpty(siteGuid)))
+                if (executer.m_MetodInfo.Name != "RefreshAccessToken" && !AuthorizationManager.Instance.IsAccessTokenValid(initObj.Token, initObj.DomainID, groupID, initObj.Platform, out siteGuid, out isAdmin))
+                    
                 {
-                    AuthorizationManager.Instance.returnError(403, null);
+                    return null;
+                }
+                if (executer.m_MetodInfo.Name != "RefreshAccessToken" && executer.m_MetodInfo.GetCustomAttributes(typeof(PrivateMethodAttribute), false).Length > 0 && string.IsNullOrEmpty(siteGuid))
+                {
+                    AuthorizationManager.Instance.returnError(401, null);
                     return null;
                 }
                 // add "tokenization" to context for later validations (only if not admin)
