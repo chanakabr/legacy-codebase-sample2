@@ -50,6 +50,14 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -350,6 +358,15 @@
     <Content Include="Web References\Api\UserStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGWResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGWSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -628,6 +645,10 @@
     <Compile Include="Models\API\GenericRule.cs" />
     <Compile Include="Models\API\GenericRulesList.cs" />
     <Compile Include="Models\API\RuleType.cs" />
+    <Compile Include="Models\Billing\PaymentGWBasic.cs" />
+    <Compile Include="Models\Billing\PaymentGW.cs" />
+    <Compile Include="Models\Billing\PaymentGWSettingsResponse.cs" />
+    <Compile Include="Models\Billing\PaymentGWResponse.cs" />
     <Compile Include="Models\API\ParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
@@ -681,6 +702,7 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Clients\ApiClient.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\BillingMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
@@ -839,10 +861,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/billing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_billing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Billing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

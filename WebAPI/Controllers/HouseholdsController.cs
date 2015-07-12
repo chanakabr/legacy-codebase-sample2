@@ -747,5 +747,115 @@ namespace WebAPI.Controllers
             }
             return device;
         }
+
+        #region payment gateway
+        /// <summary>
+        /// Returns payment gateway for household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="household_id">User Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("householdes/{household_id}/payment_gateways/get"), HttpGet]
+        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id)
+        {
+            Models.Billing.PaymentGWResponse response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetHouseHoldPaymentGW(groupId, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete payment gateway from household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="household_id">User Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("householdes/{household_id}/payment_gateways/delete"), HttpPost]
+        public bool DeletePaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().DeletePaymentGWHouseHold(groupId, payment_gateway_id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Insert new payment gateway for household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="household_id">User Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("householdes/{household_id}/payment_gateways/add"), HttpPost]
+        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        #endregion
     }
 }
