@@ -647,6 +647,7 @@
     <Compile Include="Models\Domains\With.cs" />
     <Compile Include="Models\Users\AddUserFavorite.cs" />
     <Compile Include="Models\Users\Favorite.cs" />
+    <Compile Include="Models\Users\FavoriteList.cs" />
     <Compile Include="Models\Users\SlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
     <Compile Include="Models\API\PurchaseSettingsResponse.cs" />

@@ -1245,7 +1245,7 @@ namespace WebAPI.Controllers
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
-        [Route("{user_id}/favorites"), HttpPost]
+        [Route("{user_id}/favorites/add"), HttpPost]
         public void AddUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] AddUserFavorite request)
         {
 
@@ -1294,7 +1294,7 @@ namespace WebAPI.Controllers
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
-        [Route("{user_id}/favorites"), HttpDelete]
+        [Route("{user_id}/favorites/delete"), HttpPost]
         public void RemoveUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
         {
 
@@ -1317,24 +1317,27 @@ namespace WebAPI.Controllers
             }
 
         }
-
+        
         /// <summary>
-        /// Remove media from user's favorite list
+        /// Retrieving users' favorites
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>                
+        /// <param name="media_type">Related media type </param>                
         /// <param name="household_id">Household identifier</param>
-        /// <param name="user_id">User identifier</param>        
-        /// <param name="media_ids">Media identifiers</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
-        /// <response code="200">OK</response>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
+        /// <param name="language">Language Code</param>                
+        // <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
-        [Route("{user_id}/favorites"), HttpGet]
-        public List<Models.Users.Favorite> GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type,
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
+        /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        [Route("{user_id}/favorites/get"), HttpGet]
+        public FavoriteList GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type= null,
             [FromUri] int household_id = 0, [FromUri] string udid = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
             string language = null)
@@ -1376,7 +1379,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return favoritesFinalList;
+            return new FavoriteList() { Favorites = favoritesFinalList };
         }
 
         #endregion
