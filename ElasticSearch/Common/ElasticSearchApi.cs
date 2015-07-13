@@ -42,7 +42,8 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public bool BuildIndex(string sIndex, int nShards, int nReplicas, List<string> lAnalyzers, List<string> lFilters)
+        public bool BuildIndex(string sIndex, int nShards, int nReplicas, 
+            List<string> lAnalyzers, List<string> lFilters, List<string> tokenizers = null)
         {
             bool bRes = false;
 
@@ -62,7 +63,7 @@ namespace ElasticSearch.Common
                 sBuildIndex.Append("} ");
             }
 
-            #region add analyzers/filters
+            #region add analyzers/filters/tokenizers
 
             if (bShards)
                 sBuildIndex.Append(",");
@@ -77,6 +78,8 @@ namespace ElasticSearch.Common
                 sBuildIndex.Append("}");
             }
 
+            bool hasFilter = false;
+
             if (lFilters != null && lFilters.Count > 0)
             {
                 if (bAnalyzer)
@@ -84,6 +87,20 @@ namespace ElasticSearch.Common
 
                 sBuildIndex.Append("\"filter\":{");
                 sBuildIndex.Append(string.Join(",", lFilters));
+                sBuildIndex.Append("}");
+
+                hasFilter = true;
+            }
+
+            if (tokenizers != null && tokenizers.Count > 0)
+            {
+                if (bAnalyzer || hasFilter)
+                {
+                    sBuildIndex.Append(",");
+                }
+
+                sBuildIndex.Append("\"tokenizer\":{");
+                sBuildIndex.Append(string.Join(",", tokenizers));
                 sBuildIndex.Append("}");
             }
 
@@ -570,6 +587,8 @@ namespace ElasticSearch.Common
 
         protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
         protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
+        protected static Dictionary<string, string> tokenizers = new Dictionary<string, string>();
+
         public static string GetAnalyzerDefinition(string sAnalyzerName)
         {
             string analyzer;
@@ -599,6 +618,23 @@ namespace ElasticSearch.Common
             return filter;
         }
 
+        public static string GetTokenizerDefinition(string tokenizerName)
+        {
+            string tokenizer;
+
+            if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
+            {
+                tokenizer = Utils.GetWSURL(tokenizerName);
+
+                if (!string.IsNullOrEmpty(tokenizer))
+                {
+                    tokenizers[tokenizerName] = tokenizer;
+                }
+            }
+
+            return tokenizer;
+        }
+
         public static bool AnalyzerExists(string sAnalyzerName)
         {
             bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
@@ -611,6 +647,13 @@ namespace ElasticSearch.Common
             bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
 
             return bResult;
+        }
+
+        public static bool TokenizerExists(string tokenizerName)
+        {
+            bool result = string.IsNullOrEmpty(GetTokenizerDefinition(tokenizerName)) ? false : true;
+
+            return result;
         }
 
         public string MultiGetIDs<T>(string sIndex, string sType, List<T> oIDsList, int nNumOfResultsToReturn)

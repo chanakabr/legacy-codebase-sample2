@@ -134,6 +134,11 @@ namespace ElasticSearch.Common
             return string.Concat(sLanguageCode, "_filter");
         }
 
+        public static string GetLangCodeTokenizerKey(string languageCode)
+        {
+            return string.Concat(languageCode, "_tokenizer");
+        }
+
         public static string GetGroupStatisticsIndex(int nParentGroupId)
         {
             return string.Concat(nParentGroupId, "_statistics");
