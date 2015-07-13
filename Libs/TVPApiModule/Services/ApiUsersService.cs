@@ -158,8 +158,16 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
-                    IsRemoved = true;
+                    var res = m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+
+                    if (res != null && res.Code == (int)eStatus.OK)
+                    {
+                        IsRemoved = true;
+                    }
+                    else
+                    {
+                        IsRemoved = false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -178,7 +186,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                    var res = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
+                    response = res.FavoritObjects;
                 }
             }
             catch (Exception ex)
@@ -191,12 +200,21 @@ namespace TVPApiModule.Services
 
         public bool AddUserFavorite(string sSiteGuid, int iDomainID, string sUDID, string sMediaType, string sMediaID, string sExtra)
         {
+            
             bool bRet = false;
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                    var res = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                    if (res != null && res.Code == (int)eStatus.OK)
+                    {
+                        bRet = true;
+                    }
+                    else
+                    {
+                        bRet = false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -214,6 +232,7 @@ namespace TVPApiModule.Services
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                    
                 }
             }
             catch (Exception ex)
