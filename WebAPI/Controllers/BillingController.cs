@@ -329,7 +329,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
-        public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name = null, [FromUri] string url = null, [FromUri] int? is_default = null, [FromUri] int? is_active = null)
+        public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active)
         {
             bool response = false;
 
