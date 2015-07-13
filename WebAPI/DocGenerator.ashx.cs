@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Web;
 using System.Web.Http;
 using System.Xml;
@@ -216,6 +217,13 @@ namespace WebAPI
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
                     Type eType = null;
+                    var dataMemberAttr = pi.GetCustomAttribute<DataMemberAttribute>();
+
+                    if (dataMemberAttr == null)
+                        continue;
+
+                    var attr = dataMemberAttr.Name;
+
                     if (pi.PropertyType.IsEnum || ((eType = Nullable.GetUnderlyingType(pi.PropertyType)) != null && eType.IsEnum))
                     {
                         string typeName = "";
@@ -224,8 +232,8 @@ namespace WebAPI
                             typeName = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
                         else
                             typeName = getTypeFriendlyName(pi.PropertyType);
-
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
+                        
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
                            typeName, pdesc));
                     }
                     else if (pi.PropertyType.IsArray || pi.PropertyType.IsGenericType)
@@ -236,19 +244,18 @@ namespace WebAPI
                         else if (pi.PropertyType.IsGenericType)
                             name = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
 
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='array' arrayType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='array' arrayType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
                             name, pdesc));
                     }
                     else
                     {
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
                         getTypeFriendlyName(pi.PropertyType), pdesc));
                     }
                 }
                 else
                 {
-                    context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' readOnly='0' insertOnly='0' />\n", property.Name,
-                    "error"));
+                    throw new Exception("Unable to generate");
                 }
             }
         }
