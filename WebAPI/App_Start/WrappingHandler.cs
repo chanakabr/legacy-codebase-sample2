@@ -61,8 +61,7 @@ namespace WebAPI.App_Start
                     message = HandleError(error.ExceptionMessage, error.StackTrace);
                 }
             }
-            else if ((!response.IsSuccessStatusCode && content != null) || 
-                (response.IsSuccessStatusCode && (content is ApiException && ((ApiException.ExceptionPayload)content).code != 0)))
+            else if (content is ApiException.ExceptionPayload && ((ApiException.ExceptionPayload)content).code != 0)
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
@@ -79,6 +78,7 @@ namespace WebAPI.App_Start
                 //Web API Bad Request global error
                 content = null;
                 subCode = (int)StatusCode.BadRequest;
+                response.StatusCode = System.Net.HttpStatusCode.OK;
                 message = HandleError("Bad Request", "");
             }
             else
