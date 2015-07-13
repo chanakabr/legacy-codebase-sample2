@@ -43,9 +43,11 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             List<string> lAnalyzers;
             List<string> lFilters;
-            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters);
+            List<string> tokenizers;
 
-            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, lAnalyzers, lFilters);
+            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters, out tokenizers);
+
+            bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, lAnalyzers, lFilters, tokenizers);
 
             #region create mapping
             foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
@@ -118,10 +120,11 @@ namespace ElasticSearchFeeder.IndexBuilders
         }
 
 
-        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters)
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
         {
             lAnalyzers = new List<string>();
             lFilters = new List<string>();
+            tokenizers = new List<string>();
 
             if (lLanguages != null)
             {
@@ -129,6 +132,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 {
                     string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
                     string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
+                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code));
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
@@ -142,6 +146,11 @@ namespace ElasticSearchFeeder.IndexBuilders
                     if (!string.IsNullOrEmpty(filter))
                     {
                         lFilters.Add(filter);
+                    }
+
+                    if (!string.IsNullOrEmpty(tokenizer))
+                    {
+                        tokenizers.Add(tokenizer);
                     }
                 }
             }
