@@ -15,6 +15,7 @@ using System.Reflection;
 using WebAPI.Models.Users;
 using System.ServiceModel;
 using System.Net;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Clients
 {

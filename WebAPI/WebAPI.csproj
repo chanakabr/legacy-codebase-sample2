@@ -739,8 +739,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Managers\CouchbaseManager.cs" />
-    <Compile Include="Models\General\Credentials.cs" />
-    <Compile Include="Models\General\Group.cs" />
+    <Compile Include="Managers\Models\Credentials.cs" />
+    <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\Catalog\AssetType.cs" />
     <Compile Include="Models\Catalog\Autocomplete.cs" />
@@ -748,15 +748,15 @@
     <Compile Include="Models\Catalog\IAssetable.cs" />
     <Compile Include="Models\Catalog\Order.cs" />
     <Compile Include="Models\Catalog\SearchAssets.cs" />
-    <Compile Include="Models\Language.cs" />
-    <Compile Include="Models\General\KS.cs" />
+    <Compile Include="Managers\Models\Language.cs" />
+    <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\Catalog\AssetInfo.cs" />
     <Compile Include="Models\Catalog\AssetStats.cs" />
     <Compile Include="Models\Catalog\BuzzScore.cs" />
     <Compile Include="Models\Catalog\File.cs" />
     <Compile Include="Models\Catalog\Image.cs" />
     <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
-    <Compile Include="Models\General\Status.cs" />
+    <Compile Include="Managers\Models\Status.cs" />
     <Compile Include="Models\Users\SignIn.cs" />
     <Compile Include="Models\Users\ClientUser.cs" />
     <Compile Include="Models\Catalog\WatchHistory.cs" />

@@ -14,6 +14,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor;
 using WebAPI.Models.General;
 using KLogMonitor;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Utils
 {

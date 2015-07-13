@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Web.Http;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
                     }
                     catch (Exception)
                     {
-                        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
                             string.Format("Parameters has incorrect type {0}", methodParams[i].Name));
                     }
                 }
@@ -81,7 +82,7 @@ namespace WebAPI.Controllers
                         ex.InnerException.StackTrace));
                 }
 
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
                            string.Format("Method invocation failed - {0}", methodName));
             }
         }
@@ -141,7 +142,7 @@ namespace WebAPI.Controllers
                     }
                     catch (Exception)
                     {
-                        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest,
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
                             string.Format("The method {0} has a parameter ({1}) which its syntax is incorrect", request[i].action,
                             request[i].parameters[j]));
                     }

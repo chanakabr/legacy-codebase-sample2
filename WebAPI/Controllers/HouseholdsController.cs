@@ -452,7 +452,7 @@ namespace WebAPI.Controllers
 
             if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "asset_id not valid");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
             }
             try
             {
@@ -492,7 +492,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(sub_id))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscription code not valid");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
@@ -598,7 +598,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(request.MasterUserId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "master_user_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "master_user_id cannot be empty");
             }
             try
             {

@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "too long filter");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
             }
 
             // page size - 5 <= size <= 50
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
             }
             else if (request.page_size < 5)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
             try
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
 
             if (media_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
@@ -245,7 +245,7 @@ namespace WebAPI.Controllers
 
             if (channel_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "channel_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
@@ -296,7 +296,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(media_ids))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_ids cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_ids cannot be empty");
             }
 
             List<int> mediaIds;
@@ -306,7 +306,7 @@ namespace WebAPI.Controllers
             }
             catch
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each media id must be int");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "each media id must be int");
             }
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
@@ -357,7 +357,7 @@ namespace WebAPI.Controllers
 
             if (channel_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "channel_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
             }
 
             try
@@ -401,7 +401,7 @@ namespace WebAPI.Controllers
 
             if (category_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "category_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "category_id cannot be 0");
             }
 
             try

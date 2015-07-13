@@ -14,6 +14,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models;
 using Enyim.Caching;
 using WebAPI.Models.General;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Utils
 {
