@@ -212,11 +212,20 @@ namespace WebAPI
                 if (type.IsArray)
                     name = getTypeFriendlyName(type.GetElementType());
                 else if (type.IsGenericType)
-                    name = getTypeFriendlyName(type.GetGenericArguments()[0]);
+                {
+                    //if List
+                    if (type.GetGenericArguments().Count() == 1)
+                        name = getTypeFriendlyName(type.GetGenericArguments()[0]);
+                    //if Dictionary
+                    else if (type.GetGenericArguments().Count() == 2)
+                        name = "dictionary";
+                    else
+                        throw new Exception("Generic type unknown");
+                }
 
                 return string.Format("type='array' arrayType='{1}'", getTypeFriendlyName(type), name);
             }
-            
+
             return string.Format("type='{0}' {1} default='{2}'", getTypeFriendlyName(type), isNullable ? "optional='1'" : "", getDefaultForType(type));
         }
 
@@ -260,7 +269,7 @@ namespace WebAPI
                     var attr = dataMemberAttr.Name;
 
                     context.Response.Write(string.Format("\t\t<property name='{0}' {1} description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                           getTypeAndArray(pi.PropertyType), pdesc));                    
+                           getTypeAndArray(pi.PropertyType), pdesc));
                 }
                 else
                 {
