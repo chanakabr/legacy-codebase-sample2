@@ -177,12 +177,12 @@ namespace WebAPI
                                 pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
                             //Handling nullables
-                            var eType = Nullable.GetUnderlyingType(par.GetType());
+                            var eType = Nullable.GetUnderlyingType(par.ParameterType);
                             string typeName = "";
                             if (eType != null)
-                                typeName = getTypeFriendlyName(par.GetType().GetGenericArguments()[0]);
+                                typeName = getTypeFriendlyName(par.ParameterType.GetGenericArguments()[0]);
                             else
-                                typeName = getTypeFriendlyName(par.GetType());
+                                typeName = getTypeFriendlyName(par.ParameterType);
 
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
                                 typeName, pdesc));
