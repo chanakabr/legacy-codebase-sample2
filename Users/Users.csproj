@@ -132,6 +132,7 @@
     <Compile Include="DomainFactory.cs" />
     <Compile Include="EutelsatDomain.cs" />
     <Compile Include="EutelsatUsers.cs" />
+    <Compile Include="FavoriteResponse.cs" />
     <Compile Include="FlowManager.cs" />
     <Compile Include="KalturaBaseUsers.cs" />
     <Compile Include="KalturaSSOUsers.cs" />

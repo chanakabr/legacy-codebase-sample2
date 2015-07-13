@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -90,11 +91,18 @@ namespace Users
             m_dUpdateDate = dUpdate;
             m_is_channel = isChannel;
         }
-        static public FavoritObject[] GetFavorites(Int32 nGroupID , string sUserGUID, int domainID, string sUDID, string sType)
+        static public FavoriteResponse GetFavorites(Int32 nGroupID, string sUserGUID, int domainID, string sUDID, string sType)
         {
+            FavoriteResponse response = new FavoriteResponse();
+
+            //TODO: consider change to  IsUserValid ( Should move to Util.. ) ANat
             if (string.IsNullOrEmpty(sUserGUID))
             {
-                return new FavoritObject[0];
+                return new FavoriteResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error"),
+                    Favorites = null
+                };
             }
 
             List<FavoritObject> favorits = new List<FavoritObject>();
@@ -146,8 +154,8 @@ namespace Users
             
             if (sUDID != "")
             {
-                selectquery += " and ";
-                selectquery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", sUDID);
+                selectchannelquery += " and ";
+                selectchannelquery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", sUDID);
             }
             
             selectchannelquery += "order by update_date desc";
@@ -199,7 +207,10 @@ namespace Users
             selectchannelquery = null;
             #endregion
 
-            return favorits.Count > 0 ? favorits.ToArray<FavoritObject>() : new FavoritObject[0];
+            response = new FavoriteResponse();
+            response.Favorites = favorits.Count > 0 ? favorits.ToArray<FavoritObject>() : new FavoritObject[0];
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Ok");
+            return response;
         }
 
         static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID , Int32 nID)
@@ -292,8 +303,6 @@ namespace Users
         }
         public bool Save(Int32 nGroupID)
         {
-            if (m_sType == "" || m_sItemCode == "" || m_sSiteUserGUID == "")
-                return false;
             Int32 nRowID = 0;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -312,9 +321,6 @@ namespace Users
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", m_sDeviceUDID);
             }
           
-           
-          
-           
            
             if (selectQuery.Execute("query", true) != null)
             {
