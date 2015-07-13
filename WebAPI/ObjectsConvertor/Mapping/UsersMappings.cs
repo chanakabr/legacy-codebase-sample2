@@ -8,6 +8,7 @@ using WebAPI.Utils;
 using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -108,6 +109,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<Dictionary<string, string>, Users.UserDynamicData>()
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
+
+
+            // MediaId to AssetInfo
+            Mapper.CreateMap<string, AssetInfo>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => ConvertToLong(src)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
+
+            // Rest WS_Users FavoritObject ==>  Favorite  
+            Mapper.CreateMap<Users.FavoritObject, Favorite>()
+                .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
+                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
+
+        }
+
+        private static long ConvertToLong(string src)
+        {
+            long output = 0;
+            long.TryParse(src, out output);
+            return output;
+
+
         }
 
         private static UserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type)
@@ -153,7 +175,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = new Users.UserDynamicData();
                 List<Users.UserDynamicDataContainer> udc = new List<Users.UserDynamicDataContainer>();
                 Users.UserDynamicDataContainer ud;
-                foreach (KeyValuePair<string,string> data in userDynamicData)
+                foreach (KeyValuePair<string, string> data in userDynamicData)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
@@ -174,7 +196,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static Dictionary<string, string> ConvertDynamicData(Users.UserDynamicData userDynamicData)
         {
-            Dictionary<string,string> result = null;
+            Dictionary<string, string> result = null;
 
             if (userDynamicData != null && userDynamicData.m_sUserData != null)
             {
