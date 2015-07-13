@@ -12,6 +12,6 @@ namespace WebAPI.Models.Users
     {
         [DataMember(Name = "favorites")]
         [JsonProperty("favorites")]
-        public List<Favorite> Favorites;
+        public List<Favorite> Favorites { get; set; }
     }
 }

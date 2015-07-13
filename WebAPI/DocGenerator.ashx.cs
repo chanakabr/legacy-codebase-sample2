@@ -144,7 +144,7 @@ namespace WebAPI
                 foreach (var method in methods)
                 {
                     //Read only HTTP POST as we will have duplicates otherwise
-                    if (method.GetCustomAttributes<HttpPostAttribute>(false).Count() == 0)
+                    if (method.GetCustomAttributes<HttpGetAttribute>(false).Count() == 0)
                         continue;
 
                     var attr = method.GetCustomAttribute<RouteAttribute>(false);
