@@ -288,7 +288,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/add"), HttpPost]
-        public bool InsertPaymentGWParams([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        public bool InsertPaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
             bool response = false;
 
@@ -297,7 +297,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWParams(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().InsertPaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {
@@ -365,7 +365,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
-        public bool SetPaymentGWParams([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
+        public bool SetPaymentGWSrttings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
         {
             bool response = false;
 
@@ -374,7 +374,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGWParams(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().SetPaymentGWSrttings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {

@@ -765,7 +765,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
-        [Route("householdes/{household_id}/payment_gateways/get"), HttpGet]
+        [Route("{household_id}/payment_gateways/get"), HttpGet]
         public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             Models.Billing.PaymentGWResponse response = null;
@@ -802,7 +802,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
-        [Route("householdes/{household_id}/payment_gateways/delete"), HttpPost]
+        [Route("{household_id}/payment_gateways/delete"), HttpPost]
         public bool DeletePaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             bool response = false;
@@ -839,7 +839,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
-        [Route("householdes/{household_id}/payment_gateways/add"), HttpPost]
+        [Route("{household_id}/payment_gateways/add"), HttpPost]
         public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             bool response = false;

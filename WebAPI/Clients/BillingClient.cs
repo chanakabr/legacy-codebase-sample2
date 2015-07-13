@@ -169,7 +169,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SetPaymentGWParams(int groupId, int paymentGWID, Dictionary<string, string> payment_gateway_settings)
+        public bool SetPaymentGWSrttings(int groupId, int paymentGWID, Dictionary<string, string> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -324,7 +324,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGWParams(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        public bool InsertPaymentGWSettings(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
