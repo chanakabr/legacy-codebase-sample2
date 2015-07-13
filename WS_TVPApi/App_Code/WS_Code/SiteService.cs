@@ -376,7 +376,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get User Group Rules")]
-        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj)
         {
             TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] response = null;
@@ -967,7 +966,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get user CA status")]
-        [PrivateMethod]
         public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus GetUserCAStatus(InitializationObject initObj)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus response = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.UserCAStatus.Annonymus;
@@ -1503,9 +1501,10 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                if (AuthorizationManager.IsTokenizationEnabled() && AuthorizationManager.IsSwitchingUsersAllowed(groupID) &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform))
+                if (AuthorizationManager.IsTokenizationEnabled() && (!AuthorizationManager.IsSwitchingUsersAllowed(groupID) ||
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, siteGuid, 0, null, groupID, initObj.Platform)))
                 {
+                    AuthorizationManager.Instance.returnError(403);
                     return null;
                 }
                 try
@@ -1985,7 +1984,7 @@ namespace TVPApiServices
 
             return response;
         }
-        
+
         /// <summary>
         /// Validate that a given parental PIN for a user is valid.
         /// </summary>
