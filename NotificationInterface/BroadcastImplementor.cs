@@ -10,10 +10,11 @@ using System.Collections.Concurrent;
 using System.Configuration;
 using System.Data.SqlClient;
 using NotificationObj;
+using KlogMonitorHelper;
 
 
 namespace NotificationInterface
-{    
+{
     /// <summary>
     /// Responsible for handling broadcast type notifications,
     /// this class designed to handle a big number of messages using multithreaded ablities.
@@ -30,8 +31,9 @@ namespace NotificationInterface
 
 
         #region Constructor
-        public BroadcastImplementor(NotificationRequest request) : base(request)
-        {         
+        public BroadcastImplementor(NotificationRequest request)
+            : base(request)
+        {
         }
         #endregion
 
@@ -46,8 +48,8 @@ namespace NotificationInterface
         /// </summary>
         /// <param name="messagesList"></param>
         protected override void SendMessages(List<NotificationMessage> messagesList, bool bIsInsertBulkOfMessagesToDB)
-        {           
-          
+        {
+
             if (messagesList != null && messagesList.Count > 0)
             {
                 int messagesCount = messagesList.Count;
@@ -55,17 +57,17 @@ namespace NotificationInterface
                 {
                     SendMessagesSync(messagesList);
                 }
-                else                                               
+                else
                 {
-                    SendMessagesBroadCast(messagesList);             
+                    SendMessagesBroadCast(messagesList);
                     //SendMessagesBroadCastParallel(messagesList);
                     //SendMessagesBroadCastByThreads(messagesList);
                 }
-                if(bIsInsertBulkOfMessagesToDB)
+                if (bIsInsertBulkOfMessagesToDB)
                     Task.Factory.StartNew(() => { InsertMessagesBulkCopy(messagesList); });
             }
         }
-               
+
         /// <summary>
         /// Concrete implementation of the GetUsersDevices() method,
         /// here the users devices is fetched by group id.
@@ -98,7 +100,7 @@ namespace NotificationInterface
         }
 
 
-       
+
         #endregion
 
         #region private methods
@@ -113,11 +115,11 @@ namespace NotificationInterface
             {
                 try
                 {
-                    ProcessOneMessage(messagesList[i]); 
+                    ProcessOneMessage(messagesList[i]);
                 }
                 catch
                 {
-                   //TBD:Take care of failures
+                    //TBD:Take care of failures
                 }
             }
         }
@@ -131,29 +133,32 @@ namespace NotificationInterface
         {
             ConcurrentQueue<NotificationMessage> messagesQueue = new ConcurrentQueue<NotificationMessage>(messagesList);
             int tasksNumber = this.MaxTasksNumber;
-            Task[] tasks = new Task[tasksNumber];  
+            Task[] tasks = new Task[tasksNumber];
 
             int threadSleepNum = this.ThreadSleepNumber;
             int threadSleepIndicator = this.ThreadSleepIndicator;
 
+            // save monitor and logs context data
+            ContextData contextData = new ContextData();
+
             for (int i = 0; i < tasksNumber; i++)
             {
                 NotificationConsumer<NotificationMessage> consumer = new NotificationConsumer<NotificationMessage>(messagesQueue, ProcessOneMessage, threadSleepNum, threadSleepIndicator);
-                tasks[i] = consumer.Start();
+                tasks[i] = consumer.Start(contextData);
             }
-            Task.WaitAll(tasks);               
+            Task.WaitAll(tasks);
         }
 
 
         public void SendMessagesBroadCastParallel(List<NotificationMessage> messagesList)
         {
             ConcurrentQueue<NotificationMessage> messagesQueue = new ConcurrentQueue<NotificationMessage>(messagesList);
-            Parallel.ForEach(messagesQueue, new ParallelOptions { MaxDegreeOfParallelism = 10 } ,
+            Parallel.ForEach(messagesQueue, new ParallelOptions { MaxDegreeOfParallelism = 10 },
                             (item) =>
                             {
                                 ProcessOneMessage(item);
                             });
-        
+
         }
 
 
@@ -175,7 +180,7 @@ namespace NotificationInterface
                 if (TVinciShared.WS_Utils.GetTcmConfigValue(MAX_TASKS_NUM_KEY) != string.Empty)
                 {
                     bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(MAX_TASKS_NUM_KEY), out ret);
-                    if (result ==false)
+                    if (result == false)
                     {
                         ret = 10;
                     }
@@ -193,7 +198,7 @@ namespace NotificationInterface
             get
             {
                 int ret = 100;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(MIN_MESSAGES_NUM_FOR_TASKS_KEY) != string.Empty) 
+                if (TVinciShared.WS_Utils.GetTcmConfigValue(MIN_MESSAGES_NUM_FOR_TASKS_KEY) != string.Empty)
                 {
                     bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(MIN_MESSAGES_NUM_FOR_TASKS_KEY), out ret);
                     if (result == false)
@@ -233,7 +238,7 @@ namespace NotificationInterface
             get
             {
                 int ret = 100;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_INDICATOR_KEY) != string.Empty )
+                if (TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_INDICATOR_KEY) != string.Empty)
                 {
                     bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_INDICATOR_KEY), out ret);
                     if (result == false)

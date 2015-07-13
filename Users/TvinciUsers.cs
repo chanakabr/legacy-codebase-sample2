@@ -11,6 +11,7 @@ using System.Threading;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using KlogMonitorHelper;
 
 namespace Users
 {
@@ -944,8 +945,14 @@ namespace Users
 
                             if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                             {
+                                // save monitor and logs context data
+                                ContextData contextData = new ContextData();
+
                                 Thread thread = new Thread(() =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     lock (lockObj)
                                     {
                                         bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);

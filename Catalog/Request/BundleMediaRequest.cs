@@ -15,6 +15,7 @@ using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
 using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog.Request
 {
@@ -98,6 +99,9 @@ namespace Catalog.Request
 
                             }
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
                             int[] nDeviceRuleId = null;
@@ -112,6 +116,9 @@ namespace Catalog.Request
                                 channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                      (obj) =>
                                      {
+                                         // load monitor and logs context data
+                                         contextData.Load();
+
                                          try
                                          {
                                              int nChannelIndex = (int)obj;

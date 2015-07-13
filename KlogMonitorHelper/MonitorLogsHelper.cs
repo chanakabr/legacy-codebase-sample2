@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Threading;
 using System.Web;
 using System.Xml;
 using ApiObjects;
@@ -17,6 +15,7 @@ namespace KlogMonitorHelper
     public class MonitorLogsHelper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string K_MON_KEY = "kmon";
         private const string PREFIX_UNIQUE_ID = @"urn:uuid:";
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
@@ -83,7 +82,7 @@ namespace KlogMonitorHelper
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error while getting log and monitor information", ex);
+                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString), ex);
                 }
 
                 // start k-monitor
@@ -162,9 +161,9 @@ namespace KlogMonitorHelper
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // ignore error - this will happen when updating WCF reference
+                // ignore error - this will happen when updating WCF reference - NO NEED TO LOG
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
         }

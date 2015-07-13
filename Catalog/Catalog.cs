@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using ApiObjects;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
@@ -20,6 +23,7 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
@@ -149,6 +153,9 @@ namespace Catalog
             int nParentGroupID = catalogCache.GetParentGroup(groupId);
             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
+            // save monitor and logs context data
+            ContextData contextData = new ContextData();
+
             //complete media id details 
             for (int i = nStartIndex; i < nEndIndex; i++)
             {
@@ -156,6 +163,9 @@ namespace Catalog
 
                 tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
                 {
+                    // load monitor and logs context data
+                    contextData.Load();
+
                     try
                     {
                         int taskMediaID = (int)obj;
@@ -1087,7 +1097,8 @@ namespace Catalog
 
             foreach (var mediaType in groupMediaTypes)
             {
-                if (mediaType.parentId > 0)
+                // Validate that this media type is defined for parent/association tag
+                if (mediaType.parentId > 0 && !string.IsNullOrEmpty(mediaType.associationTag))
                 {
                     // If this is relevant for the search at all
                     if (relevantMediaTypes.Contains(mediaType.parentId) ||
@@ -1310,7 +1321,12 @@ namespace Catalog
                         string url = Utils.GetWSURL("ws_domains");
                         domainsWebService.Url = url;
 
-                        var domain = domainsWebService.GetDomainInfo(userName, password, domainId);
+                        WS_Domains.Domain domain = null; 
+                        var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
+                        if (domainRes != null)
+                        {
+                            domain = domainRes.Domain;
+                        }
 
                         // If the domain is not associated to a domain - get default region
                         if (domain.m_nRegion == 0)
@@ -2874,12 +2890,18 @@ namespace Catalog
                                 log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             // bring social actions from CB social bucket
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);
@@ -2944,12 +2966,18 @@ namespace Catalog
                             // we bring data from ES statistics index.
                             //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             // we bring data from social bucket in CB.
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);
@@ -3940,7 +3968,11 @@ namespace Catalog
                 sWSUrl = Utils.GetWSURL("ws_domains");
                 if (sWSUrl.Length > 0)
                     domains.Url = sWSUrl;
-                domainsResp = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
+                var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
+                if (domainRes != null)
+                {
+                    domainsResp = domainRes.Domain;
+                }
             }
 
             if (domainsResp != null)
@@ -4018,9 +4050,10 @@ namespace Catalog
             return res;
         }
 
-        internal static List<RecordedSeriesObject> GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
+        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
         {
-            List<RecordedSeriesObject> res = null;
+            NPVRSeriesResponse nPVRSeriesResponse = new NPVRSeriesResponse();
+
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
             {
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
@@ -4029,17 +4062,28 @@ namespace Catalog
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
+                        if (request.m_nPageIndex < 0)
+                        {
+                            throw new Exception("Bad Request.");
+                        }
+                        // In case Page Size is 0  set Page size to default (5)
+                        if (request.m_nPageSize == 0)
+                        {
+                            request.m_nPageSize = 5; // default
+                        }
+
                         NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
                         if (response != null)
                         {
                             if (response.isOK)
                             {
-                                res = response.results;
+                                nPVRSeriesResponse.totalItems = response.totalItems;
+                                nPVRSeriesResponse.recordedSeries = response.results;
                             }
                             else
                             {
                                 log.Error("Error - " + string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg));
-                                res = new List<RecordedSeriesObject>(0);
+                                nPVRSeriesResponse.recordedSeries = new List<RecordedSeriesObject>(0);
                             }
                         }
                         else
@@ -4063,7 +4107,7 @@ namespace Catalog
                 throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
             }
 
-            return res;
+            return nPVRSeriesResponse;
         }
 
         internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
@@ -4166,7 +4210,7 @@ namespace Catalog
             {
                 if (url.Length > 0)
                     u.Url = url;
-                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid);
+                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid, string.Empty);
                 if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
@@ -4213,5 +4257,7 @@ namespace Catalog
 
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
+
+      
     }
 }

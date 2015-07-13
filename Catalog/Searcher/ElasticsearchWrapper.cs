@@ -16,6 +16,7 @@ using GroupsCacheManager;
 using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -532,6 +533,9 @@ namespace Catalog
 
             if (lDateAliases.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 Task<string>[] tAliasRequests = new Task<string>[lDateAliases.Count];
 
                 for (int i = 0; i < lDateAliases.Count; i++)
@@ -539,6 +543,9 @@ namespace Catalog
                     tAliasRequests[i] = Task.Factory.StartNew<string>(
                          (index) =>
                          {
+                             // load monitor and logs context data
+                             contextData.Load();
+
                              string sIndex = lDateAliases[(int)index];
                              return (m_oESApi.IndexExists(sIndex)) ? sIndex : string.Empty;
                          }, i);
@@ -1138,6 +1145,8 @@ namespace Catalog
 
             filteredQuery.Filter = new QueryFilter();
 
+            FilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
+
             FilterCompositeType tagsFilter = new FilterCompositeType(CutWith.OR);
 
             // Filter data only to contain documents that have the specifiic tag
@@ -1157,7 +1166,36 @@ namespace Catalog
                 }
             }
 
-            filteredQuery.Filter.FilterSettings = tagsFilter;
+            ESTerm isActiveTerm = new ESTerm(true)
+            {
+                Key = "is_active",
+                Value = "1"
+            };
+
+            string nowSearchString = DateTime.UtcNow.ToString(DATE_FORMAT);
+
+            ESRange startDateRange = new ESRange(false)
+            {
+                Key = "start_date"
+            };
+
+            startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowSearchString));
+
+            ESRange endDateRange = new ESRange(false)
+            {
+                Key = "end_date"
+            };
+
+            // Filter associated media by:
+            // is_active = 1
+            // start_date < NOW
+            // end_date > NOW
+            // tag is actually the current series
+            filterSettings.AddChild(isActiveTerm);
+            filterSettings.AddChild(startDateRange);
+            filterSettings.AddChild(endDateRange);
+            filterSettings.AddChild(tagsFilter);
+            filteredQuery.Filter.FilterSettings = filterSettings;
 
             ESTermsStatsFacet facet = new ESTermsStatsFacet()
             {

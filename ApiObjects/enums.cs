@@ -44,6 +44,14 @@ namespace ApiObjects
         AnonymousAccessBlock = 6
     }
 
+    public enum RuleType
+    {
+        Parental = 0,
+        Geo = 1,
+        UserType = 2,
+        Device = 3
+    }
+
     public enum eMailTemplateType
     {
         Welcome = 0,
@@ -70,7 +78,6 @@ namespace ApiObjects
         Device = 3,
         EPG = 4
     }
-
 
     [Serializable]
     public enum eObjectType

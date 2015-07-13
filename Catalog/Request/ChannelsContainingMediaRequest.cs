@@ -12,6 +12,7 @@ using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Logger;
 using TVinciShared;
 
@@ -33,7 +34,7 @@ namespace Catalog.Request
         }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
-        {            
+        {
             ChannelsContainingMediaResponse response = new ChannelsContainingMediaResponse();
             try
             {
@@ -57,7 +58,7 @@ namespace Catalog.Request
                             Dictionary<int, int> dChannels = nChannels.ToDictionary<int, int>(item => item);
 
                             foreach (int item in request.m_lChannles)
-                            {   
+                            {
                                 if (dChannels.ContainsKey(item))
                                 {
                                     response.m_lChannellList.Add(item);
@@ -67,11 +68,11 @@ namespace Catalog.Request
                         }
                     }
                     else //LuceneWrapper
-                    {   
+                    {
                         GroupManager groupManager = new GroupManager();
                         CatalogCache catalogCache = CatalogCache.Instance();
                         int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                        Group groupInCache = groupManager.GetGroup(nParentGroupID); 
+                        Group groupInCache = groupManager.GetGroup(nParentGroupID);
                         List<int> channelIds = request.m_lChannles;
 
                         if (groupInCache != null && channelIds != null && channelIds.Count > 0)
@@ -85,6 +86,10 @@ namespace Catalog.Request
                             {
                                 List<ChannelContainSearchObj> channelsSearchObjects = new List<ChannelContainSearchObj>();
                                 List<int> lIds = new List<int>();
+
+                                // save monitor and logs context data
+                                ContextData contextData = new ContextData();
+
                                 Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
                                 #region Building search object for each channel
@@ -106,6 +111,9 @@ namespace Catalog.Request
                                     channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                          (obj) =>
                                          {
+                                             // load monitor and logs context data
+                                             contextData.Load();
+
                                              try
                                              {
                                                  if (groupInCache != null)
@@ -160,7 +168,7 @@ namespace Catalog.Request
                                     catch (Exception ex)
                                     {
                                         log.Error(ex.Message);
-                                    }                                   
+                                    }
                                 }
                                 #endregion
                             }

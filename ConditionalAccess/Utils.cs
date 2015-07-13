@@ -2020,7 +2020,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID);
+                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID, string.Empty);
 
                 if (userResponseObj.m_RespStatus == TvinciUsers.ResponseStatus.OK && userResponseObj.m_user.m_domianID != 0)
                 {
@@ -2767,7 +2767,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                res = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                res = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
             }
             finally
             {
@@ -2992,7 +2992,7 @@ namespace ConditionalAccess
             {
                 if (url.Length > 0)
                     u.Url = url;
-                TvinciUsers.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid);
+                TvinciUsers.UserResponseObject resp = u.GetUserData(wsUsername, wsPassword, siteGuid, string.Empty);
                 if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
@@ -3032,7 +3032,11 @@ namespace ConditionalAccess
                         svcDomains.Url = sWSURL;
                     }
 
-                    oDomain = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+                    var res = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
+                    if (res != null)
+                    {
+                        oDomain = res.Domain; 
+                    }
                 }
 
             }

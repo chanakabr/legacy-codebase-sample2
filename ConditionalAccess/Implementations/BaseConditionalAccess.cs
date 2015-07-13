@@ -55,21 +55,23 @@ namespace ConditionalAccess
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule,
             ref TvinciBilling.module bm);
 
+        protected abstract bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword,
+          long purchaseID, long billingRefTransactionID, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
+        protected abstract bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, string sCustomData,
-            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
+            bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
+        protected abstract bool HandleChargeUserForCollectionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
-            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID);
+            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
+        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
-            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy);
+            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
         /*
          * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
@@ -214,7 +216,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID);
+                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID, string.Empty);
                 if (uObj.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     if (uObj.m_user != null)
@@ -452,7 +454,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -837,7 +839,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
                     //get user data
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         //return UnKnownUser 
@@ -1222,7 +1224,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -2170,7 +2172,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -2423,7 +2425,7 @@ namespace ConditionalAccess
                     }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3033,7 +3035,7 @@ namespace ConditionalAccess
                     }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3416,7 +3418,7 @@ namespace ConditionalAccess
                 {
 
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
@@ -3549,7 +3551,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
                     int domainID = userRepObj.m_user.m_domianID;
@@ -3562,7 +3564,11 @@ namespace ConditionalAccess
                         {
                             domainsWS.Url = sWSURL;
                         }
-                        userDomain = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        var res = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
+                        if (res != null)
+                        {
+                            userDomain = res.Domain;
+                        }
                         if (userDomain != null)
                         {
                             TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
@@ -4390,7 +4396,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -4584,7 +4590,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -5685,7 +5691,7 @@ namespace ConditionalAccess
                     {
                         wsUsersService.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -5806,9 +5812,9 @@ namespace ConditionalAccess
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
 
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                 sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
-                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref wsBillingService);
 
                                             // Enqueue notification for PS so they know a media file was charged
                                             var dicData = new Dictionary<string, object>()
@@ -5961,7 +5967,7 @@ namespace ConditionalAccess
                 {
                     u.Url = sWSURL;
                 }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                 if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                 {
                     retVal = 0;
@@ -6126,7 +6132,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         retVal = 0;
@@ -6248,7 +6254,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         retVal = 0;
@@ -6422,7 +6428,7 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -6675,7 +6681,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -6865,7 +6871,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -7077,16 +7083,11 @@ namespace ConditionalAccess
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
-            if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && bIsEntitledToPreviewModule))
+            if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && (bIsEntitledToPreviewModule || !string.IsNullOrEmpty(sCouponCode))))
             {
                 ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                    bDummy, bIsEntitledToPreviewModule, ref bm);
-            }
-
-            if ((p.m_dPrice == 0 && !string.IsNullOrEmpty(sCouponCode)) || bIsEntitledToPreviewModule)
-            {
-                ret.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+                    true, bIsEntitledToPreviewModule, ref bm);
             }
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
@@ -7094,9 +7095,9 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
+                HandleChargeUserForSubscriptionBillingSuccess(sBillingUsername, sBillingPassword, sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
-                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                    bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                 // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                 if (theSub.m_nDomainLimitationModule != 0)
@@ -7139,11 +7140,11 @@ namespace ConditionalAccess
 
             log.Debug("CustomData - " + string.Format("Collection custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData));
 
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+
             if (p.m_dPrice != 0 || bDummy)
             {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-
                 InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
 
                 ret = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP,
@@ -7159,8 +7160,8 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForCollectionBillingSuccess(sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
-                    sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID);
+                HandleChargeUserForCollectionBillingSuccess(sWSUserName, sWSPass, sSiteGUID, domainID, theCol, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                    sDEVICE_NAME, ret, sBundleCode, sCustomData, ref lBillingTransactionID, ref lPurchaseID, ref bm);
 
                 // Enqueue notification for PS so they know a collection was charged
                 var dicData = new Dictionary<string, object>()
@@ -7897,7 +7898,7 @@ namespace ConditionalAccess
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
-                    response.resp = new Status((int)eResponseStatus.OK, "no history billing for user");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for user");
                     return response;
                 }
 
@@ -8087,13 +8088,13 @@ namespace ConditionalAccess
                     }
                 } // for
 
-                response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.transactions = theResp;
             }
             catch (Exception ex)
             {
                 log.Error("GetUserBillingHistoryExt - " + string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems, ex.Message), ex);
-                response.resp = new Status((int)eResponseStatus.Error, ex.Message);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
             }
             finally
             {
@@ -8629,7 +8630,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
@@ -8989,7 +8990,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
@@ -10089,7 +10090,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -10202,9 +10203,9 @@ namespace ConditionalAccess
                                         {
                                             long lBillingTransactionID = 0;
                                             long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
                                                                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
-                                                                                       thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                                                       thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                                             // Enqueue notification for PS so they know a collection was charged
                                             var dicData = new Dictionary<string, object>()
@@ -10362,7 +10363,7 @@ namespace ConditionalAccess
                     {
                         u.Url = sWSURL;
                     }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
+                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -10436,9 +10437,9 @@ namespace ConditionalAccess
 
                                     long lBillingTransactionID = 0;
                                     long lPurchaseID = 0;
-                                    HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, uObj.m_user.m_domianID, theSub, dPrice, sCurrency, sCouponCode,
+                                    HandleChargeUserForSubscriptionBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, theSub, dPrice, sCurrency, sCouponCode,
                                                                                   sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sSubscriptionCode, sCustomData,
-                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
+                                                                                  bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
                                     // Enqueue notification for PS so they know a collection was charged
                                     var dicData = new Dictionary<string, object>()
@@ -10532,7 +10533,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-        protected void UpdatePurchaseIDInExternalBillingTable(long lBillingTransactionID, long lPurchaseID)
+        protected void UpdatePurchaseIDInExternalBillingTable(string sWSUsername, string sWSPassword, long lBillingTransactionID, long lPurchaseID, ref TvinciBilling.module wsBillingService)
         {
             int nExternalTransactionID = 0;
             int nBillingProvider = 0;
@@ -10563,46 +10564,7 @@ namespace ConditionalAccess
 
             if (nExternalTransactionID > 0 && nBillingProvider > 0 && Enum.IsDefined(typeof(eBillingProvider), nBillingProvider))
             {
-                eBillingProvider billingProvider = (eBillingProvider)nBillingProvider;
-                string sTableName = string.Empty;
-
-                switch (billingProvider)
-                {
-                    case eBillingProvider.Adyen:
-                        sTableName = "adyen_transactions";
-                        break;
-                    case eBillingProvider.M1:
-                        sTableName = "m1_transactions";
-                        break;
-                    case eBillingProvider.Cinepolis:
-                        sTableName = "cinepolis_transactions";
-                        break;
-                    default:
-                        log.Debug("UpdatePurchaseIDInExternalBillingTable - " + string.Format("No table name assigned. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID));
-                        break;
-                }
-                if (sTableName.Length > 0)
-                {
-                    ODBCWrapper.DirectQuery directQuery = null;
-                    try
-                    {
-                        directQuery = new ODBCWrapper.DirectQuery();
-                        directQuery.SetConnectionKey("BILLING_CONNECTION");
-                        directQuery += "update  " + sTableName + " set  ";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", lPurchaseID);
-                        directQuery += "where";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nExternalTransactionID);
-
-                        directQuery.Execute();
-                    }
-                    finally
-                    {
-                        if (directQuery != null)
-                        {
-                            directQuery.Finish();
-                        }
-                    }
-                }
+                UpdatePurchaseIDInBilling(sWSUsername, sWSPassword, lPurchaseID, lBillingTransactionID, ref wsBillingService);
             }
             else
             {
@@ -11953,7 +11915,7 @@ namespace ConditionalAccess
                 if (psc != null && psc.Length > 0)
                 {
                     // fill Entitlement object
-                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
                     response.entitelments = new List<Entitlements>();
                     foreach (PermittedSubscriptionContainer item in psc)
                     {
@@ -11964,14 +11926,14 @@ namespace ConditionalAccess
                 else
                 {
                     response = new Entitlement();
-                    response.resp = new Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
                 }
             }
             catch (Exception ex)
             {
                 log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
                 response = new Entitlement();
-                response.resp = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             return response;
         }

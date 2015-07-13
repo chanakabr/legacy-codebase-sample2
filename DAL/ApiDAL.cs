@@ -1441,6 +1441,22 @@ namespace DAL
         }
 
         /// <summary>
+        /// Return Regions accroding to External Regions List
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="regionIds"></param>
+        /// <returns></returns>
+        public static DataSet Get_RegionsByExternalRegions(int groupId, List<string> externalRegionsList)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalRegions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@ExternalRegionIDs", externalRegionsList, "STR");
+            sp.AddParameter("@GroupID", groupId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        /// <summary>
         /// Gets all parental rules active of a given group
         /// </summary>
         /// <param name="groupId"></param>

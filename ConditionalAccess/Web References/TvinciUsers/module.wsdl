@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://users.tvinci.com/">
       <s:element name="CheckUserPassword">
@@ -166,6 +166,39 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="KalturaSignIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="KalturaSignInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KalturaSignInResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="SignInWithToken">
         <s:complexType>
           <s:sequence>
@@ -262,6 +295,27 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="SignOutResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="KalturaSignOut">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="KalturaSignOutResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="KalturaSignOutResult" type="tns:UserResponseObject" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -484,6 +538,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIp" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -500,6 +555,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUIDs" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -577,6 +633,26 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="AddNewUserResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddNewKalturaUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oBasicData" type="tns:UserBasicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDynamicData" type="tns:UserDynamicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sAffiliateCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddNewKalturaUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddNewKalturaUserResult" type="tns:UserResponseObject" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1205,17 +1281,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfKeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="KeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetGroupUserTypes">
         <s:complexType>
           <s:sequence>
@@ -1269,6 +1334,248 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GenerateLoginPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="secret" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GenerateLoginPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GenerateLoginPINResult" type="tns:PinCodeResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PinCodeResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="pinCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="expiredDate" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="LoginWithPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PIN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+            <s:element minOccurs="0" maxOccurs="1" name="secret" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginWithPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginWithPINResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetLoginPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="PIN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="secret" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetLoginPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ClearLoginPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ClearLoginPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ClearLoginPINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LogIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="keyValueList" type="tns:ArrayOfKeyValuePair" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LogInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LogInResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignUp">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oBasicData" type="tns:UserBasicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="dynamicData" type="tns:UserDynamicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="affiliateCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignUpResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SignUpResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendRenewalPasswordMail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendRenewalPasswordMailResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendRenewalPasswordMailResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RenewPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RenewPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RenewPasswordResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReplacePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oldPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReplacePasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ReplacePasswordResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckPasswordToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckPasswordTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckPasswordTokenResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUsers">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGUIDs" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUsersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUsersResult" type="tns:UsersResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="users" type="tns:ArrayOfUserResponseObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="basicData" type="tns:UserBasicData" />
+            <s:element minOccurs="0" maxOccurs="1" name="dynamicData" type="tns:UserDynamicData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetUserResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
@@ -1285,6 +1592,10 @@
       <s:element name="UserGroupRuleResponse" nillable="true" type="tns:UserGroupRuleResponse" />
       <s:element name="ArrayOfUserType" nillable="true" type="tns:ArrayOfUserType" />
       <s:element name="int" type="s:int" />
+      <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
+      <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
     </s:schema>
     <s:schema targetNamespace="http://users.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -1310,6 +1621,12 @@
   </wsdl:message>
   <wsdl:message name="SignInSoapOut">
     <wsdl:part name="parameters" element="tns:SignInResponse" />
+  </wsdl:message>
+  <wsdl:message name="KalturaSignInSoapIn">
+    <wsdl:part name="parameters" element="tns:KalturaSignIn" />
+  </wsdl:message>
+  <wsdl:message name="KalturaSignInSoapOut">
+    <wsdl:part name="parameters" element="tns:KalturaSignInResponse" />
   </wsdl:message>
   <wsdl:message name="SignInWithTokenSoapIn">
     <wsdl:part name="parameters" element="tns:SignInWithToken" />
@@ -1340,6 +1657,12 @@
   </wsdl:message>
   <wsdl:message name="SignOutSoapOut">
     <wsdl:part name="parameters" element="tns:SignOutResponse" />
+  </wsdl:message>
+  <wsdl:message name="KalturaSignOutSoapIn">
+    <wsdl:part name="parameters" element="tns:KalturaSignOut" />
+  </wsdl:message>
+  <wsdl:message name="KalturaSignOutSoapOut">
+    <wsdl:part name="parameters" element="tns:KalturaSignOutResponse" />
   </wsdl:message>
   <wsdl:message name="AddUserFavoritSoapIn">
     <wsdl:part name="parameters" element="tns:AddUserFavorit" />
@@ -1436,6 +1759,12 @@
   </wsdl:message>
   <wsdl:message name="AddNewUserSoapOut">
     <wsdl:part name="parameters" element="tns:AddNewUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddNewKalturaUserSoapIn">
+    <wsdl:part name="parameters" element="tns:AddNewKalturaUser" />
+  </wsdl:message>
+  <wsdl:message name="AddNewKalturaUserSoapOut">
+    <wsdl:part name="parameters" element="tns:AddNewKalturaUserResponse" />
   </wsdl:message>
   <wsdl:message name="SetUserDataSoapIn">
     <wsdl:part name="parameters" element="tns:SetUserData" />
@@ -1653,6 +1982,78 @@
   <wsdl:message name="GetUserTypeSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserTypeResponse" />
   </wsdl:message>
+  <wsdl:message name="GenerateLoginPINSoapIn">
+    <wsdl:part name="parameters" element="tns:GenerateLoginPIN" />
+  </wsdl:message>
+  <wsdl:message name="GenerateLoginPINSoapOut">
+    <wsdl:part name="parameters" element="tns:GenerateLoginPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginWithPINSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginWithPIN" />
+  </wsdl:message>
+  <wsdl:message name="LoginWithPINSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginWithPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetLoginPINSoapIn">
+    <wsdl:part name="parameters" element="tns:SetLoginPIN" />
+  </wsdl:message>
+  <wsdl:message name="SetLoginPINSoapOut">
+    <wsdl:part name="parameters" element="tns:SetLoginPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="ClearLoginPINSoapIn">
+    <wsdl:part name="parameters" element="tns:ClearLoginPIN" />
+  </wsdl:message>
+  <wsdl:message name="ClearLoginPINSoapOut">
+    <wsdl:part name="parameters" element="tns:ClearLoginPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="LogInSoapIn">
+    <wsdl:part name="parameters" element="tns:LogIn" />
+  </wsdl:message>
+  <wsdl:message name="LogInSoapOut">
+    <wsdl:part name="parameters" element="tns:LogInResponse" />
+  </wsdl:message>
+  <wsdl:message name="SignUpSoapIn">
+    <wsdl:part name="parameters" element="tns:SignUp" />
+  </wsdl:message>
+  <wsdl:message name="SignUpSoapOut">
+    <wsdl:part name="parameters" element="tns:SignUpResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendRenewalPasswordMailSoapIn">
+    <wsdl:part name="parameters" element="tns:SendRenewalPasswordMail" />
+  </wsdl:message>
+  <wsdl:message name="SendRenewalPasswordMailSoapOut">
+    <wsdl:part name="parameters" element="tns:SendRenewalPasswordMailResponse" />
+  </wsdl:message>
+  <wsdl:message name="RenewPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:RenewPassword" />
+  </wsdl:message>
+  <wsdl:message name="RenewPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:RenewPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="ReplacePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ReplacePassword" />
+  </wsdl:message>
+  <wsdl:message name="ReplacePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ReplacePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckPasswordTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckPasswordToken" />
+  </wsdl:message>
+  <wsdl:message name="CheckPasswordTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckPasswordTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUsers" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUsersResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSoapIn">
+    <wsdl:part name="parameters" element="tns:SetUser" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserResponse" />
+  </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1844,6 +2245,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sUserIp" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserDataHttpPostOut">
     <wsdl:part name="Body" element="tns:UserResponseObject" />
@@ -1852,6 +2254,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUIDs" type="s1:StringArray" />
+    <wsdl:part name="userIp" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUsersDataHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfUserResponseObject" />
@@ -2132,6 +2535,77 @@
   <wsdl:message name="GetUserTypeHttpPostOut">
     <wsdl:part name="Body" element="tns:int" />
   </wsdl:message>
+  <wsdl:message name="GenerateLoginPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="secret" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GenerateLoginPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:PinCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetLoginPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="PIN" type="s:string" />
+    <wsdl:part name="secret" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetLoginPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ClearLoginPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ClearLoginPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="SendRenewalPasswordMailHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendRenewalPasswordMailHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RenewPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="newPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RenewPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ReplacePasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="oldPassword" type="s:string" />
+    <wsdl:part name="newPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ReplacePasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="CheckPasswordTokenHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckPasswordTokenHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUIDs" type="s1:StringArray" />
+    <wsdl:part name="userIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersHttpPostOut">
+    <wsdl:part name="Body" element="tns:UsersResponse" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -2140,6 +2614,10 @@
     <wsdl:operation name="SignIn">
       <wsdl:input message="tns:SignInSoapIn" />
       <wsdl:output message="tns:SignInSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignIn">
+      <wsdl:input message="tns:KalturaSignInSoapIn" />
+      <wsdl:output message="tns:KalturaSignInSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SignInWithToken">
       <wsdl:input message="tns:SignInWithTokenSoapIn" />
@@ -2160,6 +2638,10 @@
     <wsdl:operation name="SignOut">
       <wsdl:input message="tns:SignOutSoapIn" />
       <wsdl:output message="tns:SignOutSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignOut">
+      <wsdl:input message="tns:KalturaSignOutSoapIn" />
+      <wsdl:output message="tns:KalturaSignOutSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="AddUserFavorit">
       <wsdl:input message="tns:AddUserFavoritSoapIn" />
@@ -2224,6 +2706,10 @@
     <wsdl:operation name="AddNewUser">
       <wsdl:input message="tns:AddNewUserSoapIn" />
       <wsdl:output message="tns:AddNewUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddNewKalturaUser">
+      <wsdl:input message="tns:AddNewKalturaUserSoapIn" />
+      <wsdl:output message="tns:AddNewKalturaUserSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SetUserData">
       <wsdl:input message="tns:SetUserDataSoapIn" />
@@ -2368,6 +2854,54 @@
     <wsdl:operation name="GetUserType">
       <wsdl:input message="tns:GetUserTypeSoapIn" />
       <wsdl:output message="tns:GetUserTypeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <wsdl:input message="tns:GenerateLoginPINSoapIn" />
+      <wsdl:output message="tns:GenerateLoginPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <wsdl:input message="tns:LoginWithPINSoapIn" />
+      <wsdl:output message="tns:LoginWithPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetLoginPIN">
+      <wsdl:input message="tns:SetLoginPINSoapIn" />
+      <wsdl:output message="tns:SetLoginPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ClearLoginPIN">
+      <wsdl:input message="tns:ClearLoginPINSoapIn" />
+      <wsdl:output message="tns:ClearLoginPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LogIn">
+      <wsdl:input message="tns:LogInSoapIn" />
+      <wsdl:output message="tns:LogInSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignUp">
+      <wsdl:input message="tns:SignUpSoapIn" />
+      <wsdl:output message="tns:SignUpSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendRenewalPasswordMail">
+      <wsdl:input message="tns:SendRenewalPasswordMailSoapIn" />
+      <wsdl:output message="tns:SendRenewalPasswordMailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RenewPassword">
+      <wsdl:input message="tns:RenewPasswordSoapIn" />
+      <wsdl:output message="tns:RenewPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReplacePassword">
+      <wsdl:input message="tns:ReplacePasswordSoapIn" />
+      <wsdl:output message="tns:ReplacePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPasswordToken">
+      <wsdl:input message="tns:CheckPasswordTokenSoapIn" />
+      <wsdl:output message="tns:CheckPasswordTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUsers">
+      <wsdl:input message="tns:GetUsersSoapIn" />
+      <wsdl:output message="tns:GetUsersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUser">
+      <wsdl:input message="tns:SetUserSoapIn" />
+      <wsdl:output message="tns:SetUserSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
@@ -2579,6 +3113,38 @@
       <wsdl:input message="tns:GetUserTypeHttpPostIn" />
       <wsdl:output message="tns:GetUserTypeHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <wsdl:input message="tns:GenerateLoginPINHttpPostIn" />
+      <wsdl:output message="tns:GenerateLoginPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetLoginPIN">
+      <wsdl:input message="tns:SetLoginPINHttpPostIn" />
+      <wsdl:output message="tns:SetLoginPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ClearLoginPIN">
+      <wsdl:input message="tns:ClearLoginPINHttpPostIn" />
+      <wsdl:output message="tns:ClearLoginPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendRenewalPasswordMail">
+      <wsdl:input message="tns:SendRenewalPasswordMailHttpPostIn" />
+      <wsdl:output message="tns:SendRenewalPasswordMailHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RenewPassword">
+      <wsdl:input message="tns:RenewPasswordHttpPostIn" />
+      <wsdl:output message="tns:RenewPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReplacePassword">
+      <wsdl:input message="tns:ReplacePasswordHttpPostIn" />
+      <wsdl:output message="tns:ReplacePasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPasswordToken">
+      <wsdl:input message="tns:CheckPasswordTokenHttpPostIn" />
+      <wsdl:output message="tns:CheckPasswordTokenHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUsers">
+      <wsdl:input message="tns:GetUsersHttpPostIn" />
+      <wsdl:output message="tns:GetUsersHttpPostOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -2593,6 +3159,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignIn">
       <soap:operation soapAction="http://users.tvinci.com/SignIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignIn">
+      <soap:operation soapAction="http://users.tvinci.com/KalturaSignIn" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2638,6 +3213,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignOut">
       <soap:operation soapAction="http://users.tvinci.com/SignOut" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignOut">
+      <soap:operation soapAction="http://users.tvinci.com/KalturaSignOut" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2782,6 +3366,15 @@
     </wsdl:operation>
     <wsdl:operation name="AddNewUser">
       <soap:operation soapAction="http://users.tvinci.com/AddNewUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddNewKalturaUser">
+      <soap:operation soapAction="http://users.tvinci.com/AddNewKalturaUser" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3113,6 +3706,114 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <soap:operation soapAction="http://users.tvinci.com/GenerateLoginPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <soap:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLoginPIN">
+      <soap:operation soapAction="http://users.tvinci.com/SetLoginPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearLoginPIN">
+      <soap:operation soapAction="http://users.tvinci.com/ClearLoginPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogIn">
+      <soap:operation soapAction="http://users.tvinci.com/LogIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignUp">
+      <soap:operation soapAction="http://users.tvinci.com/SignUp" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendRenewalPasswordMail">
+      <soap:operation soapAction="http://users.tvinci.com/SendRenewalPasswordMail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewPassword">
+      <soap:operation soapAction="http://users.tvinci.com/RenewPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReplacePassword">
+      <soap:operation soapAction="http://users.tvinci.com/ReplacePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPasswordToken">
+      <soap:operation soapAction="http://users.tvinci.com/CheckPasswordToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsers">
+      <soap:operation soapAction="http://users.tvinci.com/GetUsers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUser">
+      <soap:operation soapAction="http://users.tvinci.com/SetUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceSoap12" type="tns:UsersServiceSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -3127,6 +3828,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignIn">
       <soap12:operation soapAction="http://users.tvinci.com/SignIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignIn">
+      <soap12:operation soapAction="http://users.tvinci.com/KalturaSignIn" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3172,6 +3882,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignOut">
       <soap12:operation soapAction="http://users.tvinci.com/SignOut" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="KalturaSignOut">
+      <soap12:operation soapAction="http://users.tvinci.com/KalturaSignOut" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3316,6 +4035,15 @@
     </wsdl:operation>
     <wsdl:operation name="AddNewUser">
       <soap12:operation soapAction="http://users.tvinci.com/AddNewUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddNewKalturaUser">
+      <soap12:operation soapAction="http://users.tvinci.com/AddNewKalturaUser" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3640,6 +4368,114 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserType">
       <soap12:operation soapAction="http://users.tvinci.com/GetUserType" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/GenerateLoginPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginWithPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/LoginWithPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLoginPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/SetLoginPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearLoginPIN">
+      <soap12:operation soapAction="http://users.tvinci.com/ClearLoginPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogIn">
+      <soap12:operation soapAction="http://users.tvinci.com/LogIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignUp">
+      <soap12:operation soapAction="http://users.tvinci.com/SignUp" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendRenewalPasswordMail">
+      <soap12:operation soapAction="http://users.tvinci.com/SendRenewalPasswordMail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/RenewPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReplacePassword">
+      <soap12:operation soapAction="http://users.tvinci.com/ReplacePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPasswordToken">
+      <soap12:operation soapAction="http://users.tvinci.com/CheckPasswordToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsers">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUsers" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUser">
+      <soap12:operation soapAction="http://users.tvinci.com/SetUser" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4103,6 +4939,78 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserType">
       <http:operation location="/GetUserType" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateLoginPIN">
+      <http:operation location="/GenerateLoginPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLoginPIN">
+      <http:operation location="/SetLoginPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearLoginPIN">
+      <http:operation location="/ClearLoginPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendRenewalPasswordMail">
+      <http:operation location="/SendRenewalPasswordMail" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewPassword">
+      <http:operation location="/RenewPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReplacePassword">
+      <http:operation location="/ReplacePassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPasswordToken">
+      <http:operation location="/CheckPasswordToken" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsers">
+      <http:operation location="/GetUsers" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
