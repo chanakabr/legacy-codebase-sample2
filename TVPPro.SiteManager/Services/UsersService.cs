@@ -1094,7 +1094,8 @@ namespace TVPPro.SiteManager.Services
             FavoritObject[] UserFavorites = null;
             try
             {
-                UserFavorites = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
+                var res =  PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
+                UserFavorites = res.FavoritObjects;
             }
             catch (Exception ex)
             {
@@ -1110,7 +1111,15 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                IsAdded = PlatUserService.AddUserFavorit(wsUserName, wsPassword, GetUserID(), GetDomainID(), DeviceId, sMediaType, sMediaID, sExtraData);
+                var res = PlatUserService.AddUserFavorit(wsUserName, wsPassword, GetUserID(), GetDomainID(), DeviceId, sMediaType, sMediaID, sExtraData);
+                if (res != null && res.Code == 0) // TVPApiModule.Objects.Responses.eStatus ( 0 = OK ) 
+                {
+                    IsAdded = true;
+                }
+                else
+                {
+                    IsAdded = false;
+                }
             }
             catch (Exception ex)
             {

@@ -336,10 +336,16 @@
       <s:element name="AddUserFavoritResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="AddUserFavoritResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddUserFavoritResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="AddChannelMediaToFavorites">
         <s:complexType>
           <s:sequence>
@@ -430,7 +436,11 @@
         </s:sequence>
       </s:complexType>
       <s:element name="RemoveUserFavoritResponse">
-        <s:complexType />
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveUserFavoritResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
       </s:element>
       <s:element name="RemoveChannelMediaUserFavorit">
         <s:complexType>
@@ -460,10 +470,16 @@
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:ArrayOfFavoritObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoritObjectResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FavoritObjectResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="FavoritObjects" type="tns:ArrayOfFavoritObject" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfFavoritObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="FavoritObject" nillable="true" type="tns:FavoritObject" />
@@ -1359,12 +1375,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="LoginWithPIN">
         <s:complexType>
           <s:sequence>
@@ -1577,9 +1587,10 @@
         </s:complexType>
       </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
-      <s:element name="ArrayOfFavoritObject" nillable="true" type="tns:ArrayOfFavoritObject" />
+      <s:element name="FavoritObjectResponse" nillable="true" type="tns:FavoritObjectResponse" />
       <s:element name="ArrayOfUserResponseObject" nillable="true" type="tns:ArrayOfUserResponseObject" />
       <s:element name="ArrayOfUserBasicData" nillable="true" type="tns:ArrayOfUserBasicData" />
       <s:element name="ResponseStatus" type="tns:ResponseStatus" />
@@ -1593,7 +1604,6 @@
       <s:element name="ArrayOfUserType" nillable="true" type="tns:ArrayOfUserType" />
       <s:element name="int" type="s:int" />
       <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
     </s:schema>
@@ -2147,7 +2157,7 @@
     <wsdl:part name="sExtraData" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddUserFavoritHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="AddChannelMediaToFavoritesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2197,7 +2207,9 @@
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="nMediaIDs" type="s1:StringArray" />
   </wsdl:message>
-  <wsdl:message name="RemoveUserFavoritHttpPostOut" />
+  <wsdl:message name="RemoveUserFavoritHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:message name="RemoveChannelMediaUserFavoritHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2214,7 +2226,7 @@
     <wsdl:part name="sItemType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfFavoritObject" />
+    <wsdl:part name="Body" element="tns:FavoritObjectResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserByFacebookIDHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4599,7 +4611,9 @@
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
-      <wsdl:output />
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RemoveChannelMediaUserFavorit">
       <http:operation location="/RemoveChannelMediaUserFavorit" />
