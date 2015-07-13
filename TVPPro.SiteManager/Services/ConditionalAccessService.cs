@@ -473,7 +473,7 @@ namespace TVPPro.SiteManager.Services
 
         public Dictionary<int, MediaFileItemPricesContainer> GetItemsPriceWithCoupon(int[] iMediaFiles, string sCouponCode, bool bOnlyLowest)
         {
-            MediaFileItemPricesContainer[] res = null;
+            MediaFileItemPricesContainer[] result = null;
 
             // Get user and password for method
             string wsUser;
@@ -484,11 +484,15 @@ namespace TVPPro.SiteManager.Services
             {
                 if (SessionHelper.LocaleInfo != null)
                 {
-                    res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPassword, iMediaFiles, UsersService.Instance.GetUserID(), sCouponCode, bOnlyLowest, SessionHelper.LocaleInfo.LocaleCountry.ToString(), SessionHelper.LocaleInfo.LocaleLanguage, SessionHelper.LocaleInfo.LocaleDevice, SiteHelper.GetClientIP());
+                    var res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPassword, iMediaFiles, UsersService.Instance.GetUserID(), sCouponCode, bOnlyLowest, SessionHelper.LocaleInfo.LocaleCountry.ToString(), SessionHelper.LocaleInfo.LocaleLanguage, SessionHelper.LocaleInfo.LocaleDevice, SiteHelper.GetClientIP());
+                    if (res != null)
+                        result = res.ItemsPrices;
                 }
                 else
                 {
-                    res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPassword, iMediaFiles, UsersService.Instance.GetUserID(), sCouponCode, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                    var res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPassword, iMediaFiles, UsersService.Instance.GetUserID(), sCouponCode, bOnlyLowest, string.Empty, string.Empty, string.Empty, SiteHelper.GetClientIP());
+                    if (res != null)
+                        result = res.ItemsPrices;
                 }
             }
             catch (Exception ex)
@@ -496,7 +500,7 @@ namespace TVPPro.SiteManager.Services
                 logger.ErrorFormat("Error calling webservice protocol : GetItemsPriceWithCoupons, Error Message: {0}, Parameters :  User: {1}", ex.Message, UsersService.Instance.GetUserID());
             }
 
-            return MapItemsPrice(res);
+            return MapItemsPrice(result);
         }
 
         public PermittedSubscriptionContainer[] GetUserPermitedSubscriptions()

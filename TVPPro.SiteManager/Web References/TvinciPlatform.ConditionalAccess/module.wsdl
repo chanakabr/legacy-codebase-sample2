@@ -842,10 +842,16 @@
       <s:element name="GetItemsPricesWithCouponsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesWithCouponsResult" type="tns:ArrayOfMediaFileItemPricesContainer" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsPricesWithCouponsResult" type="tns:MediaFileItemPricesContainerResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="MediaFileItemPricesContainerResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ItemsPrices" type="tns:ArrayOfMediaFileItemPricesContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetItemsPricesWithCouponsByIP">
         <s:complexType>
           <s:sequence>
@@ -2328,6 +2334,7 @@
       <s:element name="BillingTransactions" nillable="true" type="tns:BillingTransactions" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
+      <s:element name="MediaFileItemPricesContainerResponse" nillable="true" type="tns:MediaFileItemPricesContainerResponse" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
       <s:element name="ArrayOfCollectionsPricesContainer" nillable="true" type="tns:ArrayOfCollectionsPricesContainer" />
       <s:element name="ArrayOfPrePaidPricesContainer" nillable="true" type="tns:ArrayOfPrePaidPricesContainer" />
@@ -3351,7 +3358,7 @@
     <wsdl:part name="sClientIP" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+    <wsdl:part name="Body" element="tns:MediaFileItemPricesContainerResponse" />
   </wsdl:message>
   <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

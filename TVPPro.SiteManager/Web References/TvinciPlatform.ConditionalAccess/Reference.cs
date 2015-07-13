@@ -1544,7 +1544,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetItemsPricesWithCoupons", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(string sWSUserName, string sWSPassword, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP) {
+        public MediaFileItemPricesContainerResponse GetItemsPricesWithCoupons(string sWSUserName, string sWSPassword, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP) {
             object[] results = this.Invoke("GetItemsPricesWithCoupons", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1556,7 +1556,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sLanguageCode3,
                         sDeviceName,
                         sClientIP});
-            return ((MediaFileItemPricesContainer[])(results[0]));
+            return ((MediaFileItemPricesContainerResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -5899,114 +5899,585 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class MediaFileItemPricesContainerResponse {
+        
+        private MediaFileItemPricesContainer[] itemsPricesField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public MediaFileItemPricesContainer[] ItemsPrices {
+            get {
+                return this.itemsPricesField;
+            }
+            set {
+                this.itemsPricesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class MediaFileItemPricesContainer {
+        
+        private int m_nMediaFileIDField;
+        
+        private ItemPriceContainer[] m_oItemPricesField;
+        
+        private string m_sProductCodeField;
+        
+        /// <remarks/>
+        public int m_nMediaFileID {
+            get {
+                return this.m_nMediaFileIDField;
+            }
+            set {
+                this.m_nMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ItemPriceContainer[] m_oItemPrices {
+            get {
+                return this.m_oItemPricesField;
+            }
+            set {
+                this.m_oItemPricesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sProductCode {
+            get {
+                return this.m_sProductCodeField;
+            }
+            set {
+                this.m_sProductCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class ItemPriceContainer {
+        
+        private string m_sPPVModuleCodeField;
+        
+        private bool m_bSubscriptionOnlyField;
+        
+        private Price m_oPriceField;
+        
+        private Price m_oFullPriceField;
+        
+        private PriceReason m_PriceReasonField;
+        
+        private Subscription m_relevantSubField;
+        
+        private Collection m_relevantColField;
+        
+        private PrePaidModule m_relevantPPField;
+        
+        private LanguageContainer[] m_oPPVDescriptionField;
+        
+        private CouponsStatus m_couponStatusField;
+        
+        private string m_sFirstDeviceNameFoundField;
+        
+        private bool m_bCancelWindowField;
+        
+        private string m_sPurchasedBySiteGuidField;
+        
+        private int m_lPurchasedMediaFileIDField;
+        
+        private int[] m_lRelatedMediaFileIDsField;
+        
+        private System.Nullable<System.DateTime> m_dtStartDateField;
+        
+        private System.Nullable<System.DateTime> m_dtEndDateField;
+        
+        /// <remarks/>
+        public string m_sPPVModuleCode {
+            get {
+                return this.m_sPPVModuleCodeField;
+            }
+            set {
+                this.m_sPPVModuleCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bSubscriptionOnly {
+            get {
+                return this.m_bSubscriptionOnlyField;
+            }
+            set {
+                this.m_bSubscriptionOnlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oFullPrice {
+            get {
+                return this.m_oFullPriceField;
+            }
+            set {
+                this.m_oFullPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Subscription m_relevantSub {
+            get {
+                return this.m_relevantSubField;
+            }
+            set {
+                this.m_relevantSubField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Collection m_relevantCol {
+            get {
+                return this.m_relevantColField;
+            }
+            set {
+                this.m_relevantColField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PrePaidModule m_relevantPP {
+            get {
+                return this.m_relevantPPField;
+            }
+            set {
+                this.m_relevantPPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] m_oPPVDescription {
+            get {
+                return this.m_oPPVDescriptionField;
+            }
+            set {
+                this.m_oPPVDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CouponsStatus m_couponStatus {
+            get {
+                return this.m_couponStatusField;
+            }
+            set {
+                this.m_couponStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sFirstDeviceNameFound {
+            get {
+                return this.m_sFirstDeviceNameFoundField;
+            }
+            set {
+                this.m_sFirstDeviceNameFoundField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedBySiteGuid {
+            get {
+                return this.m_sPurchasedBySiteGuidField;
+            }
+            set {
+                this.m_sPurchasedBySiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_lPurchasedMediaFileID {
+            get {
+                return this.m_lPurchasedMediaFileIDField;
+            }
+            set {
+                this.m_lPurchasedMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] m_lRelatedMediaFileIDs {
+            get {
+                return this.m_lRelatedMediaFileIDsField;
+            }
+            set {
+                this.m_lRelatedMediaFileIDsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> m_dtStartDate {
+            get {
+                return this.m_dtStartDateField;
+            }
+            set {
+                this.m_dtStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> m_dtEndDate {
+            get {
+                return this.m_dtEndDateField;
+            }
+            set {
+                this.m_dtEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class PrePaidModule {
+    public partial class Subscription : PPVModule {
         
-        private PriceCode m_PriceCodeField;
+        private BundleCodeContainer[] m_sCodesField;
         
-        private PriceCode m_CreditValueField;
+        private System.DateTime m_dStartDateField;
         
-        private UsageModule m_UsageModuleField;
+        private System.DateTime m_dEndDateField;
         
-        private DiscountModule m_DiscountModuleField;
+        private int[] m_sFileTypesField;
         
-        private CouponsGroup m_CouponsGroupField;
+        private bool m_bIsRecurringField;
         
-        private LanguageContainer[] m_DescriptionField;
+        private int m_nNumberOfRecPeriodsField;
         
-        private int m_ObjectCodeField;
+        private PriceCode m_oSubscriptionPriceCodeField;
         
-        private string m_TitleField;
+        private DiscountModule m_oExtDisountModuleField;
         
-        private bool m_isFixedCreditField;
+        private LanguageContainer[] m_sNameField;
+        
+        private UsageModule m_oSubscriptionUsageModuleField;
+        
+        private int m_fictivicMediaIDField;
+        
+        private long m_PriorityField;
+        
+        private string m_ProductCodeField;
+        
+        private string m_SubscriptionCodeField;
+        
+        private UsageModule[] m_MultiSubscriptionUsageModuleField;
+        
+        private int n_GeoCommerceIDField;
+        
+        private bool m_bIsInfiniteRecurringField;
+        
+        private UserType[] m_UserTypesField;
+        
+        private PreviewModule m_oPreviewModuleField;
+        
+        private int m_nDomainLimitationModuleField;
+        
+        private ServiceObject[] m_lServicesField;
         
         /// <remarks/>
-        public PriceCode m_PriceCode {
+        public BundleCodeContainer[] m_sCodes {
             get {
-                return this.m_PriceCodeField;
+                return this.m_sCodesField;
             }
             set {
-                this.m_PriceCodeField = value;
+                this.m_sCodesField = value;
             }
         }
         
         /// <remarks/>
-        public PriceCode m_CreditValue {
+        public System.DateTime m_dStartDate {
             get {
-                return this.m_CreditValueField;
+                return this.m_dStartDateField;
             }
             set {
-                this.m_CreditValueField = value;
+                this.m_dStartDateField = value;
             }
         }
         
         /// <remarks/>
-        public UsageModule m_UsageModule {
+        public System.DateTime m_dEndDate {
             get {
-                return this.m_UsageModuleField;
+                return this.m_dEndDateField;
             }
             set {
-                this.m_UsageModuleField = value;
+                this.m_dEndDateField = value;
             }
         }
         
         /// <remarks/>
-        public DiscountModule m_DiscountModule {
+        public int[] m_sFileTypes {
             get {
-                return this.m_DiscountModuleField;
+                return this.m_sFileTypesField;
             }
             set {
-                this.m_DiscountModuleField = value;
+                this.m_sFileTypesField = value;
             }
         }
         
         /// <remarks/>
-        public CouponsGroup m_CouponsGroup {
+        public bool m_bIsRecurring {
             get {
-                return this.m_CouponsGroupField;
+                return this.m_bIsRecurringField;
             }
             set {
-                this.m_CouponsGroupField = value;
+                this.m_bIsRecurringField = value;
             }
         }
         
         /// <remarks/>
-        public LanguageContainer[] m_Description {
+        public int m_nNumberOfRecPeriods {
             get {
-                return this.m_DescriptionField;
+                return this.m_nNumberOfRecPeriodsField;
             }
             set {
-                this.m_DescriptionField = value;
+                this.m_nNumberOfRecPeriodsField = value;
             }
         }
         
         /// <remarks/>
-        public int m_ObjectCode {
+        public PriceCode m_oSubscriptionPriceCode {
             get {
-                return this.m_ObjectCodeField;
+                return this.m_oSubscriptionPriceCodeField;
             }
             set {
-                this.m_ObjectCodeField = value;
+                this.m_oSubscriptionPriceCodeField = value;
             }
         }
         
         /// <remarks/>
-        public string m_Title {
+        public DiscountModule m_oExtDisountModule {
             get {
-                return this.m_TitleField;
+                return this.m_oExtDisountModuleField;
             }
             set {
-                this.m_TitleField = value;
+                this.m_oExtDisountModuleField = value;
             }
         }
         
         /// <remarks/>
-        public bool m_isFixedCredit {
+        public LanguageContainer[] m_sName {
             get {
-                return this.m_isFixedCreditField;
+                return this.m_sNameField;
             }
             set {
-                this.m_isFixedCreditField = value;
+                this.m_sNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule m_oSubscriptionUsageModule {
+            get {
+                return this.m_oSubscriptionUsageModuleField;
+            }
+            set {
+                this.m_oSubscriptionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_fictivicMediaID {
+            get {
+                return this.m_fictivicMediaIDField;
+            }
+            set {
+                this.m_fictivicMediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long m_Priority {
+            get {
+                return this.m_PriorityField;
+            }
+            set {
+                this.m_PriorityField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_ProductCode {
+            get {
+                return this.m_ProductCodeField;
+            }
+            set {
+                this.m_ProductCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_SubscriptionCode {
+            get {
+                return this.m_SubscriptionCodeField;
+            }
+            set {
+                this.m_SubscriptionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule[] m_MultiSubscriptionUsageModule {
+            get {
+                return this.m_MultiSubscriptionUsageModuleField;
+            }
+            set {
+                this.m_MultiSubscriptionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int n_GeoCommerceID {
+            get {
+                return this.n_GeoCommerceIDField;
+            }
+            set {
+                this.n_GeoCommerceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsInfiniteRecurring {
+            get {
+                return this.m_bIsInfiniteRecurringField;
+            }
+            set {
+                this.m_bIsInfiniteRecurringField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public UserType[] m_UserTypes {
+            get {
+                return this.m_UserTypesField;
+            }
+            set {
+                this.m_UserTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PreviewModule m_oPreviewModule {
+            get {
+                return this.m_oPreviewModuleField;
+            }
+            set {
+                this.m_oPreviewModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nDomainLimitationModule {
+            get {
+                return this.m_nDomainLimitationModuleField;
+            }
+            set {
+                this.m_nDomainLimitationModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ServiceObject[] m_lServices {
+            get {
+                return this.m_lServicesField;
+            }
+            set {
+                this.m_lServicesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class BundleCodeContainer {
+        
+        private string m_sCodeField;
+        
+        private string m_sNameField;
+        
+        /// <remarks/>
+        public string m_sCode {
+            get {
+                return this.m_sCodeField;
+            }
+            set {
+                this.m_sCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                this.m_sNameField = value;
             }
         }
     }
@@ -6449,125 +6920,42 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class CouponsGroup {
+    public partial class UserType {
         
-        private DiscountModule m_oDiscountCodeField;
+        private System.Nullable<int> idField;
         
-        private string m_sDiscountCodeField;
+        private string descriptionField;
         
-        private LanguageContainer[] m_sDescriptionField;
-        
-        private System.DateTime m_dStartDateField;
-        
-        private System.DateTime m_dEndDateField;
-        
-        private int m_nMaxUseCountForCouponField;
-        
-        private string m_sGroupCodeField;
-        
-        private string m_sGroupNameField;
-        
-        private int m_nFinancialEntityIDField;
-        
-        private int m_nMaxRecurringUsesCountForCouponField;
+        private bool isDefaultField;
         
         /// <remarks/>
-        public DiscountModule m_oDiscountCode {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ID {
             get {
-                return this.m_oDiscountCodeField;
+                return this.idField;
             }
             set {
-                this.m_oDiscountCodeField = value;
+                this.idField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sDiscountCode {
+        public string Description {
             get {
-                return this.m_sDiscountCodeField;
+                return this.descriptionField;
             }
             set {
-                this.m_sDiscountCodeField = value;
+                this.descriptionField = value;
             }
         }
         
         /// <remarks/>
-        public LanguageContainer[] m_sDescription {
+        public bool IsDefault {
             get {
-                return this.m_sDescriptionField;
+                return this.isDefaultField;
             }
             set {
-                this.m_sDescriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dStartDate {
-            get {
-                return this.m_dStartDateField;
-            }
-            set {
-                this.m_dStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxUseCountForCoupon {
-            get {
-                return this.m_nMaxUseCountForCouponField;
-            }
-            set {
-                this.m_nMaxUseCountForCouponField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sGroupCode {
-            get {
-                return this.m_sGroupCodeField;
-            }
-            set {
-                this.m_sGroupCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sGroupName {
-            get {
-                return this.m_sGroupNameField;
-            }
-            set {
-                this.m_sGroupNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nFinancialEntityID {
-            get {
-                return this.m_nFinancialEntityIDField;
-            }
-            set {
-                this.m_nFinancialEntityIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxRecurringUsesCountForCoupon {
-            get {
-                return this.m_nMaxRecurringUsesCountForCouponField;
-            }
-            set {
-                this.m_nMaxRecurringUsesCountForCouponField = value;
+                this.isDefaultField = value;
             }
         }
     }
@@ -6625,85 +7013,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_tsNonRenewPeriodField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class UserType {
-        
-        private System.Nullable<int> idField;
-        
-        private string descriptionField;
-        
-        private bool isDefaultField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class BundleCodeContainer {
-        
-        private string m_sCodeField;
-        
-        private string m_sNameField;
-        
-        /// <remarks/>
-        public string m_sCode {
-            get {
-                return this.m_sCodeField;
-            }
-            set {
-                this.m_sCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                this.m_sNameField = value;
             }
         }
     }
@@ -6857,6 +7166,135 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class CouponsGroup {
+        
+        private DiscountModule m_oDiscountCodeField;
+        
+        private string m_sDiscountCodeField;
+        
+        private LanguageContainer[] m_sDescriptionField;
+        
+        private System.DateTime m_dStartDateField;
+        
+        private System.DateTime m_dEndDateField;
+        
+        private int m_nMaxUseCountForCouponField;
+        
+        private string m_sGroupCodeField;
+        
+        private string m_sGroupNameField;
+        
+        private int m_nFinancialEntityIDField;
+        
+        private int m_nMaxRecurringUsesCountForCouponField;
+        
+        /// <remarks/>
+        public DiscountModule m_oDiscountCode {
+            get {
+                return this.m_oDiscountCodeField;
+            }
+            set {
+                this.m_oDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDiscountCode {
+            get {
+                return this.m_sDiscountCodeField;
+            }
+            set {
+                this.m_sDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] m_sDescription {
+            get {
+                return this.m_sDescriptionField;
+            }
+            set {
+                this.m_sDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dStartDate {
+            get {
+                return this.m_dStartDateField;
+            }
+            set {
+                this.m_dStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxUseCountForCoupon {
+            get {
+                return this.m_nMaxUseCountForCouponField;
+            }
+            set {
+                this.m_nMaxUseCountForCouponField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sGroupCode {
+            get {
+                return this.m_sGroupCodeField;
+            }
+            set {
+                this.m_sGroupCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sGroupName {
+            get {
+                return this.m_sGroupNameField;
+            }
+            set {
+                this.m_sGroupNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nFinancialEntityID {
+            get {
+                return this.m_nFinancialEntityIDField;
+            }
+            set {
+                this.m_nFinancialEntityIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxRecurringUsesCountForCoupon {
+            get {
+                return this.m_nMaxRecurringUsesCountForCouponField;
+            }
+            set {
+                this.m_nMaxRecurringUsesCountForCouponField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class Collection : PPVModule {
         
         private BundleCodeContainer[] m_sCodesField;
@@ -6998,473 +7436,113 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class Subscription : PPVModule {
+    public partial class PrePaidModule {
         
-        private BundleCodeContainer[] m_sCodesField;
+        private PriceCode m_PriceCodeField;
         
-        private System.DateTime m_dStartDateField;
+        private PriceCode m_CreditValueField;
         
-        private System.DateTime m_dEndDateField;
+        private UsageModule m_UsageModuleField;
         
-        private int[] m_sFileTypesField;
+        private DiscountModule m_DiscountModuleField;
         
-        private bool m_bIsRecurringField;
+        private CouponsGroup m_CouponsGroupField;
         
-        private int m_nNumberOfRecPeriodsField;
+        private LanguageContainer[] m_DescriptionField;
         
-        private PriceCode m_oSubscriptionPriceCodeField;
+        private int m_ObjectCodeField;
         
-        private DiscountModule m_oExtDisountModuleField;
+        private string m_TitleField;
         
-        private LanguageContainer[] m_sNameField;
-        
-        private UsageModule m_oSubscriptionUsageModuleField;
-        
-        private int m_fictivicMediaIDField;
-        
-        private long m_PriorityField;
-        
-        private string m_ProductCodeField;
-        
-        private string m_SubscriptionCodeField;
-        
-        private UsageModule[] m_MultiSubscriptionUsageModuleField;
-        
-        private int n_GeoCommerceIDField;
-        
-        private bool m_bIsInfiniteRecurringField;
-        
-        private UserType[] m_UserTypesField;
-        
-        private PreviewModule m_oPreviewModuleField;
-        
-        private int m_nDomainLimitationModuleField;
-        
-        private ServiceObject[] m_lServicesField;
+        private bool m_isFixedCreditField;
         
         /// <remarks/>
-        public BundleCodeContainer[] m_sCodes {
+        public PriceCode m_PriceCode {
             get {
-                return this.m_sCodesField;
+                return this.m_PriceCodeField;
             }
             set {
-                this.m_sCodesField = value;
+                this.m_PriceCodeField = value;
             }
         }
         
         /// <remarks/>
-        public System.DateTime m_dStartDate {
+        public PriceCode m_CreditValue {
             get {
-                return this.m_dStartDateField;
+                return this.m_CreditValueField;
             }
             set {
-                this.m_dStartDateField = value;
+                this.m_CreditValueField = value;
             }
         }
         
         /// <remarks/>
-        public System.DateTime m_dEndDate {
+        public UsageModule m_UsageModule {
             get {
-                return this.m_dEndDateField;
+                return this.m_UsageModuleField;
             }
             set {
-                this.m_dEndDateField = value;
+                this.m_UsageModuleField = value;
             }
         }
         
         /// <remarks/>
-        public int[] m_sFileTypes {
+        public DiscountModule m_DiscountModule {
             get {
-                return this.m_sFileTypesField;
+                return this.m_DiscountModuleField;
             }
             set {
-                this.m_sFileTypesField = value;
+                this.m_DiscountModuleField = value;
             }
         }
         
         /// <remarks/>
-        public bool m_bIsRecurring {
+        public CouponsGroup m_CouponsGroup {
             get {
-                return this.m_bIsRecurringField;
+                return this.m_CouponsGroupField;
             }
             set {
-                this.m_bIsRecurringField = value;
+                this.m_CouponsGroupField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nNumberOfRecPeriods {
+        public LanguageContainer[] m_Description {
             get {
-                return this.m_nNumberOfRecPeriodsField;
+                return this.m_DescriptionField;
             }
             set {
-                this.m_nNumberOfRecPeriodsField = value;
+                this.m_DescriptionField = value;
             }
         }
         
         /// <remarks/>
-        public PriceCode m_oSubscriptionPriceCode {
+        public int m_ObjectCode {
             get {
-                return this.m_oSubscriptionPriceCodeField;
+                return this.m_ObjectCodeField;
             }
             set {
-                this.m_oSubscriptionPriceCodeField = value;
+                this.m_ObjectCodeField = value;
             }
         }
         
         /// <remarks/>
-        public DiscountModule m_oExtDisountModule {
+        public string m_Title {
             get {
-                return this.m_oExtDisountModuleField;
+                return this.m_TitleField;
             }
             set {
-                this.m_oExtDisountModuleField = value;
+                this.m_TitleField = value;
             }
         }
         
         /// <remarks/>
-        public LanguageContainer[] m_sName {
+        public bool m_isFixedCredit {
             get {
-                return this.m_sNameField;
+                return this.m_isFixedCreditField;
             }
             set {
-                this.m_sNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule m_oSubscriptionUsageModule {
-            get {
-                return this.m_oSubscriptionUsageModuleField;
-            }
-            set {
-                this.m_oSubscriptionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_fictivicMediaID {
-            get {
-                return this.m_fictivicMediaIDField;
-            }
-            set {
-                this.m_fictivicMediaIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long m_Priority {
-            get {
-                return this.m_PriorityField;
-            }
-            set {
-                this.m_PriorityField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_ProductCode {
-            get {
-                return this.m_ProductCodeField;
-            }
-            set {
-                this.m_ProductCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_SubscriptionCode {
-            get {
-                return this.m_SubscriptionCodeField;
-            }
-            set {
-                this.m_SubscriptionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule[] m_MultiSubscriptionUsageModule {
-            get {
-                return this.m_MultiSubscriptionUsageModuleField;
-            }
-            set {
-                this.m_MultiSubscriptionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int n_GeoCommerceID {
-            get {
-                return this.n_GeoCommerceIDField;
-            }
-            set {
-                this.n_GeoCommerceIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsInfiniteRecurring {
-            get {
-                return this.m_bIsInfiniteRecurringField;
-            }
-            set {
-                this.m_bIsInfiniteRecurringField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public UserType[] m_UserTypes {
-            get {
-                return this.m_UserTypesField;
-            }
-            set {
-                this.m_UserTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PreviewModule m_oPreviewModule {
-            get {
-                return this.m_oPreviewModuleField;
-            }
-            set {
-                this.m_oPreviewModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nDomainLimitationModule {
-            get {
-                return this.m_nDomainLimitationModuleField;
-            }
-            set {
-                this.m_nDomainLimitationModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ServiceObject[] m_lServices {
-            get {
-                return this.m_lServicesField;
-            }
-            set {
-                this.m_lServicesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ItemPriceContainer {
-        
-        private string m_sPPVModuleCodeField;
-        
-        private bool m_bSubscriptionOnlyField;
-        
-        private Price m_oPriceField;
-        
-        private Price m_oFullPriceField;
-        
-        private PriceReason m_PriceReasonField;
-        
-        private Subscription m_relevantSubField;
-        
-        private Collection m_relevantColField;
-        
-        private PrePaidModule m_relevantPPField;
-        
-        private LanguageContainer[] m_oPPVDescriptionField;
-        
-        private CouponsStatus m_couponStatusField;
-        
-        private string m_sFirstDeviceNameFoundField;
-        
-        private bool m_bCancelWindowField;
-        
-        private string m_sPurchasedBySiteGuidField;
-        
-        private int m_lPurchasedMediaFileIDField;
-        
-        private int[] m_lRelatedMediaFileIDsField;
-        
-        private System.Nullable<System.DateTime> m_dtStartDateField;
-        
-        private System.Nullable<System.DateTime> m_dtEndDateField;
-        
-        /// <remarks/>
-        public string m_sPPVModuleCode {
-            get {
-                return this.m_sPPVModuleCodeField;
-            }
-            set {
-                this.m_sPPVModuleCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bSubscriptionOnly {
-            get {
-                return this.m_bSubscriptionOnlyField;
-            }
-            set {
-                this.m_bSubscriptionOnlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oFullPrice {
-            get {
-                return this.m_oFullPriceField;
-            }
-            set {
-                this.m_oFullPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Subscription m_relevantSub {
-            get {
-                return this.m_relevantSubField;
-            }
-            set {
-                this.m_relevantSubField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Collection m_relevantCol {
-            get {
-                return this.m_relevantColField;
-            }
-            set {
-                this.m_relevantColField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PrePaidModule m_relevantPP {
-            get {
-                return this.m_relevantPPField;
-            }
-            set {
-                this.m_relevantPPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] m_oPPVDescription {
-            get {
-                return this.m_oPPVDescriptionField;
-            }
-            set {
-                this.m_oPPVDescriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponsStatus m_couponStatus {
-            get {
-                return this.m_couponStatusField;
-            }
-            set {
-                this.m_couponStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sFirstDeviceNameFound {
-            get {
-                return this.m_sFirstDeviceNameFoundField;
-            }
-            set {
-                this.m_sFirstDeviceNameFoundField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedBySiteGuid {
-            get {
-                return this.m_sPurchasedBySiteGuidField;
-            }
-            set {
-                this.m_sPurchasedBySiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_lPurchasedMediaFileID {
-            get {
-                return this.m_lPurchasedMediaFileIDField;
-            }
-            set {
-                this.m_lPurchasedMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int[] m_lRelatedMediaFileIDs {
-            get {
-                return this.m_lRelatedMediaFileIDsField;
-            }
-            set {
-                this.m_lRelatedMediaFileIDsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> m_dtStartDate {
-            get {
-                return this.m_dtStartDateField;
-            }
-            set {
-                this.m_dtStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> m_dtEndDate {
-            get {
-                return this.m_dtEndDateField;
-            }
-            set {
-                this.m_dtEndDateField = value;
+                this.m_isFixedCreditField = value;
             }
         }
     }
@@ -7492,51 +7570,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         NotActive,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class MediaFileItemPricesContainer {
-        
-        private int m_nMediaFileIDField;
-        
-        private ItemPriceContainer[] m_oItemPricesField;
-        
-        private string m_sProductCodeField;
-        
-        /// <remarks/>
-        public int m_nMediaFileID {
-            get {
-                return this.m_nMediaFileIDField;
-            }
-            set {
-                this.m_nMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ItemPriceContainer[] m_oItemPrices {
-            get {
-                return this.m_oItemPricesField;
-            }
-            set {
-                this.m_oItemPricesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sProductCode {
-            get {
-                return this.m_sProductCodeField;
-            }
-            set {
-                this.m_sProductCodeField = value;
-            }
-        }
     }
     
     /// <remarks/>
@@ -9267,10 +9300,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public MediaFileItemPricesContainer[] Result {
+        public MediaFileItemPricesContainerResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((MediaFileItemPricesContainer[])(this.results[0]));
+                return ((MediaFileItemPricesContainerResponse)(this.results[0]));
             }
         }
     }
