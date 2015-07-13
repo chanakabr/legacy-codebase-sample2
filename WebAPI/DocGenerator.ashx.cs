@@ -54,7 +54,7 @@ namespace WebAPI
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 
-            context.Response.Write(string.Format("<?xml version=\"1.0\"?>\n<xml apiVersion=\"{0}\" generatedDate=\"{1}\">\n", 
+            context.Response.Write(string.Format("<?xml version=\"1.0\"?>\n<xml apiVersion=\"{0}\" generatedDate=\"{1}\">\n",
                 fvi.FileVersion, Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
             //Running on models first
@@ -177,10 +177,29 @@ namespace WebAPI
                     if (descs.Count > 0)
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
-                    if (pi.PropertyType.IsEnum)
+                    Type eType = null;
+                    if (pi.PropertyType.IsEnum || ((eType = Nullable.GetUnderlyingType(pi.PropertyType)) != null && eType.IsEnum))
                     {
+                        string typeName = "";
+
+                        if (eType != null)
+                            typeName = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
+                        else
+                            typeName = getTypeFriendlyName(pi.PropertyType);
+
                         context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
-                            getTypeFriendlyName(pi.PropertyType), pdesc));
+                           typeName, pdesc));
+                    }
+                    else if (pi.PropertyType.IsArray || pi.PropertyType.IsGenericType)
+                    {
+                        string name = "";
+                        if (pi.PropertyType.IsArray)
+                            name = getTypeFriendlyName(pi.PropertyType.GetElementType());
+                        else if (pi.PropertyType.IsGenericType)
+                            name = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
+
+                        context.Response.Write(string.Format("\t\t<property name='{0}' type='array' arrayType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", pi.Name,
+                            name, pdesc));
                     }
                     else
                     {
