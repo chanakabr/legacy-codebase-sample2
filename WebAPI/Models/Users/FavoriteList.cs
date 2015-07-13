@@ -6,8 +6,8 @@ using System.Xml.Serialization;
 namespace WebAPI.Models.Users
 {
 
-    [DataContract(Name = "Users", Namespace = "")]
-    [XmlRoot("Users")]
+    [DataContract(Name = "favorites", Namespace = "")]
+    [XmlRoot("favorites")]
     public class FavoriteList
     {
         [DataMember(Name = "favorites")]
