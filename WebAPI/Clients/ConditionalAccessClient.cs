@@ -284,40 +284,40 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        //internal List<Models.API.GenericRule> GetItemPrices(int groupId, List<long> mediaFileIds, string userId, string udid, string languageCode, bool shouldGetOnlyLowest)
-        //{
-        //    WebAPI.ConditionalAccess.MediaFileItemPricesContainer[] response = null;
-        //    List<Models.API.GenericRule> rules = new List<Models.API.GenericRule>();
+        internal List<ItemPrice> GetItemsPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        {
+            WebAPI.ConditionalAccess.MediaFileItemPricesContainerResponse response = null;
+            List<ItemPrice> prices = new List<ItemPrice>();
 
-        //    Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.GetGroup(groupId);
 
-        //    try
-        //    {
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-        //        {
-        //            response = ConditionalAccess.GetItemsPrices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-        //                mediaFileIds.Select(f => (int)f).ToArray(), userId, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
-        //        ErrorUtils.HandleWSException(ex);
-        //    }
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetItemsPricesWithCoupons(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
-        //    if (response == null)
-        //    {
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
-        //    if (response.Status.Code != (int)StatusCode.OK)
-        //    {
-        //        throw new ClientException(response.Status.Code, response.Status.Message);
-        //    }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
 
-        //    rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.GenericRule>>(response.Rules);
+            prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.ItemPrice>>(response.ItemsPrices);
 
-        //    return rules;
-        //}
+            return prices;
+        }
     }
 }

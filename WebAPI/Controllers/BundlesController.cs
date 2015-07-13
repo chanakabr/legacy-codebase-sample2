@@ -8,6 +8,8 @@ using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
+using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -35,30 +37,31 @@ namespace WebAPI.Controllers
         ///// <response code="500">Internal Server Error</response>
         ///// <response code="504">Gateway Timeout</response>
         [Route("subscriptions/{subscriptions_ids}/prices"), HttpGet]
-        public List<SubscriptionPrice> GetSubscriptionsPrices([FromUri] string partner_id, 
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<string>))] List<string> subscriptions_ids, 
-            [FromUri] string user_id = null, [FromUri] string coupon_code = null, [FromUri] string udid = null , [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
+        public SubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null, 
+            [FromUri] string coupon_code = null, [FromUri] string udid = null , [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
         {
-            List<SubscriptionPrice> subscruptionPrices = null;
+            List<SubscriptionPrice> subscriptionPrices = null;
 
-            if (subscriptions_ids == null || subscriptions_ids.Count == 0)
+            int groupId = int.Parse(partner_id);
+
+            if (string.IsNullOrEmpty(subscriptions_ids))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
             }
 
-            int groupId = int.Parse(partner_id);
+            List<string> subscriptionsIds = subscriptions_ids.Split(',').Distinct().ToList();
 
             try
             {
                 // call client
-                subscruptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptions_ids, user_id, coupon_code, udid, language, should_get_only_lowest);
+                subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptionsIds, user_id, coupon_code, udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return subscruptionPrices;
+            return new SubscriptionsPricesList() { SubscriptionsPrices = subscriptionPrices };
         }
 
         /// <summary>
@@ -75,29 +78,30 @@ namespace WebAPI.Controllers
         ///// <response code="500">Internal Server Error</response>
         ///// <response code="504">Gateway Timeout</response>
         [Route("subscriptions/{subscriptions_ids}"), HttpGet]
-        public List<Subscription> GetSubscriptionsData([FromUri] string partner_id,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<string>))] List<string> subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
+        public SubscriptionsList GetSubscriptionsData([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<Subscription> subscruptions = null;
 
-            if (subscriptions_ids == null || subscriptions_ids.Count == 0)
+            int groupId = int.Parse(partner_id);
+
+            if (string.IsNullOrEmpty(subscriptions_ids))
             {
                 throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
             }
 
-            int groupId = int.Parse(partner_id);
+            List<string> subscriptionsIds = subscriptions_ids.Split(',').Distinct().ToList();
 
             try
             {
                 // call client
-                subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids, udid, language);
+                subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds, udid, language);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return subscruptions;
+            return new SubscriptionsList() { Subscriptions = subscruptions };
         }
     }
 }

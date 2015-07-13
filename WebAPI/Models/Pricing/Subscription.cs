@@ -74,7 +74,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
-        public Price Price { get; set; }
+        public PriceDetails Price { get; set; }
 
         /// <summary>
         /// The discount module for the subscription

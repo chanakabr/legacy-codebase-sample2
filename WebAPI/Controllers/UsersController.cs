@@ -323,7 +323,7 @@ namespace WebAPI.Controllers
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
         /// <response code="504">Gateway Timeout</response>
-        [Route("login"), HttpPost]
+        [Route("Login"), HttpPost]
         public User Login([FromUri] string partner_id, [FromBody] LogIn request, [FromUri] string udid = null)
         {
             User response = null;

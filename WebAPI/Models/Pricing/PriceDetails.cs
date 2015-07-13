@@ -8,7 +8,10 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    public class PriceCode
+    /// <summary>
+    /// Price details
+    /// </summary>
+    public class PriceDetails
     {
         /// <summary>
         /// The price code identifier

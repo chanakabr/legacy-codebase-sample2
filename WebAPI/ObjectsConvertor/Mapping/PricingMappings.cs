@@ -14,39 +14,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
         public static void RegisterMappings()
         {
             //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
-            Mapper.CreateMap<Pricing.Price, Models.Pricing.Price>()
-               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
-
-            // Subscription
-            Mapper.CreateMap<Pricing.Subscription, Models.Pricing.Subscription>()
-               .ForMember(dest => dest.IsInfiniteRenewal, opt => opt.MapFrom(src => src.m_bIsInfiniteRecurring))
-               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_bIsRecurring))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dStartDate))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
-               .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
-               .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
-               .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
-               .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
-               .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
-               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
-               .ForMember(dest => dest.PreviewModule, opt => opt.MapFrom(src => src.m_oPreviewModule))
-               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oSubscriptionPriceCode))
-               .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nMaxNumberOfViews))
-               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_tsViewLifeCycle))
-               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nWaiverPeriod))
-               .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_bWaiver))
-               .ForMember(dest => dest.ProrityInOrder, opt => opt.MapFrom(src => src.m_Priority))
-               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
-               .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
-               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
-               .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
-               .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.m_sName))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
-               .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
+            Mapper.CreateMap<WebAPI.ConditionalAccess.Price, Models.Pricing.Price>()
+               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
+               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
 
             // CouponsGroup
-            Mapper.CreateMap<Pricing.CouponsGroup, Models.Pricing.CouponsGroup>()
+            Mapper.CreateMap<WebAPI.Pricing.CouponsGroup, Models.Pricing.CouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dEndDate))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
@@ -55,26 +28,26 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon));
 
+            // Price
+            Mapper.CreateMap<WebAPI.Pricing.Price, Models.Pricing.Price>()
+               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
+               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
+
             // PriceCode
-            Mapper.CreateMap<Pricing.PriceCode, Models.Pricing.PriceCode>()
+            Mapper.CreateMap<WebAPI.Pricing.PriceCode, Models.Pricing.PriceDetails>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrise));
 
-            // Price
-            Mapper.CreateMap<Pricing.Price, Models.Pricing.Price>()
-               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
-
             // DiscountModule
-            Mapper.CreateMap<Pricing.DiscountModule, Models.Pricing.DiscountModule>()
+            Mapper.CreateMap<WebAPI.Pricing.DiscountModule, Models.Pricing.DiscountModule>()
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dEndDate))
                .ForMember(dest => dest.Percent, opt => opt.MapFrom(src => src.m_dPercent))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dStartDate));
 
             // UsageModule
-            Mapper.CreateMap<Pricing.UsageModule, Models.Pricing.UsageModule>()
+            Mapper.CreateMap<WebAPI.Pricing.UsageModule, Models.Pricing.UsageModule>()
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
@@ -119,6 +92,57 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice));
 
+            // Subscription
+            Mapper.CreateMap<WebAPI.Pricing.Subscription, Models.Pricing.Subscription>()
+               .ForMember(dest => dest.IsInfiniteRenewal, opt => opt.MapFrom(src => src.m_bIsInfiniteRecurring))
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_bIsRecurring))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dStartDate))
+               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
+               .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
+               .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
+               .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
+               .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
+               .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
+               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
+               .ForMember(dest => dest.PreviewModule, opt => opt.MapFrom(src => src.m_oPreviewModule))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oSubscriptionPriceCode))
+               .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nMaxNumberOfViews))
+               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_tsViewLifeCycle))
+               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nWaiverPeriod))
+               .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_bWaiver))
+               .ForMember(dest => dest.ProrityInOrder, opt => opt.MapFrom(src => src.m_Priority))
+               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
+               .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
+               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
+               .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
+               .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.m_sName))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
+               .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
+
+            // ItemPriceContainer to PPVItemPriceDetails
+            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, Models.Pricing.PPVItemPriceDetails>()
+               .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate))
+               .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
+               .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
+               .ForMember(dest => dest.IsInCanacelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
+               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
+               .ForMember(dest => dest.PPVDescriptions, opt => opt.MapFrom(src => src.m_oPPVDescription))
+               .ForMember(dest => dest.PPVModuleId, opt => opt.MapFrom(src => src.m_sPPVModuleCode))
+               .ForMember(dest => dest.PrePaidId, opt => opt.MapFrom(src => src.m_relevantPP))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.PurchasedMediaFileId, opt => opt.MapFrom(src => src.m_lPurchasedMediaFileID))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
+               .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate))
+               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub));
+
+            // ItemPriceContainer to PPVItemPriceDetails
+            Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, Models.Pricing.ItemPrice>()
+               .ForMember(dest => dest.ExternalFileId, opt => opt.MapFrom(src => src.m_sProductCode))
+               .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
+               .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
         }
 
         private static WebAPI.Models.Pricing.PurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)

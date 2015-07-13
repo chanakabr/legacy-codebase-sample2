@@ -17,14 +17,14 @@ namespace WebAPI.Models.Pricing
         public string SubscriptionId { get; set; }
 
         /// <summary>
-        /// Subscription price 
+        /// Subscription purchase status  
         /// </summary>
         [DataMember(Name = "purchase_status")]
         [JsonProperty("purchase_status")]
         public PurchaseStatus PurchaseStatus { get; set; }
 
         /// <summary>
-        /// Price reason
+        /// Subscription price 
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]

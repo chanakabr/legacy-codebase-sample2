@@ -37,7 +37,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
             Mapper.CreateMap<ConditionalAccess.Entitlements, Entitlement>()
-               .ForMember(dest => dest.entitlementsId, opt => opt.MapFrom(src => src.entitlementsId))
+               .ForMember(dest => dest.entitlementId, opt => opt.MapFrom(src => src.entitlementsId))
                .ForMember(dest => dest.currentUses, opt => opt.MapFrom(src => src.currentUses))
                .ForMember(dest => dest.currentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
                .ForMember(dest => dest.lastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
@@ -82,8 +82,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             
             Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.Price>()
-               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
+               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
+               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
 
             // BillingResponse
             Mapper.CreateMap<ConditionalAccess.BillingResponse, BillingResponse>()
