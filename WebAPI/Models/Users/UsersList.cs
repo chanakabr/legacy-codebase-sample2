@@ -14,6 +14,6 @@ namespace WebAPI.Models.Users
     {
         [DataMember(Name = "users")]
         [JsonProperty("users")]
-        public List<User> Users;
+        public List<User> Users { get; set; }
     }
 }

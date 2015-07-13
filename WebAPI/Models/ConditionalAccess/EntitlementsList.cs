@@ -14,6 +14,6 @@ namespace WebAPI.Models.ConditionalAccess
     {
         [DataMember(Name = "entitlements")]
         [JsonProperty("entitlements")]
-        public List<Entitlement> Entitlements;
-    }    
+        public List<Entitlement> Entitlements { get; set; }
+    }
 }

@@ -1,24 +1,18 @@
-﻿using AutoMapper;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using System.Net.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
 using System.Web.Routing;
-using WebAPI.Exceptions;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Utils;
-using WebAPI.Models.Users;
-using WebAPI.Models.General;
-using WebAPI.Models.Catalog;
+using WebAPI.Exceptions;
 using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Filters;
-using System;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using System.Xml.Serialization;
+using WebAPI.Models.Users;
+using WebAPI.Utils;
+
 
 namespace WebAPI.Controllers
 {
@@ -359,7 +353,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Sign up a new user.      
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner identifier</param>
         /// <param name="request">SignUp Object</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
@@ -403,7 +397,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Send a new password by user name.        
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
@@ -443,7 +437,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Renew the user's password without validating the existing password.
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User does not exist = 2000, Wrong username or password = 1011</remarks>
@@ -483,7 +477,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the user name associated with a temporary reset token.        
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
@@ -523,7 +517,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Given a user name and existing password, change to a new password.        
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
@@ -542,7 +536,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password  is empty");
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password is empty");
             }
             try
             {
@@ -564,7 +558,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieving users' data
         /// </summary>
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
@@ -614,7 +608,7 @@ namespace WebAPI.Controllers
 
         /// <summary>Edit user details.        
         /// </summary>
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
         /// <param name="user_id"> User identifiers</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
@@ -1203,7 +1197,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG program identifier</param>
-        /// <param name="household_id">Media identifier</param>        
+        /// <param name="household_id">Household identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
         public GenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
@@ -1232,12 +1226,169 @@ namespace WebAPI.Controllers
 
         #endregion
 
+        #region Favorite
+
+        /// <summary>
+        /// Add media to user's favorite list
+        /// </summary>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="request">Request parameters</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        [Route("{user_id}/favorites/add"), HttpPost]
+        public void AddUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] AddUserFavorite request)
+        {
+
+            int groupId = int.Parse(partner_id);
+
+            // parameters validation
+            if (request.MediaType.Trim().Length == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+            }
+
+            if (request.MediaType.Trim().Length == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_type cannot be empty");
+            }
+
+            if (udid.Trim().Length == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "UDID cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                ClientsManager.UsersClient().AddUserFavorite(groupId, user_id, household_id, udid, request.MediaType, request.MediaId, request.ExtraData);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+        }
+
+        /// <summary>
+        /// Remove media from user's favorite list
+        /// </summary>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="user_id">User identifier</param>        
+        /// <param name="media_ids">Media identifiers</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
+        /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        [Route("{user_id}/favorites/delete"), HttpPost]
+        public void RemoveUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
+        {
+
+            int groupId = int.Parse(partner_id);
+
+            // parameters validation
+            if (media_ids == null | media_ids.Count == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                ClientsManager.UsersClient().RemoveUserFavorite(groupId, user_id, household_id, media_ids.ToArray());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+        }
+        
+        /// <summary>
+        /// Retrieving users' favorites
+        /// </summary>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User identifier</param>                
+        /// <param name="media_type">Related media type </param>                
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
+        /// <param name="language">Language Code</param>                
+        // <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
+        /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        [Route("{user_id}/favorites/get"), HttpGet]
+        public FavoriteList GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type= null,
+            [FromUri] int household_id = 0, [FromUri] string udid = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            string language = null)
+        {
+            List<Favorite> favorites = null;
+            List<Favorite> favoritesFinalList = null;
+            
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, user_id, household_id, udid, media_type);
+                if (favorites != null && favorites.Count > 0)
+                {
+                    
+                    List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
+
+                    AssetInfoWrapper assetInfoWrapper  = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
+
+                    favoritesFinalList = new List<Favorite>();
+                    for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
+                    {
+                        if (favorites[favoriteIndex].Asset.Id == assetInfoWrapper.Assets[assertIndex].Id)
+                        {
+                            favorites[favoriteIndex].Asset = assetInfoWrapper.Assets[assertIndex];
+                            favoritesFinalList.Add(favorites[favoriteIndex]);
+                            assertIndex++;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new FavoriteList() { Favorites = favoritesFinalList };
+        }
+
+        #endregion
+
         #region ConditionalAccess
 
         /// <summary>
         /// Gets list of Entitlement (subscriptions) by a given user.    
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Id</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         /// <response code="200">OK</response>
@@ -1268,7 +1419,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Gets user transaction history.        
         /// </summary>        
-        /// <param name="partner_id">Household ID</param>
+        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Id</param>
         /// <param name="page_number">page number</param>
         /// <param name="page_size">page size</param>
@@ -1304,7 +1455,7 @@ namespace WebAPI.Controllers
         ///// 
         ///// </summary>
         ///// <param name="request">Credentials</param>
-        ///// <param name="partner_id">Household ID</param>
+        ///// <param name="partner_id">Partner Identifier</param>
         //[Route("sign_in"), HttpPost]
         //[ApiExplorerSettings(IgnoreApi = true)]
         //public string SignIn([FromUri] string partner_id, [FromBody] SignIn request)

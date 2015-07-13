@@ -10,8 +10,8 @@ namespace WebAPI.Utils
 {
     public class GatewayTimeoutException : ApiException
     {
-        public GatewayTimeoutException() : base(HttpStatusCode.GatewayTimeout, (int)StatusCode.Timeout, "timeout") { }
+        public GatewayTimeoutException() : base(HttpStatusCode.InternalServerError, (int)StatusCode.Timeout, "timeout") { }
 
-        public GatewayTimeoutException(int code, string msg) : base(HttpStatusCode.GatewayTimeout, code, !string.IsNullOrEmpty(msg) ? msg : "timeout") { }
+        public GatewayTimeoutException(int code, string msg) : base(HttpStatusCode.InternalServerError, code, !string.IsNullOrEmpty(msg) ? msg : "timeout") { }
     }
 }

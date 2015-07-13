@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Models.Billing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
 
@@ -92,5 +93,297 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+
+        #region Payment GateWay
+
+        /// <summary>
+        /// Returns all payment gateway settings for partner
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>       
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/settings"), HttpGet]
+        public Models.Billing.PaymentGWSettingsResponse GetPaymentGWSettings([FromUri] string partner_id)
+        {
+            Models.Billing.PaymentGWSettingsResponse response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetPaymentGWSettings(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns all payment gateways for partner : id + name
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>       
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways"), HttpGet]
+        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id)
+        {
+            Models.Billing.PaymentGWResponse response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetPaymentGW(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+        
+        /// <summary>
+        /// Delete payment gateway by payment gateway id
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/{payment_gateway_id}/delete"), HttpPost]
+        public bool DeletePaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().DeletePaymentGW(groupId, payment_gateway_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete payment gateway specific settings by settings keys 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/{payment_gateway_id}/settings/delete"), HttpPost]
+        public bool DeletePaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().DeletePaymentGWSettings(groupId, payment_gateway_id, settings);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+                
+        /// <summary>
+        /// Insert new payment gateway for partner
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="pgs">Payment GateWay Settings Object</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateway/add"), HttpPost]
+        public bool InsertPaymentGW([FromUri] string partner_id, [FromBody] PaymentGW pgs)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().InsertPaymentGW(groupId, pgs);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Insert new settings for payment gateway for partner
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/{payment_gateway_id}/settings/add"), HttpPost]
+        public bool InsertPaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().InsertPaymentGWSettings(groupId, payment_gateway_id, settings);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+     
+
+        /// <summary>
+        /// Update payment gateway details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="name">Payment Gateway Name</param>
+        ///<param name="url">Payment Gateway Url</param>
+        ///<param name="is_default">Payment Gateway is default or not </param>
+        ///<param name="is_active">Payment Gateway is active or not </param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
+        public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, url, is_default, is_active);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update settings for payment gateway 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        /// <response code="404">Not Found</response>
+        [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
+        public bool SetPaymentGWSrttings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentGWSrttings(groupId, payment_gateway_id, settings);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        #endregion
     }
 }
