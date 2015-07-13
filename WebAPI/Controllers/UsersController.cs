@@ -229,8 +229,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Get recently watched media for user, ordered by recently watched first.    
-        /// </summary>
-        /// <param name="request">The search asset request parameter</param>
+        /// </summary>        
         /// <param name="partner_id" >Partner identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="filter_types">List of asset types to search within. The list is a string separated be comma.

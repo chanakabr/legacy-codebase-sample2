@@ -176,8 +176,16 @@ namespace WebAPI
                             if (descs.Count > 0)
                                 pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
+                            //Handling nullables
+                            var eType = Nullable.GetUnderlyingType(par.GetType());
+                            string typeName = "";
+                            if (eType != null)
+                                typeName = getTypeFriendlyName(par.GetType().GetGenericArguments()[0]);
+                            else
+                                typeName = getTypeFriendlyName(par.GetType());
+
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
-                                getTypeFriendlyName(par.ParameterType), pdesc));
+                                typeName, pdesc));
                         }
 
                         if (method.ReturnType.IsArray || method.ReturnType.IsGenericType)
@@ -224,15 +232,16 @@ namespace WebAPI
 
                     var attr = dataMemberAttr.Name;
 
-                    if (pi.PropertyType.IsEnum || ((eType = Nullable.GetUnderlyingType(pi.PropertyType)) != null && eType.IsEnum))
-                    {
-                        string typeName = "";
+                    //Handling nullables
+                    eType = Nullable.GetUnderlyingType(pi.PropertyType);
+                    string typeName = "";
+                    if (eType != null)
+                        typeName = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
+                    else
+                        typeName = getTypeFriendlyName(pi.PropertyType);
 
-                        if (eType != null)
-                            typeName = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
-                        else
-                            typeName = getTypeFriendlyName(pi.PropertyType);
-                        
+                    if (pi.PropertyType.IsEnum || (eType != null && eType.IsEnum))
+                    {                                                                    
                         context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
                            typeName, pdesc));
                     }
@@ -250,7 +259,7 @@ namespace WebAPI
                     else
                     {
                         context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                        getTypeFriendlyName(pi.PropertyType), pdesc));
+                        typeName, pdesc));
                     }
                 }
                 else
