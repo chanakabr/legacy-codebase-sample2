@@ -89,19 +89,45 @@ namespace WebAPI
                 if (classNode == null)
                     continue;
 
+                string baseName = t.BaseType != null && t.BaseType != typeof(Object) ? t.BaseType.Name : "";
+                bool isAbstractOrInterface = t.IsInterface || t.IsAbstract;
+
                 //No documentation
                 if (classNode.Count == 0 || classNode[0].ChildNodes == null)
-                    context.Response.Write(string.Format("\t<class name='{0}' description=''>\n", t.Name));
+                {
+                    context.Response.Write(string.Format("\t<class name='{0}' description='' base='{1}'", t.Name,
+                        baseName));
+
+                    if (isAbstractOrInterface)
+                        context.Response.Write("abstract='1'");
+
+                    context.Response.Write(">\n");
+                }
                 else
                 {
                     foreach (XmlElement child in classNode[0].ChildNodes)
                     {
-                        context.Response.Write(string.Format("\t<class name='{0}' description='{1}'>\n", t.Name,
-                            child.InnerText.Trim()));
+                        context.Response.Write(string.Format("\t<class name='{0}' description='{1}' base='{2}'", t.Name,
+                            child.InnerText.Trim(), baseName));
+
+                        if (isAbstractOrInterface)
+                            context.Response.Write("abstract='1'");
+
+                        context.Response.Write(">\n");
                     }
                 }
 
-                runOnProperties(context, x, t.FullName, t.GetProperties());
+                List<PropertyInfo> props = t.GetProperties().ToList();
+
+                //Remove properties from base
+                if (t.BaseType != null)
+                {
+                    PropertyInfo[] baseProps = t.BaseType.GetProperties();
+                    props.RemoveAll(xx => baseProps.Where(y => y.Name == xx.Name).Count() > 0);
+                }
+
+                runOnProperties(context, x, t.FullName, props.ToArray());
+
                 context.Response.Write("\t</class>\n");
             }
 
@@ -152,7 +178,19 @@ namespace WebAPI
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
                                 getTypeFriendlyName(par.ParameterType), pdesc));
                         }
-                        context.Response.Write(string.Format("\t\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
+
+                        if (method.ReturnType.IsArray || method.ReturnType.IsGenericType)
+                        {
+                            string name = "";
+                            if (method.ReturnType.IsArray)
+                                name = getTypeFriendlyName(method.ReturnType.GetElementType());
+                            else if (method.ReturnType.IsGenericType)
+                                name = getTypeFriendlyName(method.ReturnType.GetGenericArguments()[0]);
+
+                            context.Response.Write(string.Format("\t\t\t<result type='{0}' arrayType='{1}'/>\n", getTypeFriendlyName(method.ReturnType), name));
+                        }
+                        else
+                            context.Response.Write(string.Format("\t\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
                         context.Response.Write("\t\t</action>\n");
                     }
                 };
