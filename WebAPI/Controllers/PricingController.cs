@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
@@ -38,7 +39,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(files_ids))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "files_ids cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "files_ids cannot be empty");
             }
 
             List<int> filesIds;
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each file id must be integer");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "each file id must be integer");
             }
 
             try

@@ -736,7 +736,7 @@ namespace WebAPI.Controllers
             
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
 
             int groupId = int.Parse(partner_id);

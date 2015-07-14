@@ -12,6 +12,7 @@ using WebAPI.Filters;
 using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
@@ -46,7 +47,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(subscriptions_ids))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
             }
 
             List<string> subscriptionsIds = subscriptions_ids.Split(',').Distinct().ToList();
@@ -86,7 +87,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(subscriptions_ids))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
             }
 
             List<string> subscriptionsIds = subscriptions_ids.Split(',').Distinct().ToList();
