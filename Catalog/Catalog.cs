@@ -534,6 +534,12 @@ namespace Catalog
                             oMediaObj.m_dFinalDate = System.Convert.ToDateTime(sDate);
                             sDate = string.Empty;
                         }
+                        else
+                        {
+                            oMediaObj.m_dFinalDate = DateTime.MaxValue;
+                            sDate = string.Empty;
+                        }
+
                         sDate = Utils.GetStrSafeVal(dtMedia.Rows[0], "PUBLISH_DATE");
                         if (!string.IsNullOrEmpty(sDate))
                         {
@@ -552,6 +558,12 @@ namespace Catalog
                             oMediaObj.m_dEndDate = System.Convert.ToDateTime(sDate);
                             sDate = string.Empty;
                         }
+                        else
+                        {
+                            oMediaObj.m_dEndDate = DateTime.MaxValue;
+                            sDate = string.Empty;
+                        }
+
                         //UpdateDate
                         if (dtUpdateDate != null)
                         {
@@ -1321,7 +1333,7 @@ namespace Catalog
                         string url = Utils.GetWSURL("ws_domains");
                         domainsWebService.Url = url;
 
-                        WS_Domains.Domain domain = null; 
+                        WS_Domains.Domain domain = null;
                         var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
                         if (domainRes != null)
                         {
@@ -4258,6 +4270,6 @@ namespace Catalog
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
 
-      
+
     }
 }

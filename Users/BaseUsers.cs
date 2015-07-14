@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using DAL;
-using Logger;
-using ApiObjects;
-using ApiObjects.Statistics;
+﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.Statistics;
+using DAL;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 
 namespace Users
@@ -64,14 +62,23 @@ namespace Users
             return false;
         }
 
-        public virtual bool AddUserFavorit(string sUserGUID, int domainID, string sDeviceUDID,
+        public virtual ApiObjects.Response.Status AddUserFavorit(string sUserGUID, int domainID, string sDeviceUDID,
             string sItemType, string sItemCode, string sExtraData, Int32 nGroupID)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
             try
             {
                 bool saveRes = false;
                 FavoritObject f = new FavoritObject();
+
+                if (!IsAddUserFavoriteParamValid(nGroupID, sUserGUID, sItemType, sItemCode, out status))
+                {
+                    return status;
+                }
+
                 f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sItemCode, sExtraData, DateTime.UtcNow, nGroupID);
+
                 saveRes = f.Save(nGroupID);
 
                 //insert favorites record to ES
@@ -86,15 +93,63 @@ namespace Users
                     Date = DateTime.UtcNow
                 };
 
-                saveRes &= WriteFavoriteToES(view);
+                if (saveRes)
+                {
+                    WriteFavoriteToES(view); //saving to the ES onlt if save Succeeded  
+                }
 
-                return saveRes;
+                return status;
             }
             catch (Exception ex)
             {
                 log.Error("", ex);
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "";
+                return status;
+            }
+        }
+
+        private bool IsAddUserFavoriteParamValid(int nGroupID, string sUserGUID, string sItemType, string sItemCode, out ApiObjects.Response.Status status)
+        {
+            //check if userID exist
+            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            {
                 return false;
             }
+
+            if (sItemType.Trim().Length == 0)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Item Type is empty "; 
+                return false;
+            }
+
+            if (sItemCode.Trim().Length == 0)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Item Code is empty "; 
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, int[] mediaIDs, out ApiObjects.Response.Status status)
+        {
+            //check if userID exist
+            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            {
+                return false;
+            }
+
+            if (mediaIDs == null)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+                return false;
+            }
+
+            return true;
         }
 
 
@@ -131,6 +186,13 @@ namespace Users
           string sItemType, string sChannelID, string sExtraData, Int32 nGroupID)
         {
             FavoritObject f = new FavoritObject();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (!IsAddUserFavoriteParamValid(nGroupID, sUserGUID, sItemType, sChannelID, out status))
+            {
+                return false;
+            }
+
             f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sChannelID, sExtraData, DateTime.UtcNow, nGroupID, 1);
             return f.Save(nGroupID);
         }
@@ -140,9 +202,21 @@ namespace Users
             FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nFavoritID);
         }
 
-        public virtual void RemoveUserFavorit(int[] nMediaIDs, string sUserGUID, int nGroupID)
+        public virtual ApiObjects.Response.Status RemoveUserFavorit(int[] nMediaIDs, string sUserGUID, int nGroupID)
         {
-            FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (IsARemoveUserFavoriteParamValid(nGroupID, sUserGUID, nMediaIDs, out status))
+            {
+                FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+            }
+            else
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+            }
+
+            return status;
         }
 
         public virtual void RemoveChannelMediaUserFavorit(int[] nChannelIDs, string sUserGUID, int nGroupID)
@@ -150,9 +224,21 @@ namespace Users
             FavoritObject.RemoveChannelMediaFavorit(sUserGUID, nGroupID, nChannelIDs);
         }
 
-        public virtual FavoritObject[] GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID)
+        public virtual FavoriteResponse GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID)
         {
-            return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType);
+            FavoriteResponse response = new FavoriteResponse();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            //check if userID exist
+            if (IsUserValid(nGroupID, sSiteGUID, out status))
+            {
+                return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType);
+            }
+            else
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+                return new FavoriteResponse() { Status = status, Favorites = new FavoritObject[0] };
+            }
         }
 
         public virtual string GetUniqueTitle(UserBasicData oBasicData, UserDynamicData sDynamicData)
@@ -884,7 +970,7 @@ namespace Users
                 activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
             }
             if (userId <= 0)
-                response = new ApiObjects.Response.Status((int)eResponseStatus.WrongPasswordOrUserName, "user not valid");
+                response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user not valid");            
             else
             {
                 switch (activStatus)
