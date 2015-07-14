@@ -5,6 +5,7 @@ using System.Web;
 using AutoMapper;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
+using WebAPI.Managers.Models;
 
 
 namespace WebAPI.Mapping.ObjectsConvertor
