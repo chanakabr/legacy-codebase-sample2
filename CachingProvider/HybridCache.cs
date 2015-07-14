@@ -5,19 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 namespace CachingProvider
 {
     public class HybridCache<T> : OutOfProcessCache
     {
-        #region Data Members
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private SingleInMemoryCache inMemoryCache;
         private CouchBaseCache<T> couchbaseCache;
         private double secondsInMemory;
-
-        #endregion
-
-        #region Ctor
 
         /// <summary>
         /// Initializes a new instance of the hybrid cache
@@ -37,8 +35,6 @@ namespace CachingProvider
             }
         }
 
-        #endregion
-
         public static HybridCache<T> GetInstance(eCouchbaseBucket bucket, string internalCacheName)
         {
             HybridCache<T> cache = null;
@@ -48,13 +44,11 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Unable to create hybrid cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), "CachingProvider");
+                log.Error("Error - " + string.Format("Unable to create hybrid cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return cache;
         }
-
-        #region Override Methods
 
         public override bool Add(string key, BaseModuleCache value, double minuteOffset)
         {
@@ -144,7 +138,7 @@ namespace CachingProvider
 
         public override BaseModuleCache Remove(string key)
         {
-            BaseModuleCache resultCouchbase = this.couchbaseCache.Remove(key);            
+            BaseModuleCache resultCouchbase = this.couchbaseCache.Remove(key);
             BaseModuleCache resultInMemory = this.inMemoryCache.Remove(key);
 
             if (resultInMemory != null && resultInMemory.result != null)
@@ -289,7 +283,7 @@ namespace CachingProvider
         public override bool SetJson<T>(string key, T obj, double cacheTT)
         {
             bool couchBaseSet = this.couchbaseCache.SetJson<T>(key, obj, cacheTT);
-            
+
             bool inMemorySet = false;
 
             if (couchBaseSet)
@@ -313,7 +307,5 @@ namespace CachingProvider
 
             return success;
         }
-
-        #endregion
     }
 }

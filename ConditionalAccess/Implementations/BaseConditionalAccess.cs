@@ -21,11 +21,15 @@ using GroupsCacheManager;
 using ConditionalAccess.TvinciPricing;
 using ApiObjects.Response;
 using ConditionalAccess.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ConditionalAccess
 {
     public abstract class BaseConditionalAccess
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected string m_sPurchaseMailTemplate;
         protected string m_sMailFromName;
         protected string m_sMailFromAdd;
@@ -350,7 +354,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("WriteToUserLog", string.Format("Failed to write to user log. Site Guid: {0} , Msg: {1} , Exception msg: {2} , Stack trace : {3}", sSiteGUID, sMessage, ex.Message, ex.StackTrace), GetLogFilename());
+                log.Error("WriteToUserLog - " + string.Format("Failed to write to user log. Site Guid: {0} , Msg: {1} , Exception msg: {2} , Stack trace : {3}", sSiteGUID, sMessage, ex.Message, ex.StackTrace), ex);
             }
             finally
             {
@@ -530,7 +534,7 @@ namespace ConditionalAccess
                                             sCustomData = GetCustomDataForPrePaid(thePrePaidModule, null, sPrePaidModuleCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
                                                 sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                            Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                                            log.Debug("CustomData - " + sCustomData);
 
                                             //customdata id
                                             if (!bDummy)
@@ -675,7 +679,7 @@ namespace ConditionalAccess
                                                     pmErr.Append(String.Concat(" Ex Msg: ", ex.Message));
                                                     pmErr.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                                                     pmErr.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                                                    Logger.Logger.Log("Send purchase mail", pmErr.ToString(), "mailer");
+                                                    log.Debug("Send purchase mail - " + pmErr.ToString(), ex);
                                                     #endregion
                                                 }
                                             }
@@ -756,7 +760,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -933,7 +937,7 @@ namespace ConditionalAccess
                                                 nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
                                                 sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                            Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                                            log.Debug("CustomData - " + sCustomData);
 
                                             //customdata id
                                             InAppRes = bm.InApp_ChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sRecieptCode);
@@ -1108,7 +1112,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -1254,7 +1258,7 @@ namespace ConditionalAccess
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
                                     string.Empty, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                Logger.Logger.Log("CustomData", sCustomData, "CustomDataForSubsrpition");
+                                log.Debug("CustomData - " + sCustomData);
 
                                 if (p.m_dPrice != 0)
                                 {
@@ -1621,7 +1625,7 @@ namespace ConditionalAccess
                                         sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                                         sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                                        Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                                        log.Error("Exception - " + sb.ToString(), ex);
                                         #endregion
 
                                         InAppRes.m_oBillingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.Fail;
@@ -1686,7 +1690,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
                 InAppRes.m_oBillingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.Fail;
@@ -1859,7 +1863,7 @@ namespace ConditionalAccess
                             sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
                             sb.Append(String.Concat(" Sub Purchase ID: ", nSubscriptionPurchaseID));
 
-                            Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                            log.Error("Error - " + sb.ToString());
                             #endregion
                         }
                     }
@@ -1877,7 +1881,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return bRet;
@@ -1970,7 +1974,7 @@ namespace ConditionalAccess
                                 sb.Append(String.Concat("Domain Id: ", p_nDomainId));
                                 sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
 
-                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                log.Error("Error - " + sb.ToString());
                                 #endregion
 
                                 oResult.Code = (int)eResponseStatus.Error;
@@ -1991,7 +1995,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
                 oResult.Code = (int)eResponseStatus.Error;
@@ -2338,7 +2342,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -2384,7 +2388,7 @@ namespace ConditionalAccess
            string sSubscriptionCode, Int32 nPurchaseID, int nBillingMethod, Int32 nPaymentNumber,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int nInAppTransactionID)
         {
-            Logger.Logger.Log("Renew Fail", sSiteGUID + " " + sSubscriptionCode, "TempRenew");
+            log.Debug("Renew Fail - " + sSiteGUID + " " + sSubscriptionCode);
             string sCouponCode = string.Empty;
             TvinciBilling.InAppBillingResponse ret = new TvinciBilling.InAppBillingResponse(); // new ConditionalAccess.TvinciBilling.InAppBillingResponse();
             TvinciUsers.UsersService u = null;
@@ -2682,7 +2686,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
 
                 #endregion
 
@@ -2934,7 +2938,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Purchased with preview module: ", bIsPurchasedWithPreviewModule.ToString().ToLower()));
                 sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().ToString()));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                Logger.Logger.Log("DD_BaseRenewMultiUsageSubscription", sb.ToString(), "TvinciRenewer");
+                log.Debug("DD_BaseRenewMultiUsageSubscription - " + sb.ToString(), ex);
                 WriteToUserLog(sSiteGUID, string.Format("MPP Renewal. Exception thrown. Msg: {0}", ex.Message));
                 #endregion
 
@@ -2955,7 +2959,7 @@ namespace ConditionalAccess
          TvinciBilling.BillingResponse br, string sCustomData)
         {
 
-            Logger.Logger.Log("Fail", string.Format("Fail count for user: {0} . Sub Code: {1} , Purchase ID: {2} , Response status: {3} , Response status desc: {4} , Custom Data: {5}", sSiteGUID, sSubscriptionCode, lPurchaseID, br.m_oStatus.ToString(), br.m_sStatusDescription, sCustomData), "TvinciRenewer");
+            log.Debug("Fail - " + string.Format("Fail count for user: {0} . Sub Code: {1} , Purchase ID: {2} , Response status: {3} , Response status desc: {4} , Custom Data: {5}", sSiteGUID, sSubscriptionCode, lPurchaseID, br.m_oStatus.ToString(), br.m_sStatusDescription, sCustomData));
             WriteToUserLog(sSiteGUID, string.Format("MPP auto renewal: {0} , error returned: {1} , status returned: {2}", sSubscriptionCode.ToString(), br.m_sStatusDescription, br.m_oStatus.ToString()));
 
             if (br.m_oStatus != ConditionalAccess.TvinciBilling.BillingResponseStatus.ExternalError)
@@ -2977,7 +2981,7 @@ namespace ConditionalAccess
 
         protected void HandleMPPRenewalUserDoesNotExist(string sSiteGUID, long lPurchaseID, ref TvinciBilling.BillingResponse res)
         {
-            Logger.Logger.Log("Fail", string.Format("User ID: {0} does not exist. Purchase ID: {1}", sSiteGUID, lPurchaseID), "TvinciRenewer");
+            log.Debug("Fail - " + string.Format("User ID: {0} does not exist. Purchase ID: {1}", sSiteGUID, lPurchaseID));
 
             // user does not exist. there is no point to continue trying renewing the mpp.
             // hence, we set the fail count to maximum
@@ -3240,7 +3244,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -3369,7 +3373,7 @@ namespace ConditionalAccess
             if (u == null)
             {
                 string strLog = string.Format("could not find Appropriate Multi usage module for Subscription ID : {0}", thesub.m_SubscriptionCode);
-                Logger.Logger.Log("Get Appropriate Multi Subscription Usage Module Fail", strLog, "TvinciRenewer");
+                log.Debug("Get Appropriate Multi Subscription Usage Module Fail - " + strLog);
             }
             return u;
         }
@@ -3380,7 +3384,7 @@ namespace ConditionalAccess
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             //write loge
-            Logger.Logger.Log("CC Base Multi usage modue renew subscritpion", sSiteGUID + " " + sSubscriptionCode, "RenewMultiUsageModule");
+            log.Debug("CC Base Multi usage module renew subscription - " + sSiteGUID + " " + sSubscriptionCode);
             //create billing response resault object 
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
             TvinciUsers.UsersService u = null;
@@ -3473,7 +3477,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception- " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -3522,7 +3526,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("HandleRecurringCoupon error", ", PurchaseID: " + nPurchaseID.ToString() + ",Exception:" + ex.ToString(), "TvinciRenewer");
+                log.Error("HandleRecurringCoupon error - , PurchaseID: " + nPurchaseID.ToString() + ",Exception:" + ex.ToString(), ex);
             }
         }
 
@@ -3844,7 +3848,7 @@ namespace ConditionalAccess
                             sb.Append(String.Concat(" Group ID: ", m_nGroupID));
                             sb.Append(String.Concat(" MF ID: ", nMediaFileID));
 
-                            Logger.Logger.Log("CriticalError", sb.ToString(), GetLogFilename());
+                            log.Debug("CriticalError - " + sb.ToString());
                             #endregion
 
                         }
@@ -3907,7 +3911,7 @@ namespace ConditionalAccess
                             sb.Append(String.Concat(" Group ID: ", m_nGroupID));
                             sb.Append(String.Concat(" Site Guid: ", purchasingSiteGuid));
 
-                            Logger.Logger.Log("CriticalError", sb.ToString(), GetLogFilename());
+                            log.Error("CriticalError - " + sb.ToString());
                             #endregion
                         }
                     }
@@ -4064,7 +4068,7 @@ namespace ConditionalAccess
                 StringBuilder sb = new StringBuilder("Error at UpdatePPVPurchases. Probably failed to update num of uses value. ");
                 sb.Append(String.Concat(" PPV Purchase ID: ", nPPVPurchaseID));
                 sb.Append(String.Concat(" PPV M CD: ", sPPVModuleCode));
-                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                log.Error("Error - " + sb.ToString());
                 #endregion
             }
         }
@@ -4476,7 +4480,7 @@ namespace ConditionalAccess
                                         nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, string.Empty,
                                         sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                    Logger.Logger.Log("SMS CustomData", sCustomData, "CustomData");
+                                    log.Debug("SMS CustomData - " + sCustomData);
 
                                     if (relevantSub != null)
                                     {
@@ -4535,7 +4539,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", ex.Message + "||" + ex.StackTrace, "exc");
+                log.Error("exception - " + ex.Message + "||" + ex.StackTrace, ex);
                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                 ret.m_sRecieptCode = "";
                 ret.m_sStatusDescription = ex.Message + "||" + ex.StackTrace;
@@ -4628,7 +4632,7 @@ namespace ConditionalAccess
                                         string sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
                                         sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                        Logger.Logger.Log("SMS CustomData", sCustomData, "CustomDataForSubsrpition");
+                                        log.Debug("SMS CustomData - " + sCustomData);
 
                                         ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
                                         WriteToUserLog(sSiteGUID, "While trying to purchase subscription(SMS): " + sSubscriptionCode + " SMS code sent to: " + sCellPhone);
@@ -4682,7 +4686,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -4890,7 +4894,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
 
-                Logger.Logger.Log("Error", sb.ToString(), "BaseConditionalAccess");
+                log.Error("Error - " + sb.ToString());
 
                 res = new PermittedMediaContainer[0];
             }
@@ -5003,9 +5007,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Exception msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-
-                Logger.Logger.Log("Exception", sb.ToString(), "BaseConditionalAccess");
-
+                log.Error("Exception - " + sb.ToString(), ex);
             }
             return ret;
 
@@ -5114,7 +5116,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
             }
@@ -5263,7 +5265,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return ret;
@@ -5443,7 +5445,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -5606,7 +5608,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" D Nm: ", sDEVICE_NAME));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -5669,7 +5671,7 @@ namespace ConditionalAccess
 
             try
             {
-                Logger.Logger.Log("CC_BaseChargeUserForMediaFile", string.Format("Entering CC_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Payment Method: {6} , Dummy: {7}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()), GetLogFilename());
+                log.Debug("CC_BaseChargeUserForMediaFile - " + string.Format("Entering CC_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Payment Method: {6} , Dummy: {7}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()));
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
                 {
@@ -5801,7 +5803,7 @@ namespace ConditionalAccess
                                             nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
                                             sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                        Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                                        log.Debug("CustomData - " + sCustomData);
 
                                         oResponse = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
                                             1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref wsBillingService);
@@ -5896,7 +5898,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" User IP: ", sUserIP));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                Logger.Logger.Log("CC_BaseChargeUserForMediaFile", sb.ToString(), GetLogFilename());
+                log.Debug("CC_BaseChargeUserForMediaFile - " + sb.ToString(), ex);
                 WriteToUserLog(sSiteGUID, string.Format("Exception at CC_BaseChargeUserForMediaFile. Media File ID: {0} , Media ID: {1} , Coupon Code: {2}", nMediaFileID, nMediaID, sCouponCode));
                 #endregion
             }
@@ -5954,7 +5956,7 @@ namespace ConditionalAccess
 
             try
             {
-                Logger.Logger.Log("GetPPVCustomDataID", GetGetCustomDataLogMsg("PPV", sSiteGUID, dPrice, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sPaymentMethod, sUserIP, string.Empty), GetLogFilename());
+                log.Debug("GetPPVCustomDataID - " + GetGetCustomDataLogMsg("PPV", sSiteGUID, dPrice, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sPaymentMethod, sUserIP, string.Empty));
                 u = new ConditionalAccess.TvinciUsers.UsersService();
 
                 string sWSUserName = string.Empty;
@@ -6056,7 +6058,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" ,Override end date: ", sOverrideEndDate));
                 sb.Append(String.Concat(" ,BaseConditionalAccess is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ,Stack trace: ", ex.StackTrace));
-                Logger.Logger.Log("GetPPVCustomDataID", sb.ToString(), GetLogFilename());
+                log.Debug("GetPPVCustomDataID - " + sb.ToString());
                 #endregion
             }
             finally
@@ -6189,7 +6191,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -6241,7 +6243,7 @@ namespace ConditionalAccess
                 TvinciPricing.mdoule m = null;
                 try
                 {
-                    Logger.Logger.Log("GetBundleCustomDataID", GetGetCustomDataLogMsg("Bundle", sSiteGUID, dPrice, 0, 0, sBundleCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID), GetLogFilename());
+                    log.Debug("GetBundleCustomDataID - " + GetGetCustomDataLogMsg("Bundle", sSiteGUID, dPrice, 0, 0, sBundleCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID));
                     u = new ConditionalAccess.TvinciUsers.UsersService();
 
                     string sWSUserName = string.Empty;
@@ -6367,7 +6369,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Preview Module ID: ", sPreviewModuleID));
                     sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().ToString()));
                     sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                    Logger.Logger.Log("GetBundleCustomDataID", sb.ToString(), GetLogFilename());
+                    log.Debug("GetBundleCustomDataID - " + sb.ToString());
                     #endregion
                     retVal = 0;
 
@@ -6630,7 +6632,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", ex.StackTrace, GetLogFilename());
+                log.Error("Exception - " + ex.StackTrace, ex);
                 #endregion
             }
             finally
@@ -6848,7 +6850,7 @@ namespace ConditionalAccess
 
             try
             {
-                Logger.Logger.Log("CC_BaseChargeUserForBundle", string.Format("Entering CC_BaseChargeUserForBundle try block. Site Guid: {0} , Bundle Code: {1} , Coupon Code: {2} , User IP: {3} , Payment Method: {4} , Dummy: {5}", sSiteGUID, sBundleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()), GetLogFilename());
+                log.Debug("CC_BaseChargeUserForBundle - " + string.Format("Entering CC_BaseChargeUserForBundle try block. Site Guid: {0} , Bundle Code: {1} , Coupon Code: {2} , User IP: {3} , Payment Method: {4} , Dummy: {5}", sSiteGUID, sBundleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()));
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
                 {
@@ -6997,11 +6999,10 @@ namespace ConditionalAccess
                                     }
                                 default:
                                     {
-                                        Logger.Logger.Log("ChargeUserForBundle",
+                                        log.Debug("ChargeUserForBundle" +
                                             string.Format("Flow of CC_BaseChargeUserForBundle went wrong. Get{0}FinalPrice returned " +
                                             "price reason = {1} for site guid = {2} and bundle id = {3}",
-                                            collectionOrSubscription, theReason, sSiteGUID, sBundleCode),
-                                            this.GetLogFilename());
+                                            collectionOrSubscription, theReason, sSiteGUID, sBundleCode));
                                         break;
                                     }
                             }
@@ -7025,7 +7026,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Language Code: ", sLANGUAGE_CODE));
                 sb.Append(String.Concat(", Device Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(", Dummy: ", bDummy.ToString().ToLower()));
-                Logger.Logger.Log("CC_BaseChargeUserForSubscription", sb.ToString(), GetLogFilename());
+                log.Error("CC_BaseChargeUserForSubscription - " + sb.ToString(), ex);
                 WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sBundleCode));
                 #endregion
                 long lBillingID = 0;
@@ -7077,7 +7078,7 @@ namespace ConditionalAccess
             sCustomData = GetCustomDataForSubscription(theSub, null, sBundleCode, string.Empty, sSiteGUID, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty, bIsEntitledToPreviewModule);
 
-            Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
+            log.Debug("CustomData - " + string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData));
 
             bool bIsRecurring = theSub.m_bIsRecurring;
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
@@ -7137,7 +7138,7 @@ namespace ConditionalAccess
             sCustomData = GetCustomDataForCollection(theCol, sBundleCode, sSiteGUID, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
 
-            Logger.Logger.Log("CustomData", string.Format("Collection custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
+            log.Debug("CustomData - " + string.Format("Collection custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData));
 
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
@@ -7243,7 +7244,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return ret;
@@ -7302,7 +7303,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return ret;
@@ -7358,7 +7359,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return ret;
@@ -7575,7 +7576,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" BaseCAS is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), "BaseConditionalAccess");
+                log.Error("Exception - " + sb.ToString(), ex);
 
                 ret = null;
                 #endregion
@@ -7822,7 +7823,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
 
                 }
@@ -7869,7 +7870,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -8093,7 +8094,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetUserBillingHistoryExt", string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems, ex.Message), GetLogFilename());
+                log.Error("GetUserBillingHistoryExt - " + string.Format("UserGUID={0}, dStartDate={1}, dEndDate={2}, nStartIndex={3},nNumberOfItems={4}, ex={5} ", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems, ex.Message), ex);
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
             }
             finally
@@ -8130,7 +8131,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             return res;
@@ -8231,7 +8232,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" bFromPurchase: ", bFromPurchase.ToString().ToLower()));
                     sb.Append(String.Concat(" Pre Paid Code: ", nPrePaidCode));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("HandleCouponUses", sb.ToString(), "BaseConditionalAccess");
+                    log.Debug("HandleCouponUses - " + sb.ToString());
                     #endregion
                 }
                 finally
@@ -8346,7 +8347,6 @@ namespace ConditionalAccess
         string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
         string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
         {
-            //Logger.Logger.Log("Custom Data User IP", sUserIP + " " + sCountryCd + TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP), "ADCustomData");
             bool bIsFixed = thePrePaidModule.m_isFixedCredit;
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"prepaid\">");
@@ -8422,7 +8422,6 @@ namespace ConditionalAccess
            string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            //Logger.Logger.Log("Custom Data User IP", sUserIP + " " + sCountryCd + TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP), "ADCustomData");
             return GetCustomDataForPrePaid(thePrePaidModule, campaign, sPrePaidCode, sCampaignCode,
            sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
@@ -8920,7 +8919,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" MF ID: ", nMediaFileID));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -9238,7 +9237,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
             finally
@@ -9677,8 +9676,8 @@ namespace ConditionalAccess
                                     // If getting didn't succeed for any reason, write to log
                                     if (!bIsSuccess)
                                     {
-                                        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
-                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
+                                        log.Error("Error - " + GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV));
                                     }
                                 }
                             }
@@ -9703,7 +9702,6 @@ namespace ConditionalAccess
                             //    // If getting didn't succeed for any reason, write to log
                             //    if (!bIsSuccess)
                             //    {
-                            //        Logger.Logger.Log("Error", GetPricingErrLogMsg(sPPVMCodeFromPrice, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
                             //            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
                             //    }
                             //}
@@ -9749,7 +9747,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -10072,7 +10070,7 @@ namespace ConditionalAccess
             try
             {
 
-                Logger.Logger.Log("Cellular_BaseChargeUserForMediaFile", string.Format("Entering Cellular_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Dummy: {6}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, bDummy.ToString().ToLower()), GetLogFilename());
+                log.Debug("Cellular_BaseChargeUserForMediaFile - " + string.Format("Entering Cellular_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Dummy: {6}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, bDummy.ToString().ToLower()));
 
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
@@ -10198,7 +10196,7 @@ namespace ConditionalAccess
                                                 nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
                                                 sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                            Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                                            log.Debug("CustomData - " + sCustomData);
 
                                             ret = HandleCellularChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters, bDummy, false, ref bm);
                                         }
@@ -10299,7 +10297,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" User IP: ", sUserIP));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Cellular_BaseChargeUserForMediaFile", sb.ToString(), GetLogFilename());
+                log.Debug("Cellular_BaseChargeUserForMediaFile - " + sb.ToString());
 
                 WriteToUserLog(sSiteGUID, string.Format("Exception at Cellular_BaseChargeUserForMediaFile. Media File ID: {0} , Media ID: {1} , Coupon Code: {2}", nMediaFileID, nMediaID, sCouponCode));
                 #endregion
@@ -10344,7 +10342,7 @@ namespace ConditionalAccess
             TvinciBilling.module bm = null;
             try
             {
-                Logger.Logger.Log("Cellular_BaseChargeUserForSubscription", string.Format("Entering Cellular_BaseChargeUserForSubscription try block. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3} , Dummy: {4}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP, bDummy.ToString().ToLower()), GetLogFilename());
+                log.Debug("Cellular_BaseChargeUserForSubscription - " + string.Format("Entering Cellular_BaseChargeUserForSubscription try block. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3} , Dummy: {4}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP, bDummy.ToString().ToLower()));
 
 
                 long lSiteGuid = 0;
@@ -10417,7 +10415,7 @@ namespace ConditionalAccess
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
                                     sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, bIsEntitledToPreviewModule ? theSub.m_oPreviewModule.m_nID + "" : string.Empty, bIsEntitledToPreviewModule);
 
-                                Logger.Logger.Log("CustomData", string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData), "CustomDataForSubsrpition");
+                                log.Debug("CustomData - " + string.Format("Subscription custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", sSiteGUID, sUserIP, sCustomData));
 
                                 if (p.m_dPrice != 0 || bDummy)
                                 {
@@ -10507,7 +10505,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Language Code: ", sLANGUAGE_CODE));
                 sb.Append(String.Concat(", Device Name: ", sDEVICE_NAME));
                 sb.Append(String.Concat(", Dummy: ", bDummy.ToString().ToLower()));
-                Logger.Logger.Log("Cellular_BaseChargeUserForSubscription", sb.ToString(), "BaseConditionalAccess");
+                log.Debug("Cellular_BaseChargeUserForSubscription - " + sb.ToString());
                 WriteToUserLog(sSiteGUID, string.Format("While trying to purchase subscription id: {0} , Exception occurred.", sSubscriptionCode));
                 #endregion
                 long lBillingID = 0;
@@ -10571,7 +10569,7 @@ namespace ConditionalAccess
             }
             else
             {
-                Logger.Logger.Log("UpdatePurchaseIDInExternalBillingTable", string.Format("Unexpected error. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID), "BaseConditionalAccess");
+                log.Debug("UpdatePurchaseIDInExternalBillingTable - " + string.Format("Unexpected error. Billing transaction ID: {0} , Purchase ID: {1} , BaseConditionalAccess is: {2} , Billing Provider: {3} , External transaction ID: {4}", lBillingTransactionID, lPurchaseID, this.GetType().Name, nBillingProvider, nExternalTransactionID));
             }
         }
 
@@ -10599,13 +10597,13 @@ namespace ConditionalAccess
 
                 if (!Utils.IsUserValid(sSiteGuid, m_nGroupID, ref domainID, ref suspendStatus))
                 {
-                    Logger.Logger.Log("ChangeSubscription", " User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed", "BaseConditionalAccess");
+                    log.Debug("ChangeSubscription - User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed");
                     return ChangeSubscriptionStatus.UserNotExists;
                 }
 
                 if (suspendStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
                 {
-                    Logger.Logger.Log("ChangeSubscription", " User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed", "BaseConditionalAccess");
+                    log.Debug("ChangeSubscription - User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed");
                     return ChangeSubscriptionStatus.UserSuspended;
                 }
 
@@ -10630,7 +10628,7 @@ namespace ConditionalAccess
                         //check if the Subscription has autorenewal  
                         if (!userSubOld.m_bRecurringStatus)
                         {
-                            Logger.Logger.Log("ChangeSubscription", "Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                            log.Debug("ChangeSubscription - Previous Subscription ID: " + nOldSub + " is not renewable. Subscription was not changed");
                             return ChangeSubscriptionStatus.OldSubNotRenewable;
                         }
                     }
@@ -10640,7 +10638,7 @@ namespace ConditionalAccess
                 List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == nNewSub.ToString()).ToList();
                 if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
                 {
-                    Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed", "BaseConditionalAccess");
+                    log.Debug("ChangeSubscription - New Subscription ID: " + nNewSub + " is already attached to this user. Subscription was not changed");
                     return ChangeSubscriptionStatus.UserHadNewSub;
                 }
                 string pricingUsername = string.Empty, pricingPassword = string.Empty;
@@ -10656,7 +10654,7 @@ namespace ConditionalAccess
                 {
                     if (!userSubNew.m_bIsRecurring)
                     {
-                        Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed", "BaseConditionalAccess");
+                        log.Debug("ChangeSubscription - New Subscription ID: " + nNewSub + " is not renewable. Subscription was not changed");
                         return ChangeSubscriptionStatus.NewSubNotRenewable;
                     }
 
@@ -10664,7 +10662,7 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    Logger.Logger.Log("ChangeSubscription", "New Subscription ID: " + nNewSub + " was not found. Subscription was not changed", "BaseConditionalAccess");
+                    log.Debug("ChangeSubscription - New Subscription ID: " + nNewSub + " was not found. Subscription was not changed");
                     return ChangeSubscriptionStatus.NewSubNotExits;
                 }
 
@@ -10681,7 +10679,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", exc.GetType().Name));
                 sb.Append(String.Concat(" ST: ", exc.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), exc);
                 #endregion
 
                 return ChangeSubscriptionStatus.Error;
@@ -10771,7 +10769,7 @@ namespace ConditionalAccess
                             sb.Append(String.Concat(" bCancel: ", bCancel.ToString().ToLower()));
                             sb.Append(String.Concat(" updateEndDateOld: ", updateEndDateOld.ToString().ToLower()));
 
-                            Logger.Logger.Log("CriticalError", sb.ToString(), GetLogFilename());
+                            log.Error("CriticalError - " + sb.ToString());
 
                             #endregion
                         }
@@ -10784,7 +10782,7 @@ namespace ConditionalAccess
                         parseMsg.Append(String.Concat(" Site Guid: ", sSiteGuid));
                         parseMsg.Append(String.Concat(" New Sub: ", sSubscriptionCode));
                         parseMsg.Append(String.Concat(" Old Sub: ", userSubOld.m_sSubscriptionCode));
-                        Logger.Logger.Log("Error", parseMsg.ToString(), GetLogFilename());
+                        log.Error("Error - " + parseMsg.ToString());
                         #endregion
                     }
                 }
@@ -10804,7 +10802,7 @@ namespace ConditionalAccess
                     billingErr.Append(String.Concat(" Device Nm: ", sDeviceName));
                     billingErr.Append(String.Concat(" Is Dummy: ", isDummyCharge.ToString().ToLower()));
                     billingErr.Append(String.Concat(" Bill Resp Status: ", billResp.m_oStatus.ToString()));
-                    Logger.Logger.Log("Error", billingErr.ToString(), GetLogFilename());
+                    log.Error("Error - " + billingErr.ToString());
                     #endregion
                 }
             }
@@ -10815,7 +10813,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat("Ex Msg: ", exc.Message));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
                 sb.Append(String.Concat(" Stack Trace: ", exc.StackTrace));
-                Logger.Logger.Log("SetSubscriptionChange", sb.ToString(), GetLogFilename());
+                log.Error("SetSubscriptionChange - " + sb.ToString(), exc);
                 #endregion
                 status = ChangeSubscriptionStatus.Error;
             }
@@ -10981,7 +10979,7 @@ namespace ConditionalAccess
                     ex.Message, p_nDomainID, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelServiceNow. ");
 
-                Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
+                log.Error("Exception - " + sLoggingMessage, ex);
                 #endregion
 
                 oResult.Code = (int)eResponseStatus.Error;
@@ -11013,7 +11011,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Error when trying to enqueue event record. Msg: {0}", ex.Message), GetLogFilename());
+                log.Error("Exception - " + string.Format("Error when trying to enqueue event record. Msg: {0}", ex.Message));
             }
 
             return (bResult);
@@ -11109,7 +11107,7 @@ namespace ConditionalAccess
                     ex.Message, p_sSiteGuid, p_nAssetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, p_enmTransactionType.ToString());
                 StringBuilder sb = new StringBuilder("Exception at CancelTransaction. ");
 
-                Logger.Logger.Log("Exception", sLoggingMessage, GetLogFilename());
+                log.Error("Exception - " + sLoggingMessage, ex);
                 #endregion
             }
 
@@ -11241,7 +11239,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -11397,8 +11395,8 @@ namespace ConditionalAccess
                                             res.status = mediaConcurrencyResponse.ToString();
                                             res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
-                                            Logger.Logger.Log("GetLicensedLinks", string.Format("{0}, user:{1}, MFID:{2}",
-                                                mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID), GetLogFilename());
+                                            log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}",
+                                                mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
                                         }
                                     }
                                     else
@@ -11408,8 +11406,8 @@ namespace ConditionalAccess
                                         res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
                                         res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
 
-                                        Logger.Logger.Log("GetLicensedLinks", string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
-                                            sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
+                                        log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
+                                            sSiteGuid, nMediaFileID, sBasicLink));
                                     }
                                 }
                                 else
@@ -11419,8 +11417,8 @@ namespace ConditionalAccess
                                     res.status = eLicensedLinkStatus.InvalidPrice.ToString();
                                     res.Status.Code = (int)eResponseStatus.Error;
 
-                                    Logger.Logger.Log("GetLicensedLinks", string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
-                                        nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice), GetLogFilename());
+                                    log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
+                                        nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
                                 }
                             }
                             else
@@ -11430,8 +11428,8 @@ namespace ConditionalAccess
                                 res.status = eLicensedLinkStatus.InvalidFileData.ToString();
                                 res.Status.Code = (int)eResponseStatus.Error;
 
-                                Logger.Logger.Log("GetLicensedLinks", string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
-                                    sSiteGuid, nMediaFileID, sBasicLink), GetLogFilename());
+                                log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
+                                    sSiteGuid, nMediaFileID, sBasicLink));
                             }
                         }
                         else //user is Suspended
@@ -11440,7 +11438,7 @@ namespace ConditionalAccess
                             res.status = eLicensedLinkStatus.UserSuspended.ToString();
                             res.Status.Code = (int)eResponseStatus.UserSuspended;
 
-                            Logger.Logger.Log("GetLicensedLinks", string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
+                            log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
                         }
                     }
                     else
@@ -11450,7 +11448,7 @@ namespace ConditionalAccess
                         res.status = eLicensedLinkStatus.InvalidPrice.ToString();
                         res.Status.Code = (int)eResponseStatus.Error;
 
-                        Logger.Logger.Log("GetLicensedLinks", string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID), GetLogFilename());
+                        log.Debug("GetLicensedLinks - " + string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
                     }
                 }
                 else
@@ -11460,8 +11458,8 @@ namespace ConditionalAccess
                     res.status = eLicensedLinkStatus.InvalidInput.ToString();
                     res.Status.Code = (int)eResponseStatus.Error;
 
-                    Logger.Logger.Log("GetLicensedLinks", string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
-                        sSiteGuid, nMediaFileID, sDeviceName, sBasicLink), GetLogFilename());
+                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
+                        sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
                 }
             }
             catch (Exception ex)
@@ -11485,7 +11483,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Coupon Cd: ", sCouponCode));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
 
                 #endregion
             }
@@ -11646,7 +11644,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
                 response = TvinciDomains.DomainResponseStatus.Error;
             }
@@ -11833,7 +11831,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Domain ID: ", domainID));
                     sb.Append(String.Concat(" Last DLM ID: ", lastDomainDLM));
                     sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                    Logger.Logger.Log("ChangeDLM", sb.ToString(), GetLogFilename());
+                    log.Debug("ChangeDLM - " + sb.ToString());
                     #endregion
                 }
             }
@@ -11848,7 +11846,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" Domain ID: ", domainID));
                     sb.Append(String.Concat(" New DLM ID: ", dlm));
                     sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                    Logger.Logger.Log("ChangeDLM", sb.ToString(), GetLogFilename());
+                    log.Debug("ChangeDLM - " + sb.ToString());
                     #endregion
                 }
             }
@@ -11934,7 +11932,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetUserSubscriptions", string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), "BaseConditionalAccess");
+                log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
                 response = new Entitlement();
                 response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }

@@ -2,10 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using ApiObjects;
 using DAL;
+using KLogMonitor;
 using Logger;
 using Newtonsoft.Json;
 using Tvinci.Core.DAL;
@@ -16,8 +18,7 @@ namespace GroupsCacheManager
     [JsonObject(Id = "group")]
     public class Group : IDisposable
     {
-
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Consts
 
@@ -122,6 +123,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<int>();
             }
         }
@@ -130,7 +132,7 @@ namespace GroupsCacheManager
         {
             SortedSet<long> allChannelIDs = new SortedSet<long>();
             List<int> operatorIDs = CatalogDAL.Get_GroupOperatorIDs(m_nParentGroupID);
-            _logger.Info(string.Format("Group ID: {0} , Operators extracted from DB: {1}", m_nParentGroupID, operatorIDs.Aggregate<int, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
+            log.Info(string.Format("Group ID: {0} , Operators extracted from DB: {1}", m_nParentGroupID, operatorIDs.Aggregate<int, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
             if (operatorIDs.Count > 0)
             {
                 for (int i = 0; i < operatorIDs.Count; i++)
@@ -148,7 +150,7 @@ namespace GroupsCacheManager
             {
                 lock (m_oLockers)
                 {
-                    Logger.Logger.Log("Dispose", String.Concat("Dispose. Locked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+                    log.Debug("Dispose - " + String.Concat("Dispose. Locked. Group ID: ", m_nParentGroupID));
                     if (m_oLockers != null && m_oLockers.Count > 0)
                     {
                         foreach (KeyValuePair<int, ReaderWriterLockSlim> kvp in m_oLockers)
@@ -161,7 +163,7 @@ namespace GroupsCacheManager
                     }
                     m_oLockers.Clear();
                 } // end lock
-                Logger.Logger.Log("Dispose", String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID), GROUP_LOG_FILENAME);
+                log.Debug("Dispose - " + String.Concat("Dispose. Unlocked. Group ID: ", m_nParentGroupID));
             }
         }
 
@@ -188,6 +190,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return bRes;
             }
         }
@@ -205,13 +208,14 @@ namespace GroupsCacheManager
                 else
                 {
                     m_oOperatorChannelIDs.Add(nOperatorID, new List<long>(1) { 0 });
-                    Logger.Logger.Log("Build", string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    log.Debug("Build  - " + string.Format("No operator channel ids were extracted from DB. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
                     bRes = false;
                 }
                 return bRes;
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -226,21 +230,21 @@ namespace GroupsCacheManager
             {
                 lock (m_oLockers)
                 {
-                    Logger.Logger.Log("GetLocker", string.Format("Locked. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    log.Debug("GetLocker - " + string.Format("Locked. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
                     if (!m_oLockers.ContainsKey(nOperatorID))
                     {
                         if (!m_oLockers.TryAdd(nOperatorID, new ReaderWriterLockSlim()))
                         {
-                            Logger.Logger.Log("GetLocker", string.Format("Failed to create reader writer manager. operator id: {0} , group_id {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                            log.Debug("GetLocker - " + string.Format("Failed to create reader writer manager. operator id: {0} , group_id {1}", nOperatorID, m_nParentGroupID));
                         }
                     }
                 }
-                Logger.Logger.Log("GetLocker", string.Format("Locker released. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Locker released. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
             }
 
             if (!m_oLockers.TryGetValue(nOperatorID, out locker))
             {
-                Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, m_nParentGroupID));
             }
         }
 
@@ -254,7 +258,7 @@ namespace GroupsCacheManager
             GetLocker(nOperatorID, ref locker);
             if (locker == null)
             {
-                Logger.Logger.Log("Read", string.Format("Read. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                log.Debug("Read - " + string.Format("Read. Failed to obtain locker. Operator ID: {0}", nOperatorID));
                 throw new Exception(string.Format("Read. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
             }
             locker.EnterReadLock();
@@ -271,7 +275,7 @@ namespace GroupsCacheManager
                     locker.ExitReadLock();
                     if (!Build(nOperatorID))
                     {
-                        Logger.Logger.Log("Read", string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                        log.Debug("Read - " + string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
                     }
                     res = Read(nOperatorID);
                 }
@@ -281,7 +285,7 @@ namespace GroupsCacheManager
                 locker.ExitReadLock();
                 if (!Build(nOperatorID))
                 {
-                    Logger.Logger.Log("Read", string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                    log.Debug("Read - " + string.Format("Failed to build operator channel ids cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
                 }
                 res = Read(nOperatorID);
             }
@@ -298,7 +302,7 @@ namespace GroupsCacheManager
                 GetLocker(nOperatorID, ref locker);
                 if (locker == null)
                 {
-                    Logger.Logger.Log("Build", string.Format("Build. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                    log.Debug("Build - " + string.Format("Build. Failed to obtain locker. Operator ID: {0}", nOperatorID));
                     throw new Exception(string.Format("Build. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
                 }
                 try
@@ -339,7 +343,7 @@ namespace GroupsCacheManager
             {
                 if (locker == null)
                 {
-                    Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
+                    log.Debug("Add - " + string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
                     throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
                 }
                 try
@@ -376,7 +380,7 @@ namespace GroupsCacheManager
             {
                 if (locker == null)
                 {
-                    Logger.Logger.Log("Delete", string.Format("Delete. Failed to obtain locker. Operator ID: {0}", nOperatorID), GROUP_LOG_FILENAME);
+                    log.Debug("Delete - " + string.Format("Delete. Failed to obtain locker. Operator ID: {0}", nOperatorID));
                     throw new Exception(string.Format("Delete. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, m_nParentGroupID));
                 }
                 locker.EnterWriteLock();
@@ -387,7 +391,7 @@ namespace GroupsCacheManager
                     if (!res)
                     {
                         // failed to remove from dictionary
-                        Logger.Logger.Log("Delete", string.Format("Failed to remove channel ids from cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID), GROUP_LOG_FILENAME);
+                        log.Debug("Delete - " + string.Format("Failed to remove channel ids from cache. Operator ID: {0} , Group ID: {1}", nOperatorID, m_nParentGroupID));
                     }
                 }
                 locker.ExitWriteLock();
@@ -442,6 +446,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -486,7 +491,7 @@ namespace GroupsCacheManager
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1}", this.m_nParentGroupID, language.ID));
+                    log.Error(string.Format("Language with same ID already exist in group. groupID={0};language id={1} - " + this.m_nParentGroupID, language.ID), ex);
                 }
             }
 
@@ -546,7 +551,7 @@ namespace GroupsCacheManager
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(string.Format("failed to add Service . groupID={0};", this.m_nParentGroupID));
+                    log.Error(string.Format("failed to add Service . groupID={0}; - " + this.m_nParentGroupID), ex);
                 }
             }
 
@@ -590,6 +595,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -612,6 +618,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }

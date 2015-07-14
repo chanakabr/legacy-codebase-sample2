@@ -1,39 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Logger;
-using System.Reflection;
-using System.Configuration;
-using TVinciShared;
-using ApiObjects;
-using System.Data;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using DAL;
-using Tvinci.Core.DAL;
-using ApiObjects.SearchObjects;
-using ApiObjects.MediaIndexingObjects;
-using QueueWrapper;
-using EpgBL;
-using Catalog.Cache;
-using StatisticsBL;
-using ApiObjects.Statistics;
-using GroupsCacheManager;
-using DalCB;
-using ElasticSearch.Searcher;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using ApiObjects;
 using ApiObjects.MediaMarks;
-using NPVR;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using ApiObjects.Statistics;
+using Catalog.Cache;
 using Catalog.Request;
 using Catalog.Response;
+using DAL;
+using DalCB;
+using ElasticSearch.Searcher;
+using EpgBL;
+using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
+using Newtonsoft.Json.Linq;
+using NPVR;
+using QueueWrapper;
+using StatisticsBL;
+using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Catalog
 {
     public class Catalog
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -90,7 +92,7 @@ namespace Catalog
 
             catch (Exception ex)
             {
-                _logger.Error("faild to complete details", ex);
+                log.Error("faild to complete details", ex);
                 throw ex;
             }
         }
@@ -151,6 +153,9 @@ namespace Catalog
             int nParentGroupID = catalogCache.GetParentGroup(groupId);
             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
+            // save monitor and logs context data
+            ContextData contextData = new ContextData();
+
             //complete media id details 
             for (int i = nStartIndex; i < nEndIndex; i++)
             {
@@ -158,6 +163,9 @@ namespace Catalog
 
                 tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
                 {
+                    // load monitor and logs context data
+                    contextData.Load();
+
                     try
                     {
                         int taskMediaID = (int)obj;
@@ -166,7 +174,7 @@ namespace Catalog
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(ex.Message, ex);
+                        log.Error(ex.Message, ex);
                     }
                 }, nMedia);
             }
@@ -265,9 +273,9 @@ namespace Catalog
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error",
+                                log.Error("Error - " +
                                     string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", siteGuid, nMedia, ex.Message),
-                                    "Catalog");
+                                    ex);
                             }
 
                             oMediaObj.m_dLastWatchedDate = dtLastWatch;
@@ -283,7 +291,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -329,7 +337,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -414,7 +422,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -449,7 +457,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -526,6 +534,12 @@ namespace Catalog
                             oMediaObj.m_dFinalDate = System.Convert.ToDateTime(sDate);
                             sDate = string.Empty;
                         }
+                        else
+                        {
+                            oMediaObj.m_dFinalDate = DateTime.MaxValue;
+                            sDate = string.Empty;
+                        }
+
                         sDate = Utils.GetStrSafeVal(dtMedia.Rows[0], "PUBLISH_DATE");
                         if (!string.IsNullOrEmpty(sDate))
                         {
@@ -544,6 +558,12 @@ namespace Catalog
                             oMediaObj.m_dEndDate = System.Convert.ToDateTime(sDate);
                             sDate = string.Empty;
                         }
+                        else
+                        {
+                            oMediaObj.m_dEndDate = DateTime.MaxValue;
+                            sDate = string.Empty;
+                        }
+
                         //UpdateDate
                         if (dtUpdateDate != null)
                         {
@@ -560,7 +580,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return false;
             }
         }
@@ -631,7 +651,7 @@ namespace Catalog
 
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
             }
             #endregion
 
@@ -1089,7 +1109,8 @@ namespace Catalog
 
             foreach (var mediaType in groupMediaTypes)
             {
-                if (mediaType.parentId > 0)
+                // Validate that this media type is defined for parent/association tag
+                if (mediaType.parentId > 0 && !string.IsNullOrEmpty(mediaType.associationTag))
                 {
                     // If this is relevant for the search at all
                     if (relevantMediaTypes.Contains(mediaType.parentId) ||
@@ -1110,6 +1131,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -1122,6 +1144,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -1235,7 +1258,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error("Filed Build Search Object For Searcher Search", ex);
+                log.Error("Filed Build Search Object For Searcher Search", ex);
             }
 
             return searchObj;
@@ -1310,7 +1333,7 @@ namespace Catalog
                         string url = Utils.GetWSURL("ws_domains");
                         domainsWebService.Url = url;
 
-                        WS_Domains.Domain domain = null; 
+                        WS_Domains.Domain domain = null;
                         var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
                         if (domainRes != null)
                         {
@@ -1525,7 +1548,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error("Catalog.GetOrderValues", ex);
+                log.Error("Catalog.GetOrderValues", ex);
             }
         }
 
@@ -1569,7 +1592,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error("SearchObjectString", ex);
+                log.Error("SearchObjectString", ex);
             }
         }
         #endregion
@@ -1632,7 +1655,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return null;
             }
         }
@@ -1664,7 +1687,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return null;
             }
         }
@@ -1751,7 +1774,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return null;
             }
         }
@@ -2306,7 +2329,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -2334,7 +2357,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -2362,7 +2385,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -2403,7 +2426,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return false;
             }
         }
@@ -2522,7 +2545,7 @@ namespace Catalog
                 StringBuilder sb = new StringBuilder("Failed to retrieve epg programmes from cb. ");
                 sb.Append(String.Concat("G ID: ", parentGroupID));
                 sb.Append(String.Concat("sizeof(epgIDs) : ", epgIDs != null ? epgIDs.Count : 0));
-                Logger.Logger.Log("Error", sb.ToString(), "GetEPGProgramsFromCB");
+                log.Error("Error - " + sb.ToString());
                 #endregion
             }
 
@@ -2827,7 +2850,7 @@ namespace Catalog
                                             }
                                             else
                                             {
-                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
                                     }
@@ -2836,7 +2859,7 @@ namespace Catalog
                             else
                             {
                                 // log here no data retrieved from media table.
-                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
                         }
                         else
@@ -2868,7 +2891,7 @@ namespace Catalog
                                             }
                                             else
                                             {
-                                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
                                     }
@@ -2876,8 +2899,11 @@ namespace Catalog
                             }
                             else
                             {
-                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
+
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
 
                             // bring social actions from CB social bucket
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
@@ -2885,6 +2911,9 @@ namespace Catalog
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);
@@ -2939,7 +2968,7 @@ namespace Catalog
                             else
                             {
                                 // log here no epgs retrieved from epg_channels_schedule CB bucket.
-                                Logger.Logger.Log("Error", GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", nGroupID, lAssetIDs, dStartDate, dEndDate, eType), "GetAssetStatsResults");
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
 
                         }
@@ -2949,12 +2978,18 @@ namespace Catalog
                             // we bring data from ES statistics index.
                             //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             // we bring data from social bucket in CB.
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
                                 tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                 }
                                     , lAssetIDs[i]);
@@ -3470,7 +3505,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 result = false;
                 return null;
             }
@@ -4039,16 +4074,6 @@ namespace Catalog
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
-                        if (request.m_nPageIndex < 0)
-                        {
-                            throw new Exception("Bad Request.");
-                        }
-                        // In case Page Size is 0  set Page size to default (5)
-                        if (request.m_nPageSize == 0)
-                        {
-                            request.m_nPageSize = 5; // default
-                        }
-
                         NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
                         if (response != null)
                         {
@@ -4059,7 +4084,7 @@ namespace Catalog
                             }
                             else
                             {
-                                Logger.Logger.Log("Error", string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg), "GetSeriesRecordings");
+                                log.Error("Error - " + string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg));
                                 nPVRSeriesResponse.recordedSeries = new List<RecordedSeriesObject>(0);
                             }
                         }
@@ -4137,7 +4162,7 @@ namespace Catalog
                             }
                             else
                             {
-                                Logger.Logger.Log("Error", string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()), "GetRecordings");
+                                log.Error("Error - " + string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()));
                             }
                         }
                         if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
@@ -4235,6 +4260,6 @@ namespace Catalog
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
 
-      
+
     }
 }

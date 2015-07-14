@@ -14,13 +14,15 @@ using System.Collections.Concurrent;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class BundleContainingMediaRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public eBundleType m_eBundleType;
@@ -57,10 +59,10 @@ namespace Catalog.Request
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                 Group groupInCache = groupManager.GetGroup(nParentGroupID);
-                
+
                 if (groupInCache == null)
                 {
-                    _logger.Error("Could not load group cache");
+                    log.Error("Could not load group cache");
                     return response;
                 }
 
@@ -84,6 +86,9 @@ namespace Catalog.Request
                     {
                         List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
 
+                        // save monitor and logs context data
+                        ContextData contextData = new ContextData();
+
                         Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
                         int[] nDeviceRuleId = null;
 
@@ -95,6 +100,9 @@ namespace Catalog.Request
                             channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                  (obj) =>
                                  {
+                                     // load monitor and logs context data
+                                     contextData.Load();
+
                                      try
                                      {
                                          if (groupInCache != null)
@@ -107,7 +115,7 @@ namespace Catalog.Request
                                      }
                                      catch (Exception ex)
                                      {
-                                         _logger.Error(ex.Message, ex);
+                                         log.Error(ex.Message, ex);
                                      }
                                  }, searchObjectIndex);
                             channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -148,7 +156,7 @@ namespace Catalog.Request
                             }
                             catch (Exception ex)
                             {
-                                _logger.Error(ex.Message);
+                                log.Error(ex.Message);
                             }
                         }
                     }
@@ -175,7 +183,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

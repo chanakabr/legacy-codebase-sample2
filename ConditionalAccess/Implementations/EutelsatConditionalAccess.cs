@@ -4,17 +4,21 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
 using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
+using KLogMonitor;
 
 namespace ConditionalAccess
 {
     class EutelsatConditionalAccess : TvinciConditionalAccess
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const int LEFT_MARGIN = 3;
         private const int RIGHT_MARGIN = 8;
         private static readonly string UNREACHABLE_ERROR = "Unable to connect to the billing server";
@@ -44,7 +48,7 @@ namespace ConditionalAccess
 
             try
             {
-                Logger.Logger.Log("CC_ChargeUserForMediaFile", string.Format("Entering CC_ChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , Price: {3} , PPV Module Code: {4} , Coupon: {5} , User IP: {6} , UDID: {7}", sSiteGUID, nMediaFileID, nMediaID, dPrice, sPPVModuleCode, sCouponCode, sUserIP, sDeviceUDID), GetLogFilename());
+                log.Debug("CC_ChargeUserForMediaFile - " + string.Format("Entering CC_ChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , Price: {3} , PPV Module Code: {4} , Coupon: {5} , User IP: {6} , UDID: {7}", sSiteGUID, nMediaFileID, nMediaID, dPrice, sPPVModuleCode, sCouponCode, sUserIP, sDeviceUDID));
                 ret = ChargeUserForMediaFile(sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
             }
             catch (Exception ex)
@@ -60,7 +64,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
 
                 #endregion
                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
@@ -82,7 +86,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDeviceUDID)
         {
             //bool bDummy = true;
-            
+
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             string sWSURL = string.Empty;
@@ -135,7 +139,7 @@ namespace ConditionalAccess
                     ret.m_sStatusDescription = "Cant charge an unknown user";
 
                     return ret;
-                }            
+                }
                 else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
@@ -143,7 +147,7 @@ namespace ConditionalAccess
                     ret.m_sStatusDescription = "Cannot charge a suspended user";
                     WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                     return ret;
-                } 
+                }
 
                 int nDomainID = uObj.m_user.m_domianID;
 
@@ -161,7 +165,7 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                
+
                 sWSUserName = string.Empty;
                 sWSPass = string.Empty;
 
@@ -234,7 +238,7 @@ namespace ConditionalAccess
                     TvinciPricing.Collection relevantCol = null;
                     TvinciPricing.PrePaidModule relevantPP = null;
 
-                    
+
                     TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                     if (thePPVModule != null)
@@ -277,8 +281,8 @@ namespace ConditionalAccess
                                     ret.m_sStatusDescription =
                                         "Error " + externalEntitledResponse.ErrorCode + ">" + externalEntitledResponse.ErrorMessage; // "User is not entitled for VOD purchasing";
 
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() +
-                                                                  " error returned: " + ret.m_sStatusDescription);
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() +
+                                                              " error returned: " + ret.m_sStatusDescription);
                                     return ret;
                                 }
 
@@ -307,7 +311,7 @@ namespace ConditionalAccess
                                 //Create the Custom Data
                                 sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
                                                             sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                                Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                                log.Debug("CustomData - " + sCustomData);
 
 
                                 ret = bm.CC_DummyChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters);
@@ -377,7 +381,7 @@ namespace ConditionalAccess
                                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                                         }
                                     }
-                                    catch(Exception ex) 
+                                    catch (Exception ex)
                                     {
                                         StringBuilder sbLog = new StringBuilder("Exception while trying to make transaction notification. ");
                                         sbLog.Append(String.Concat("Site Guid: ", sSiteGUID));
@@ -386,7 +390,7 @@ namespace ConditionalAccess
                                         sbLog.Append(String.Concat(" Msg: ", ex.Message));
                                         sbLog.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                                        Logger.Logger.Log("Exception", sbLog.ToString(), GetLogFilename());
+                                        log.Error("Exception - " + sbLog.ToString(), ex);
 
                                     }
                                 }
@@ -415,7 +419,7 @@ namespace ConditionalAccess
                                     break;
                                 case PriceReason.SubscriptionPurchased:
                                     ret.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                    break;                               
+                                    break;
                                 default:
                                     break;
                             }
@@ -564,7 +568,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Trans ID: ", nTransactionID));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
                 int errorCode = System.Runtime.InteropServices.Marshal.GetExceptionCode();
@@ -632,7 +636,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Price: ", dPrice));
                 sb.Append(String.Concat(" Currency: ", sCurrency));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
                 int errorCode = System.Runtime.InteropServices.Marshal.GetExceptionCode();
@@ -660,7 +664,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" JSON: ", jsonContent));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("MakeJsonRequest", sb.ToString(), "EutelsatConditionalAccess");
+                log.Error("MakeJsonRequest - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -681,7 +685,7 @@ namespace ConditionalAccess
             {
                 #region User and household validation
 
-                Logger.Logger.Log("CC_ChargeUserForBundle", string.Format("Entering CC_ChargeUserForBundle try block. Site Guid: {0} , Price: {1} , Sub Code: {2} , Coupon: {3} , User IP: {4} , Dummy {5} , Bundle: {6}", sSiteGUID, dPrice, sSubscriptionCode, sCouponCode, sUserIP, bDummy.ToString().ToLower(), bundleType.ToString()), GetLogFilename());
+                log.Debug("CC_ChargeUserForBundle - " + string.Format("Entering CC_ChargeUserForBundle try block. Site Guid: {0} , Price: {1} , Sub Code: {2} , Coupon: {3} , User IP: {4} , Dummy {5} , Bundle: {6}", sSiteGUID, dPrice, sSubscriptionCode, sCouponCode, sUserIP, bDummy.ToString().ToLower(), bundleType.ToString()));
                 if (string.IsNullOrEmpty(sSiteGUID))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
@@ -788,7 +792,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Price: ", dPrice));
                         sb.Append(String.Concat(" Bundle Type: ", bundleType.ToString()));
 
-                        Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                        log.Error("Error - " + sb.ToString());
                         #endregion
                         break;
                 }
@@ -807,7 +811,7 @@ namespace ConditionalAccess
                 sbEx.Append(String.Concat(" Bundle Type: ", bundleType.ToString()));
                 sbEx.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sbEx.ToString(), GetLogFilename());
+                log.Error("Exception - " + sbEx.ToString(), ex);
 
                 #endregion
 
@@ -854,7 +858,7 @@ namespace ConditionalAccess
             //Create the Custom Data
             sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-            Logger.Logger.Log("CustomData", sCustomData, "CustomDataForSubsrpition");
+            log.Debug("CustomData - " + sCustomData);
 
             if (p.m_dPrice != 0)
             {
@@ -948,7 +952,7 @@ namespace ConditionalAccess
                             WriteToUserLog(sSiteGUID, "While trying to purchase product id(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                         }
                     }
-                    catch(Exception ex) 
+                    catch (Exception ex)
                     {
                         StringBuilder sb = new StringBuilder("Exception while trying to make sub notification. ");
                         sb.Append(String.Concat(" Msg: ", ex.Message));
@@ -958,7 +962,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                         sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                        Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                        log.Error("Exception - " + sb.ToString(), ex);
                     }
                 }
 
@@ -972,7 +976,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-       public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
             TvinciAPI.API api = null;
@@ -992,8 +996,8 @@ namespace ConditionalAccess
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
-                    Logger.Logger.Log("LicensedLink",
-                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
+                    log.Debug("LicensedLink - " +
+                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID));
                     return oLicensedLinkResponse;
                 }
 
@@ -1048,7 +1052,7 @@ namespace ConditionalAccess
                         default:
                             {
                                 oLicensedLinkResponse.status = eLicensedLinkStatus.Error.ToString();
-                                oLicensedLinkResponse.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error; 
+                                oLicensedLinkResponse.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                                 return oLicensedLinkResponse;
                             }
                     }
@@ -1095,7 +1099,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Coupon: ", sCouponCode));
                 sb.Append(String.Concat(" Format: ", format.ToString()));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-                Logger.Logger.Log("LicensedLink", sb.ToString(), "LicensedLink");
+                log.Error("LicensedLink - " + sb.ToString(), ex);
             }
             finally
             {
@@ -1108,5 +1112,5 @@ namespace ConditionalAccess
             return oLicensedLinkResponse;
         }
     }
-    
+
 }

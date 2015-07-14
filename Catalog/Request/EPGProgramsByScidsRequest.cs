@@ -8,6 +8,7 @@ using Logger;
 using ApiObjects;
 using EpgBL;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
@@ -15,7 +16,8 @@ namespace Catalog.Request
     [DataContract]
     public class EPGProgramsByScidsRequest : BaseEpg, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+         
         [DataMember]
         string[] scids { get; set; }
        
@@ -55,6 +57,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new BaseResponse();
             }
         }

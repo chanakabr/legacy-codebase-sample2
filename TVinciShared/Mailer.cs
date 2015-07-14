@@ -10,6 +10,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Xml;
 using System.Net.Mail;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -18,6 +20,9 @@ namespace TVinciShared
     /// </summary>
     public class Mailer
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+
         static public string m_sBasePath = "";
         protected string m_sMailServer;
         protected string m_sMailUserName;
@@ -65,7 +70,7 @@ namespace TVinciShared
             m_Attachments = new System.Collections.ArrayList();
             if (m_nGroupID == 0)
                 return;
-            
+
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select * from groups where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nGroupID);
@@ -80,7 +85,7 @@ namespace TVinciShared
                     m_sMailFromName = selectQuery.Table("query").DefaultView[0].Row["MAIL_FROM_NAME"].ToString();
                     m_sMailFromAdd = selectQuery.Table("query").DefaultView[0].Row["MAIL_RET_ADD"].ToString();
 
-                    m_sMailSSL =  int.Parse(selectQuery.Table("query").DefaultView[0].Row["MAIL_SSL"].ToString());
+                    m_sMailSSL = int.Parse(selectQuery.Table("query").DefaultView[0].Row["MAIL_SSL"].ToString());
                     m_sMailPort = int.Parse(selectQuery.Table("query").DefaultView[0].Row["MAIL_PORT"].ToString());
                 }
             }
@@ -164,7 +169,7 @@ namespace TVinciShared
                 MyMail.Fields["http://schemas.microsoft.com/cdo/configuration/smtpauthenticate"] = 0;
             */
             System.Net.Mail.SmtpClient theClient = new System.Net.Mail.SmtpClient(m_sMailServer);
-            
+
             if (m_sMailUserName != "" && m_sMailPassword != "")
             {
                 theClient.Credentials = new System.Net.NetworkCredential(m_sMailUserName, m_sMailPassword);
@@ -186,18 +191,18 @@ namespace TVinciShared
 
 
             //else
-                //MyMail.Fields["http://schemas.microsoft.com/cdo/configuration/smtpauthenticate"] = 0;
+            //MyMail.Fields["http://schemas.microsoft.com/cdo/configuration/smtpauthenticate"] = 0;
             //SmtpMail.SmtpServer = m_sMailServer;
             try
             {
                 //SmtpMail.Send(MyMail);
                 theClient.Send(MyMail);
-                Logger.Logger.Log("Mail Sent", "mail sent to: " + sTo, "mailer");
+                log.Debug("Mail Sent - mail sent to: " + sTo);
                 return true;
             }
             catch (Exception e)
             {
-                Logger.Logger.Log("Mail Fail", "mail sent to: " + sTo + " failed with exception: " + e.Message, "mailer");
+                log.Error("Mail Fail - mail sent to: " + sTo + " failed with exception: " + e.Message, e);
                 return false;
             }
         }
@@ -213,6 +218,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 res = false;
             }
 

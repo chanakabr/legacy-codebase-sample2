@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using DAL;
+using KLogMonitor;
 using Newtonsoft.Json;
 using TVinciShared;
 
@@ -11,6 +13,7 @@ namespace Users
 {
     public class SSOMCImplementation : SSOUsers, ISSOProvider
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public SSOMCImplementation(int groupId, int operatorId)
             : base(groupId, operatorId)
@@ -43,7 +46,7 @@ namespace Users
             catch (Exception ex)
             {
                 retResponseObject.m_RespStatus = ResponseStatus.ErrorOnSaveUser;
-                Logger.Logger.Log("MC-SSO", string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.ToString(), username, pass), "MC-SSO");
+                log.Error("MC-SSO - " + string.Format("Error Signing in. ex:{0} UN|PASS={1}|{2}", ex.ToString(), username, pass), ex);
             }
 
             return retResponseObject;
@@ -75,21 +78,21 @@ namespace Users
 
             try
             {
-                Logger.Logger.Log("GetMCUserProfile", string.Format("password:{0}, clientIp:{1}", pass, clientIP), "MC-SSO");
+                log.Debug("GetMCUserProfile - " + string.Format("password:{0}, clientIp:{1}", pass, clientIP));
                 //MCUserProfile kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
 
                 string ssoMcUrl = TCMClient.Settings.Instance.GetValue<string>("MCAuthURL");
 
                 if (string.IsNullOrEmpty(ssoMcUrl))
                 {
-                    Logger.Logger.Log("MC-SSO", "Error getting MC URL From TCM", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
+                    log.Error("MC-SSO - Error getting MC URL From TCM");
                     return userObj;
                 }
 
                 Uri ssoMcUri = new Uri(ssoMcUrl);
                 if ((!Uri.TryCreate(ssoMcUrl, UriKind.Absolute, out ssoMcUri)) || ((ssoMcUri.Scheme != Uri.UriSchemeHttp) && (ssoMcUri.Scheme != Uri.UriSchemeHttps)))
                 {
-                    Logger.Logger.Log("MC-SSO", "Error in MC URL format - [" + ssoMcUrl + "]", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
+                    log.Error("MC-SSO - Error in MC URL format - [" + ssoMcUrl + "]");
                     return userObj;
                 }
 
@@ -103,11 +106,11 @@ namespace Users
                 string profJson = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(ssoMcUrl, "", dHeaders, "application/x-www-form-urlencoded", "", "", "", "", "get");
                 double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
 
-                Logger.Logger.Log("MC-SSO", string.Format("MC Json: {0}", profJson), "MC-SSO");
+                log.Debug("MC-SSO - " + string.Format("MC Json: {0}", profJson));
 
                 if (string.IsNullOrEmpty(profJson))
                 {
-                    Logger.Logger.Log("MC-SSO", "No data received from MCAuth API", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
+                    log.Debug("MC-SSO - No data received from MCAuth API");
                     return userObj;
                 }
 
@@ -115,18 +118,15 @@ namespace Users
 
                 if (profJson.ToLower().Contains("api failed") && dUserInfo.Count < 3)
                 {
-                    Logger.Logger.Log("MC-SSO", "Failed to retrieve user profile from MCAuth", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
+                    log.Error("MC-SSO - Failed to retrieve user profile from MCAuth");
                     return userObj;
                 }
 
                 if (profJson.ToLower().Contains("invalid token") && dUserInfo.Count < 3)
                 {
-                    Logger.Logger.Log("MC-SSO", "Invalid Token", string.Format("SSO-MC-{0}", Utils.DateToFilename(DateTime.UtcNow.Date)));
+                    log.Error("MC-SSO - Invalid Token");
                     return userObj;
                 }
-
-                //Logger.Logger.Log("MC-SSO", string.Format("User info dict count: {0}", dUserInfo.Count), "MC-SSO");
-
 
                 foreach (string key in dUserInfo.Keys.ToList())
                 {
@@ -150,7 +150,6 @@ namespace Users
 
                 // If does not exist, new user will be created
                 userObj = GetUserProfile(dUserInfo);
-                //Logger.Logger.Log("MC-SSO", string.Format("User object: {0}", userObj.ToJSON()), "MC-SSO");
 
                 // Check the user CoGuid (= Id)
                 string sDomainCoGuid = string.Empty;
@@ -158,7 +157,7 @@ namespace Users
 
                 if ((userObj.m_user == null) || (string.IsNullOrEmpty(userObj.m_user.m_sSiteGUID)))
                 {
-                    Logger.Logger.Log("MC-SSO", "User init error", "MC-SSO");
+                    log.Error("MC-SSO - User init error");
                     userObj.m_RespStatus = ResponseStatus.ErrorOnInitUser;
                     return userObj;
                 }
@@ -186,7 +185,7 @@ namespace Users
                             }
                             else
                             {
-                                Logger.Logger.Log("Error adding user to domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC - SSO");
+                                log.Error("Error adding user to domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
                             }
                         }
                         // User has domain but with different cougid 
@@ -198,7 +197,7 @@ namespace Users
                                 if (!changedCoguid)
                                 {
                                     userObj.m_RespStatus = ResponseStatus.InternalError;
-                                    Logger.Logger.Log("Error updating domain CoGuid", string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID), "MC - SSO");
+                                    log.Error("Error updating domain CoGuid - " + string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID));
                                 }
                             }
                         }
@@ -220,7 +219,7 @@ namespace Users
                             }
                             else
                             {
-                                Logger.Logger.Log("Error creating domain", string.Format("domainCoGuid:{0}", sDomainCoGuid), "MC-SSO");
+                                log.Error("Error creating domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
                             }
                         }
                     }
@@ -228,7 +227,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("MC-SSO", string.Format("Error validating credentials with MC: ex:{0} Pass:{1}", ex.ToString(), pass), "MC-SSO");
+                log.Error("MC-SSO - " + string.Format("Error validating credentials with MC: ex:{0} Pass:{1}", ex.ToString(), pass), ex);
             }
 
             return userObj;
@@ -250,7 +249,6 @@ namespace Users
 
             // Check if user exists in the DB
             UserResponseObject userInfo = base.GetUserByCoGuid(sUserCoGuid, -1);
-            //Logger.Logger.Log("GetUserProfile", "userInfo: " + userInfo.ToJSON(), "Users");
 
             if (userInfo.m_RespStatus == ResponseStatus.UserDoesNotExist)
             {
@@ -259,8 +257,6 @@ namespace Users
                 UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
 
                 userBasic.m_UserType = GetDefaultUserType(m_nGroupID);
-
-                //Logger.Logger.Log("GetUserProfile", "New user: Basic - " + userBasic.ToJSON() + " dynamic data - " + userDynamic.ToJSON(), "Users");
 
                 string sPass = userBasic.m_sUserName.ToLower();
                 bool userCreated = false;
@@ -295,7 +291,7 @@ namespace Users
 
                 if (userInfo.m_RespStatus != ResponseStatus.OK)
                 {
-                    Logger.Logger.Log("Creating User Error", "sUsername = " + userBasic.m_sUserName + " Response = " + userInfo.m_RespStatus.ToString(), "Users");
+                    log.Error("Creating User Error - sUsername = " + userBasic.m_sUserName + " Response = " + userInfo.m_RespStatus.ToString());
                     uo = new UserResponseObject();
                     uo.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 }
@@ -310,7 +306,7 @@ namespace Users
 
                     //get the dynamic data from and update it in DB
                     UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
-                    Logger.Logger.Log("GetUserProfile", "Existing user: Dynamic data - " + userDynamic.ToJSON(), "Users");
+                    log.Debug("GetUserProfile - Existing user: Dynamic data - " + userDynamic.ToJSON());
 
                     // fill the user data with values already exsits 
                     List<ApiObjects.KeyValuePair> lKeyValue = new List<ApiObjects.KeyValuePair>();
@@ -328,9 +324,9 @@ namespace Users
                     // Then save only updated dynamic data
                     SetUserDynamicData(userInfo.m_user.m_sSiteGUID, lKeyValue, userInfo);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Logger.Logger.Log("GetUserProfile", "Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, "Users");
+                    log.Error("GetUserProfile - Setting dynamic data: " + userInfo.m_user.m_sSiteGUID, ex);
                     throw;
                 }
             }
@@ -441,7 +437,7 @@ namespace Users
                             }
                             catch (Exception ex)
                             {
-
+                                log.Error("", ex);
                             }
 
                             break;
@@ -467,7 +463,7 @@ namespace Users
                             AddDDToList("BlockHouseNumber", val, ref uddc);
                             break;
                         }
-                    
+
                     case "building":
                         {
                             string val = GetContentInfo(key, dUserData);

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Notifiers
 {
-    public class EutelsatSubscriptionNotifier: BaseSubscriptionNotifier
+    public class EutelsatSubscriptionNotifier : BaseSubscriptionNotifier
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public EutelsatSubscriptionNotifier(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -31,14 +35,14 @@ namespace Notifiers
             ProductNotificationResponse resp = MakeProductNotification(sSubscriptionID, create0update1assign2);
 
             errorMessage = "";
-            
+
             if (!resp.success)
             {
                 string[] errors = resp.errors.Select(e => "type: " + e.error_type + "; error: " + e.error_message).ToArray();
-                errorMessage = string.Join("\n",  errors);
+                errorMessage = string.Join("\n", errors);
             }
 
-            Logger.Logger.Log("Notify", sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage), "subscriptions_notifier");            
+            log.Debug("Notify - sSubscriptionID: " + sSubscriptionID + " : " + (resp.success ? "notification success" : errorMessage));
         }
 
 
@@ -64,14 +68,14 @@ namespace Notifiers
                     break;
             }
 
-            string sWSUsername  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-            string sWSPassword  = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+            string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
+            string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
 
             if (string.IsNullOrEmpty(sSubscriptionID) || string.IsNullOrEmpty(sWSURL))
             {
                 return res;
             }
-            
+
             Dictionary<string, string> dbProd = DAL.TvmDAL.GetSubscriptionInfo(m_nGroupID, sSubscriptionID);
 
             if (dbProd == null || dbProd.Keys.Count == 0)
@@ -89,14 +93,14 @@ namespace Notifiers
 
             EutelsatProduct prod = new EutelsatProduct()
             {
-                InternalProductID   = int.Parse(dbProd["InternalProductID"]),
-                ExternalProductID   = string.IsNullOrEmpty(dbProd["ExternalProductID"]) ? string.Empty : dbProd["ExternalProductID"],
-                Title               = dbProd["Title"], 
-                Description         = dbProd["Description"],
-                Status              = dbProd["Status"],
-                PriceB2C            = price,
-                StartDate           = startDate, //DateTime.Parse(dbProd["StartDate"]),
-                EndDate             = endDate    //DateTime.Parse(dbProd["StartDate"]),
+                InternalProductID = int.Parse(dbProd["InternalProductID"]),
+                ExternalProductID = string.IsNullOrEmpty(dbProd["ExternalProductID"]) ? string.Empty : dbProd["ExternalProductID"],
+                Title = dbProd["Title"],
+                Description = dbProd["Description"],
+                Status = dbProd["Status"],
+                PriceB2C = price,
+                StartDate = startDate, //DateTime.Parse(dbProd["StartDate"]),
+                EndDate = endDate    //DateTime.Parse(dbProd["StartDate"]),
             };
 
             List<string> lOperatorCoGuids = DAL.TvmDAL.GetSubscriptionOperatorCoGuids(m_nGroupID, sSubscriptionID);
@@ -117,7 +121,7 @@ namespace Notifiers
             if (isGoodUri)
             {
                 string sRes = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent);
-                res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(ProductNotificationResponse)) as ProductNotificationResponse;    
+                res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(ProductNotificationResponse)) as ProductNotificationResponse;
                 //res = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(NotificationResponse)) as NotificationResponse;    
 
                 //res = Utils.MakeJsonRequest(requestUri, sWSUsername, sWSPassword, jsonTransactionContent) as EutelsatProductNotificationResponse;

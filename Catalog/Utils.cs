@@ -20,12 +20,14 @@ using Catalog.Cache;
 using GroupsCacheManager;
 using ApiObjects;
 using Catalog.Request;
+using KLogMonitor;
 
 namespace Catalog
 {
     public class Utils
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
 
         public static string GetWSURL(string sKey)
@@ -81,7 +83,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return null;
             }
         }
@@ -121,7 +123,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 return false;
             }
         }
@@ -666,6 +668,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return null;
             }
         }
@@ -719,7 +722,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Failed to obtain user type. Site Guid: {0} , Ex Msg: {1} , Stack Trace: {2}", sSiteGuid, ex.Message, ex.StackTrace), "GetUserType");
+                log.Error("Exception - " + string.Format("Failed to obtain user type. Site Guid: {0} , Ex Msg: {1} , Stack Trace: {2}", sSiteGuid, ex.Message, ex.StackTrace), ex);
                 return 0;
             }
             finally

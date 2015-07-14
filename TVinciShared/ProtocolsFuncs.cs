@@ -12,16 +12,16 @@ using com.llnw.mediavault;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Xml.XPath;
-using Logger;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace TVinciShared
 {
     public class ProtocolsFuncs
     {
-
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         const char FileFormatSeparater = ';';
 
@@ -1500,45 +1500,45 @@ namespace TVinciShared
         {
             bool bRet = false;
             return bRet;
-            Int32 nActive = 0;
-            Int32 nDelta = 0;
-            Int32 nCalls = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select CDN_BACKUP_ACTIVE,CDN_BACKUP_VAL from groups (nolock) where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    nActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CDN_BACKUP_ACTIVE"].ToString());
-                    nDelta = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CDN_BACKUP_VAL"].ToString());
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            if (nActive == 0)
-                return false;
-            if (nDelta == 0)
-                return true;
-            ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery1 += "select count(*) as co from watchers_media_actions (nolock) where action_id=1 and create_date>DATEADD(minute, - 1, GETDATE()) and ";
-            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-            selectQuery1 += "and";
-            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("CDN_ID", "=", nCDNMainID);
-            if (selectQuery1.Execute("query", true) != null)
-            {
-                Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
-                if (nCount1 > 0)
-                {
-                    nCalls = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["co"].ToString());
-                }
-            }
-            selectQuery1.Finish();
-            selectQuery1 = null;
-            if (nCalls > nDelta)
-                return true;
-            return false;
+            //Int32 nActive = 0;
+            //Int32 nDelta = 0;
+            //Int32 nCalls = 0;
+            //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery += "select CDN_BACKUP_ACTIVE,CDN_BACKUP_VAL from groups (nolock) where ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+            //if (selectQuery.Execute("query", true) != null)
+            //{
+            //    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            //    if (nCount > 0)
+            //    {
+            //        nActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CDN_BACKUP_ACTIVE"].ToString());
+            //        nDelta = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CDN_BACKUP_VAL"].ToString());
+            //    }
+            //}
+            //selectQuery.Finish();
+            //selectQuery = null;
+            //if (nActive == 0)
+            //    return false;
+            //if (nDelta == 0)
+            //    return true;
+            //ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+            //selectQuery1 += "select count(*) as co from watchers_media_actions (nolock) where action_id=1 and create_date>DATEADD(minute, - 1, GETDATE()) and ";
+            //selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            //selectQuery1 += "and";
+            //selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("CDN_ID", "=", nCDNMainID);
+            //if (selectQuery1.Execute("query", true) != null)
+            //{
+            //    Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
+            //    if (nCount1 > 0)
+            //    {
+            //        nCalls = int.Parse(selectQuery1.Table("query").DefaultView[0].Row["co"].ToString());
+            //    }
+            //}
+            //selectQuery1.Finish();
+            //selectQuery1 = null;
+            //if (nCalls > nDelta)
+            //    return true;
+            //return false;
         }
 
         static public void GetLangData(string sLang, Int32 nGroupID, ref Int32 nLangID, ref bool bIsMain)
@@ -1840,6 +1840,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return null;
             }
         }
@@ -1879,19 +1880,17 @@ namespace TVinciShared
 
         static protected Int32 GetSafeInt(object o)
         {
+            int result = 0;
             try
             {
                 if (o != null && o != DBNull.Value)
-                {
-                    string sO = o.ToString();
-                    return int.Parse(sO);
-                }
-                return 0;
+                    int.TryParse(o.ToString(), out result);
             }
             catch (Exception e)
             {
-                return 0;
+                log.Error("", e);
             }
+            return result;
         }
 
         static public string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache)
@@ -2381,6 +2380,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return "";
             }
         }
@@ -2708,7 +2708,7 @@ namespace TVinciShared
             insertQuery.Finish();
         }
 
-        static private string GetLastPlayCycleKey(string sSiteGuid, Int32 nMediaID ,Int32 nMediaFileID, string sUDID, Int32 nGroupID, Int32 nPlatform, Int32 nCountryID)
+        static private string GetLastPlayCycleKey(string sSiteGuid, Int32 nMediaID, Int32 nMediaFileID, string sUDID, Int32 nGroupID, Int32 nPlatform, Int32 nCountryID)
         {
             string retVal = string.Empty;
 
@@ -2782,7 +2782,7 @@ namespace TVinciShared
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PLAY_CYCLE_ID", "=", sPlayCycleID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", sSiteGUID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", sUDID);
-            
+
             insertQuery.Execute();
             insertQuery.Finish();
             insertQuery = null;
@@ -2926,7 +2926,7 @@ namespace TVinciShared
                 Int32 nBrowser = 0;
                 Int32 nPlatform = 0;
                 string sSessionID = GetSessionID(ref nBrowser, ref nPlatform);
-                
+
                 string sPlayCycleKey = GetLastPlayCycleKey(sSiteGUID, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
 
                 UpdateEOHStatistics(nGroupID, nOwnerGroupID, nMediaID, nMediaFileID, nBillingTypeID, nCDNID, nCountryID
@@ -3232,11 +3232,11 @@ namespace TVinciShared
                                 if (theDoc != null)
                                     return "<response type=\"Concurrent\"></response>";
                             }
-                            
+
                             sPlayCycleKey = Guid.NewGuid().ToString();
                             AddPlayCycleKey(nGroupID, nMediaID, nMediaFileID, sSiteGUID, nPlatform, sUDID, nCountryID, sPlayCycleKey);
                             UpdateFollowMe(nGroupID, nMediaID, sSiteGUID, nLoc, sUDID);
-                            
+
                             break;
                         }
                     case "bitrate_change":
@@ -3262,10 +3262,10 @@ namespace TVinciShared
                 {
                     if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0)
                     {
-                            if (string.IsNullOrEmpty(sPlayCycleKey))
-                            {
-                                sPlayCycleKey = GetLastPlayCycleKey(sSiteGUID, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
-                            }  
+                        if (string.IsNullOrEmpty(sPlayCycleKey))
+                        {
+                            sPlayCycleKey = GetLastPlayCycleKey(sSiteGUID, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
+                        }
 
 
                         UpdateEOHStatistics(nGroupID, nOwnerGroupID, nMediaID, nMediaFileID, nBillingTypeID, nCDNID,
@@ -3307,7 +3307,7 @@ namespace TVinciShared
                     insertQuery.Execute();
                     insertQuery.Finish();
                     insertQuery = null;
-                   
+
                     if (nActionID == 4) // update only when first_play
                     {
                         {
@@ -3534,7 +3534,10 @@ namespace TVinciShared
                     {
                         nPicID = int.Parse(sPicID);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex)
+                    {
+                        log.Error("", ex);
+                    }
 
                     ApiObjects.PicObject[] thePics = null;
                     string sPicURLs = "";
@@ -3915,11 +3918,9 @@ namespace TVinciShared
 
         private static bool CheckAdminToken(string token, int groupID, string sIP)
         {
-
             bool retVal = false;
             string groupStr = PageUtils.GetParentsGroupsStr(groupID);
-            //Logger.Logger.Log("Token Request", sIP + " " + token + " " + groupStr, "Token Requests");
-            _logger.Info(String.Format("{0} {1} {2} {3} ,{4}", "Token Request", sIP, token, groupStr, "Token Requests"));
+            log.Debug(String.Format("{0} {1} {2} {3} ,{4}", "Token Request", sIP, token, groupStr, "Token Requests"));
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select * from admin_tokens where status=1 and end_date>getdate() and ";
             selectQuery += "group_id ";
@@ -3933,8 +3934,7 @@ namespace TVinciShared
 
                 if (count > 0)
                 {
-                    //Logger.Logger.Log("Token Request", "Token Found", "Token Requests");
-                    _logger.Info(String.Format("{0} , {1}", "Token Request", "Token Found"));
+                    log.Info(String.Format("{0} , {1}", "Token Request", "Token Found"));
                     retVal = true;
                 }
             }
@@ -4018,7 +4018,6 @@ namespace TVinciShared
                 userIP = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "user_ip");
                 sNoFileURL = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "no_file_url");
             }
-            //Logger.Logger.Log("Token Request", adminToken, "Token Requests");
             ApiObjects.MediaFileObject oMediaFile = null;
             ApiObjects.MediaInfoObject oMediaInfo = null;
             ApiObjects.MediaStatistics oMediaStatistics = null;
@@ -5870,23 +5869,23 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        
-        static public string PWWAWProtocol(ref XmlDocument theDoc, 
-            Int32 nGroupID, 
-            string sTVinciGUID, 
+
+        static public string PWWAWProtocol(ref XmlDocument theDoc,
+            Int32 nGroupID,
+            string sTVinciGUID,
             string sLastOnTvinci,
-            string sLastOnSite, 
-            string sSiteGUID, 
-            Int32 nWatcherID, 
+            string sLastOnSite,
+            string sSiteGUID,
+            Int32 nWatcherID,
             string sLang,
-            Int32 nPlayerID, 
-            bool bIsAdmin, 
-            Int32 nCountryID, 
+            Int32 nPlayerID,
+            bool bIsAdmin,
+            Int32 nCountryID,
             ref ApiObjects.InitializationObject initObj,
-            ref ApiObjects.MediaInfoStructObject theWSInfoStruct, 
+            ref ApiObjects.MediaInfoStructObject theWSInfoStruct,
             ref ApiObjects.ChannelObject theChannelObj,
-            Int32 nWSMediaID, 
-            Int32 nWSMediaFileID, 
+            Int32 nWSMediaID,
+            Int32 nWSMediaFileID,
             Int32 nDeviceID)
         {
             Int32 nLangID = 0;
@@ -5899,7 +5898,7 @@ namespace TVinciShared
             Int32 nMediaID = 0;
             Int32 nMediaFileID = 0;
             string sEndDateField = "m.";
-            
+
             if (initObj == null)
             {
                 string sMediaID = "";
@@ -5953,28 +5952,28 @@ namespace TVinciShared
             ODBCWrapper.StoredProcedure spGet_AlsoWatchedMedias = new ODBCWrapper.StoredProcedure("TVinci..PWWAWProtocol");
             spGet_AlsoWatchedMedias.SetConnectionKey("CONNECTION_STRING");
             spGet_AlsoWatchedMedias.SetWritable(true);
-            spGet_AlsoWatchedMedias.AddParameter("@MediaID",      nMediaID);
+            spGet_AlsoWatchedMedias.AddParameter("@MediaID", nMediaID);
             //spGet_AlsoWatchedMedias.AddParameter("@MediaFileID",  nMediaFileID);
-            spGet_AlsoWatchedMedias.AddParameter("@GroupID",      nGroupID);
-            spGet_AlsoWatchedMedias.AddParameter("@Language",     nLangID);
-            spGet_AlsoWatchedMedias.AddParameter("@CountryID",    nCountryID);
+            spGet_AlsoWatchedMedias.AddParameter("@GroupID", nGroupID);
+            spGet_AlsoWatchedMedias.AddParameter("@Language", nLangID);
+            spGet_AlsoWatchedMedias.AddParameter("@CountryID", nCountryID);
             spGet_AlsoWatchedMedias.AddParameter("@EndDateField", sEndDateField);
-            spGet_AlsoWatchedMedias.AddParameter("@DeviceID",     nDeviceID);
-            spGet_AlsoWatchedMedias.AddParameter("@SiteGuid",     nWatcherID);
+            spGet_AlsoWatchedMedias.AddParameter("@DeviceID", nDeviceID);
+            spGet_AlsoWatchedMedias.AddParameter("@SiteGuid", nWatcherID);
 
             #region Commented
-            
+
             //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             ////selectQuery += "select distinct top 8 wmpc.media_id from watchers_media_actions wmpc (nolock),media m WITH (nolock) where ";
             //selectQuery += "select top 8 q.m_id from (select umm.media_id as m_id,count(*) as co from users_media_mark umm (nolock), media m WITH (nolock) where ";
             //selectQuery += " m.id=umm.media_id and m.status=1 and m.is_active=1 and ";
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("umm.media_id", "<>", nMediaID);
-            
+
             //if (nMediaFileID != 0)
             //{
             //    Int32 nTypeID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "MEDIA_TYPE_ID", nMediaFileID).ToString());
-                //selectQuery += " and ";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("wmpc.FILE_FORMAT_ID", "=", nTypeID);
+            //selectQuery += " and ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("wmpc.FILE_FORMAT_ID", "=", nTypeID);
             //}
             //selectQuery += " and wmpc.ACTION_ID=4 and ";
             //selectQuery += " (m.start_date<getdate() and (";
@@ -5997,7 +5996,7 @@ namespace TVinciShared
             //selectQuery += " and ";
             //selectQuery += "(";
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.group_id", "=", nGroupID);
-            
+
             //if (sWPGID != "")
             //{
             //    selectQuery += " or m.WATCH_PERMISSION_TYPE_ID in (";
@@ -6014,14 +6013,14 @@ namespace TVinciShared
                 sRet.Append(ProtocolsFuncs.GetPlayListSchema(ref theDoc, 0, nGroupID, nLangID, bIsLangMain, nWatcherID, nPlayerID, true));
                 sRet.Append("<channel id=\"\" media_count=\"").Append(0).Append("\" >");
             }
-            else 
+            else
             {
                 DataSet ds = spGet_AlsoWatchedMedias.ExecuteDataSet();  //("TVinci..Get_MediaDetails", Params, "MAIN_CONNECTION_STRING", false);
-                    
+
                 if ((ds != null) && (ds.Tables.Count > 0) && (ds.Tables[0].DefaultView.Count > 0))
                 {
                     DataTable dt = ds.Tables[0];
-                
+
                     int nCount = dt.DefaultView.Count;
 
                     sRet.Append(ProtocolsFuncs.GetPlayListSchema(ref theDoc, 0, nGroupID, nLangID, bIsLangMain, nWatcherID, nPlayerID, true));
@@ -6031,11 +6030,11 @@ namespace TVinciShared
                     {
                         sRet.Append("<channel id=\"\" media_count=\"").Append(nCount).Append("\" >");
                     }
-                
+
                     for (int i = 0; i < nCount; i++)
                     {
                         int nLocMediaID = int.Parse(dt.DefaultView[i].Row["m_ID"].ToString());
-                        
+
                         if (initObj == null)
                         {
                             sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nLocMediaID, "media", nGroupID, nLangID, bIsLangMain, nWatcherID, bWithInfo, true, nPlayerID, ref theInfoStruct, bIsAdmin, true, bWithFileTypes, nCountryID, nDeviceID));
@@ -6049,13 +6048,13 @@ namespace TVinciShared
                             {
                                 sFileFormat = initObj.m_oFileRequestObjects[0].m_sFileFormat;
                             }
-                            
+
                             string sSubFileFormat = "";
                             if (initObj.m_oFileRequestObjects != null && initObj.m_oFileRequestObjects.Length > 1)
                             {
                                 sSubFileFormat = initObj.m_oFileRequestObjects[1].m_sFileFormat;
                             }
-                            
+
                             string sFileQuality = "";
                             if (initObj.m_oFileRequestObjects != null && initObj.m_oFileRequestObjects.Length > 0)
                             {
@@ -6064,17 +6063,17 @@ namespace TVinciShared
 
                             bool bStatistics = false;
                             bool bPersonal = false;
-                            
+
                             string sStatistics = TVinciShared.ProtocolsFuncs.GetNodeParameter(ref theInfoStruct, "statistics").Trim().ToLower();
                             string sPersonal = TVinciShared.ProtocolsFuncs.GetNodeParameter(ref theInfoStruct, "personal").Trim().ToLower();
 
                             if (sStatistics == "true")
-                            { 
-                                bStatistics = true; 
+                            {
+                                bStatistics = true;
                             }
                             if (sPersonal == "true")
                             {
-                                bPersonal = true; 
+                                bPersonal = true;
                             }
 
                             ApiObjects.MediaObject theMediaObj = new ApiObjects.MediaObject();
@@ -6098,7 +6097,7 @@ namespace TVinciShared
 
             //selectQuery.Finish();
             //selectQuery = null;
-            
+
             if (initObj == null)
             {
                 sRet.Append("</channel>");
@@ -6241,7 +6240,7 @@ namespace TVinciShared
                 if (theMediaID != null)
                     sMediaID = theMediaID.Value.ToUpper();
 
-                
+
                 string sMediaTypeID = string.Empty;
                 XmlNode theMediaTypeID = theDoc.SelectSingleNode("/root/request/media/@media_types");
                 if (theMediaTypeID != null)
@@ -7712,8 +7711,6 @@ namespace TVinciShared
             Int32 nLangID, bool bIsLangMain, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics,
             ref ApiObjects.ChannelObject[] theChannels, Int32 nCountryID, Int32 nDeviceID)
         {
-            //Logger.Logger.Log("Exception", nCategoryID + ":"+nGroupID +":" + nLangID +":"+bIsLangMain +":" + bIsAdmin+":" + bWithCache, "odedira");
-
             string sPicSizeForCache = "";
             if (thePics == null)
                 sPicSizeForCache = GetPicSizeForCache(ref theDoc);
@@ -7769,13 +7766,10 @@ namespace TVinciShared
                     //if (nPicID != 0)
                     sPicsStr = GetPicSizesXMLPartsForChannel(ref theDoc, nPicID, nGroupID, int.Parse(sID), bIsAdmin, bWithCache, ref thePics, sPicSizeForCache);
 
-                    //Logger.Logger.Log("Exception", "BEFORECHANNEL", "odedira");
                     Channel c = new Channel(int.Parse(sID), bWithCache, nLangID, bIsLangMain, nCountryID, nDeviceID);
-                    //Logger.Logger.Log("Exception", "AFTERCHANEL", "odedira");
                     c.SetGroupID(nGroupID);
                     //Int32 nC = c.GetChannelMediaDT().DefaultView.Count;
                     Int32 nC = 0;
-                    //Logger.Logger.Log("Exception", "AFTERMEDIA", "odedira");
                     if (sTitle != "")
                     {
                         if (theDoc != null)
@@ -8993,13 +8987,11 @@ namespace TVinciShared
                     //il.co.mediazone.web11.Service theServ = new il.co.mediazone.web11.Service();
                     //sNewURL = "https://platform.tvinci.com/proxy.aspx?url=" + HttpContext.Current.Server.UrlEncode(theServ.getHashCode(sMediaURL));
                     sNewURL = sMediaURL;
-                    //Logger.Logger.Log("URL", sNewURL, "Webbycasting");
-                    _logger.Info(String.Format("{0} {1} {2}", "URL", sNewURL, "Webbycasting"));
+                    log.Info(String.Format("{0} {1} {2}", "URL", sNewURL, "Webbycasting"));
                 }
                 catch (Exception ex)
                 {
-                    //Logger.Logger.Log("Exception", ex.Message, "Webbycasting");
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                 }
                 if (theDoc != null)
                     sRet.Append("<link url=\"").Append(ProtocolsFuncs.XMLEncode(ProtocolsFuncs.GetSafeURL(sNewURL), true)).Append("\"/>");
@@ -9037,8 +9029,7 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-                    //Logger.Logger.Log("Exception", ex.Message, "CastUpASXOneTime");
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                 }
             }
             else if (sCDNImplType == "castup_onetime")
@@ -9056,8 +9047,7 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-                    //Logger.Logger.Log("Exception", ex.Message, "Webbycasting");
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                 }
                 sNewURL = sMediaURL;
                 Uri u = new Uri(sMediaURL);
@@ -9192,9 +9182,8 @@ namespace TVinciShared
                                     Int32 nStatus = 200;
                                     string sResp = Notifier.SendGetHttpReq(sCheckURL, ref nStatus);
                                     sResp = sResp.ToLower().Trim().Replace("\r\n", "");
-                                    //Logger.Logger.Log("Call", "call from: " + sCallerIP + " returned :" + sResp, "poland_vip_check");
 
-                                    _logger.Info(string.Format("{0} : {1} {2} : {3} - {4}", "Call - call from", sCallerIP, "returned", sResp, "poland_vip_check"));
+                                    log.Info(string.Format("{0} : {1} {2} : {3} - {4}", "Call - call from", sCallerIP, "returned", sResp, "poland_vip_check"));
                                     if (sResp == "false" || nStatus != 200)
                                     {
                                         sBlock = "vip";
@@ -9210,6 +9199,7 @@ namespace TVinciShared
                         }
                         catch (Exception ex)
                         {
+                            log.Error("", ex);
                             sNewURL = "";
                             sBlock = "error";
                         }
@@ -9217,11 +9207,9 @@ namespace TVinciShared
                 }
                 catch (Exception ex)
                 {
-                    //Logger.Logger.Log("Exception", ex.Message, "poland_vip_check");
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                 }
-                //Logger.Logger.Log("Block and URL returned", sBlock + " : " + sNewURL, "poland_vip_check");
-                _logger.Info(String.Format("{0}{1} : {2}, {3}", "Block and URL returned", sBlock, sNewURL, "poland_vip_check"));
+                log.Info(String.Format("{0}{1} : {2}, {3}", "Block and URL returned", sBlock, sNewURL, "poland_vip_check"));
                 if (theDoc != null)
                     sRet.Append("<link url=\"").Append(ProtocolsFuncs.XMLEncode(ProtocolsFuncs.GetSafeURL(sNewURL), true)).Append("\" block=\"").Append(sBlock).Append("\" />");
                 else
@@ -9273,16 +9261,14 @@ namespace TVinciShared
                         {
                             sNewURL = "";
                             sBlock = "error";
-                            _logger.Error(ex.Message, ex);
+                            log.Error("", ex);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    //Logger.Logger.Log("Exception", ex.Message, "Webbycasting");
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                 }
-                Logger.Logger.Log("Exception", sNewURL, "Webbycasting");
 
                 if (theDoc != null)
                     sRet.Append("<link url=\"").Append(ProtocolsFuncs.XMLEncode(ProtocolsFuncs.GetSafeURL(sNewURL), true)).Append("\" block=\"").Append(sBlock).Append("\" />");
@@ -9418,7 +9404,7 @@ namespace TVinciShared
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelRequestObject[] nChannels,
             ref ApiObjects.ChannelObject[] theChannelObj, Int32 nDeviceID)
         {
-            _logger.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol Start At", DateTime.Now));
+            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol Start At", DateTime.Now));
 
             Int32 nLangID = 0;
             XmlNode theInfoStruct = null;
@@ -9516,7 +9502,7 @@ namespace TVinciShared
                         sPicSizeForCache, ref thePics, nCountryID, nDeviceID, bUseStartDate, deviceRules));
                     if (d != null)
                     {
-                        _logger.Info(String.Format("{0} : {1} ", "Complete all medias Data Start At ", DateTime.Now));
+                        log.Info(String.Format("{0} : {1} ", "Complete all medias Data Start At ", DateTime.Now));
                         Int32 nCount = d.DefaultView.Count;
                         Int32 nBlocakble = int.Parse(PageUtils.GetTableSingleVal("groups", "BLOCKS_ACTIVE", nGroupID).ToString());
                         string sFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_format");
@@ -9551,7 +9537,7 @@ namespace TVinciShared
                     sRet.Append("</channel>");
                 }
                 sRet.Append("</response>");
-                _logger.Info(String.Format("{0} : {1} ", "Complete all medias Data End At ", DateTime.Now));
+                log.Info(String.Format("{0} : {1} ", "Complete all medias Data End At ", DateTime.Now));
             }
             else
             {
@@ -9642,7 +9628,7 @@ namespace TVinciShared
                     }
                 }
             }
-            _logger.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol End At", DateTime.Now));
+            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol End At", DateTime.Now));
             return sRet.ToString();
         }
 
@@ -10119,7 +10105,6 @@ namespace TVinciShared
             //if (CachingManager.CachingManager.Exist("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()) == true && bWithCache == true)
             //{
             //    retVal = int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
-            //    Logger.Logger.Log("SearchCount", "Retrieve from cache " + retVal + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //    return int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
             //}
 
@@ -10180,23 +10165,20 @@ namespace TVinciShared
                 {
                     retVal = int.Parse(selectQuery.Table("query").DefaultView[0].Row["co"].ToString());
                 }
-                //Logger.Logger.Log("SearchCount", "Select Query returned : " + retVal + " group id is " + nGroupID + " media id is " + mediaID, "SearchCount");
-                _logger.Info(String.Format("{0} - {1} : {2}, {3} : {4}, {5} : {6}", "GetSearchCountNew", "Select Query returned", retVal, "group id is", nGroupID, "media id is", mediaID));
+                log.Info(String.Format("{0} - {1} : {2}, {3} : {4}, {5} : {6}", "GetSearchCountNew", "Select Query returned", retVal, "group id is", nGroupID, "media id is", mediaID));
             }
             else
             {
-                Logger.Logger.Log("SearchCount", "Select Query returned error : " + nGroupID + "_" + mediaID.ToString(), "SearchCount");
+                log.Error("SearchCount - Select Query returned error : " + nGroupID + "_" + mediaID.ToString());
             }
             selectQuery.Finish();
             selectQuery = null;
             //if (retVal > 0)
             //{
             //    CachingManager.CachingManager.SetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), retVal, 3600, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
-            //    Logger.Logger.Log("SearchCount", "Enter into cache value " + retVal + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //}
             //else
             //{
-            //    Logger.Logger.Log("SearchCount", "Count is 0 for"  + " Cache String is :" + "GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), "SearchCount");
             //}
 
             return retVal;
@@ -10657,7 +10639,7 @@ namespace TVinciShared
             int nBrandID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             List<int> retVal = new List<int>();
-            
+
             if (string.IsNullOrEmpty(deviceUdid))
             {
                 //PC if empty
@@ -11054,7 +11036,7 @@ namespace TVinciShared
             selectQuery += " WHERE m.is_active=1 and m.status=1 and m.start_date < getdate() and (m.end_date is null or m.end_date>getdate()) and ";
             if (!string.IsNullOrEmpty(sMediaTypes) && !sMediaTypes.Equals("0"))
             {
-                selectQuery += "and m.media_type_id in (" + sMediaTypes.Replace(";", ",")+")";
+                selectQuery += "and m.media_type_id in (" + sMediaTypes.Replace(";", ",") + ")";
                 selectQuery += "and";
             }
             selectQuery += "m.group_id ";
@@ -11632,7 +11614,7 @@ namespace TVinciShared
 
                     retVal.Append("<response type=\"personal_recommended\">");
                     retVal.Append("<channel id=\"\" media_count=\"").Append(mostViewedCount).Append("\" >");
-                    
+
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery += "select top " + (nNumOfItems + nStartIndex).ToString() + " m.id, m.views from media m (nolock) ";
                     selectQuery += " WHERE m.is_active=1 and m.status=1 and m.start_date < getdate() and (m.end_date is null or m.end_date>getdate()) and ";
@@ -13163,7 +13145,7 @@ namespace TVinciShared
                 XmlNode theType = theDoc.SelectSingleNode("/root/request/search_data/cut_values/type/@value");
                 if (theType != null)
                     sMediaTypes = theType.Value;
-                
+
 
                 theInfoStruct = ProtocolsFuncs.GetInfoStructNode(ref theDoc, nGroupID, bWithCache);
                 theTagsList = theDoc.SelectNodes("/root/request/search_data/cut_values/tags/tag_type");
@@ -14228,7 +14210,7 @@ namespace TVinciShared
                         nCount = selectQuery.Table("query").DefaultView.Count;
                         for (int i = 0; i < nCount; i++)
                         {
-                            channelIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "channel_id", i));    
+                            channelIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "channel_id", i));
                         }
                     }
                     selectQuery.Finish();
@@ -14236,14 +14218,13 @@ namespace TVinciShared
 
                     if (channelIds.Count > 0)
                     {
-                         Lucene_WCF.Service s = new Lucene_WCF.Service();
+                        Lucene_WCF.Service s = new Lucene_WCF.Service();
 
                         string sWSURL = GetWSURL("LUCENE_WCF");
                         if (!String.IsNullOrEmpty(sWSURL))
                             s.Url = sWSURL;
 
-                        _logger.Info(String.Format("GetChannelsMedias:{0}, subID:{1}, channels:({2})", nGroupID, nSubscriptionID, string.Join(",", channelIds.Select( x => x.ToString()).ToArray())));
-                        Logger.Logger.Log("SubscriptionMedia", string.Format("group:{0}, subID:{1}, url:{2}, channels:{3}", nGroupID, nSubscriptionID, s.Url, string.Join(",", channelIds.Select(x => x.ToString()).ToArray())), "SubscriptionMediaProtocol");
+                        log.Info(String.Format("GetChannelsMedias:{0}, subID:{1}, channels:({2})", nGroupID, nSubscriptionID, string.Join(",", channelIds.Select(x => x.ToString()).ToArray())));
 
                         int[] mediaIds = null;
                         try
@@ -14256,7 +14237,7 @@ namespace TVinciShared
                         }
                         catch (Exception ex)
                         {
-                            _logger.Error(ex.Message, ex);
+                            log.Error("", ex);
                             mediaIds = new int[0];
                         }
 
@@ -15013,7 +14994,6 @@ namespace TVinciShared
             string sWSURL = string.Empty;
             try
             {
-                _logger.Info(string.Format("GetSearchMediaWithLucene:{0}", nGroupID));
                 #region Search with Lucene
                 //Build 2 CondList for search tags / metaStr / metaDobule .
                 List<Lucene_WCF.SearchValue> m_dAnd = new List<Lucene_WCF.SearchValue>();
@@ -15067,11 +15047,11 @@ namespace TVinciShared
                 try
                 {
                     mediaIds = s.SearchMedias(nGroupID, searchObj, nLangID, bUseStartDate);
-                    _logger.Info(string.Format("GetSearchMediaWithLucene:{0}, lucene:{1}, res:{2}", nGroupID, s.Url, mediaIds.Length));
+                    log.Info(string.Format("GetSearchMediaWithLucene:{0}, lucene:{1}, res:{2}", nGroupID, s.Url, mediaIds.Length));
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message, ex);
+                    log.Error("", ex);
                     mediaIds = new int[0];
                 }
 
@@ -15109,11 +15089,11 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error("GetSearchMediaWithLucene", ex);
+                log.Error("", ex);
             }
             return sRet.ToString();
-        } 
-        
+        }
+
         //Fill Metas into list of And / Or conditions. - For Lucene Search
         private static void SearchObjectMeta(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, XmlNodeList theMetaList, int nGroupID, bool bAnd)
         {
@@ -15158,7 +15138,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error("SearchObjectMeta", ex);
+                log.Error("", ex);
             }
         }
 
@@ -15205,7 +15185,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error("SearchObjectTags", ex);
+                log.Error("", ex);
             }
         }
 
@@ -15245,7 +15225,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error("SearchObjectString", ex);
+                log.Error("SearchObjectString", ex);
             }
         }
         private static string GetWSURL(string sKey)
@@ -15520,7 +15500,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
             }
         }
         */
@@ -15532,7 +15512,7 @@ namespace TVinciShared
             oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.DESC;
             try
             {
-               
+
                 string sOrderDir = String.Empty;
 
                 #region name
@@ -15628,7 +15608,7 @@ namespace TVinciShared
                     if (!String.IsNullOrEmpty(sOrderDir))
                     {
                         oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
-;
+                        ;
                     }
                 }
                 #endregion
@@ -15693,11 +15673,10 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error("", ex);
             }
 
             return oOrderObj;
         }
-
     }
 }

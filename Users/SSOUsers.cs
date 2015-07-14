@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Reflection;
+using KLogMonitor;
 
 namespace Users
 {
     public class SSOUsers : TvinciUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public int OperatorId { get; set; }
 
         public SSOUsers(Int32 nGroupID, int operatorId)
@@ -28,7 +31,7 @@ namespace Users
                     defaultOperatorId = DAL.UsersDal.GetDefaultGroupOperator(m_nGroupID);
                     if (defaultOperatorId == 0)
                     {
-                        Logger.Logger.Log("Default operatorId is 0", "", "GetSSOImplementation error");
+                        log.Error("Default operatorId is 0");
                     }
                     else
                     {
@@ -84,7 +87,7 @@ namespace Users
                     return new SSOKdgImplementation(m_nGroupID, nSSOProvID);
                 case 5:
                     return new SSOMCImplementation(m_nGroupID, nSSOProvID);
-                
+
                 default:
                     break;
             }

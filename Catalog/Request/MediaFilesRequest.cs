@@ -6,13 +6,14 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class MediaFilesRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<int> m_lMediaFileIDs;
@@ -72,14 +73,11 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("Exception at GetMediaFilesByIDs", ex);
+                log.Error("Exception at GetMediaFilesByIDs", ex);
                 throw ex;
             }
 
             return res;
         }
-
     }
-
-
 }

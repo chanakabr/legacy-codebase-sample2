@@ -12,6 +12,8 @@ using NotificationObj;
 using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using KlogMonitorHelper;
 //using CouchbaseManager;
 //using Couchbase;
 //using NotificationBL;
@@ -24,25 +26,25 @@ namespace NotificationInterface
     /// </summary>
     public class NotificationManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string deafultDateFormat = "dd/MM/yyyy HH:mm:ss";
         private const string deafultEmailDateFormat = "dd-MMM-yyyy";
 
 
         #region private Memebers
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private object lockObj = new object();
         private const string NOTIFICATION_MANAGER_LOG_FILE = "NotificationManager";
         #endregion
 
         #region private constructor
         private NotificationManager()
-        {     
+        {
         }
         #endregion
 
         #region public Methods
-        
+
         /// <summary>
         /// Fetch notifictaion requests with status "NotStarted" from db (the number of requests determined according to numOfRequests param) 
         /// filtered by group id and update the fetched requests to status "InProgress".
@@ -55,29 +57,38 @@ namespace NotificationInterface
         {
             try
             {
-                Logger.Logger.Log("HanldeRequests", "Start : group_id = " + groupID.ToString(), "NotificationManager");
+                log.Debug("HanldeRequests - Start : group_id = " + groupID.ToString());
                 List<NotificationRequest> requestsList = null;
                 int startRequestID = 0;
-                    int endRequestID = 0;
+                int endRequestID = 0;
 
                 lock (lockObj) // locks the operation of fetching bulk of requests from db and update their status to "InProgress".
                 {
                     requestsList = GetNotificationRequests(numOfRequests, groupID, NotificationRequestStatus.NotStarted, ref startRequestID, ref endRequestID);
                     if (requestsList != null && requestsList.Count > 0)
                     {
-                        Logger.Logger.Log("HanldeRequests", "Num Of Requests=" + numOfRequests.ToString() + ",GroupID=" + groupID.ToString(), "NotificationManager");
+                        log.Debug("HanldeRequests - Num Of Requests=" + numOfRequests.ToString() + ",GroupID=" + groupID.ToString());
                         List<long> requestsIDs = requestsList.Select(request => request.ID).ToList();
                         UpdateNotificationRequests(requestsIDs, NotificationRequestStatus.InProgress);
                     }
                 }
                 if (requestsList != null && requestsList.Count > 0)
                 {
+                    // save monitor and logs context data
+                    ContextData contextData = new ContextData();
+
                     Task[] tasks = new Task[requestsList.Count];
                     //send push notification to device + send SMS
                     for (int i = 0; i < requestsList.Count; i++)
                     {
                         int j = i;
-                        tasks[j] = Task.Factory.StartNew(() => HandleOneRequest(requestsList[j]));
+                        tasks[j] = Task.Factory.StartNew(() =>
+                            {
+                                // load monitor and logs context data
+                                contextData.Load();
+
+                                HandleOneRequest(requestsList[j]);
+                            });
                     }
                     Task.WaitAll(tasks);
                 }
@@ -87,8 +98,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("HanldeRequests", "Ex : " + ex.Message, "NotificationManager");
-                _logger.Error(string.Format("HanldeRequests Exception {0} - NotificationManager", ex.Message));
+                log.Error("HanldeRequests Exception - NotificationManager", ex);
             }
         }
 
@@ -131,7 +141,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Faild creat Notification at GetNotification Exception = {0}. groupID={1},triggerType={1} ", ex.Message, groupID, triggerType));
+                log.Error(string.Format("Faild creat Notification at GetNotification Exception = {0}. groupID={1},triggerType={1} ", ex.Message, groupID, triggerType));
                 return null;
             }
         }
@@ -154,7 +164,7 @@ namespace NotificationInterface
                 Dictionary<long, FollowUpTagNotification> dNotifications = new Dictionary<long, FollowUpTagNotification>();
                 FollowUpTagNotification objNotification = null;
 
-                Logger.Logger.Log("GetNotifications", string.Format("Notification Follow Up, groupID:{0} , mediaID:{1}", nGroupID, nMediaID), "notifications");
+                log.Debug("GetNotifications - " + string.Format("Notification Follow Up, groupID:{0} , mediaID:{1}", nGroupID, nMediaID));
 
                 # region Get All Tags+Tag Values Related To media
 
@@ -308,7 +318,7 @@ namespace NotificationInterface
                                 oNotificationTag.notificationsID = lNotificationIds;
                                 objNotification = new FollowUpTagNotification(notification_id, (NotificationMessageType)notification_type, (int)NotificationTriggerType.FollowUpByTag, group_id, message_text, sms_message_text, pull_message_text, title, true, status, bIs_broadcast, create_date, null, sKey, oNotificationTag);
                                 dNotifications.Add(notification_id, objNotification);
-                                Logger.Logger.Log("GetNotifications", string.Format("Notification Insert Media to tempTable , groupID:{0} , mediaID:{1}", nGroupID, nMediaID), "notifications");
+                                log.Debug("GetNotifications - " + string.Format("Notification Insert Media to tempTable , groupID:{0} , mediaID:{1}", nGroupID, nMediaID));
                             }
                         }
                     }
@@ -324,7 +334,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed create List<FollowUpTagNotification>  at GetNotifications , Exception ={0}, groupID={1}, triggerType={2}, mediaID={3}", ex.Message, nGroupID, notificationTriggerType, nMediaID));
+                log.Error(string.Format("Failed create List<FollowUpTagNotification>  at GetNotifications , Exception ={0}, groupID={1}, triggerType={2}, mediaID={3}", ex.Message, nGroupID, notificationTriggerType, nMediaID));
                 return null;
             }
         }
@@ -383,12 +393,12 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("failed to InsertNotificationRequest Exception = {0}, requestType={1}, requestGroupID={2}, requestUserID={3}, requestNotificationID={4}, requestStatus={5}, requestTriggerType={6}",
+                log.Error(string.Format("failed to InsertNotificationRequest Exception = {0}, requestType={1}, requestGroupID={2}, requestUserID={3}, requestNotificationID={4}, requestStatus={5}, requestTriggerType={6}",
                     ex.Message, request.Type, request.GroupID, request.UserID, request.NotificationID, request.Status, request.TriggerType));
             }
         }
 
-       
+
         /// <summary>
         /// Insert one notifictaion reques to the db (notifications_requests table),
         /// according to the params of the methods that represents the relevant fields at notifications_requests table.
@@ -400,7 +410,7 @@ namespace NotificationInterface
         /// <param name="status"></param>
         public void InsertNotificationRequest(NotificationRequestType requestType, long groupID, long userID, long notificationID, NotificationRequestStatus status, NotificationTriggerType triggerType)
         {
-            NotificationDal.InsertNotificationRequest((int)requestType, groupID, userID, notificationID, (byte)status, (int)triggerType);                    
+            NotificationDal.InsertNotificationRequest((int)requestType, groupID, userID, notificationID, (byte)status, (int)triggerType);
         }
 
         /// <summary>
@@ -420,7 +430,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("failed InsertNotificationTagRequest Exception = {0}", ex.Message));
+                log.Error(string.Format("failed InsertNotificationTagRequest Exception = {0}", ex.Message));
             }
         }
         /// <summary>
@@ -434,7 +444,7 @@ namespace NotificationInterface
                 NotificationDal.InsertNotificationTagRequest(notification);
                 try
                 {
-                    Logger.Logger.Log("InsertNotificationTagRequest", string.Format("Insert to DB {0} recoreds ", notification.Rows.Count), "notifications");
+                    log.Debug("InsertNotificationTagRequest - " + string.Format("Insert to DB {0} recoreds ", notification.Rows.Count));
                 }
                 catch
                 {
@@ -442,7 +452,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("failed InsertNotificationTagRequest Exception = {0}", ex.Message));
+                log.Error(string.Format("failed InsertNotificationTagRequest Exception = {0}", ex.Message));
             }
         }
         /// <summary>
@@ -451,7 +461,7 @@ namespace NotificationInterface
         /// <param name="objNotitfication"></param>
         /// <param name="userID"></param>
         /// <returns></returns>
-        public NotificationRequest BuildNotificationRequest(Notification objNotitfication , string siteGuid)
+        public NotificationRequest BuildNotificationRequest(Notification objNotitfication, string siteGuid)
         {
             try
             {
@@ -460,7 +470,8 @@ namespace NotificationInterface
                 {
                     userID = long.Parse(siteGuid);
                 }
-                catch{
+                catch
+                {
                 }
 
                 NotificationRequest request;
@@ -476,7 +487,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed BuildNotificationRequest Exception = {0}", ex.Message));
+                log.Error(string.Format("Failed BuildNotificationRequest Exception = {0}", ex.Message));
                 return null;
             }
         }
@@ -487,12 +498,12 @@ namespace NotificationInterface
         /// <param name="lNotifications"></param>
         /// <returns></returns>
         /// 
-         public DataTable BuildTagNotificationsRequest(List<FollowUpTagNotification> lNotifications)
-        {           
+        public DataTable BuildTagNotificationsRequest(List<FollowUpTagNotification> lNotifications)
+        {
             try
             {
                 DataTable dtNotification = null;
-                 NotificationTagRequest objRequest = null;                 
+                NotificationTagRequest objRequest = null;
                 FollowUpTagNotification objNotification = null;
                 Dictionary<string, List<int>> dict = new Dictionary<string, List<int>>();
                 Dictionary<string, List<TagIDValue>> dictfull = new Dictionary<string, List<TagIDValue>>();
@@ -505,16 +516,16 @@ namespace NotificationInterface
                 #endregion
                 if (lNotifications != null && lNotifications.Count > 0)
                 {
-                    Logger.Logger.Log("BuildTagNotificationsRequest", "Start", "notifications");
+                    log.Debug("BuildTagNotificationsRequest - Start");
 
                     //Build basic  notification request 
                     objNotification = new FollowUpTagNotification(lNotifications[0].ID, lNotifications[0].MessageType, lNotifications[0].TriggerType, lNotifications[0].GroupID, lNotifications[0].MessageText, lNotifications[0].SmsMessageText,
                         lNotifications[0].PullMessageText, lNotifications[0].Title, lNotifications[0].IsActive, lNotifications[0].Status, lNotifications[0].IsBroadcast, lNotifications[0].CreatedDate, lNotifications[0].Actions, string.Empty, null);
 
-                    Logger.Logger.Log("BuildTagNotificationsRequest", string.Format("objNotification ID={0},MessageText={1},GroupID={2},CreatedDate={3}  ", objNotification.ID, objNotification.MessageText, objNotification.GroupID, objNotification.CreatedDate),"notifications");
+                    log.Debug("BuildTagNotificationsRequest - " + string.Format("objNotification ID={0},MessageText={1},GroupID={2},CreatedDate={3}  ", objNotification.ID, objNotification.MessageText, objNotification.GroupID, objNotification.CreatedDate));
 
                     #region build notification request dictionary
-                   
+
                     foreach (FollowUpTagNotification objN in lNotifications)
                     {
                         notificationsIds.Add(objN.ID);
@@ -548,7 +559,7 @@ namespace NotificationInterface
                     objRequest.oExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
                     objRequest.oExtraParams.notificationsID = lNotifications[0].notificationTag.notificationsID;
 
-                    Logger.Logger.Log("BuildTagNotificationsRequest", string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID), "NotificationManager");
+                    log.Debug("BuildTagNotificationsRequest - " + string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID));
 
                     #region get all sign in users to one of the notification ids
                     DataTable dtUsers = DAL.NotificationDal.GetUserNotification(null, notificationsIds);
@@ -563,20 +574,20 @@ namespace NotificationInterface
                                 objRequest.usersID.Add(lUserID);
                         }
                     }
-                    #endregion 
-                    
+                    #endregion
+
                     #region Create specific notification per user
                     //get to each User the specific notification that he subscribe to it ([GetUserNotification])
                     DataTable userSubscribe = DAL.NotificationDal.GetUserNotification(objRequest.usersID);
                     //create specific NotificationTagRequest to each user
-                    dtNotification = GetNotificationTagRequestTable();                                     
-                   
+                    dtNotification = GetNotificationTagRequestTable();
+
                     int previousUserId = 0;
                     foreach (DataRow drUserSubscribe in userSubscribe.Rows)
                     {
                         if (previousUserId != ODBCWrapper.Utils.GetIntSafeVal(drUserSubscribe["user_id"]))
                         {
-                            Logger.Logger.Log("BuildTagNotificationsRequest", string.Format(" UserID={0}", previousUserId), "NotificationManager");
+                            log.Debug("BuildTagNotificationsRequest - " + string.Format(" UserID={0}", previousUserId));
                             userDictFull = new Dictionary<string, List<TagIDValue>>();
                             userDict = new Dictionary<string, List<int>>();
                             userNotificationsIds = new List<long>();
@@ -617,7 +628,7 @@ namespace NotificationInterface
 
                                                     if (!userDictFull.ContainsKey(sKey))
                                                     {
-                                                        userDictFull.Add(sKey, objRequest.oExtraParams.dTagDict[sKey]);                                                        
+                                                        userDictFull.Add(sKey, objRequest.oExtraParams.dTagDict[sKey]);
                                                     }
                                                     else
                                                     {
@@ -639,7 +650,7 @@ namespace NotificationInterface
                                                     userDict.Add(sKey, objRequest.oExtraParams.TagDict[sKey]);
                                                     userNotificationsIds.Add(nNotificationID);
                                                 }
-                                                else 
+                                                else
                                                 {
                                                     foreach (int value in objRequest.oExtraParams.TagDict[sKey])
                                                     {
@@ -664,7 +675,7 @@ namespace NotificationInterface
                                                 }
                                             }
                                         }
-                                    }         
+                                    }
                                 }
                             }
 
@@ -682,25 +693,26 @@ namespace NotificationInterface
                                 {
                                     sUserExtraParams = TVinciShared.JSONUtils.ToJSON(userExtraParams);
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
+                                    log.Error("", ex);
                                 }
-                                Logger.Logger.Log("BuildTagNotificationsRequest", string.Format("insert user notification request user_id ={0}, extraParams={1}", previousUserId, sUserExtraParams), "notifications");
+                                log.Debug("BuildTagNotificationsRequest - " + string.Format("insert user notification request user_id ={0}, extraParams={1}", previousUserId, sUserExtraParams));
                             }
                         }
                     }
                     #endregion
-                } 
-               // return objRequest;
+                }
+                // return objRequest;
                 return dtNotification;
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("failed BuildTagNotificationsRequest Exception={0}", ex.Message));
+                log.Error(string.Format("failed BuildTagNotificationsRequest Exception={0}", ex.Message));
                 return null;
             }
         }
-         private static void FillNotificationDataTable(FollowUpTagNotification objNotification, ExtraParams userExtraParams, DataTable dtNotification, int previousUserId)
+        private static void FillNotificationDataTable(FollowUpTagNotification objNotification, ExtraParams userExtraParams, DataTable dtNotification, int previousUserId)
         {
             DataRow userRow = dtNotification.NewRow();
             userRow["notification_request_type"] = objNotification.TriggerType;
@@ -743,11 +755,11 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("failed GetTagsNameByIDs Exception={0}", ex.Message));
+                log.Error(string.Format("failed GetTagsNameByIDs Exception={0}", ex.Message));
                 return null;
             }
         }
-         #region notification per user
+        #region notification per user
         private DataTable GetNotificationTagRequestTable()
         {
             try
@@ -767,11 +779,11 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetNotificationTagRequestTable", "create DataTable failed", "notifications");
+                log.Error("GetNotificationTagRequestTable - create DataTable failed", ex);
                 return null;
             }
         }
-        #endregion 
+        #endregion
 
         #region notification per user
         //private DataTable GetNotificationTagRequestTable()
@@ -810,8 +822,8 @@ namespace NotificationInterface
         //        return null;
         //    }  
         //}
-#endregion 
-        
+        #endregion
+
         /// <summary>
         /// Get notifications messages by device UDID and userID
         /// </summary>
@@ -887,7 +899,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed GetDeviceNotifications Exception = {0}", ex.Message));
+                log.Error(string.Format("Failed GetDeviceNotifications Exception = {0}", ex.Message));
                 return null;
             }
         }
@@ -909,7 +921,7 @@ namespace NotificationInterface
                          *     icon) in different devices.
                          *  b. Send a new push notification to update the badge number on his application icon.
                          */
-                        
+
                         return HandleDeviceNotificationReadEvent(lUserID, lNotificationRequestID, viewStatus, nGroupID);
                     }
                     return NotificationDal.UpdateNotificationMessageViewStatus(lUserID, notificationRequestID, notificationMessageID, (byte)viewStatus);
@@ -918,7 +930,7 @@ namespace NotificationInterface
             catch (Exception ex)
             {
                 #region Logging
-                _logger.Error(string.Format("Failed SetNotificationMessageViewStatus Exception = {0} , Site Guid {1} , Notification request ID: {2} , Notification Msg ID: {3} , View Status: {4}", ex.Message, siteGuid, notificationRequestID.HasValue ? notificationRequestID.Value.ToString() : "null", notificationMessageID.HasValue ? notificationMessageID.Value.ToString() : "null", viewStatus.ToString()));
+                log.Error(string.Format("Failed SetNotificationMessageViewStatus Exception = {0} , Site Guid {1} , Notification request ID: {2} , Notification Msg ID: {3} , View Status: {4}", ex.Message, siteGuid, notificationRequestID.HasValue ? notificationRequestID.Value.ToString() : "null", notificationMessageID.HasValue ? notificationMessageID.Value.ToString() : "null", viewStatus.ToString()));
                 #endregion
             }
             return false;
@@ -943,7 +955,7 @@ namespace NotificationInterface
             if (NotificationDal.UpdateNotificationMessageViewStatus(lSiteGuid, lNotificationRequestID, null, (byte)eNewViewStatus))
             {
                 #region Logging
-                Logger.Logger.Log("HandleDeviceNotificationReadEvent", string.Format("Updating view status in DB successful. Site Guid: {0} , Notification request id: {1} , View status: {2}", lSiteGuid, lNotificationRequestID, eNewViewStatus.ToString()), "NotificationManager");
+                log.Debug("HandleDeviceNotificationReadEvent - " + string.Format("Updating view status in DB successful. Site Guid: {0} , Notification request id: {1} , View status: {2}", lSiteGuid, lNotificationRequestID, eNewViewStatus.ToString()));
                 #endregion
                 UpdateBadgeAtUserDevices(lSiteGuid, nGroupID);
                 return true;
@@ -974,51 +986,52 @@ namespace NotificationInterface
                 try
                 {
                     #region Logging Start
-                    Logger.Logger.Log("BadgeUpdateInner", string.Format("Entering try block: Managed Thread ID: {0} , NotificationRequest object: {1}", System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()), NOTIFICATION_MANAGER_LOG_FILE);
+                    log.Debug("BadgeUpdateInner - " + string.Format("Entering try block: Managed Thread ID: {0} , NotificationRequest object: {1}", System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()));
                     #endregion
                     IFactoryImp f = new FactoryImp(oNotificationRequestObj.GroupID);
                     IRequestImp imp = f.GetTypeImp(eSenderObjectType.Device);
                     imp.Send(oNotificationRequestObj);
                     #region Logging Success
-                    Logger.Logger.Log("BadgeUpdateInner", string.Format("Try block completed successfully: Managed Thread ID: {0} , NotificationRequest object: {1}", System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()), NOTIFICATION_MANAGER_LOG_FILE);
+                    log.Debug("BadgeUpdateInner - " + string.Format("Try block completed successfully: Managed Thread ID: {0} , NotificationRequest object: {1}", System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()));
                     #endregion
                 }
                 catch (Exception ex)
                 {
                     #region Logging
-                    Logger.Logger.Log("BadgeUpdateInner", string.Format("Exception. Exception msg: {0} , Managed thread ID: {1} , NotificationRequest obj: {2}", ex.Message, System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()), NOTIFICATION_MANAGER_LOG_FILE);
+                    log.Error("BadgeUpdateInner - " + string.Format("Exception. Exception msg: {0} , Managed thread ID: {1} , NotificationRequest obj: {2}", ex.Message, System.Threading.Thread.CurrentThread.ManagedThreadId, oNotificationRequestObj.ToString()), ex);
                     #endregion
                 }
             }
             else
             {
                 #region Logging
-                Logger.Logger.Log("BadgeUpdateInner", string.Format("Incorrect format of input. Managed thread ID: {0} , Input is null", System.Threading.Thread.CurrentThread.ManagedThreadId), NOTIFICATION_MANAGER_LOG_FILE);
+                log.Debug("BadgeUpdateInner - " + string.Format("Incorrect format of input. Managed thread ID: {0} , Input is null", System.Threading.Thread.CurrentThread.ManagedThreadId));
                 #endregion
             }
         }
 
         public bool FollowUpByTag(string siteGuid, Dictionary<string, List<string>> tags, int groupID)
-        {   
+        {
             try
-            {               
+            {
                 long userID = 0;
                 try
                 {
                     userID = long.Parse(siteGuid);
                 }
-                catch {
+                catch
+                {
                 }
 
                 //translate all tags value to it's id.
-                Dictionary<int, List<int>> tagIDs = GetTagIDs(tags, groupID);             
+                Dictionary<int, List<int>> tagIDs = GetTagIDs(tags, groupID);
                 //check if tagValue exsits for tagType Null option only !!!
                 DataTable dt = DAL.NotificationDal.TagsNotificationNotExists(tagIDs, groupID, (int)NotificationTriggerType.FollowUpByTag);
                 //if not - create it 
                 if (dt != null && dt.DefaultView.Count > 0)
                 {
                     Dictionary<int, List<int>> tagIDsToInsert = new Dictionary<int, List<int>>();
-                    int tagID = 0;                   
+                    int tagID = 0;
                     int tagValue = 0;
                     foreach (DataRow row in dt.Rows)
                     {
@@ -1033,13 +1046,13 @@ namespace NotificationInterface
                     bool result = DAL.NotificationDal.InsertNotificationParameter(tagIDsToInsert, groupID, (int)NotificationTriggerType.FollowUpByTag);
                 }
 
-                return NotificationDal.InsertUserNotification(userID, tagIDs, groupID);                
+                return NotificationDal.InsertUserNotification(userID, tagIDs, groupID);
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("FollowUpByTag Exception = {0}", ex.Message));
+                log.Error(string.Format("FollowUpByTag Exception = {0}", ex.Message));
                 return false;
-            }            
+            }
         }
 
         public bool UserSettings(UserSettings userSettings, int nGroupID)
@@ -1057,7 +1070,8 @@ namespace NotificationInterface
                 {
                     userID = long.Parse(userSettings.siteGuid);
                 }
-                catch{
+                catch
+                {
                 }
 
                 if (userSettings.sendVia != null)
@@ -1066,15 +1080,15 @@ namespace NotificationInterface
                     is_email = userSettings.sendVia.is_email;
                     is_device = userSettings.sendVia.is_device;
                 }
-                return NotificationDal.UserSettings(userSettings.siteGuid, is_device, is_email, is_sms, nGroupID,1,1);
+                return NotificationDal.UserSettings(userSettings.siteGuid, is_device, is_email, is_sms, nGroupID, 1, 1);
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("UserSettings Exception = {0}", ex.Message));
+                log.Error(string.Format("UserSettings Exception = {0}", ex.Message));
                 return false;
             }
         }
-     
+
         public bool UnsubscribeFollowUpByTag(string siteGuid, Dictionary<string, List<string>> tags, int groupID)
         {
             try
@@ -1084,7 +1098,8 @@ namespace NotificationInterface
                 {
                     userID = long.Parse(siteGuid);
                 }
-                catch{
+                catch
+                {
                 }
 
                 Dictionary<int, List<int>> tagIDs = GetTagIDs(tags, groupID);
@@ -1092,11 +1107,11 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("UnsubscribeFollowUpByTag Exception = {0}", ex.Message));
+                log.Error(string.Format("UnsubscribeFollowUpByTag Exception = {0}", ex.Message));
                 return false;
             }
         }
-      
+
         //get all user subscriptions tag notifications
         public Dictionary<string, List<string>> GetUserStatusSubscriptions(string siteGuid, int groupID)
         {
@@ -1110,7 +1125,8 @@ namespace NotificationInterface
                 {
                     userID = int.Parse(siteGuid);
                 }
-                catch{
+                catch
+                {
                 }
 
                 DataTable dtTag = DAL.NotificationDal.GetUserNotification(userID, new List<long>(), 1);
@@ -1139,7 +1155,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed GetUserStatusSubscriptions Exception = {0}", ex.Message));
+                log.Error(string.Format("Failed GetUserStatusSubscriptions Exception = {0}", ex.Message));
                 return null;
             }
         }
@@ -1149,8 +1165,8 @@ namespace NotificationInterface
         {
             try
             {
-                 int tagTypeId = 0;
-                 int isAll = 1;
+                int tagTypeId = 0;
+                int isAll = 1;
                 Dictionary<string, List<string>> notificationTags = null;
                 Dictionary<string, List<string>> notificationTagsAll = null;
                 Dictionary<int, List<int>> lTag = new Dictionary<int, List<int>>();
@@ -1196,7 +1212,7 @@ namespace NotificationInterface
                 result = dtNotifications.Select("related_to_parameters = 1"); // only notification related to specific tag values
                 foreach (DataRow dr in result)//dtNotifications.Rows)
                 {
-                    tagTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr["sKey"]);                   
+                    tagTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr["sKey"]);
                     if (lTag.Keys.Contains<int>(tagTypeId))
                         continue;
                     result = dtNotifications.Select("sKey = " + tagTypeId);
@@ -1221,7 +1237,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed GetAllTagNotifications Exception = {0}", ex.Message));
+                log.Error(string.Format("Failed GetAllTagNotifications Exception = {0}", ex.Message));
                 return null;
             }
         }
@@ -1252,11 +1268,11 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("IsTagNotificationExists Exception = {0}", ex.Message));
+                log.Error(string.Format("IsTagNotificationExists Exception = {0}", ex.Message));
                 return false;
             }
         }
-        
+
         public static Dictionary<string, List<string>> GetTagsNameByIDs(Dictionary<int, List<int>> tags, int groupID)
         {
             try
@@ -1290,7 +1306,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("GetTagsNameByIDs Exception = {0}", ex.Message));
+                log.Error(string.Format("GetTagsNameByIDs Exception = {0}", ex.Message));
                 return null;
             }
         }
@@ -1339,7 +1355,7 @@ namespace NotificationInterface
             byte status = (Byte)(requestStatus);
             NotificationDal.UpdateNotificationRequestStatus(requestsList, status);
         }
-      
+
         /// <summary>
         /// Update several notification requests status at the db (notifications_requests table).
         /// The requests represent by requestsIDsList param that contains the IDs of the requests.
@@ -1347,9 +1363,9 @@ namespace NotificationInterface
         /// <param name="requestsIDsList"></param>
         /// <param name="requestStatus"></param>
         private void UpdateNotificationRequests(List<long> requestsIDsList, NotificationRequestStatus requestStatus)
-        {   
+        {
             byte status = (Byte)(requestStatus);
-            NotificationDal.UpdateNotificationRequestStatus(requestsIDsList, status); 
+            NotificationDal.UpdateNotificationRequestStatus(requestsIDsList, status);
         }
 
         /// <summary>
@@ -1378,11 +1394,11 @@ namespace NotificationInterface
                     // return min and max id for later use 
                     if (dtRequests != null && dtRequests.DefaultView.Count > 0)
                     {
-                        var query = dtRequests.AsEnumerable().Cast<DataRow>().Min(x=>x["ID"]);
+                        var query = dtRequests.AsEnumerable().Cast<DataRow>().Min(x => x["ID"]);
                         startRequestID = ODBCWrapper.Utils.GetIntSafeVal(query);
                         query = dtRequests.AsEnumerable().Cast<DataRow>().Max(x => x["ID"]);
                         endRequestID = ODBCWrapper.Utils.GetIntSafeVal(query);
-                        Logger.Logger.Log("GetNotificationRequests", string.Format("Run from id={0} to id={1}", startRequestID, endRequestID), "notifications");
+                        log.Debug("GetNotificationRequests - " + string.Format("Run from id={0} to id={1}", startRequestID, endRequestID));
                     }
 
                     dtRequestsActions = dsRequests.Tables[1];
@@ -1395,7 +1411,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("Failed create the NotificationRequest List at GetNotificationRequests Exception = {0}.  groupID = {1}, NotificationRequestStatus = {2}",
+                log.Error(string.Format("Failed create the NotificationRequest List at GetNotificationRequests Exception = {0}.  groupID = {1}, NotificationRequestStatus = {2}",
                                             ex.Message, groupID, requestStatus));
                 return null;
             }
@@ -1489,15 +1505,15 @@ namespace NotificationInterface
             }
             return requestsActionsDict;
         }
-     
+
         /// <summary>
         /// Create dictionary of parameters according to datatable of values,
         /// the key is notification id and the value is list of values belong to each notification.
         /// </summary>
         /// <param name="dtRequestsActions"></param>
         /// <returns></returns>
-        private Dictionary<long,string> GetRequestsValuesDictionary(DataTable dtRequestsParameters)
-        {   
+        private Dictionary<long, string> GetRequestsValuesDictionary(DataTable dtRequestsParameters)
+        {
             Dictionary<long, string> requestsParametersDict = new Dictionary<long, string>();
             foreach (DataRowView drParam in dtRequestsParameters.DefaultView)
             {
@@ -1517,17 +1533,17 @@ namespace NotificationInterface
         /// <param name="requestsActionsDict"></param>
         /// <returns></returns>
         private NotificationRequest CreateNotificationRequestObject(DataRowView dr, long requestID, NotificationRequestAction[] actions, string values, DataTable dtTagsPerUSer)
-        {                           
-            long notificationID = ODBCWrapper.Utils.GetLongSafeVal(dr["notificationID"]);            
+        {
+            long notificationID = ODBCWrapper.Utils.GetLongSafeVal(dr["notificationID"]);
             NotificationRequestStatus status = (NotificationRequestStatus)(ODBCWrapper.Utils.GetIntSafeVal(dr["status"]));
             long groupID = ODBCWrapper.Utils.GetLongSafeVal(dr["group_id"]);
             long userID = ODBCWrapper.Utils.GetLongSafeVal(dr["user_id"]);
-            DateTime createdDate = ODBCWrapper.Utils.GetDateSafeVal(dr["created_date"]);  
+            DateTime createdDate = ODBCWrapper.Utils.GetDateSafeVal(dr["created_date"]);
             NotificationRequestType requestType = (NotificationRequestType)(ODBCWrapper.Utils.GetIntSafeVal(dr["notification_request_type"]));
             NotificationMessageType messageType = (NotificationMessageType)(ODBCWrapper.Utils.GetIntSafeVal(dr["notification_type"]));
             string messageText = ODBCWrapper.Utils.GetSafeStr(dr["message_text"]);
             string smsMessageText = ODBCWrapper.Utils.GetSafeStr(dr["sms_message_text"]);
-            string pull_message_text = ODBCWrapper.Utils.GetSafeStr(dr["pull_message_text"]); 
+            string pull_message_text = ODBCWrapper.Utils.GetSafeStr(dr["pull_message_text"]);
             string title = ODBCWrapper.Utils.GetSafeStr(dr["title"]);
             string sKey = ODBCWrapper.Utils.GetSafeStr(dr["sKey"]);
 
@@ -1537,7 +1553,7 @@ namespace NotificationInterface
             string notificationDateFormat = ODBCWrapper.Utils.GetSafeStr(dr, "notification_date_format");
 
 
-            Logger.Logger.Log("CreateNotificationRequestObject",string.Format( "Start userID={0}",userID), "NotificationManager");
+            log.Debug("CreateNotificationRequestObject - " + string.Format("Start userID={0}", userID));
 
             //add is email / push / sms
             int is_email = ODBCWrapper.Utils.GetIntSafeVal(dr["is_email"]);
@@ -1558,12 +1574,12 @@ namespace NotificationInterface
             int emailNotify = 0;
             int smsNotify = 0;
             int deviceNotify = 0;
-            
-            if (is_email == 1  && is_user_email == 1)
+
+            if (is_email == 1 && is_user_email == 1)
                 emailNotify = 1;
-            if (is_sms == 1  && is_user_sms == 1)
+            if (is_sms == 1 && is_user_sms == 1)
                 smsNotify = 1;
-            if (is_device == 1  && is_user_device == 1)
+            if (is_device == 1 && is_user_device == 1)
                 deviceNotify = 1;
 
             SendVia oSendVia = new SendVia(emailNotify, smsNotify, deviceNotify);
@@ -1576,7 +1592,7 @@ namespace NotificationInterface
             #region extraParams for tag notification
             JavaScriptSerializer js = new JavaScriptSerializer();
             ExtraParams extraParams = js.Deserialize<ExtraParams>(values);
-            Logger.Logger.Log("CreateNotificationRequestObject", string.Format(" NotificationReques userID={0} ,createdDate={1}, extraParams={2}", userID, createdDate.ToShortDateString(),values), "NotificationManager");
+            log.Debug("CreateNotificationRequestObject - " + string.Format(" NotificationReques userID={0} ,createdDate={1}, extraParams={2}", userID, createdDate.ToShortDateString(), values));
             string picURL = string.Empty;
             if (extraParams != null)
             {
@@ -1605,7 +1621,7 @@ namespace NotificationInterface
                 }
 
                 if (extraParams.mediaID != 0)
-                {   
+                {
                     extraParams.templateEmail = notificationEmailTemplate;
                     extraParams.subjectEmail = notificationEmailSubject;
                     extraParams.dateFormat = string.IsNullOrEmpty(notificationDateFormat) ? deafultEmailDateFormat : notificationDateFormat;
@@ -1630,15 +1646,15 @@ namespace NotificationInterface
                     if (dt == null) // no request needed
                         return null;
 
-                    
-                     if (extraParams.TagDict != null && extraParams.TagDict.Count() > 0)
+
+                    if (extraParams.TagDict != null && extraParams.TagDict.Count() > 0)
                     {
                         // bool bUserMustBeNotify = false;
                         string metaTag = string.Empty;
                         string metaName = string.Empty;
                         string metaValues = string.Empty;
                         List<string> metaValueList = null;
-                        List<string> metaTagList =  new List<string>();
+                        List<string> metaTagList = new List<string>();
 
                         foreach (KeyValuePair<string, List<TagIDValue>> item in extraParams.dTagDict)
                         {
@@ -1657,22 +1673,22 @@ namespace NotificationInterface
                             metaTag = string.Format("{0} : {1}", metaName, metaValues);
                             metaTagList.Add(metaTag);
                         }
-                        metaTag =   string.Join(",", metaTagList.ToArray());
+                        metaTag = string.Join(",", metaTagList.ToArray());
 
                         ReplaceText(ref messageText, "{MetaTag}", metaTag);
                         ReplaceText(ref smsMessageText, "{MetaTag}", metaTag);
                         ReplaceText(ref pull_message_text, "{MetaTag}", metaTag);
 
                         NotificationRequest request = new NotificationRequest(requestID, notificationID, status, groupID, userID, createdDate, requestType, messageType, messageText, smsMessageText, pull_message_text, title, actions, eTriggerType, oSendVia, extraParams);
-                        Logger.Logger.Log("CreateNotificationRequestObject", string.Format("End userID={0}", userID), "NotificationManager");
-                        return request; 
+                        log.Debug("CreateNotificationRequestObject - " + string.Format("End userID={0}", userID));
+                        return request;
                     }
                 }
             }
             #endregion
             else // for notification with no extraParams
             {
-                NotificationRequest request = new NotificationRequest(requestID, notificationID, status, groupID, userID, createdDate, requestType, messageType, messageText, smsMessageText, pull_message_text,title, actions, eTriggerType, oSendVia, extraParams);
+                NotificationRequest request = new NotificationRequest(requestID, notificationID, status, groupID, userID, createdDate, requestType, messageType, messageText, smsMessageText, pull_message_text, title, actions, eTriggerType, oSendVia, extraParams);
                 return request;
             }
             return null;
@@ -1707,14 +1723,14 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ReplaceFirstLastNames", string.Format("failed replace names in message with groupID={0}, messageText={1}, ex={2}", groupID, messageText, ex.Message), "NotificationManager");
+                log.Error("ReplaceFirstLastNames - " + string.Format("failed replace names in message with groupID={0}, messageText={1}, ex={2}", groupID, messageText, ex.Message), ex);
             }
         }
 
         private void ReplaceName(ref string messageText, WS_Users.UserBasicData user)
         {
             ReplaceText(ref messageText, "{FirstName}", user.m_sFirstName);
-            ReplaceText(ref messageText, "{LastName}", user.m_sLastName);           
+            ReplaceText(ref messageText, "{LastName}", user.m_sLastName);
         }
 
         private void ReplaceDatesInMessageText(DateTime startDate, DateTime catalogStartDate, string notificationDateFormat, ref string messageText)
@@ -1725,11 +1741,11 @@ namespace NotificationInterface
                 string matchText = "{StartDate";
                 ReplaceDates(startDate, notificationDateFormat, matchText, ref messageText);
                 matchText = "{CatalaogStartDate";
-                ReplaceDates(startDate, notificationDateFormat, matchText, ref messageText);               
+                ReplaceDates(startDate, notificationDateFormat, matchText, ref messageText);
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
         }
 
@@ -1741,7 +1757,7 @@ namespace NotificationInterface
             string sStartDate = string.Empty;
 
             Match mc = Regex.Match(messageText, matchText);
-            while (mc != null && mc.Index >=0 && mc.Success)
+            while (mc != null && mc.Index >= 0 && mc.Success)
             {
                 last = messageText.IndexOf("}", mc.Index);
                 dateString = messageText.Substring(mc.Index, last - mc.Index + 1);
@@ -1765,7 +1781,7 @@ namespace NotificationInterface
                 }
                 catch (Exception exStartDate)
                 {
-                    Logger.Logger.Log("ReplaceDatesInMessageText", string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", startDateFormat, dateString, exStartDate.Message), "NotificationManager");
+                    log.Error("ReplaceDatesInMessageText - " + string.Format("failed replace datetime in message with format={0}, date={1}, ex={2} ", startDateFormat, dateString, exStartDate.Message), exStartDate);
                     sStartDate = Utils.ExtractDate(startDate, deafultDateFormat);
                     messageText = String.Format("{0}", messageText.Replace(dateString, sStartDate));
                 }
@@ -1773,7 +1789,7 @@ namespace NotificationInterface
                 mc = Regex.Match(messageText, matchText);
             }
         }
-        
+
         /// <summary>
         /// Create Notification object from DataRowView object that represent record at 
         /// at notifications table.
@@ -1809,50 +1825,49 @@ namespace NotificationInterface
         /// </summary>
         /// <param name="request"></param>
         private void HandleOneRequest(NotificationRequest request)
-        {   
-            NotificationRequestStatus status = NotificationRequestStatus.Successful; 
-            NotificationRequestStatus[] statuses = new NotificationRequestStatus[4]; 
+        {
+            NotificationRequestStatus status = NotificationRequestStatus.Successful;
+            NotificationRequestStatus[] statuses = new NotificationRequestStatus[4];
             try
             {
                 if (request == null || request.sendVia == null)
-                    return ;
+                    return;
                 int media = 0;
-                if (request.oExtraParams!= null)
+                if (request.oExtraParams != null)
                     media = request.oExtraParams.mediaID;
                 //create pull notification 
                 try
                 {
-                    Logger.Logger.Log("HandleOneRequest", string.Format(" Pull request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media), "NotificationManager");
+                    log.Debug("HandleOneRequest - " + string.Format(" Pull request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media));
                     IFactoryImp f = new FactoryImp(request.GroupID);
                     IRequestImp imp = f.GetTypeImp(eSenderObjectType.Pull);
                     imp.Send(request);
                     statuses[0] = NotificationRequestStatus.Successful;
-                    Logger.Logger.Log("HandleOneRequest", string.Format("Pull request Finish {0} ", "Successful"), "NotificationManager");
+                    log.Debug("HandleOneRequest - " + string.Format("Pull request Finish {0} ", "Successful"));
                 }
                 catch (Exception ex)
                 {
                     statuses[0] = NotificationRequestStatus.Failed;
-                     Logger.Logger.Log("HandleOneRequest", string.Format("failed send Pull to DB  {0} ", ex.Message), "NotificationManager");
-                    _logger.Error(string.Format("HanldeOneRequest failed send Pull Notification to DB {0}", ex.Message));
+                    log.Error("HanldeOneRequest failed send Pull Notification to DB", ex);
                 }
-                
+
                 SendVia oSendVia = request.sendVia;
                 if (oSendVia.is_device == 1)
                 {
                     try
                     {
-                        Logger.Logger.Log("HandleOneRequest", string.Format("Device request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media), "NotificationManager");
+                        log.Debug("HandleOneRequest " + string.Format("Device request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media));
                         IFactoryImp f = new FactoryImp(request.GroupID);
                         IRequestImp imp = f.GetTypeImp(eSenderObjectType.Device);
                         imp.Send(request);
                         statuses[1] = NotificationRequestStatus.Successful;
-                         Logger.Logger.Log("HandleOneRequest", string.Format("Device request Finish {0} ", "Successful"), "NotificationManager");
+                        log.Debug("HandleOneRequest - " + string.Format("Device request Finish {0} ", "Successful"));
                     }
                     catch (Exception ex)
                     {
                         statuses[1] = NotificationRequestStatus.Failed;
-                         Logger.Logger.Log("HandleOneRequest", string.Format("failed send Push to Device  {0} ", ex.Message), "NotificationManager");
-                        _logger.Error(string.Format("HanldeOneRequest failed send Push to Device {0}", ex.Message));
+                        log.Error("HandleOneRequest - " + string.Format("failed send Push to Device  {0} ", ex.Message), ex);
+                        log.Error(string.Format("HanldeOneRequest failed send Push to Device {0}", ex.Message));
                     }
                 }
 
@@ -1862,19 +1877,18 @@ namespace NotificationInterface
                     {
                         if (request != null)
                         {
-                            Logger.Logger.Log("HandleOneRequest", string.Format("Email request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media), "NotificationManager");
+                            log.Debug("HandleOneRequest - " + string.Format("Email request Group ={0}, UserID ={1} ", request.GroupID, request.UserID, media));
                             IFactoryImp f = new FactoryImp(request.GroupID);
                             IRequestImp imp = f.GetTypeImp(eSenderObjectType.Email);
                             imp.Send(request);
                             statuses[1] = NotificationRequestStatus.Successful;
-                            Logger.Logger.Log("HandleOneRequest", string.Format("Email request Finish {0} ", "Successful"), "NotificationManager");
+                            log.Debug("HandleOneRequest - " + string.Format("Email request Finish {0} ", "Successful"));
                         }
                     }
                     catch (Exception ex)
                     {
                         statuses[1] = NotificationRequestStatus.Failed;
-                        Logger.Logger.Log("HandleOneRequest", string.Format("failed send Email  {0} ", ex.Message), "NotificationManager");
-                        _logger.Error(string.Format("HanldeOneRequest failed send Email {0}", ex.Message));
+                        log.Error("HandleOneRequest - " + string.Format("failed send Email  {0} ", ex.Message), ex);
                     }
                 }
                 //Wait for next version 
@@ -1890,13 +1904,13 @@ namespace NotificationInterface
                 //    catch (Exception ex)
                 //    {
                 //        statuses[3] = NotificationRequestStatus.Failed;
-                //        _logger.Error(string.Format("HanldeOneRequest failed send SMS {0}", ex.Message));
+                //        log.Error(string.Format("HanldeOneRequest failed send SMS {0}", ex.Message));
                 //    }
                 //}
             }
             catch
             {
-                status = NotificationRequestStatus.Failed;                
+                status = NotificationRequestStatus.Failed;
             }
             try
             {
@@ -1906,7 +1920,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("HanldeOneRequest Failed UpdateOneNotificationRequest requestID={0}, status={1}, Exception = {2}", request.ID, status, ex.Message));
+                log.Error(string.Format("HanldeOneRequest Failed UpdateOneNotificationRequest requestID={0}, status={1}, Exception = {2}", request.ID, status, ex.Message));
             }
         }
         #endregion

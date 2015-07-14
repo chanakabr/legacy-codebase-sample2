@@ -112,6 +112,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\External\log4net.dll</HintPath>
     </Reference>

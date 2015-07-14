@@ -8,13 +8,14 @@ using System.Reflection;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class MediaUpdateDateRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<int> m_lMediaIds;
@@ -52,7 +53,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("MediaUpdateDateRequest.GetResponse", ex);
+                log.Error("MediaUpdateDateRequest.GetResponse", ex);
                 throw ex;
             }
         }       

@@ -8,11 +8,15 @@ using System.Text;
 using Couchbase.Extensions;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DalCB
 {
     public class SocialDAL_Couchbase
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly string sEndMaxValue = @"\uefff";
         private static readonly string LOGGER_FILENAME = "SocialDal";
         private static readonly string CB_FEED_DESGIN = Utils.GetValFromConfig("cb_feed_design");
@@ -54,7 +58,7 @@ namespace DalCB
                 sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -78,7 +82,7 @@ namespace DalCB
                 sb.Append(String.Concat(" Action: ", sSocialActionID));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -112,7 +116,7 @@ namespace DalCB
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error", string.Format("Deserialization of SocialActivityDoc failed. str obj={0}, ex={1}, stack={2}", retObj, ex.Message, ex.StackTrace), LOGGER_FILENAME);
+                                log.Error("Error - " + string.Format("Deserialization of SocialActivityDoc failed. str obj={0}, ex={1}, stack={2}", retObj, ex.Message, ex.StackTrace), ex);
                             }
 
                         }
@@ -121,7 +125,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Caught exception in GetUserSocialAction for multiple objects. ex={0}; stack={1}", ex.Message, ex.StackTrace), LOGGER_FILENAME);
+                log.Error("Error - " + string.Format("Caught exception in GetUserSocialAction for multiple objects. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return lRes;
@@ -134,15 +138,15 @@ namespace DalCB
             foreach (int socialActionsTypes in lSocialActionsTypes)
             {
                 keys.Add(new List<object>() { sSiteGuid, eSocialPlatform, socialActionsTypes });
-            }            
+            }
 
             try
             {
-                lRes = m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList(); 
+                lRes = m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList();
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Caught exception in GetUserSocialAction for UserSocialActions view. ex={0}; stack={1}", ex.Message, ex.StackTrace), LOGGER_FILENAME);
+                log.Error("Error - " + string.Format("Caught exception in GetUserSocialAction for UserSocialActions view. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return lRes;
@@ -179,7 +183,7 @@ namespace DalCB
                 sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -201,7 +205,7 @@ namespace DalCB
                 sb.Append(String.Concat(" Doc ID: ", sDocID));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -225,7 +229,7 @@ namespace DalCB
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetFeedsByActorID. ");
@@ -234,7 +238,7 @@ namespace DalCB
                 sb.Append(String.Concat(" Num Of Docs: ", nNumOfDocs));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
@@ -259,14 +263,14 @@ namespace DalCB
                 sb.Append(String.Concat(" Num Of Docs: ", oDoc != null ? oDoc.ToString() : "null"));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
             }
 
             return bRes;
         }
 
-        public int GetAssetSocialActionCount(int assetId, eAssetType assetType, eUserAction actionType, DateTime startDate, DateTime endDate) 
+        public int GetAssetSocialActionCount(int assetId, eAssetType assetType, eUserAction actionType, DateTime startDate, DateTime endDate)
         {
             int res = 0;
             try
@@ -291,7 +295,7 @@ namespace DalCB
                 sb.Append(String.Concat(" ED: ", endDate));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
             }
@@ -323,7 +327,7 @@ namespace DalCB
                 sb.Append(String.Concat(" ED: ", endDate));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
             }
@@ -361,7 +365,6 @@ namespace DalCB
         //        sb.Append(String.Concat(" Num Of Recs: ", nNumOfRecords));
         //        sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
         //        sb.Append(String.Concat(" ST: ", ex.StackTrace));
-        //        Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
         //        #endregion
         //    }
 
@@ -375,14 +378,14 @@ namespace DalCB
             {
                 res = JsonConvert.DeserializeObject<T>(sJson);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at Deserialize. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" JSON: ", sJson));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), LOGGER_FILENAME);
+                log.Error("Exception - " + sb.ToString(), ex);
             }
 
             return res;

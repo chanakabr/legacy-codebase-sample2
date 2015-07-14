@@ -2,13 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects.SearchObjects;
+using KLogMonitor;
 
 namespace ElasticSearch.Searcher
 {
     public class ESMediaQueryBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string AND_CONDITION = "AND";
         public static readonly string OR_CONDITION = "OR";
         public static readonly string METAS = "METAS";
@@ -110,7 +114,7 @@ namespace ElasticSearch.Searcher
             ESTerms mediaTypesTerms = new ESTerms(true);
             if (!string.IsNullOrEmpty(oSearchObject.m_sMediaTypes) && !oSearchObject.m_sMediaTypes.Equals("0"))
             {
-                Logger.Logger.Log("Info", "media type = " + oSearchObject.m_sMediaTypes, "Elasticsearch");
+                log.Debug("Info - media type = " + oSearchObject.m_sMediaTypes);
                 mediaTypesTerms.Key = "media_type_id";
                 string[] mediaTypeArr = oSearchObject.m_sMediaTypes.Split(';');
                 string trimed;
@@ -357,7 +361,7 @@ namespace ElasticSearch.Searcher
                     filterParent.AddChild(regionComposite);
                 }
             }
-            
+
             FilterCompositeType oGroupWPComposite = new FilterCompositeType(CutWith.OR);
 
             oGroupWPComposite.AddChild(groupTerm);
@@ -575,7 +579,7 @@ namespace ElasticSearch.Searcher
             endDateRange.Key = (oSearchObject.m_bUseFinalEndDate) ? "final_date" : "end_date";
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sNow));
             endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            
+
             ESTerms mediaTypesTerms = new ESTerms(true);
             if (!string.IsNullOrEmpty(oSearchObject.m_sMediaTypes) && !oSearchObject.m_sMediaTypes.Equals("0"))
             {

@@ -5,15 +5,19 @@ using System.Text;
 using keygen4Lib;
 using System.Net;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace CDNetworksVault
 {
     public class MediaVault
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected string m_sPrivateKey;
         protected string m_sUser_ID;
         protected Int32 m_nTTl;
-        public MediaVault(string sPrivateKey , string sUser_ID , Int32 nTTl)
+        public MediaVault(string sPrivateKey, string sUser_ID, Int32 nTTl)
         {
             m_sPrivateKey = sPrivateKey;
             m_sUser_ID = sUser_ID;
@@ -35,7 +39,7 @@ namespace CDNetworksVault
 
         public string GetURL(string sBaseURL)
         {
-            Logger.Logger.Log("Get URL", sBaseURL, "GetURL");
+            log.Debug("Get URL - " + sBaseURL);
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             System.Uri u = new Uri(sBaseURL);
             string[] sSegments = u.Segments;
@@ -53,9 +57,9 @@ namespace CDNetworksVault
             }
             string sRtmp = sSchema + "://" + sHost + sPath;
             string sContent_url = sRtmp + sFileName;
-            Logger.Logger.Log("Get URL", "Before New", "GetURL");
+            log.Debug("Get URL - Before New");
             Ikeygen authobj = new keygen4Lib.keygenClass();
-            Logger.Logger.Log("Get URL", "After New", "GetURL");
+            log.Debug("Get URL - After New");
             //IPHostEntry host = Dns.Resolve(Dns.GetHostName());
             //string sServer_ip = host.AddressList[0].ToString();
             string sServer_ip = GetServerIP();

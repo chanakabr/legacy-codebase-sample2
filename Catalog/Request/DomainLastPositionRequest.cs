@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
 using Logger;
 
 namespace Catalog.Request
@@ -12,7 +13,7 @@ namespace Catalog.Request
     [DataContract]
     public class DomainLastPositionRequest : BaseRequest, IRequestImp
     {
-         private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public MediaLastPositionRequestData data { get; set; }
@@ -56,7 +57,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("DomainLastPositionRequest.GetResponse", ex);
+                log.Error("DomainLastPositionRequest.GetResponse", ex);
                 throw ex;
             }
         }
@@ -82,8 +83,8 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ProcessDomainLastPositionRequest", String.Concat("Failed ex={0}, siteGuid={1}, m_nMediaID={2}, m_nDomainID={3} ", ex.Message,
-                    request.data != null ? request.data.m_sSiteGuid : "0", request.data != null ? request.data.m_nMediaID : 0, request.m_nDomainID), "DomainLastPositionRequest");
+                log.Error("ProcessDomainLastPositionRequest - " + String.Concat("Failed ex={0}, siteGuid={1}, m_nMediaID={2}, m_nDomainID={3} ", ex.Message,
+                    request.data != null ? request.data.m_sSiteGuid : "0", request.data != null ? request.data.m_nMediaID : 0, request.m_nDomainID), ex);
                 response.m_sStatus = "Error";
                 response.m_sDescription = ex.Message;
                 return response;

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace Users
 {
     public class EutelsatUsers : TvinciUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
         public EutelsatUsers(int nGroupID)
@@ -44,9 +47,9 @@ namespace Users
                 resp.Initialize(ResponseStatus.UserExists, u);
                 return resp;
             }
-            
+
             int newUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
-            
+
             if (newUserID <= 0)
             {
                 resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
@@ -60,7 +63,7 @@ namespace Users
             else
             {
                 resp.Initialize(ResponseStatus.OK, u);
-            }                   
+            }
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
@@ -125,7 +128,7 @@ namespace Users
 
 
             int tokenUserID = GetUserIDByActivationToken(sToken);
-            
+
             // Username does not correspond to token
             if (tokenUserID > 0 && nUserID != tokenUserID)
             {
@@ -136,7 +139,7 @@ namespace Users
             }
 
             if (tokenUserID > 0 && nUserID == tokenUserID)  //(u.m_isDomainMaster)
-            {          
+            {
                 List<int> lGroupIDs = DAL.UtilsDal.GetAllRelatedGroups(m_nGroupID);
                 string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
 
@@ -198,7 +201,7 @@ namespace Users
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nUserID.ToString() + " : " + ex.Message, "users_notifier");
+                    log.Error("exception - " + nUserID.ToString() + " : " + ex.Message, ex);
                 }
             }
 
@@ -208,14 +211,14 @@ namespace Users
         protected override TvinciAPI.SendPasswordMailRequest GetSendPasswordMailRequest(string sFirstName, string sPassword, string sEmail)
         {
             TvinciAPI.SendPasswordMailRequest retVal = new TvinciAPI.SendPasswordMailRequest();
-            retVal.m_sTemplateName  = m_sSendPasswordMailTemplate;
-            retVal.m_sSubject       = m_sSendPasswordMailSubject;
-            retVal.m_sSenderTo      = sEmail;
-            retVal.m_sSenderName    = m_sMailFromName;
-            retVal.m_sSenderFrom    = m_sMailFromAdd;
-            retVal.m_sFirstName     = sFirstName;
-            retVal.m_sPassword      = sPassword;
-            retVal.m_eMailType      = TvinciAPI.eMailTemplateType.SendPassword;
+            retVal.m_sTemplateName = m_sSendPasswordMailTemplate;
+            retVal.m_sSubject = m_sSendPasswordMailSubject;
+            retVal.m_sSenderTo = sEmail;
+            retVal.m_sSenderName = m_sMailFromName;
+            retVal.m_sSenderFrom = m_sMailFromAdd;
+            retVal.m_sFirstName = sFirstName;
+            retVal.m_sPassword = sPassword;
+            retVal.m_eMailType = TvinciAPI.eMailTemplateType.SendPassword;
             return retVal;
         }
 
@@ -259,7 +262,7 @@ namespace Users
             {
                 TvinciAPI.WelcomeMailRequest sMailReq =
                     GetWelcomeMailRequest(GetUniqueTitle(user.m_user.m_oBasicData, user.m_user.m_oDynamicData),
-                                        user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword, 
+                                        user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
                                         user.m_user.m_oBasicData.m_sEmail, user.m_user.m_oBasicData.m_sFacebookID);
 
                 sent = Utils.SendMail(m_nGroupID, sMailReq);

@@ -6,12 +6,16 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class NPVRRetrieveRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public NPVRSearchBy m_eNPVRSearchBy;
 
@@ -35,7 +39,7 @@ namespace Catalog.Request
 
         [DataMember]
         public List<string> m_lSeriesIDs;
-        
+
         protected override void CheckRequestValidness()
         {
             if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
@@ -77,7 +81,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetResponse. Req: {0} , Ex Msg: {1} , Ex Type: {2} , ST: {3}", ToString(), ex.Message, ex.GetType().Name, ex.StackTrace), "NPVRRetrieveRequest");
+                log.Error("Exception - " + string.Format("Exception at GetResponse. Req: {0} , Ex Msg: {1} , Ex Type: {2} , ST: {3}", ToString(), ex.Message, ex.GetType().Name, ex.StackTrace), ex);
                 throw ex;
             }
 

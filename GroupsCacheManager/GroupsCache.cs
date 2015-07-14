@@ -9,11 +9,15 @@ using DAL;
 using Enyim.Caching.Memcached;
 using ApiObjects;
 using CouchbaseManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace GroupsCacheManager
 {
     public class GroupsCache
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Constants
         private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 1440d; // 24 hours
         private static readonly string DEFAULT_CACHE_NAME = "GroupsCache";
@@ -54,29 +58,29 @@ namespace GroupsCacheManager
             switch (cacheGroupConfiguration)
             {
                 case "CouchBase":
-                {
-                    groupCacheService = CouchBaseCache<Group>.GetInstance("CACHE");
-                    channelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
-                    this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
-                    dCacheTT = GetDocTTLSettings();     //set ttl time for document 
-                    break;
-                }
+                    {
+                        groupCacheService = CouchBaseCache<Group>.GetInstance("CACHE");
+                        channelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
+                        this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
+                        dCacheTT = GetDocTTLSettings();     //set ttl time for document 
+                        break;
+                    }
                 case "InnerCache":
-                {
-                    dCacheTT = GetDefaultCacheTimeInMinutes();
-                    InitializeCachingService(GetCacheName(), dCacheTT);
-                    keyCachePrefix = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
-                    break;
-                }
+                    {
+                        dCacheTT = GetDefaultCacheTimeInMinutes();
+                        InitializeCachingService(GetCacheName(), dCacheTT);
+                        keyCachePrefix = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
+                        break;
+                    }
                 case "Hybrid":
-                {
-                    dCacheTT = GetDefaultCacheTimeInMinutes();
-                    string cacheName = GetCacheName();
-                    groupCacheService = HybridCache<Group>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
-                    channelsCache = HybridCache<Channel>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                    {
+                        dCacheTT = GetDefaultCacheTimeInMinutes();
+                        string cacheName = GetCacheName();
+                        groupCacheService = HybridCache<Group>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                        channelsCache = HybridCache<Channel>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
 
@@ -143,7 +147,7 @@ namespace GroupsCacheManager
             sb.Append(String.Concat(" Val: ", obj != null ? obj.ToString() : "null"));
             sb.Append(String.Concat(" Method Name: ", methodName));
             sb.Append(String.Concat(" Cache Data: ", ToString()));
-            Logger.Logger.Log("CacheError", sb.ToString(), logFile);
+            log.Error("CacheError - " + sb.ToString());
         }
 
         private string BuildGroupCacheKey(int nGroupID)
@@ -165,9 +169,9 @@ namespace GroupsCacheManager
                 }
                 catch (ArgumentException exception)
                 {
-                    Logger.Logger.Log("GetGroup",
+                    log.Error("GetGroup - " +
                         string.Format("Group in cache was not in expected format. " +
-                        "It will be rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), "GroupsCacheManager");
+                        "It will be rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
                 }
 
                 if (baseModule != null && baseModule.result != null)
@@ -194,9 +198,9 @@ namespace GroupsCacheManager
                             }
                             catch (ArgumentException exception)
                             {
-                                Logger.Logger.Log("GetGroup",
+                                log.Error("GetGroup - " +
                                     string.Format("Group in cache was not in expected format. " +
-                                    "It willbe rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), "GroupsCacheManager");
+                                    "It willbe rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
                             }
 
 
@@ -223,7 +227,7 @@ namespace GroupsCacheManager
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                            log.Error("GetGroup - " + string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), ex);
                         }
                         finally
                         {
@@ -236,7 +240,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("GetGroup - " + string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), ex);
                 return null;
             }
         }
@@ -257,7 +261,7 @@ namespace GroupsCacheManager
             {
                 if (locker == null)
                 {
-                    Logger.Logger.Log("Add", string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))), GROUP_LOG_FILENAME);
+                    log.Debug("Add - " + string.Format("Add. Failed to obtain locker. Operator ID: {0} , Channel IDs: {1}", nOperatorID, channelIDs.Aggregate<long, string>(string.Empty, (res, item) => String.Concat(res, ";", item))));
                     throw new Exception(string.Format("Add. Cannot retrieve reader writer manager for operator id: {0} , group id: {1}", nOperatorID, group.m_nParentGroupID));
                 }
                 locker.EnterWriteLock();
@@ -306,9 +310,9 @@ namespace GroupsCacheManager
             catch (Exception ex)
             {
                 string sChannelsList = string.Join(",", channelIDs);
-                Logger.Logger.Log("AddChannelsToOperator",
+                log.Error("AddChannelsToOperator - " +
                     string.Format("fail to add channels to operator group {0}, OperatorID = {1}, sChannelsList = {2}, ex = {3}", nGroupID, nOperatorID, sChannelsList, ex.Message),
-                    "GroupsCacheManager");
+                    ex);
                 return false;
             }
         }
@@ -320,21 +324,21 @@ namespace GroupsCacheManager
             {
                 lock (m_oLockers)
                 {
-                    Logger.Logger.Log("GetLocker", string.Format("Locked. Operator ID: {0} , Group ID: {1}", nOperatorID, nGroupID), GROUP_LOG_FILENAME);
+                    log.Debug("GetLocker - " + string.Format("Locked. Operator ID: {0} , Group ID: {1}", nOperatorID, nGroupID));
                     if (!m_oLockers.ContainsKey(nOperatorID))
                     {
                         if (!m_oLockers.TryAdd(nOperatorID, new ReaderWriterLockSlim()))
                         {
-                            Logger.Logger.Log("GetLocker", string.Format("Failed to create reader writer manager. operator id: {0} , group_id {1}", nOperatorID, nGroupID), GROUP_LOG_FILENAME);
+                            log.Debug("GetLocker - " + string.Format("Failed to create reader writer manager. operator id: {0} , group_id {1}", nOperatorID, nGroupID));
                         }
                     }
                 }
-                Logger.Logger.Log("GetLocker", string.Format("Locker released. Operator ID: {0} , Group ID: {1}", nOperatorID, nGroupID), GROUP_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Locker released. Operator ID: {0} , Group ID: {1}", nOperatorID, nGroupID));
             }
 
             if (!m_oLockers.TryGetValue(nOperatorID, out locker))
             {
-                Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, nGroupID), GROUP_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Failed to read reader writer manager. operator id: {0} , group_id: {1}", nOperatorID, nGroupID));
             }
         }
 
@@ -366,7 +370,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to Chach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateoOperatorChannels - " + string.Format("failed to update operatorChannels to Chach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -404,9 +408,9 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetChannel",
+                log.Error("GetChannel - " +
                     string.Format("Couldn't get channel id = {0}, group = {1}, ex = {2}, ST = {3}", channelId, group.m_nParentGroupID, ex.Message, ex.StackTrace),
-                    "GroupsCacheManager");
+                    ex);
                 return null;
             }
         }
@@ -428,7 +432,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveChannel", string.Format("failed to Remove channel from group from cache GroupID={0}, ChannelID = {1}, ex={2}", nGroupID, nChannelId, ex.Message), "GroupsCacheManager");
+                log.Error("RemoveChannel - " + string.Format("failed to Remove channel from group from cache GroupID={0}, ChannelID = {1}, ex={2}", nGroupID, nChannelId, ex.Message), ex);
             }
 
             return isRemovingChannelSucceded;
@@ -471,7 +475,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveGroup", string.Format("failed to Remove group from cache GroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("RemoveGroup - " + string.Format("failed to Remove group from cache GroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -506,7 +510,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateoOperatorChannels - " + string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -542,7 +546,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateoOperatorChannels", string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateoOperatorChannels - " + string.Format("failed to update operatorChannels to IChach with nGroupID={0}, operator={1}, ex={2}", nGroupID, nOperatorID, ex.Message), ex);
                 return false;
             }
         }
@@ -578,8 +582,6 @@ namespace GroupsCacheManager
         //    }
         //    catch (Exception ex)
         //    {
-        //        Logger.Logger.Log("InsertChannels",
-        //            string.Format("failed to InsertChannels to Chach with nGroupID={0}, ex={1}", group.m_nParentGroupID, ex.Message), "GroupsCacheManager");
         //        inserted = false;
         //    }
 
@@ -625,7 +627,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("AddServices", string.Format("failed to AddServices to IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("AddServices - " + string.Format("failed to AddServices to IChach with nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -657,7 +659,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteServices", string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("DeleteServices - " + string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -690,7 +692,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateServices", string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateServices - " + string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
                 return false;
             }
         }
@@ -723,7 +725,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateRegionalizationData", string.Format("failed to UpdateRegionalizationData to IChach with nGroupID={0}, ex={2}", groupID, ex.Message), "GroupsCacheManager");
+                log.Error("UpdateRegionalizationData - " + string.Format("failed to UpdateRegionalizationData to IChach with nGroupID={0}, ex={2}", groupID, ex.Message), ex);
                 return false;
             }
         }
@@ -778,7 +780,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return (mediaTypes);

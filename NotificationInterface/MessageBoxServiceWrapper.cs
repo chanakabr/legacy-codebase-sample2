@@ -110,7 +110,6 @@ namespace NotificationInterface
         //    {
         //        //string str = ex.Message; //TBD: Write to log
         //        #region Logging
-        //        Logger.Logger.Log("AddMessage", string.Format("Exception at AddMessage. Exception msg: {0} , App name: {1} , recipient: {2} , Publish date: {3} , Message data text: {4} , Endpoint address: {5}", ex.Message, appName, recipient, publishDate.ToString(), messageData.Text, messageBoxClient.Endpoint.Address.Uri.OriginalString), "MessageBoxServiceWrapper");
         //        #endregion
         //    }
         //    finally

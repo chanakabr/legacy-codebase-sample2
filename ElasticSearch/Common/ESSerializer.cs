@@ -519,6 +519,7 @@ namespace ElasticSearch.Common
                 if (!string.IsNullOrEmpty(sTagName))
                 {
                     MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty()
+
                     {
                         name = sTagName
                     };

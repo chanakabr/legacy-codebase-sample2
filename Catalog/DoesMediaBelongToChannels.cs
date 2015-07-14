@@ -14,6 +14,8 @@ using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Request;
 using Catalog.Response;
+using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -21,12 +23,12 @@ namespace Catalog
     /*  Get Channels List + media ID and return true / false value */
     public class DoesMediaBelongToChannels : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<int> m_lChannelIDs;
         [DataMember]
-        public int m_nMediaID;       
+        public int m_nMediaID;
 
         public DoesMediaBelongToChannels()
             : base()
@@ -57,16 +59,16 @@ namespace Catalog
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
                 if (searcher == null)
-                    _logger.Error("could not load ISearcher from Bootstrap");
+                    log.Error("could not load ISearcher from Bootstrap");
 
                 #region get subscription medias in lucene
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
                 {
-                    
+
                     GroupManager groupManager = new GroupManager();
                     CatalogCache catalogCache = CatalogCache.Instance();
                     int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                    Group groupInCache = groupManager.GetGroup(nParentGroupID); 
+                    Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
                     List<int> channelIds = request.m_lChannelIDs;
                     List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
@@ -79,8 +81,10 @@ namespace Catalog
                         if (request.m_oFilter != null)
                             nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
 
-                        Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
+                        // save monitor and logs context data
+                        ContextData contextData = new ContextData();
 
+                        Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
                         // Building search object for each channel
                         for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
@@ -88,6 +92,9 @@ namespace Catalog
                             channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                  (obj) =>
                                  {
+                                     // load monitor and logs context data
+                                     contextData.Load();
+
                                      try
                                      {
                                          if (groupInCache != null)
@@ -100,7 +107,7 @@ namespace Catalog
                                      }
                                      catch (Exception ex)
                                      {
-                                         _logger.Error(ex.Message, ex);
+                                         log.Error(ex.Message, ex);
                                      }
                                  }, searchObjectIndex);
                             channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -134,7 +141,7 @@ namespace Catalog
                             }
                             catch (Exception ex)
                             {
-                                _logger.Error(ex.Message);
+                                log.Error(ex.Message);
                             }
                         }
                     }
@@ -154,13 +161,13 @@ namespace Catalog
                         response.m_nTotalItems = 0;
                     }
                 }
-                
+
 
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

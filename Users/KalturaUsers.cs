@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects;
 using DAL;
+using KLogMonitor;
 
 namespace Users
 {
     public class KalturaUsers : KalturaBaseUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public bool ShouldSubscribeNewsLetter { get; set; }
         public bool ShouldCreateDefaultRules { get; set; }
         public bool ShouldSendWelcomeMail { get; set; }
@@ -86,7 +89,6 @@ namespace Users
                             if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
                             {
                                 // Error join to domain
-                                //Logger.Logger.Log("Join Domain Error", "Domain = " + t.ToString(), "Domains");
                                 userResponse = new UserResponseObject();
                                 userResponse.Initialize(ResponseStatus.UserWithNoDomain, user);
                             }
@@ -321,7 +323,7 @@ namespace Users
                     wsUserName = oCredentials.m_sUsername;
                     wSPass = oCredentials.m_sPassword;
                 }
-                Logger.Logger.Log("Default Rules", wsUserName + " " + wSPass + " " + client.Url, "Default Rules");
+                log.Debug("Default Rules - " + wsUserName + " " + wSPass + " " + client.Url);
 
                 return client.SetDefaultRules(wsUserName, wSPass, siteGuid);
             }
@@ -349,7 +351,7 @@ namespace Users
             if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
             {
                 // Error adding to domain
-                Logger.Logger.Log("Add New Domain Error", "Domain = " + t.ToString(), "Domains");
+                log.Error("Add New Domain Error - Domain = " + t.ToString());
             }
             return dr;
         }
@@ -413,7 +415,7 @@ namespace Users
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                log.Error("Exception - " + sb.ToString(), ex);
                 throw;
             }
         }
@@ -576,7 +578,7 @@ namespace Users
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                log.Error("Exception - " + sb.ToString(), ex);
                 throw;
             }
         }

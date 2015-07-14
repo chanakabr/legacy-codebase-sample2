@@ -7,6 +7,8 @@ using System.Text;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
@@ -14,6 +16,8 @@ namespace Catalog.Request
     [DataContract]
     public class MediaAutoCompleteRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public List<string> m_lMetas { get; set; }
         [DataMember]
@@ -45,14 +49,14 @@ namespace Catalog.Request
                 {
                     MediaSearchObj searchObj = new MediaSearchObj();
                     searchObj.m_nGroupId = request.m_nGroupID;
-                    
+
                     searchObj.m_nPageSize = request.m_nPageSize;
                     searchObj.m_nPageIndex = request.m_nPageIndex;
 
                     if (request.m_MediaTypes != null && request.m_MediaTypes.Count > 0)
                     {
-                        searchObj.m_sMediaTypes = string.Join(";", request.m_MediaTypes.Select((i) => i.ToString()).ToArray()); 
-                    }                  
+                        searchObj.m_sMediaTypes = string.Join(";", request.m_MediaTypes.Select((i) => i.ToString()).ToArray());
+                    }
 
                     GroupManager groupManager = new GroupManager();
                     CatalogCache catalogCache = CatalogCache.Instance();
@@ -63,7 +67,7 @@ namespace Catalog.Request
                     {
                         searchObj.m_oLangauge = oGroup.GetLanguage(request.m_oFilter.m_nLanguage);
                     }
-                    else 
+                    else
                     {
                         request.m_oFilter = new Filter();
                     }
@@ -108,13 +112,12 @@ namespace Catalog.Request
                 }
                 else
                 {
-                    Logger.Logger.Log("Error", "AutoCompleteRequest - could not load searcher", "Catalog");
+                    log.Error("Error - AutoCompleteRequest - could not load searcher");
                 }
-
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("AutoCompleteRequest", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("AutoCompleteRequest", ex.Message), ex);
                 throw ex;
             }
 

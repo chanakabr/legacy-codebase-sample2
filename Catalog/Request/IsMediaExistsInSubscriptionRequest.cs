@@ -10,6 +10,8 @@ using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
 using Logger;
 using TVinciShared;
 
@@ -18,7 +20,7 @@ namespace Catalog.Request
     [DataContract]
     public class IsMediaExistsInSubscriptionRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public int m_nSubscriptionID;
@@ -68,6 +70,9 @@ namespace Catalog.Request
                         {
                             List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
                             int[] nDeviceRuleId = null;
 
@@ -80,6 +85,9 @@ namespace Catalog.Request
                                 channelsSearchObjectTasks[searchObjectIndex] = new Task(
                                      (obj) =>
                                      {
+                                         // load monitor and logs context data
+                                         contextData.Load();
+
                                          try
                                          {
                                              if (groupInCache != null)
@@ -92,7 +100,7 @@ namespace Catalog.Request
                                          }
                                          catch (Exception ex)
                                          {
-                                             _logger.Error(ex.Message, ex);
+                                             log.Error(ex.Message, ex);
                                          }
                                      }, searchObjectIndex);
                                 channelsSearchObjectTasks[searchObjectIndex].Start();
@@ -126,7 +134,7 @@ namespace Catalog.Request
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.Error(ex.Message);
+                                    log.Error(ex.Message);
                                 }
                             }
                         }
@@ -150,7 +158,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

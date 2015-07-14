@@ -1,15 +1,16 @@
-﻿
-  using Couchbase;
-    using Couchbase.Extensions;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using CouchbaseManager;
-    using System.Configuration;
-    using ApiObjects;
-    using Newtonsoft.Json;
+﻿using Couchbase;
+using Couchbase.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using CouchbaseManager;
+using System.Configuration;
+using ApiObjects;
+using Newtonsoft.Json;
 using Logger;
+using KLogMonitor;
+using System.Reflection;
 
 
 
@@ -17,6 +18,8 @@ namespace DalCB
 {
     public class EpgDal_Couchbase
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly string sEndMaxValue = @"\uefff";
         private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
         private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
@@ -35,7 +38,7 @@ namespace DalCB
             return String.Concat(EPG_DAL_CB_LOG_FILE, "_", m_nGroupID);
         }
 
-        //Given a key, will generatre a unique number that can be used as a unique identifier
+        //Given a key, will generate a unique number that can be used as a unique identifier
         public ulong IDGenerator(string sKey)
         {
             return m_oClient.Increment(sKey, 1, 1);
@@ -63,7 +66,7 @@ namespace DalCB
                     sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -82,7 +85,6 @@ namespace DalCB
                 {
 
                     // TODO  : add here the json serialize 
-
                     bRes = (dtExpiresAt.HasValue) ? m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg, cas, dtExpiresAt.Value) :
                                                    m_oClient.CasJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg, cas);
                 }
@@ -97,7 +99,7 @@ namespace DalCB
                     sb.Append(String.Concat(" CAS: ", cas));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -127,7 +129,7 @@ namespace DalCB
                     sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -157,7 +159,7 @@ namespace DalCB
                     sb.Append(String.Concat(" CAS: ", cas));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -174,7 +176,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at DeleteProgram. Msg: {0} , Doc ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, sDocID, ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at DeleteProgram. Msg: {0} , Doc ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, sDocID, ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return bRes;
@@ -189,7 +191,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetProgram. Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception 0 " + string.Format("Exception at GetProgram. Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return oRes;
@@ -207,7 +209,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetProgram (2 argument overload). Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetProgram (2 argument overload). Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return oRes;
@@ -270,7 +272,7 @@ namespace DalCB
                     sb.Append("list is null or empty.");
                 }
 
-                Logger.Logger.Log("Exception", string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return lstResultEpgs;
@@ -294,7 +296,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , ST: {4}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , ST: {4}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return lRes;
@@ -320,7 +322,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dStartDate.ToString(), ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dStartDate.ToString(), ex.StackTrace), ex);
             }
 
             return lRes;
@@ -346,7 +348,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , TD: {5} , ST: {6}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dFromDate.ToString(), dToDate.ToString(), ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , TD: {5} , ST: {6}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dFromDate.ToString(), dToDate.ToString(), ex.StackTrace), ex);
             }
 
             return lRes;
@@ -370,7 +372,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetChannelPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , C ID: {3} , Ex Type: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, nChannelID, ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetChannelPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , C ID: {3} , Ex Type: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, nChannelID, ex.GetType().Name, ex.StackTrace), ex);
             }
             return lRes;
         }
@@ -407,14 +409,14 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetChannelProgramsByStartDate. Msg: {0} , PS: {1} , SI: {2} ,C ID: {3} , FD: {4} , TD: {5} , Desc: {6} , Ex Type: {7} ST: {8}", ex.Message, nPageSize, nStartIndex, nChannelID, fromDate, toDate, bDesc.ToString(), ex.GetType().Name, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetChannelProgramsByStartDate. Msg: {0} , PS: {1} , SI: {2} ,C ID: {3} , FD: {4} , TD: {5} , Desc: {6} , Ex Type: {7} ST: {8}", ex.Message, nPageSize, nStartIndex, nChannelID, fromDate, toDate, bDesc.ToString(), ex.GetType().Name, ex.StackTrace), ex);
             }
 
             return lRes;
         }
 
 
-        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, int nParentGroupID , List<string> eIds)
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, int nParentGroupID, List<string> eIds)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             List<object> Keys = new List<object>();
@@ -422,8 +424,8 @@ namespace DalCB
             {
                 foreach (string eID in eIds)
                 {
-                   List<object> obj = new List<object>(){nParentGroupID, eID.ToString()};
-                                   
+                    List<object> obj = new List<object>() { nParentGroupID, eID.ToString() };
+
                     Keys.Add(obj);
                 }
 
@@ -437,8 +439,8 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , nParentGroupID: {4}, ST: {5}",
-                    ex.Message, nPageSize, nStartIndex, ex.GetType().Name, nParentGroupID, ex.StackTrace), GetLogFileName());
+                log.Error("Exception - " + string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , nParentGroupID: {4}, ST: {5}",
+                    ex.Message, nPageSize, nStartIndex, ex.GetType().Name, nParentGroupID, ex.StackTrace), ex);
             }
 
             return lRes;
@@ -469,7 +471,7 @@ namespace DalCB
                     sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -499,7 +501,7 @@ namespace DalCB
                     sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                    Logger.Logger.Log("Exception", sb.ToString(), GetLogFileName());
+                    log.Error("Exception - " + sb.ToString(), ex);
                     #endregion
                 }
             }
@@ -507,6 +509,6 @@ namespace DalCB
             return bRes;
         }
     }
-   
+
 }
 

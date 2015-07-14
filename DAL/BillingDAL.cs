@@ -5,11 +5,16 @@ using System.Text;
 using System.Data;
 using System.Configuration;
 using ODBCWrapper;
+using ApiObjects.Billing;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class BillingDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
 
         public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
@@ -233,7 +238,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-
+                log.Error("", ex);
             }
 
             return nImplID;
@@ -251,7 +256,7 @@ namespace DAL
             return null;
         }
 
-        public static bool Get_PurchaseMailData(string sPSPReference, ref long billingID, ref int groupID, 
+        public static bool Get_PurchaseMailData(string sPSPReference, ref long billingID, ref int groupID,
             ref string currencyCode, ref string siteGuid, ref double realPrice, ref double totalPrice, ref int billingMethod,
             ref string last4Digits, ref string customData, ref string ppvModuleCode, ref string subCode, ref string ppCode)
         {
@@ -530,7 +535,7 @@ namespace DAL
             return null;
         }
 
-        public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)  
+        public static int Insert_M1FileHistoryRecord(int nGroupID, int nItemType, int nFileCounter, string sFileName)
         {
             ODBCWrapper.StoredProcedure spInsertM1File = new ODBCWrapper.StoredProcedure("Insert_M1FileHistoryRecord");
             spInsertM1File.SetConnectionKey("BILLING_CONNECTION_STRING");
@@ -538,25 +543,25 @@ namespace DAL
             spInsertM1File.AddParameter("@ItemType", nItemType);
             spInsertM1File.AddParameter("@FileCounter", nFileCounter);
             spInsertM1File.AddParameter("@FileName", sFileName);
-            
+
             int newFileID = spInsertM1File.ExecuteReturnValue<int>();
             return newFileID;
         }
 
-        public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)                                                  
+        public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertM1Transaction = new ODBCWrapper.StoredProcedure("Insert_M1Transaction");
             spInsertM1Transaction.SetConnectionKey("CONNECTION_STRING");
             spInsertM1Transaction.AddParameter("@GroupID", nGroupID);
-            spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);            
-            spInsertM1Transaction.AddParameter("@ItemType", nItemType);            
+            spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);
+            spInsertM1Transaction.AddParameter("@ItemType", nItemType);
             spInsertM1Transaction.AddParameter("@ChargedMobileNumber", sChargedMobileNumber);
             spInsertM1Transaction.AddParameter("@CustomerServiceID", sCustomerServiceID);
             spInsertM1Transaction.AddParameter("@Price", dPrice);
-            spInsertM1Transaction.AddParameter("@CustomDataID", nCustomDataID);                         
+            spInsertM1Transaction.AddParameter("@CustomDataID", nCustomDataID);
             spInsertM1Transaction.AddParameter("@Status", nStatus);
 
-            int newM1TransactionID =  spInsertM1Transaction.ExecuteReturnValue<int>();
+            int newM1TransactionID = spInsertM1Transaction.ExecuteReturnValue<int>();
             return newM1TransactionID;
         }
 
@@ -568,8 +573,8 @@ namespace DAL
             spUpdateM1Transactions.AddIDListParameter<int>("@M1TransactionsIDs", transactionIDs, "Id");
             spUpdateM1Transactions.AddParameter("@Status", nStatus);
             spUpdateM1Transactions.AddParameter("@FileRefID", nFileRefID);
-            
-            spUpdateM1Transactions.ExecuteNonQuery();          
+
+            spUpdateM1Transactions.ExecuteNonQuery();
         }
 
         public static DataTable Get_M1CustomerServiceType(int nGroupID)
@@ -838,7 +843,7 @@ namespace DAL
             {
                 res = true;
                 DataTable agp = ds.Tables[0];
-                if(agp != null && agp.Rows != null && agp.Rows.Count > 0) 
+                if (agp != null && agp.Rows != null && agp.Rows.Count > 0)
                 {
                     groupID = ODBCWrapper.Utils.GetIntSafeVal(agp.Rows[0]["group_id"]);
                     baseRedirectUrl = ODBCWrapper.Utils.GetSafeStr(agp.Rows[0]["base_redirect_url"]);
@@ -866,7 +871,7 @@ namespace DAL
         public static long Insert_NewOfflineTransaction(long p_nSiteGuid, double p_dPrice, string p_sCurrencyCode, int p_nGroupId, string p_sOfflineCustomData, int? p_nUpdaterId)
         {
             long lTransactionId = 0;
-            
+
             object oUpdaterId = DBNull.Value;
 
             if (p_nUpdaterId.HasValue)
@@ -890,7 +895,7 @@ namespace DAL
 
         public static string getEmailDateFormat(int groupId)
         {
-            string dateFormat = string.Empty; 
+            string dateFormat = string.Empty;
             StoredProcedure sp = new StoredProcedure("Get_EmailDateFormat");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -967,5 +972,315 @@ namespace DAL
             return sRet;
         }
 
+
+        public static List<PaymentGW> GetPaymentGWSettingsList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<PaymentGW> res = new List<PaymentGW>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWSettingsList");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGW pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGW();
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            pgw.isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            pgw.isDefault = isDefault == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
+                               
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (pgw.settings == null)
+                                    {
+                                        pgw.settings = new List<PaymentGWSettings>();
+                                    }
+                                    pgw.settings.Add(new PaymentGWSettings(key, value));
+                                }
+                            }
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGW>();
+            }
+            return res;
+        }
+
+        public static bool SetPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway_Settings");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGWID);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        private static DataTable CreateDataTable(List<PaymentGWSettings> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("key", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+
+                foreach (PaymentGWSettings item in list)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["key"] = item.key;
+                    row["value"] = item.value;                    
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {   
+                return null;
+            }
+
+            return resultTable;
+        }
+
+        public static bool DeletePaymentGW(int groupID, int paymentGwID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGwID);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<PaymentGWBasic> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<PaymentGWBasic> res = new List<PaymentGWBasic>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayList");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];                  
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGWBasic pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGWBasic();
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                                    
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGWBasic>();
+            }
+            return res;
+        }
+
+        public static List<PaymentGWBasic> GetHHPaymentGWList(int groupID, int houseHoldID, int status = 1, int isActive = 1)
+        {
+            List<PaymentGWBasic> res = new List<PaymentGWBasic>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentHHGatewayList");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@houseHoldID", houseHoldID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGWBasic pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGWBasic();
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGWBasic>();
+            }
+            return res;
+        }
+
+        public static bool InsertPaymentGWHouseHold(int groupID, int paymentGwID, int householdID, int status = 1)
+        {
+            bool res = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGateway_Household");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@PaymentGWID", paymentGwID);
+                sp.AddParameter("@householdID", householdID);
+                sp.AddParameter("@status", status);
+                sp.AddParameter("@groupID", groupID);
+                res = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return res;
+        }
+
+        public static bool DeletePaymentGW(int groupID, int paymentGwID, List<PaymentGWSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGateway_Settings");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGwID);
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, int? isDefault, int? isActive)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGWID);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@url", url);
+                sp.AddParameter("@isDefault", isDefault);
+                sp.AddParameter("@isActive", isActive);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool InsertPaymentGW(int groupID, PaymentGW pgw)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGW");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);                
+                sp.AddParameter("@name", pgw.name);
+                sp.AddParameter("@url", pgw.url);
+                sp.AddParameter("@isDefault", pgw.isDefault);
+                sp.AddParameter("@isActive", pgw.isActive);
+                
+                DataTable dt = CreateDataTable(pgw.settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool InsertPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGWSettings");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", paymentGWID);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool DeletePaymentGWHouseHold(int groupID, int paymentGwID, int houseHoldID)
+        {
+            bool res = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGW_HouseHold");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@PaymentGWID", paymentGwID);
+                sp.AddParameter("@householdID", houseHoldID);                
+                sp.AddParameter("@groupID", groupID);
+                res = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return res;
+        }
     }
 }

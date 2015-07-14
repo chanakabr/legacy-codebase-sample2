@@ -1,33 +1,37 @@
 using System;
 using System.Data.SqlClient;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
-	/// <summary>
-	/// Summary description for InsertQuery.
-	/// </summary>
-	public class InsertQuery: DirectQuery
-	{
-        public InsertQuery():base()
+    /// <summary>
+    /// Summary description for InsertQuery.
+    /// </summary>
+    public class InsertQuery : DirectQuery
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public InsertQuery()
+            : base()
         {
         }
 
-        
         public InsertQuery(string sTableName)
-		{
-			SetTable(sTableName);
+        {
+            SetTable(sTableName);
             m_bIsWritable = true;
-		}
+        }
 
-		~InsertQuery(){}
+        ~InsertQuery() { }
 
-		public void SetTable(string sTableName)
-		{
-			m_sOraStr = new System.Text.StringBuilder("insert into ").Append(sTableName).Append(" ");
-			sInsertStructure = "(";
-			sInsertValues = "(";
-		}
+        public void SetTable(string sTableName)
+        {
+            m_sOraStr = new System.Text.StringBuilder("insert into ").Append(sTableName).Append(" ");
+            sInsertStructure = "(";
+            sInsertValues = "(";
+        }
 
         /// <summary>
         /// Inserts bulk of rows to a specific table(which its name represent by sTableName param) at the db
@@ -57,30 +61,30 @@ namespace ODBCWrapper
             }
         }
 
-		protected override bool AddParameter(string sParName , string sType , object sParVal)
-		{
-			if (sInsertStructure != "(")
-				sInsertStructure += ",";
-			sInsertStructure += sParName;
+        protected override bool AddParameter(string sParName, string sType, object sParVal)
+        {
+            if (sInsertStructure != "(")
+                sInsertStructure += ",";
+            sInsertStructure += sParName;
 
-			if (sInsertValues != "(")
-				sInsertValues += ",";
+            if (sInsertValues != "(")
+                sInsertValues += ",";
             sInsertValues += "@P" + table_ind.ToString();
-			m_hashTable[table_ind] = sParVal;
-			table_ind++;
-			return true;
-		}
+            m_hashTable[table_ind] = sParVal;
+            table_ind++;
+            return true;
+        }
 
-		protected override bool Execute(string oraStr)
-		{
-			m_sOraStr = new System.Text.StringBuilder(oraStr);
-			m_sOraStr.Append(sInsertStructure);
-			m_sOraStr.Append(") ");
-			m_sOraStr.Append("VALUES "); 
-			m_sOraStr.Append(sInsertValues);
-			m_sOraStr.Append(")");
-			oraStr = m_sOraStr.ToString();
-			int_Execute();
+        protected override bool Execute(string oraStr)
+        {
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            m_sOraStr.Append(sInsertStructure);
+            m_sOraStr.Append(") ");
+            m_sOraStr.Append("VALUES ");
+            m_sOraStr.Append(sInsertValues);
+            m_sOraStr.Append(")");
+            oraStr = m_sOraStr.ToString();
+            int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
                 return false;
@@ -91,39 +95,37 @@ namespace ODBCWrapper
                     con.Open();
                     SetLockTimeOut(con);
                     command.Connection = con;
-                    DateTime dStart = DateTime.Now;
-                    command.ExecuteNonQuery();
-                    TimeSpan t = DateTime.Now - dStart;
-                    if (t.TotalMilliseconds > m_nLongQueryTime)
+
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
-                        string sMes = t.TotalMilliseconds.ToString() + "ms: " + m_sLastExecutedOraStr;
-                        Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net_Long");
+                        command.ExecuteNonQuery();
                     }
                 }
                 catch (Exception ex)
                 {
-                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception accured: " + ex.Message;
-                    Logger.Logger.Log(this.GetType().ToString(), sMes, "ODBC_Net", ex.Message);
+                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
                     return false;
                 }
             }
-			return true;
-		}
+            return true;
+        }
 
-		public static InsertQuery operator +(InsertQuery p, object sOraStr)
-		{
-			if (sOraStr.GetType() == System.Type.GetType("ODBCWrapper.Parameter"))
-			{
-				p.AddParameter(((Parameter)sOraStr).m_sParName , 
-					((Parameter)sOraStr).m_sType , 
-					((Parameter)sOraStr).m_sParVal);
-			}
-			else
-				p.m_sOraStr.Append(" ").Append(sOraStr);
-			return p;
-		}
+        public static InsertQuery operator +(InsertQuery p, object sOraStr)
+        {
+            if (sOraStr.GetType() == System.Type.GetType("ODBCWrapper.Parameter"))
+            {
+                p.AddParameter(((Parameter)sOraStr).m_sParName,
+                    ((Parameter)sOraStr).m_sType,
+                    ((Parameter)sOraStr).m_sParVal);
+            }
+            else
+                p.m_sOraStr.Append(" ").Append(sOraStr);
+            return p;
+        }
 
-		protected string sInsertStructure = "(";
-		protected string sInsertValues = "(";
-	}
+        protected string sInsertStructure = "(";
+        protected string sInsertValues = "(";
+    }
 }

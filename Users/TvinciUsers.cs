@@ -9,11 +9,15 @@ using System.Diagnostics;
 using System.Configuration;
 using System.Threading;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
+using KlogMonitorHelper;
 
 namespace Users
 {
     public class TvinciUsers : BaseUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object lockObj = new object();
 
 
@@ -40,7 +44,7 @@ namespace Users
                 int nSiteGuid = u.InitializeByUsername(sUsername, m_nGroupID);
                 UserResponseObject resp = new UserResponseObject();
                 if (nSiteGuid < 1 || u.m_oBasicData.m_sUserName.Length == 0)
-                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);                
+                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);
                 else
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
@@ -54,7 +58,7 @@ namespace Users
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
 
-                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                log.Error("Exception - " + sb.ToString(), ex);
                 return null;
             }
         }
@@ -67,7 +71,7 @@ namespace Users
                 u.InitializeByFacebook(sFacebookID, m_nGroupID);
                 UserResponseObject resp = new UserResponseObject();
                 if (u.m_oBasicData.m_sUserName == "")
-                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);                
+                    resp.Initialize(ResponseStatus.UserDoesNotExist, u);
                 else
                     resp.Initialize(ResponseStatus.OK, u);
                 return resp;
@@ -96,7 +100,7 @@ namespace Users
                 return UserActivationState.Activated;
             }
 
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);       
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
 
             UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
 
@@ -105,14 +109,14 @@ namespace Users
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);         
+            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
 
             int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);          
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
 
             return activStatus;
         }
-        
+
         public override UserResponseObject CheckUserPassword(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
@@ -135,15 +139,15 @@ namespace Users
         public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
-           
-          //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref nUserID);
+
+            //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref nUserID);
             UserActivationState nUserStatus = GetUserStatus(ref sUN, ref nUserID);
 
             if (nUserStatus != UserActivationState.Activated)
             {
                 UserResponseObject o = new UserResponseObject();
-                ResponseStatus ret = ResponseStatus.UserNotActivated;               
-           
+                ResponseStatus ret = ResponseStatus.UserNotActivated;
+
                 if (nUserID <= 0)
                 {
                     ret = ResponseStatus.WrongPasswordOrUserName;
@@ -173,15 +177,15 @@ namespace Users
                         case UserActivationState.UserRemovedFromDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             ret = ResponseStatus.UserNotIndDomain;
-                            break; 
-  
+                            break;
+
                         case UserActivationState.UserWIthNoDomain:
                             o.m_user = new User(nGroupID, nUserID);
                             bool bValidDomainStat = CheckAddDomain(ref o, o.m_user, sUN, nUserID);
                             if (!bValidDomainStat)
                                 return o;
                             break;
-                    }                    
+                    }
                 }
 
                 if (nUserStatus != UserActivationState.UserWIthNoDomain && nUserStatus != UserActivationState.UserSuspended)
@@ -189,30 +193,31 @@ namespace Users
                     o.m_RespStatus = ret;
                     return o;
                 }
-            }           
+            }
 
             return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
         }
-        
+
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
         {
-            Users.BaseDomain t = null;               
-            Utils.GetBaseDomainsImpl(ref t, nGroupID);                
+            Users.BaseDomain t = null;
+            Utils.GetBaseDomainsImpl(ref t, nGroupID);
             DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "");
 
             if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
             {
                 // Error adding to domain
-                Logger.Logger.Log("Add New Domain Error", "Domain = " + t.ToString(), "Domains");                
+                log.Error("Add New Domain Error - Domain = " + t.ToString());
+
             }
             return dr;
         }
-        
+
         public override UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             string sUN = string.Empty;
-            
-          //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref siteGuid);
+
+            //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref siteGuid);
             UserActivationState nUserStatus = GetUserStatus(ref sUN, ref siteGuid);
 
             if (nUserStatus != UserActivationState.Activated)
@@ -388,7 +393,7 @@ namespace Users
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nID.ToString() + " : " + ex.Message, "users_notifier");
+                    log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
                 }
 
 
@@ -488,7 +493,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", nUserID.ToString() + " : " + ex.Message, "users_notifier");
+                log.Error("exception - " + nUserID.ToString() + " : " + ex.Message, ex);
             }
 
             return resp;
@@ -525,18 +530,18 @@ namespace Users
             }
 
             //the save includes the initialization of  u.m_domianID
-             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
+            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
 
-             if (u.m_domianID <= 0)
-             {
-                 bool bValidDomainStatus = CheckAddDomain(ref resp, u, oBasicData.m_sUserName, nUserID);
-             }
-             else
-             {
-                 resp.Initialize(ResponseStatus.OK, u);
-             }            
-            
-            CreateDefaultRules(u.m_sSiteGUID, m_nGroupID); 
+            if (u.m_domianID <= 0)
+            {
+                bool bValidDomainStatus = CheckAddDomain(ref resp, u, oBasicData.m_sUserName, nUserID);
+            }
+            else
+            {
+                resp.Initialize(ResponseStatus.OK, u);
+            }
+
+            CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
@@ -567,7 +572,7 @@ namespace Users
 
         protected bool CheckAddDomain(ref UserResponseObject resp, User u, string sUserName, int nUserID)
         {
-            bool succeded = true;            
+            bool succeded = true;
             //check if user needs a domain           
             bool bDomainIsMandatory = DAL.DomainDal.IsSingleDomainEnvironment(m_nGroupID);
             if (bDomainIsMandatory)
@@ -580,7 +585,7 @@ namespace Users
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
                     resp.Initialize(ResponseStatus.UserWithNoDomain, u);
-                    succeded = false;                  
+                    succeded = false;
                 }
                 else
                     resp.Initialize(ResponseStatus.OK, u);
@@ -588,10 +593,10 @@ namespace Users
             else
             {
                 resp.Initialize(ResponseStatus.UserWithNoDomain, u);
-            }            
+            }
             return succeded;
         }
-        
+
         protected bool SendMailImpl(User user)
         {
             string sMCTemplate = user.m_oDynamicData.GetValByKey("mailtemplate");
@@ -621,15 +626,15 @@ namespace Users
 
                 if (sWSURL != "")
                     client.Url = sWSURL;
-                
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);                
+
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);
 
                 if (oCredentials != null)
                 {
                     sWSUserName = oCredentials.m_sUsername;
                     sWSPass = oCredentials.m_sPassword;
                 }
-                Logger.Logger.Log("Default Rules", sWSUserName + " " + sWSPass + " " + client.Url, "Default Rules");
+                log.Debug("Default Rules - " + sWSUserName + " " + sWSPass + " " + client.Url);
 
                 return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
             }
@@ -748,21 +753,21 @@ namespace Users
                 if (u.m_oBasicData.m_sUserName == "")
                 {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, u);
-                }                
+                }
                 else
                 {
                     resp.Initialize(ResponseStatus.OK, u);
                 }
                 return resp;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at GetUserData. Site Guid: ", sSiteGUID));
                 sb.Append(String.Concat(" G ID: ", m_nGroupID));
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), "TvinciUsers");
+                log.Error("Exception - " + sb.ToString(), ex);
                 throw;
             }
         }
@@ -940,8 +945,14 @@ namespace Users
 
                             if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                             {
+                                // save monitor and logs context data
+                                ContextData contextData = new ContextData();
+
                                 Thread thread = new Thread(() =>
                                 {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
                                     lock (lockObj)
                                     {
                                         bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
@@ -1014,7 +1025,8 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SearchUsers error", string.Format("Terms: {0}, Fields: {1}, IsExact: {2}, Error: {3}", string.Join(";", sTerms), string.Join(";", sFields), bIsExact, ex.Message), "SearchUsers");
+                log.Error("SearchUsers error - " + string.Format("Terms: {0}, Fields: {1}, IsExact: {2}, Error: {3}", string.Join(";", sTerms), string.Join(";", sFields), bIsExact, ex.Message), ex);
+
 
                 return null;
             }
@@ -1082,10 +1094,10 @@ namespace Users
             {
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User(m_nGroupID, nUserID);
-                
+
                 bool isSubscribeNewsLetter = false;
                 bool isUnSubscribeNewsLeter = false;
-             
+
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, null);
@@ -1145,7 +1157,7 @@ namespace Users
 
                 if (u.m_eSuspendState == DomainSuspentionStatus.Suspended)
                 {
-                    resp.Initialize(ResponseStatus.UserSuspended, u);                   
+                    resp.Initialize(ResponseStatus.UserSuspended, u);
                 }
                 else
                 {
@@ -1247,7 +1259,8 @@ namespace Users
                 //Send ForgotPasswordMail
                 TvinciAPI.ForgotPasswordMailRequest sMailRequest = GetForgotPasswordMailRequest(sFirstName, sEmail, sToken);
 
-                Logger.Logger.Log("Forgot Pass", "Start send to " + sEmail + " from" + m_sForgotPasswordMail, "ForgotPass");
+                log.Debug("Forgot Pass - Start send to " + sEmail + " from" + m_sForgotPasswordMail);
+
 
                 Utils.SendMail(m_nGroupID, sMailRequest);
 
@@ -1275,7 +1288,7 @@ namespace Users
                 //Send ChangePassword
                 TvinciAPI.ChangePasswordMailRequest sMailRequest = GetChangePasswordMailRequest(sFirstName, sEmail, sToken);
 
-                Logger.Logger.Log("Change Password", "Start send to " + sEmail + " from" + m_sForgotPasswordMail, "ChangePassword");
+                log.Debug("Change Password - Start send to " + sEmail + " from" + m_sForgotPasswordMail);
 
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailRequest);
 
@@ -1327,7 +1340,8 @@ namespace Users
                         DateTime changePinTokenLastDate = DateTime.UtcNow.AddHours(m_nChangePinTokenValidityHours);
                         ApiDAL.Update_UserGroupRule_Token(nSiteGuid, nUserRuleID, changePinToken, changePinTokenLastDate);
                         TvinciAPI.ChangedPinMailRequest sMailRequest = GetChangedPinMailRequest(sUn, sEmail, nSiteGuid.ToString(), changePinToken, ruleName);
-                        Logger.Logger.Log("Change pin code", "Start send to " + sEmail + " from" + m_sChangedPinMail, "ChangePin");
+                        log.Debug("Change pin code - Start send to " + sEmail + " from" + m_sChangedPinMail);
+
                         bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailRequest);
                         if (sendingMailResult == true)
                         {
@@ -1412,7 +1426,7 @@ namespace Users
             }
             return response;
         }
-        
+
         protected TvinciAPI.ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
         {
             TvinciAPI.ForgotPasswordMailRequest retVal = new TvinciAPI.ForgotPasswordMailRequest();
@@ -1456,7 +1470,7 @@ namespace Users
             retVal.m_eMailType = TvinciAPI.eMailTemplateType.ChangedPin;
             return retVal;
         }
-        
+
         protected virtual TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
             string sMailData = string.Empty;
@@ -1626,7 +1640,7 @@ namespace Users
                         m_sChangePasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL");
                         m_sChangePassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL_SUBJECT");
                         //int members
-                        Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);                        
+                        Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);
                         m_nActivationMustHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["ACTIVATION_MUST_HOURS"]);
                         m_nTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["TOKEN_VALIDITY_HOURS"]);
                         m_nChangePinTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["CHANGED_PIN_TOKEN_VALIDITY_HOURS"]);
@@ -1637,7 +1651,7 @@ namespace Users
                         //m_newsLetterImpl composition
                         object oNewLetterImplID = dvMailParameters["NewsLetter_Impl_ID"];
                         if (oNewLetterImplID != DBNull.Value && oNewLetterImplID != null && !string.IsNullOrEmpty(oNewLetterImplID.ToString()))
-                        {                            
+                        {
                             object oNewLetterApiKey = dvMailParameters["NewsLetter_API_Key"];
                             object oNewLetterListID = dvMailParameters["NewsLetter_List_ID"];
 
@@ -1712,7 +1726,7 @@ namespace Users
             }
         }
         #endregion
-        
+
         public override Domain AddUserToDomain(int nGroupID, int nDomainID, int nUserID, bool bIsMaster)
         {
             //Create new domain

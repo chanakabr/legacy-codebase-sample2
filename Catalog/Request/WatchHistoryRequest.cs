@@ -12,12 +12,16 @@ using ApiObjects.MediaMarks;
 using Tvinci.Core.DAL;
 using System.Data;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class WatchHistoryRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public OrderDir OrderDir { get; set; }
 
@@ -83,7 +87,8 @@ namespace Catalog.Request
                         Location = item.Location,
                         AssetId = item.AssetId,
                         UserID = item.UserID,
-                        AssetTypeId = item.AssetTypeId
+                        AssetTypeId = item.AssetTypeId,
+                        m_dUpdateDate = item.UpdateDate
                     };
 
                     switch (item.AssetTypeId)
@@ -102,38 +107,16 @@ namespace Catalog.Request
                 response.m_nTotalItems = totalItems;
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
-
-                // get last updated date of media (exclude NPVR)
-                if (response != null && response.result != null && response.result.Count() > 0)
-                {
-                    List<int> mediaIds = response.result.Where(x => x.AssetTypeId != (int)eAssetTypes.NPVR).Select(item => int.Parse(item.AssetId)).ToList();
-                    DataTable dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
-                    if (dt != null)
-                    {
-                        if (dt.Columns != null)
-                        {
-                            for (int i = 0; i < dt.Rows.Count; i++)
-                            {
-                                // get relevant watch history item and validate the updated asset is not NPVR (in case they have the same ID as the media asset)
-                                var historyWatchItem = response.result.Where(x => x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                                                                                  int.Parse(x.AssetId) == Utils.GetIntSafeVal(dt.Rows[i], "ID")).FirstOrDefault();
-                                // update date 
-                                if (historyWatchItem != null && dt.Rows[i]["UPDATE_DATE"] != null)
-                                    historyWatchItem.m_dUpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                            }
-                        }
-                    }
-                }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error - WatchHistoryRequest",
+                log.Error("Error - WatchHistoryRequest - " +
                     string.Format("Exception: group = {0}, siteGuid = {1}, message = {2}, ST = {3}",
                     baseRequest.m_nGroupID,     // {0}
                     baseRequest.m_sSiteGuid,    // {1}
                     ex.Message,                 // {2}
                     ex.StackTrace               // {3}
-                    ), this.GetType().Name);
+                    ), ex);
 
 
                 response.status.Code = (int)eResponseStatus.Error;

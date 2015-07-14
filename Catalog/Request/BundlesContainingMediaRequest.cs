@@ -8,13 +8,14 @@ using System.Runtime.Serialization;
 using System.Text;
 using Tvinci.Core.DAL;
 using Catalog.Response;
+using KLogMonitor;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class BundlesContainingMediaRequest : BaseRequest, IRequestImp
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public BundleKeyValue[] m_oBundles;
@@ -129,7 +130,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error("Exception at BundlesContainingMediaRequest", ex);
+                log.Error("Exception at BundlesContainingMediaRequest", ex);
                 throw ex;
             }
 

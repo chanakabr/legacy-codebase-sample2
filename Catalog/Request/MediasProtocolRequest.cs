@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using Logger;
 using System.Reflection;
 using Catalog.Response;
+using KLogMonitor;
 
 
 namespace Catalog.Request
@@ -13,7 +14,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediasProtocolRequest : BaseRequest, IMediasProtocolRequest
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public List<Int32> m_lMediasIds;
@@ -47,7 +48,7 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
                 throw ex;
             }
         }

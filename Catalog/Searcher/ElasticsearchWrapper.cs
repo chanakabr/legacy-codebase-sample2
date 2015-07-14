@@ -14,11 +14,16 @@ using Logger;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
     public class ElasticsearchWrapper : ISearcher
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
@@ -292,7 +297,7 @@ namespace Catalog
 
                 if (lSearchResults != null && lSearchResults.Count > 0)
                 {
-                    Logger.Logger.Log("Info", "SearchSubscriptionMedias returned search results", "Elasticsearch");
+                    log.Debug("Info - SearchSubscriptionMedias returned search results");
                     lSortedMedias.m_resultIDs = new List<SearchResult>();
 
                     lSortedMedias.n_TotalItems = nTotalItems;
@@ -423,7 +428,7 @@ namespace Catalog
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                    log.Error("Error - " + string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}", ex.Message, ex.StackTrace), ex);
                 }
             }
 
@@ -454,7 +459,7 @@ namespace Catalog
 
             if (epgSearch == null || epgSearch.m_nGroupID == 0)
             {
-                Logger.Logger.Log("Info", "SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ", "ElasticSearch");
+                log.Debug("Info - SearchEpgs return null due to epgSearch == null || epgSearch.m_nGroupID==0 ");
                 return null;
             }
             try
@@ -507,7 +512,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("SearchEpgs ex={0} st: {1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                log.Error("Error - " + string.Format("SearchEpgs ex={0} st: {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return epgResponse;
@@ -528,6 +533,9 @@ namespace Catalog
 
             if (lDateAliases.Count > 0)
             {
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
                 Task<string>[] tAliasRequests = new Task<string>[lDateAliases.Count];
 
                 for (int i = 0; i < lDateAliases.Count; i++)
@@ -535,6 +543,9 @@ namespace Catalog
                     tAliasRequests[i] = Task.Factory.StartNew<string>(
                          (index) =>
                          {
+                             // load monitor and logs context data
+                             contextData.Load();
+
                              string sIndex = lDateAliases[(int)index];
                              return (m_oESApi.IndexExists(sIndex)) ? sIndex : string.Empty;
                          }, i);
@@ -619,7 +630,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch request. Execption={0}", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch request. Exception={0}", ex.Message), ex);
                 doc = null;
             }
 
@@ -652,7 +663,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Media request. Exception={0}", ex.Message), ex);
             }
 
             return documents;
@@ -684,7 +695,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Media request. Ex Msg: {0} , ", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Media request. Ex Msg: {0} , ", ex.Message), ex);
             }
 
             return documents;
@@ -715,19 +726,19 @@ namespace Catalog
                             switch (assetType)
                             {
                                 case eAssetTypes.MEDIA:
-                                {
-                                    assetIdField = "fields.media_id";
-                                    break;
-                                }
+                                    {
+                                        assetIdField = "fields.media_id";
+                                        break;
+                                    }
                                 case eAssetTypes.EPG:
-                                {
-                                    assetIdField = "fields.epg_id";
-                                    break;
-                                }
+                                    {
+                                        assetIdField = "fields.epg_id";
+                                        break;
+                                    }
                                 default:
-                                {
-                                    break;
-                                }
+                                    {
+                                        break;
+                                    }
                             }
 
                             documents.Add(new ElasticSearchApi.ESAssetDocument()
@@ -752,7 +763,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
             }
 
             return documents;
@@ -793,7 +804,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Json Deserialization failed for ElasticSearch Epg request. Ex Msg: {0}, JSON Obj: {1} ST: {2}", ex.Message, sObj, ex.StackTrace), "Catalog");
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Epg request. Ex Msg: {0}, JSON Obj: {1} ST: {2}", ex.Message, sObj, ex.StackTrace), ex);
             }
 
             return documents;
@@ -1079,8 +1090,8 @@ namespace Catalog
             return (searchResultsList);
         }
 
-        private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, 
-            int groupId, OrderDir orderDirection, 
+        private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
+            int groupId, OrderDir orderDirection,
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
         {
             if (assets == null || assets.Count == 0)
@@ -1134,6 +1145,8 @@ namespace Catalog
 
             filteredQuery.Filter = new QueryFilter();
 
+            FilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
+
             FilterCompositeType tagsFilter = new FilterCompositeType(CutWith.OR);
 
             // Filter data only to contain documents that have the specifiic tag
@@ -1153,7 +1166,36 @@ namespace Catalog
                 }
             }
 
-            filteredQuery.Filter.FilterSettings = tagsFilter;
+            ESTerm isActiveTerm = new ESTerm(true)
+            {
+                Key = "is_active",
+                Value = "1"
+            };
+
+            string nowSearchString = DateTime.UtcNow.ToString(DATE_FORMAT);
+
+            ESRange startDateRange = new ESRange(false)
+            {
+                Key = "start_date"
+            };
+
+            startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowSearchString));
+
+            ESRange endDateRange = new ESRange(false)
+            {
+                Key = "end_date"
+            };
+
+            // Filter associated media by:
+            // is_active = 1
+            // start_date < NOW
+            // end_date > NOW
+            // tag is actually the current series
+            filterSettings.AddChild(isActiveTerm);
+            filterSettings.AddChild(startDateRange);
+            filterSettings.AddChild(endDateRange);
+            filterSettings.AddChild(tagsFilter);
+            filteredQuery.Filter.FilterSettings = filterSettings;
 
             ESTermsStatsFacet facet = new ESTermsStatsFacet()
             {
@@ -1321,29 +1363,29 @@ namespace Catalog
             switch (orderBy)
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                {
-                    actionName = Catalog.STAT_ACTION_FIRST_PLAY;
-                    break;
-                }
+                    {
+                        actionName = Catalog.STAT_ACTION_FIRST_PLAY;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
-                {
-                    actionName = Catalog.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = Catalog.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                {
-                    actionName = Catalog.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = Catalog.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                {
-                    actionName = Catalog.STAT_ACTION_LIKE;
-                    break;
-                }
+                    {
+                        actionName = Catalog.STAT_ACTION_LIKE;
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             ESTerm actionTerm = new ESTerm(false)
@@ -1527,7 +1569,7 @@ namespace Catalog
             }
 
             return sortedList;
-        } 
+        }
         #endregion
     }
 

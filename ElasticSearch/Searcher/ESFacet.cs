@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearch.Searcher
 {
@@ -15,6 +17,8 @@ namespace ElasticSearch.Searcher
 
     public class ESTermsFacet : IESFacet
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public FilteredQuery Query { get; set; }
         public QueryFilter FacetFilter { get; set; }
         internal List<ESTermsFacetItem> facetItems;
@@ -163,7 +167,7 @@ namespace ElasticSearch.Searcher
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error", string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                                log.Error("Error - " + string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                             }
                         }
 
@@ -172,7 +176,7 @@ namespace ElasticSearch.Searcher
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                    log.Error("Error - " + string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                 }
             }
 
@@ -208,7 +212,7 @@ namespace ElasticSearch.Searcher
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error", string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                                log.Error("Error - " + string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                             }
                         }
 
@@ -217,7 +221,7 @@ namespace ElasticSearch.Searcher
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                    log.Error("Error - " + string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                 }
             }
 
@@ -228,6 +232,8 @@ namespace ElasticSearch.Searcher
 
     public class ESTermsStatsFacet : IESFacet
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public FilteredQuery Query { get; set; }
         public QueryFilter FacetFilter { get; set; }
         internal List<ESTermsStatsFacetItem> facetItems;
@@ -435,7 +441,7 @@ namespace ElasticSearch.Searcher
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Error", string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                                log.Error("Error - " + string.Format("search facets json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                             }
                         }
 
@@ -444,13 +450,12 @@ namespace ElasticSearch.Searcher
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), "ElasticSearch");
+                    log.Error("Error - " + string.Format("Could not parse facet results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                 }
             }
 
             return dFacetResults;
         }
-
 
 
         public class FacetCompare : IComparer<StatisticFacetResult>

@@ -9,12 +9,14 @@ using System.Web;
 using System.Data;
 using System.Web.Script.Serialization;
 using NotificationObj;
+using KLogMonitor;
 
 namespace NotificationInterface
 {
     public class ElisaSMSNotification : SMSNotification
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region members for elisa sms service
 
         public string m_tariffClass = string.Empty;
@@ -45,7 +47,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("ElisaSMSNotification - Send,  Exception = {0} ", ex.Message));
+                log.Error(string.Format("ElisaSMSNotification - Send,  Exception = {0} ", ex.Message));
                 throw ex;
             }
         }
@@ -173,7 +175,7 @@ namespace NotificationInterface
             }
             catch (Exception ex)
             {
-                _logger.Error(string.Format("sendSMSNotification Elisa , Exception Message = {0}", ex.Message));
+                log.Error(string.Format("sendSMSNotification Elisa , Exception Message = {0}", ex.Message));
                 throw ex;
             }
         }

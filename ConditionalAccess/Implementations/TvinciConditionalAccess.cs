@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
@@ -8,12 +9,15 @@ using ApiObjects.Response;
 using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
+using KLogMonitor;
 
 
 namespace ConditionalAccess
 {
     public class TvinciConditionalAccess : BaseConditionalAccess
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TvinciConditionalAccess(Int32 nGroupID)
             : base(nGroupID)
         {
@@ -163,6 +167,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 throw;
             }
             finally
@@ -225,7 +230,7 @@ namespace ConditionalAccess
                 bSuccesful = false;
 
                 #region Logging
-                Logger.Logger.Log("DD_BaseRenewMultiUsageSubscription", string.Format("HandleMPPRenewalBillingSuccess. Failed to update purchase id in billing_transactions. Purchase ID: {0} , Billing Transaction ID: {1} , Site Guid: {2} , BaseConditionalAccess is: {3}", lPurchaseID, sBillingTransactionID, sSiteGUID, this.GetType().ToString()), "TvinciRenewer");
+                log.Debug("DD_BaseRenewMultiUsageSubscription - " + string.Format("HandleMPPRenewalBillingSuccess. Failed to update purchase id in billing_transactions. Purchase ID: {0} , Billing Transaction ID: {1} , Site Guid: {2} , BaseConditionalAccess is: {3}", lPurchaseID, sBillingTransactionID, sSiteGUID, this.GetType().ToString()));
                 WriteToUserLog(sSiteGUID, string.Format("MPP Renewal. Failed to update purchase id in billing transactions. Purchase ID: {0} , Billing transaction id: {1}", lPurchaseID, lBillingTransactionID));
                 #endregion
             }
@@ -299,7 +304,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Subscription Code: ", sSubscriptionCode));
                         sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
                         sb.Append(String.Concat(" Custom Data: ", sCustomData));
-                        Logger.Logger.Log("HandleChargeUserForSubscriptionBillingSuccess", sb.ToString(), GetLogFilename());
+                        log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + sb.ToString());
                         #endregion
                     }
                     else
@@ -312,7 +317,7 @@ namespace ConditionalAccess
                     // no id in billing_transactions
                     res = false;
                     #region Logging
-                    Logger.Logger.Log("HandleChargeUserForSubscriptionBillingSuccess", string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sSubscriptionCode, sCouponCode), GetLogFilename());
+                    log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sSubscriptionCode, sCouponCode));
                     WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", lPurchaseID, sSubscriptionCode, sCouponCode));
                     #endregion
                 }
@@ -322,7 +327,7 @@ namespace ConditionalAccess
                 // writing to subscription_purchases failed
                 res = false;
                 #region Logging
-                Logger.Logger.Log("HandleChargeUserForSubscriptionBillingSuccess", string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP), GetLogFilename());
+                log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
                 WriteToUserLog(sSiteGUID, string.Format("Failed to write to subscription_purchases. Sub Code: {0} , Coupon Code: {1}", sSubscriptionCode, sCouponCode));
                 #endregion
             }
@@ -369,7 +374,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Collection Code: ", sCollectionCode));
                         sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
                         sb.Append(String.Concat(" Custom Data: ", sCustomData));
-                        Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", sb.ToString(), GetLogFilename());
+                        log.Debug("HandleChargeUserForCollectionBillingSuccess - " + sb.ToString());
                         #endregion
                     }
                     else
@@ -382,7 +387,7 @@ namespace ConditionalAccess
                     // no id in billing_transactions
                     res = false;
                     #region Logging
-                    Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sCollectionCode, sCouponCode), GetLogFilename());
+                    log.Debug("HandleChargeUserForCollectionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sCollectionCode, sCouponCode));
                     WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForCollectionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Col Code: {1} , Coupon Code: {2}", lPurchaseID, sCollectionCode, sCouponCode));
                     #endregion
                 }
@@ -392,7 +397,7 @@ namespace ConditionalAccess
                 // writing to collection_purchases failed
                 res = false;
                 #region Logging
-                Logger.Logger.Log("HandleChargeUserForCollectionBillingSuccess", string.Format("No ID in Collection_purchases. Site Guid: {0} , Col Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sCollectionCode, sCouponCode, sUserIP), GetLogFilename());
+                log.Debug("HandleChargeUserForCollectionBillingSuccess - " + string.Format("No ID in Collection_purchases. Site Guid: {0} , Col Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sCollectionCode, sCouponCode, sUserIP));
                 WriteToUserLog(sSiteGUID, string.Format("Failed to write to collection_purchases. Col Code: {0} , Coupon Code: {1}", sCollectionCode, sCouponCode));
                 #endregion
             }
@@ -439,7 +444,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Media File ID: ", lMediaFileID));
                         sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
                         sb.Append(String.Concat(" Custom Data: ", sCustomData));
-                        Logger.Logger.Log("HandleChargeUserForMediaFileBillingSuccess", sb.ToString(), GetLogFilename());
+                        log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + sb.ToString());
                         #endregion
                     }
                     else
@@ -451,7 +456,7 @@ namespace ConditionalAccess
                 {
                     res = false;
                     #region Logging
-                    Logger.Logger.Log("HandleChargeUserForMediaFileBillingSuccess", string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", lPurchaseID, sSiteGUID, lMediaFileID, sCouponCode), GetLogFilename());
+                    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", lPurchaseID, sSiteGUID, lMediaFileID, sCouponCode));
                     WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No billing_transactions id. Purchase ID: {0}", lPurchaseID));
                     #endregion
                 }
@@ -460,7 +465,7 @@ namespace ConditionalAccess
             {
                 res = false;
                 #region Logging
-                Logger.Logger.Log("HandleChargeUserForMediaFileBillingSuccess", string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", lBillingTransactionID, sSiteGUID, sCouponCode, lMediaFileID), GetLogFilename());
+                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", lBillingTransactionID, sSiteGUID, sCouponCode, lMediaFileID));
                 WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No purchase id. Media File ID:  {0} , Coupon Code: {1}", lMediaFileID, sCouponCode));
                 #endregion
             }
@@ -491,7 +496,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" sSiteGUID: ", sSiteGUID));
                 sb.Append(String.Concat(" group ID: ", m_nGroupID));
                 sb.Append(String.Concat(" domain ID: ", domainId));
-                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                log.Error("Error - " + sb.ToString());
                 response.status = eResponseStatus.DomainSuspended.ToString();
                 response.Status.Code = (int)eResponseStatus.DomainSuspended;
                 return response;
@@ -517,7 +522,7 @@ namespace ConditionalAccess
                     sb.Append(String.Concat(" service: ", eservice.ToString()));
                     sb.Append(String.Concat(" group ID: ", m_nGroupID));
                     sb.Append(String.Concat(" domain ID: ", domainId));
-                    Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                    log.Error("Error - " + sb.ToString());
                     #endregion
                     response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
                     response.Status.Code = (int)eResponseStatus.ServiceNotAllowed;
@@ -599,7 +604,7 @@ namespace ConditionalAccess
                                 sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
                                 sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
                                 sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
-                                Logger.Logger.Log("Error", sb.ToString(), GetLogFilename());
+                                log.Error("Error - " + sb.ToString());
                                 #endregion
                                 break;
                             }
@@ -608,7 +613,7 @@ namespace ConditionalAccess
                 else
                 {
                     // to do write to log
-                    Logger.Logger.Log("get epg url link", string.Format("api.GetProgramSchedule return null response can't create link with no dates "), "GetEPGLink");
+                    log.Debug("get epg url link - " + string.Format("api.GetProgramSchedule return null response can't create link with no dates "));
                     response.status = eLicensedLinkStatus.Error.ToString();
                     response.Status.Code = (int)eResponseStatus.Error;
                     return response;
@@ -653,7 +658,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                log.Error("Exception - " + sb.ToString(), ex);
                 response.status = eLicensedLinkStatus.Error.ToString();
                 response.Status.Code = (int)eResponseStatus.Error;
                 return response;

@@ -8,11 +8,14 @@ using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
     public class WS_Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         static public bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
@@ -58,7 +61,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sModuleName: " + sModuleName + " | sUN: " + sUN + " | sPass: " + sPass + " | sIP: " + sIP, "ws_utils");
+                log.Error("exception - " + ex.StackTrace + " sWSName: " + sWSName + " | sModuleName: " + sModuleName + " | sUN: " + sUN + " | sPass: " + sPass + " | sIP: " + sIP);
             }
             return 0;
         }
@@ -72,7 +75,7 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("exception", ex.StackTrace + " sWSName: " + sWSName + " | sUN: " + sUN + " | sPass: " + sPass, "ws_utils");
+                log.Error("exception - " + ex.StackTrace + " sWSName: " + sWSName + " | sUN: " + sUN + " | sPass: " + sPass);
             }
             return 0;
         }
@@ -417,6 +420,7 @@ namespace TVinciShared
             {
                 bIsParsingSuccessful = false;
                 sbErrorMsg.Append(String.Concat(ex.Message, "|"));
+                log.Error(sbErrorMsg.ToString(), ex);
             }
             finally
             {
@@ -466,7 +470,7 @@ namespace TVinciShared
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -476,14 +480,13 @@ namespace TVinciShared
             bool result = false;
             try
             {
+
                 result = TCMClient.Settings.Instance.GetValue<bool>(sKey);
-                if (result == null)
-                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
                 result = false;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -494,13 +497,11 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<int>(sKey);
-                if (result == null)
-                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
                 result = 0;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -511,13 +512,11 @@ namespace TVinciShared
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<double>(sKey);
-                if (result == null)
-                    throw new NullReferenceException("missing key");
             }
             catch (Exception ex)
             {
                 result = 0;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -534,7 +533,7 @@ namespace TVinciShared
             catch (Exception ex)
             {
                 result = DateTime.UtcNow; ;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -551,7 +550,7 @@ namespace TVinciShared
             catch (Exception ex)
             {
                 result = default(T);
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -564,9 +563,8 @@ namespace TVinciShared
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Init=" + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Init=" + ex.Message, ex);
             }
-
         }
 
         public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)

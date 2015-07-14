@@ -2,14 +2,17 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using CachingProvider;
+using KLogMonitor;
 
 namespace Users.Cache
 {
     public class DomainsCache
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
 
         #region inner cache - call WSCache
@@ -77,7 +80,7 @@ namespace Users.Cache
 
         private DomainsCache()
         {
-            // create to instanse of cache to domain  external (by CouchBase)
+            // create to instance of cache to domain  external (by CouchBase)
             cache = CouchBaseCache<Domain>.GetInstance("CACHE");
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
             dCacheTT = GetDocTTLSettings();     //set ttl time for document            
@@ -90,21 +93,21 @@ namespace Users.Cache
             {
                 lock (m_oLockers)
                 {
-                    Logger.Logger.Log("GetLocker", string.Format("Locked. Domain ID: {0}", ndomainID), DOMAIN_LOG_FILENAME);
+                    log.Debug("GetLocker - " + string.Format("Locked. Domain ID: {0}", ndomainID));
                     if (!m_oLockers.ContainsKey(ndomainID))
                     {
                         if (!m_oLockers.TryAdd(ndomainID, new ReaderWriterLockSlim()))
                         {
-                            Logger.Logger.Log("GetLocker", string.Format("Failed to create reader writer manager. DomainID {0}", ndomainID), DOMAIN_LOG_FILENAME);
+                            log.Debug("GetLocker - " + string.Format("Failed to create reader writer manager. DomainID {0}", ndomainID));
                         }
                     }
                 }
-                Logger.Logger.Log("GetLocker", string.Format("Locker released. DomainID: {0}", ndomainID), DOMAIN_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Locker released. DomainID: {0}", ndomainID));
             }
 
             if (!m_oLockers.TryGetValue(ndomainID, out locker))
             {
-                Logger.Logger.Log("GetLocker", string.Format("Failed to read reader writer manager. DomainID: {0}", ndomainID), DOMAIN_LOG_FILENAME);
+                log.Debug("GetLocker - " + string.Format("Failed to read reader writer manager. DomainID: {0}", ndomainID));
             }
         }
 
@@ -133,7 +136,7 @@ namespace Users.Cache
             sb.Append(String.Concat(" Val: ", obj != null ? obj.ToString() : "null"));
             sb.Append(String.Concat(" Method Name: ", methodName));
             sb.Append(String.Concat(" Cache Data: ", ToString()));
-            Logger.Logger.Log("CacheError", sb.ToString(), logFile);
+            log.Debug("CacheError - " + sb.ToString());
         }
 
 
@@ -174,7 +177,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDomain", string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Debug("GetDomain - " + string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), ex);
                 return null;
             }
         }
@@ -201,7 +204,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertDomain", string.Format("failed insert domain {0}, ex = {1}", domain != null ? domain.m_nDomainID : 0, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("InsertDomain - " + string.Format("failed insert domain {0}, ex = {1}", domain != null ? domain.m_nDomainID : 0, ex.Message), ex);
                 return false;
             }
         }
@@ -226,7 +229,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveDomain", string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("RemoveDomain - " + string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDomainID, ex.Message), ex);
                 return false;
             }
         }
@@ -251,7 +254,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetFullUserList", string.Format("Couldn't get full users list from domain {0}, ex = {1}", nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("GetFullUserList - " + string.Format("Couldn't get full users list from domain {0}, ex = {1}", nDomainID, ex.Message), ex);
                 return false;
             }
         }
@@ -273,7 +276,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UsersListFromDomain", string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("UsersListFromDomain - " + string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), ex);
                 return false;
             }
         }
@@ -310,7 +313,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDomains", string.Format("Couldn't get domain {0}, ex = {1}", string.Join(";", dbDomains), ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("GetDomains - " + string.Format("Couldn't get domain {0}, ex = {1}", string.Join(";", dbDomains), ex.Message), ex);
                 return null;
             }
         }
@@ -370,7 +373,7 @@ namespace Users.Cache
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveDLM", string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDlmID, ex.Message), DOMAIN_LOG_FILENAME);
+                log.Error("RemoveDLM - " + string.Format("failed to Remove domain from cache DomainID={0}, ex={1}", nDlmID, ex.Message), ex);
                 return false;
             }
         }

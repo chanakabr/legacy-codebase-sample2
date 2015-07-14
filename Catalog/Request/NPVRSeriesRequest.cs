@@ -6,12 +6,16 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class NPVRSeriesRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public RecordedEPGOrderObj m_oOrderObj;
 
@@ -31,12 +35,13 @@ namespace Catalog.Request
             {
                 CheckRequestValidness();
                 CheckSignature(this);
+                
                 res = Catalog.GetSeriesRecordings(m_nGroupID, this);
 
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("Exception at NPVRRetrieveSeriesRequest. Msg: {0} , Ex Type: {1} , Req: {2} , ST: {3}", ex.Message, ex.GetType().Name, ToString(), ex.StackTrace), "NPVRRetrieveSeriesRequest");
+                log.Error("Exception - " + string.Format("Exception at NPVRRetrieveSeriesRequest. Msg: {0} , Ex Type: {1} , Req: {2} , ST: {3}", ex.Message, ex.GetType().Name, ToString(), ex.StackTrace), ex);
                 throw ex;
             }
 

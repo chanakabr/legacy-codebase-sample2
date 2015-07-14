@@ -27,5 +27,7 @@ namespace ApiObjects.MediaMarks
         public int AssetTypeId { get; set; }
 
         public bool IsFinishedWatching { get; set; }
+
+        public DateTime UpdateDate { get; set; }
     }
 }

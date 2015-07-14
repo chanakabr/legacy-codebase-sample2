@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using DAL;
-using Logger;
-using ApiObjects;
-using ApiObjects.Statistics;
+﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.Statistics;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace Users
 {
     public abstract class BaseUsers
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public const int PIN_NUMBER_OF_DIGITS = 10;
         public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
         public const int PIN_MAX_NUMBER_OF_DIGITS = 10;
@@ -60,14 +62,23 @@ namespace Users
             return false;
         }
 
-        public virtual bool AddUserFavorit(string sUserGUID, int domainID, string sDeviceUDID,
+        public virtual ApiObjects.Response.Status AddUserFavorit(string sUserGUID, int domainID, string sDeviceUDID,
             string sItemType, string sItemCode, string sExtraData, Int32 nGroupID)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
             try
             {
                 bool saveRes = false;
                 FavoritObject f = new FavoritObject();
+
+                if (!IsAddUserFavoriteParamValid(nGroupID, sUserGUID, sItemType, sItemCode, out status))
+                {
+                    return status;
+                }
+
                 f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sItemCode, sExtraData, DateTime.UtcNow, nGroupID);
+
                 saveRes = f.Save(nGroupID);
 
                 //insert favorites record to ES
@@ -82,14 +93,63 @@ namespace Users
                     Date = DateTime.UtcNow
                 };
 
-                saveRes &= WriteFavoriteToES(view);
+                if (saveRes)
+                {
+                    WriteFavoriteToES(view); //saving to the ES onlt if save Succeeded  
+                }
 
-                return saveRes;
+                return status;
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "";
+                return status;
+            }
+        }
+
+        private bool IsAddUserFavoriteParamValid(int nGroupID, string sUserGUID, string sItemType, string sItemCode, out ApiObjects.Response.Status status)
+        {
+            //check if userID exist
+            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            {
                 return false;
             }
+
+            if (sItemType.Trim().Length == 0)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Item Type is empty "; 
+                return false;
+            }
+
+            if (sItemCode.Trim().Length == 0)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Item Code is empty "; 
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, int[] mediaIDs, out ApiObjects.Response.Status status)
+        {
+            //check if userID exist
+            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            {
+                return false;
+            }
+
+            if (mediaIDs == null)
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+                return false;
+            }
+
+            return true;
         }
 
 
@@ -110,14 +170,14 @@ namespace Users
                     bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
 
                     if (!bRes)
-                        Logger.Logger.Log("WriteFavoriteToES", string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView), "Users");
+                        log.Debug("WriteFavoriteToES - " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
                 }
 
                 return bRes;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("WriteFavoriteToES", string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), "Users");
+                log.Error("WriteFavoriteToES - " + string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
                 return false;
             }
         }
@@ -126,6 +186,13 @@ namespace Users
           string sItemType, string sChannelID, string sExtraData, Int32 nGroupID)
         {
             FavoritObject f = new FavoritObject();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (!IsAddUserFavoriteParamValid(nGroupID, sUserGUID, sItemType, sChannelID, out status))
+            {
+                return false;
+            }
+
             f.Initialize(0, sUserGUID, domainID, sDeviceUDID, sItemType, sChannelID, sExtraData, DateTime.UtcNow, nGroupID, 1);
             return f.Save(nGroupID);
         }
@@ -135,9 +202,21 @@ namespace Users
             FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nFavoritID);
         }
 
-        public virtual void RemoveUserFavorit(int[] nMediaIDs, string sUserGUID, int nGroupID)
+        public virtual ApiObjects.Response.Status RemoveUserFavorit(int[] nMediaIDs, string sUserGUID, int nGroupID)
         {
-            FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (IsARemoveUserFavoriteParamValid(nGroupID, sUserGUID, nMediaIDs, out status))
+            {
+                FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+            }
+            else
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+            }
+
+            return status;
         }
 
         public virtual void RemoveChannelMediaUserFavorit(int[] nChannelIDs, string sUserGUID, int nGroupID)
@@ -145,9 +224,21 @@ namespace Users
             FavoritObject.RemoveChannelMediaFavorit(sUserGUID, nGroupID, nChannelIDs);
         }
 
-        public virtual FavoritObject[] GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID)
+        public virtual FavoriteResponse GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID)
         {
-            return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType);
+            FavoriteResponse response = new FavoriteResponse();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            //check if userID exist
+            if (IsUserValid(nGroupID, sSiteGUID, out status))
+            {
+                return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType);
+            }
+            else
+            {
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = "Error";
+                return new FavoriteResponse() { Status = status, Favorites = new FavoritObject[0] };
+            }
         }
 
         public virtual string GetUniqueTitle(UserBasicData oBasicData, UserDynamicData sDynamicData)
@@ -492,7 +583,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("AddItemToList", "exception =  " + ex.Message, "BaseUsers");
+                log.Error("AddItemToList - exception =  " + ex.Message, ex);
                 return false;
             }
         }
@@ -532,7 +623,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("RemoveItemFromList", "exception =  " + ex.Message, "BaseUsers");
+                log.Error("RemoveItemFromList - exception =  " + ex.Message, ex);
                 return false;
             }
         }
@@ -573,7 +664,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("UpdateItemInList", "exception =  " + ex.Message, "BaseUsers");
+                log.Error("UpdateItemInList - exception =  " + ex.Message, ex);
                 return false;
             }
         }
@@ -634,7 +725,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetItemFromList", "exception =  " + ex.Message, "BaseUsers");
+                log.Error("GetItemFromList - exception =  " + ex.Message, ex);
                 return null;
             }
         }
@@ -670,7 +761,7 @@ namespace Users
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("IsItemExists", "exception =  " + ex.Message, "BaseUsers");
+                log.Error("IsItemExists - exception =  " + ex.Message, ex);
                 return null;
             }
         }
@@ -766,12 +857,12 @@ namespace Users
                 else
                 {
                     response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GetUserData return null");
-                }   
+                }
             }
             catch (Exception ex)
             {
                 response = new PinCodeResponse();
-                Logger.Logger.Log("GenerateLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), "Users");
+                log.Error("GenerateLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), ex);
             }
             return response;
         }
@@ -866,12 +957,12 @@ namespace Users
             return true;
         }
         private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
-        {   
-            int userId = 0;            
+        {
+            int userId = 0;
             bool parse = int.TryParse(siteGuid, out userId);
             bool isUserValid = false;
-            UserActivationState activStatus = new UserActivationState();            
-            
+            UserActivationState activStatus = new UserActivationState();
+
             if (parse)
             {
                 List<int> groupIdList = UtilsDal.GetAllRelatedGroups(groupID);
@@ -879,7 +970,7 @@ namespace Users
                 activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
             }
             if (userId <= 0)
-                response = new ApiObjects.Response.Status((int)eResponseStatus.WrongPasswordOrUserName, "user not valid");
+                response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user not valid");            
             else
             {
                 switch (activStatus)
@@ -887,7 +978,7 @@ namespace Users
                     case UserActivationState.Activated:
                     case UserActivationState.UserWIthNoDomain:
                     case UserActivationState.UserRemovedFromDomain:
-                    case UserActivationState.NotActivated: 
+                    case UserActivationState.NotActivated:
                     case UserActivationState.NotActivatedByMaster:
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "user valid");
                         isUserValid = true;
@@ -897,11 +988,11 @@ namespace Users
                         break;
                     case UserActivationState.UserDoesNotExist:
                         response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "user not valid");
-                        break;                    
-                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "user not valid");
-                        //break;                   
-                        //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotMasterApproved, "user not valid");
-                        //break;
+                        break;
+                    //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "user not valid");
+                    //break;                   
+                    //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotMasterApproved, "user not valid");
+                    //break;
                     case UserActivationState.UserSuspended:
                         response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "user not valid");
                         break;
@@ -973,7 +1064,7 @@ namespace Users
             {
                 response = new UserResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
-                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
+                log.Error("SignInWithPIN - " + string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), ex);
             }
             return response;
         }
@@ -1014,9 +1105,9 @@ namespace Users
                 if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                 {
                     //The PIN should be verified to be unique (among all active PINs)
-                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);  
+                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);
                     if (codeExsits)
-                    {                        
+                    {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.PinExists, "PinExists Try new PIN code");
                     }
                     else
@@ -1036,7 +1127,7 @@ namespace Users
                 }
                 else if (!loginViaPin)
                 {
-                  response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "LoginViaPinNotAllowed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "LoginViaPinNotAllowed");
                 }
                 else // security must be provided
                 {
@@ -1046,7 +1137,7 @@ namespace Users
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
-                Logger.Logger.Log("SetLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, PIN={2}, groupID ={3}, ", ex.Message, siteGuid, PIN, groupID), "Users");
+                log.Error("SetLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, PIN={2}, groupID ={3}, ", ex.Message, siteGuid, PIN, groupID), ex);
             }
             return response;
         }
@@ -1082,9 +1173,10 @@ namespace Users
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
-                Logger.Logger.Log("ClearLoginPIN", string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), "Users");
+                log.Error("ClearLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), ex);
             }
             return response;
         }
+
     }
 }
