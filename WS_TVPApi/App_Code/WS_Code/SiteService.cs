@@ -1491,13 +1491,13 @@ namespace TVPApiServices
         }
 
 
-        [WebMethod(EnableSession = true, Description = "Refreshes the access token using refresh token")]
+        [WebMethod(EnableSession = true, Description = "Changes the siteGuid assigned to the accessToken")]
         [PrivateMethod]
-        public object ChangeProfile(InitializationObject initObj, string siteGuid)
+        public object ChangeUser(InitializationObject initObj, string siteGuid)
         {
             object response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RefreshAccessToken", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {

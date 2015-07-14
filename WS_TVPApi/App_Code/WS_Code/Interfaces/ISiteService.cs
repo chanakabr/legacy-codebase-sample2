@@ -161,7 +161,7 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.ParentalRulesResponse GetParentalEPGRules(InitializationObject initObj, string siteGuid, long epgId);
 
         [OperationContract]
-        object ChangeProfile(InitializationObject initObj, string siteGuid);
+        object ChangeUser(InitializationObject initObj, string siteGuid);
 
         [OperationContract]
         GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId);
