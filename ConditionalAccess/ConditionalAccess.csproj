@@ -111,6 +111,7 @@
     <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
     <Compile Include="Response\LicensedLinkResponse.cs" />
+    <Compile Include="Response\MediaFileItemPricesContainerResponse.cs" />
     <Compile Include="Response\ProtectionResponse.cs" />
     <Compile Include="Commands\ProtectNPVRCommand.cs" />
     <Compile Include="Response\QuotaResponse.cs" />

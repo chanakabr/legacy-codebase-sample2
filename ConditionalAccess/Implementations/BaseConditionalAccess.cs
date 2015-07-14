@@ -7375,7 +7375,6 @@ namespace ConditionalAccess
         public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP)
         {
-
             string sFirstDeviceNameFound = string.Empty;
             TvinciPricing.mdoule objPricingModule = null;
             MediaFileItemPricesContainer[] ret = null;
@@ -7577,6 +7576,8 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
                 Logger.Logger.Log("Exception", sb.ToString(), "BaseConditionalAccess");
+
+                ret = null;
                 #endregion
             }
             finally
