@@ -27,10 +27,10 @@ namespace WebAPI.Models.Pricing
         public PPVItemPriceDetails PPVPriceDetails { get; set; }
 
         /// <summary>
-        /// External identifier for the file
+        /// Product code for the file
         /// </summary>
-        [DataMember(Name = "external_file_id")]
-        [JsonProperty("external_file_id")]
-        public string ExternalFileId { get; set; }
+        [DataMember(Name = "product_code")]
+        [JsonProperty("product_code")]
+        public string ProductCode { get; set; }
     }
 }

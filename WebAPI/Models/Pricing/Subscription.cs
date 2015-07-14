@@ -119,11 +119,11 @@ namespace WebAPI.Models.Pricing
         public long ProrityInOrder { get; set; }
 
         /// <summary>
-        /// External subscription identifier
+        /// Product code for the subscription
         /// </summary>
-        [DataMember(Name = "external_id")]
-        [JsonProperty("external_id")]
-        public string ExternalId { get; set; }
+        [DataMember(Name = "product_code")]
+        [JsonProperty("product_code")]
+        public string ProductCode { get; set; }
 
         /// <summary>
         /// Subscription price plans

@@ -111,7 +111,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nWaiverPeriod))
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_bWaiver))
                .ForMember(dest => dest.ProrityInOrder, opt => opt.MapFrom(src => src.m_Priority))
-               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
+               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
@@ -140,7 +140,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             // ItemPriceContainer to PPVItemPriceDetails
             Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, Models.Pricing.ItemPrice>()
-               .ForMember(dest => dest.ExternalFileId, opt => opt.MapFrom(src => src.m_sProductCode))
+               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
         }
