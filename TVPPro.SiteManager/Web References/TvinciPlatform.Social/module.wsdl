@@ -781,8 +781,8 @@
       <s:element name="UpdateFriendsActivityFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="dbActionId" type="s:string" />
           </s:sequence>
@@ -798,8 +798,8 @@
       <s:element name="DeleteFriendsFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -810,8 +810,8 @@
       <s:element name="DeleteUserFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -822,8 +822,8 @@
       <s:element name="MergeFriendsActivityFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -1347,8 +1347,8 @@
     <wsdl:part name="Body" element="tns:FBSignin" />
   </wsdl:message>
   <wsdl:message name="UpdateFriendsActivityFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="dbActionId" type="s:string" />
   </wsdl:message>
@@ -1356,20 +1356,20 @@
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="DeleteFriendsFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteFriendsFeedHttpPostOut" />
   <wsdl:message name="DeleteUserFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteUserFeedHttpPostOut" />
   <wsdl:message name="MergeFriendsActivityFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="MergeFriendsActivityFeedHttpPostOut" />
@@ -2332,13 +2332,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap12:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <http:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -810,7 +810,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/AddUserFavorit", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool AddUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData) {
+        public Status AddUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData) {
             object[] results = this.Invoke("AddUserFavorit", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -820,7 +820,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         sItemType,
                         sItemCode,
                         sExtraData});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1005,12 +1005,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/RemoveUserFavorit", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int[] nMediaIDs) {
-            this.Invoke("RemoveUserFavorit", new object[] {
+        public Status RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int[] nMediaIDs) {
+            object[] results = this.Invoke("RemoveUserFavorit", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sUserGUID,
                         nMediaIDs});
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1033,7 +1034,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         private void OnRemoveUserFavoritOperationCompleted(object arg) {
             if ((this.RemoveUserFavoritCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.RemoveUserFavoritCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.RemoveUserFavoritCompleted(this, new RemoveUserFavoritCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1073,7 +1074,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserFavorites", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FavoritObject[] GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
+        public FavoritObjectResponse GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
             object[] results = this.Invoke("GetUserFavorites", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1081,7 +1082,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         domainID,
                         sDeviceUDID,
                         sItemType});
-            return ((FavoritObject[])(results[0]));
+            return ((FavoritObjectResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4271,6 +4272,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class FavoritObjectResponse {
+        
+        private Status statusField;
+        
+        private FavoritObject[] favoritObjectsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public FavoritObject[] FavoritObjects {
+            get {
+                return this.favoritObjectsField;
+            }
+            set {
+                this.favoritObjectsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public partial class KeyValuePair {
         
         private string keyField;
@@ -4685,10 +4719,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -4799,7 +4833,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void RemoveUserFavoritCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    public delegate void RemoveUserFavoritCompletedEventHandler(object sender, RemoveUserFavoritCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveUserFavoritCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveUserFavoritCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
@@ -4823,10 +4879,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public FavoritObject[] Result {
+        public FavoritObjectResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FavoritObject[])(this.results[0]));
+                return ((FavoritObjectResponse)(this.results[0]));
             }
         }
     }

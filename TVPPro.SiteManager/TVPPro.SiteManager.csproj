@@ -515,20 +515,20 @@
     <None Include="DataEntities\dsChannels.xss">
       <DependentUpon>dsChannels.xsd</DependentUpon>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.wsdl" />
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.wsdl" />
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService5.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService51.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService2.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService52.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService3.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService53.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService4.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService54.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Notification\TVPPro.SiteManager.TvinciPlatform.Notification.NotificationMessage.datasource">
@@ -754,10 +754,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -765,10 +765,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -776,10 +776,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1287,10 +1287,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.disco" />
+    <None Include="Web References\TvinciPlatform.Users\module.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciPlatform.Users\module.disco" />
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

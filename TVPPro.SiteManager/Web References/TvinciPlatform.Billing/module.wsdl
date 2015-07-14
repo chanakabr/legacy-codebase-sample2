@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
           </s:sequence>
         </s:complexType>
@@ -192,6 +192,7 @@
           <s:enumeration value="ExternalError" />
           <s:enumeration value="CellularPermissionsError" />
           <s:enumeration value="UnKnownBillingProvider" />
+          <s:enumeration value="UserSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="DD_ChargeUser">
@@ -249,11 +250,13 @@
       </s:complexType>
       <s:complexType name="InAppReceipt">
         <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="iOSVersion" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="latest_receipt" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="receipt" type="tns:iTunesReceipt" />
           <s:element minOccurs="0" maxOccurs="1" name="latest_expired_receipt_info" type="tns:iTunesReceipt" />
-          <s:element minOccurs="0" maxOccurs="1" name="latest_receipt_info" type="tns:iTunesReceipt" />
+          <s:element minOccurs="0" maxOccurs="1" name="latest_receipt_info" type="tns:ArrayOfITunesReceipt" />
+          <s:element minOccurs="0" maxOccurs="1" name="in_app" type="tns:ArrayOfITunesReceipt" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="iTunesReceipt">
@@ -276,6 +279,12 @@
           <s:element minOccurs="0" maxOccurs="1" name="original_purchase_date" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="original_purchase_date_ms" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="version_external_identifier" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="expires_date_ms" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfITunesReceipt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="iTunesReceipt" nillable="true" type="tns:iTunesReceipt" />
         </s:sequence>
       </s:complexType>
       <s:element name="InApp_ReneweInAppPurchase">
@@ -544,7 +553,7 @@
     <wsdl:part name="parameters" element="tns:Cellular_ChargeUserResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
-    <wsdl:part name="sWUserName" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostOut">

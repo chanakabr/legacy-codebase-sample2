@@ -113,8 +113,11 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                subscriptionIDs = m_Module.GetSubscriptionIDsContainingMediaFile(wsUserName, wsPassword, iMediaID, iMediaFileID);
-                
+                IdsResponse response = m_Module.GetSubscriptionIDsContainingMediaFile(wsUserName, wsPassword, iMediaID, iMediaFileID);
+                if (response != null)
+                {
+                    subscriptionIDs = response.ids;
+                }
                 if (subscriptionIDs != null)
                     DataHelper.SetCacheObject(sKey, subscriptionIDs);
             }
