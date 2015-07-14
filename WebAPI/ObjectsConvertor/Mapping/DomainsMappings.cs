@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Utils;

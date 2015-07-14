@@ -12,6 +12,7 @@ using WebAPI.Models;
 using Couchbase.Extensions;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {

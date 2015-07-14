@@ -176,22 +176,11 @@ namespace WebAPI
                             if (descs.Count > 0)
                                 pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
-                            context.Response.Write(string.Format("\t\t\t<param name='{0}' type='{1}' description='{2}'/>\n", par.Name,
-                                getTypeFriendlyName(par.ParameterType), pdesc));
+                            context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
+                                getTypeAndArray(par.ParameterType), pdesc));
                         }
 
-                        if (method.ReturnType.IsArray || method.ReturnType.IsGenericType)
-                        {
-                            string name = "";
-                            if (method.ReturnType.IsArray)
-                                name = getTypeFriendlyName(method.ReturnType.GetElementType());
-                            else if (method.ReturnType.IsGenericType)
-                                name = getTypeFriendlyName(method.ReturnType.GetGenericArguments()[0]);
-
-                            context.Response.Write(string.Format("\t\t\t<result type='{0}' arrayType='{1}'/>\n", getTypeFriendlyName(method.ReturnType), name));
-                        }
-                        else
-                            context.Response.Write(string.Format("\t\t\t<result type='{0}'/>\n", getTypeFriendlyName(method.ReturnType)));
+                        context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
                         context.Response.Write("\t\t</action>\n");
                     }
                 };
@@ -199,6 +188,61 @@ namespace WebAPI
                 context.Response.Write(string.Format("\t</service>\n"));
             }
             context.Response.Write("</services>\n");
+        }
+
+        private string getTypeAndArray(Type type)
+        {
+            bool isNullable = false;
+            //Handling nullables
+            if (Nullable.GetUnderlyingType(type) != null)
+            {
+                type = type.GetGenericArguments()[0];
+                isNullable = true;
+            }
+
+            //Handling Enums
+            if (type.IsEnum)
+            {
+                return string.Format("type='string' enumType='{0}'", getTypeFriendlyName(type));
+            }
+            //Handling arrays
+            else if (type.IsArray || type.IsGenericType)
+            {
+                string name = "";
+                if (type.IsArray)
+                    name = getTypeFriendlyName(type.GetElementType());
+                else if (type.IsGenericType)
+                {
+                    //if List
+                    if (type.GetGenericArguments().Count() == 1)
+                        name = getTypeFriendlyName(type.GetGenericArguments()[0]);
+                    //if Dictionary
+                    else if (type.GetGenericArguments().Count() == 2)
+                        name = "dictionary";
+                    else
+                        throw new Exception("Generic type unknown");
+                }
+
+                return string.Format("type='array' arrayType='{1}'", getTypeFriendlyName(type), name);
+            }
+
+            return string.Format("type='{0}' {1} default='{2}'", getTypeFriendlyName(type), isNullable ? "optional='1'" : "", getDefaultForType(type));
+        }
+
+        private string getDefaultForType(Type type)
+        {
+            if (type == typeof(String))
+                return "null";
+            if (type == typeof(long) || type == typeof(Int64))
+                return "0";
+            if (type == typeof(Int32))
+                return "0";
+            if (type == typeof(double) || type == typeof(float))
+                return "0";
+            if (type == typeof(bool))
+                return "false";
+
+            return "null";
         }
 
         private void runOnProperties(HttpContext context, XmlDocument x, string className, MemberInfo[] members)
@@ -216,7 +260,7 @@ namespace WebAPI
                     if (descs.Count > 0)
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
-                    Type eType = null;
+                    //Type eType = null;
                     var dataMemberAttr = pi.GetCustomAttribute<DataMemberAttribute>();
 
                     if (dataMemberAttr == null)
@@ -224,34 +268,8 @@ namespace WebAPI
 
                     var attr = dataMemberAttr.Name;
 
-                    if (pi.PropertyType.IsEnum || ((eType = Nullable.GetUnderlyingType(pi.PropertyType)) != null && eType.IsEnum))
-                    {
-                        string typeName = "";
-
-                        if (eType != null)
-                            typeName = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
-                        else
-                            typeName = getTypeFriendlyName(pi.PropertyType);
-                        
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='string' enumType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                           typeName, pdesc));
-                    }
-                    else if (pi.PropertyType.IsArray || pi.PropertyType.IsGenericType)
-                    {
-                        string name = "";
-                        if (pi.PropertyType.IsArray)
-                            name = getTypeFriendlyName(pi.PropertyType.GetElementType());
-                        else if (pi.PropertyType.IsGenericType)
-                            name = getTypeFriendlyName(pi.PropertyType.GetGenericArguments()[0]);
-
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='array' arrayType='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                            name, pdesc));
-                    }
-                    else
-                    {
-                        context.Response.Write(string.Format("\t\t<property name='{0}' type='{1}' description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                        getTypeFriendlyName(pi.PropertyType), pdesc));
-                    }
+                    context.Response.Write(string.Format("\t\t<property name='{0}' {1} description='{2}' readOnly='0' insertOnly='0' />\n", attr,
+                           getTypeAndArray(pi.PropertyType), pdesc));
                 }
                 else
                 {

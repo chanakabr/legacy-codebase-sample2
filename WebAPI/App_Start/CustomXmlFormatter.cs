@@ -9,6 +9,7 @@ using System.Xml;
 using System.Runtime.Serialization;
 using WebAPI.Models.General;
 using System.Text;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.App_Start
 {

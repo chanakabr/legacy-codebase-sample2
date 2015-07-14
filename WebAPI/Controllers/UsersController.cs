@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
 
             try
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
 
             try
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
             }
             else if (request.page_size < 5)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
             List<int> filterTypes = null;
@@ -206,7 +206,7 @@ namespace WebAPI.Controllers
                 }
                 catch
                 {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "invalid filter types");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "invalid filter types");
                 }
             }
 
@@ -270,7 +270,7 @@ namespace WebAPI.Controllers
             }
             else if (page_size < 5)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
             List<int> filterTypes = null;
@@ -282,7 +282,7 @@ namespace WebAPI.Controllers
                 }
                 catch
                 {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "invalid filter types");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "invalid filter types");
                 }
             }
 
@@ -326,11 +326,11 @@ namespace WebAPI.Controllers
 
             if (request == null)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "Login details are null");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Login details are null");
             }
             if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
@@ -371,11 +371,11 @@ namespace WebAPI.Controllers
 
             if (request == null || request.userBasicData == null)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "SignUp or UserBasicData is null");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "SignUp or UserBasicData is null");
             }
             if (string.IsNullOrEmpty(request.userBasicData.Username) || string.IsNullOrEmpty(request.password))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "username or password empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
@@ -414,7 +414,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name is empty");
             }
             try
             {
@@ -455,7 +455,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name is empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name is empty");
             }
             try
             {
@@ -494,7 +494,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "token is empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token is empty");
             }
             try
             {
@@ -536,7 +536,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "user name or password is empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name or password is empty");
             }
             try
             {
@@ -579,11 +579,11 @@ namespace WebAPI.Controllers
             }
             catch
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "each user id must be int");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "each user id must be int");
             }
             if (usersIds == null || usersIds.Count == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no user id in list");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no user id in list");
             }
 
             int groupId = int.Parse(partner_id);
@@ -626,7 +626,7 @@ namespace WebAPI.Controllers
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "no data to set");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no data to set");
             }
 
             try
@@ -975,7 +975,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (media_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
             try
             {
@@ -1014,7 +1014,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (epg_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epg_id cannot be empty");
             }
 
             try
@@ -1054,7 +1054,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
 
             try
@@ -1094,7 +1094,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
 
             try
@@ -1169,7 +1169,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (media_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
             try
             {
@@ -1209,7 +1209,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (epg_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "epg_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epg_id cannot be empty");
             }
             try
             {
@@ -1253,17 +1253,17 @@ namespace WebAPI.Controllers
             // parameters validation
             if (request.MediaType.Trim().Length == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
 
             if (request.MediaType.Trim().Length == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_type cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_type cannot be empty");
             }
 
             if (udid.Trim().Length == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "UDID cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UDID cannot be empty");
             }
 
             try
@@ -1302,7 +1302,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (media_ids == null | media_ids.Count == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
 
             try
@@ -1468,7 +1468,7 @@ namespace WebAPI.Controllers
         //    int groupId;
         //    if (!int.TryParse(partner_id, out groupId))
         //    {
-        //        throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "partner_id must be int");
+        //        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "partner_id must be int");
         //    }
 
         //    WebAPI.Models.Users.ClientUser user = ClientsManager.UsersClient().SignIn(groupId, request.Username, request.Password);

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using WebAPI.Models;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Managers.Models
 {
     [Serializable]
     public class Group

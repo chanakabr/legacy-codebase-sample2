@@ -6,7 +6,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Web;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Managers.Models
 {
     [DataContract]
     public class Status

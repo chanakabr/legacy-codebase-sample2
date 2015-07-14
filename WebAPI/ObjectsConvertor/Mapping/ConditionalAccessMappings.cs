@@ -7,6 +7,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

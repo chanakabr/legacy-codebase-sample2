@@ -13,6 +13,7 @@ using KLogMonitor;
 using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.App_Start
 {
