@@ -1521,15 +1521,18 @@ namespace ConditionalAccess
             string sAPIUsername = string.Empty;
             string sAPIPassword = string.Empty;
             string sPricingUsername = string.Empty;
-            string sPricingPassword = string.Empty;
-            //Utils.GetApiAndPricingCredentials(nGroupID, ref sPricingUsername, ref sPricingPassword, ref sAPIUsername, ref sAPIPassword);
+            string sPricingPassword = string.Empty;            
 
             Utils.GetWSCredentials(nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
             Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-
-
+            
             // check if file is avilable             
             Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1]{nMediaFileID});
+            if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
+            {
+                theReason = PriceReason.NotForPurchase;
+                return null;
+            }
 
             if (nMediaFileID > 0)
             {

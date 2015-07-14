@@ -593,5 +593,23 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataRow Get_PPVModuleForMediaFile(int mediaFileID, long ppvModuleCode, int groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleForMediaFile");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupID", groupID);
+            if (ppvModuleCode > 0)
+            {
+                sp.AddParameter("@ppvModule", ppvModuleCode);
+            }
+            sp.AddParameter("@MediaFile", mediaFileID);
+
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            return null;
+        }
     }
 }
