@@ -418,7 +418,10 @@ namespace ConditionalAccess
                     m.Url = pricingUrl;
                 string[] subs = lstSubsCodes.Select((item) => item.ToString()).Distinct().ToArray();
 
-                return m.GetSubscriptionsData(sWSUsername, sWSPassword, subs, string.Empty, string.Empty, string.Empty);
+                var res = m.GetSubscriptionsData(sWSUsername, sWSPassword, subs, string.Empty, string.Empty, string.Empty);
+                if (res != null)
+                    return res.Subscriptions;
+                return null;
             }
 
         }
