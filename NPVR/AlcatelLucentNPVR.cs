@@ -1510,11 +1510,6 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetRetrieveSeriesResponse(responseJson, args, res);
-
-                            res.totalItems = res.results.Count;
-
-                            SetRecordedSeriesListAccordingToPaging(ref res, args.PageSize, args.PageIndex);
-
                         }
                         else
                         {

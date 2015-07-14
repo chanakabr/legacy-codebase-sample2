@@ -4074,16 +4074,6 @@ namespace Catalog
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
-                        if (request.m_nPageIndex < 0)
-                        {
-                            throw new Exception("Bad Request.");
-                        }
-                        // In case Page Size is 0  set Page size to default (5)
-                        if (request.m_nPageSize == 0)
-                        {
-                            request.m_nPageSize = 5; // default
-                        }
-
                         NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj() { EntityID = domainID.ToString(), PageIndex = request.m_nPageIndex, PageSize = request.m_nPageSize });
                         if (response != null)
                         {
