@@ -63,10 +63,14 @@ namespace TVPApiModule.Objects.Authorization
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshToken;
-            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
                 (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
                 token.RefreshTokenExpiration;
+
+            // set access expiration time - no longer than refresh expiration
+            long accessExpiration =(long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            
             GroupID = token.GroupID;
             SiteGuid = token.SiteGuid;
             IsAdmin = token.IsAdmin;

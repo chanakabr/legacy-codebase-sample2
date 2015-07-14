@@ -73,19 +73,19 @@ public partial class Gateways_JsonPostGW : BaseGateway
                         {
                             // get user ID
                             if (initObj.SiteGuid != null)
-                                HttpContext.Current.Items.Add(Constants.USER_ID, initObj.SiteGuid);
+                                HttpContext.Current.Items[Constants.USER_ID] = initObj.SiteGuid;
 
                             // get group ID
                             if (initObj.ApiUser != null && initObj.ApiUser != null)
                             {
                                 int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-                                HttpContext.Current.Items.Add(Constants.GROUP_ID, groupId);
+                                HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
                             }
                         }
                     }
                 }
 
-                HttpContext.Current.Items.Add(pair.Key, sValue);
+                HttpContext.Current.Items[pair.Key] = sValue;
             }
 
             // log request body

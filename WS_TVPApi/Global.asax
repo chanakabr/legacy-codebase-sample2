@@ -52,19 +52,19 @@
         }
 
         // get request ID
-        HttpContext.Current.Items.Add(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
+        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
 
         // get action name
         if (HttpContext.Current.Request.QueryString["m"] != null)
-            HttpContext.Current.Items.Add(KLogMonitor.Constants.ACTION, HttpContext.Current.Request.QueryString["m"]);
+            HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = HttpContext.Current.Request.QueryString["m"];
 
         // get user agent
         if (HttpContext.Current.Request.UserAgent != null)
-            HttpContext.Current.Items.Add(KLogMonitor.Constants.CLIENT_TAG, HttpContext.Current.Request.UserAgent);
+            HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
 
         // get host IP
         if (HttpContext.Current.Request.UserHostAddress != null)
-            HttpContext.Current.Items.Add(KLogMonitor.Constants.HOST_IP, HttpContext.Current.Request.UserHostAddress);
+            HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
     }
 
     void Application_End(object sender, EventArgs e)
