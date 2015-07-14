@@ -865,7 +865,7 @@ namespace ConditionalAccess
                             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "Charge must have ppv module code";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
 
@@ -879,15 +879,15 @@ namespace ConditionalAccess
                             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "The ppv module is unknown";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
-                        else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString() && !string.IsNullOrEmpty(sPPVModuleCode))
+                        else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString())
                         {
                             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "This PPVModule does not belong to item";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
                         
@@ -1079,7 +1079,7 @@ namespace ConditionalAccess
                                 InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is not valid for purchased";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                         }
                     }
@@ -5666,6 +5666,16 @@ namespace ConditionalAccess
             try
             {
                 Logger.Logger.Log("CC_BaseChargeUserForMediaFile", string.Format("Entering CC_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Payment Method: {6} , Dummy: {7}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()), GetLogFilename());
+
+                if (!bDummy && string.IsNullOrEmpty(sPPVModuleCode))
+                {
+                    oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                    oResponse.m_sRecieptCode = string.Empty;
+                    oResponse.m_sStatusDescription = "Charge must have ppv module code";
+                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                    return oResponse;
+                }
+                
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
                 {
@@ -5742,38 +5752,36 @@ namespace ConditionalAccess
                         long.TryParse(sPPVModuleCode, out ppvModuleCode);
 
                         TvinciPricing.PPVModule thePPVModule = wsPricingService.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
-                        if (thePPVModule != null && (thePPVModule.m_sObjectCode == ppvModuleCode.ToString() || string.IsNullOrEmpty(sPPVModuleCode)))
+                        
+                        if (thePPVModule == null)   
                         {
-                            if (bDummy)
-                            {
-                                sPPVModuleCode = thePPVModule.m_sObjectCode;
-                                dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
-                                sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
-                                { // Cinepolis patch
-                                    dPrice = 0d;
-                                }
+                            oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            oResponse.m_sRecieptCode = string.Empty;                            
+                            oResponse.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            return oResponse;    
+                        }
+
+                        if (!bDummy && !thePPVModule.m_sObjectCode.Equals(sPPVModuleCode))
+                        {
+                            oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
+                            oResponse.m_sRecieptCode = string.Empty;
+                            oResponse.m_sStatusDescription = "This PPVModule does not belong to item";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            return oResponse;
+                        }
+
+                        if (bDummy)
+                        {
+                            sPPVModuleCode = thePPVModule.m_sObjectCode;
+                            dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
+                            sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                            if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                            { // Cinepolis patch
+                                dPrice = 0d;
                             }
                         }
-                        else
-                        {
-                            if (thePPVModule == null)
-                            {
-                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                oResponse.m_sRecieptCode = string.Empty;
-                                oResponse.m_sStatusDescription = "The ppv module is unknown";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                return oResponse;
-                            }
-                            else
-                            {
-                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                                oResponse.m_sRecieptCode = string.Empty;
-                                oResponse.m_sStatusDescription = "This PPVModule does not belong to item";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                return oResponse;
-                            }
-                        }
+                        
 
                         PriceReason ePriceReason = PriceReason.UnKnown;
 
@@ -7543,11 +7551,6 @@ namespace ConditionalAccess
 
                             if (ppvModules.Length > 0 && itemPriceCont.Count == 0 && !isUserSuspended)
                             {
-                                //ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-                                //priceContainer[0] = GetFreeItemPriceContainer();
-
-                                //mf.Initialize(nMediaFileID, priceContainer);
-
                                 if (bOnlyLowest)
                                 {
                                     var tempItemPriceContainer = new ItemPriceContainer();
@@ -7568,21 +7571,6 @@ namespace ConditionalAccess
 
                                 }
                             }
-
-                            //if (bOnlyLowest && !isUserSuspended)
-                            //{
-                            //    var tempItemPriceContainer = new ItemPriceContainer();
-
-
-                            //    tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
-                            //        ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
-                            //        relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
-                            //        relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-                            //        lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
-
-                            //    itemPriceCont.Insert(0, tempItemPriceContainer);
-                            //}
-                           
 
                             mf.Initialize(nMediaFileID, itemPriceCont.ToArray(), sProductCode);
                         }
@@ -10113,7 +10101,7 @@ namespace ConditionalAccess
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
-                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         return ret;
                     }
                     else
@@ -10123,7 +10111,7 @@ namespace ConditionalAccess
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
                             ret.m_sStatusDescription = "Coupon not valid";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
 
@@ -10142,7 +10130,7 @@ namespace ConditionalAccess
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
                             ret.m_sStatusDescription = "Charge must have ppv module code";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
                         // check if ppvModule related to mediaFile 
@@ -10150,38 +10138,35 @@ namespace ConditionalAccess
                         long.TryParse(sPPVModuleCode, out ppvModuleCode);
 
                         TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
-                        if (thePPVModule != null && (thePPVModule.m_sObjectCode == ppvModuleCode.ToString() || string.IsNullOrEmpty(sPPVModuleCode)))
+                        if (thePPVModule == null)
                         {
-                            if (bDummy)
-                            {
-                                sPPVModuleCode = thePPVModule.m_sObjectCode;
-                                dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
-                                sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
-                                { // Cinepolis patch
-                                    dPrice = 0d;
-                                }
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
+
+                        if (!bDummy && !thePPVModule.m_sObjectCode.Equals(sPPVModuleCode))
+                        {
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "This PPVModule does not belong to item";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
+
+                        if (bDummy)
+                        {
+                            sPPVModuleCode = thePPVModule.m_sObjectCode;
+                            dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
+                            sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                            if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                            { // Cinepolis patch
+                                dPrice = 0d;
                             }
                         }
-                        else
-                        {
-                            if (thePPVModule == null)
-                            {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "The ppv module is unknown";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                return ret;
-                            }
-                            else
-                            {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                return ret;
-                            }
-                        }
+
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription relevantSub = null;
                         TvinciPricing.Collection relevantCol = null;
@@ -10256,44 +10241,39 @@ namespace ConditionalAccess
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is already purchased";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.Free)
                             {
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is free";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.SubscriptionPurchased)
                             {
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.UserSuspended)
                             {
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The user is suspended";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-
                             }
                             else if (theReason == PriceReason.NotForPurchase)
                             {
                                 ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is not valid for purchased";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
+
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         }
                     }
                 } // end else if siteguid == ""
