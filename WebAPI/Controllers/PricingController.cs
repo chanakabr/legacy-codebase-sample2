@@ -65,5 +65,47 @@ namespace WebAPI.Controllers
 
             return new ItemPricesList() { ItemPrice = ppvPrices };
         }
+
+        /// <summary>
+        /// Returns a list of subscriptions ids.
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="media_id">Media ID</param>
+        /// <param name="file_id">Media File ID</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
+        ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
+        [Route("pricing/files/{file_id}/subscriptions"), HttpGet]
+        public List<int> GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id)
+        {
+            List<int> subscruptions = null;
+
+            int groupId = int.Parse(partner_id);
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media id cannot be 0");
+            }
+            if (file_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media file id cannot be 0");
+            }
+
+            try
+            {
+                // call client
+                subscruptions = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, media_id, file_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return subscruptions;
+        }      
     }
 }

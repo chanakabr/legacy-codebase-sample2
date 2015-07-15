@@ -14,7 +14,7 @@ namespace WebAPI
     /// <summary>
     /// Summary description for DocGenerator
     /// </summary>
-    public class DocGenerator : IHttpHandler
+    public class ApiSchema : IHttpHandler
     {
         private static XmlDocument XMLFromAssemblyNonCached(Assembly assembly)
         {
@@ -166,7 +166,10 @@ namespace WebAPI
                             }
                         }
 
-                        context.Response.Write(string.Format("\t\t<action name='{0}' description='{1}'>\n", ((RouteAttribute)attr).Template, desc.Trim().Replace('\'', '"')));
+                        context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' description='{3}'>\n", method.Name,
+                             controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
+                             desc.Trim().Replace('\'', '"')));
+
                         foreach (var par in method.GetParameters())
                         {
                             var descs = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']",
@@ -188,6 +191,17 @@ namespace WebAPI
                 context.Response.Write(string.Format("\t</service>\n"));
             }
             context.Response.Write("</services>\n");
+
+            //Config section
+            context.Response.Write("<configurations>\n");
+            context.Response.Write("\t<client type='KalturaClientConfiguration'>\n");
+            context.Response.Write("\t\t<clientTag type='string' />\n\t\t<apiVersion type='string'/>\n");
+            context.Response.Write("\t</client>\n");
+            context.Response.Write("\t<request type='KalturaRequestConfiguration'>\n");
+            context.Response.Write("\t\t<partnerId type='int' description='Impersonated partner id'/>\n");
+            context.Response.Write("\t\t<ks type='string' alias='sessionId' description='Kaltura API session'/>\n");
+            context.Response.Write("\t</request>\n");
+            context.Response.Write("</configurations>\n");
         }
 
         private string getTypeAndArray(Type type)
