@@ -6,10 +6,10 @@ using System.Text;
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
-    {        
+    {
         OK = 0,
         Error = 1,
-       
+
         // Domain Section 1000 - 1999
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
@@ -26,7 +26,7 @@ namespace ApiObjects.Response
         DomainAlreadySuspended = 1012,
         DomainAlreadyActive = 1013,
         LimitationPeriod = 1014,//
-        DeviceAlreadyExists = 1015, 
+        DeviceAlreadyExists = 1015,
         DeviceExistsInOtherDomains = 1016,
         NoUsersInDomain = 1017,
         UserExistsInOtherDomains = 1018,
@@ -40,12 +40,12 @@ namespace ApiObjects.Response
         InvalidUser = 1026,
         UserNotAllowed = 1027,
         DuplicatePin = 1028,
-        UserAlreadyInDomain=1029,
-        
+        UserAlreadyInDomain = 1029,
+
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
         UserSuspended = 2001,
-        GenerateNewLoginPIN = 2002, 
+        GenerateNewLoginPIN = 2002,
         PinNotExists = 2003,
         PinExpired = 2004,
         ValidPin = 2005,
@@ -57,18 +57,18 @@ namespace ApiObjects.Response
         PinExists = 2011,
         PinMustBeDigitsOnly = 2012,
         PinCanNotStartWithZero = 2013,
-        UserExists = 2014, 
+        UserExists = 2014,
         InsideLockTime = 2015,
         UserNotActivated = 2016,
         UserAllreadyLoggedIn = 2017,
         UserDoubleLogIn = 2018,
         DeviceNotRegistered = 2019,
         NotActivated = 2020,
-        ErrorOnInitUser = 2021,        
+        ErrorOnInitUser = 2021,
         Activated = 2022,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
-        
+
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
@@ -88,12 +88,13 @@ namespace ApiObjects.Response
         // Api 5000 - 5999
         NoPinDefined = 5001,
         PinMismatch = 5002,
+        RuleNotExists = 5003,
 
         // Billing 6000 - 6999
         PriceNotCorrect = 6000,
         UnKnownPPVModule = 6001,
         ExpiredCard = 6002,
         CellularPermissionsError = 6003,
-        UnKnownBillingProvider = 6004
+        UnKnownBillingProvider = 6004,
     }
 }
