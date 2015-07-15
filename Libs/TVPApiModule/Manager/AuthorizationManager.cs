@@ -503,5 +503,21 @@ namespace TVPApiModule.Manager
             // return token response
             return Instance.GetTokenResponseObject(apiToken);
         }
+
+        public static Domain GetSiteGuidsDomain(string siteGuid, Domain[] domains)
+        {
+            Domain siteGuidsDomain = null;
+
+            int userId;
+            foreach (var domain in domains)
+            {
+                userId = int.Parse(siteGuid);
+                if (domain.m_DefaultUsersIDs.Contains(userId) || domain.m_masterGUIDs.Contains(userId) || domain.m_UsersIDs.Contains(userId) || domain.m_PendingUsersIDs.Contains(userId))
+                {
+                    siteGuidsDomain = domain;
+                }
+            }
+            return siteGuidsDomain;
+        }
     }
 }

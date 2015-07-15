@@ -321,12 +321,7 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                // Tokenization: validate domain and udid
-                if (AuthorizationManager.IsTokenizationEnabled() &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
-                {
-                    return null;
-                }
+                
                 try
                 {
                     domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
@@ -334,17 +329,29 @@ namespace TVPApiServices
                     if (domains == null || domains.Count() == 0)
                         return devDomains;
 
-                    devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[domains.Count()];
-
-                    for (int i = 0; i < domains.Count(); i++)
+                    // Tokenization: validate domains - find siteGuids domain
+                    Domain siteGuidsDomain = AuthorizationManager.GetSiteGuidsDomain(initObj.SiteGuid, domains);
+                        
+                    // device is in wrong domain - return 403
+                    if (AuthorizationManager.IsTokenizationEnabled() && siteGuidsDomain == null)
                     {
-                        devDomains[i] = new TVPApiModule.Services.ApiDomainsService.DeviceDomain()
+                        AuthorizationManager.Instance.returnError(403);
+                        return null;
+                    }
+
+                    // device in siteGuids domain return only the relevant domain
+                    else
+                    {
+                        devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[1]
                         {
-                            DomainID = domains[i].m_nDomainID,
-                            DomainName = domains[i].m_sName,
-                            SiteGuid = domains[i].m_masterGUIDs != null && domains[i].m_masterGUIDs.Count() > 0 ? domains[i].m_masterGUIDs[0].ToString() : string.Empty,
-                            DefaultUser = domains[i].m_DefaultUsersIDs != null && domains[i].m_DefaultUsersIDs.Count() > 0 ? domains[i].m_DefaultUsersIDs[0].ToString() : string.Empty,
-                            DomainStatus = domains[i].m_DomainStatus
+                            new TVPApiModule.Services.ApiDomainsService.DeviceDomain()
+                            {
+                                DomainID = siteGuidsDomain.m_nDomainID,
+                                DomainName = siteGuidsDomain.m_sName,
+                                SiteGuid = siteGuidsDomain.m_masterGUIDs != null && siteGuidsDomain.m_masterGUIDs.Count() > 0 ? siteGuidsDomain.m_masterGUIDs[0].ToString() : string.Empty,
+                                DefaultUser = siteGuidsDomain.m_DefaultUsersIDs != null && siteGuidsDomain.m_DefaultUsersIDs.Count() > 0 ? siteGuidsDomain.m_DefaultUsersIDs[0].ToString() : string.Empty,
+                                DomainStatus = siteGuidsDomain.m_DomainStatus
+                            }
                         };
                     }
                 }
