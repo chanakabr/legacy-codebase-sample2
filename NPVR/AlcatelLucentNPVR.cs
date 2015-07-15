@@ -67,6 +67,8 @@ namespace NPVR
         private static readonly string ALU_GENRE = "genre";
         private static readonly string ALU_YEAR = "year";
         private static readonly string ALU_EPISODE = "episode";
+        private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
+        private static readonly string ALU_RATING = "rating";
 
 
         private int groupID;
@@ -986,6 +988,24 @@ namespace NPVR
                         {
                             Key = ALU_YEAR,
                             Value = entry.Year
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.Rating))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_RATING,
+                            Value = entry.Rating
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.SeasonNumber))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_SEASON_NUMBER,
+                            Value = entry.SeasonNumber
                         });
                     }
 
