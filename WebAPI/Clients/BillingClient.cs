@@ -138,7 +138,7 @@ namespace WebAPI.Clients
             return paymentGW;
         }
 
-        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string url, int? isDefault, int? isActive)
+        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string url, string external_identifier, int? isDefault, int? isActive)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -147,7 +147,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, url, isDefault, isActive);
+                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, url, external_identifier, isDefault, isActive);
                 }
             }
             catch (Exception ex)
