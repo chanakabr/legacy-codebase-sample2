@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         /// Enabled a parental rule for a specific household.
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// Household does not exist = 1006</remarks>
+        /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
@@ -102,7 +102,8 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
+        /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
