@@ -7,19 +7,19 @@ namespace ApiObjects.Response
 {
     public class IdsResponse
     {
-         public ApiObjects.Response.Status resp { get; set; }
-        public List<int> ids { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
+        public List<int> Ids { get; set; }
 
         public IdsResponse()
         {
-            resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
-            ids = new List<int>();
+            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+            Ids = new List<int>();
         }
 
-        public IdsResponse(ApiObjects.Response.Status resp, List<int> ids)
+        public IdsResponse(ApiObjects.Response.Status status, List<int> ids)
         {
-            this.resp = resp;
-            this.ids = ids;
+            this.Status = status;
+            this.Ids = ids;
         }
     }
 }
