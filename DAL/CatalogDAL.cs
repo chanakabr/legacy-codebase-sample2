@@ -2742,5 +2742,23 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
+
+        public static DataSet Get_FileAndMediaBasicDetails(int[] mediaFiles)
+        {
+            DataSet ds = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+               
+                ds = sp.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ds;
+        }
     }
 }
