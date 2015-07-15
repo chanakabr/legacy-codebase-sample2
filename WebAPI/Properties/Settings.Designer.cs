@@ -26,6 +26,16 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/domains/module.asmx")]
+        public string WebAPI_Domains_module {
+            get {
+                return ((string)(this["WebAPI_Domains_module"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/social/module.asmx")]
         public string WebAPI_Social_module {
             get {
@@ -36,7 +46,7 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/billing/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_billing/module.asmx")]
         public string WebAPI_Billing_module {
             get {
                 return ((string)(this["WebAPI_Billing_module"]));
@@ -46,7 +56,7 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.192.146/webservices/pricing/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_pricing/module.asmx")]
         public string WebAPI_Pricing_mdoule {
             get {
                 return ((string)(this["WebAPI_Pricing_mdoule"]));
@@ -56,10 +66,10 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains/module.asmx")]
-        public string WebAPI_Domains_module {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_users/module.asmx")]
+        public string WebAPI_Users_UsersService {
             get {
-                return ((string)(this["WebAPI_Domains_module"]));
+                return ((string)(this["WebAPI_Users_UsersService"]));
             }
         }
         
@@ -70,16 +80,6 @@ namespace WebAPI.Properties {
         public string WebAPI_ConditionalAccess_module {
             get {
                 return ((string)(this["WebAPI_ConditionalAccess_module"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Users/module.asmx")]
-        public string WebAPI_Users_UsersService {
-            get {
-                return ((string)(this["WebAPI_Users_UsersService"]));
             }
         }
         

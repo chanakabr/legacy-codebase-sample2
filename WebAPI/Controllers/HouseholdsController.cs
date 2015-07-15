@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpDelete]
         public bool DisableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
@@ -452,7 +452,7 @@ namespace WebAPI.Controllers
 
             if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "asset_id not valid");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
             }
             try
             {
@@ -492,7 +492,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(sub_id))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "subscription code not valid");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
@@ -598,7 +598,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(request.MasterUserId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "master_user_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "master_user_id cannot be empty");
             }
             try
             {
@@ -733,6 +733,11 @@ namespace WebAPI.Controllers
         public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
             Device device = null;
+            
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
+            }
 
             int groupId = int.Parse(partner_id);
 

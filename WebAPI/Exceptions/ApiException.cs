@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web;
 using System.Web.Http;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
 namespace WebAPI.Exceptions

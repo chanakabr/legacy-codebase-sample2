@@ -14,6 +14,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor;
 using WebAPI.Utils;
 using WebAPI.Models.General;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Clients
 {

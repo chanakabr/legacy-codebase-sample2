@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 using WebAPI.Utils;
 using KLogMonitor;
 using System.Reflection;
+using WebAPI.Managers.Models;
 
 
 namespace WebAPI.Clients

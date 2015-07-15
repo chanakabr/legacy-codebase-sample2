@@ -8,8 +8,10 @@ using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
@@ -245,6 +247,78 @@ namespace WebAPI.Clients
             result = Mapper.Map<BillingResponse>(response.BillingResponse);
 
             return result;
+        }
+
+        internal List<SubscriptionPrice> GetSubscriptionsPrices(int groupId, List<string> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        {
+            WebAPI.ConditionalAccess.SubscriptionsPricesResponse response = null;
+            List<SubscriptionPrice> prices = new List<SubscriptionPrice>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, 
+                        subscriptionsIds.ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            prices = AutoMapper.Mapper.Map<List<SubscriptionPrice>>(response.SubscriptionsPrices);
+
+            return prices;
+        }
+
+        internal List<ItemPrice> GetItemsPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        {
+            WebAPI.ConditionalAccess.MediaFileItemPricesContainerResponse response = null;
+            List<ItemPrice> prices = new List<ItemPrice>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetItemsPricesWithCoupons(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.ItemPrice>>(response.ItemsPrices);
+
+            return prices;
         }
     }
 }

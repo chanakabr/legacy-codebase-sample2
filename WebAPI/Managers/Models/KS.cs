@@ -8,8 +8,9 @@ using System.Web;
 using WebAPI.Utils;
 using WebAPI.Models;
 using WebAPI.Exceptions;
+using WebAPI.Models.General;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Managers.Models
 {
     public class KS
     {

@@ -14,60 +14,60 @@ namespace WebAPI.Models.ConditionalAccess
     public class Entitlement
     {
         /// <summary>
-        ///Entitlement Type
+        ///Entitlement type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         public TransactionType type;
 
         /// <summary>
-        ///Entitlement ID
+        ///Entitlement identifier
         /// </summary>
-        [DataMember(Name = "entitlements_id")]
-        [JsonProperty("entitlements_id")]
-        public string entitlementsId;
+        [DataMember(Name = "entitlement_id")]
+        [JsonProperty("entitlement_id")]
+        public string entitlementId;
 
         /// <summary>
-        ///Current Uses
+        ///Current uses
         /// </summary>
         [DataMember(Name = "current_uses")]
         [JsonProperty("current_uses")]
-        public Int32 currentUses;
+        public int currentUses;
 
         /// <summary>
-        ///End Date
+        ///End date
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         public long endDate { get; set; }
 
         /// <summary>
-        ///Current Date
+        ///Current date
         /// </summary>
         [DataMember(Name = "current_date")]
         [JsonProperty("current_date")]
         public long currentDate;
 
         /// <summary>
-        ///Last View Date
+        ///Last view date
         /// </summary>
         [DataMember(Name = "last_view_date")]
         [JsonProperty("last_view_date")]
         public long lastViewDate;
 
         /// <summary>
-        ///Purchase Date
+        ///Purchase date
         /// </summary>
         [DataMember(Name = "purchase_date")]
         [JsonProperty("purchase_date")]
         public long purchaseDate;
 
         /// <summary>
-        ///Purchase ID (sunscription + collection)
+        ///Purchase identifier (subscription + collection)
         /// </summary>
         [DataMember(Name = "purchase_id")]
         [JsonProperty("purchase_id")]
-        public Int32 purchaseID; 
+        public int purchaseID; 
 
         /// <summary>
         ///Payment Method
@@ -98,21 +98,21 @@ namespace WebAPI.Models.ConditionalAccess
         public bool cancelWindow;
 
         /// <summary>
-        ///Max Uses (subscription + ppv)
+        ///Max uses (subscription + PPV)
         /// </summary>
         [DataMember(Name = "max_uses")]
         [JsonProperty("max_uses")]
-        public Int32 maxUses;
+        public int maxUses;
 
         /// <summary>
-        ///Next Renewal Date (subscription)
+        ///Next renewal date (subscription)
         /// </summary>
         [DataMember(Name = "next_renewal_date")]
         [JsonProperty("next_renewal_date")]
         public long nextRenewalDate;
 
         /// <summary>
-        ///Recurring Status (subscription)
+        ///Recurring status (subscription)
         /// </summary>
         [DataMember(Name = "recurring_status")]
         [JsonProperty("recurring_status")]
@@ -126,11 +126,11 @@ namespace WebAPI.Models.ConditionalAccess
         public bool isRenewable;
 
         /// <summary>
-        ///Media FileID (ppv)
+        ///Media file identifier (ppv)
         /// </summary>
         [DataMember(Name = "media_file_id")]
         [JsonProperty("media_file_id")]
-        public Int32 mediaFileID;
+        public int mediaFileID;
 
 
     }

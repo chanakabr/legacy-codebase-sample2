@@ -1,0 +1,26 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Web;
+
+namespace WebAPI.Models.General
+{
+    public class TranslationContainer
+    {
+        /// <summary>
+        /// Language code
+        /// </summary>
+        [DataMember(Name = "language")]
+        [JsonProperty("language")]
+        public string Language { get; set; }
+
+        /// <summary>
+        /// Translated value
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty("value")]
+        public string Value { get; set; }
+    }
+}

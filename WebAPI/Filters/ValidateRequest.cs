@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.App_Start
 {
@@ -18,7 +19,7 @@ namespace WebAPI.App_Start
             {
                 if (string.IsNullOrEmpty((string)qs["user_id"]))
                 {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.UserIDInvalid, "no user_id");
+                    throw new BadRequestException((int)StatusCode.UserIDInvalid, "no user_id");
                 }
             }
 
@@ -27,7 +28,7 @@ namespace WebAPI.App_Start
                 int groupId;
                 if (!int.TryParse((string)qs["partner_id"], out groupId))
                 {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.PartnerInvalid, "partner_id must be int");
+                    throw new BadRequestException((int)StatusCode.PartnerInvalid, "partner_id must be int");
                 }
             }
 
@@ -36,7 +37,7 @@ namespace WebAPI.App_Start
                 int did = 0;
                 if (!int.TryParse(qs["household_id"], out did) || did <= 0)
                 {
-                    throw new BadRequestException((int)WebAPI.Models.General.StatusCode.HouseholdInvalid, "household_id is invalid");
+                    throw new BadRequestException((int)StatusCode.HouseholdInvalid, "household_id is invalid");
                 }
             }
 

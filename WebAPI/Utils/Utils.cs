@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.ClientManagers;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Utils
 {
@@ -14,7 +15,7 @@ namespace WebAPI.Utils
             var languages = GroupsManager.GetGroup(groupId).Languages;
 
             // get default/specific language
-            Models.Language langModel = new Models.Language();
+            Language langModel = new Language();
             if (string.IsNullOrEmpty(language))
                 langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
             else

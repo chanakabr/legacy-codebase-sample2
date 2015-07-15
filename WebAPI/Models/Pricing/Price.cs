@@ -8,7 +8,7 @@ using System.Web;
 namespace WebAPI.Models.Pricing
 {
     /// <summary>
-    /// Price
+    /// Price 
     /// </summary>
     [Serializable]
     public class Price
@@ -16,15 +16,15 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         ///Price
         /// </summary>
-        [DataMember(Name = "price")]
-        [JsonProperty("price")]
-        public double price { get; set; }
+        [DataMember(Name = "amount")]
+        [JsonProperty("amount")]
+        public double Amount { get; set; }
 
         /// <summary>
         ///Currency
         /// </summary>
         [DataMember(Name = "currency")]
         [JsonProperty("currency")]
-        public Currency currency { get; set; }
+        public string Currency { get; set; }
     }
 }

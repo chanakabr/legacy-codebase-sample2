@@ -13,14 +13,14 @@ namespace WebAPI.Models.Users
     public class UserType
     {
         /// <summary>
-        /// Type identifier
+        /// User type identifier
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
-        /// Type description
+        /// User type description
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]

@@ -13,6 +13,7 @@ using WebAPI.Utils;
 using WebAPI.Models.General;
 using System.Reflection;
 using KLogMonitor;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.ClientManagers
 {

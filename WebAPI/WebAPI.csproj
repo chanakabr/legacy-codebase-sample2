@@ -358,6 +358,9 @@
     <Content Include="Web References\Api\UserStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainerResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <Content Include="Web References\Billing\PaymentGWResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -398,6 +401,9 @@
     <Content Include="Web References\Domains\DeviceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\SubscriptionsPricesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -426,6 +432,9 @@
     <Content Include="Web References\Pricing\MediaFilePPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Pricing\IdsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Pricing\module.disco" />
     <Content Include="Web References\Social\DoSocialActionResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -449,6 +458,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Social\FriendWatchedObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\SubscriptionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Social\module.disco" />
@@ -634,10 +646,12 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\BillingController.cs" />
+    <Compile Include="Controllers\BundlesController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\PricingController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -645,6 +659,7 @@
     <Compile Include="Models\API\GenericRule.cs" />
     <Compile Include="Models\API\GenericRulesList.cs" />
     <Compile Include="Models\API\RuleType.cs" />
+    <Compile Include="Models\Catalog\SlimChannel.cs" />
     <Compile Include="Models\Billing\PaymentGWBasic.cs" />
     <Compile Include="Models\Billing\PaymentGW.cs" />
     <Compile Include="Models\Billing\PaymentGWSettingsResponse.cs" />
@@ -656,6 +671,22 @@
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\Pricing\ItemPricesList.cs" />
+    <Compile Include="Models\Pricing\PPVItemPriceDetails.cs" />
+    <Compile Include="Models\General\TranslationContainer.cs" />
+    <Compile Include="Models\Pricing\CouponsGroup.cs" />
+    <Compile Include="Models\Pricing\DiscountModule.cs" />
+    <Compile Include="Models\Pricing\ItemPrice.cs" />
+    <Compile Include="Models\Pricing\PreviewModule.cs" />
+    <Compile Include="Models\Pricing\PriceDetails.cs" />
+    <Compile Include="Models\Pricing\PurchaseStatus.cs" />
+    <Compile Include="Models\ConditionalAccess\PremiumService.cs" />
+    <Compile Include="Models\Pricing\PricePlan.cs" />
+    <Compile Include="Models\Pricing\Subscriptions.cs" />
+    <Compile Include="Models\Pricing\SubscriptionsList.cs" />
+    <Compile Include="Models\Pricing\SubscriptionPrice.cs" />
+    <Compile Include="Models\Pricing\SubscriptionsPricesList.cs" />
+    <Compile Include="Models\Pricing\UsageModule.cs" />
     <Compile Include="Models\ConditionalAccess\EntitlementsList.cs" />
     <Compile Include="Models\Domains\AddHousehold.cs" />
     <Compile Include="Models\Domains\Device.cs" />
@@ -670,6 +701,7 @@
     <Compile Include="Models\Pricing\Currency.cs" />
     <Compile Include="Models\Pricing\Price.cs" />
     <Compile Include="Models\Domains\With.cs" />
+    <Compile Include="Models\Pricing\Subscription.cs" />
     <Compile Include="Models\Users\AddUserFavorite.cs" />
     <Compile Include="Models\Users\Favorite.cs" />
     <Compile Include="Models\Users\FavoriteList.cs" />
@@ -739,8 +771,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Managers\CouchbaseManager.cs" />
-    <Compile Include="Models\General\Credentials.cs" />
-    <Compile Include="Models\General\Group.cs" />
+    <Compile Include="Managers\Models\Credentials.cs" />
+    <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\Catalog\AssetType.cs" />
     <Compile Include="Models\Catalog\Autocomplete.cs" />
@@ -748,15 +780,15 @@
     <Compile Include="Models\Catalog\IAssetable.cs" />
     <Compile Include="Models\Catalog\Order.cs" />
     <Compile Include="Models\Catalog\SearchAssets.cs" />
-    <Compile Include="Models\Language.cs" />
-    <Compile Include="Models\General\KS.cs" />
+    <Compile Include="Managers\Models\Language.cs" />
+    <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\Catalog\AssetInfo.cs" />
     <Compile Include="Models\Catalog\AssetStats.cs" />
     <Compile Include="Models\Catalog\BuzzScore.cs" />
     <Compile Include="Models\Catalog\File.cs" />
     <Compile Include="Models\Catalog\Image.cs" />
     <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
-    <Compile Include="Models\General\Status.cs" />
+    <Compile Include="Managers\Models\Status.cs" />
     <Compile Include="Models\Users\SignIn.cs" />
     <Compile Include="Models\Users\ClientUser.cs" />
     <Compile Include="Models\Catalog\WatchHistory.cs" />
@@ -897,10 +929,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/pricing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_pricing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Pricing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_pricing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
