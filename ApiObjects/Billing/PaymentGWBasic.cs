@@ -7,8 +7,8 @@ namespace ApiObjects.Billing
 {
     public class PaymentGWBasic
     {
-        public int id { get; set; }
-        public string name { get; set; }
+        public int ID { get; set; }
+        public string Name { get; set; }
 
         public PaymentGWBasic()
         {
@@ -16,8 +16,8 @@ namespace ApiObjects.Billing
 
         public PaymentGWBasic(int id, string name)
         {
-            this.id = id;
-            this.name = name;
+            this.ID = id;
+            this.Name = name;
         }
     }
 }
