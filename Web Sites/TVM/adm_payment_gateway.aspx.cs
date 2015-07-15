@@ -63,7 +63,7 @@ public partial class adm_payment_gateway : System.Web.UI.Page
 
         theTable += "select pg.id, pg.name, pg.group_id, pg.is_active, pg.status, pg.url , case gp.[DEFAULT_PAYMENT_GATEWAY] when pg.id then 'true' else 'false' end as 'is default' ";
         theTable += " from payment_gateway pg ";
-        theTable += " inner	join groups_parameters gp on pg.group_id in ( SELECT * FROM Tvinci..F_Get_GroupsTree (gp.group_id)) ";
+        theTable += " left	join groups_parameters gp on pg.group_id in ( SELECT * FROM Tvinci..F_Get_GroupsTree (gp.group_id)) ";
         theTable += " where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("pg.group_id", "=", groupID);
         theTable += "and";
