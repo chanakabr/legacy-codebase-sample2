@@ -2912,7 +2912,7 @@ namespace Tvinci.Core.DAL
                 StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
-               
+
                 ds = sp.ExecuteDataSet();
             }
             catch (Exception ex)
@@ -2921,5 +2921,6 @@ namespace Tvinci.Core.DAL
             }
             return ds;
         }
+
     }
 }

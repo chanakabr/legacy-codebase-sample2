@@ -77,6 +77,9 @@ namespace ConditionalAccess
             return ret;
         }
 
+
+
+        /// <summary>
         /// Credit Card Charge User For Media File
         /// </summary>
         protected TvinciBilling.BillingResponse ChargeUserForMediaFile(string sSiteGUID, double dPrice, string sCurrency, int nMediaFileID, int nMediaID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
@@ -285,7 +288,7 @@ namespace ConditionalAccess
                         //Create the Custom Data
                         sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
                                                     sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
-                        Logger.Logger.Log("CustomData", sCustomData, "CustomData");
+                        log.Debug("CustomData - " + sCustomData);
 
 
                         ret = bm.CC_DummyChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters);
@@ -365,8 +368,7 @@ namespace ConditionalAccess
                                 sbLog.Append(String.Concat(" UDID: ", sDeviceUDID));
                                 sbLog.Append(String.Concat(" Msg: ", ex.Message));
                                 sbLog.Append(String.Concat(" Trace: ", ex.StackTrace));
-
-                                Logger.Logger.Log("Exception", sbLog.ToString(), GetLogFilename());
+                                log.Error("Exception - " + sbLog.ToString(), ex);
                             }
                         }
                     }
@@ -418,6 +420,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
 
 
         protected static EutelsatTransactionResponse IsUserTvodAllowed(string sHouseholdUID, string siteGUID, string sArvatoContractID, double dPrice, string sCurrency, string sExternalMediaFileID)
@@ -787,7 +790,6 @@ namespace ConditionalAccess
             return ret;
         }
 
-
         private TvinciBilling.BillingResponse HandleSubPurchase(string sSiteGUID, string sHouseholdUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP,
                                                             string sExtraParams, ref string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sIP, TvinciPricing.Subscription theSub,
                                                             TvinciPricing.Price p)
@@ -806,6 +808,7 @@ namespace ConditionalAccess
                 return ret;
             }
 
+
             string sCustomData = string.Empty;
 
             bool bIsRecurring = theSub.m_bIsRecurring;
@@ -819,7 +822,7 @@ namespace ConditionalAccess
             //Create the Custom Data
             sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-            Logger.Logger.Log("CustomData", sCustomData, "CustomDataForSubsrpition");
+            log.Debug("CustomData - " + sCustomData);
 
             if (p.m_dPrice != 0)
             {
@@ -923,7 +926,7 @@ namespace ConditionalAccess
                         sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
                         sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-                        Logger.Logger.Log("Exception", sb.ToString(), GetLogFilename());
+                        log.Error("Exception - " + sb.ToString(), ex);
                     }
                 }
 
@@ -957,8 +960,8 @@ namespace ConditionalAccess
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
-                    Logger.Logger.Log("LicensedLink",
-                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID), "GetEPGLink");
+                    log.Debug("LicensedLink - " +
+                        string.Format("GetLicensedLink return empty basicLink siteGuid={0}, sBasicLink={1}, nMediaFileID={2}", sSiteGUID, sBasicLink, nMediaFileID));
                     return oLicensedLinkResponse;
                 }
 
@@ -1060,7 +1063,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Coupon: ", sCouponCode));
                 sb.Append(String.Concat(" Format: ", format.ToString()));
                 sb.Append(String.Concat(" Trace: ", ex.StackTrace));
-                Logger.Logger.Log("LicensedLink", sb.ToString(), "LicensedLink");
+                log.Error("LicensedLink - " + sb.ToString(), ex);
             }
             finally
             {

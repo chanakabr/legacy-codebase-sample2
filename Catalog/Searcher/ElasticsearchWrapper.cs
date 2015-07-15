@@ -1186,8 +1186,6 @@ namespace Catalog
                 Key = "end_date"
             };
 
-            endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowSearchString));
-
             // Filter associated media by:
             // is_active = 1
             // start_date < NOW

@@ -20,7 +20,7 @@ namespace ConditionalAccess
         EntitledToPreviewModule = 9,
         FirstDeviceLimitation =10,
         CollectionPurchased = 11,
-        UserSuspended = 12,
+        UserSuspended = 12, 
         NotForPurchase = 13        
     }
 
@@ -30,6 +30,7 @@ namespace ConditionalAccess
         NotForPurchase = 1,
         ValidOnlyIfPurchase = 2
     }
+
 
     public enum BillingItemsType
     {

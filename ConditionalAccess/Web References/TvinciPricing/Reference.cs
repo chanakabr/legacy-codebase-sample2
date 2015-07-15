@@ -4102,22 +4102,22 @@ namespace ConditionalAccess.TvinciPricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class IdsResponse {
         
-        private Status respField;
+        private Status statusField;
         
         private int[] idsField;
         
         /// <remarks/>
-        public Status resp {
+        public Status Status {
             get {
-                return this.respField;
+                return this.statusField;
             }
             set {
-                this.respField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public int[] ids {
+        public int[] Ids {
             get {
                 return this.idsField;
             }
