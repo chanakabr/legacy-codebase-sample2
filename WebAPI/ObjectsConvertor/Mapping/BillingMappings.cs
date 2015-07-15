@@ -17,12 +17,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //PaymentGWConfigResponse to PaymentGWConfigResponse
             Mapper.CreateMap<PaymentGW, WebAPI.Models.Billing.PaymentGW>()
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.url, opt => opt.MapFrom(src => src.url))
-                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.isActive))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.settings)));
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
+                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
 
             Mapper.CreateMap<PaymentGWResponse, WebAPI.Models.Billing.PaymentGWResponse>()
@@ -35,12 +36,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //from local object to WS object
             //PaymentGWConfigResponse to PaymentGWConfigResponse
             Mapper.CreateMap<WebAPI.Models.Billing.PaymentGW, PaymentGW>()
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.url, opt => opt.MapFrom(src => src.url))
-                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.isActive))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.settings)));
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)));
         }
 
 
