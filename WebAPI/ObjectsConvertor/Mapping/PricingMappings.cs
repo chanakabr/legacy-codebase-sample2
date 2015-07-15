@@ -146,6 +146,17 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
         }
 
+        public static List<int> ConvertToIntList(int[] list)
+        {
+            List<int> result = null;
+
+            if (list != null && list.Count() > 0)
+            {
+                result = list.ToList();
+            }
+            return result;
+        }
+
         private static WebAPI.Models.Pricing.PurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)
         {
             WebAPI.Models.Pricing.PurchaseStatus result;

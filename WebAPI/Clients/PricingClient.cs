@@ -47,7 +47,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -62,6 +62,41 @@ namespace WebAPI.Clients
             }
 
             subscriptions = AutoMapper.Mapper.Map<List<Subscription>>(response.Subscriptions);
+
+            return subscriptions;
+        }
+
+        internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaID, int mediaFileID)
+        {
+            WebAPI.Pricing.IdsResponse response = null;
+            List<int> subscriptions = new List<int>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Pricing.GetSubscriptionIDsContainingMediaFile(group.PricingCredentials.Username, group.PricingCredentials.Password, mediaID, mediaFileID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            subscriptions = WebAPI.Mapping.ObjectsConvertor.PricingMappings.ConvertToIntList(response.Ids);
 
             return subscriptions;
         }
