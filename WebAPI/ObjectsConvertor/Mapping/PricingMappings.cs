@@ -82,6 +82,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
+            // LanguageContainer to TranslationContainer
+            Mapper.CreateMap<ConditionalAccess.LanguageContainer, Models.General.TranslationContainer>()
+               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
+
             // BundleCodeContainer to SlimChannel
             Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.SlimChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode))
