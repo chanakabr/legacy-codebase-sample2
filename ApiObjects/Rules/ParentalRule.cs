@@ -59,7 +59,7 @@ namespace ApiObjects
 
         #endregion
 
-        #region Ctor   
+        #region Ctor
 
         public ParentalRule()
         {

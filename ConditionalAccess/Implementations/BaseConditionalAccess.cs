@@ -807,7 +807,6 @@ namespace ConditionalAccess
             Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sRecieptCode)
         {
-
             TvinciBilling.InAppBillingResponse InAppRes = new TvinciBilling.InAppBillingResponse();
             InAppRes.m_oBillingResponse = new TvinciBilling.BillingResponse();
             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnown;
@@ -826,6 +825,7 @@ namespace ConditionalAccess
                     InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                     InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
+                    return InAppRes.m_oBillingResponse;
                 }
                 else
                 {
@@ -846,6 +846,7 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
+                        return InAppRes.m_oBillingResponse;
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
@@ -853,6 +854,7 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                        return InAppRes.m_oBillingResponse;
                     }
                     else
                     {
@@ -865,232 +867,227 @@ namespace ConditionalAccess
                         {
                             m.Url = sWSURL;
                         }
-
-                        Int32[] nMediaFiles = { nMediaFileID };
-
-                        string sMediaFileForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
-
-                        TvinciPricing.MediaFilePPVModule[] oModules = null;
-
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                        oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                        #region check PPVModuleCode belong to item
-                        Int32 nCount = 0;
-                        if (oModules[0].m_oPPVModules != null)
-                            nCount = oModules[0].m_oPPVModules.Length;
-                        bool bOK = false;
-                        for (int i = 0; i < nCount; i++)
+                        if (string.IsNullOrEmpty(sPPVModuleCode))
                         {
-                            if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
-                                bOK = true;
+                            InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                            InAppRes.m_oBillingResponse.m_sStatusDescription = "Charge must have ppv module code";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            return InAppRes.m_oBillingResponse;
                         }
-                        if (!bOK)
+
+                        // check if ppvModule related to mediaFile 
+                        long ppvModuleCode = 0;
+                        long.TryParse(sPPVModuleCode, out ppvModuleCode);
+
+                        TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+                        if (thePPVModule == null)
+                        {
+                            InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                            InAppRes.m_oBillingResponse.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            return InAppRes.m_oBillingResponse;
+                        }
+                        else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString())
                         {
                             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "This PPVModule does not belong to item";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            return InAppRes.m_oBillingResponse;
                         }
-                        #endregion
+                        
+                        PriceReason theReason = PriceReason.UnKnown;
 
-                        if (bOK)
+                        TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection relevantCol = null;
+                        TvinciPricing.PrePaidModule relevantPP = null;
+
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                         {
-                            PriceReason theReason = PriceReason.UnKnown;
-
-                            TvinciPricing.Subscription relevantSub = null;
-                            TvinciPricing.Collection relevantCol = null;
-                            TvinciPricing.PrePaidModule relevantPP = null;
-
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            if (thePPVModule != null)
+                            if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                                string sCustomData = "";
+                                if (p.m_dPrice != 0)
                                 {
-                                    if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+
+                                    #region Init Tvinci Billing Webservice
+                                    bm = new ConditionalAccess.TvinciBilling.module();
+                                    sWSUserName = string.Empty;
+                                    sWSPass = string.Empty;
+                                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
+                                    sWSURL = Utils.GetWSURL("billing_ws");
+                                    if (!string.IsNullOrEmpty(sWSURL))
                                     {
-                                        string sCustomData = "";
-                                        if (p.m_dPrice != 0)
-                                        {
-                                            #region Init Tvinci Billing Webservice
-                                            bm = new ConditionalAccess.TvinciBilling.module();
-                                            sWSUserName = string.Empty;
-                                            sWSPass = string.Empty;
-                                            Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
-                                            sWSURL = Utils.GetWSURL("billing_ws");
-                                            if (!string.IsNullOrEmpty(sWSURL))
-                                            {
-                                                bm.Url = sWSURL;
-                                            }
-                                            #endregion
+                                        bm.Url = sWSURL;
+                                    }
+                                    #endregion
 
-                                            if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                            {
-                                                sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                            }
+                                    if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
+                                    {
+                                        sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
+                                    }
 
-                                            //Create the Custom Data
-                                            sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                                nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    //Create the Custom Data
+                                    sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                        nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                            log.Debug("CustomData - " + sCustomData);
+                                    log.Debug("CustomData - " + sCustomData);
 
-                                            //customdata id
-                                            InAppRes = bm.InApp_ChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sRecieptCode);
-                                        }
+                                    //customdata id
+                                    InAppRes = bm.InApp_ChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sRecieptCode);
+                                }
 
-                                        if (InAppRes.m_oBillingResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
-                                        {
-                                            Int32 nReciptCode = 0;
-                                            if (!string.IsNullOrEmpty(InAppRes.m_oBillingResponse.m_sRecieptCode))
-                                            {
-                                                nReciptCode = int.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
-                                            }
+                                if (InAppRes.m_oBillingResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                                {
+                                    Int32 nReciptCode = 0;
+                                    if (!string.IsNullOrEmpty(InAppRes.m_oBillingResponse.m_sRecieptCode))
+                                    {
+                                        nReciptCode = int.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
+                                    }
 
-                                            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP,
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
 
-                                            #region Insert - ppv_purchases
-                                            insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                            if (relevantSub != null)
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nReciptCode);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                                            if (thePPVModule != null &&
-                                                thePPVModule.m_oUsageModule != null)
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                            else
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+                                    #region Insert - ppv_purchases
+                                    insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                    if (relevantSub != null)
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nReciptCode);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
+                                    if (thePPVModule != null &&
+                                        thePPVModule.m_oUsageModule != null)
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
+                                    else
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
 
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                            if (thePPVModule != null &&
-                                                thePPVModule.m_oUsageModule != null)
-                                            {
-                                                DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
-                                            }
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                    if (thePPVModule != null &&
+                                        thePPVModule.m_oUsageModule != null)
+                                    {
+                                        DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
+                                    }
 
-                                            insertQuery.Execute();
-                                            WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(CC): " + dPrice.ToString() + sCurrency);
-                                            #endregion
-                                            #region Select - ppv_purchases the current purchase
-                                            Int32 nPurchaseID = 0;
-                                            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                                            selectQuery += " select id from ppv_purchases with (nolock) where ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                    insertQuery.Execute();
+                                    WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(CC): " + dPrice.ToString() + sCurrency);
+                                    #endregion
+                                    #region Select - ppv_purchases the current purchase
+                                    Int32 nPurchaseID = 0;
+                                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                                    selectQuery += " select id from ppv_purchases with (nolock) where ";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
 
-                                            if (relevantSub != null)
-                                            {
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                            }
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                            selectQuery += "and";
-                                            if (thePPVModule != null &&
-                                                thePPVModule.m_oUsageModule != null)
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                            else
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                            selectQuery += "and";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                            selectQuery += "order by id desc";
-                                            if (selectQuery.Execute("query", true) != null)
-                                            {
-                                                Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
-                                                if (nCount1 > 0)
-                                                    nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                                            }
-                                            #endregion
+                                    if (relevantSub != null)
+                                    {
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
+                                    }
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                    selectQuery += "and";
+                                    if (thePPVModule != null &&
+                                        thePPVModule.m_oUsageModule != null)
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
+                                    else
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                    selectQuery += "and";
+                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                    selectQuery += "order by id desc";
+                                    if (selectQuery.Execute("query", true) != null)
+                                    {
+                                        Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
+                                        if (nCount1 > 0)
+                                            nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                                    }
+                                    #endregion
 
-                                            //Should update the PURCHASE_ID
+                                    //Should update the PURCHASE_ID
 
-                                            string sReciept = InAppRes.m_oBillingResponse.m_sRecieptCode;
-                                            if (sReciept != "")
-                                            {
-                                                Int32 nID = int.Parse(sReciept);
-                                                updateQuery = new ODBCWrapper.UpdateQuery("billing_transactions");
-                                                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PURCHASE_ID", "=", nPurchaseID);
-                                                updateQuery += "where";
-                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
-                                                updateQuery.Execute();
-                                            }
-                                            else
-                                            {
-                                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                                            }
-                                        }
+                                    string sReciept = InAppRes.m_oBillingResponse.m_sRecieptCode;
+                                    if (sReciept != "")
+                                    {
+                                        Int32 nID = int.Parse(sReciept);
+                                        updateQuery = new ODBCWrapper.UpdateQuery("billing_transactions");
+                                        updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PURCHASE_ID", "=", nPurchaseID);
+                                        updateQuery += "where";
+                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+                                        updateQuery.Execute();
                                     }
                                     else
                                     {
-                                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
-                                        InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                        InAppRes.m_oBillingResponse.m_sStatusDescription = "The price of the request is not the actual price";
                                         WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                                    }
-                                }
-                                else
-                                {
-                                    if (theReason == PriceReason.PPVPurchased)
-                                    {
-                                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                        InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.Free)
-                                    {
-                                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                        InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is free";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
-                                    {
-                                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                        InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.SubscriptionPurchased)
-                                    {
-                                        InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                        InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                                     }
                                 }
                             }
                             else
                             {
+                                InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
+                                InAppRes.m_oBillingResponse.m_sRecieptCode = "";
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The price of the request is not the actual price";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            }
+                        }
+                        else
+                        {
+                            if (theReason == PriceReason.PPVPurchased)
+                            {
                                 InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
-                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The ppv module is unknown";
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.Free)
+                            {
+                                InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                InAppRes.m_oBillingResponse.m_sRecieptCode = "";
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is free";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            {
+                                InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                InAppRes.m_oBillingResponse.m_sRecieptCode = "";
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                InAppRes.m_oBillingResponse.m_sRecieptCode = "";
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.NotForPurchase)
+                            {
+                                InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
+                                InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is not valid for purchased";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                         }
@@ -4376,16 +4373,18 @@ namespace ConditionalAccess
                     ret.m_sRecieptCode = "";
                     ret.m_sStatusDescription = "Problematic Cell Phone: " + sCellPhone;
                     WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                    return ret;
                 }
                 else if (sSiteGUID == "")
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = "";
                     ret.m_sStatusDescription = "Cant charge an unknown user";
+                    return ret;
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new TvinciUsers.UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
@@ -4402,6 +4401,7 @@ namespace ConditionalAccess
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
+                        return ret;
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
@@ -4409,133 +4409,141 @@ namespace ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase  media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        return ret;
                     }
                     else
                     {
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
-                        m = new global::ConditionalAccess.TvinciPricing.mdoule();
+                        m = new TvinciPricing.mdoule();
                         sWSURL = Utils.GetWSURL("pricing_ws");
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             m.Url = sWSURL;
                         }
-                        Int32[] nMediaFiles = { nMediaFileID };
-                        string sMediaFileForCache = Utils.ConvertArrayIntToStr(nMediaFiles);
-                        TvinciPricing.MediaFilePPVModule[] oModules = null;
-
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                        oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (string.IsNullOrEmpty(sPPVModuleCode))
+                        {
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "Charge must have ppv module code";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
 
-                        Int32 nCount = 0;
-                        if (oModules[0].m_oPPVModules != null)
+                        // chack if ppvModule related to mediaFile 
+                        long ppvModuleCode = 0;
+                        long.TryParse(sPPVModuleCode, out ppvModuleCode);
+
+                        TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+                        if (thePPVModule == null)
                         {
-                            nCount = oModules[0].m_oPPVModules.Length;
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
                         }
-                        bool bOK = false;
-                        for (int i = 0; i < nCount; i++)
-                        {
-                            if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
-                            {
-                                bOK = true;
-                            }
-                        }
-                        if (bOK == false)
+                        else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString() && !string.IsNullOrEmpty(sPPVModuleCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                            ret.m_sRecieptCode = "";
+                            ret.m_sRecieptCode = string.Empty;
                             ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
                         }
-                        else
+
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection relevantCol = null;
+                        TvinciPricing.PrePaidModule relevantPP = null;
+                                   
+
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (theReason == PriceReason.ForPurchase)
                         {
-                            PriceReason theReason = PriceReason.UnKnown;
-                            TvinciPricing.Subscription relevantSub = null;
-                            TvinciPricing.Collection relevantCol = null;
-                            TvinciPricing.PrePaidModule relevantPP = null;
-
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            if (theReason == PriceReason.ForPurchase)
+                            if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                                bm = new ConditionalAccess.TvinciBilling.module();
+                                sWSUserName = string.Empty;
+                                sWSPass = string.Empty;
+                                Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
+                                sWSURL = Utils.GetWSURL("billing_ws");
+                                if (!string.IsNullOrEmpty(sWSURL))
                                 {
-                                    bm = new ConditionalAccess.TvinciBilling.module();
-                                    sWSUserName = string.Empty;
-                                    sWSPass = string.Empty;
-                                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
-                                    sWSURL = Utils.GetWSURL("billing_ws");
-                                    if (!string.IsNullOrEmpty(sWSURL))
-                                    {
-                                        bm.Url = sWSURL;
-                                    }
-                                    string sPPVModule = "";
-                                    if (thePPVModule != null)
-                                        sPPVModule = thePPVModule.m_sObjectCode;
+                                    bm.Url = sWSURL;
+                                }
+                                string sPPVModule = "";
+                                if (thePPVModule != null)
+                                    sPPVModule = thePPVModule.m_sObjectCode;
+                                //Create the Custom Data
+                                string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                    nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, string.Empty,
+                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                    //Create the Custom Data
-                                    string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                        nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, string.Empty,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                log.Debug("SMS CustomData - " + sCustomData);
 
-                                    log.Debug("SMS CustomData - " + sCustomData);
-
-                                    if (relevantSub != null)
-                                    {
-                                        ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): SMS code sent to: " + sCellPhone);
-                                    }
-                                    else
-                                    {
-                                        ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): SMS code sent to: " + sCellPhone);
-                                    }
+                                if (relevantSub != null)
+                                {
+                                    ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): SMS code sent to: " + sCellPhone);
                                 }
                                 else
                                 {
-                                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
-                                    ret.m_sRecieptCode = "";
-                                    ret.m_sStatusDescription = "Mismatch in price or currency";
-                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                                    ret = bm.SMS_SendCode(sWSUserName, sWSPass, sSiteGUID, sCellPhone, sCustomData, sExtraParameters);
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): SMS code sent to: " + sCellPhone);
                                 }
                             }
                             else
                             {
-                                if (theReason == PriceReason.PPVPurchased)
-                                {
-                                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                    ret.m_sRecieptCode = "";
-                                    ret.m_sStatusDescription = "The media file is already purchased";
-                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                }
-                                if (theReason == PriceReason.SubscriptionPurchased)
-                                {
-                                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                    ret.m_sRecieptCode = "";
-                                    ret.m_sStatusDescription = "The media file is contained in a purchased subscription";
-                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                }
-                                if (theReason == PriceReason.Free)
-                                {
-                                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                    ret.m_sRecieptCode = "";
-                                    ret.m_sStatusDescription = "The media file is free";
-                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                }
-                                if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
-                                {
-                                    ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                    ret.m_sRecieptCode = "";
-                                    ret.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                }
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "Mismatch in price or currency";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                        }
+                        else
+                        {
+                            if (theReason == PriceReason.PPVPurchased)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The media file is already purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The media file is contained in a purchased subscription";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            if (theReason == PriceReason.Free)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The media file is free";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = "";
+                                ret.m_sStatusDescription = "The media file is for purchase with subscription only";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.NotForPurchase)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is not valid for purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                         }
                     }
+                    return ret;
                 }
-                return ret;
             }
             catch (Exception ex)
             {
@@ -5671,13 +5679,23 @@ namespace ConditionalAccess
 
             try
             {
+
                 log.Debug("CC_BaseChargeUserForMediaFile - " + string.Format("Entering CC_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Payment Method: {6} , Dummy: {7}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sPaymentMethodID, bDummy.ToString().ToLower()));
+                if (!bDummy && string.IsNullOrEmpty(sPPVModuleCode))
+                {
+                    oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                    oResponse.m_sRecieptCode = string.Empty;
+                    oResponse.m_sStatusDescription = "Charge must have ppv module code";
+                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                    return oResponse;
+                }
                 long lSiteGuid = 0;
                 if (sSiteGUID.Length == 0 || !Int64.TryParse(sSiteGUID, out lSiteGuid) || lSiteGuid == 0)
                 {
                     oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     oResponse.m_sRecieptCode = string.Empty;
                     oResponse.m_sStatusDescription = "Cant charge an unknown user";
+                    return oResponse;
                 }
                 else
                 {
@@ -5697,6 +5715,7 @@ namespace ConditionalAccess
                         oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         oResponse.m_sRecieptCode = string.Empty;
                         oResponse.m_sStatusDescription = "Cant charge an unknown user";
+                        return oResponse;
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
@@ -5704,6 +5723,7 @@ namespace ConditionalAccess
                         oResponse.m_sRecieptCode = string.Empty;
                         oResponse.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                        return oResponse;
                     }
                     else
                     {
@@ -5721,103 +5741,101 @@ namespace ConditionalAccess
 
                         bIsCouponUsedAndValid = bIsCouponValid && !string.IsNullOrEmpty(sCouponCode);
 
-
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
-                        wsPricingService = new global::ConditionalAccess.TvinciPricing.mdoule();
+                        wsPricingService = new TvinciPricing.mdoule();
                         sWSURL = Utils.GetWSURL("pricing_ws");
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             wsPricingService.Url = sWSURL;
                         }
-                        Int32[] nMediaFiles = { nMediaFileID };
-                        TvinciPricing.MediaFilePPVModule[] oModules = null;
-
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                        oModules = wsPricingService.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                        Int32 nCount = 0;
-                        if (oModules[0].m_oPPVModules != null)
-                            nCount = oModules[0].m_oPPVModules.Length;
-                        bool bOK = false;
-                        for (int i = 0; i < nCount; i++)
+                        if (!bDummy && string.IsNullOrEmpty(sPPVModuleCode))
                         {
-                            if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
-                                bOK = true;
+                            oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            oResponse.m_sRecieptCode = string.Empty;
+                            oResponse.m_sStatusDescription = "Charge must have ppv module code";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            return oResponse;
                         }
-                        if (!bOK && !bDummy)
+
+                        // chack if ppvModule related to mediaFile 
+                        long ppvModuleCode = 0;
+                        long.TryParse(sPPVModuleCode, out ppvModuleCode);
+
+                        TvinciPricing.PPVModule thePPVModule = wsPricingService.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+
+                        if (thePPVModule == null)
+                        {
+                            oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            oResponse.m_sRecieptCode = string.Empty;
+                            oResponse.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            return oResponse;
+                        }
+
+                        if (!bDummy && !thePPVModule.m_sObjectCode.Equals(sPPVModuleCode))
                         {
                             oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
                             oResponse.m_sRecieptCode = string.Empty;
                             oResponse.m_sStatusDescription = "This PPVModule does not belong to item";
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            return oResponse;
                         }
 
                         if (bDummy)
                         {
-                            bOK = true;
-                            if (nCount > 0)
-                            {
-                                sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
-                                dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
-                                sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
-                                { // Cinepolis patch
-                                    dPrice = 0d;
-                                }
+                            sPPVModuleCode = thePPVModule.m_sObjectCode;
+                            dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
+                            sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                            if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                            { // Cinepolis patch
+                                dPrice = 0d;
                             }
                         }
 
-                        if (bOK)
+
+                        PriceReason ePriceReason = PriceReason.UnKnown;
+
+                        TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection relevantCol = null;
+                        TvinciPricing.PrePaidModule relevantPP = null;
+
+                        TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, ePriceReason, bIsCouponUsedAndValid);
+                        if ((ePriceReason == PriceReason.ForPurchase || (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0) || bDummy) && ePriceReason != PriceReason.NotForPurchase)
                         {
-                            PriceReason ePriceReason = PriceReason.UnKnown;
-
-                            TvinciPricing.Subscription relevantSub = null;
-                            TvinciPricing.Collection relevantCol = null;
-                            TvinciPricing.PrePaidModule relevantPP = null;
-
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            TvinciPricing.PPVModule thePPVModule = wsPricingService.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            if (thePPVModule != null)
+                            if (bDummy || (oPrice.m_dPrice == dPrice && oPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
-                                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, ePriceReason, bIsCouponUsedAndValid);
-                                if (ePriceReason == PriceReason.ForPurchase || (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0) || bDummy)
+                                string sCustomData = string.Empty;
+                                sWSUserName = string.Empty;
+                                sWSPass = string.Empty;
+
+                                InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
+
+                                if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
-                                    if (bDummy || (oPrice.m_dPrice == dPrice && oPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
-                                    {
-                                        string sCustomData = string.Empty;
-                                        sWSUserName = string.Empty;
-                                        sWSPass = string.Empty;
+                                    sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
+                                }
+                                //Create the Custom Data
+                                sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                    nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                log.Debug("CustomData - " + sCustomData);
 
-                                        InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
 
-                                        if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                        {
-                                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                        }
-
-                                        //Create the Custom Data
-                                        sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                            nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                        log.Debug("CustomData - " + sCustomData);
-
-                                        oResponse = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
-                                            1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref wsBillingService);
-                                        if (oResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
-                                        {
-                                            long lBillingTransactionID = 0;
-                                            long lPurchaseID = 0;
-
-                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
-                                                sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
-                                                thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref wsBillingService);
-
-                                            // Enqueue notification for PS so they know a media file was charged
-                                            var dicData = new Dictionary<string, object>()
+                                oResponse = HandleCCChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData,
+                                    1, 1, sExtraParameters, sPaymentMethodID, sEncryptedCVV, bDummy, false, ref wsBillingService);
+                                if (oResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                                {
+                                    long lBillingTransactionID = 0;
+                                    long lPurchaseID = 0;
+                                    HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                        sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, oResponse, sCustomData,
+                                        thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref wsBillingService);
+                                    // Enqueue notification for PS so they know a media file was charged
+                                    var dicData = new Dictionary<string, object>()
                                             {
                                                 {"MediaFileID", nMediaFileID},
                                                 {"BillingTransactionID", lBillingTransactionID},
@@ -5828,58 +5846,56 @@ namespace ConditionalAccess
                                                 {"PurchaseID", lPurchaseID}
                                             };
 
-                                            this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
-                                        }
-                                        else
-                                        {
-                                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
-                                        oResponse.m_sRecieptCode = string.Empty;
-                                        oResponse.m_sStatusDescription = "The price of the request is not the actual price";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                    }
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
                                 }
                                 else
                                 {
-                                    if (ePriceReason == PriceReason.PPVPurchased)
-                                    {
-                                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        oResponse.m_sRecieptCode = string.Empty;
-                                        oResponse.m_sStatusDescription = "The media file is already purchased";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                    }
-                                    else if (ePriceReason == PriceReason.Free)
-                                    {
-                                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        oResponse.m_sRecieptCode = string.Empty;
-                                        oResponse.m_sStatusDescription = "The media file is free";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                    }
-                                    else if (ePriceReason == PriceReason.ForPurchaseSubscriptionOnly)
-                                    {
-                                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        oResponse.m_sRecieptCode = string.Empty;
-                                        oResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                    }
-                                    else if (ePriceReason == PriceReason.SubscriptionPurchased)
-                                    {
-                                        oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        oResponse.m_sRecieptCode = string.Empty;
-                                        oResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                                    }
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                                 }
                             }
                             else
                             {
+                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
+                                oResponse.m_sRecieptCode = string.Empty;
+                                oResponse.m_sStatusDescription = "The price of the request is not the actual price";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            }
+                        }
+                        else
+                        {
+                            if (ePriceReason == PriceReason.PPVPurchased)
+                            {
                                 oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
-                                oResponse.m_sStatusDescription = "The ppv module is unknown";
+                                oResponse.m_sStatusDescription = "The media file is already purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            }
+                            else if (ePriceReason == PriceReason.Free)
+                            {
+                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                oResponse.m_sRecieptCode = string.Empty;
+                                oResponse.m_sStatusDescription = "The media file is free";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            }
+                            else if (ePriceReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            {
+                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                oResponse.m_sRecieptCode = string.Empty;
+                                oResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            }
+                            else if (ePriceReason == PriceReason.SubscriptionPurchased)
+                            {
+                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                oResponse.m_sRecieptCode = string.Empty;
+                                oResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                            }
+                            else if (ePriceReason == PriceReason.NotForPurchase)
+                            {
+                                oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                oResponse.m_sRecieptCode = string.Empty;
+                                oResponse.m_sStatusDescription = "The media file is not valid for purchased";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             }
                         }
@@ -5920,7 +5936,6 @@ namespace ConditionalAccess
                 #endregion
             }
             return oResponse;
-
         }
 
 
@@ -7390,6 +7405,34 @@ namespace ConditionalAccess
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
+                // get details about files + media (validity about files)                
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles);
+
+                //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
+                List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
+                MediaFileItemPricesContainer tempItemPricesContainer = null;
+
+                List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
+                nMediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
+
+                foreach (int mf in notForPurchaseFiles)
+                {
+                    tempItemPricesContainer = new MediaFileItemPricesContainer();
+                    tempItemPricesContainer.m_nMediaFileID = mf;
+                    tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
+                    tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
+                    tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
+                    tempItemPricesContainer.m_sProductCode = string.Empty;
+                    tempRet.Add(tempItemPricesContainer);
+                }
+                if (nMediaFiles.Count() == 0) // all file not for purchase - return
+                {
+                    ret = tempRet.ToArray();
+                    return ret;
+                }
+
+
+
                 InitializePricingModule(ref objPricingModule);
                 oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
@@ -7441,7 +7484,7 @@ namespace ConditionalAccess
                                 DateTime? dtEntitlementStartDate = null;
                                 DateTime? dtEntitlementEndDate = null;
 
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
+                                TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
                                     ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
                                     sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
@@ -7475,7 +7518,9 @@ namespace ConditionalAccess
                                 {
                                     //we'll only do the following logic in case current PPV module has not been expired and thus has a price, or if it has expired however 
                                     // has been purchased and is is still valid for watching
-                                    if (ppvModules[j].IsValidForPurchase || ((!ppvModules[j].IsValidForPurchase) && theReason == PriceReason.PPVPurchased))
+
+                                    bool isValidForPurchase = ppvModules[j].IsValidForPurchase;
+                                    if (isValidForPurchase || (!isValidForPurchase && theReason == PriceReason.PPVPurchased))
                                     {
                                         if (!bOnlyLowest)
                                         {
@@ -7503,36 +7548,41 @@ namespace ConditionalAccess
                                             }
                                         }
                                     }
+                                    
                                 }
                             } // end for
 
-                            if (bOnlyLowest && !isUserSuspended)
+                            if (ppvModules.Length > 0 && itemPriceCont.Count == 0 && !isUserSuspended)
                             {
-                                var tempItemPriceContainer = new ItemPriceContainer();
-                                tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
-                                    ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
-                                    relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
-                                    relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-                                    lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
+                                if (bOnlyLowest)
+                                {
+                                    var tempItemPriceContainer = new ItemPriceContainer();
 
-                                itemPriceCont.Insert(0, tempItemPriceContainer);
+                                    tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
+                                        ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
+                                        relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
+                                        relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
+                                        lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
+                                    itemPriceCont.Insert(0, tempItemPriceContainer);
+                                }
+                                else
+                                {
+                                    ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
+                                    priceContainer[0] = GetFreeItemPriceContainer();
+
+                                    itemPriceCont.Insert(0, priceContainer[0]);
+
+                                }
                             }
 
                             mf.Initialize(nMediaFileID, itemPriceCont.ToArray(), sProductCode);
                         }
                         else
                         {
-                            MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
+                            ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
+                            priceContainer[0] = GetFreeItemPriceContainer();
 
-                            foreach (int mediaFileID in nMediaFiles)
-                            {
-                                ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-                                priceContainer[0] = GetFreeItemPriceContainer();
-
-                                mf.Initialize(mediaFileID, priceContainer);
-                            } // end foreach
-
-                            ret[0] = mc;
+                            mf.Initialize(nMediaFileID, priceContainer);
                         }
 
                         ret[i] = mf;
@@ -7551,8 +7601,13 @@ namespace ConditionalAccess
 
                         mc.Initialize(mediaFileID, priceContainer);
                     }
-                    ret[0] = mc;
                 }
+
+                // add all files that are not for purchased
+
+                tempRet.AddRange(ret);
+                ret = tempRet.ToArray();
+
             }
             catch (Exception ex)
             {
@@ -7594,6 +7649,8 @@ namespace ConditionalAccess
 
             return ret;
         }
+
+
 
         /*
          * 1. This method is a helper function for GetItemsPrices.
@@ -8601,7 +8658,6 @@ namespace ConditionalAccess
             Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-
             PrePaidResponse ret = new PrePaidResponse();
             ret.m_oStatus = PrePaidResponseStatus.UnKnown;
             ret.m_sStatusDescription = "";
@@ -8611,18 +8667,18 @@ namespace ConditionalAccess
             ODBCWrapper.InsertQuery insertQuery = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             ODBCWrapper.UpdateQuery updateQuery = null;
+
             try
             {
-
                 if (string.IsNullOrEmpty(sSiteGUID))
                 {
                     ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                     ret.m_sStatusDescription = "Cant charge an unknown user";
+                    return ret;
                 }
                 else
                 {
                     u = new ConditionalAccess.TvinciUsers.UsersService();
-
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
@@ -8632,16 +8688,19 @@ namespace ConditionalAccess
                         u.Url = sWSURL;
                     }
                     ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+
                     if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
+                        return ret;
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(PP): " + nMediaFileID + " error returned: " + ret.m_sStatusDescription);
+                        return ret;
                     }
                     else
                     {
@@ -8649,260 +8708,256 @@ namespace ConditionalAccess
                         UserPrePaidContainer userPPs = new UserPrePaidContainer();
                         userPPs.Initialize(sSiteGUID, sCurrency);
 
-
                         sWSUserName = "";
                         sWSPass = "";
 
-                        m = new global::ConditionalAccess.TvinciPricing.mdoule();
+                        m = new TvinciPricing.mdoule();
                         sWSURL = Utils.GetWSURL("pricing_ws");
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             m.Url = sWSURL;
                         }
-                        Int32[] nMediaFiles = { nMediaFileID };
-                        TvinciPricing.MediaFilePPVModule[] oModules = null;
-
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                        oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                        Int32 nCount = 0;
-                        if (oModules[0].m_oPPVModules != null)
-                            nCount = oModules[0].m_oPPVModules.Length;
-                        bool bOK = false;
-                        for (int i = 0; i < nCount; i++)
+                        if (string.IsNullOrEmpty(sPPVModuleCode))
                         {
-                            if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
-                                bOK = true;
+                            ret.m_oStatus = PrePaidResponseStatus.Fail;
+                            ret.m_sStatusDescription = "Charge must have ppv module code";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
                         }
-                        if (!bOK)
+                        // chack if ppvModule related to mediaFile 
+                        long ppvModuleCode = 0;
+                        long.TryParse(sPPVModuleCode, out ppvModuleCode);
+
+                        TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+                        if (thePPVModule == null)
+                        {
+                            ret.m_oStatus = PrePaidResponseStatus.Fail;
+                            ret.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
+                        else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString() && !string.IsNullOrEmpty(sPPVModuleCode))
                         {
                             ret.m_oStatus = PrePaidResponseStatus.UnKnownPPVModule;
                             ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
                         }
-                        if (bOK)
+
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection relevantCol = null;
+                        TvinciPricing.PrePaidModule relevantPP = null;
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                         {
-                            PriceReason theReason = PriceReason.UnKnown;
-                            TvinciPricing.Subscription relevantSub = null;
-                            TvinciPricing.Collection relevantCol = null;
-                            TvinciPricing.PrePaidModule relevantPP = null;
-
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            if (thePPVModule != null)
+                            if ((p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                                if (p.m_dPrice != 0)
                                 {
-                                    if ((p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                                    //Check For Credit
+                                    if (p.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
                                     {
-                                        if (p.m_dPrice != 0)
+
+                                        if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            //Check For Credit
-                                            if (p.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
-                                            {
-
-                                                if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                                {
-                                                    sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                                }
-
-                                                //Create the Custom Data
-                                                string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                                    nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                                HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
-                                                    sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
-
-                                                insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                                if (relevantSub != null)
-                                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", 0);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                                                if (thePPVModule != null &&
-                                                    thePPVModule.m_oUsageModule != null)
-                                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                                else
-                                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                                if (thePPVModule != null &&
-                                                    thePPVModule.m_oUsageModule != null)
-                                                {
-                                                    DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
-                                                }
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
-
-                                                insertQuery.Execute();
-
-                                                Int32 nPurchaseID = 0;
-                                                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                                                selectQuery += " select id from ppv_purchases where ";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                                if (relevantSub != null)
-                                                {
-                                                    selectQuery += "and";
-                                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                                }
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                                selectQuery += "and";
-                                                if (thePPVModule != null &&
-                                                    thePPVModule.m_oUsageModule != null)
-                                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                                else
-                                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                                selectQuery += "and";
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
-                                                selectQuery += "order by id desc";
-                                                if (selectQuery.Execute("query", true) != null)
-                                                {
-                                                    Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
-                                                    if (nCount1 > 0)
-                                                        nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                                                }
-
-
-                                                double sum = 0;
-                                                double credit = (userPPs.m_nTotalAmount - userPPs.m_nAmountUsed);
-
-                                                double dMaxAmount = 0.0;
-                                                Int32 nRelPrePaidID = 0;
-
-                                                foreach (UserPrePaidObject uppo in userPPs.m_oUserPPs)
-                                                {
-                                                    double diff = p.m_dPrice - sum;
-                                                    if ((uppo.m_nTotalAmount - uppo.m_nAmountUsed) < diff)
-                                                    {
-                                                        diff = (uppo.m_nTotalAmount - uppo.m_nAmountUsed);
-                                                    }
-
-                                                    if (diff > dMaxAmount)
-                                                    {
-                                                        dMaxAmount = diff;
-                                                        nRelPrePaidID = uppo.m_nPPModuleID;
-                                                    }
-
-                                                    credit -= diff;
-                                                    UpdatePPPurchase(uppo.m_nPPPurchaseID, diff, uppo.m_nAmountUsed);
-                                                    InsertPPUsesRecord(nPurchaseID, nMediaFileID, BillingItemsType.PPV, sSiteGUID, sCurrency, uppo.m_nPPModuleID, uppo.m_nPPPurchaseID, diff, credit, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                                    sum += diff;
-
-                                                    if (sum == p.m_dPrice)
-                                                    {
-                                                        ret.m_oStatus = PrePaidResponseStatus.Success;
-
-                                                        updateQuery = new ODBCWrapper.UpdateQuery("ppv_purchases");
-                                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
-                                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
-                                                        updateQuery += "where";
-                                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
-                                                        updateQuery.Execute();
-
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                ret.m_oStatus = PrePaidResponseStatus.NoCredit;
-                                            }
-
+                                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
                                         }
-                                        if (ret.m_oStatus == PrePaidResponseStatus.Success)
-                                        {
-                                            WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(PP): " + dPrice.ToString() + sCurrency);
-                                            //send purchase mail
-                                            string sEmail = "";
-                                            string sPaymentMethod = "Pre Paid";
-                                            string sDateOfPurchase = GetDateSTRByGroup(DateTime.UtcNow, m_nGroupID);
-                                            string sItemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", nMediaID, "MAIN_CONNECTION_STRING").ToString();
 
-                                            TvinciAPI.PurchaseMailRequest sMailReq = GetPurchaseMailRequest(ref sEmail, sSiteGUID, sItemName, sPaymentMethod, sDateOfPurchase, string.Empty, dPrice, sCurrency, m_nGroupID);
-                                            apiWs = new TvinciAPI.API();
-                                            string sAPIWSUserName = string.Empty;
-                                            string sAPIWSPass = string.Empty;
-                                            Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
+                                        //Create the Custom Data
+                                        string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                            nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                                            string sAPIWSURL = Utils.GetWSURL("api_ws");
-                                            if (!string.IsNullOrEmpty(sAPIWSURL))
-                                            {
-                                                apiWs.Url = sAPIWSURL;
-                                            }
-                                            apiWs.SendMailTemplate(sAPIWSUserName, sWSPass, sMailReq);
-                                        }
+                                        HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
+                                            sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+
+                                        insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                        if (relevantSub != null)
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", 0);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
+                                        if (thePPVModule != null &&
+                                            thePPVModule.m_oUsageModule != null)
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
                                         else
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                        if (thePPVModule != null &&
+                                            thePPVModule.m_oUsageModule != null)
                                         {
-                                            ret.m_sStatusDescription = "No Credit";
-                                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                                            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
+                                        }
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
+
+                                        insertQuery.Execute();
+
+                                        Int32 nPurchaseID = 0;
+                                        selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                                        selectQuery += " select id from ppv_purchases where ";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+                                        if (relevantSub != null)
+                                        {
+                                            selectQuery += "and";
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
+                                        }
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+                                        selectQuery += "and";
+                                        if (thePPVModule != null &&
+                                            thePPVModule.m_oUsageModule != null)
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
+                                        else
+                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                                        selectQuery += "and";
+                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
+                                        selectQuery += "order by id desc";
+                                        if (selectQuery.Execute("query", true) != null)
+                                        {
+                                            Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
+                                            if (nCount1 > 0)
+                                                nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                                        }
+
+
+                                        double sum = 0;
+                                        double credit = (userPPs.m_nTotalAmount - userPPs.m_nAmountUsed);
+
+                                        double dMaxAmount = 0.0;
+                                        Int32 nRelPrePaidID = 0;
+
+                                        foreach (UserPrePaidObject uppo in userPPs.m_oUserPPs)
+                                        {
+                                            double diff = p.m_dPrice - sum;
+                                            if ((uppo.m_nTotalAmount - uppo.m_nAmountUsed) < diff)
+                                            {
+                                                diff = (uppo.m_nTotalAmount - uppo.m_nAmountUsed);
+                                            }
+
+                                            if (diff > dMaxAmount)
+                                            {
+                                                dMaxAmount = diff;
+                                                nRelPrePaidID = uppo.m_nPPModuleID;
+                                            }
+
+                                            credit -= diff;
+                                            UpdatePPPurchase(uppo.m_nPPPurchaseID, diff, uppo.m_nAmountUsed);
+                                            InsertPPUsesRecord(nPurchaseID, nMediaFileID, BillingItemsType.PPV, sSiteGUID, sCurrency, uppo.m_nPPModuleID, uppo.m_nPPPurchaseID, diff, credit, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
+                                            sum += diff;
+
+                                            if (sum == p.m_dPrice)
+                                            {
+                                                ret.m_oStatus = PrePaidResponseStatus.Success;
+
+                                                updateQuery = new ODBCWrapper.UpdateQuery("ppv_purchases");
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                                                updateQuery += "where";
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
+                                                updateQuery.Execute();
+
+                                                break;
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        ret.m_oStatus = PrePaidResponseStatus.PriceNotCorrect;
-                                        ret.m_sStatusDescription = "The price of the request is not the actual price";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                                        ret.m_oStatus = PrePaidResponseStatus.NoCredit;
                                     }
+
+                                }
+                                if (ret.m_oStatus == PrePaidResponseStatus.Success)
+                                {
+                                    WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(PP): " + dPrice.ToString() + sCurrency);
+                                    //send purchase mail
+                                    string sEmail = "";
+                                    string sPaymentMethod = "Pre Paid";
+                                    string sDateOfPurchase = GetDateSTRByGroup(DateTime.UtcNow, m_nGroupID);
+                                    string sItemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", nMediaID, "MAIN_CONNECTION_STRING").ToString();
+
+                                    TvinciAPI.PurchaseMailRequest sMailReq = GetPurchaseMailRequest(ref sEmail, sSiteGUID, sItemName, sPaymentMethod, sDateOfPurchase, string.Empty, dPrice, sCurrency, m_nGroupID);
+                                    apiWs = new TvinciAPI.API();
+                                    string sAPIWSUserName = string.Empty;
+                                    string sAPIWSPass = string.Empty;
+                                    Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
+
+                                    string sAPIWSURL = Utils.GetWSURL("api_ws");
+                                    if (!string.IsNullOrEmpty(sAPIWSURL))
+                                    {
+                                        apiWs.Url = sAPIWSURL;
+                                    }
+                                    apiWs.SendMailTemplate(sAPIWSUserName, sWSPass, sMailReq);
                                 }
                                 else
                                 {
-                                    if (theReason == PriceReason.PPVPurchased)
-                                    {
-                                        ret.m_oStatus = PrePaidResponseStatus.Fail;
-                                        ret.m_sStatusDescription = "The media file is already purchased";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.Free)
-                                    {
-                                        ret.m_oStatus = PrePaidResponseStatus.Fail;
-                                        ret.m_sStatusDescription = "The media file is free";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
-                                    {
-                                        ret.m_oStatus = PrePaidResponseStatus.Fail;
-                                        ret.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.SubscriptionPurchased)
-                                    {
-                                        ret.m_oStatus = PrePaidResponseStatus.Fail;
-                                        ret.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
+                                    ret.m_sStatusDescription = "No Credit";
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                                 }
                             }
                             else
                             {
+                                ret.m_oStatus = PrePaidResponseStatus.PriceNotCorrect;
+                                ret.m_sStatusDescription = "The price of the request is not the actual price";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                        }
+                        else
+                        {
+                            if (theReason == PriceReason.PPVPurchased)
+                            {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
-                                ret.m_sStatusDescription = "The ppv module is unknown";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                                ret.m_sStatusDescription = "The media file is already purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.Free)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The media file is free";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The media file is for purchase with subscription only";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The media file is already purchased (subscription)";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            }
+                            else if (theReason == PriceReason.NotForPurchase)
+                            {
+                                ret.m_oStatus = PrePaidResponseStatus.Fail;
+                                ret.m_sStatusDescription = "The media file is not valid for purchased";
+                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
                         }
                     }
@@ -10069,7 +10124,6 @@ namespace ConditionalAccess
 
             try
             {
-
                 log.Debug("Cellular_BaseChargeUserForMediaFile - " + string.Format("Entering Cellular_BaseChargeUserForMediaFile try block. Site Guid: {0} , Media File ID: {1} , Media ID: {2} , PPV Module Code: {3} , Coupon code: {4} , User IP: {5} , Dummy: {6}", sSiteGUID, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, bDummy.ToString().ToLower()));
 
                 long lSiteGuid = 0;
@@ -10078,6 +10132,7 @@ namespace ConditionalAccess
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = string.Empty;
                     ret.m_sStatusDescription = "Cant charge an unknown user";
+                    return ret;
                 }
                 else
                 {
@@ -10097,13 +10152,15 @@ namespace ConditionalAccess
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
+                        return ret;
                     }
                     else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
-                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        return ret;
                     }
                     else
                     {
@@ -10112,104 +10169,102 @@ namespace ConditionalAccess
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
                             ret.m_sStatusDescription = "Coupon not valid";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             return ret;
                         }
 
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
-                        m = new global::ConditionalAccess.TvinciPricing.mdoule();
+                        m = new TvinciPricing.mdoule();
                         sWSURL = Utils.GetWSURL("pricing_ws");
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             m.Url = sWSURL;
                         }
-                        Int32[] nMediaFiles = { nMediaFileID };
-
-                        TvinciPricing.MediaFilePPVModule[] oModules = null;
-
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                        oModules = m.GetPPVModuleListForMediaFiles(sWSUserName, sWSPass, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                        Int32 nCount = 0;
-                        if (oModules[0].m_oPPVModules != null)
-                            nCount = oModules[0].m_oPPVModules.Length;
-                        bool bOK = false;
-                        for (int i = 0; i < nCount; i++)
+                        if (!bDummy && string.IsNullOrEmpty(sPPVModuleCode))
                         {
-                            if (oModules[0].m_oPPVModules[i].m_sObjectCode == sPPVModuleCode)
-                                bOK = true;
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "Charge must have ppv module code";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
                         }
-                        if (!bOK)
+                        // check if ppvModule related to mediaFile 
+                        long ppvModuleCode = 0;
+                        long.TryParse(sPPVModuleCode, out ppvModuleCode);
+
+                        TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+                        if (thePPVModule == null)
                         {
-                            if (!bDummy)
-                            {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
-                                ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "This PPVModule does not belong to item";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                            }
-                            else
-                            {
-                                bOK = true;
-                                if (nCount > 0)
-                                {
-                                    sPPVModuleCode = oModules[0].m_oPPVModules[0].m_sObjectCode;
-                                    dPrice = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_dPrice;
-                                    sCurrency = oModules[0].m_oPPVModules[0].m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                                }
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "The ppv module is unknown";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
+
+                        if (!bDummy && !thePPVModule.m_sObjectCode.Equals(sPPVModuleCode))
+                        {
+                            ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnownPPVModule;
+                            ret.m_sRecieptCode = string.Empty;
+                            ret.m_sStatusDescription = "This PPVModule does not belong to item";
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                            return ret;
+                        }
+
+                        if (bDummy)
+                        {
+                            sPPVModuleCode = thePPVModule.m_sObjectCode;
+                            dPrice = thePPVModule.m_oPriceCode.m_oPrise.m_dPrice;
+                            sCurrency = thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                            if (!IsTakePriceFromMediaFileFinalPrice(bDummy))
+                            { // Cinepolis patch
+                                dPrice = 0d;
                             }
                         }
-                        if (bOK)
+
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Subscription relevantSub = null;
+                        TvinciPricing.Collection relevantCol = null;
+                        TvinciPricing.PrePaidModule relevantPP = null;
+
+                        TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+
+                        if ((theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy) && theReason != PriceReason.NotForPurchase)
                         {
-                            PriceReason theReason = PriceReason.UnKnown;
-
-                            TvinciPricing.Subscription relevantSub = null;
-                            TvinciPricing.Collection relevantCol = null;
-                            TvinciPricing.PrePaidModule relevantPP = null;
-
-
-                            TvinciPricing.PPVModule thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            if (thePPVModule != null)
+                            if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
-                                TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy)
+                                string sCustomData = string.Empty;
+                                if (p.m_dPrice != 0 || bDummy)
                                 {
-                                    if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                                    sWSUserName = string.Empty;
+                                    sWSPass = string.Empty;
+
+                                    InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+                                    if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                     {
-                                        string sCustomData = string.Empty;
-                                        if (p.m_dPrice != 0 || bDummy)
-                                        {
-                                            sWSUserName = string.Empty;
-                                            sWSPass = string.Empty;
+                                        sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
+                                    }
+                                    //Create the Custom Data
+                                    sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
+                                        nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    log.Debug("CustomData - " + sCustomData);
+                                    ret = HandleCellularChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters, bDummy, false, ref bm);
+                                }
+                                if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                                {
+                                    long lBillingTransactionID = 0;
+                                    long lPurchaseID = 0;
+                                    HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
+                                                                               sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
+                                                                               thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
 
-                                            InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
-
-                                            if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
-                                            {
-                                                sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
-                                            }
-
-                                            //Create the Custom Data
-                                            sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                                nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                                            log.Debug("CustomData - " + sCustomData);
-
-                                            ret = HandleCellularChargeUser(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters, bDummy, false, ref bm);
-                                        }
-                                        if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
-                                        {
-                                            long lBillingTransactionID = 0;
-                                            long lPurchaseID = 0;
-                                            HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, sSiteGUID, uObj.m_user.m_domianID, relevantSub, dPrice, sCurrency,
-                                                                                       sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, sCustomData,
-                                                                                       thePPVModule, nMediaFileID, ref lBillingTransactionID, ref lPurchaseID, bDummy, ref bm);
-
-                                            // Enqueue notification for PS so they know a collection was charged
-                                            var dicData = new Dictionary<string, object>()
+                                    // Enqueue notification for PS so they know a collection was charged
+                                    var dicData = new Dictionary<string, object>()
                                             {
                                                 {"MediaFileID", nMediaFileID},
                                                 {"BillingTransactionID", lBillingTransactionID},
@@ -10219,68 +10274,61 @@ namespace ConditionalAccess
                                                 {"CustomData", sCustomData}
                                             };
 
-                                            this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
-                                        }
-                                        else
-                                        {
-                                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The price of the request is not the actual price";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
                                 }
                                 else
                                 {
-                                    if (theReason == PriceReason.PPVPurchased)
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The media file is already purchased";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.Free)
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The media file is free";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.SubscriptionPurchased)
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-                                    }
-                                    else if (theReason == PriceReason.UserSuspended)
-                                    {
-                                        ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
-                                        ret.m_sRecieptCode = string.Empty;
-                                        ret.m_sStatusDescription = "The user is suspended";
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
-
-                                    }
+                                    WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                                 }
                             }
                             else
                             {
-                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.PriceNotCorrect;
                                 ret.m_sRecieptCode = string.Empty;
-                                ret.m_sStatusDescription = "The ppv module is unknown";
+                                ret.m_sStatusDescription = "The price of the request is not the actual price";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
+                        }
+                        else
+                        {
+                            if (theReason == PriceReason.PPVPurchased)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is already purchased";
+                            }
+                            else if (theReason == PriceReason.Free)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is free";
+                            }
+                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is for purchase with subscription only";
+                            }
+                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is already purchased (subscription)";
+                            }
+                            else if (theReason == PriceReason.UserSuspended)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UserSuspended;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The user is suspended";
+                            }
+                            else if (theReason == PriceReason.NotForPurchase)
+                            {
+                                ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
+                                ret.m_sRecieptCode = string.Empty;
+                                ret.m_sStatusDescription = "The media file is not valid for purchased";
+                            }
+
+                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         }
                     }
                 } // end else if siteguid == ""
@@ -10323,7 +10371,6 @@ namespace ConditionalAccess
                 #endregion
             }
             return ret;
-
         }
 
         /// <summary>
