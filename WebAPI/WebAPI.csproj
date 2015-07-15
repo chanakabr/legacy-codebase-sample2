@@ -151,7 +151,7 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="DocGenerator.ashx" />
+    <Content Include="ApiSchema.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -635,8 +635,8 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
-    <Compile Include="DocGenerator.ashx.cs">
-      <DependentUpon>DocGenerator.ashx</DependentUpon>
+    <Compile Include="ApiSchema.ashx.cs">
+      <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
