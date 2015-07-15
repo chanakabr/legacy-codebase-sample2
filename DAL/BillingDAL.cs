@@ -993,26 +993,25 @@ namespace DAL
                         foreach (DataRow dr in dtPG.Rows)
                         {
                             pgw = new PaymentGW();
-                            pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
-                            pgw.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            pgw.id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            pgw.isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;
+                            pgw.isDefault = isDefault == 1 ? true : false;
 
                             if (dtConfig != null)
                             {
-                                DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.ID);
+                                DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.id);
                                
                                 foreach (DataRow drp in drpc)
                                 {
                                     string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
                                     string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
-                                    if (pgw.Settings == null)
+                                    if (pgw.settings == null)
                                     {
-                                        pgw.Settings = new List<PaymentGWSettings>();
+                                        pgw.settings = new List<PaymentGWSettings>();
                                     }
-                                    pgw.Settings.Add(new PaymentGWSettings(key, value));
+                                    pgw.settings.Add(new PaymentGWSettings(key, value));
                                 }
                             }
                             res.Add(pgw);
@@ -1198,7 +1197,7 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, string externalIdentifier, int? isDefault, int? isActive)
+        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, int? isDefault, int? isActive)
         {
             try
             {
@@ -1210,7 +1209,6 @@ namespace DAL
                 sp.AddParameter("@url", url);
                 sp.AddParameter("@isDefault", isDefault);
                 sp.AddParameter("@isActive", isActive);
-                sp.AddParameter("@external_identifier", externalIdentifier);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1228,13 +1226,12 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGW");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);                
-                sp.AddParameter("@name", pgw.Name);
-                sp.AddParameter("@url", pgw.Url);
-                sp.AddParameter("@external_identifier", pgw.ExternalIdentifier);
-                sp.AddParameter("@isDefault", pgw.IsDefault);
-                sp.AddParameter("@isActive", pgw.IsActive);
+                sp.AddParameter("@name", pgw.name);
+                sp.AddParameter("@url", pgw.url);
+                sp.AddParameter("@isDefault", pgw.isDefault);
+                sp.AddParameter("@isActive", pgw.isActive);
                 
-                DataTable dt = CreateDataTable(pgw.Settings);
+                DataTable dt = CreateDataTable(pgw.settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 bool isInsert = sp.ExecuteReturnValue<bool>();

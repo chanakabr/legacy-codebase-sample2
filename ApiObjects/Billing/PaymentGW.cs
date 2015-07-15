@@ -7,13 +7,12 @@ namespace ApiObjects.Billing
 {
     public class PaymentGW
     {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public bool IsDefault { get; set; }
-        public int IsActive { get; set; }
-        public string Url { get; set; }
-        public string ExternalIdentifier { get; set; }
-        public List<PaymentGWSettings> Settings { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public bool isDefault { get; set; }
+        public int isActive { get; set; }
+        public string url { get; set; }
+        public List<PaymentGWSettings> settings { get; set; }
 
         public PaymentGW()
         {
@@ -21,13 +20,12 @@ namespace ApiObjects.Billing
 
         public PaymentGW(PaymentGW pgw)
         {
-            this.ID = pgw.ID;
-            this.Name = pgw.Name;
-            this.IsDefault = pgw.IsDefault;
-            this.IsActive = pgw.IsActive;
-            this.Url = pgw.Url;
-            this.ExternalIdentifier = pgw.ExternalIdentifier;
-            this.Settings = pgw.Settings;
+            this.id = pgw.id;
+            this.name = pgw.name;
+            this.isDefault = pgw.isDefault;
+            this.isActive = pgw.isActive;
+            this.url = pgw.url;
+            this.settings = pgw.settings;
         }
     }
 }
