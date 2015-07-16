@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Epg;
 using Newtonsoft.Json;
 using NPVR.AlcatelLucentResponses;
 using System;
@@ -9,6 +10,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using Tvinci.Core.DAL;
+
 
 namespace NPVR
 {
@@ -71,6 +74,8 @@ namespace NPVR
         private static readonly string ALU_GENRE = "genre";
         private static readonly string ALU_YEAR = "year";
         private static readonly string ALU_EPISODE = "episode";
+        private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
+        private static readonly string ALU_RATING = "rating";
 
 
         private int groupID;
@@ -927,6 +932,8 @@ namespace NPVR
             List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
             if (aluResponse != null && aluResponse.entries != null && aluResponse.entries.Count > 0)
             {
+                Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID);
+
                 foreach (EntryJSON entry in aluResponse.entries)
                 {
                     RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
@@ -941,6 +948,7 @@ namespace NPVR
                     obj.EPG_IDENTIFIER = entry.ProgramID;
                     obj.EPG_Meta = new List<EPGDictionary>();
                     obj.EPG_TAGS = new List<EPGDictionary>();
+                    obj.EPG_PICTURES = new List<EpgPicture>();
                     // return seasonId + seasonName
                     if (!string.IsNullOrEmpty(entry.SeasonID))
                     {
@@ -993,20 +1001,107 @@ namespace NPVR
                         });
                     }
 
+                    if (!string.IsNullOrEmpty(entry.Rating))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_RATING,
+                            Value = entry.Rating
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.SeasonNumber))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_SEASON_NUMBER,
+                            Value = entry.SeasonNumber
+                        });
+                    }
+
+                    obj.PIC_URL = entry.Thumbnail;
+
+                    if (!string.IsNullOrEmpty(entry.Thumbnail) && picGroupTree != null && picGroupTree.Count > 0)
+                    {
+                        if (!entry.Thumbnail.ToLower().StartsWith("http://"))
+                        {
+                            SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[groupID]);
+                            if (obj.EPG_PICTURES.Count > 0)
+                            {
+                                obj.PIC_URL = obj.EPG_PICTURES[0].Url;
+                            }
+                        }
+
+                    }
+
+
+
                     obj.GROUP_ID = groupID.ToString();
                     obj.IS_ACTIVE = "true";
                     obj.LIKE_COUNTER = 0;
                     obj.media_id = string.Empty;
                     obj.NAME = entry.Name;
-                    obj.PIC_URL = entry.Thumbnail;
                     obj.PUBLISH_DATE = string.Empty;
                     obj.STATUS = entry.Status;
                     obj.RecordSource = entry.Source;
                     res.Add(obj);
                 }
+
+            }
+            return res;
+        }
+
+        private void SetEpgPictures(Dictionary<int, KeyValuePair<string, string>> ratioDic, RecordedEPGChannelProgrammeObject obj, List<EpgPicture> pictures)
+        {
+            int rationId = 0;
+            string picName = string.Empty;
+            string suffix = string.Empty;
+            StringBuilder urlStr = new StringBuilder();
+
+            foreach (KeyValuePair<int, KeyValuePair<string, string>> pair in ratioDic)
+            {
+                rationId = pair.Key;
+                picName = pair.Value.Key;
+                suffix = pair.Value.Value;
+
+                foreach (EpgPicture pic in pictures)
+                {
+                    if (pic.RatioId == rationId)
+                    {
+                        urlStr.Append(pic.Url);
+                        urlStr.Append(picName);
+                        urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
+                        urlStr.Append(suffix);
+                        pic.Url = urlStr.ToString();
+                        obj.EPG_PICTURES.Add(pic);
+                    }
+                }
+            }
+        }
+
+        private Dictionary<int, KeyValuePair<string, string>> SetRatioList(string thumbnail)
+        {
+            string sep = ";";
+            var pics = thumbnail.Split(sep.ToCharArray());   //sample of thumbnail-->  [rationid]=[basepic].[suffix];;
+            var list = new Dictionary<int, KeyValuePair<string, string>>();
+            int ratioId = 0;
+
+            foreach (string pic in pics)
+            {
+                if (!string.IsNullOrEmpty(pic))
+                {
+                    var internalStr = pic.Split((new char[] { '=', '.' }));
+                    if (internalStr.Length == 3)
+                    {
+                        if (int.TryParse(internalStr[0], out ratioId))
+                        {
+                            list.Add(ratioId, new KeyValuePair<string, string>(internalStr[1], internalStr[2]));
+                        }
+                    }
+                }
             }
 
-            return res;
+            return list;
         }
 
         private string GetEndTime(EntryJSON entry)
