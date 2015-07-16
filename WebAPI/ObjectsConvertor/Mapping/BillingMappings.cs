@@ -30,8 +30,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
 
             Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.PaymentGWBasic>()
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name));
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.ID))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name));
           
             //from local object to WS object
             //PaymentGWConfigResponse to PaymentGWConfigResponse
@@ -42,6 +42,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+                .ForMember(dest => dest.PenddingInterval, opt => opt.MapFrom(src => src.PenddingInterval))
+                .ForMember(dest => dest.PenddingRetries, opt => opt.MapFrom(src => src.PenddingRetries))
+                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)));
         }
 
