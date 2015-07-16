@@ -38,7 +38,7 @@ namespace WebAPI.App_Start
         [XmlRoot("xml")]
         public class XmlReponseWrapper
         {
-            [XmlElement("result")]
+            [XmlElement("result", IsNullable = true)]
             public object Result { get; set; }
 
             [XmlElement("executionTime")]
@@ -47,7 +47,7 @@ namespace WebAPI.App_Start
 
         private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
         {
-            XmlSerializer ser = new XmlSerializer(input.GetType(), new Type[] { wrapper.Result.GetType() });
+            XmlSerializer ser = new XmlSerializer(input.GetType(), wrapper.Result != null ? new Type[] { wrapper.Result.GetType() } : new Type[] { });
 
             XmlDocument xd = null;
 
@@ -57,12 +57,12 @@ namespace WebAPI.App_Start
 
                 memStm.Position = 0;
 
-                XmlReaderSettings settings = new XmlReaderSettings();                
+                XmlReaderSettings settings = new XmlReaderSettings();
                 settings.IgnoreWhitespace = true;
 
                 using (var xtr = XmlReader.Create(memStm, settings))
                 {
-                    xd = new XmlDocument();                    
+                    xd = new XmlDocument();
                     xd.Load(xtr);
                     xd.FirstChild.InnerText = "version=\"1.0\" encoding=\"utf-8\"";
                 }
@@ -83,11 +83,15 @@ namespace WebAPI.App_Start
                     ExecutionTime = wrapper.Status.ExecutionTime
                 };
 
-                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);                
-                var otype = doc.CreateElement("objectType");
-                otype.InnerText = wrapper.Result.GetType().Name;
+                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
                 var resnode = doc.GetElementsByTagName("result")[0];
-                resnode.PrependChild(otype);
+
+                if (wrapper.Result != null)
+                {
+                    var otype = doc.CreateElement("objectType");
+                    otype.InnerText = wrapper.Result != null ? wrapper.Result.GetType().Name : null;                    
+                    resnode.PrependChild(otype);
+                }
 
                 // Removing unnecessary attributes such as NS, and type
                 resnode.Attributes.RemoveAll();

@@ -14,6 +14,7 @@ using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using System.Runtime.Serialization;
 
 namespace WebAPI.App_Start
 {
@@ -49,26 +50,27 @@ namespace WebAPI.App_Start
             string message = "";
             int subCode = (int)StatusCode.OK;
 
-            if (response.TryGetContentValue(out content) && content is HttpError && !response.IsSuccessStatusCode)
-            {
-                //This is a global unintentional error
+            //if (response.TryGetContentValue(out content) && content is HttpError && !response.IsSuccessStatusCode)
+            //{
+            //    //This is a global unintentional error
 
-                HttpError error = content as HttpError;
-                subCode = (int)StatusCode.Error;
+            //    HttpError error = content as HttpError;
+            //    subCode = (int)StatusCode.Error;
 
-                if (error != null)
-                {
-                    content = null;
-                    message = HandleError(error.ExceptionMessage, error.StackTrace);
-                }
-            }
-            else if (content is ApiException.ExceptionPayload && ((ApiException.ExceptionPayload)content).code != 0)
+            //    if (error != null)
+            //    {
+            //        message = HandleError(error.ExceptionMessage, error.StackTrace);
+            //        content = prepareExceptionResponse((int)StatusCode.Error, message);
+            //    }
+            //}
+            //else 
+            if (content is ApiException.ExceptionPayload && ((ApiException.ExceptionPayload)content).code != 0)
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
 
                 subCode = payload.code;
                 message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                content = null;
+                content = prepareExceptionResponse(payload.code, message);
             }
             else if (response.IsSuccessStatusCode)
             {
@@ -77,18 +79,19 @@ namespace WebAPI.App_Start
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 //Web API Bad Request global error
-                content = null;
-                subCode = (int)StatusCode.BadRequest;
+                content = prepareExceptionResponse((int)StatusCode.BadRequest, "Bad request");                
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 message = HandleError("Bad Request", "");
             }
             else
             {
-                content = null;
+                content = prepareExceptionResponse((int)StatusCode.Error, "Unknown error");
                 subCode = (int)StatusCode.Error;
                 message = HandleError("Unknown error", "");
             }
 
+            //We never return 500. even on errors/warning
+            response.StatusCode = System.Net.HttpStatusCode.OK;
             Guid reqID = request.GetCorrelationId();
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
@@ -98,6 +101,26 @@ namespace WebAPI.App_Start
             }
 
             return newResponse;
+        }
+
+        [DataContract(Name = "error")]
+        public class KalturaAPIExceptionWrapper
+        {
+            public KalturaAPIException error { get; set; }
+        }
+
+        public class KalturaAPIException
+        {
+            [DataMember(Name = "objectType")]
+            public string objectType { get { return this.GetType().Name; } set { } }
+            public string code { get; set; }
+            public string message { get; set; }
+            public string[] args { get; set; }
+        }
+
+        private static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg)
+        {
+            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString() } };
         }
 
         public static string HandleError(string errorMsg, string stack)
