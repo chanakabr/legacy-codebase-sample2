@@ -84,7 +84,5 @@ namespace NPVR.AlcatelLucentResponses
         [JsonProperty("seasonNumber", Required = Required.Default)]
         public string SeasonNumber { get; set; }
 
-        [JsonProperty("rating", Required = Required.Default)]
-        public string Rrating { get; set; }
     }
 }

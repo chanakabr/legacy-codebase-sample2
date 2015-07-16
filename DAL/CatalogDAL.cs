@@ -2821,6 +2821,7 @@ namespace Tvinci.Core.DAL
                 int width = 0;
                 int height = 0;
                 string ratio = string.Empty;
+                int ratioId = 0;
 
                 if (groupRatioTable != null && groupRatioTable.Rows != null && groupRatioTable.Rows.Count > 0)
                 {
@@ -2838,9 +2839,11 @@ namespace Tvinci.Core.DAL
                             width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
                             height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
                             ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                            ratioId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ratio_id");
 
                             EpgPicture picture = new EpgPicture();
                             picture.Initialize(width, height, ratio, baseUrl);
+                            picture.RatioId = ratioId;
                             if (!res.ContainsKey(groupID))
                             {
                                 res.Add(groupID, new List<EpgPicture>() { picture });
@@ -2876,6 +2879,7 @@ namespace Tvinci.Core.DAL
 
                                 EpgPicture picture = new EpgPicture();
                                 picture.Initialize(width, height, ratio, baseUrl);
+                                picture.RatioId = ratioId;
                                 if (!res.ContainsKey(groupID))
                                 {
                                     res.Add(groupID, new List<EpgPicture>() { picture });

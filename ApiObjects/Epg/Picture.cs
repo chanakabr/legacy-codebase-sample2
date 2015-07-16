@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace ApiObjects.Epg
 {
@@ -23,6 +24,9 @@ namespace ApiObjects.Epg
         [DataMember(IsRequired = false)]
         public string Url { set; get; }
 
+        [XmlIgnore]
+        public int RatioId { set; get; }
+
 
         public EpgPicture()
         {
@@ -31,6 +35,7 @@ namespace ApiObjects.Epg
             Ratio = string.Empty;
             Url = string.Empty;
             PicID = 0;
+            RatioId = 0;
         }
 
         public void Initialize(Int32 picWidth, Int32 picHeight, string ratio, string url)
