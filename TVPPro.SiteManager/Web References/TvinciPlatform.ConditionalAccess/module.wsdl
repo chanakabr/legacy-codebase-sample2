@@ -749,6 +749,7 @@
           <s:enumeration value="FirstDeviceLimitation" />
           <s:enumeration value="CollectionPurchased" />
           <s:enumeration value="UserSuspended" />
+          <s:enumeration value="NotForPurchase" />
         </s:restriction>
       </s:simpleType>
       <s:complexType name="ArrayOfLanguageContainer">
@@ -6875,23 +6876,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-<<<<<<< HEAD
-      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
+      <soap:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
+      <soap12:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
-=======
-      <soap:address location="http://localhost/ws_conditionalaccess/module.asmx" />
-    </wsdl:port>
-    <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/ws_conditionalaccess/module.asmx" />
-    </wsdl:port>
-    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/ws_conditionalaccess/module.asmx" />
->>>>>>> origin/m_statuses_for_charge
+      <http:address location="http://192.168.192.146/webservices/cas/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

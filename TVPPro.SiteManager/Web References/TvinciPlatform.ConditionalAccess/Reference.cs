@@ -5802,6 +5802,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         UserSuspended,
+        
+        /// <remarks/>
+        NotForPurchase,
     }
     
     /// <remarks/>
