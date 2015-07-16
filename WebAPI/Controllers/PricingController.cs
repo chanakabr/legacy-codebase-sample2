@@ -11,6 +11,7 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
+    [RoutePrefix("pricing")]
     public class PricingController : ApiController
     {
         /// <summary>

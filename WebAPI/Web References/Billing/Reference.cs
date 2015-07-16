@@ -1014,25 +1014,26 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGW(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isDefault, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isActive) {
+        public Status SetPaymentGW(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isDefault, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isActive) {
             object[] results = this.Invoke("SetPaymentGW", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGWID,
                         name,
                         url,
+                        externalIdentifier,
                         isDefault,
                         isActive});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, System.Nullable<int> isDefault, System.Nullable<int> isActive) {
-            this.SetPaymentGWAsync(sWSUserName, sWSPassword, paymentGWID, name, url, isDefault, isActive, null);
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, System.Nullable<int> isDefault, System.Nullable<int> isActive) {
+            this.SetPaymentGWAsync(sWSUserName, sWSPassword, paymentGWID, name, url, externalIdentifier, isDefault, isActive, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, System.Nullable<int> isDefault, System.Nullable<int> isActive, object userState) {
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, System.Nullable<int> isDefault, System.Nullable<int> isActive, object userState) {
             if ((this.SetPaymentGWOperationCompleted == null)) {
                 this.SetPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWOperationCompleted);
             }
@@ -1042,6 +1043,7 @@ namespace WebAPI.Billing {
                         paymentGWID,
                         name,
                         url,
+                        externalIdentifier,
                         isDefault,
                         isActive}, this.SetPaymentGWOperationCompleted, userState);
         }
@@ -1635,10 +1637,12 @@ namespace WebAPI.Billing {
         
         private string urlField;
         
+        private string externalIdentifierField;
+        
         private PaymentGWSettings[] settingsField;
         
         /// <remarks/>
-        public int id {
+        public int ID {
             get {
                 return this.idField;
             }
@@ -1648,7 +1652,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public string name {
+        public string Name {
             get {
                 return this.nameField;
             }
@@ -1658,7 +1662,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public bool isDefault {
+        public bool IsDefault {
             get {
                 return this.isDefaultField;
             }
@@ -1668,7 +1672,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public int isActive {
+        public int IsActive {
             get {
                 return this.isActiveField;
             }
@@ -1678,7 +1682,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public string url {
+        public string Url {
             get {
                 return this.urlField;
             }
@@ -1688,7 +1692,17 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWSettings[] settings {
+        public string ExternalIdentifier {
+            get {
+                return this.externalIdentifierField;
+            }
+            set {
+                this.externalIdentifierField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentGWSettings[] Settings {
             get {
                 return this.settingsField;
             }

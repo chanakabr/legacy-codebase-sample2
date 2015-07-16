@@ -24,7 +24,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ppv_price_details")]
         [JsonProperty("ppv_price_details")]
-        public PPVItemPriceDetails PPVPriceDetails { get; set; }
+        public List<PPVItemPriceDetails> PPVPriceDetails { get; set; }
 
         /// <summary>
         /// Product code for the file
