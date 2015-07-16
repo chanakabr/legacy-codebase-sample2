@@ -330,7 +330,8 @@ namespace WebAPI.Controllers
         /// <response code="504">Gateway Timeout</response>
         /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
-        public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active, [FromUri] string external_identifier)
+        public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active, 
+            [FromUri] string external_identifier, [FromUri]  int pendding_interval, [FromUri] int pendding_retries,  [FromUri] string shared_secret)
         {
             bool response = false;
 
@@ -339,7 +340,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, url, external_identifier, is_default, is_active);
+                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, url, external_identifier, pendding_interval,
+                    pendding_retries,shared_secret, is_default, is_active);
             }
             catch (ClientException ex)
             {

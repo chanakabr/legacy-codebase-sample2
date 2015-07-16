@@ -93,7 +93,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         public module() {
-            this.Url = global::WebAPI.Properties.Settings.Default.WebAPI_Billing_module;
+            this.Url = "http://localhost/ws_billing/module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -1014,7 +1014,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGW(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isDefault, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isActive) {
+        public Status SetPaymentGW(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int penddingInterval, int penddingRetries, string sharedSecret, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isDefault, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isActive) {
             object[] results = this.Invoke("SetPaymentGW", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1022,18 +1022,21 @@ namespace WebAPI.Billing {
                         name,
                         url,
                         externalIdentifier,
+                        penddingInterval,
+                        penddingRetries,
+                        sharedSecret,
                         isDefault,
                         isActive});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, System.Nullable<int> isDefault, System.Nullable<int> isActive) {
-            this.SetPaymentGWAsync(sWSUserName, sWSPassword, paymentGWID, name, url, externalIdentifier, isDefault, isActive, null);
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int penddingInterval, int penddingRetries, string sharedSecret, System.Nullable<int> isDefault, System.Nullable<int> isActive) {
+            this.SetPaymentGWAsync(sWSUserName, sWSPassword, paymentGWID, name, url, externalIdentifier, penddingInterval, penddingRetries, sharedSecret, isDefault, isActive, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, System.Nullable<int> isDefault, System.Nullable<int> isActive, object userState) {
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int penddingInterval, int penddingRetries, string sharedSecret, System.Nullable<int> isDefault, System.Nullable<int> isActive, object userState) {
             if ((this.SetPaymentGWOperationCompleted == null)) {
                 this.SetPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWOperationCompleted);
             }
@@ -1044,6 +1047,9 @@ namespace WebAPI.Billing {
                         name,
                         url,
                         externalIdentifier,
+                        penddingInterval,
+                        penddingRetries,
+                        sharedSecret,
                         isDefault,
                         isActive}, this.SetPaymentGWOperationCompleted, userState);
         }
@@ -1500,7 +1506,7 @@ namespace WebAPI.Billing {
         private string nameField;
         
         /// <remarks/>
-        public int id {
+        public int ID {
             get {
                 return this.idField;
             }
@@ -1510,7 +1516,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public string name {
+        public string Name {
             get {
                 return this.nameField;
             }
@@ -1639,6 +1645,12 @@ namespace WebAPI.Billing {
         
         private string externalIdentifierField;
         
+        private int penddingIntervalField;
+        
+        private int penddingRetriesField;
+        
+        private string sharedSecretField;
+        
         private PaymentGWSettings[] settingsField;
         
         /// <remarks/>
@@ -1698,6 +1710,36 @@ namespace WebAPI.Billing {
             }
             set {
                 this.externalIdentifierField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PenddingInterval {
+            get {
+                return this.penddingIntervalField;
+            }
+            set {
+                this.penddingIntervalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PenddingRetries {
+            get {
+                return this.penddingRetriesField;
+            }
+            set {
+                this.penddingRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SharedSecret {
+            get {
+                return this.sharedSecretField;
+            }
+            set {
+                this.sharedSecretField = value;
             }
         }
         
