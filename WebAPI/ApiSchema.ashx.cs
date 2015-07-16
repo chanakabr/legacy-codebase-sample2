@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using System.Xml;
 
 namespace WebAPI
@@ -144,7 +145,8 @@ namespace WebAPI
                 foreach (var method in methods)
                 {
                     //Read only HTTP POST as we will have duplicates otherwise
-                    if (method.GetCustomAttributes<HttpGetAttribute>(false).Count() == 0)
+                    var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
+                    if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                         continue;
 
                     var attr = method.GetCustomAttribute<RouteAttribute>(false);
