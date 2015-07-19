@@ -2191,7 +2191,7 @@ namespace TVPApiServices
         /// Retrieve all the rules (parental) that applies for this EPG program 
         /// </summary>
         [WebMethod(EnableSession = true, Description = "Gets rules that apply to media")]
-        public GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId)
+        public GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId, long channelMediaId)
         {
             GenericRulesResponse response = null;
 
@@ -2203,7 +2203,7 @@ namespace TVPApiServices
                 {
                     string userGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEpgRules(userGuid, epgId, initObj.DomainID);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetEpgRules(userGuid, epgId, channelMediaId, initObj.DomainID, SiteHelper.GetClientIP(), initObj.UDID);
                 }
                 catch (Exception ex)
                 {

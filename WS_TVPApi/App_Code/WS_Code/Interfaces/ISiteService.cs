@@ -167,6 +167,6 @@ namespace TVPApiServices
         GenericRulesResponse GetMediaRules(InitializationObject initObj, string siteGuid, long mediaId);
 
         [OperationContract]
-        GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId);
+        GenericRulesResponse GetEpgRules(InitializationObject initObj, string siteGuid, long epgId, long channelMediaId);
     }
 }
