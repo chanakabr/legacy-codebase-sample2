@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 
@@ -13,9 +15,9 @@ namespace Proxy
     /// </summary>
     public class proxy : IHttpHandler
     {
-        private static string url = "https://tvpapi.as.tvinci.com/v2_9/gateways/jsonpostgw.aspx";
+        private static string url = "https://stg.eu.tvinci.com/tvpapi_v3_4/gateways/jsonpostgw.aspx";
         public void ProcessRequest(HttpContext Context)
-        {                        
+        {
             /* Create variables to hold the request and response. */
             HttpRequest Request = Context.Request;
             HttpResponse Response = Context.Response;
@@ -37,6 +39,12 @@ namespace Proxy
                 Response.End();
                 return;
             }
+
+            ServicePointManager.ServerCertificateValidationCallback = delegate(object s, X509Certificate certificate,
+             X509Chain chain, SslPolicyErrors sslPolicyErrors)
+            {
+                return true;
+            };
 
             /* Create an HttpWebRequest to send the URI on and process results. */
             System.Net.HttpWebRequest ProxyRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(URI);
