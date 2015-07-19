@@ -2723,7 +2723,9 @@
             <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="channelMediaId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3933,7 +3935,9 @@
     <wsdl:part name="webServicePassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="channelMediaId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetEpgRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
@@ -6813,13 +6817,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api/api.asmx" />
+      <soap:address location="http://localhost:91/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api/api.asmx" />
+      <soap12:address location="http://localhost:91/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api/api.asmx" />
+      <http:address location="http://localhost:91/ws_api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
