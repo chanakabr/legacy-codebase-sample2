@@ -66,20 +66,20 @@ namespace WebAPI.Models.Billing
         /// </summary>
         [DataMember(Name = "pendding_interval")]
         [JsonProperty("pendding_interval")]
-        public string PenddingInterval { get; set; }
+        public int PenddingInterval { get; set; }
 
         /// <summary>
         /// Pendding Retries
         /// </summary>
         [DataMember(Name = "pendding_retries")]
         [JsonProperty("pendding_retries")]
-        public string PenddingRetries { get; set; }
+        public int PenddingRetries { get; set; }
 
 
         /// <summary>
         /// Shared Secret
         /// </summary>
-        [DataMember(Name = "sharedsecret")]
+        [DataMember(Name = "shared_secret")]
         [JsonProperty("shared_secret")]
         public string SharedSecret { get; set; }
     }
