@@ -92,8 +92,10 @@ namespace WebAPI.App_Start
 
             //We never return 500. even on errors/warning
             response.StatusCode = System.Net.HttpStatusCode.OK;
-            Guid reqID = request.GetCorrelationId();
+            Guid reqID = request.GetCorrelationId();            
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
+
+            newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
 
             foreach (var header in response.Headers)
             {
