@@ -91,13 +91,16 @@ namespace WebAPI
                 if (classNode == null)
                     continue;
 
-                string baseName = t.BaseType != null && t.BaseType != typeof(Object) ? t.BaseType.Name : "";
+                string baseName = t.BaseType != null && t.BaseType != typeof(Object) ? string.Format("base='{0}'",
+                    t.BaseType.Name) : "";
+
                 bool isAbstractOrInterface = t.IsInterface || t.IsAbstract;
+
 
                 //No documentation
                 if (classNode.Count == 0 || classNode[0].ChildNodes == null)
                 {
-                    context.Response.Write(string.Format("\t<class name='{0}' description='' base='{1}'", t.Name,
+                    context.Response.Write(string.Format("\t<class name='{0}' description='' {1}", t.Name,
                         baseName));
 
                     if (isAbstractOrInterface)
@@ -109,7 +112,7 @@ namespace WebAPI
                 {
                     foreach (XmlElement child in classNode[0].ChildNodes)
                     {
-                        context.Response.Write(string.Format("\t<class name='{0}' description='{1}' base='{2}'", t.Name,
+                        context.Response.Write(string.Format("\t<class name='{0}' description='{1}' {2}", t.Name,
                             child.InnerText.Trim(), baseName));
 
                         if (isAbstractOrInterface)
@@ -249,6 +252,8 @@ namespace WebAPI
         {
             if (type == typeof(String))
                 return "null";
+            if (type == typeof(DateTime))
+                return "0";
             if (type == typeof(long) || type == typeof(Int64))
                 return "0";
             if (type == typeof(Int32))
@@ -298,6 +303,8 @@ namespace WebAPI
         {
             if (type == typeof(String))
                 return "string";
+            if (type == typeof(DateTime))
+                return "time";
             if (type == typeof(long) || type == typeof(Int64))
                 return "bigint";
             if (type == typeof(Int32))
