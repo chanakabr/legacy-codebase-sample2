@@ -54,7 +54,7 @@ namespace DAL
 
 
         public static DataSet Get_SubscriptionData(int nGroupID, int? nIsActive, int? nSubscriptionID = null, string sProductCode = null, List<int> userTypesIDsList = null, int? nTopRows = null)
-        {            
+        {
             ODBCWrapper.StoredProcedure spSubscriptionData = new ODBCWrapper.StoredProcedure("GetSubscriptionData");
             spSubscriptionData.SetConnectionKey("pricing_connection");
 
@@ -139,7 +139,7 @@ namespace DAL
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@FileTypeId", nFileTypeId);
             DataSet ds = sp.ExecuteDataSet();
-           
+
             return ds;
         }
 
@@ -161,9 +161,9 @@ namespace DAL
             sp.AddParameter("@CreateAndUpdateDate", dtToWriteToDB);
 
             return sp.ExecuteReturnValue<long>() > 0;
-        }  
+        }
 
-       public static DataTable Get_SubscriptionsByChannel(int nGroupID, List<int> nChannelIDs)
+        public static DataTable Get_SubscriptionsByChannel(int nGroupID, List<int> nChannelIDs)
         {
             ODBCWrapper.StoredProcedure spSubscriptionByChannel = new ODBCWrapper.StoredProcedure("Get_SubscriptionsByChannel");
             spSubscriptionByChannel.SetConnectionKey("pricing_connection");
@@ -349,7 +349,7 @@ namespace DAL
             sp.AddParameter("@PPVCode", sAssetCode);
 
             DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null )
+            if (ds != null && ds.Tables != null)
                 return ds.Tables[0];
             return null;
         }
@@ -463,7 +463,7 @@ namespace DAL
             sp.AddIDListParameter("@Subscriptions", lstSubCodes, "ID");
 
             DataSet ds = sp.ExecuteDataSet();
-            Dictionary<long, List<string[]>> res = new Dictionary<long,List<string[]>>();
+            Dictionary<long, List<string[]>> res = new Dictionary<long, List<string[]>>();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -558,7 +558,7 @@ namespace DAL
             return res;
         }
 
-        
+
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
             DataTable subscriptionsServices = null;
@@ -566,7 +566,7 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddIDListParameter<long>("@Subscriptions", subscriptionsIDs, "IDList");
-            
+
 
             DataSet spResult = sp.ExecuteDataSet();
 
@@ -579,5 +579,38 @@ namespace DAL
             return subscriptionsServices;
         }
 
+
+        public static DataTable Get_PPVModuleForMediaFiles(int groupID, List<int> mediaFileList)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleForMediaFiles");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@MediaFileList", mediaFileList, "id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataRow Get_PPVModuleForMediaFile(int mediaFileID, long ppvModuleCode, int groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleForMediaFile");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupID", groupID);
+            if (ppvModuleCode > 0)
+            {
+                sp.AddParameter("@ppvModule", ppvModuleCode);
+            }
+            sp.AddParameter("@MediaFile", mediaFileID);
+
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            return null;
+        }
     }
 }
+

@@ -115,6 +115,7 @@
     <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
     <Compile Include="Response\LicensedLinkResponse.cs" />
+    <Compile Include="Response\MediaFileItemPricesContainerResponse.cs" />
     <Compile Include="Response\ProtectionResponse.cs" />
     <Compile Include="Commands\ProtectNPVRCommand.cs" />
     <Compile Include="Response\QuotaResponse.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Commands\RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
     <Compile Include="Commands\RetrieveQuotaNPVRCommand.cs" />
+    <Compile Include="Response\SubscriptionsPricesResponse.cs" />
     <Compile Include="Response\UserBillingTransactionResponse.cs" />
     <Compile Include="Eutelsat3SSObjects.cs" />
     <Compile Include="Implementations\EutelsatConditionalAccess.cs" />
@@ -400,10 +402,16 @@
     <None Include="Web References\TvinciPricing\Collection.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPricing\IdsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciPricing\MediaFilePPVContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciPricing\SubscriptionsResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciUsers\KeyValuePair.datasource">

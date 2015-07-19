@@ -88,7 +88,7 @@ namespace ApiObjects.Response
         // Api 5000 - 5999
         NoPinDefined = 5001,
         PinMismatch = 5002,
-
+        RuleNotExists = 5003,
         // Billing 6000 - 6999
         PriceNotCorrect = 6000,
         UnKnownPPVModule = 6001,
