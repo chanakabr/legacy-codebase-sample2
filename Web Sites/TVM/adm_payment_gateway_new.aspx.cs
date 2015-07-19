@@ -70,6 +70,8 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
             t = Session["paymentGW_id"];
         string sBack = "adm_payment_gateway.aspx?search_save=1";
 
+        object group_id = LoginManager.GetLoginGroupID();
+
         DBRecordWebEditor theRecord = new DBRecordWebEditor("payment_gateway", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("billing_connection");
         
@@ -80,6 +82,11 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         DataRecordLongTextField dr_url = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
         theRecord.AddRecord(dr_url);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
+        dr_groups.SetValue(group_id.ToString());
+        theRecord.AddRecord(dr_groups);
         
         string sTable = theRecord.GetTableHTML("adm_payment_gateway_new.aspx?submited=1");
 
