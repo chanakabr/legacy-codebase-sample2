@@ -17,19 +17,19 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the price details and purchase details for each file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
         /// </summary>
-        ///// <param name="partner_id">Partner identifier</param>
-        ///// <param name="files_ids">Media files identifiers (separated by ',')</param>
-        ///// <param name="user_id">User identifier</param>
-        ///// <param name="coupon_code">Discount coupon code</param>
-        ///// <param name="udid">Device UDID</param>
-        ///// <param name="language">Language code</param>
-        ///// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
-        ///// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        ///// <response code="200">OK</response>
-        ///// <response code="400">Bad request</response>
-        ///// <response code="403">Forbidden</response>
-        ///// <response code="500">Internal Server Error</response>
-        ///// <response code="504">Gateway Timeout</response>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="files_ids">Media files identifiers (separated by ',')</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="coupon_code">Discount coupon code</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="language">Language code</param>
+        /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">Forbidden</response>
+        /// <response code="500">Internal Server Error</response>
+        /// <response code="504">Gateway Timeout</response>
         [Route("files/{files_ids}/prices"), HttpGet]
         public ItemPricesList GetItemsPrices([FromUri] string partner_id, [FromUri] string files_ids, [FromUri] string user_id = null,
             [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
