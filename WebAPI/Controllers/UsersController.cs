@@ -1328,7 +1328,7 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <param name="language">Language Code</param>                
-        // <response code="200">OK</response>
+        /// <response code="200">OK</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">Forbidden</response>
         /// <response code="500">Internal Server Error</response>
