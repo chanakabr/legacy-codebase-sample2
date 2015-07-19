@@ -162,6 +162,14 @@ namespace Proxy
                     }
                     ServerResponse.Close();
                 }
+
+                if (ServerResponse.Headers != null)
+                {
+                    foreach (var key in ServerResponse.Headers.AllKeys)
+                    {
+                        Response.Headers.Add(key, ServerResponse.Headers[key]);
+                    }
+                }
             }
             Response.End();
         }
