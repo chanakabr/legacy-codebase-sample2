@@ -97,7 +97,7 @@ namespace TVPPro.SiteManager.Services
             int startIndex, int numOfItems)
         {
             TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] res = null;
-            
+
             try
             {
                 if (onlyFriends)
@@ -131,7 +131,7 @@ namespace TVPPro.SiteManager.Services
                 logger.ErrorFormat("Error occurred in DoSocialAction, Error : {0} Parameters : siteGuid {1}, action: {2}, platform: {3}", ex.Message, siteGuid,
                     userAction, socialPlatform);
             }
-            
+
             return res;
         }
 
@@ -180,7 +180,8 @@ namespace TVPPro.SiteManager.Services
             return res;
         }
 
-        public TvinciPlatform.Social.FacebookConfig getFBConfig() {
+        public TvinciPlatform.Social.FacebookConfig getFBConfig()
+        {
             TvinciPlatform.Social.FacebookConfig res = null;
             try
             {
@@ -188,7 +189,6 @@ namespace TVPPro.SiteManager.Services
             }
             catch (Exception e)
             {
-
                 logger.ErrorFormat("Error occurred in getFBConfig, Error : {0}", e.Message);
             }
 
@@ -197,57 +197,65 @@ namespace TVPPro.SiteManager.Services
 
         public TvinciPlatform.Social.FacebookResponseObject getFBUserData(string token)
         {
-            TvinciPlatform.Social.FacebookResponseObject res = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
+
             try
             {
-                res = m_Module.FBUserData(wsUserName, wsPassword, token, STG);
+                facebookResponse = m_Module.FBUserData(wsUserName, wsPassword, token, STG);
+                if (facebookResponse != null)
+                    clientResponse = facebookResponse.ResponseData;
             }
             catch (Exception e)
             {
-
                 logger.ErrorFormat("Error occurred in getFBUserData, Error : {0}", e.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
         public TvinciPlatform.Social.FacebookResponseObject FBRegister(string token, TvinciPlatform.Social.KeyValuePair[] extra, string sUserIP)
         {
-            TvinciPlatform.Social.FacebookResponseObject res = null;
-            
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
+
             try
             {
-                res = m_Module.FBUserRegister(wsUserName, wsPassword, token, STG, extra, sUserIP);
+                facebookResponse = m_Module.FBUserRegister(wsUserName, wsPassword, token, STG, extra, sUserIP);
+                if (facebookResponse != null)
+                    clientResponse = facebookResponse.ResponseData;
             }
             catch (Exception e)
             {
-
                 logger.ErrorFormat("Error occurred in FBRegister, Error : {0}", e.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
-        public TvinciPlatform.Social.FacebookResponseObject FBUserMerge(string token,string fbid,string FBUserName,string FBPassword) 
+        public TvinciPlatform.Social.FacebookResponseObject FBUserMerge(string token, string fbid, string FBUserName, string FBPassword)
         {
-            TvinciPlatform.Social.FacebookResponseObject res = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
+
             try
             {
-                res = m_Module.FBUserMerage(wsUserName, wsPassword, token, fbid, FBUserName, FBPassword);
+                facebookResponse = m_Module.FBUserMerge(wsUserName, wsPassword, token, fbid, FBUserName, FBPassword);
+                if (facebookResponse != null)
+                    clientResponse = facebookResponse.ResponseData;
             }
             catch (Exception e)
             {
-
                 logger.ErrorFormat("Error occurred in FBUserMerge, Error : {0}", e.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
         public bool SetUserSocialPrivacy(int siteGuid, TvinciPlatform.Social.SocialPlatform socialPlatform, TvinciPlatform.Social.eUserAction userAction, TvinciPlatform.Social.eSocialPrivacy privacy)
         {
             bool res = false;
-            
+
             try
             {
                 res = m_Module.SetUserSocialPrivacy(wsUserName, wsPassword, siteGuid, socialPlatform, userAction, privacy);
@@ -261,7 +269,7 @@ namespace TVPPro.SiteManager.Services
             return res;
         }
 
-        public bool SetUserInternalActionPrivacy(int siteGuid, TvinciPlatform.Social.SocialPlatform socialPlatform, TvinciPlatform.Social.eUserAction userAction,TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy) 
+        public bool SetUserInternalActionPrivacy(int siteGuid, TvinciPlatform.Social.SocialPlatform socialPlatform, TvinciPlatform.Social.eUserAction userAction, TvinciPlatform.Social.eSocialActionPrivacy actionPrivacy)
         {
             bool res = false;
 
