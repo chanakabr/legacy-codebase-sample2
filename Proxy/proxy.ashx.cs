@@ -103,9 +103,8 @@ namespace Proxy
             }
             catch (System.Net.WebException WebEx)
             {
-                Response.StatusCode = 500;
-                Response.StatusDescription = WebEx.Status.ToString();
-                Response.Write(WebEx.Response);
+                Response.StatusCode = (int) ((HttpWebResponse)WebEx.Response).StatusCode;
+                Response.StatusDescription = ((HttpWebResponse)WebEx.Response).StatusCode.ToString();
                 Response.End();
                 return;
             }
