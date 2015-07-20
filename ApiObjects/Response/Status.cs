@@ -12,11 +12,8 @@ namespace ApiObjects.Response
     [DataContract]
     public class Status
     {
-        [DataMember]
-        public int Code { get; set; }
-
-        [DataMember]
-        public string Message { get; set; }
+        private string message = string.Empty;
+        private int code;
 
         public Status(int code = 0, string message = "")
         {
@@ -26,7 +23,36 @@ namespace ApiObjects.Response
 
         public Status()
         {
-            this.Message = string.Empty;
+        }
+
+        [DataMember]
+        public int Code
+        {
+            get
+            {
+                return code;
+            }
+            set
+            {
+                code = value;
+
+                // update status message 
+                if (string.IsNullOrEmpty(message))
+                    message = ((eResponseStatus)value).ToString();
+            }
+        }
+
+        [DataMember]
+        public string Message
+        {
+            get
+            {
+                return message;
+            }
+            set
+            {
+                message = value;
+            }
         }
     }
 }

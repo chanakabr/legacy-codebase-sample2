@@ -89,6 +89,7 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+
         // Billing 6000 - 6999
         PriceNotCorrect = 6000,
         UnKnownPPVModule = 6001,
@@ -96,7 +97,13 @@ namespace ApiObjects.Response
         CellularPermissionsError = 6003,
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
-        PaymentGateWayParamsMissing = 6006
+        PaymentGateWayParamsMissing = 6006,
+
+        // social 7000 - 7999
+        Conflict = 7000,
+        MinFriends = 7001,
+        Merge = 7002,
+        NewUser = 7003
 
     }
 }
