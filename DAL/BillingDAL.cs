@@ -909,8 +909,8 @@ namespace DAL
             }
             return dateFormat;
         }
-        
-        public static int Insert_SmartSunTransaction(int nGroupID, string sSiteGUID, int nItemType, string sMsisdn, double dPrice, int nCustomDataID, 
+
+        public static int Insert_SmartSunTransaction(int nGroupID, string sSiteGUID, int nItemType, string sMsisdn, double dPrice, int nCustomDataID,
             int nReferenceTransactionID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertSmartSunTransaction = new ODBCWrapper.StoredProcedure("Insert_SmartSunTransaction");
@@ -996,6 +996,9 @@ namespace DAL
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             pgw.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            pgw.PenddingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pendding_interval");
+                            pgw.PenddingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pendding_retries");
+                            pgw.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1003,7 +1006,7 @@ namespace DAL
                             if (dtConfig != null)
                             {
                                 DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.ID);
-                               
+
                                 foreach (DataRow drp in drpc)
                                 {
                                     string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
@@ -1060,12 +1063,12 @@ namespace DAL
                 {
                     DataRow row = resultTable.NewRow();
                     row["key"] = item.key;
-                    row["value"] = item.value;                    
+                    row["value"] = item.value;
                     resultTable.Rows.Add(row);
                 }
             }
             catch (Exception ex)
-            {   
+            {
                 return null;
             }
 
@@ -1101,7 +1104,7 @@ namespace DAL
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    DataTable dtPG = ds.Tables[0];                  
+                    DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
                         PaymentGWBasic pgw = null;
@@ -1110,7 +1113,7 @@ namespace DAL
                             pgw = new PaymentGWBasic();
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                                    
+
                             res.Add(pgw);
                         }
                     }
@@ -1198,7 +1201,8 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, string externalIdentifier, int? isDefault, int? isActive)
+        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, string externalIdentifier, int penddingInterval, int penddingRetries,
+            string sharedSecret, int? isDefault, int? isActive)
         {
             try
             {
@@ -1208,6 +1212,9 @@ namespace DAL
                 sp.AddParameter("@ID", paymentGWID);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@external_identifier", externalIdentifier);
+                sp.AddParameter("@pendding_interval", penddingInterval);
+                sp.AddParameter("@pendding_retries", penddingRetries);
+                sp.AddParameter("@shared_secret", sharedSecret);
                 sp.AddParameter("@url", url);
                 sp.AddParameter("@isDefault", isDefault);
                 sp.AddParameter("@isActive", isActive);
@@ -1227,13 +1234,16 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGW");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);                
+                sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", pgw.Name);
                 sp.AddParameter("@url", pgw.Url);
                 sp.AddParameter("@external_identifier", pgw.ExternalIdentifier);
+                sp.AddParameter("@pendding_interval", pgw.PenddingInterval);
+                sp.AddParameter("@pendding_retries", pgw.PenddingRetries);
+                sp.AddParameter("@shared_secret", pgw.SharedSecret);                
                 sp.AddParameter("@isDefault", pgw.IsDefault);
                 sp.AddParameter("@isActive", pgw.IsActive);
-                
+
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
@@ -1275,7 +1285,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGW_HouseHold");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@PaymentGWID", paymentGwID);
-                sp.AddParameter("@householdID", houseHoldID);                
+                sp.AddParameter("@householdID", houseHoldID);
                 sp.AddParameter("@groupID", groupID);
                 res = sp.ExecuteReturnValue<bool>();
             }

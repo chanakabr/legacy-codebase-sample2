@@ -13,6 +13,9 @@ namespace ApiObjects.Billing
         public int IsActive { get; set; }
         public string Url { get; set; }
         public string ExternalIdentifier { get; set; }
+        public int PenddingInterval { get; set; }
+        public int PenddingRetries { get; set; }
+        public string SharedSecret { get; set; }
         public List<PaymentGWSettings> Settings { get; set; }
 
         public PaymentGW()
@@ -27,6 +30,9 @@ namespace ApiObjects.Billing
             this.IsActive = pgw.IsActive;
             this.Url = pgw.Url;
             this.ExternalIdentifier = pgw.ExternalIdentifier;
+            this.PenddingInterval = pgw.PenddingInterval;
+            this.PenddingRetries = pgw.PenddingRetries;
+            this.SharedSecret = pgw.SharedSecret;
             this.Settings = pgw.Settings;
         }
     }
