@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Search assets request
+    /// </summary>
     public class SearchAssets : BaseAssetsRequest
     {
         /// <summary>

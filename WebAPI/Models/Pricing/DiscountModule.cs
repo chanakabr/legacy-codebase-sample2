@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// Discount module
+    /// </summary>
     public class DiscountModule
     {
         /// <summary>

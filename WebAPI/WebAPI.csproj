@@ -411,9 +411,6 @@
     <Content Include="Web References\Pricing\Collection.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Pricing\CouponData.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Pricing\CouponsGroup.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -433,6 +430,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Pricing\IdsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\CouponDataResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Pricing\module.disco" />
@@ -647,6 +647,7 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\BundlesController.cs" />
+    <Compile Include="Controllers\CouponsController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
@@ -671,6 +672,8 @@
     <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\Charge.cs" />
     <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
+    <Compile Include="Models\Pricing\CouponDetails.cs" />
+    <Compile Include="Models\Pricing\CouponStatus.cs" />
     <Compile Include="Models\Pricing\ItemPricesList.cs" />
     <Compile Include="Models\Pricing\PPVItemPriceDetails.cs" />
     <Compile Include="Models\General\TranslationContainer.cs" />
@@ -682,7 +685,6 @@
     <Compile Include="Models\Pricing\PurchaseStatus.cs" />
     <Compile Include="Models\ConditionalAccess\PremiumService.cs" />
     <Compile Include="Models\Pricing\PricePlan.cs" />
-    <Compile Include="Models\Pricing\Subscriptions.cs" />
     <Compile Include="Models\Pricing\SubscriptionsList.cs" />
     <Compile Include="Models\Pricing\SubscriptionPrice.cs" />
     <Compile Include="Models\Pricing\SubscriptionsPricesList.cs" />

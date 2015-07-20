@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Users
 {
+    /// <summary>
+    /// Slim user data
+    /// </summary>
     public class SlimUser
     {
         /// <summary>

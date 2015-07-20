@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.General
 {
+    /// <summary>
+    /// Base list wrapper
+    /// </summary>
     [Serializable]
     public class BaseListWrapper
     {

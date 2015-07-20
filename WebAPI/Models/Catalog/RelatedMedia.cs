@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Related media request
+    /// </summary>
     public class RelatedMedia : BaseAssetsRequest
     {
         /// <summary>

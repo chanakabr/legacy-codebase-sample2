@@ -8,10 +8,16 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.API
 {
+    /// <summary>
+    /// ParentalRules list
+    /// </summary>
     [DataContract(Name = "ParentalRules", Namespace = "")]
     [XmlRoot("ParentalRules")]
     public class ParentalRulesList
     {
+        /// <summary>
+        /// A list of parental rules
+        /// </summary>
         [DataMember(Name = "rules")]
         [JsonProperty("rules")]
         public List<ParentalRule> ParentalRules;

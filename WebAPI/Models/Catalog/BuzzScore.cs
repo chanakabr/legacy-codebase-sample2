@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Buzz score
+    /// </summary>
     public class BuzzScore
     {
         /// <summary>

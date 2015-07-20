@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Slim assets wrapper
+    /// </summary>
     public class SlimAssetInfoWrapper : BaseListWrapper
     {
         /// <summary>
@@ -18,6 +21,9 @@ namespace WebAPI.Models.Catalog
         public List<SlimAssetInfo> Assets { get; set; }
     }
 
+    /// <summary>
+    /// Slim asset info
+    /// </summary>
     public class SlimAssetInfo : IAssetable
     {
         /// <summary>

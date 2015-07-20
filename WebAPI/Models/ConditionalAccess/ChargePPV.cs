@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    /// <summary>
+    /// Charge user for PPV request 
+    /// </summary>
     public class ChargePPV : Charge
     {
         /// <summary>

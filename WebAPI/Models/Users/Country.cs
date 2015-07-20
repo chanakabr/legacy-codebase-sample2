@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Users
 {
+    /// <summary>
+    /// Country details
+    /// </summary>
     public class Country
     {
         /// <summary>

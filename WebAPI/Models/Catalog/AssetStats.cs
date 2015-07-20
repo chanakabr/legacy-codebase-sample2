@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Asset statistics
+    /// </summary>
     public class AssetStats
     {
         /// <summary>

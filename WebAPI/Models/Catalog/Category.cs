@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Category details
+    /// </summary>
     public class Category
     {
         /// <summary>

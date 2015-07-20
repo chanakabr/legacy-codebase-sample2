@@ -8,7 +8,7 @@ using System.Web;
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
-    /// Charge User Request 
+    /// Charge user request 
     /// </summary>
     public class Charge
     {

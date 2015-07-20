@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// Subscription price details
+    /// </summary>
     public class SubscriptionPrice
     {
         /// <summary>

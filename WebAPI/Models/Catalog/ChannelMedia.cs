@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Channel media request
+    /// </summary>
     public class ChannelMedia : BaseAssetsRequest
     {
         /// <summary>

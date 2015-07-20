@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Slim channel
+    /// </summary>
     public class SlimChannel
     {
         /// <summary>

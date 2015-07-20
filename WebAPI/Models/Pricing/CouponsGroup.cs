@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// Coupons group details
+    /// </summary>
     public class CouponsGroup
     {
         /// <summary>

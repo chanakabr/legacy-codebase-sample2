@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Media file details
+    /// </summary>
     public class File
     {
         /// <summary>

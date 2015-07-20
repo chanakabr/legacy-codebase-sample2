@@ -100,5 +100,41 @@ namespace WebAPI.Clients
 
             return subscriptions;
         }
+
+        internal CouponDetails GetCouponStatus(int groupId, string couponCode)
+        {
+            WebAPI.Pricing.CouponDataResponse response = null;
+            CouponDetails coupon = new CouponDetails();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Pricing.GetCouponStatus(group.PricingCredentials.Username, group.PricingCredentials.Password, couponCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            coupon = AutoMapper.Mapper.Map<CouponDetails>(response.Coupon);
+
+            return coupon;
+        }
+
     }
 }

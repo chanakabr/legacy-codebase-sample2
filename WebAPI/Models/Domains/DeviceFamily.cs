@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Domains
 {
+    /// <summary>
+    /// Device family details
+    /// </summary>
     public class DeviceFamily
     {
         /// <summary>

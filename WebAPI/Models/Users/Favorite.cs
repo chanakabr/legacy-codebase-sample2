@@ -8,6 +8,9 @@ using WebAPI.Models.Catalog;
 
 namespace WebAPI.Models.Users
 {
+    /// <summary>
+    /// Favorite details
+    /// </summary>
     public class Favorite
     {
         /// <summary>

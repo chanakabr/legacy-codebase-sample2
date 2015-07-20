@@ -11,6 +11,9 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// Subscription details
+    /// </summary>
     public class Subscription
     {
         /// <summary>
