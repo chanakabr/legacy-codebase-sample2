@@ -116,7 +116,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    arrSubs = m_Module.GetSubscriptionsData(m_wsUserName, m_wsPassword, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
+                    var res = m_Module.GetSubscriptionsData(m_wsUserName, m_wsPassword, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
+                    if (res != null)
+                        arrSubs = res.Subscriptions;
                 }
             }
             catch (Exception ex)
@@ -136,7 +138,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    couponData = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                    var res = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                    if (res != null)
+                        couponData = res.Coupon;
                 }
             }
             catch (Exception ex)
@@ -195,7 +199,7 @@ namespace TVPApiModule.Services
                     IdsResponse response = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
                     if (response != null)
                     {
-                        subscriptions = response.ids;
+                        subscriptions = response.Ids;
                     }
                 }
             }
