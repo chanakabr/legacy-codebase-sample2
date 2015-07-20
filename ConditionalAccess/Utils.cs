@@ -1417,7 +1417,24 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
+        //public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
+        //{
+        //    Int32[] nMediaFilesIDs = { nMediaFileID };
+        //    TvinciAPI.MeidaMaper[] mapper = null;
+        //    string nMediaFilesIDsForCache = ConvertArrayIntToStr(nMediaFilesIDs);
+
+        //    mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
+
+        //    if (mapper == null || mapper.Length == 0)
+        //        return 0;
+
+        //    if (mapper[0].m_nMediaFileID == nMediaFileID)
+        //        return mapper[0].m_nMediaID;
+
+        //    return 0;
+        //}
+
+        public static Int32 GetMediaIDFromFileID(Int32 nMediaFileID, Int32 nGroupID)
         {
             Int32[] nMediaFilesIDs = { nMediaFileID };
             TvinciAPI.MeidaMaper[] mapper = null;
@@ -1435,7 +1452,7 @@ namespace ConditionalAccess
         }
 
         //Get ProductCode and get it MediaFileID - then continue as it was mediaFileID
-        static public Int32 GetMediaIDFeomFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
+        static public Int32 GetMediaIDFromFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
         {
 
             DataTable dt = ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
@@ -1445,7 +1462,7 @@ namespace ConditionalAccess
                 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
             }
 
-            return GetMediaIDFeomFileID(nMediaFileID, nGroupID);
+            return GetMediaIDFromFileID(nMediaFileID, nGroupID);
         }
 
         static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle)
@@ -3195,5 +3212,76 @@ namespace ConditionalAccess
             return mediaFilesStatus;
         }
 
+
+        /// <summary>
+        /// Validates that a user exists and belongs to a given domain
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="siteGuid"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        internal static ResponseStatus ValidateUser(int groupId, string siteGuid, ref int houseHoldID)
+        {
+            ResponseStatus status = ResponseStatus.InternalError;
+            long lSiteGuid = 0;
+            if (siteGuid.Length == 0 || !Int64.TryParse(siteGuid, out lSiteGuid) || lSiteGuid == 0)
+            {
+                status = ResponseStatus.UserDoesNotExist;
+                return status;
+            }
+
+            string username = string.Empty;
+            string password = string.Empty;
+
+            TVinciShared.WS_Utils.GetWSUNPass(groupId, "GetUserData", "users", "1.1.1.1", ref username, ref password);
+            UsersService userService = new UsersService();
+            string url = GetWSURL("users_ws");
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                userService.Url = url;
+            }
+
+            try
+            {
+                UserResponseObject response = userService.GetUserData(username, password, siteGuid, string.Empty);
+
+                // Make sure response is OK
+                if (response != null)
+                {
+                    if (response.m_RespStatus == ResponseStatus.OK)
+                    {
+                        //check DomainStatus
+                        if (response.m_user != null)
+                        {
+                            if (houseHoldID == 0) // no domain id was sent
+                            {
+                                houseHoldID = response.m_user.m_domianID;
+                                status = ResponseStatus.OK;
+                            }
+                            else if (houseHoldID != response.m_user.m_domianID)
+                            {
+                                status = ResponseStatus.UserNotIndDomain;
+                            }
+                        }
+                        else
+                        {
+                            status = response.m_RespStatus;
+                        }
+                    }
+                    else
+                    {
+                        status = response.m_RespStatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("ValidateUser - " + string.Format("Error when validating user {0} in group {1}. ex = {2}, ST = {3}", siteGuid, groupId, ex.Message, ex.StackTrace), ex);
+            }
+
+            return status;
+        }
+        
     }
 }

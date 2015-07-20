@@ -6,10 +6,10 @@ using System.Text;
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
-    {        
+    {
         OK = 0,
         Error = 1,
-       
+
         // Domain Section 1000 - 1999
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
@@ -26,7 +26,7 @@ namespace ApiObjects.Response
         DomainAlreadySuspended = 1012,
         DomainAlreadyActive = 1013,
         LimitationPeriod = 1014,//
-        DeviceAlreadyExists = 1015, 
+        DeviceAlreadyExists = 1015,
         DeviceExistsInOtherDomains = 1016,
         NoUsersInDomain = 1017,
         UserExistsInOtherDomains = 1018,
@@ -40,12 +40,12 @@ namespace ApiObjects.Response
         InvalidUser = 1026,
         UserNotAllowed = 1027,
         DuplicatePin = 1028,
-        UserAlreadyInDomain=1029,
-        
+        UserAlreadyInDomain = 1029,
+
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
         UserSuspended = 2001,
-        GenerateNewLoginPIN = 2002, 
+        GenerateNewLoginPIN = 2002,
         PinNotExists = 2003,
         PinExpired = 2004,
         ValidPin = 2005,
@@ -57,18 +57,18 @@ namespace ApiObjects.Response
         PinExists = 2011,
         PinMustBeDigitsOnly = 2012,
         PinCanNotStartWithZero = 2013,
-        UserExists = 2014, 
+        UserExists = 2014,
         InsideLockTime = 2015,
         UserNotActivated = 2016,
         UserAllreadyLoggedIn = 2017,
         UserDoubleLogIn = 2018,
         DeviceNotRegistered = 2019,
         NotActivated = 2020,
-        ErrorOnInitUser = 2021,        
+        ErrorOnInitUser = 2021,
         Activated = 2022,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
-        
+
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
@@ -76,6 +76,28 @@ namespace ApiObjects.Response
         ServiceNotAllowed = 3003,
         InvalidBaseLink = 3004,
         ContentAlreadyConsumed = 3005,
+        //PatymentGateWay Response
+        SuccessfulCharge = 3006,
+        NoChargeDone = 3007,
+        InsufficientFunds = 3008,
+        InvalidAccount = 3009,
+        AccountUnknown = 3010,
+        ReasonUnknown = 3011,
+        UnknownPaymentGatewayResponse = 3012,
+        NoResponseFromPaymentGateway = 3013,
+        UnknownErrorWhenConnectingPaymentGateway = 3014,
+        ChargeStatusUnknown = 3015,
+        ContentIDMissing = 3016,
+        NoMediaRelatedToFile = 3017,
+        NoContentID = 3018,
+        NoProductID = 3019,
+        NoValidCoupon = 3020,
+        PPVPurchased = 3021,
+        Free = 3022,
+        ForPurchaseSubscriptionOnly = 3023,
+        SubscriptionPurchased = 3024,
+        NotForPurchase = 3025,
+
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -89,6 +111,7 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+
         // Billing 6000 - 6999
         PriceNotCorrect = 6000,
         UnKnownPPVModule = 6001,
@@ -97,6 +120,5 @@ namespace ApiObjects.Response
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006
-
     }
 }
