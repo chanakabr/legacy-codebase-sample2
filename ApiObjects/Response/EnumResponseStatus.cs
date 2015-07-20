@@ -97,6 +97,7 @@ namespace ApiObjects.Response
         ForPurchaseSubscriptionOnly = 3023,
         SubscriptionPurchased = 3024,
         NotForPurchase = 3025,
+        Fail = 3026,
 
 
         //Catalog 4000 - 4999

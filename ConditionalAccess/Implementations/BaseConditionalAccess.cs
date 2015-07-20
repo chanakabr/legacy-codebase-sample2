@@ -73,6 +73,13 @@ namespace ConditionalAccess
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
+        protected abstract bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+            string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long billingTransactionID, ref long purchaseID);
+
+        protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+         string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID);
+
+
         /*
          * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
          * 1. Cinepolis does not dummy charge their user. All transactions are recorded in their billing gateway,
@@ -12044,6 +12051,7 @@ namespace ConditionalAccess
                         response = PurchasePPV(siteGUID, price, currency, contentID, productID, coupon, userIP, deviceName, houseHoldID);
                         break;
                     case (int)eTransactionType.Subscription:
+                        response = PurchaseSubscription(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID);
                         break;
                     case (int)eTransactionType.Collection:
                         break;
@@ -12056,39 +12064,132 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("Exception at CC_BaseChargeUserForMediaFile. ");
+                StringBuilder sb = new StringBuilder("Exception at Purchase. ");
                 sb.Append(String.Concat("Exception msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                sb.Append(String.Concat(" Media File ID: ", nMediaFileID));
-                sb.Append(String.Concat(" Media ID: ", nMediaID));
-                sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
-                sb.Append(String.Concat(" User IP: ", sUserIP));
+                sb.Append(String.Concat(" Site Guid: ", siteGUID));
+                sb.Append(String.Concat(" Media File ID: ", contentID));                
+                sb.Append(String.Concat(" Coupon Code: ", coupon));
+                sb.Append(String.Concat(" User IP: ", userIP));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                log.Debug("CC_BaseChargeUserForMediaFile - " + sb.ToString(), ex);
-                WriteToUserLog(sSiteGUID, string.Format("Exception at CC_BaseChargeUserForMediaFile. Media File ID: {0} , Media ID: {1} , Coupon Code: {2}", nMediaFileID, nMediaID, sCouponCode));
+                log.Debug("Purchase - " + sb.ToString(), ex);
+                WriteToUserLog(siteGUID, string.Format("Exception at Purchase. Media File ID: {0} , Coupon Code: {1}", contentID, coupon));
                 #endregion
             }
             finally
-            {
-                #region Disposing
-                if (wsUsersService != null)
-                {
-                    wsUsersService.Dispose();
-                }
-                if (wsPricingService != null)
-                {
-                    wsPricingService.Dispose();
-                }
-                if (wsBillingService != null)
-                {
-                    wsBillingService.Dispose();
-                }
-                #endregion
+            {   
             }
             return response;
         }
 
+        private ChargeResponseModel PurchaseSubscription(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
+        {
+            ChargeResponseModel response = new ChargeResponseModel();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            { 
+                PriceReason theReason = PriceReason.UnKnown;
+                TvinciPricing.Price p = null;
+                TvinciPricing.Subscription subscription = null;
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(userIP))//  // get country by userIp
+                {
+                    country = TVinciShared.WS_Utils.GetIP2CountryCode(userIP);
+                }
+                p = Utils.GetSubscriptionFinalPrice(m_nGroupID, productID.ToString(), siteGUID, coupon, ref theReason, ref subscription, country, string.Empty, deviceName);
+                bool isEntitledToPreviewModule = theReason == PriceReason.EntitledToPreviewModule;
+                if (theReason == PriceReason.ForPurchase || isEntitledToPreviewModule)
+                {
+                    if (p != null && p.m_dPrice == price && p.m_oCurrency.m_sCurrencyCD3 == currency)
+                    {
+                        string userName = string.Empty;
+                        string password = string.Empty;
+
+                        //Create the Custom Data                       
+                        string customData = GetCustomDataForSubscription(subscription, null, productID.ToString(), string.Empty, siteGUID, price, currency,
+                            coupon, userIP, country, string.Empty, deviceName, string.Empty, isEntitledToPreviewModule ? subscription.m_oPreviewModule.m_nID + "" : string.Empty, isEntitledToPreviewModule);
+                        log.Debug("CustomData - " + customData);
+
+                        // create new GUID for billing_transacrion
+                        Guid billingGuid = Guid.NewGuid();
+
+                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.Subscription, billingGuid);
+                        if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
+                        {
+                            long billingTransactionID = 0;
+                            long purchaseID = 0;
+                            bool handleBilling = HandleSubscriptionBillingSuccess(siteGUID, houseHoldID, subscription, price, currency, coupon, userIP, country, deviceName, response, customData,
+                                       productID, billingGuid, isEntitledToPreviewModule, false /*isreccuring*/,ref billingTransactionID, ref purchaseID);
+
+                            // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                            if (subscription.m_nDomainLimitationModule != 0)
+                            {
+                                UpdateDLM(houseHoldID, subscription.m_nDomainLimitationModule);
+                            }
+
+                            // Enqueue notification for PS so they know a collection was charged
+                            var dicData = new Dictionary<string, object>()
+                    {
+                        {"SubscriptionCode", productID},
+                        {"BillingTransactionID", billingTransactionID},
+                        {"SiteGUID", siteGUID},
+                        {"PurchaseID", purchaseID},
+                        {"CouponCode", coupon},
+                        {"CustomData", customData}
+                    };
+
+                            var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
+                        }
+                        else
+                        {
+                            WriteToUserLog(siteGUID, "while trying to purchase subscription (PurchaseSubscription): " + productID.ToString() + " error returned: " + response.Status.Message);
+                        }
+                    }
+                    else
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PriceNotCorrect, "The price of the request is not the actual price");
+                        WriteToUserLog(siteGUID, "While trying to purchase subscription  (PurchaseSubscription): " + productID.ToString() + " error returned: " + response.Status.Message);
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Fail, string.Empty);
+                     switch (theReason)
+                     {
+                         case PriceReason.Free:
+                             {
+                                 response.Status.Message = string.Format("The subscription = {0} is already purchased", productID);
+                                 WriteToUserLog(siteGUID, "while trying to purchase subscription = " + productID.ToString() + "(PurchaseSubscription): " + " error returned: " + response.Status.Message);
+
+                                 break;
+                             }
+                         case PriceReason.SubscriptionPurchased:
+                         case PriceReason.CollectionPurchased:
+                             {
+                                 response.Status.Message = string.Format("The subscription = {0} is already purchased", productID);
+                                 WriteToUserLog(siteGUID, "while trying to purchase subscription = " + productID.ToString() + "(PurchaseSubscription): " + " error returned: " + response.Status.Message);
+                                 break;
+                             }
+                         default:
+                             {
+                                 log.Debug("PurchaseSubscription" +
+                                     string.Format("Flow of PurchaseSubscription went wrong. Get subscription FinalPrice returned : price reason = {0} for site guid = {1} and subscription id = {2}",
+                                     theReason, siteGUID, productID));
+                                 break;
+                             }
+                     }
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("PurchaseSubscription ", ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                return response;
+            }
+        }
+
+     
         private ChargeResponseModel PurchasePPV(string siteGUID, double price, string currency, int contentID, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
         {
             ChargeResponseModel response = new ChargeResponseModel();
@@ -12144,10 +12245,11 @@ namespace ConditionalAccess
                             country, string.Empty, deviceName);
                         log.Debug("CustomData - " + customData);
 
-                        // new ChargeUser In Billing WS for Adapter      
+                             
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
-                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, 1, 1, productID, eTransactionType.PPV, billingGuid);
+                       
+                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.PPV, billingGuid);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long lBillingTransactionID = 0;
@@ -12218,86 +12320,13 @@ namespace ConditionalAccess
             }
         }
 
-        private bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
-            string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long lBillingTransactionID, ref long lPurchaseID)
-        {
-            bool res = true;
-            try
-            {
-                HandleCouponUses(relevantSub, productID.ToString(), siteGUID, price, currency, contentID, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
-
-                lBillingTransactionID = response.TransactionID;
-                bool bIsPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
-                DateTime dtUtcNow = DateTime.UtcNow;
-                DateTime dtEndDate = dtUtcNow;
-                if (bIsPPVUsageModuleExists)
-                    dtEndDate = Utils.GetEndDateTime(dtUtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-
-                //TO do  : add billing guid info to table 
-                lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productID, siteGUID, price, currency, bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, customData,
-                    relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, dtUtcNow, dtEndDate,
-                    dtUtcNow, country, string.Empty, deviceName, string.Empty, houseHoldID);
-
-                //if (lPurchaseID > 0)
-                //{
-                //    WriteToUserLog(siteGUID, string.Format("HandlePPVBillingSuccess. PPV purchase inserted into ppv_purchases. Purchase ID: {0}", lPurchaseID));
-                //    if (lBillingTransactionID > 0)
-                //    {
-                //        if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
-                //        {
-                //            // failed to update purchase id in billing_transactions. log
-                //            #region Logging
-                //            StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
-                //            sb.Append(String.Concat(" Site Guid: ", siteGUID));
-                //            sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
-                //            sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
-                //            sb.Append(String.Concat(" contentID: ", contentID));
-                //            sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                //            sb.Append(String.Concat(" Custom Data: ", customData));
-                //            log.Debug("HandlePPVBillingSuccess - " + sb.ToString());
-                //            #endregion
-                //        }
-                //        else
-                //        {
-                //            //TO DO ??????
-                //            //UpdatePurchaseIDInExternalBillingTable(username, sWSPassword, lBillingTransactionID, lPurchaseID, ref wsBillingService);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        res = false;
-                //        #region Logging
-                //        log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , contentID: {2} , Coupon Code: {3}", lPurchaseID, siteGUID, contentID, coupon));
-                //        WriteToUserLog(siteGUID, string.Format("HandlePPVBillingSuccess. No billing_transactions id. Purchase ID: {0}", lPurchaseID));
-                //        #endregion
-                //    }
-               // }
-                //else
-                //{
-                //    res = false;
-                //    #region Logging
-                //    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", lBillingTransactionID, siteGUID, coupon, contentID));
-                //    WriteToUserLog(siteGUID, string.Format("HandlePPVBillingSuccess. No purchase id. contentID:  {0} , Coupon Code: {1}", contentID, coupon));
-                //    #endregion
-                //}
-
-                return res;
-            }
-            catch (Exception ex)
-            {
-                log.Error("fail HandlePPVBillingSuccess ", ex);
-                return false;
-            }
-        }
-
-
-        private ChargeResponseModel HandlePurchase(string siteGUID, double price, string currency, string userIP, string customData, int p1, int p2, int productID, eTransactionType eTransactionType, Guid billingGuid)
+        private ChargeResponseModel HandlePurchase(string siteGUID, double price, string currency, string userIP, string customData, int productID, eTransactionType eTransactionType, Guid billingGuid)
         {
             string userName = string.Empty;
             string password = string.Empty;
             TvinciBilling.module wsBillingService = null;
             InitializeBillingModule(ref wsBillingService, ref userName, ref password);
-
+            //TO DO : complete this call 
 
             // call new billing methode for charge adapter
 

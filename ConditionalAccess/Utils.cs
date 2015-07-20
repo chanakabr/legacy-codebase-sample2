@@ -14,6 +14,8 @@ using ConditionalAccess.TvinciUsers;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.Response;
+using ConditionalAccess.TvinciDomains;
 
 namespace ConditionalAccess
 {
@@ -3220,7 +3222,7 @@ namespace ConditionalAccess
         /// <param name="siteGuid"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        internal static ResponseStatus ValidateUser(int groupId, string siteGuid, ref int houseHoldID)
+        private static ResponseStatus ValidateUser(int groupId, string siteGuid, ref int houseHoldID)
         {
             ResponseStatus status = ResponseStatus.InternalError;
             long lSiteGuid = 0;
@@ -3282,6 +3284,143 @@ namespace ConditionalAccess
 
             return status;
         }
-        
+
+        /// <summary>
+        /// Validates that a domain exists
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        private static DomainStatus ValidateDomain(int groupId, int domainId)
+        {
+            DomainStatus status = DomainStatus.Error;
+
+            string username = string.Empty;
+            string password = string.Empty;
+
+            TVinciShared.WS_Utils.GetWSUNPass(groupId, "...", "domains", "1.1.1.1", ref username, ref password);
+            TvinciDomains.module domainsService = new TvinciDomains.module();
+            string url = Utils.GetWSURL("domains_ws");
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                domainsService.Url = url;
+            }
+
+            try
+            {
+                DomainResponse response = domainsService.GetDomainInfo(username, password, domainId);
+                bool parseEnum = Enum.TryParse(response.Status.Message.ToString(), out status);
+                if (!parseEnum)
+                {
+                    status = DomainStatus.Error;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("ValidateDomain - " +
+                    string.Format("Error when validating domain {0} in group {1}. ex = {2}, ST = {3}", domainId, groupId, ex.Message, ex.StackTrace),
+                    ex);
+            }
+            return status;
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupID, string siteGuid, ref int houseHoldID)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            status.Code = -1;
+
+            // If no user - go immediately to domain validation
+            if (string.IsNullOrEmpty(siteGuid))
+            {
+                status.Code = (int)eResponseStatus.OK;
+            }
+            else
+            {
+                // Get response from users WS
+                ResponseStatus userStatus = ValidateUser(groupID, siteGuid, ref houseHoldID);
+                if (houseHoldID == 0)
+                {
+                    status.Code = (int)eResponseStatus.UserWithNoDomain;
+                    status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                }
+                else
+                {
+                    // Most of the cases are not interesting - focus only on those that matter
+                    switch (userStatus)
+                    {
+                        case ResponseStatus.OK:
+                            {
+                                status.Code = (int)eResponseStatus.OK;
+                                break;
+                            }
+                        case ResponseStatus.UserDoesNotExist:
+                            {
+                                status.Code = (int)eResponseStatus.UserDoesNotExist;
+                                status.Message = eResponseStatus.UserDoesNotExist.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserNotIndDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserNotInDomain;
+                                status.Message = "User does not belong to given domain";
+                                break;
+                            }
+                        case ResponseStatus.UserWithNoDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserWithNoDomain;
+                                status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserSuspended:
+                            {
+                                status.Code = (int)eResponseStatus.UserSuspended;
+                                status.Message = eResponseStatus.UserSuspended.ToString();
+                                break;
+                            }
+                        // Most cases will return general error
+                        default:
+                            {
+                                status.Code = (int)eResponseStatus.Error;
+                                status.Message = "Error validating user";
+                                break;
+                            }
+                    }
+                }
+            }
+
+            // If user is valid (or we don't have one)
+            if (status.Code == (int)eResponseStatus.OK && houseHoldID != 0)
+            {
+                //Get resposne from domains WS
+                DomainStatus domainStatus = ValidateDomain(groupID, houseHoldID);
+
+                switch (domainStatus)
+                {
+                    // Both user and domain are ok
+                    case DomainStatus.OK:
+                        {
+                            status.Code = (int)eResponseStatus.OK;
+                            status.Message = eResponseStatus.OK.ToString();
+                            break;
+                        }
+                    // Specifically we are interested in non existing domains
+                    case DomainStatus.DomainNotExists:
+                        {
+                            status.Code = (int)eResponseStatus.DomainNotExists;
+                            status.Message = "Domain does not exist";
+                            break;
+                        }
+                    // Most cases will return general error
+                    default:
+                        {
+                            status.Code = (int)eResponseStatus.Error;
+                            status.Message = "Error validating domain";
+                            break;
+                        }
+                }
+            }
+            return status;
+        }
     }
 }

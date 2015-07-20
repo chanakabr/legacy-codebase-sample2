@@ -10,6 +10,8 @@ using com.llnw.mediavault;
 using ConditionalAccess.TvinciAPI;
 using DAL;
 using KLogMonitor;
+using ConditionalAccess.TvinciPricing;
+using ConditionalAccess.Response;
 
 
 namespace ConditionalAccess
@@ -671,6 +673,100 @@ namespace ConditionalAccess
                 }
             }
         }
+
+
+        protected override bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+            string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long billingTransactionID, ref long purchaseID)
+        {
+            bool res = true;
+            try
+            {
+                HandleCouponUses(relevantSub, productID.ToString(), siteGUID, price, currency, contentID, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
+                if (response != null)
+                {
+                    billingTransactionID = response.TransactionID;
+                    bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
+                    DateTime utcNow = DateTime.UtcNow;
+                    DateTime endDate = utcNow;
+                    if (isPPVUsageModuleExists)
+                    {
+                        endDate = Utils.GetEndDateTime(utcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    }
+                    int maxNumOfViews = isPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
+                    string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
+
+                    purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productID, siteGUID, price, currency, maxNumOfViews, customData, subscriptionCode, billingTransactionID, utcNow, endDate,
+                        utcNow, country, string.Empty, deviceName, houseHoldID, billingGuid.ToString());
+                    if (!(purchaseID > 0))
+                    {
+                        res = false;
+                        log.Debug("HandlePPVBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", billingTransactionID, siteGUID, coupon, contentID));
+                        WriteToUserLog(siteGUID, string.Format("HandlePPVBillingSuccess. No purchase id. contentID:  {0} , Coupon Code: {1}", contentID, coupon));
+                    }
+                }
+                else
+                {
+                    res = false;
+                    log.Error("HandlePPVBillingSuccess - " + string.Format("No billing transaction id. Site Guid: {0} , contentID: {1} , Coupon Code: {2}", siteGUID, contentID, coupon));
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail HandlePPVBillingSuccess ", ex);
+                return false;
+            }
+        }
+
+        protected override bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+         string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID)
+        {
+            bool res = true;
+            try
+            {
+                HandleCouponUses(subscription, productID.ToString(), siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
+                if (response != null)
+                {
+                    if (response.TransactionID > 0)
+                    {
+                        long previewModuleID = 0;
+                        bool usageModuleExists = (subscription != null && subscription.m_oUsageModule != null);
+                        if (subscription.m_oPreviewModule != null)
+                        {
+                            previewModuleID = subscription.m_oPreviewModule.m_nID;
+                        }
+                        billingTransactionID = response.TransactionID;
+
+                        DateTime utcNow = DateTime.UtcNow;
+                        DateTime subEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, utcNow);
+
+                        purchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productID.ToString(), siteGUID, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
+                                     deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionID,
+                                     previewModuleID, utcNow, subEndDate, utcNow, houseHoldID);
+                    }
+                    else
+                    {
+                        // no id in billing_transactions
+                        res = false;
+                        log.Debug("HandleSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", siteGUID, purchaseID, productID, coupon));
+                        WriteToUserLog(siteGUID, string.Format("HandleSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", purchaseID, productID, coupon));
+                    }
+                }
+                else
+                {
+                    res = false;
+                    log.Debug("HandleSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", siteGUID, purchaseID, productID, coupon));
+                    WriteToUserLog(siteGUID, string.Format("HandleSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", purchaseID, productID, coupon));
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail HandleSubscriptionBillingSuccess ", ex);
+                return res;
+            }
+        }
+
 
     }
 }
