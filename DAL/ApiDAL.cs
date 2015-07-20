@@ -1503,8 +1503,13 @@ namespace DAL
                             // If rule is not positive, this means this is a dummy result: The user disabled the default
                             if (newRule.id > 0)
                             {
-                                // Map in dictionary for easy access
-                                rules.Add(newRule.id, newRule);
+                                // Make sure we don't have an id like this already 
+                                // (happens when user-rules table contains same rule id and user/domain in two different records)
+                                if (!rules.ContainsKey(newRule.id))
+                                {
+                                    // Map in dictionary for easy access
+                                    rules.Add(newRule.id, newRule);
+                                }
                             }
                         }
                     }
