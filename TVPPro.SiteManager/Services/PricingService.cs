@@ -116,8 +116,9 @@ namespace TVPPro.SiteManager.Services
                 IdsResponse response = m_Module.GetSubscriptionIDsContainingMediaFile(wsUserName, wsPassword, iMediaID, iMediaFileID);
                 if (response != null)
                 {
-                    subscriptionIDs = response.ids;
+                    subscriptionIDs = response.Ids;
                 }
+
                 if (subscriptionIDs != null)
                     DataHelper.SetCacheObject(sKey, subscriptionIDs);
             }
@@ -271,7 +272,8 @@ namespace TVPPro.SiteManager.Services
         {
             try
             {
-                return m_Module.GetCouponStatus(wsUserName, wsPassword, sCouponCode);
+                var res = m_Module.GetCouponStatus(wsUserName, wsPassword, sCouponCode);
+              
             }
             catch (Exception ex)
             {
