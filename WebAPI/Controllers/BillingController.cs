@@ -29,12 +29,6 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="ppv_id">PPV module identifier</param>
         /// <param name="request">Charge request parameters</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
         public BillingResponse ChargeUserForMediaFile([FromUri] string partner_id, [FromUri] string ppv_id, [FromBody] ChargePPV request, [FromUri]string udid = null)
         {
@@ -67,12 +61,6 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="sub_id">Subscription identifier</param>
         /// <param name="request">Charge request parameters</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("subscriptions/{sub_id}/buy"), HttpPost]
         public BillingResponse ChargeUserForSubscription([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] Charge request, [FromUri]string udid = null)
         {
@@ -105,12 +93,6 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/settings"), HttpGet]
         public Models.Billing.PaymentGWSettingsResponse GetPaymentGWSettings([FromUri] string partner_id)
         {
@@ -139,12 +121,6 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways"), HttpGet]
         public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id)
         {
@@ -174,12 +150,6 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/delete"), HttpPost]
         public bool DeletePaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id)
         {
@@ -210,12 +180,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/delete"), HttpPost]
         public bool DeletePaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
@@ -245,12 +209,6 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="pgs">Payment GateWay Settings Object</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateway/add"), HttpPost]
         public bool InsertPaymentGW([FromUri] string partner_id, [FromBody] PaymentGW pgs)
         {
@@ -281,12 +239,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/add"), HttpPost]
         public bool InsertPaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
@@ -306,9 +258,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
      
-
         /// <summary>
         /// Update payment gateway details
         /// </summary>
@@ -323,12 +273,6 @@ namespace WebAPI.Controllers
         ///<param name="is_default">Payment Gateway is default or not </param>
         ///<param name="is_active">Payment Gateway is active or not </param>
         ///<param name="external_identifier">Payment Gateway external identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
         public bool SetPaymentGW([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active, 
             [FromUri] string external_identifier, [FromUri]  int pendding_interval, [FromUri] int pendding_retries,  [FromUri] string shared_secret)
@@ -361,12 +305,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
         public bool SetPaymentGWSrttings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
         {

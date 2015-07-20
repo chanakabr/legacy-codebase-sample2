@@ -25,11 +25,6 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("files/{files_ids}/prices"), HttpGet]
         public ItemPricesList GetItemsPrices([FromUri] string partner_id, [FromUri] string files_ids, [FromUri] string user_id = null,
             [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
@@ -74,11 +69,6 @@ namespace WebAPI.Controllers
         /// <param name="file_id">Media File ID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
         ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("pricing/files/{file_id}/subscriptions"), HttpGet]
         public List<int> GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id)
         {

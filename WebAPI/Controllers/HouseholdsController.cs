@@ -26,12 +26,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="404">Not Found</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("{household_id}/parental/rules"), HttpGet]
@@ -62,12 +56,6 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{household_id}/parental/rules/{rule_id}"), HttpPost]
         public bool EnableParentalRule([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
@@ -95,12 +83,6 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>Success or failure and reason</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
@@ -131,12 +113,6 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006</remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin"), HttpGet]
         public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -166,12 +142,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to set</param>
-        ///  /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/parental/pin"), HttpPost]
         public bool SetParentalPIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
@@ -202,12 +172,6 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{household_id}/purchase/settings"), HttpGet]
         public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
@@ -237,12 +201,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="setting">New settings to apply</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/settings"), HttpPost]
         public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int setting)
@@ -273,12 +231,6 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin"), HttpGet]
         public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
@@ -310,12 +262,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to apply</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         /// <returns>Success / Fail</returns>
         [Route("{household_id}/purchase/pin"), HttpPost]
         public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string pin)
@@ -344,11 +290,6 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006
         /// </remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <returns>Success / fail</returns>
@@ -386,12 +327,6 @@ namespace WebAPI.Controllers
         ///  <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
         public bool CancelSubscriptionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int sub_id, [FromUri] bool is_force = false)
         {
@@ -409,12 +344,6 @@ namespace WebAPI.Controllers
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/ppvs/{ppv_id}"), HttpDelete]
         public bool CancelPPVNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int ppv_id, [FromUri] bool is_force = false)
         {
@@ -432,12 +361,6 @@ namespace WebAPI.Controllers
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/collections/{collection_id}"), HttpDelete]
         public bool CancelCollectionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int collection_id, [FromUri] bool is_force = false)
         {
@@ -480,12 +403,6 @@ namespace WebAPI.Controllers
         /// <param name="sub_id">Subscription Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
         public void CancelSubscriptionRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
@@ -515,12 +432,6 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}"), HttpGet]
         public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with = null)
         {
@@ -584,12 +495,6 @@ namespace WebAPI.Controllers
         /// <param name="request">Request parameters</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route(""), HttpPost]
         public Household AddHousehold([FromUri] string partner_id, [FromBody] AddHousehold request)
         {
@@ -628,11 +533,6 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("{household_id}/users/{user_id}"), HttpDelete]
         public bool RemoveUserFromHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id)
         {
@@ -662,11 +562,6 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("{household_id}/users/{user_id}"), HttpPost]
         public bool AddUserToHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master = false)
         {
@@ -693,11 +588,6 @@ namespace WebAPI.Controllers
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("{household_id}/devices/{udid}"), HttpDelete]
         public bool RemoveDeviceFromHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string udid)
         {
@@ -725,11 +615,6 @@ namespace WebAPI.Controllers
         /// <param name="pin">Pin code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
         [Route("{household_id}/devices/pin"), HttpPost]
         public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
@@ -765,12 +650,6 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/payment_gateways/get"), HttpGet]
         public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
         {
@@ -802,12 +681,6 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/payment_gateways/delete"), HttpPost]
         public bool DeletePaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
@@ -837,14 +710,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// /// <param name="household_id">House Hold Identifier</param>
+        /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="403">Forbidden</response>
-        /// <response code="500">Internal Server Error</response>
-        /// <response code="504">Gateway Timeout</response>
-        /// <response code="404">Not Found</response>
         [Route("{household_id}/payment_gateways/add"), HttpPost]
         public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
