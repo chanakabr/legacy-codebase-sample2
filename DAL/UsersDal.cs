@@ -1773,7 +1773,7 @@ namespace DAL
             return rows;
         }
 
-        public static DataTable GenerateLoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date, string secret)
+        public static DataTable Insert_LoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date, string secret)
         {
             try
             {
