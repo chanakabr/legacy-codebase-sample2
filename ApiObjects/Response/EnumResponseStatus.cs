@@ -101,9 +101,7 @@ namespace ApiObjects.Response
 
         // social 7000 - 7999
         Conflict = 7000,
-        MinFriends = 7001,
-        Merge = 7002,
-        NewUser = 7003
-
+        MinFriendsLimitation = 7001
+        
     }
 }
