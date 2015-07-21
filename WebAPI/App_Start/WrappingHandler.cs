@@ -74,6 +74,7 @@ namespace WebAPI.App_Start
             }
             else if (response.IsSuccessStatusCode)
             {
+                response.TryGetContentValue(out content);
                 message = "success";
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -96,6 +97,7 @@ namespace WebAPI.App_Start
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
             newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
+            newResponse.Headers.Add("X-Me", Environment.MachineName);
 
             foreach (var header in response.Headers)
             {

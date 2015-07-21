@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,11 +13,10 @@ using System.Xml;
 
 namespace WebAPI
 {
-    /// <summary>
-    /// Summary description for DocGenerator
-    /// </summary>
     public class ApiSchema : IHttpHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static XmlDocument XMLFromAssemblyNonCached(Assembly assembly)
         {
             string assemblyFilename = assembly.CodeBase;
@@ -100,6 +100,7 @@ namespace WebAPI
                 //No documentation
                 if (classNode.Count == 0 || classNode[0].ChildNodes == null)
                 {
+                    log.Error("Empty description - " + t.Name);
                     context.Response.Write(string.Format("\t<class name='{0}' description='' {1}", t.Name,
                         baseName));
 
@@ -171,6 +172,9 @@ namespace WebAPI
                             }
                         }
 
+                        if (string.IsNullOrEmpty(desc))
+                            log.Error("Empty description in method - " + method.Name);
+
                         context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' description='{3}'>\n", method.Name,
                              controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
                              desc.Trim().Replace('\'', '"')));
@@ -183,6 +187,9 @@ namespace WebAPI
                             string pdesc = "";
                             if (descs.Count > 0)
                                 pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
+
+                            if (string.IsNullOrEmpty(pdesc))
+                                log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
                                 getTypeAndArray(par.ParameterType), pdesc));
