@@ -7,11 +7,11 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public enum BillingAction
     {
-        Unknown = 0,
-        Purchase = 1,
-        RenewPayment = 2,
-        RenewCancledSubscription = 3,
-        CancelSubscriptionOrder = 4,
-        SubscriptionDateChanged = 5
+        unknown = 0,
+        purchase = 1,
+        renew_payment = 2,
+        renew_cancled_subscription = 3,
+        cancel_subscription_order = 4,
+        subscription_date_changed = 5
     }
 }

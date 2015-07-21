@@ -7,7 +7,7 @@ namespace WebAPI.Models.Catalog
 {
     public enum AssetType
     {
-        Media,
-        Epg
+        media,
+        epg
     }
 }
