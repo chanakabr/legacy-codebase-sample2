@@ -814,7 +814,7 @@ namespace Users
                         // check if forece security question 
                         bool loginViaPin = false;
                         bool securityQuestion = false;
-                        UsersDal.LoginViaPinWithSecurityQuestion(groupID, out securityQuestion, out loginViaPin);
+                        UsersDal.Get_LoginSettings(groupID, out securityQuestion, out loginViaPin);
                         if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                         {
                             //if so always generated pincode for him 
@@ -1101,7 +1101,7 @@ namespace Users
                 // check if forece security question  + login via pin is allowed
                 bool loginViaPin = false;
                 bool securityQuestion = false;
-                UsersDal.LoginViaPinWithSecurityQuestion(groupID, out securityQuestion, out loginViaPin);
+                UsersDal.Get_LoginSettings(groupID, out securityQuestion, out loginViaPin);
                 if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                 {
                     //The PIN should be verified to be unique (among all active PINs)
