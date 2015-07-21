@@ -443,6 +443,37 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+
+                if (with != null && with.Contains(With.users_info))
+                {
+                    // get users ids lists
+                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
+                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<int>();
+                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<int>();
+                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<int>();
+
+                    // marge all user ids to one list
+                    List<int> allUserIds = new List<int>();
+                    allUserIds.AddRange(userIds);
+                    allUserIds.AddRange(masterUserIds);
+                    allUserIds.AddRange(defaultUserIds);
+                    allUserIds.AddRange(pendingUserIds);
+
+                    //get users
+                    List<User> users = null;
+                    if (allUserIds.Count > 0)
+                    {
+                        users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
+                    }
+
+                    if (users != null)
+                    {
+                        response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
+                        response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
+                        response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
+                        response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
+                    }
+                }
             }
             catch (ClientException ex)
             {
@@ -453,38 +484,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-
-            if (with != null && with.Contains(With.users_info))
-            {
-                // get users ids lists
-                var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
-                var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<int>();
-                var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<int>();
-                var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<int>();
-
-                // marge all user ids to one list
-                List<int> allUserIds = new List<int>();
-                allUserIds.AddRange(userIds);
-                allUserIds.AddRange(masterUserIds);
-                allUserIds.AddRange(defaultUserIds);
-                allUserIds.AddRange(pendingUserIds);
-
-                //get users
-                List<User> users = null;
-                if (allUserIds.Count > 0)
-                {
-                    users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
-                }
-
-                if (users != null)
-                {
-                    response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
-                    response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
-                    response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
-                    response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
-                }
-
-            }
+            
             return response;
         }
 

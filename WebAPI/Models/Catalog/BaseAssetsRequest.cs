@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Base assets request parameters
+    /// </summary>
     [Serializable]
     public class BaseAssetsRequest
     {

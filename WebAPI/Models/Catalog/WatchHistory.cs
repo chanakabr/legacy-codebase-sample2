@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// watch history request
+    /// </summary>
     public class WatchHistory : BaseAssetsRequest
     {
         /// <summary>

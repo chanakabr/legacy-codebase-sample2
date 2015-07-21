@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// Preview module
+    /// </summary>
     public class PreviewModule
     {
         /// <summary>

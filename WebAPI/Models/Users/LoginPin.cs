@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Users
 {
+    /// <summary>
+    /// Log in pin code details
+    /// </summary>
     public class LoginPin
     {
         /// <summary>

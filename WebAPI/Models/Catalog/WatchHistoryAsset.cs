@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Watch history asset wrapper
+    /// </summary>
     [Serializable]
     public class WatchHistoryAssetWrapper : BaseListWrapper, IAssetable
     {
@@ -24,6 +27,9 @@ namespace WebAPI.Models.Catalog
         }
     }
 
+    /// <summary>
+    /// Watch history asset info
+    /// </summary>
     [Serializable]
     public class WatchHistoryAsset
     {

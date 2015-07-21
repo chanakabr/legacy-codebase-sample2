@@ -8,6 +8,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {    
+    /// <summary>
+    /// Asset info wrapper
+    /// </summary>
     public class AssetInfoWrapper : BaseListWrapper 
     {
         /// <summary>
@@ -19,6 +22,9 @@ namespace WebAPI.Models.Catalog
 
     }
 
+    /// <summary>
+    /// Asset info
+    /// </summary>
     public class AssetInfo : IAssetable
     {
         /// <summary>

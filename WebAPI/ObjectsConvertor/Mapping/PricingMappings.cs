@@ -149,6 +149,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
+
+            // CouponData to CouponDetails
+            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.CouponDetails>()
+               .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
+               .ForMember(dest => dest.CouponStatus, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
         }
 
         public static List<int> ConvertToIntList(int[] list)
@@ -205,6 +210,34 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
+            }
+
+            return result;
+        }
+
+        private static WebAPI.Models.Pricing.CouponStatus ConvertCouponStatus(WebAPI.Pricing.CouponsStatus couponStatus)
+        {
+            WebAPI.Models.Pricing.CouponStatus result;
+
+            switch (couponStatus)
+            {
+                case WebAPI.Pricing.CouponsStatus.Valid:
+                    result = Models.Pricing.CouponStatus.valid;
+                    break;
+                case WebAPI.Pricing.CouponsStatus.NotExists:
+                    result = Models.Pricing.CouponStatus.not_exists;
+                    break;
+                case WebAPI.Pricing.CouponsStatus.AllreadyUsed:
+                    result = Models.Pricing.CouponStatus.already_used;
+                    break;
+                case WebAPI.Pricing.CouponsStatus.Expired:
+                    result = Models.Pricing.CouponStatus.expired;
+                    break;
+                case WebAPI.Pricing.CouponsStatus.NotActive:
+                    result = Models.Pricing.CouponStatus.not_active;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown coupon status");
             }
 
             return result;

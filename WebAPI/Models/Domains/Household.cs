@@ -8,6 +8,9 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Domains
 {
+    /// <summary>
+    /// Household details
+    /// </summary>
     public class Household
     {
         /// <summary>

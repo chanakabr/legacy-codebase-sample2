@@ -8,10 +8,16 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.Users
 {
+    /// <summary>
+    /// Users list
+    /// </summary>
     [DataContract(Name = "Users", Namespace = "")]
     [XmlRoot("Users")]
     public class UsersList
     {
+        /// <summary>
+        /// A list of users
+        /// </summary>
         [DataMember(Name = "users")]
         [JsonProperty("users")]
         public List<User> Users { get; set; }

@@ -8,10 +8,16 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    /// <summary>
+    /// Entitlements list
+    /// </summary>
     [DataContract(Name = "Entitlements", Namespace = "")]
     [XmlRoot("Entitlements")]
     public class EntitlementsList
     {
+        /// <summary>
+        /// A list of entitlements
+        /// </summary>
         [DataMember(Name = "entitlements")]
         [JsonProperty("entitlements")]
         public List<Entitlement> Entitlements { get; set; }

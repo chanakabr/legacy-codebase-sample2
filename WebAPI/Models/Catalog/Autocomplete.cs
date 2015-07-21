@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Autocomplete request
+    /// </summary>
     public class Autocomplete
     {
         /// <summary>

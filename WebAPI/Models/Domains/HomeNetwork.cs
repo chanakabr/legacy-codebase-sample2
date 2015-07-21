@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Domains
 {
+    /// <summary>
+    /// Home network details
+    /// </summary>
     public class HomeNetwork
     {
         /// <summary>

@@ -8,10 +8,16 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.API
 {
+    /// <summary>
+    /// GenericRules list
+    /// </summary>
     [DataContract(Name = "GenericRules", Namespace = "")]
     [XmlRoot("GenericRules")]
     public class GenericRulesList
     {
+        /// <summary>
+        /// A list of generic rules
+        /// </summary>
         [DataMember(Name = "rules")]
         [JsonProperty("rules")]
         public List<GenericRule> GenericRules;

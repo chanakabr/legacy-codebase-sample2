@@ -7,6 +7,9 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Image details
+    /// </summary>
     public class Image
     {
         /// <summary>

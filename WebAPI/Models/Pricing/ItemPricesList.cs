@@ -8,10 +8,16 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// ItemPrice list
+    /// </summary>
     [DataContract(Name = "ItemPrice", Namespace = "")]
     [XmlRoot("ItemPrice")]
     public class ItemPricesList
     {
+        /// <summary>
+        /// A list of item prices
+        /// </summary>
         [DataMember(Name = "item_prices")]
         [JsonProperty("item_prices")]
         public List<ItemPrice> ItemPrice { get; set; }
