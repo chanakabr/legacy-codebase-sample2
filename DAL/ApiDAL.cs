@@ -1508,8 +1508,13 @@ namespace DAL
                             // If rule is not positive, this means this is a dummy result: The user disabled the default
                             if (newRule.id > 0)
                             {
-                                // Map in dictionary for easy access
-                                rules.Add(newRule.id, newRule);
+                                // Make sure we don't have an id like this already 
+                                // (happens when user-rules table contains same rule id and user/domain in two different records)
+                                if (!rules.ContainsKey(newRule.id))
+                                {
+                                    // Map in dictionary for easy access
+                                    rules.Add(newRule.id, newRule);
+                                }
                             }
                         }
                     }
@@ -1699,6 +1704,20 @@ namespace DAL
             newId = storedProcedure.ExecuteReturnValue<int>();
 
             return newId;
+        }
+
+        public static ePurchaeSettingsType Get_Group_PurchaseSetting(int groupId)
+        {
+            ePurchaeSettingsType purchaseSetting = ePurchaeSettingsType.Block;
+
+            object value = ODBCWrapper.Utils.GetTableSingleVal("group_rule_settings", "DEFAULT_PURCHASE_SETTINGS", "GROUP_ID", "=", groupId);
+
+            if (value != null && value != DBNull.Value)
+            {
+                purchaseSetting = (ePurchaeSettingsType)Convert.ToInt32(value);
+            }
+
+            return purchaseSetting;
         }
 
         public static bool Get_PurchaseSettings(int groupId, int domainId, string siteGuid, out eRuleLevel level, out ePurchaeSettingsType type)

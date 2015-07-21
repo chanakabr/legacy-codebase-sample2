@@ -1899,5 +1899,31 @@ namespace DAL
 
             return sp.ExecuteReturnValue<long>();
         }
+
+        public static long Insert_NewMColPurchase(int groupID, string collectionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle, long billingTransactionID,
+            DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, int houseHoldID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@CollectionCode", collectionCode);
+            sp.AddParameter("@SiteGuid", siteGUID);
+            sp.AddParameter("@CustomData", customData);
+            sp.AddParameter("@MaxNumOfUses", maxNumOfUses);
+            sp.AddParameter("@ViewLifeCycleSecs", viewLifeCycle);
+            sp.AddParameter("@StartDate", collectionStartDate);
+            sp.AddParameter("@EndDate", collectionEndDate);
+            sp.AddParameter("@BillingTransactionID", billingTransactionID);            
+            sp.AddParameter("@Price", price);
+            sp.AddParameter("@CurrencyCode", currency);
+            sp.AddParameter("@UpdaterID", 0);
+            sp.AddParameter("@UpdateDate", createAndUpdateDate);
+            sp.AddParameter("@CreateDate", createAndUpdateDate);            
+            sp.AddParameter("@CountryCode", country);            
+            sp.AddParameter("@DeviceName", deviceName);            
+            sp.AddParameter("@domainID", houseHoldID);
+
+            return sp.ExecuteReturnValue<long>();
+        }
     }
 }

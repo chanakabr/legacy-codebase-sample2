@@ -1777,7 +1777,7 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("GenerateLoginPIN");
+                StoredProcedure sp = new StoredProcedure("Insert_LoginPIN");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@siteGuid", siteGuid);
                 sp.AddParameter("@pinCode", pinCode);
@@ -1800,7 +1800,7 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("PinCodeExsits");  
+                StoredProcedure sp = new StoredProcedure("Is_PinCodeExsits");  
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@newPIN", newPIN);
                 sp.AddParameter("@expired_date", expired_date);
@@ -1820,7 +1820,7 @@ namespace DAL
             expiredPIN = DateTime.MaxValue;
             try
             {
-                StoredProcedure sp = new StoredProcedure("GetUserByPIN");
+                StoredProcedure sp = new StoredProcedure("Get_UserByPIN");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@secret", secret);
@@ -1868,7 +1868,7 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("ExpirePIN");
+                StoredProcedure sp = new StoredProcedure("Is_ExpirePIN");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@PIN", PIN);
                 bool res = sp.ExecuteReturnValue<bool>();
@@ -1879,28 +1879,14 @@ namespace DAL
                 return false;
             }
         }
-
-        public static bool SecurityQuestion(int groupID)
-        {
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("SecurityQuestion");
-                sp.AddParameter("@groupID", groupID);
-                bool res = sp.ExecuteReturnValue<bool>();
-                return res;
-            }
-            catch
-            {
-                return false;
-            }
-        }        
-        public static void LoginViaPinWithSecurityQuestion(int groupID, out bool security, out bool loginViaPin)
+               
+        public static void Get_LoginSettings(int groupID, out bool security, out bool loginViaPin)
         {
             security = false;
             loginViaPin = false;
             try
             {
-                StoredProcedure sp = new StoredProcedure("LoginViaPinWithSecurityQuestion");
+                StoredProcedure sp = new StoredProcedure("Get_LoginSettings");
                 sp.AddParameter("@groupID", groupID);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
 
@@ -1923,7 +1909,7 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("ExpirePINByUserID");
+                StoredProcedure sp = new StoredProcedure("Update_ExpirePINByUserID");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@siteGuid", siteGuid);
                 bool res = sp.ExecuteReturnValue<bool>();

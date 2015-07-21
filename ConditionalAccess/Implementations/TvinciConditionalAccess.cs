@@ -724,7 +724,7 @@ namespace ConditionalAccess
             bool res = true;
             try
             {
-                HandleCouponUses(subscription, productID.ToString(), siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
+                HandleCouponUses(subscription, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
                 if (response != null)
                 {
                     if (response.TransactionID > 0)
@@ -767,6 +767,49 @@ namespace ConditionalAccess
             }
         }
 
+        protected override bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+            string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID)
+        {
+            bool res = true;
+            try
+            {
+                HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID);
+                if (response != null)
+                {
+                    if (response.TransactionID > 0)
+                    {                       
+                        bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);                       
+                        billingTransactionID = response.TransactionID;
 
+                        DateTime utcNow = DateTime.UtcNow;
+                        DateTime colEndDate = CalcCollectionEndDate(collection, utcNow);
+
+                        purchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country, deviceName,
+                            usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionID,
+                            utcNow, colEndDate, utcNow, houseHoldID);
+                    }
+                    else
+                    {
+                        // no id in billing_transactions
+                        res = false;
+                        log.Debug("HandleCollectionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}", siteGUID, purchaseID, productID, coupon));
+                        WriteToUserLog(siteGUID, string.Format("HandleCollectionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Col Code: {1} , Coupon Code: {2}", purchaseID, productID, coupon));
+                    }
+
+                }
+                else
+                {
+                    res = false;
+                    log.Debug("HandleCollectionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}", siteGUID, purchaseID, productID, coupon));
+                    WriteToUserLog(siteGUID, string.Format("HandleCollectionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Col Code: {1} , Coupon Code: {2}", purchaseID, productID, coupon));
+                }
+                return res;
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+        }
     }
 }

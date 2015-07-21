@@ -79,6 +79,9 @@ namespace ConditionalAccess
         protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
          string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID);
 
+        protected abstract bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+            string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID);
+       
 
         /*
          * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
@@ -12058,9 +12061,8 @@ namespace ConditionalAccess
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "unknown productType");
-                        break;
-                        return response;
-                }
+                        break;                        
+                }                
             }
             catch (Exception ex)
             {
@@ -12085,39 +12087,107 @@ namespace ConditionalAccess
 
         private ChargeResponseModel PurchaseCollection(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
         {
+            ChargeResponseModel response = new ChargeResponseModel();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                 /*
-                        PriceReason theReason = PriceReason.UnKnown;
-                        TvinciPricing.Price p = null;
-                        TvinciPricing.PPVModule theBundle = null;
+                PriceReason theReason = PriceReason.UnKnown;
+                TvinciPricing.Price p = null;
+                TvinciPricing.Collection collection = null;
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(userIP))//  // get country by userIp
+                {
+                    country = TVinciShared.WS_Utils.GetIP2CountryCode(userIP);
+                }
 
-                        switch (bundleType)
+                p = Utils.GetCollectionFinalPrice(m_nGroupID, productID.ToString(), siteGUID, coupon, ref theReason, ref collection, country, string.Empty, deviceName, string.Empty);
+
+                bool isEntitledToPreviewModule = theReason == PriceReason.EntitledToPreviewModule;
+
+                if (theReason == PriceReason.ForPurchase || isEntitledToPreviewModule)
+                {
+                    if (p != null && p.m_dPrice == price && p.m_oCurrency.m_sCurrencyCD3 == currency)
+                    {
+                        string customData = string.Empty;
+                        TvinciBilling.BillingResponse ret = null;
+
+                        //Create the Custom Data
+                        customData = GetCustomDataForCollection(collection, productID.ToString(), siteGUID, price, currency, coupon, userIP, country, string.Empty, deviceName, string.Empty);
+                        log.Debug("CustomData - " + string.Format("Collection custom data created. Site Guid: {0} , User IP: {1} , Custom data: {2}", siteGUID, userIP, customData));
+
+                        // create new GUID for billing_transacrion
+                        Guid billingGuid = Guid.NewGuid();
+
+                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.Collection, billingGuid);
+                        if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
-                            case eBundleType.SUBSCRIPTION:
-                                {
-                                    TvinciPricing.Subscription theSub = null;
-                                    p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                    theBundle = theSub;
-                                    break;
-                                }
-                            case eBundleType.COLLECTION:
-                                {
-                                    TvinciPricing.Collection theCol = null;
-                                    p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
-                                    theBundle = theCol;
-                                    break;
-                                }
-                            default:
-                                break;*/
+                            long billingTransactionID = 0;
+                            long purchaseID = 0;
+                            bool handleBilling = HandleCollectionBillingSuccess(siteGUID, houseHoldID, collection, price, currency, coupon, userIP, country, deviceName, response, customData,
+                                       productID, billingGuid, isEntitledToPreviewModule, ref billingTransactionID, ref purchaseID);
+
+                            // Enqueue notification for PS so they know a collection was charged
+                            var dicData = new Dictionary<string, object>()
+                                            {
+                                                {"CollectionCode", productID},
+                                                {"BillingTransactionID", billingTransactionID},
+                                                {"SiteGUID", siteGUID},
+                                                {"PurchaseID", purchaseID},
+                                                {"CouponCode", coupon},
+                                                {"CustomData", customData}
+                                            };
+
+                            var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData);
+                        }
+                        else
+                        {
+                            WriteToUserLog(siteGUID, "while trying to purchase collection (PurchaseCollection): " + productID.ToString() + " error returned: " + ret.m_sStatusDescription);
+                        }
+                    }
+                    else
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PriceNotCorrect, "The price of the request is not the actual price");
+                        WriteToUserLog(siteGUID, "While trying to purchase collection  (PurchaseCollection): " + productID.ToString() + " error returned: " + response.Status.Message);
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Fail, string.Empty);
+                    switch (theReason)
+                    {
+                        case PriceReason.Free:
+                            {
+                                response.Status.Message = string.Format("The collection = {0} is already purchased", productID);
+                                WriteToUserLog(siteGUID, "while trying to purchase collection = " + productID.ToString() + "(PurchaseCollection): " + " error returned: " + response.Status.Message);
+
+                                break;
+                            }
+                        case PriceReason.SubscriptionPurchased:
+                        case PriceReason.CollectionPurchased:
+                            {
+                                response.Status.Message = string.Format("The collection = {0} is already purchased", productID);
+                                WriteToUserLog(siteGUID, "while trying to purchase collection = " + productID.ToString() + "(PurchaseCollection): " + " error returned: " + response.Status.Message);
+                                break;
+                            }
+                        default:
+                            {
+                                log.Debug("PurchaseCollection" + string.Format("Flow of PurchaseCollection went wrong. Get collection FinalPrice returned : price reason = {0} for site guid = {1} and collection id = {2}",
+                                    theReason, siteGUID, productID));
+                                break;
+                            }
+                    }
+                }
+                return response;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                
-                throw;
+                log.Error("PurchaseCollection ", ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                return response;
             }
         }
 
+        
         private ChargeResponseModel PurchaseSubscription(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
         {
             ChargeResponseModel response = new ChargeResponseModel();
@@ -12155,7 +12225,7 @@ namespace ConditionalAccess
                             long billingTransactionID = 0;
                             long purchaseID = 0;
                             bool handleBilling = HandleSubscriptionBillingSuccess(siteGUID, houseHoldID, subscription, price, currency, coupon, userIP, country, deviceName, response, customData,
-                                       productID, billingGuid, isEntitledToPreviewModule, false /*isreccuring*/,ref billingTransactionID, ref purchaseID);
+                                       productID, billingGuid, isEntitledToPreviewModule, false /*isreccuring*/, ref billingTransactionID, ref purchaseID);
 
                             // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                             if (subscription.m_nDomainLimitationModule != 0)
