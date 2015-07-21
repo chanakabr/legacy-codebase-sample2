@@ -248,13 +248,16 @@ namespace TVPApiModule.Services
 
         public FacebookResponseObject GetFBUserData(string stoken, string sSTG)
         {
-            FacebookResponseObject res = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                    facebookResponse = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                    if (facebookResponse != null)
+                        clientResponse = facebookResponse.ResponseData;
                 }
             }
             catch (Exception ex)
@@ -262,18 +265,21 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error occurred in GetFBConfig, Error : {0} Parameters", ex.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
         public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair> oExtra, string sIP)
         {
-            FacebookResponseObject res = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                    facebookResponse = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                    if (facebookResponse != null)
+                        clientResponse = facebookResponse.ResponseData;
                 }
             }
             catch (Exception ex)
@@ -281,18 +287,21 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error occurred in FBUserRegister, Error : {0} Parameters", ex.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
         public FacebookResponseObject FBUserMerge(string stoken, string sFBID, string sUsername, string sPassword)
         {
-            FacebookResponseObject res = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBUserMerage(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                    facebookResponse = m_Module.FBUserMerge(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                    if (facebookResponse != null)
+                        clientResponse = facebookResponse.ResponseData;
                 }
             }
             catch (Exception ex)
@@ -300,7 +309,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error occurred in FBUserMerge, Error : {0} Parameters", ex.Message);
             }
 
-            return res;
+            return clientResponse;
         }
 
         public eSocialPrivacy GetUserSocialPrivacy(int sGuid, SocialPlatform socialPlatform, eUserAction userAction)
@@ -561,13 +570,18 @@ namespace TVPApiModule.Services
 
         public FacebookResponseObject FBUserUnmerge(string token, string username, string password)
         {
-            FacebookResponseObject response = null;
+            FacebookResponse facebookResponse = null;
+            FacebookResponseObject clientResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+                    facebookResponse = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+                    if (facebookResponse != null)
+                    {
+                        clientResponse = facebookResponse.ResponseData;
+                    }
                 }
             }
             catch (Exception ex)
@@ -575,7 +589,7 @@ namespace TVPApiModule.Services
                 logger.ErrorFormat("Error occurred in FBUserUnmerge, Error : {0} Parameters: token: {1}, username: {2}, password: {3}", ex.Message, token, username, password);
             }
 
-            return response;
+            return clientResponse;
         }
 
 
