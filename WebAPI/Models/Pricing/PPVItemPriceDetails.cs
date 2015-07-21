@@ -122,8 +122,8 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// If waiver period is enabled - donates whether the user is still in the cancelation window
         /// </summary>
-        [DataMember(Name = "is_in_canacelation_period")]
-        [JsonProperty("is_in_canacelation_period")]
-        public bool IsInCanacelationPeriod { get; set; }
+        [DataMember(Name = "is_in_cancelation_period")]
+        [JsonProperty("is_in_cancelation_period")]
+        public bool IsInCancelationPeriod { get; set; }
     }
 }

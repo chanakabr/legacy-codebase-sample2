@@ -131,7 +131,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate))
                .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
                .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
-               .ForMember(dest => dest.IsInCanacelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
+               .ForMember(dest => dest.IsInCancelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
                .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
                .ForMember(dest => dest.PPVDescriptions, opt => opt.MapFrom(src => src.m_oPPVDescription))
                .ForMember(dest => dest.PPVModuleId, opt => opt.MapFrom(src => src.m_sPPVModuleCode))
