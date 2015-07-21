@@ -80,7 +80,7 @@ namespace WebAPI.App_Start
                 XmlReponseWrapper xrw = new XmlReponseWrapper()
                 {
                     Result = wrapper.Result,
-                    ExecutionTime = wrapper.Status.ExecutionTime
+                    ExecutionTime = wrapper.ExecutionTime
                 };
 
                 XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
