@@ -12024,13 +12024,13 @@ namespace ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error validating user");
                         returnStatus = true;
                         break;
-                    default:
-                        break;
+                    default:                        
                         if (returnStatus)
                         {
                             WriteToUserLog(siteGUID, "while trying to purchase contentID (Purchase): " + contentID.ToString() + " error returned: " + response.Status.Message);
                             return response;
                         }
+                        break;
                 }
                 bool bIsCouponValid = false;
                 bool bIsCouponUsedAndValid = false;
@@ -12054,6 +12054,7 @@ namespace ConditionalAccess
                         response = PurchaseSubscription(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID);
                         break;
                     case (int)eTransactionType.Collection:
+                        response = PurchaseCollection(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID);                       
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "unknown productType");
@@ -12080,6 +12081,41 @@ namespace ConditionalAccess
             {   
             }
             return response;
+        }
+
+        private ChargeResponseModel PurchaseCollection(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
+        {
+            try
+            {
+                 /*
+                        PriceReason theReason = PriceReason.UnKnown;
+                        TvinciPricing.Price p = null;
+                        TvinciPricing.PPVModule theBundle = null;
+
+                        switch (bundleType)
+                        {
+                            case eBundleType.SUBSCRIPTION:
+                                {
+                                    TvinciPricing.Subscription theSub = null;
+                                    p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    theBundle = theSub;
+                                    break;
+                                }
+                            case eBundleType.COLLECTION:
+                                {
+                                    TvinciPricing.Collection theCol = null;
+                                    p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+                                    theBundle = theCol;
+                                    break;
+                                }
+                            default:
+                                break;*/
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
         }
 
         private ChargeResponseModel PurchaseSubscription(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
