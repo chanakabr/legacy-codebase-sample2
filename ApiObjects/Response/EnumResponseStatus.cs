@@ -53,7 +53,7 @@ namespace ApiObjects.Response
         SecretIsWrong = 2008,
         LoginViaPinNotAllowed = 2009,
         PinNotInTheRightLength = 2010,
-        PinExists = 2011,
+        PinAlreadyExists = 2011,
         UserExists = 2014,
         InsideLockTime = 2015,
         UserNotActivated = 2016,
@@ -61,8 +61,7 @@ namespace ApiObjects.Response
         UserDoubleLogIn = 2018,
         DeviceNotRegistered = 2019,
         NotActivated = 2020,
-        ErrorOnInitUser = 2021,        
-        Activated = 2022,
+        ErrorOnInitUser = 2021,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
         
