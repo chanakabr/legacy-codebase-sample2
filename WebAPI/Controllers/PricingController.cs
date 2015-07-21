@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
         ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("pricing/files/{file_id}/subscriptions"), HttpGet]
+        [Route("files/{file_id}/subscriptions"), HttpGet]
         public List<Subscription> GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<Subscription> subscruptions = null;
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
             return subscruptions;
         }
 
-        [Route("pricing/files/{file_id}/subscriptions"), HttpPost]
+        [Route("files/{file_id}/subscriptions"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
         public List<Subscription> GetSubscriptionIDsContainingMediaFilePost([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
         {

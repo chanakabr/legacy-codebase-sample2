@@ -11,6 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
+    [RoutePrefix("coupons")]
     public class CouponsController : ApiController
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace WebAPI.Controllers
         /// Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
-        [Route("coupons/{code}"), HttpGet]
+        [Route("{code}"), HttpGet]
         public CouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
         {
             CouponDetails coupon = null;
@@ -45,7 +46,7 @@ namespace WebAPI.Controllers
             return coupon;
         }
 
-        [Route("coupons/{code}"), HttpPost]
+        [Route("{code}"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
         public CouponDetails GetCouponStatusPost([FromUri] string partner_id, [FromUri] string code)
         {
