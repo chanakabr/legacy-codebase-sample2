@@ -994,7 +994,7 @@ namespace Users
                     bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);  
                     if (codeExsits)
                     {                        
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PinExists, "Pin code already exists - try new pin code");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     else
                     {
