@@ -70,7 +70,7 @@ namespace WebAPI
 
             //Printing enums
             context.Response.Write("<enums>\n");
-            foreach (Type t in enums)
+            foreach (Type t in enums.OrderBy(c => c.Name))
             {
                 context.Response.Write(string.Format("\t<enum name='{0}' enumType='string'>\n", t.Name));
 
@@ -84,7 +84,7 @@ namespace WebAPI
 
             //Running on classes
             context.Response.Write("<classes>\n");
-            foreach (Type t in classes)
+            foreach (Type t in classes.OrderBy(c => c.Name))
             {
                 var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
@@ -142,10 +142,10 @@ namespace WebAPI
             //Running on methods
             context.Response.Write("<services>\n");
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
-                t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")))
+                t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")).OrderBy(c => c.Name))
             {
                 context.Response.Write(string.Format("\t<service name='{0}'>\n", controller.Name.Replace("Controller", "")));
-                var methods = controller.GetMethods();
+                var methods = controller.GetMethods().OrderBy(z => z.Name);
                 foreach (var method in methods)
                 {
                     //Read only HTTP POST as we will have duplicates otherwise
