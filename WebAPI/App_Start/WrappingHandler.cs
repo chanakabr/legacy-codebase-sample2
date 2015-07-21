@@ -49,21 +49,8 @@ namespace WebAPI.App_Start
             object content = null;
             string message = "";
             int subCode = (int)StatusCode.OK;
+            response.TryGetContentValue(out content);
 
-            //if (response.TryGetContentValue(out content) && content is HttpError && !response.IsSuccessStatusCode)
-            //{
-            //    //This is a global unintentional error
-
-            //    HttpError error = content as HttpError;
-            //    subCode = (int)StatusCode.Error;
-
-            //    if (error != null)
-            //    {
-            //        message = HandleError(error.ExceptionMessage, error.StackTrace);
-            //        content = prepareExceptionResponse((int)StatusCode.Error, message);
-            //    }
-            //}
-            //else 
             if (content is ApiException.ExceptionPayload && ((ApiException.ExceptionPayload)content).code != 0)
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
@@ -74,13 +61,12 @@ namespace WebAPI.App_Start
             }
             else if (response.IsSuccessStatusCode)
             {
-                response.TryGetContentValue(out content);
                 message = "success";
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 //Web API Bad Request global error
-                content = prepareExceptionResponse((int)StatusCode.BadRequest, "Bad request");                
+                content = prepareExceptionResponse((int)StatusCode.BadRequest, "Bad request");
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 message = HandleError("Bad Request", "");
             }
