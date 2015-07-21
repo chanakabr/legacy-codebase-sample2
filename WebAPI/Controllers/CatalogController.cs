@@ -28,13 +28,6 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        [Route("search"), HttpGet]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper SearchAssets(string partner_id, [FromUri] SearchAssets search_assets, [FromUri] string language = null)
-        {
-            return PostSearch(partner_id, search_assets);
-        }
-
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
@@ -42,7 +35,14 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
+        [Route("search"), HttpGet]
+        public AssetInfoWrapper Search(string partner_id, [FromUri] SearchAssets request, [FromUri] string language = null)
+        {
+            return PostSearch(partner_id, request);
+        }
+
         [Route("search"), HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
         {
             AssetInfoWrapper response = null;
