@@ -74,6 +74,7 @@ namespace WebAPI.App_Start
             }
             else if (response.IsSuccessStatusCode)
             {
+                response.TryGetContentValue(out content);
                 message = "success";
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
