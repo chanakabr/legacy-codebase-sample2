@@ -30,10 +30,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 WebAPI.Catalog.StatsType result;
                 switch (type)
                 {
-                    case AssetType.Media:
+                    case AssetType.media:
                         result = WebAPI.Catalog.StatsType.MEDIA;
                         break;
-                    case AssetType.Epg:
+                    case AssetType.epg:
                         result = WebAPI.Catalog.StatsType.EPG;
                         break;
                     default:

@@ -7,11 +7,11 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public enum BillingItemsType
     {
-        Unknown = 0,
-        PPV = 1,
-        Subscription = 2,
-        PrePaid = 3,
-        PrePaidExpired = 4,
-        Collection = 5
+        unknown = 0,
+        ppv = 1,
+        subscription = 2,
+        pre_paid = 3,
+        pre_paid_expired = 4,
+        collection = 5
     }
 }

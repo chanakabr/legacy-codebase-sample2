@@ -109,38 +109,9 @@ namespace WebAPI.Controllers
 
         [Route("files/{file_id}/subscriptions"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public List<Subscription> GetSubscriptionIDsContainingMediaFilePost([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
+        public List<Subscription> _GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
         {
-            List<Subscription> subscruptions = null;
-            List<int> subscriptionsIds = null;
-
-            int groupId = int.Parse(partner_id);
-
-            if (media_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
-            }
-            if (file_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "file_id cannot be 0");
-            }
-
-            try
-            {
-                // call client
-                subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, media_id, file_id);
-
-                if (subscriptionsIds.Count > 0)
-                {
-                    subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToList(), udid, language);
-                }
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return subscruptions;
+           return GetSubscriptionIDsContainingMediaFile(partner_id, media_id, file_id, udid, language);
         }      
 
 

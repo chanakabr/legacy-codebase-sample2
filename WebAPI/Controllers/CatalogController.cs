@@ -38,12 +38,12 @@ namespace WebAPI.Controllers
         [Route("search"), HttpGet]
         public AssetInfoWrapper Search(string partner_id, [FromUri] SearchAssets request, [FromUri] string language = null)
         {
-            return PostSearch(partner_id, request);
+            return _Search(partner_id, request);
         }
 
         [Route("search"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper PostSearch(string partner_id, SearchAssets request, string language = null)
+        public AssetInfoWrapper _Search(string partner_id, SearchAssets request, string language = null)
         {
             AssetInfoWrapper response = null;
 
@@ -85,28 +85,9 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper PostAutocomplete(string partner_id, Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper _Autocomplete(string partner_id, Autocomplete request, string language = null)
         {
-            SlimAssetInfoWrapper response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (request.size == null || request.size > 10 || request.size < 1)
-            {
-                request.size = 5;
-            }
-
-            try
-            {
-                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, request.size, request.query, request.order_by, request.filter_types, request.with);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            return Autocomplete(partner_id, request.query, request.with, request.filter_types, request.order_by, request.size, language);
         }
 
         /// <summary>
