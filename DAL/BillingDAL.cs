@@ -1454,7 +1454,7 @@ namespace DAL
             return paymentGWID;
         }
 
-        public static bool SetPaymentGWHousehold(int groupID, int paymentGWID, string chargeID)
+        public static bool SetPaymentGWHousehold(int groupID, int paymentGWID, int householdID, string chargeID)
         {
             try
             {
@@ -1462,6 +1462,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupID);
                 sp.AddParameter("@paymentGW_id", paymentGWID);
+                sp.AddParameter("@household_id", householdID);
                 sp.AddParameter("@charge_id", chargeID);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
@@ -1473,7 +1474,7 @@ namespace DAL
             }
         }
         
-        public static string GetPaymentGWChargeID(int paymentGWID)
+        public static string GetPaymentGWChargeID(int paymentGWID, int householdID)
         {
             string chargeID = string.Empty;
             try
@@ -1481,6 +1482,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayChargeId");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@payment_gateway_id", paymentGWID);
+                sp.AddParameter("@household_Id", householdID);
                 DataSet ds = sp.ExecuteDataSet();
                 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)

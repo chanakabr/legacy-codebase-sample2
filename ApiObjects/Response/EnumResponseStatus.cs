@@ -96,7 +96,8 @@ namespace ApiObjects.Response
         CellularPermissionsError = 6003,
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
-        PaymentGateWayParamsMissing = 6006
-
+        PaymentGateWayParamsMissing = 6006,
+        PaymentGateWayNotExistForHH = 6007,
+        PaymentGateWayNotExistForGroup = 6008
     }
 }
