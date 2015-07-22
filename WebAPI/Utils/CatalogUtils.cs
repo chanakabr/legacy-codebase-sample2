@@ -223,7 +223,7 @@ namespace WebAPI.Utils
 
         
 
-        internal static List<KalturaIAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
+        internal static List<KalturaIAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
             var assets = GetOrderedAssets(client, assetsBaseData, request, cacheDuration);
             if (assets != null)
@@ -289,7 +289,7 @@ namespace WebAPI.Utils
             return finalResult;
         }
 
-        public static KalturaAssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaWith> with)
+        public static KalturaAssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
@@ -310,7 +310,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static List<KalturaAssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaWith> with)
+        public static List<KalturaAssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
         {
             List<KalturaAssetInfo> result = null;
 

@@ -33,10 +33,10 @@ namespace WebAPI.Controllers
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("subscriptions/{subscriptions_ids}/prices"), HttpGet]
-        public SubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null, 
+        public KalturaSubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null, 
             [FromUri] string coupon_code = null, [FromUri] string udid = null , [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
         {
-            List<SubscriptionPrice> subscriptionPrices = null;
+            List<KalturaSubscriptionPrice> subscriptionPrices = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new SubscriptionsPricesList() { SubscriptionsPrices = subscriptionPrices };
+            return new KalturaSubscriptionsPricesList() { SubscriptionsPrices = subscriptionPrices };
         }
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("subscriptions/{subscriptions_ids}"), HttpGet]
-        public SubscriptionsList GetSubscriptionsData([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
+        public KalturaSubscriptionsList GetSubscriptionsData([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
         {
-            List<Subscription> subscruptions = null;
+            List<KalturaSubscription> subscruptions = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new SubscriptionsList() { Subscriptions = subscruptions };
+            return new KalturaSubscriptionsList() { Subscriptions = subscruptions };
         }
     }
 }

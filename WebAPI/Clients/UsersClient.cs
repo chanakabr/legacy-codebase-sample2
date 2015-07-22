@@ -35,9 +35,9 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.User Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> extraParams)
+        public WebAPI.Models.Users.KalturaUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> extraParams)
         {
-            WebAPI.Models.Users.User user = null;
+            WebAPI.Models.Users.KalturaUser user = null;
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -70,15 +70,15 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
+            user = Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
 
             return user;
         }
 
 
-        public Models.Users.User SignUp(int groupId, Models.Users.UserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data, string password, string affiliateCode)
+        public Models.Users.KalturaUser SignUp(int groupId, Models.Users.KalturaUserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data, string password, string affiliateCode)
         {
-            WebAPI.Models.Users.User user = null;
+            WebAPI.Models.Users.KalturaUser user = null;
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -107,7 +107,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
+            user = Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
 
             return user;
         }
@@ -226,9 +226,9 @@ namespace WebAPI.Clients
         //    return user;
         //}
 
-        public LoginPin GenerateLoginPin(int groupId, string userId, string secret)
+        public KalturaLoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
-            LoginPin pinCode = null;
+            KalturaLoginPin pinCode = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             PinCodeResponse response = null;
@@ -255,14 +255,14 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            pinCode = Mapper.Map<LoginPin>(response);
+            pinCode = Mapper.Map<KalturaLoginPin>(response);
 
             return pinCode;
         }
 
-        public WebAPI.Models.Users.User LoginWithPin(int groupId, string deviceId, string pin, string secret)
+        public WebAPI.Models.Users.KalturaUser LoginWithPin(int groupId, string deviceId, string pin, string secret)
         {
-            WebAPI.Models.Users.User user = null;
+            WebAPI.Models.Users.KalturaUser user = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             UserResponse response = null;
@@ -292,16 +292,16 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
+            user = Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
 
             return user;
         }
 
-        public Models.Users.User CheckPasswordToken(int groupId, string token)
+        public Models.Users.KalturaUser CheckPasswordToken(int groupId, string token)
         {
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
-            WebAPI.Models.Users.User user = null;
+            WebAPI.Models.Users.KalturaUser user = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -325,7 +325,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user.m_user);
+            user = Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user.m_user);
 
             return user;
         }
@@ -392,9 +392,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<Models.Users.User> GetUsersData(int groupId, List<int> usersIds)
+        public List<Models.Users.KalturaUser> GetUsersData(int groupId, List<int> usersIds)
         {
-            List<WebAPI.Models.Users.User> users = null;
+            List<WebAPI.Models.Users.KalturaUser> users = null;
             UsersResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -422,17 +422,17 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            users = Mapper.Map<List<WebAPI.Models.Users.User>>(response.users);
+            users = Mapper.Map<List<WebAPI.Models.Users.KalturaUser>>(response.users);
 
             return users;
         }
 
-        public Models.Users.User SetUserData(int groupId, string siteGuid, Models.Users.UserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data)
+        public Models.Users.KalturaUser SetUserData(int groupId, string siteGuid, Models.Users.KalturaUserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data)
         {
             WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
             WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
 
-            WebAPI.Models.Users.User user = null;
+            WebAPI.Models.Users.KalturaUser user = null;
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -459,7 +459,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.User>(response.user);
+            user = Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
 
             return user;
         }
@@ -522,9 +522,9 @@ namespace WebAPI.Clients
             }
         }
 
-        public List<Models.Users.Favorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType)
+        public List<Models.Users.KalturaFavorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType)
         {
-            List<WebAPI.Models.Users.Favorite> favorites = null;
+            List<WebAPI.Models.Users.KalturaFavorite> favorites = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -553,7 +553,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            favorites = Mapper.Map<List<WebAPI.Models.Users.Favorite>>(response.Favorites);
+            favorites = Mapper.Map<List<WebAPI.Models.Users.KalturaFavorite>>(response.Favorites);
 
             return favorites;
         }

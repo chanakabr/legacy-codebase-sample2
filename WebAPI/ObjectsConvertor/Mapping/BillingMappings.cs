@@ -12,11 +12,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<PaymentGWSettingsResponse, WebAPI.Models.Billing.PaymentGWSettingsResponse>()
+            Mapper.CreateMap<PaymentGWSettingsResponse, WebAPI.Models.Billing.KalturaPaymentGWSettingsResponse>()
                 .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
 
             //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<PaymentGW, WebAPI.Models.Billing.PaymentGW>()
+            Mapper.CreateMap<PaymentGW, WebAPI.Models.Billing.KalturaPaymentGW>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
@@ -26,16 +26,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
 
-            Mapper.CreateMap<PaymentGWResponse, WebAPI.Models.Billing.PaymentGWResponse>()
+            Mapper.CreateMap<PaymentGWResponse, WebAPI.Models.Billing.KalturaPaymentGWResponse>()
                  .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
 
-            Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.PaymentGWBasic>()
+            Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.KalturaPaymentGWBasic>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name));
           
             //from local object to WS object
             //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<WebAPI.Models.Billing.PaymentGW, PaymentGW>()
+            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGW, PaymentGW>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
@@ -49,7 +49,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
             //from local object to WS object
-            Mapper.CreateMap<PaymentGWChargeIDResponse, WebAPI.Models.Billing.PaymentGWHouseholdResponse>()
+            Mapper.CreateMap<PaymentGWChargeIDResponse, WebAPI.Models.Billing.KalturaPaymentGWHouseholdResponse>()
                 .ForMember(dest => dest.chargeID, opt => opt.MapFrom(src => src.ChargeID));
         }
 

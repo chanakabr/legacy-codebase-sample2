@@ -45,7 +45,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Parental Rules
 
             // ParentalRule
-            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.ParentalRule>()
+            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -60,18 +60,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
-            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.PinResponse>()
+            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.PurchaseSettingsResponse>()
+            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.GenericRule>()
+            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -149,23 +149,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.RuleType ConvertRuleType(WebAPI.Api.RuleType type)
+        private static Models.API.KalturaRuleType ConvertRuleType(WebAPI.Api.RuleType type)
         {
-            WebAPI.Models.API.RuleType result;
+            WebAPI.Models.API.KalturaRuleType result;
 
             switch (type)
             {
                 case RuleType.Parental:
-                    result = Models.API.RuleType.Parental;
+                    result = Models.API.KalturaRuleType.Parental;
                     break;
                 case RuleType.Geo:
-                    result = Models.API.RuleType.Geo;
+                    result = Models.API.KalturaRuleType.Geo;
                     break;
                 case RuleType.UserType:
-                    result = Models.API.RuleType.UserType;
+                    result = Models.API.KalturaRuleType.UserType;
                     break;
                 case RuleType.Device:
-                    result = Models.API.RuleType.Device;
+                    result = Models.API.KalturaRuleType.Device;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");

@@ -30,10 +30,10 @@ namespace WebAPI.Clients
             }
         }
 
-        internal List<Subscription> GetSubscriptionsData(int groupId, List<string> subscriptionsIds, string udid, string languageCode)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, List<string> subscriptionsIds, string udid, string languageCode)
         {
             WebAPI.Pricing.SubscriptionsResponse response = null;
-            List<Subscription> subscriptions = new List<Subscription>();
+            List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -61,7 +61,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            subscriptions = AutoMapper.Mapper.Map<List<Subscription>>(response.Subscriptions);
+            subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
         }
@@ -101,10 +101,10 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal CouponDetails GetCouponStatus(int groupId, string couponCode)
+        internal KalturaCouponDetails GetCouponStatus(int groupId, string couponCode)
         {
             WebAPI.Pricing.CouponDataResponse response = null;
-            CouponDetails coupon = new CouponDetails();
+            KalturaCouponDetails coupon = new KalturaCouponDetails();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -131,7 +131,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            coupon = AutoMapper.Mapper.Map<CouponDetails>(response.Coupon);
+            coupon = AutoMapper.Mapper.Map<KalturaCouponDetails>(response.Coupon);
 
             return coupon;
         }

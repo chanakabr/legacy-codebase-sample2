@@ -42,7 +42,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        public List<KalturaWith> with { get; set; }
+        public List<KalturaCatalogWith> with { get; set; }
 
         /// <summary>
         /// Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5

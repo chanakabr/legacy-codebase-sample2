@@ -61,7 +61,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetInfoWrapper SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaWith> with)
+            string filter, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
@@ -135,7 +135,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaWith> with)
+        public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
 
@@ -213,7 +213,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaWith> withList)
+        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             WatchHistoryAssetWrapper finalResults = new WatchHistoryAssetWrapper();
 
@@ -314,7 +314,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaWith> with)
+        public KalturaAssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
@@ -348,7 +348,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaWith> with)
+        public KalturaAssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
@@ -405,7 +405,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaWith> with)
+        public KalturaAssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 

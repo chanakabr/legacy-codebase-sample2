@@ -35,9 +35,9 @@ namespace WebAPI.Clients
 
         #region Payment GateWay
 
-        public Models.Billing.PaymentGWSettingsResponse GetPaymentGWSettings(int groupId)
+        public Models.Billing.KalturaPaymentGWSettingsResponse GetPaymentGWSettings(int groupId)
         {
-            Models.Billing.PaymentGWSettingsResponse paymentGWSettings = null;
+            Models.Billing.KalturaPaymentGWSettingsResponse paymentGWSettings = null;
             WebAPI.Billing.PaymentGWSettingsResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -64,14 +64,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            paymentGWSettings = Mapper.Map<WebAPI.Models.Billing.PaymentGWSettingsResponse>(response);
+            paymentGWSettings = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWSettingsResponse>(response);
 
             return paymentGWSettings;
         }
 
-        public Models.Billing.PaymentGWResponse GetPaymentGW(int groupId)
+        public Models.Billing.KalturaPaymentGWResponse GetPaymentGW(int groupId)
         {
-            Models.Billing.PaymentGWResponse paymentGW = null;
+            Models.Billing.KalturaPaymentGWResponse paymentGW = null;
             WebAPI.Billing.PaymentGWResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -98,14 +98,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            paymentGW = Mapper.Map<WebAPI.Models.Billing.PaymentGWResponse>(response);
+            paymentGW = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWResponse>(response);
 
             return paymentGW;
         }
 
-        public Models.Billing.PaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid, string householdID)
+        public Models.Billing.KalturaPaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid, string householdID)
         {
-            Models.Billing.PaymentGWResponse paymentGW = null;
+            Models.Billing.KalturaPaymentGWResponse paymentGW = null;
             WebAPI.Billing.PaymentGWResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -133,7 +133,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            paymentGW = Mapper.Map<WebAPI.Models.Billing.PaymentGWResponse>(response);
+            paymentGW = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWResponse>(response);
 
             return paymentGW;
         }
@@ -295,7 +295,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGW(int groupId, Models.Billing.PaymentGW pgw)
+        public bool InsertPaymentGW(int groupId, Models.Billing.KalturaPaymentGW pgw)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -423,9 +423,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal Models.Billing.PaymentGWHouseholdResponse GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
+        internal Models.Billing.KalturaPaymentGWHouseholdResponse GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
         {
-            Models.Billing.PaymentGWHouseholdResponse paymentGWHouseholdResponse = null;
+            Models.Billing.KalturaPaymentGWHouseholdResponse paymentGWHouseholdResponse = null;
             WebAPI.Billing.PaymentGWChargeIDResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -454,7 +454,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Resp.Code, response.Resp.Message);
             }
 
-            paymentGWHouseholdResponse = Mapper.Map<WebAPI.Models.Billing.PaymentGWHouseholdResponse>(response);
+            paymentGWHouseholdResponse = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWHouseholdResponse>(response);
 
             return paymentGWHouseholdResponse;
         }

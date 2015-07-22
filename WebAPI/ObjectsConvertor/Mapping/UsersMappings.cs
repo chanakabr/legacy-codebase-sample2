@@ -18,30 +18,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //User 
-            Mapper.CreateMap<Users.UserResponseObject, ClientUser>()
+            Mapper.CreateMap<Users.UserResponseObject, KalturaClientUser>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_sSiteGUID)))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName));
 
             // PinCode
-            Mapper.CreateMap<Users.PinCodeResponse, LoginPin>()
+            Mapper.CreateMap<Users.PinCodeResponse, KalturaLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                 .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
 
             // UserType
-            Mapper.CreateMap<Users.UserType, UserType>()
+            Mapper.CreateMap<Users.UserType, KalturaUserType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // Country
-            Mapper.CreateMap<Users.Country, Country>()
+            Mapper.CreateMap<Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             // UserBasicData
-            Mapper.CreateMap<Users.UserBasicData, UserBasicData>()
+            Mapper.CreateMap<Users.UserBasicData, KalturaUserBasicData>()
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
                 .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
@@ -59,7 +59,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User
-            Mapper.CreateMap<Users.UserResponseObject, User>()
+            Mapper.CreateMap<Users.UserResponseObject, KalturaUser>()
                 .ForMember(dest => dest.BasicData, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
@@ -69,18 +69,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // SlimUser
-            Mapper.CreateMap<User, SlimUser>()
+            Mapper.CreateMap<KalturaUser, KalturaSlimUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.BasicData.Username))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicData.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.BasicData.LastName));
 
             // UserId to SlimUser
-            Mapper.CreateMap<int, SlimUser>()
+            Mapper.CreateMap<int, KalturaSlimUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
 
             // Rest UserBasicData ==> WS_Users UserBasicData
-            Mapper.CreateMap<UserBasicData, Users.UserBasicData>()
+            Mapper.CreateMap<KalturaUserBasicData, Users.UserBasicData>()
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
@@ -98,13 +98,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
 
             // Country
-            Mapper.CreateMap<Country, Users.Country>()
+            Mapper.CreateMap<KalturaCountry, Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.m_sCountryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.m_sCountryCode, opt => opt.MapFrom(src => src.Code));
 
             // UserType
-            Mapper.CreateMap<UserType, Users.UserType>()
+            Mapper.CreateMap<KalturaUserType, Users.UserType>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
@@ -118,7 +118,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // Rest WS_Users FavoritObject ==>  Favorite  
-            Mapper.CreateMap<Users.FavoritObject, Favorite>()
+            Mapper.CreateMap<Users.FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
 
@@ -133,16 +133,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static UserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type)
+        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type)
         {
-            UserState result;
+            KalturaUserState result;
             switch (type)
             {
                 case WebAPI.Users.ResponseStatus.OK:
-                    result = UserState.ok;
+                    result = KalturaUserState.ok;
                     break;
                 case WebAPI.Users.ResponseStatus.UserWithNoDomain:
-                    result = UserState.user_with_no_household;
+                    result = KalturaUserState.user_with_no_household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user state");
@@ -150,16 +150,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static HouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Users.DomainSuspentionStatus type)
+        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Users.DomainSuspentionStatus type)
         {
-            HouseholdSuspentionState result;
+            KalturaHouseholdSuspentionState result;
             switch (type)
             {
                 case WebAPI.Users.DomainSuspentionStatus.OK:
-                    result = HouseholdSuspentionState.not_suspended;
+                    result = KalturaHouseholdSuspentionState.not_suspended;
                     break;
                 case WebAPI.Users.DomainSuspentionStatus.Suspended:
-                    result = HouseholdSuspentionState.suspended;
+                    result = KalturaHouseholdSuspentionState.suspended;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");

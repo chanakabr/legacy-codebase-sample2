@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
         [Route("{code}"), HttpGet]
-        public CouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
         {
-            CouponDetails coupon = null;
+            KalturaCouponDetails coupon = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
 
         [Route("{code}"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public CouponDetails _GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails _GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
         {
             return GetCouponStatus(partner_id, code);
         }

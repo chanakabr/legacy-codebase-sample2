@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpGet]
         public KalturaSlimAssetInfoWrapper Autocomplete(string partner_id, string query,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
         public KalturaAssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
             int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
@@ -198,7 +198,7 @@ namespace WebAPI.Controllers
         [Route("channels/{channel_id}/media"), HttpGet]
         public KalturaAssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, KalturaOrder? order_by = null, 
             int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
@@ -243,7 +243,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>     
         [Route("media/{media_ids}"), HttpGet]
         public KalturaAssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;

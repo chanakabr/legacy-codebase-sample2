@@ -13,9 +13,9 @@ namespace WebAPI.ObjectsConvertor
 {
     public class CatalogConvertor
     {
-        public delegate List<KalturaIAssetable> ConvertAssetsDelegate(int GroupId, List<BaseObject> assetBaseList, List<KalturaWith> withList);
+        public delegate List<KalturaIAssetable> ConvertAssetsDelegate(int GroupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> withList);
 
-        public static List<KalturaIAssetable> ConvertBaseObjectsToAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaWith> withList)
+        public static List<KalturaIAssetable> ConvertBaseObjectsToAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> withList)
         {
             List<KalturaIAssetable> finalResults = new List<KalturaIAssetable>();
 
@@ -24,7 +24,7 @@ namespace WebAPI.ObjectsConvertor
 
             if (withList != null)
             {
-                if (withList.Contains(KalturaWith.stats))
+                if (withList.Contains(KalturaCatalogWith.stats))
                 {
                     long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
                     long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
@@ -47,11 +47,11 @@ namespace WebAPI.ObjectsConvertor
                 if (withList != null)
                 {
                     // get files data (media only)
-                    if (withList.Contains(KalturaWith.files) && item.AssetType == eAssetTypes.MEDIA)
+                    if (withList.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
                         assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
-                    if (withList.Contains(KalturaWith.images))
+                    if (withList.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
@@ -60,7 +60,7 @@ namespace WebAPI.ObjectsConvertor
                     }
 
                     // get statistics data
-                    if (withList.Contains(KalturaWith.stats))
+                    if (withList.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
@@ -74,7 +74,7 @@ namespace WebAPI.ObjectsConvertor
             return finalResults;
         }
 
-        public static List<KalturaIAssetable> ConvertBaseObjectsToSlimAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaWith> with)
+        public static List<KalturaIAssetable> ConvertBaseObjectsToSlimAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> with)
         {
             List<KalturaIAssetable> result = new List<KalturaIAssetable>();
 
@@ -83,7 +83,7 @@ namespace WebAPI.ObjectsConvertor
 
             if (with != null)
             {
-                if (with.Contains(KalturaWith.stats))
+                if (with.Contains(KalturaCatalogWith.stats))
                 {
                     long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
                     long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
@@ -107,11 +107,11 @@ namespace WebAPI.ObjectsConvertor
                 if (with != null)
                 {
                     // get files data (media only)
-                    if (with.Contains(KalturaWith.files) && item.AssetType == eAssetTypes.MEDIA)
+                    if (with.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
                         assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
-                    if (with.Contains(KalturaWith.images))
+                    if (with.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
@@ -120,7 +120,7 @@ namespace WebAPI.ObjectsConvertor
                     }
 
                     // get statistics data
-                    if (with.Contains(KalturaWith.stats))
+                    if (with.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
