@@ -81,20 +81,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Models.API.eParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
+        private static Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
         {
-            WebAPI.Models.API.eParentalRuleType result = Models.API.eParentalRuleType.all;
+            WebAPI.Models.API.KalturaParentalRuleType result = Models.API.KalturaParentalRuleType.all;
 
             switch (type)
             {
                 case WebAPI.Api.eParentalRuleType.All:
-                result = Models.API.eParentalRuleType.all;
+                result = Models.API.KalturaParentalRuleType.all;
                 break;
                 case WebAPI.Api.eParentalRuleType.Movies:
-                result = Models.API.eParentalRuleType.movies;
+                result = Models.API.KalturaParentalRuleType.movies;
                 break;
                 case WebAPI.Api.eParentalRuleType.TVSeries:
-                result = Models.API.eParentalRuleType.tv_series;
+                result = Models.API.KalturaParentalRuleType.tv_series;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown asset type");
@@ -103,20 +103,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.eRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
+        private static Models.API.KalturaRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
         {
-            WebAPI.Models.API.eRuleLevel result = Models.API.eRuleLevel.invalid;
+            WebAPI.Models.API.KalturaRuleLevel result = Models.API.KalturaRuleLevel.invalid;
 
             switch (type)
             {
                 case WebAPI.Api.eRuleLevel.User:
-                result = Models.API.eRuleLevel.user;
+                result = Models.API.KalturaRuleLevel.user;
                 break;
                 case WebAPI.Api.eRuleLevel.Domain:
-                result = Models.API.eRuleLevel.household;
+                result = Models.API.KalturaRuleLevel.household;
                 break;
                 case WebAPI.Api.eRuleLevel.Group:
-                result = Models.API.eRuleLevel.account;
+                result = Models.API.KalturaRuleLevel.account;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown rule level");
@@ -126,20 +126,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.ePurchaeSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
+        private static Models.API.KalturaPurchaseSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
         {
-            WebAPI.Models.API.ePurchaeSettingsType result = Models.API.ePurchaeSettingsType.block;
+            WebAPI.Models.API.KalturaPurchaseSettingsType result = Models.API.KalturaPurchaseSettingsType.block;
 
             switch (type)
             {
                 case WebAPI.Api.ePurchaeSettingsType.Allow:
-                result = Models.API.ePurchaeSettingsType.allow;
+                result = Models.API.KalturaPurchaseSettingsType.allow;
                 break;
                 case WebAPI.Api.ePurchaeSettingsType.Ask:
-                result = Models.API.ePurchaeSettingsType.ask;
+                result = Models.API.KalturaPurchaseSettingsType.ask;
                 break;
                 case WebAPI.Api.ePurchaeSettingsType.Block:
-                result = Models.API.ePurchaeSettingsType.block;
+                result = Models.API.KalturaPurchaseSettingsType.block;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");

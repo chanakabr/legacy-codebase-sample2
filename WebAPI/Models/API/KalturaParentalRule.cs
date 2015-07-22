@@ -67,7 +67,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
-        public eParentalRuleType ruleType;
+        public KalturaParentalRuleType ruleType;
 
         /// <summary>
         /// Media tag values that trigger rule
@@ -95,14 +95,14 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
-        public eRuleLevel origin;
+        public KalturaRuleLevel origin;
 
     }
 
     /// <summary>
     /// Rule type – Movies, TV series or both
     /// </summary>
-    public enum eParentalRuleType
+    public enum KalturaParentalRuleType
     {
         all = 0,
         movies = 1,
@@ -112,7 +112,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Distinction if rule was defined at account, household or user level
     /// </summary>
-    public enum eRuleLevel
+    public enum KalturaRuleLevel
     {
         invalid = 0,
         user = 1,

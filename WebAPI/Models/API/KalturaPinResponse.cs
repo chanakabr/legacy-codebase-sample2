@@ -29,7 +29,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty(PropertyName = "origin")]
-        public eRuleLevel origin
+        public KalturaRuleLevel origin
         {
             get;
             set;

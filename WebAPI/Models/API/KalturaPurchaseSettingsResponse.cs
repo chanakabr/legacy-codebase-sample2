@@ -16,7 +16,7 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Purchase settings type - block, ask or allow
         /// </summary>
-        public ePurchaeSettingsType type
+        public KalturaPurchaseSettingsType type
         {
             get;
             set;
@@ -38,7 +38,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty(PropertyName = "origin")]
-        public eRuleLevel origin
+        public KalturaRuleLevel origin
         {
             get;
             set;
@@ -52,7 +52,7 @@ namespace WebAPI.Models.API
     /// -	Ask – allow purchase subject to purchase PIN
     /// -	Allow – allow purchases with no purchase PIN
     /// </summary>
-    public enum ePurchaeSettingsType
+    public enum KalturaPurchaseSettingsType
     {
         block = 0,
         ask = 1,
