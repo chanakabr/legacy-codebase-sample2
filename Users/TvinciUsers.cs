@@ -617,7 +617,7 @@ namespace Users
             {
                 string sWSUserName = "";
                 string sWSPass = "";
-                string sWSURL = Utils.GetWSURL("api_ws");
+                string sWSURL = Utils.GetTcmConfigValue("api_ws");
 
                 if (sWSURL != "")
                     client.Url = sWSURL;
@@ -1520,7 +1520,7 @@ namespace Users
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
 
-            string sWSURL = Utils.GetWSURL("api_ws");
+            string sWSURL = Utils.GetTcmConfigValue("api_ws");
             if (sWSURL != "")
             {
                 client.Url = sWSURL;

@@ -809,7 +809,7 @@ namespace Users
                 // Create new PIN               
                 try
                 {
-                    int length = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_NUMBER_OF_DIGITS"));
+                    int length = TVinciShared.WS_Utils.GetTcmIntValue("PIN_NUMBER_OF_DIGITS");
                     if (length == 0)
                     {
                         length = PIN_NUMBER_OF_DIGITS; //default number of digits
@@ -829,8 +829,8 @@ namespace Users
         
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MIN_NUMBER_OF_DIGITS"));
-            int maxlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MAX_NUMBER_OF_DIGITS"));
+            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS"); 
+            int maxlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MAX_NUMBER_OF_DIGITS");
             if (minlength == 0)
             {
                 minlength = PIN_MIN_NUMBER_OF_DIGITS; //default number of digits
