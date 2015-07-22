@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.API;
@@ -746,7 +747,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
-        [Route("{household_id}/payment_gateways/{*id}"), HttpPost]
+        [Route("{household_id}/payment_gateways/{id}"), HttpPost]
         public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
         {
             bool response = false;
@@ -767,6 +768,12 @@ namespace WebAPI.Controllers
 
         }
 
+        [Route("{household_id}/payment_gateways/{id}"), HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public bool _SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
+        {
+            return SetChargeID(partner_id, id, household_id, charge_id);
+        }
 
         /// <summary>
         /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
@@ -778,7 +785,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household Identifier</param>        
-        [Route("{household_id}/payment_gateways/{*id}"), HttpGet]
+        [Route("{household_id}/payment_gateways/{id}"), HttpGet]
         public Models.Billing.PaymentGWHouseholdResponse GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
         {
             Models.Billing.PaymentGWHouseholdResponse response = null;
@@ -799,6 +806,13 @@ namespace WebAPI.Controllers
             return response;
         }
 
+
+        [Route("{household_id}/payment_gateways/{id}"), HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public Models.Billing.PaymentGWHouseholdResponse _GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        {
+            return GetChargeID(partner_id, id, household_id);
+        }
 
         #endregion
     }
