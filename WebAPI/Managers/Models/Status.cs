@@ -76,6 +76,7 @@ namespace WebAPI.Managers.Models
         HouseholdInvalid = 500010,
         InvalidService = 500011,
         InvalidAction = 500012,
-        InvalidActionParameters = 500013
+        InvalidActionParameters = 500013,
+        InvalidJSONRequest = 500014
     }
 }

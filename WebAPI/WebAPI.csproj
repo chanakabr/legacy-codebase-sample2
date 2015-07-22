@@ -73,11 +73,12 @@
     <Reference Include="log4net">
       <HintPath>..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="log4stash">
-      <HintPath>..\packages\log4stash.1.0.2\lib\net45\log4stash.dll</HintPath>
+    <Reference Include="log4stash, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4stash.1.0.2.1\lib\net45\log4stash.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.2.2\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.3.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -86,8 +87,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Sigil, Version=4.4.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -653,6 +654,7 @@
       <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
     <Compile Include="Controllers\PricingController.cs" />
+    <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
