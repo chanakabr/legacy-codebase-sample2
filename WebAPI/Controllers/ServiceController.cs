@@ -51,6 +51,12 @@ namespace WebAPI.Controllers
                     List<Object> methodParams = new List<object>();
                     foreach (var p in parameters)
                     {
+                        if (reqParams[p.Name] == null && p.IsOptional)
+                        {
+                            methodParams.Add(Type.Missing);
+                            continue;
+                        }
+
                         methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
                     }
 
