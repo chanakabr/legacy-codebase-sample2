@@ -94,10 +94,11 @@ namespace ApiObjects.Response
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006,
-
+        PaymentGateWayNotSetForHH = 6007,
+        PaymentGateWayNotExist = 6008,
+    
         // social 7000 - 7999
         Conflict = 7000,
         MinFriendsLimitation = 7001
-        
     }
 }
