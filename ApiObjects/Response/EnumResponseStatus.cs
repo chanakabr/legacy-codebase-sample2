@@ -89,6 +89,7 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+        
         // Billing 6000 - 6999
         PriceNotCorrect = 6000,
         UnKnownPPVModule = 6001,
@@ -97,7 +98,7 @@ namespace ApiObjects.Response
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006,
-        PaymentGateWayNotExistForHH = 6007,
-        PaymentGateWayNotExistForGroup = 6008
+        PaymentGateWayNotSetForHH = 6007,
+        PaymentGateWayNotExist = 6008
     }
 }
