@@ -135,9 +135,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public SlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaWith> with)
+        public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaWith> with)
         {
-            SlimAssetInfoWrapper result = new SlimAssetInfoWrapper();
+            KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
 
             // Create our own filter - only search in title
             string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));

@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim assets wrapper
     /// </summary>
-    public class SlimAssetInfoWrapper : BaseListWrapper
+    public class KalturaSlimAssetInfoWrapper : KalturaBaseListWrapper
     {
         /// <summary>
         /// Assets

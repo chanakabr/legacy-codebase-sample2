@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper _Autocomplete(string partner_id, KalturaAutocompleteRequest request, string language = null)
+        public KalturaSlimAssetInfoWrapper _Autocomplete(string partner_id, KalturaAutocompleteRequest request, string language = null)
         {
             return Autocomplete(partner_id, request.query, request.with, request.filter_types, request.order_by, request.size, language);
         }
@@ -104,12 +104,12 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpGet]
-        public SlimAssetInfoWrapper Autocomplete(string partner_id, string query,
+        public KalturaSlimAssetInfoWrapper Autocomplete(string partner_id, string query,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
-            SlimAssetInfoWrapper response = null;
+            KalturaSlimAssetInfoWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
