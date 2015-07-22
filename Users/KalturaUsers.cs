@@ -311,7 +311,7 @@ namespace Users
             {
                 string wsUserName = "";
                 string wSPass = "";
-                string wsUrl = Utils.GetWSURL("api_ws");
+                string wsUrl = Utils.GetTcmConfigValue("api_ws");
 
                 if (wsUrl != "")
                     client.Url = wsUrl;
