@@ -5,12 +5,12 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum With
+    public enum KalturaWatchStatus
     {
-        images,
+        Progress,
 
-        files,
+        Done,
 
-        stats
+        All
     }
 }

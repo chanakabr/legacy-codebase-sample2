@@ -6,7 +6,7 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {    
-    public enum Order
+    public enum KalturaOrder
     {
         relevancy,
 

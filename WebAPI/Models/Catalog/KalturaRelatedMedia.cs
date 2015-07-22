@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Related media request
     /// </summary>
-    public class RelatedMedia : BaseAssetsRequest
+    public class KalturaRelatedMedia : KalturaBaseAssetsRequest
     {
         /// <summary>
         /// Related media types list - possible values:

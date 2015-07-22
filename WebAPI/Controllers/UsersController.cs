@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/views"), HttpPost]
-        public WatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] WatchHistory request, [FromBody] string language = null)
+        public WatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] KalturaWatchHistoryRequest request, [FromBody] string language = null)
         {
             return WatchHistory(partner_id, user_id, request.filter_types, request.filter_status, request.days, request.page_index, request.page_size, request.with, language);
         }
@@ -180,8 +180,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null,
-            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null)
+        public WatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
+            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaWith> with = null, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
 
@@ -1131,7 +1131,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/favorites/get"), HttpGet]
         public FavoriteList GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type= null,
             [FromUri] int household_id = 0, [FromUri] string udid = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             string language = null)
         {
             List<Favorite> favorites = null;
@@ -1148,7 +1148,7 @@ namespace WebAPI.Controllers
                     
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
-                    AssetInfoWrapper assetInfoWrapper  = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
+                    KalturaAssetInfoWrapper assetInfoWrapper  = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
 
                     favoritesFinalList = new List<Favorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)

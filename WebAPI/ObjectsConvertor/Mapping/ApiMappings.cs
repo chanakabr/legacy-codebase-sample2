@@ -25,15 +25,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<WebAPI.Models.Catalog.AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
+            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaAssetType, WebAPI.Catalog.StatsType>().ConstructUsing((KalturaAssetType type) =>
             {
                 WebAPI.Catalog.StatsType result;
                 switch (type)
                 {
-                    case AssetType.media:
+                    case KalturaAssetType.media:
                         result = WebAPI.Catalog.StatsType.MEDIA;
                         break;
-                    case AssetType.epg:
+                    case KalturaAssetType.epg:
                         result = WebAPI.Catalog.StatsType.EPG;
                         break;
                     default:

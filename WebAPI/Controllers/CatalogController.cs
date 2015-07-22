@@ -36,16 +36,16 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpGet]
-        public AssetInfoWrapper Search(string partner_id, [FromUri] SearchAssets request, [FromUri] string language = null)
+        public KalturaAssetInfoWrapper Search(string partner_id, [FromUri] KalturaSearchAssetsRequest request, [FromUri] string language = null)
         {
             return _Search(partner_id, request);
         }
 
         [Route("search"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public AssetInfoWrapper _Search(string partner_id, SearchAssets request, string language = null)
+        public KalturaAssetInfoWrapper _Search(string partner_id, KalturaSearchAssetsRequest request, string language = null)
         {
-            AssetInfoWrapper response = null;
+            KalturaAssetInfoWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("autocomplete"), HttpPost]
-        public SlimAssetInfoWrapper _Autocomplete(string partner_id, Autocomplete request, string language = null)
+        public SlimAssetInfoWrapper _Autocomplete(string partner_id, KalturaAutocompleteRequest request, string language = null)
         {
             return Autocomplete(partner_id, request.query, request.with, request.filter_types, request.order_by, request.size, language);
         }
@@ -105,9 +105,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpGet]
         public SlimAssetInfoWrapper Autocomplete(string partner_id, string query,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
-            Order? order_by = null, int? size = null, string language = null)
+            KalturaOrder? order_by = null, int? size = null, string language = null)
         {
             SlimAssetInfoWrapper response = null;
 
@@ -148,13 +148,13 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("media/{media_id}/related"), HttpGet]
-        public AssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
+        public KalturaAssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
             int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
-            AssetInfoWrapper response = null;
+            KalturaAssetInfoWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -196,11 +196,12 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("channels/{channel_id}/media"), HttpGet]
-        public AssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, Order? order_by = null, int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+        public KalturaAssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, KalturaOrder? order_by = null, 
+            int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
-            AssetInfoWrapper response = null;
+            KalturaAssetInfoWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -241,11 +242,11 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>     
         [Route("media/{media_ids}"), HttpGet]
-        public AssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+        public KalturaAssetInfoWrapper GetMediaByIds(string partner_id, string media_ids, int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaWith>))] List<KalturaWith> with = null,
             string language = null, string user_id = null, int household_id = 0)
         {
-            AssetInfoWrapper response = null;
+            KalturaAssetInfoWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -298,9 +299,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("channels/{channel_id}"), HttpGet]
-        public Channel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
+        public KalturaChannel GetChannel(string partner_id, int channel_id, string language = null, string user_id = null, int household_id = 0)
         {
-            Channel response = null;
+            KalturaChannel response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -337,9 +338,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("categories/{category_id}"), HttpGet]
-        public Category GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
+        public KalturaCategory GetCategory(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
-            Category response = null;
+            KalturaCategory response = null;
 
             int groupId = int.Parse(partner_id);
 

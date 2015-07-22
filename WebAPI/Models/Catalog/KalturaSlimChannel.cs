@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim channel
     /// </summary>
-    public class SlimChannel
+    public class KalturaSlimChannel
     {
         /// <summary>
         /// Unique identifier for the channel

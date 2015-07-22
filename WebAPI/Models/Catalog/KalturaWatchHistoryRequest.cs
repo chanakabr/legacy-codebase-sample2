@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// watch history request
     /// </summary>
-    public class WatchHistory : BaseAssetsRequest
+    public class KalturaWatchHistoryRequest : KalturaBaseAssetsRequest
     {
         /// <summary>
         /// List of asset types to search within. The list is a string separated be comma.
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_status")]
         [JsonProperty(PropertyName = "filter_status")]
-        public WatchStatus? filter_status { get; set; }
+        public KalturaWatchStatus? filter_status { get; set; }
 
         /// <summary>
         /// How many days back to return the watched media. If omitted, default to 7 days

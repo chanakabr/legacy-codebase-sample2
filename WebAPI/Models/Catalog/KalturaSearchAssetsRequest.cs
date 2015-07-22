@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Search assets request
     /// </summary>
-    public class SearchAssets : BaseAssetsRequest
+    public class KalturaSearchAssetsRequest : KalturaBaseAssetsRequest
     {
         /// <summary>
         /// List of asset types to search within.
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
-        public Order? order_by { get; set; }
+        public KalturaOrder? order_by { get; set; }
 
     }
 }

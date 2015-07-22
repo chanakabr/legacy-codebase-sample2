@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel media request
     /// </summary>
-    public class ChannelMedia : BaseAssetsRequest
+    public class KalturaChannelMedia : KalturaBaseAssetsRequest
     {
         /// <summary>
         /// Required sort option to apply for the identified assets. If omitted – will use channel default ordering.
@@ -19,6 +19,6 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
-        public Order? order_by { get; set; }
+        public KalturaOrder? order_by { get; set; }
     }
 }

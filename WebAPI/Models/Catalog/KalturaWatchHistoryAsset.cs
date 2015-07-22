@@ -12,18 +12,18 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset wrapper
     /// </summary>
     [Serializable]
-    public class WatchHistoryAssetWrapper : BaseListWrapper, IAssetable
+    public class WatchHistoryAssetWrapper : BaseListWrapper, KalturaIAssetable
     {
         /// <summary>
         /// WatchHistoryAssets Models
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
-        public List<WatchHistoryAsset> WatchHistoryAssets { get; set; }
+        public List<KalturaWatchHistoryAsset> WatchHistoryAssets { get; set; }
 
         public WatchHistoryAssetWrapper()
         {            
-            WatchHistoryAssets = new List<WatchHistoryAsset>();
+            WatchHistoryAssets = new List<KalturaWatchHistoryAsset>();
         }
     }
 
@@ -31,14 +31,14 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset info
     /// </summary>
     [Serializable]
-    public class WatchHistoryAsset
+    public class KalturaWatchHistoryAsset
     {
         /// <summary>
         /// AssetInfo Model
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
-        public AssetInfo Asset { get; set; }
+        public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>
         /// Position in seconds of the relevant asset

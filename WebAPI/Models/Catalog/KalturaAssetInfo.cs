@@ -11,21 +11,21 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset info wrapper
     /// </summary>
-    public class AssetInfoWrapper : BaseListWrapper 
+    public class KalturaAssetInfoWrapper : BaseListWrapper 
     {
         /// <summary>
         /// Assets
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
-        public List<AssetInfo> Assets { get; set; }
+        public List<KalturaAssetInfo> Assets { get; set; }
 
     }
 
     /// <summary>
     /// Asset info
     /// </summary>
-    public class AssetInfo : IAssetable
+    public class KalturaAssetInfo : KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset
@@ -61,14 +61,14 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        public List<Image> Images { get; set; }
+        public List<KalturaImage> Images { get; set; }
 
         /// <summary>
         /// Files
         /// </summary>
         [DataMember(Name = "files", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
-        public List<File> Files { get; set; }
+        public List<KalturaFile> Files { get; set; }
 
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
@@ -103,7 +103,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
-        public AssetStats Statistics { get; set; }
+        public KalturaAssetStats Statistics { get; set; }
 
         /// <summary>
         /// A collection of additional key value pairs that are available per asset type. Possible keys: 

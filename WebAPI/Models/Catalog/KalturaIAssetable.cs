@@ -5,9 +5,10 @@ using System.Web;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum AssetType
+    /// <summary>
+    /// Assetable interface
+    /// </summary>
+    public interface KalturaIAssetable
     {
-        media,
-        epg
     }
 }

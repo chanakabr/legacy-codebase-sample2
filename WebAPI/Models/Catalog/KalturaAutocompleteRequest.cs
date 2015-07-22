@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Autocomplete request
     /// </summary>
-    public class Autocomplete
+    public class KalturaAutocompleteRequest
     {
         /// <summary>
         /// List of asset types to search within.
@@ -34,7 +34,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
-        public Order? order_by { get; set; }
+        public KalturaOrder? order_by { get; set; }
 
         /// <summary>
         ///Additional data to return per asset, formatted as a comma-separated array. 
@@ -42,7 +42,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        public List<With> with { get; set; }
+        public List<KalturaWith> with { get; set; }
 
         /// <summary>
         /// Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5

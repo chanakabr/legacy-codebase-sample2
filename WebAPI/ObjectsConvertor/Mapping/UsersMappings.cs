@@ -113,7 +113,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
             // MediaId to AssetInfo
-            Mapper.CreateMap<string, AssetInfo>()
+            Mapper.CreateMap<string, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => ConvertToLong(src)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 

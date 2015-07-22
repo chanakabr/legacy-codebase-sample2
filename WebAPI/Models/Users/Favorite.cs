@@ -18,7 +18,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
-        public AssetInfo Asset { get; set; }
+        public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>
         /// Extra Value

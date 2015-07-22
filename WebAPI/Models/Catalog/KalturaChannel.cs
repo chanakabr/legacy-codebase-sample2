@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public class Channel
+    public class KalturaChannel
     {
         /// <summary>
         /// Unique identifier for the channel
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        public List<Image> Images { get; set; }
+        public List<KalturaImage> Images { get; set; }
 
         /// <summary>
         /// Media types in the channel 

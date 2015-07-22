@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Category details
     /// </summary>
-    public class Category
+    public class KalturaCategory
     {
         /// <summary>
         /// Unique identifier for the category
@@ -38,20 +38,20 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "child_categories")]
         [JsonProperty(PropertyName = "child_categories")]
-        public List<Category> ChildCategories { get; set; }
+        public List<KalturaCategory> ChildCategories { get; set; }
 
         /// <summary>
         /// Category channels
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty(PropertyName = "channels")]
-        public List<Channel> Channels { get; set; }
+        public List<KalturaChannel> Channels { get; set; }
 
         /// <summary>
         /// Category images
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        public List<Image> Images { get; set; }
+        public List<KalturaImage> Images { get; set; }
     }
 }

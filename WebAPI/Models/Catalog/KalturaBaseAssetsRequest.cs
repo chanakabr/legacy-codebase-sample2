@@ -11,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// Base assets request parameters
     /// </summary>
     [Serializable]
-    public class BaseAssetsRequest
+    public class KalturaBaseAssetsRequest
     {
         /// <summary>
         /// Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50
@@ -33,6 +33,6 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        public List<With> with { get; set; }
+        public List<KalturaWith> with { get; set; }
     }
 }

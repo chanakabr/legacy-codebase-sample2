@@ -15,34 +15,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //MediaPicture to Image
-            Mapper.CreateMap<Picture, Image>()
+            Mapper.CreateMap<Picture, KalturaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio));
 
             //EPGPicture to Image
-            Mapper.CreateMap<EpgPicture, Image>()
+            Mapper.CreateMap<EpgPicture, KalturaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.PicHeight))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio));
 
             //File 
-            Mapper.CreateMap<FileMedia, File>()
+            Mapper.CreateMap<FileMedia, KalturaFile>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nMediaID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nFileId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sUrl));
 
             //BuzzScore
-            Mapper.CreateMap<BuzzWeightedAverScore, BuzzScore>()
+            Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  .ForMember(dest => dest.NormalizedAvgScore, opt => opt.MapFrom(src => src.NormalizedWeightedAverageScore))
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
             //AssetStats 
-            Mapper.CreateMap<AssetStatsResult, AssetStats>()
+            Mapper.CreateMap<AssetStatsResult, KalturaAssetStats>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                  .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.m_nLikes))
                  .ForMember(dest => dest.Views, opt => opt.MapFrom(src => src.m_nViews))
@@ -51,7 +51,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.BuzzAvgScore, opt => opt.MapFrom(src => src.m_buzzAverScore));
 
             //Media to AssetInfo
-            Mapper.CreateMap<MediaObj, AssetInfo>()
+            Mapper.CreateMap<MediaObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
@@ -63,7 +63,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
 
             //EPG to AssetInfo
-            Mapper.CreateMap<EPGChannelProgrammeObject, AssetInfo>()
+            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
@@ -75,7 +75,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
 
             //EPG to AssetInfo
-            Mapper.CreateMap<ProgramObj, AssetInfo>()
+            Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
@@ -87,34 +87,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)));
 
             //Media to SlimAssetInfo
-            Mapper.CreateMap<MediaObj, SlimAssetInfo>()
+            Mapper.CreateMap<MediaObj, KalturaSlimAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID));
 
             //Media to SlimAssetInfo
-            Mapper.CreateMap<ProgramObj, SlimAssetInfo>()
+            Mapper.CreateMap<ProgramObj, KalturaSlimAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.epg));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)KalturaAssetType.epg));
 
             //channelObj to Channel
-            Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.Channel>()
+            Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic));
 
 
             //Channel (Catalog) to Channel
-            Mapper.CreateMap<WebAPI.Catalog.Channel, WebAPI.Models.Catalog.Channel>()
+            Mapper.CreateMap<WebAPI.Catalog.Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
 
             //CategoryResponse to Category
-            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.Category>()
+            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaCategory>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.m_nParentCategoryID))

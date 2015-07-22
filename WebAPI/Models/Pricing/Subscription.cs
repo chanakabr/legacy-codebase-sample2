@@ -28,7 +28,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty("channels")]
-        public List<SlimChannel> Channels { get; set; } 
+        public List<KalturaSlimChannel> Channels { get; set; } 
 
         /// <summary>
         /// The first date the subscription is available for purchasing 

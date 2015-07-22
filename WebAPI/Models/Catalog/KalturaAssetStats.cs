@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
-    public class AssetStats
+    public class KalturaAssetStats
     {
         /// <summary>
         /// Unique identifier for the asset
@@ -52,6 +52,6 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "buzz_score")]
         [JsonProperty(PropertyName = "buzz_score")]
-        public BuzzScore BuzzAvgScore { get; set; }
+        public KalturaBuzzScore BuzzAvgScore { get; set; }
     }
 }

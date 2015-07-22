@@ -10,7 +10,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Buzz score
     /// </summary>
-    public class BuzzScore
+    public class KalturaBuzzScore
     {
         /// <summary>
         /// Normalized average score 
