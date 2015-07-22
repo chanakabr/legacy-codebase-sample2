@@ -155,54 +155,9 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/views"), HttpPost]
-        public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, [FromBody] WatchHistory request, [FromBody] string language = null)
+        public WatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] WatchHistory request, [FromBody] string language = null)
         {
-            WatchHistoryAssetWrapper response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            // page size - 5 <= size <= 50
-            if (request.page_size == null || request.page_size == 0)
-            {
-                request.page_size = 25;
-            }
-            else if (request.page_size > 50)
-            {
-                request.page_size = 50;
-            }
-            else if (request.page_size < 5)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
-
-            List<int> filterTypes = null;
-            if (!string.IsNullOrEmpty(request.filter_types))
-            {
-                try
-                {
-                    filterTypes = request.filter_types.Split(',').Select(x => int.Parse(x)).ToList();
-                }
-                catch
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "invalid filter types");
-                }
-            }
-
-            // days - default value 7
-            if (request.days == 0)
-                request.days = 7;
-            try
-            {
-                // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, request.page_index, request.page_size,
-                                                                       request.filter_status, request.days, filterTypes, request.with);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            return WatchHistory(partner_id, user_id, request.filter_types, request.filter_status, request.days, request.page_index, request.page_size, request.with, language);
         }
 
         /// <summary>
@@ -225,7 +180,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null,
+        public WatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null,
             int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
