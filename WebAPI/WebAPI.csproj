@@ -370,6 +370,9 @@
     <Content Include="Web References\Billing\PaymentGWSettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGWChargeIDResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -660,6 +663,7 @@
     <Compile Include="Models\API\GenericRule.cs" />
     <Compile Include="Models\API\GenericRulesList.cs" />
     <Compile Include="Models\API\RuleType.cs" />
+    <Compile Include="Models\Billing\PaymentGWHouseholdResponse.cs" />
     <Compile Include="Models\Catalog\SlimChannel.cs" />
     <Compile Include="Models\Billing\PaymentGWBasic.cs" />
     <Compile Include="Models\Billing\PaymentGW.cs" />

@@ -306,7 +306,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
-        public bool SetPaymentGWSrttings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
+        public bool SetPaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
         {
             bool response = false;
 
@@ -315,7 +315,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGWSrttings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().SetPaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {

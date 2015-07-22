@@ -62,18 +62,18 @@ namespace WebAPI.Models.Billing
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
-        /// Pendding Interval in minutes
+        /// Pending Interval in minutes
         /// </summary>
         [DataMember(Name = "pendding_interval")]
-        [JsonProperty("pendding_interval")]
-        public int PenddingInterval { get; set; }
+        [JsonProperty("pending_interval")]
+        public int PendingInterval { get; set; }
 
         /// <summary>
-        /// Pendding Retries
+        /// Pending Retries
         /// </summary>
-        [DataMember(Name = "pendding_retries")]
-        [JsonProperty("pendding_retries")]
-        public int PenddingRetries { get; set; }
+        [DataMember(Name = "pending_retries")]
+        [JsonProperty("pending_retries")]
+        public int PendingRetries { get; set; }
 
 
         /// <summary>

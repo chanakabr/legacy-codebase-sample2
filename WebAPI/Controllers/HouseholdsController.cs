@@ -7,6 +7,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.API;
+using WebAPI.Models.Billing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
@@ -484,7 +485,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            
+
             return response;
         }
 
@@ -619,7 +620,7 @@ namespace WebAPI.Controllers
         public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
             Device device = null;
-            
+
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
@@ -712,8 +713,9 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
+        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
         [Route("{household_id}/payment_gateways/add"), HttpPost]
-        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
+        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id, [FromUri] string charge_id)
         {
             bool response = false;
 
@@ -722,7 +724,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
+                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id, charge_id);
             }
             catch (ClientException ex)
             {
@@ -731,6 +733,72 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
+        /// </remarks>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="household_id">Household Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
+        [Route("{household_id}/payment_gateways/{*id}"), HttpPost]
+        public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, id, household_id, charge_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
+
+
+        /// <summary>
+        /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006, PaymentGateWayNotExistForHH = 6007, PaymentGateWayNotExistForGroup = 6008
+        /// </remarks>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="household_id">Household Identifier</param>        
+        [Route("{household_id}/payment_gateways/{*id}"), HttpGet]
+        public Models.Billing.PaymentGWHouseholdResponse GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        {
+            Models.Billing.PaymentGWHouseholdResponse response = null;
+
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
 
         #endregion
     }
