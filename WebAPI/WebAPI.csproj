@@ -712,8 +712,8 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
-    <Compile Include="Models\Social\ClientFacebookResponse.cs" />
-    <Compile Include="Models\Social\FacebookUser.cs" />
+    <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
+    <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />

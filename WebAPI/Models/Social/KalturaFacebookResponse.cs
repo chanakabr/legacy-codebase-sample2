@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace WebAPI.Models.Social
 {
-    public class ClientFacebookResponse
+    public class KalturaFacebookResponse
     {
         /// <summary>
         /// User model status
@@ -71,6 +71,6 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "facebook_user")]
         [JsonProperty("facebook_user")]
-        public FacebookUser FacebookUser { get; set; }
+        public KalturaFacebookUser FacebookUser { get; set; }
     }
 }

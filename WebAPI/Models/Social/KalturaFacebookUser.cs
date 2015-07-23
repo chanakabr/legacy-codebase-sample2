@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace WebAPI.Models.Social
 {
-    public class FacebookUser
+    public class KalturaFacebookUser
     {
         /// <summary>
         /// Facebook identifier

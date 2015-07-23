@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <param name="token">Facebook token</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("social/fb/user_data"), HttpGet]
-        public ClientFacebookResponse GetFBUserData([FromUri] string partner_id, [FromUri] string token)
+        public KalturaFacebookResponse GetFBUserData([FromUri] string partner_id, [FromUri] string token)
         {
-            ClientFacebookResponse response = new ClientFacebookResponse();
+            KalturaFacebookResponse response = new KalturaFacebookResponse();
             int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
 
         [Route("social/fb/user_data"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public ClientFacebookResponse _GetFBUserData([FromBody] string partner_id, [FromBody] string token)
+        public KalturaFacebookResponse _GetFBUserData([FromBody] string partner_id, [FromBody] string token)
         {
             return GetFBUserData(partner_id, token);
         }
@@ -59,9 +59,9 @@ namespace WebAPI.Controllers
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("social/fb/register"), HttpGet]
-        public ClientFacebookResponse FBUserRegister([FromUri] string partner_id, [FromUri] string token, [FromUri] bool should_create_domain, [FromUri] bool subscribe_newsletter)
+        public KalturaFacebookResponse FBUserRegister([FromUri] string partner_id, [FromUri] string token, [FromUri] bool should_create_domain, [FromUri] bool subscribe_newsletter)
         {
-            ClientFacebookResponse response = new ClientFacebookResponse();
+            KalturaFacebookResponse response = new KalturaFacebookResponse();
             int groupId = int.Parse(partner_id);
             string ip = Utils.Utils.GetClientIP();
 
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
 
         [Route("social/fb/register"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public ClientFacebookResponse _FBUserRegister([FromBody] string partner_id, [FromBody] string token, [FromBody] bool should_create_domain, [FromBody] bool get_newsletter)
+        public KalturaFacebookResponse _FBUserRegister([FromBody] string partner_id, [FromBody] string token, [FromBody] bool should_create_domain, [FromBody] bool get_newsletter)
         {
             return FBUserRegister(partner_id, token, should_create_domain, get_newsletter);
         }
@@ -113,9 +113,9 @@ namespace WebAPI.Controllers
         /// <param name="facebook_id">Facebook identifier</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("social/fb/merge"), HttpGet]
-        public ClientFacebookResponse FBUserMerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password, [FromUri] string facebook_id)
+        public KalturaFacebookResponse FBUserMerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password, [FromUri] string facebook_id)
         {
-            ClientFacebookResponse response = new ClientFacebookResponse();
+            KalturaFacebookResponse response = new KalturaFacebookResponse();
             int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
 
         [Route("social/fb/merge"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public ClientFacebookResponse _FBUserMerge([FromBody] string partner_id, [FromBody] string token, [FromBody] string username, [FromBody] string password, [FromBody] string facebook_id)
+        public KalturaFacebookResponse _FBUserMerge([FromBody] string partner_id, [FromBody] string token, [FromBody] string username, [FromBody] string password, [FromBody] string facebook_id)
         {
             return FBUserMerge(partner_id, token, username, password, facebook_id);
         }
@@ -150,9 +150,9 @@ namespace WebAPI.Controllers
         /// <param name="password">Password</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("social/fb/unmerge"), HttpGet]
-        public ClientFacebookResponse FBUserUnmerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password)
+        public KalturaFacebookResponse FBUserUnmerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password)
         {
-            ClientFacebookResponse response = new ClientFacebookResponse();
+            KalturaFacebookResponse response = new KalturaFacebookResponse();
             int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
@@ -173,7 +173,7 @@ namespace WebAPI.Controllers
 
         [Route("social/fb/unmerge"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public ClientFacebookResponse _FBUserUnmerge([FromBody] string partner_id, [FromBody] string token, [FromBody] string username, [FromBody] string password)
+        public KalturaFacebookResponse _FBUserUnmerge([FromBody] string partner_id, [FromBody] string token, [FromBody] string username, [FromBody] string password)
         {
             return FBUserUnmerge(partner_id, token, username, password);
         }
