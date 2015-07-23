@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ConditionalAccess.Response
+namespace ApiObjects.Billing
 {
-    public class ChargeResponseModel
-    { 
-        //Kaltura Payment Gateway response status code     //public int ResponseID {get; set;}
+    public class PurchaseResponse
+    {
+         //Kaltura Payment Gateway response status code     //public int ResponseID {get; set;}
         public ApiObjects.Response.Status Status { get; set; }
 
         //Kaltura unique ID representing the transaction
@@ -19,10 +19,9 @@ namespace ConditionalAccess.Response
         //Original response ID that was provided from by the payment gateway. Returned only if the payment gateway provides this information.
         public string PGResponseID { get; set; }
 
-        public ChargeResponseModel()
+        public PurchaseResponse()
         {
             Status = new ApiObjects.Response.Status();            
         }
-
     }
 }

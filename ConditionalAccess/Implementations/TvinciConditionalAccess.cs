@@ -675,7 +675,7 @@ namespace ConditionalAccess
         }
 
 
-        protected override bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+        protected override bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, ApiObjects.Billing.PurchaseResponse response,
             string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long billingTransactionID, ref long purchaseID)
         {
             bool res = true;
@@ -718,7 +718,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+        protected override bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, ApiObjects.Billing.PurchaseResponse response,
          string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID)
         {
             bool res = true;
@@ -767,7 +767,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, ChargeResponseModel response,
+        protected override bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, ApiObjects.Billing.PurchaseResponse response,
             string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID)
         {
             bool res = true;
