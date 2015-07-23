@@ -50,14 +50,6 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -463,6 +455,9 @@
     <Content Include="Web References\Pricing\SubscriptionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Social\FacebookResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Social\module.disco" />
     <Content Include="Web References\Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -653,6 +648,7 @@
       <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
     <Compile Include="Controllers\PricingController.cs" />
+    <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -704,6 +700,8 @@
     <Compile Include="Models\Pricing\Price.cs" />
     <Compile Include="Models\Domains\With.cs" />
     <Compile Include="Models\Pricing\Subscription.cs" />
+    <Compile Include="Models\Social\ClientFacebookResponse.cs" />
+    <Compile Include="Models\Social\FacebookUser.cs" />
     <Compile Include="Models\Users\AddUserFavorite.cs" />
     <Compile Include="Models\Users\Favorite.cs" />
     <Compile Include="Models\Users\FavoriteList.cs" />
@@ -744,6 +742,7 @@
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PricingMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\SocialMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
     <Compile Include="Managers\ClientManager\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
@@ -816,7 +815,6 @@
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
-    <Compile Include="Utils\Enums.cs" />
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
@@ -942,10 +940,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Social\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

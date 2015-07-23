@@ -57,7 +57,7 @@ namespace WebAPI.Social {
         
         private System.Threading.SendOrPostCallback FBUserRegisterOperationCompleted;
         
-        private System.Threading.SendOrPostCallback FBUserMerageOperationCompleted;
+        private System.Threading.SendOrPostCallback FBUserMergeOperationCompleted;
         
         private System.Threading.SendOrPostCallback FBObjectRequestOperationCompleted;
         
@@ -167,7 +167,7 @@ namespace WebAPI.Social {
         public event FBUserRegisterCompletedEventHandler FBUserRegisterCompleted;
         
         /// <remarks/>
-        public event FBUserMerageCompletedEventHandler FBUserMerageCompleted;
+        public event FBUserMergeCompletedEventHandler FBUserMergeCompleted;
         
         /// <remarks/>
         public event FBObjectRequestCompletedEventHandler FBObjectRequestCompleted;
@@ -603,13 +603,13 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserData", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponseObject FBUserData(string sWSUserName, string sWSPassword, string token, string stg) {
+        public FacebookResponse FBUserData(string sWSUserName, string sWSPassword, string token, string stg) {
             object[] results = this.Invoke("FBUserData", new object[] {
                         sWSUserName,
                         sWSPassword,
                         token,
                         stg});
-            return ((FacebookResponseObject)(results[0]));
+            return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -638,7 +638,7 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserRegister", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponseObject FBUserRegister(string sWSUserName, string sWSPassword, string token, string stg, KeyValuePair[] extra, string sUserIP) {
+        public FacebookResponse FBUserRegister(string sWSUserName, string sWSPassword, string token, string stg, KeyValuePair[] extra, string sUserIP) {
             object[] results = this.Invoke("FBUserRegister", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -646,7 +646,7 @@ namespace WebAPI.Social {
                         stg,
                         extra,
                         sUserIP});
-            return ((FacebookResponseObject)(results[0]));
+            return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -676,41 +676,41 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserMerage", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponseObject FBUserMerage(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass) {
-            object[] results = this.Invoke("FBUserMerage", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserMerge", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FacebookResponse FBUserMerge(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass) {
+            object[] results = this.Invoke("FBUserMerge", new object[] {
                         sWSUserName,
                         sWSPassword,
                         token,
                         fbid,
                         sUserName,
                         sPass});
-            return ((FacebookResponseObject)(results[0]));
+            return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void FBUserMerageAsync(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass) {
-            this.FBUserMerageAsync(sWSUserName, sWSPassword, token, fbid, sUserName, sPass, null);
+        public void FBUserMergeAsync(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass) {
+            this.FBUserMergeAsync(sWSUserName, sWSPassword, token, fbid, sUserName, sPass, null);
         }
         
         /// <remarks/>
-        public void FBUserMerageAsync(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass, object userState) {
-            if ((this.FBUserMerageOperationCompleted == null)) {
-                this.FBUserMerageOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBUserMerageOperationCompleted);
+        public void FBUserMergeAsync(string sWSUserName, string sWSPassword, string token, string fbid, string sUserName, string sPass, object userState) {
+            if ((this.FBUserMergeOperationCompleted == null)) {
+                this.FBUserMergeOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBUserMergeOperationCompleted);
             }
-            this.InvokeAsync("FBUserMerage", new object[] {
+            this.InvokeAsync("FBUserMerge", new object[] {
                         sWSUserName,
                         sWSPassword,
                         token,
                         fbid,
                         sUserName,
-                        sPass}, this.FBUserMerageOperationCompleted, userState);
+                        sPass}, this.FBUserMergeOperationCompleted, userState);
         }
         
-        private void OnFBUserMerageOperationCompleted(object arg) {
-            if ((this.FBUserMerageCompleted != null)) {
+        private void OnFBUserMergeOperationCompleted(object arg) {
+            if ((this.FBUserMergeCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.FBUserMerageCompleted(this, new FBUserMerageCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.FBUserMergeCompleted(this, new FBUserMergeCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1018,14 +1018,14 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserUnmerge", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponseObject FBUserUnmerge(string sWSUserName, string sWSPassword, string sToken, string sUsername, string sPassword) {
+        public FacebookResponse FBUserUnmerge(string sWSUserName, string sWSPassword, string sToken, string sUsername, string sPassword) {
             object[] results = this.Invoke("FBUserUnmerge", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sToken,
                         sUsername,
                         sPassword});
-            return ((FacebookResponseObject)(results[0]));
+            return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2044,39 +2044,6 @@ namespace WebAPI.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class FBSignin {
         
         private Status statusField;
@@ -2100,6 +2067,39 @@ namespace WebAPI.Social {
             }
             set {
                 this.userField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
             }
         }
     }
@@ -2502,6 +2502,39 @@ namespace WebAPI.Social {
             }
             set {
                 this.tokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class FacebookResponse {
+        
+        private FacebookResponseObject responseDataField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public FacebookResponseObject ResponseData {
+            get {
+                return this.responseDataField;
+            }
+            set {
+                this.responseDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
     }
@@ -3843,10 +3876,10 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public FacebookResponseObject Result {
+        public FacebookResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FacebookResponseObject)(this.results[0]));
+                return ((FacebookResponse)(this.results[0]));
             }
         }
     }
@@ -3869,36 +3902,36 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public FacebookResponseObject Result {
+        public FacebookResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FacebookResponseObject)(this.results[0]));
+                return ((FacebookResponse)(this.results[0]));
             }
         }
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
-    public delegate void FBUserMerageCompletedEventHandler(object sender, FBUserMerageCompletedEventArgs e);
+    public delegate void FBUserMergeCompletedEventHandler(object sender, FBUserMergeCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class FBUserMerageCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class FBUserMergeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal FBUserMerageCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal FBUserMergeCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public FacebookResponseObject Result {
+        public FacebookResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FacebookResponseObject)(this.results[0]));
+                return ((FacebookResponse)(this.results[0]));
             }
         }
     }
@@ -4129,10 +4162,10 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public FacebookResponseObject Result {
+        public FacebookResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FacebookResponseObject)(this.results[0]));
+                return ((FacebookResponse)(this.results[0]));
             }
         }
     }
