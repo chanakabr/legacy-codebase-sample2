@@ -180,9 +180,8 @@ namespace WebAPI
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
 
-                        context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{3}'>\n",
-                            method.Name,
-                            controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
+                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}'>\n",
+                            method.Name,                            
                             HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"'))));
 
                         foreach (var par in method.GetParameters())

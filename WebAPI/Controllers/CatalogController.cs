@@ -35,15 +35,8 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
-        [Route("search"), HttpGet]
-        public KalturaAssetInfoWrapper Search(string partner_id, [FromUri] KalturaSearchAssetsRequest request, [FromUri] string language = null)
-        {
-            return _Search(partner_id, request);
-        }
-
-        [Route("search"), HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public KalturaAssetInfoWrapper _Search(string partner_id, KalturaSearchAssetsRequest request, string language = null)
+        [Route("search"), HttpPost]        
+        public KalturaAssetInfoWrapper Search(string partner_id, KalturaSearchAssetsRequest request, string language = null)
         {
             KalturaAssetInfoWrapper response = null;
 
