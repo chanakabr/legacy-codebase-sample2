@@ -12075,7 +12075,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" User IP: ", userIP));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                log.Debug("Purchase - " + sb.ToString(), ex);
+                log.Error("Purchase - " + sb.ToString(), ex);
                 WriteToUserLog(siteGUID, string.Format("Exception at Purchase. Media File ID: {0} , Coupon Code: {1}", contentID, coupon));
                 #endregion
             }
@@ -12118,7 +12118,7 @@ namespace ConditionalAccess
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
 
-                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.Collection, billingGuid);
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Collection, billingGuid);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long billingTransactionID = 0;
@@ -12219,7 +12219,7 @@ namespace ConditionalAccess
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
 
-                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.Subscription, billingGuid);
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Subscription, billingGuid);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long billingTransactionID = 0;
@@ -12355,7 +12355,7 @@ namespace ConditionalAccess
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
                        
-                        response = HandlePurchase(siteGUID, price, currency, userIP, customData, productID, eTransactionType.PPV, billingGuid);
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.PPV, billingGuid);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long lBillingTransactionID = 0;
@@ -12426,7 +12426,7 @@ namespace ConditionalAccess
             }
         }
 
-        private ApiObjects.Billing.PurchaseResponse HandlePurchase(string siteGUID, double price, string currency, string userIP, string customData, int productID, eTransactionType eTransactionType, Guid billingGuid)
+        private ApiObjects.Billing.PurchaseResponse HandlePurchase(string siteGUID, int houseHoldID, double price, string currency, string userIP, string customData, int productID, eTransactionType eTransactionType, Guid billingGuid)
         {
             string userName = string.Empty;
             string password = string.Empty;
