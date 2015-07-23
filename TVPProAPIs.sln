@@ -9,6 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB482
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{972A170C-C623-4DAE-90B3-F47509EC6AA1} = {972A170C-C623-4DAE-90B3-F47509EC6AA1}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{AD5CFE8A-EDF3-4E50-A46B-ECA91959809A}"
 	ProjectSection(SolutionItems) = preProject
