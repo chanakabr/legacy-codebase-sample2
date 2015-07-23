@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// Country details
     /// </summary>
-    public class KalturaCountry
+    public class KalturaCountry : KalturaOTTObject
     {
         /// <summary>
         /// Country identifier

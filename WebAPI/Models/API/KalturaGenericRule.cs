@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
     /// <summary>
     /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
     /// </summary>
-    public class KalturaGenericRule
+    public class KalturaGenericRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique rule identifier

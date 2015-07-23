@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// Base assets request parameters
     /// </summary>
     [Serializable]
-    public class KalturaBaseAssetsRequest
+    public class KalturaBaseAssetsRequest : KalturaOTTObject
     {
         /// <summary>
         /// <![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]>

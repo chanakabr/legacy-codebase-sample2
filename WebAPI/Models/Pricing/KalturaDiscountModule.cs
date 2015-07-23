@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
     /// <summary>
     /// Discount module
     /// </summary>
-    public class KalturaDiscountModule
+    public class KalturaDiscountModule : KalturaOTTObject
     {
         /// <summary>
         /// The discount percentage

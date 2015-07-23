@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Buzz score
     /// </summary>
-    public class KalturaBuzzScore
+    public class KalturaBuzzScore : KalturaOTTObject
     {
         /// <summary>
         /// Normalized average score 

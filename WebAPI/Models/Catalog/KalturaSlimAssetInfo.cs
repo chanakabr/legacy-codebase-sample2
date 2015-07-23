@@ -24,7 +24,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim asset info
     /// </summary>
-    public class KalturaSlimAssetInfo : KalturaIAssetable
+    public class KalturaSlimAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset

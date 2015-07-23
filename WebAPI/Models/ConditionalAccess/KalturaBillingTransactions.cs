@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transactions
     /// </summary>
     [Serializable]
-    public class KalturaBillingTransactions
+    public class KalturaBillingTransactions : KalturaOTTObject
     {
          /// <summary>
         ///Transactions
@@ -33,7 +34,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transaction
     /// </summary>
     [Serializable]
-    public class KalturaBillingTransaction
+    public class KalturaBillingTransaction : KalturaOTTObject
     {
         /// <summary>
         ///Reciept Code

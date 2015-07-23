@@ -5,13 +5,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// SignIn
     /// </summary>
-    public class KalturaSignIn
+    public class KalturaSignIn : KalturaOTTObject
     {
         /// <summary>
         /// Username

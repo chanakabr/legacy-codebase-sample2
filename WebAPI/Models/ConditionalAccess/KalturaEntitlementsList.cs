@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -13,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [DataContract(Name = "Entitlements", Namespace = "")]
     [XmlRoot("Entitlements")]
-    public class KalturaEntitlementsList
+    public class KalturaEntitlementsList : KalturaOTTObject
     {
         /// <summary>
         /// A list of entitlements

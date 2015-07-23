@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Entitlement
     /// </summary>
     [Serializable]
-    public class KalturaEntitlement
+    public class KalturaEntitlement : KalturaOTTObject
     {
         /// <summary>
         ///Entitlement type

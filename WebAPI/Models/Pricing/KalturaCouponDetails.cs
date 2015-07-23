@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
     /// <summary>
     /// Coupon details container
     /// </summary>
-    public class KalturaCouponDetails
+    public class KalturaCouponDetails : KalturaOTTObject
     {
         /// <summary>
         /// Coupons group details 

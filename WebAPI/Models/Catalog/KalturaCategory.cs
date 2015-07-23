@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Category details
     /// </summary>
-    public class KalturaCategory
+    public class KalturaCategory : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the category

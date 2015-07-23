@@ -31,7 +31,7 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset info
     /// </summary>
     [Serializable]
-    public class KalturaWatchHistoryAsset
+    public class KalturaWatchHistoryAsset : KalturaOTTObject
     {
         /// <summary>
         /// AssetInfo Model

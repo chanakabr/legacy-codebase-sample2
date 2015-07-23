@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.Users
     /// User
     /// </summary>
     [DataContract(Name="user")]
-    public class KalturaUser
+    public class KalturaUser : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

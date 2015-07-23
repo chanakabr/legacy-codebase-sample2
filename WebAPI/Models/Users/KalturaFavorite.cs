@@ -5,13 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// Favorite details
     /// </summary>
-    public class KalturaFavorite
+    public class KalturaFavorite : KalturaOTTObject
     {
         /// <summary>
         /// AssetInfo Model

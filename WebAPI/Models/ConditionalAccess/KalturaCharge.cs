@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
     /// Charge user request 
     /// </summary>
-    public class KalturaCharge
+    public class KalturaCharge : KalturaOTTObject
     {
         /// <summary>
         /// User identifier 

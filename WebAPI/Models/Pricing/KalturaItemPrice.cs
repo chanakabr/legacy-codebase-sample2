@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
     /// <summary>
     /// PPV price details
     /// </summary>
-    public class KalturaItemPrice
+    public class KalturaItemPrice : KalturaOTTObject
     {
         /// <summary>
         /// Media file identifier  

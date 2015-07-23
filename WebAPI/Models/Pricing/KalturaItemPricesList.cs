@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
@@ -13,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "ItemPrice", Namespace = "")]
     [XmlRoot("ItemPrice")]
-    public class KalturaItemPricesList
+    public class KalturaItemPricesList : KalturaOTTObject
     {
         /// <summary>
         /// A list of item prices

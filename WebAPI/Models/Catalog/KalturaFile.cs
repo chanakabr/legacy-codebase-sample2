@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Media file details
     /// </summary>
-    public class KalturaFile
+    public class KalturaFile : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset

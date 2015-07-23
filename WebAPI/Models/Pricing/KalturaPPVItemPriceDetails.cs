@@ -12,7 +12,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV item price details
     /// </summary>
-    public class KalturaPPVItemPriceDetails
+    public class KalturaPPVItemPriceDetails : KalturaOTTObject
     {
         /// <summary>
         /// The associated PPV module identifier  

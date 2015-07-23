@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// Slim user data
     /// </summary>
-    public class KalturaSlimUser
+    public class KalturaSlimUser : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

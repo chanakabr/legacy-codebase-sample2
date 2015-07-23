@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
@@ -13,7 +14,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "GenericRules", Namespace = "")]
     [XmlRoot("GenericRules")]
-    public class KalturaGenericRulesList
+    public class KalturaGenericRulesList : KalturaOTTObject
     {
         /// <summary>
         /// A list of generic rules

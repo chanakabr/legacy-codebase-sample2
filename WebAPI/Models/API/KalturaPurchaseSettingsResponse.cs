@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.API
     /// Purchase settings and PIN
     /// </summary>
     [Serializable]
-    public class KalturaPurchaseSettingsResponse
+    public class KalturaPurchaseSettingsResponse : KalturaOTTObject
     {
         /// <summary>
         /// Purchase settings type - block, ask or allow

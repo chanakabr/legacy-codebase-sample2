@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    public class KalturaPaymentGWHouseholdResponse
+    public class KalturaPaymentGWHouseholdResponse : KalturaOTTObject
     {
         /// <summary>
         /// Billing account identifier 

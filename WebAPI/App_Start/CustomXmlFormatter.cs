@@ -86,12 +86,12 @@ namespace WebAPI.App_Start
                 XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
                 var resnode = doc.GetElementsByTagName("result")[0];
 
-                if (wrapper.Result != null)
-                {
-                    var otype = doc.CreateElement("objectType");
-                    otype.InnerText = wrapper.Result != null ? wrapper.Result.GetType().Name : null;                    
-                    resnode.PrependChild(otype);
-                }
+                //if (wrapper.Result != null)
+                //{
+                //    var otype = doc.CreateElement("objectType");
+                //    otype.InnerText = wrapper.Result != null ? wrapper.Result.GetType().Name : null;                    
+                //    resnode.PrependChild(otype);
+                //}
 
                 // Removing unnecessary attributes such as NS, and type
                 resnode.Attributes.RemoveAll();

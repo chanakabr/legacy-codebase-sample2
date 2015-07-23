@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Domains
@@ -11,7 +12,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household details
     /// </summary>
-    public class KalturaHousehold
+    public class KalturaHousehold : KalturaOTTObject
     {
         /// <summary>
         /// Household identifier

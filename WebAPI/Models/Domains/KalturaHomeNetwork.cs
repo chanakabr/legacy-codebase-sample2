@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
     /// <summary>
     /// Home network details
     /// </summary>
-    public class KalturaHomeNetwork
+    public class KalturaHomeNetwork : KalturaOTTObject
     {
         /// <summary>
         /// Home network identifier

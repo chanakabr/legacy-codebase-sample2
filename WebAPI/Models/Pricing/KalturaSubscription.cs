@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
-    public class KalturaSubscription
+    public class KalturaSubscription : KalturaOTTObject
     {
         /// <summary>
         /// Subscription identifier

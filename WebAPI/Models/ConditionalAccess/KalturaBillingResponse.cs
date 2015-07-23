@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
     /// Billing response
     /// </summary>
-    public class KalturaBillingResponse
+    public class KalturaBillingResponse : KalturaOTTObject
     {
         /// <summary>
         /// Receipt Code 

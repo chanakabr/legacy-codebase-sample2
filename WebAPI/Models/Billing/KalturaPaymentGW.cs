@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
     /// <summary>
     /// PaymentGW
     /// </summary>
-    public class KalturaPaymentGW
+    public class KalturaPaymentGW : KalturaOTTObject
     {
         /// <summary>
         /// payment gateway id

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// User Data
     /// </summary>
-    public class KalturaUserData
+    public class KalturaUserData : KalturaOTTObject
     {
         /// <summary>
         /// Basic Data

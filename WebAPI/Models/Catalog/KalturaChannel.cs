@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Channel details
     /// </summary>
-    public class KalturaChannel
+    public class KalturaChannel : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the channel

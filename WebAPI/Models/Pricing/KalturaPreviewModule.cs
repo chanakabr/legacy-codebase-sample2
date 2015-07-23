@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
     /// <summary>
     /// Preview module
     /// </summary>
-    public class KalturaPreviewModule
+    public class KalturaPreviewModule : KalturaOTTObject
     {
         /// <summary>
         /// Preview module identifier

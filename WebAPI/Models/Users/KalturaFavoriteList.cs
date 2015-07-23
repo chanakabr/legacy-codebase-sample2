@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
@@ -10,7 +11,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "favorites", Namespace = "")]
     [XmlRoot("favorites")]
-    public class KalturaFavoriteList
+    public class KalturaFavoriteList : KalturaOTTObject
     {
         /// <summary>
         /// A list of favorites

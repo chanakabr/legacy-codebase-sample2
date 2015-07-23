@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// User type
     /// </summary>
-    public class KalturaUserType
+    public class KalturaUserType : KalturaOTTObject
     {
         /// <summary>
         /// User type identifier

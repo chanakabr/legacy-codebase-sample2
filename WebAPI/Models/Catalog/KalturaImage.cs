@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Image details
     /// </summary>
-    public class KalturaImage
+    public class KalturaImage : KalturaOTTObject
     {
         /// <summary>
         /// Image aspect ratio

@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// AddUserFavorite request
     /// </summary>
-    public class KalturaAddUserFavoriteRequest
+    public class KalturaAddUserFavoriteRequest : KalturaOTTObject
     {
         /// <summary>
         /// Media Type ID (according to media type IDs defined dynamically in the system).

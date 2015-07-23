@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
@@ -13,7 +14,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "Users", Namespace = "")]
     [XmlRoot("Users")]
-    public class KalturaUsersList
+    public class KalturaUsersList : KalturaOTTObject
     {
         /// <summary>
         /// A list of users

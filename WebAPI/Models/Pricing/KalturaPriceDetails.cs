@@ -11,7 +11,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Price details
     /// </summary>
-    public class KalturaPriceDetails
+    public class KalturaPriceDetails : KalturaOTTObject
     {
         /// <summary>
         /// The price code identifier

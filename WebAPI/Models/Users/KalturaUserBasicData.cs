@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// User basic data
     /// </summary>
-    public class KalturaUserBasicData
+    public class KalturaUserBasicData : KalturaOTTObject
     {
         /// <summary>
         /// Username
@@ -116,7 +117,5 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "user_type")]
         [JsonProperty("user_type")]
         public KalturaUserType UserType { get; set; }
-
-        //private Country m_CountryField;
     }
 }

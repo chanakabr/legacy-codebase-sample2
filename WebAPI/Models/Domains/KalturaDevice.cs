@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
     /// <summary>
     /// Device details
     /// </summary>
-    public class KalturaDevice
+    public class KalturaDevice : KalturaOTTObject
     {
         /// <summary>
         /// Device UDID

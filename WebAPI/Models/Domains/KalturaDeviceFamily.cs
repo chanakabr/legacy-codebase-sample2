@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
     /// <summary>
     /// Device family details
     /// </summary>
-    public class KalturaDeviceFamily
+    public class KalturaDeviceFamily : KalturaOTTObject
     {
         /// <summary>
         /// Device family identifier

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.API
     /// Parental rule
     /// </summary>
     [Serializable]
-    public class KalturaParentalRule
+    public class KalturaParentalRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique parental rule identifier

@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
-    public class KalturaAssetInfo : KalturaIAssetable
+    public class KalturaAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset

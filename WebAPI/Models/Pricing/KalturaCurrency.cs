@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
@@ -11,7 +12,7 @@ namespace WebAPI.Models.Pricing
     /// Currency
     /// </summary>
     [Serializable]
-    public class KalturaCurrency
+    public class KalturaCurrency : KalturaOTTObject
     {
         /// <summary>
         ///CurrencyCD3

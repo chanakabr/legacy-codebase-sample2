@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
     /// Autocomplete request
     /// </summary>
-    public class KalturaAutocompleteRequest
+    public class KalturaAutocompleteRequest : KalturaOTTObject
     {
         /// <summary>
         /// List of asset types to search within.
