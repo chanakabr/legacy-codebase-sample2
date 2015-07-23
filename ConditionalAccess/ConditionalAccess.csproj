@@ -105,8 +105,7 @@
     <Compile Include="Implementations\CinepolisConditionalAccess.cs" />
     <Compile Include="ConditionalAccessCache.cs" />
     <Compile Include="Commands\DeleteNPVRCommand.cs" />
-    <Compile Include="Commands\DeleteSeriesNPVRCommand.cs" />
-    <Compile Include="Response\ChargeResponseModel.cs" />
+    <Compile Include="Commands\DeleteSeriesNPVRCommand.cs" />    
     <Compile Include="Response\DomainServicesResponse.cs" />
     <Compile Include="Response\Entitlement.cs" />
     <Compile Include="Response\EntitlementResponse.cs" />
