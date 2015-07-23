@@ -98,7 +98,7 @@
     <Compile Include="Billing\PaymentGWResponse.cs" />
     <Compile Include="Billing\PaymentGWTransaction.cs" />
     <Compile Include="Billing\PurchaseResponse.cs" />
-    <Compile Include="Billing\TransacteResponse.cs" />
+    <Compile Include="Billing\TransactResponse.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
