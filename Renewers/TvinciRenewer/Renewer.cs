@@ -336,7 +336,7 @@ namespace TvinciRenewer
         protected RenewalList GetRenewalList()
         {
 
-            DataTable dt = ConditionalAccessDAL.Get_MPPsToRenew(DateTime.UtcNow.AddHours(2400), m_nGroupID, m_nFailCount, "CA_CONNECTION_STRING");
+            DataTable dt = ConditionalAccessDAL.Get_MPPsToRenew(DateTime.UtcNow.AddHours(24), m_nGroupID, m_nFailCount, "CA_CONNECTION_STRING");
             RenewalList res = new RenewalList(dt);
             List<long> retList = res.GetMPPPurchasesList();
             //update subscription purchase runtime recurring status as processing.
