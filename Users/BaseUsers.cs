@@ -821,7 +821,7 @@ namespace Users
                             string pinCode = GenerateNewPIN(groupID);
 
                             DateTime expired_date = DateTime.UtcNow;
-                            DataTable dt = DAL.UsersDal.GenerateLoginPIN(siteGuid, pinCode, groupID, expired_date, secret);
+                            DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, pinCode, groupID, expired_date, secret);
                             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                             {
                                 DataRow dr = dt.Rows[0];
@@ -829,12 +829,12 @@ namespace Users
                                 response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
                                 response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
 
-                                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
+                                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "New login pin generate for user");
                             }
                         }
                         else if (!loginViaPin)
                         {
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed");
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
                         }
                         else // security must be provided
                         {
@@ -877,6 +877,7 @@ namespace Users
             while (true)
                 yield return random.Next(firstNumber, 10);
         }
+
         static string AddUniqueCode(int length)
         {
             while (true)
@@ -887,6 +888,7 @@ namespace Users
                 return code;
             }
         }
+
         private string GenerateNewPIN(int groupID)
         {
             string sNewPIN = string.Empty;
@@ -898,7 +900,7 @@ namespace Users
                 // Create new PIN               
                 try
                 {
-                    int length = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_NUMBER_OF_DIGITS"));
+                    int length = TVinciShared.WS_Utils.GetTcmIntValue("PIN_NUMBER_OF_DIGITS");
                     if (length == 0)
                     {
                         length = PIN_NUMBER_OF_DIGITS; //default number of digits
@@ -915,20 +917,11 @@ namespace Users
             }
             return sNewPIN;
         }
-        private static bool IsDigitsOnly(string str)
-        {
-            foreach (char c in str)
-            {
-                if (c < '0' || c > '9')
-                    return false;
-            }
-
-            return true;
-        }
+        
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MIN_NUMBER_OF_DIGITS"));
-            int maxlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MAX_NUMBER_OF_DIGITS"));
+            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS"); 
+            int maxlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MAX_NUMBER_OF_DIGITS");
             if (minlength == 0)
             {
                 minlength = PIN_MIN_NUMBER_OF_DIGITS; //default number of digits
@@ -937,25 +930,16 @@ namespace Users
             {
                 maxlength = PIN_MAX_NUMBER_OF_DIGITS; //default number of digits
             }
-            //Allow the operator to set a 8-10 digits PIN
+            //Allow the operator to set a minNum to MaxNum digits PIN
             if (string.IsNullOrEmpty(PIN) || PIN.Length < minlength || PIN.Length > maxlength)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "pin must be between" + minlength.ToString() + " - " + maxlength.ToString() + " digit");
+                response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "Pin must be between" + minlength.ToString() + " - " + maxlength.ToString() + " digit");
                 return false;
-            }
-            if (!IsDigitsOnly(PIN)) // check if only digits 
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PinMustBeDigitsOnly, "pin must include digits only");
-                return false;
-            }
-            if (PIN.Substring(0, 1) == "0")
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PinCanNotStartWithZero, "pin can't start with 0");
-                return false;
-            }
+            }           
             response = new ApiObjects.Response.Status();
             return true;
         }
+
         private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
         {
             int userId = 0;
@@ -970,7 +954,9 @@ namespace Users
                 activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
             }
             if (userId <= 0)
-                response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user not valid");            
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.WrongPasswordOrUserName, "User not valid");
+            }
             else
             {
                 switch (activStatus)
@@ -980,35 +966,32 @@ namespace Users
                     case UserActivationState.UserRemovedFromDomain:
                     case UserActivationState.NotActivated:
                     case UserActivationState.NotActivatedByMaster:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "user valid");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "User valid");
                         isUserValid = true;
                         break;
                     case UserActivationState.Error:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "User not valid");
                         break;
                     case UserActivationState.UserDoesNotExist:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "user not valid");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User not valid");
                         break;
-                    //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "user not valid");
-                    //break;                   
-                    //response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotMasterApproved, "user not valid");
-                    //break;
                     case UserActivationState.UserSuspended:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "user not valid");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "User not valid");
                         break;
                     default:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "user not valid");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "User not valid");
                         break;
                 }
             }
             return isUserValid;
         }
+
         /*
          * Get: groupID , PIN , secret
          * return UserResponse
          * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
          */
-        public UserResponse LoginWithPIN(int groupID, string PIN, string secret)
+        public UserResponse ValidateLoginWithPin(int groupID, string PIN, string secret)
         {
             UserResponse response = new UserResponse();
             try
@@ -1020,51 +1003,47 @@ namespace Users
                 DateTime expiredPIN = DateTime.MaxValue;
                 DataRow dr = UsersDal.GetUserByPIN(groupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
 
-                if (loginViaPin && dr != null)
+                if (!loginViaPin)
                 {
-                    // check secret 
-                    bool isSecret = true;
-                    if (security)
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin is not allowed");
+                    return response;
+                }
+                if (dr == null)
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
+                    return response;
+                }
+                // check secret 
+                bool isSecret = true;
+                if (security)
+                {
+                    isSecret = ODBCWrapper.Utils.ExtractBoolean(dr, "secretValid");
+                }
+                if (isSecret)
+                {
+                    int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
+                    DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+                    if (DateTime.UtcNow >= expiredDate) // pincode is expired
                     {
-                        isSecret = ODBCWrapper.Utils.ExtractBoolean(dr, "secretValid");
-                    }
-                    if (isSecret)
-                    {
-                        int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
-                        DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
-                        if (DateTime.UtcNow >= expiredDate) // pincode is expired
-                        {
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "PinExpired at " + expiredDate.ToString());
-                        }
-                        else
-                        {
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.ValidPin, "valid pin and user");
-                            response.user = new UserResponseObject();
-                            response.user.m_user = new User(groupID, userId);
-                        }
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "Pin code expired at " + expiredDate.ToString());
                     }
                     else
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "valid pin and user");
+                        response.user = new UserResponseObject();
+                        response.user.m_user = new User(groupID, userId);
                     }
                 }
                 else
                 {
-                    if (!loginViaPin)
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
-                    }
-                    else
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NoValidPin, "NoValidPin");
-                    }
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
                 }
             }
             catch (Exception ex)
             {
                 response = new UserResponse();
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "PinNotExists");
-                log.Error("SignInWithPIN - " + string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), ex);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
+                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
             }
             return response;
         }
@@ -1107,27 +1086,27 @@ namespace Users
                     //The PIN should be verified to be unique (among all active PINs)
                     bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);
                     if (codeExsits)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PinExists, "PinExists Try new PIN code");
+                    {                        
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     else
                     {
                         // insert new PIN to user with expired date 
                         DateTime expired_date = DateTime.UtcNow;
-                        DataTable dt = DAL.UsersDal.GenerateLoginPIN(siteGuid, PIN, groupID, expired_date, secret);
+                        DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, PIN, groupID, expired_date, secret);
                         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new login pin generate for user");
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "New login pin generate for user");
                         }
                         else
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to generate pin code");
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Fail to generate pin code");
                         }
                     }
                 }
                 else if (!loginViaPin)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "LoginViaPinNotAllowed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin not allowed");
                 }
                 else // security must be provided
                 {
@@ -1163,11 +1142,11 @@ namespace Users
                 bool expirePIN = UsersDal.ExpirePINByUserID(groupID, siteGuid);
                 if (expirePIN)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "cleared login pin");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Cleared login pin");
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no pin code exists for user");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No pin code exists for user");
                 }
             }
             catch (Exception ex)

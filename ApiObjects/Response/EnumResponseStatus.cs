@@ -48,15 +48,12 @@ namespace ApiObjects.Response
         GenerateNewLoginPIN = 2002,
         PinNotExists = 2003,
         PinExpired = 2004,
-        ValidPin = 2005,
         NoValidPin = 2006,
         MissingSecurityParameter = 2007,
         SecretIsWrong = 2008,
         LoginViaPinNotAllowed = 2009,
         PinNotInTheRightLength = 2010,
-        PinExists = 2011,
-        PinMustBeDigitsOnly = 2012,
-        PinCanNotStartWithZero = 2013,
+        PinAlreadyExists = 2011,
         UserExists = 2014,
         InsideLockTime = 2015,
         UserNotActivated = 2016,
@@ -65,7 +62,6 @@ namespace ApiObjects.Response
         DeviceNotRegistered = 2019,
         NotActivated = 2020,
         ErrorOnInitUser = 2021,
-        Activated = 2022,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
 
@@ -121,13 +117,11 @@ namespace ApiObjects.Response
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,        
         PaymentGateWayParamsMissing = 6006,
-
+        PaymentGateWayNotSetForHH = 6007,
+        PaymentGateWayNotExist = 6008,
+    
         // social 7000 - 7999
         Conflict = 7000,
-        MinFriends = 7001,
-        Merge = 7002,
-        NewUser = 7003
-
-
+        MinFriendsLimitation = 7001
     }
 }

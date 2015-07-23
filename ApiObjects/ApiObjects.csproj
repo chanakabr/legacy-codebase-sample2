@@ -91,9 +91,12 @@
     <Compile Include="AdminAccountUserResponse.cs" />
     <Compile Include="Billing\PaymentGWBasic.cs" />
     <Compile Include="Billing\PaymentGW.cs" />
+    <Compile Include="Billing\PaymentGWChargeIDResponse.cs" />
+    <Compile Include="Billing\PaymentGWPending.cs" />
     <Compile Include="Billing\PaymentGWSettings.cs" />
     <Compile Include="Billing\PaymentGWSettingsResponse.cs" />
     <Compile Include="Billing\PaymentGWResponse.cs" />
+    <Compile Include="Billing\PaymentGWTransaction.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
