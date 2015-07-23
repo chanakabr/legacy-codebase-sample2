@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.API;
+using WebAPI.Models.Billing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
@@ -29,9 +31,9 @@ namespace WebAPI.Controllers
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("{household_id}/parental/rules"), HttpGet]
-        public ParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] int household_id)
         {
-            List<ParentalRule> response = null;
+            List<KalturaParentalRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -45,7 +47,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new ParentalRulesList() { ParentalRules = response };
+            return new KalturaParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -115,9 +117,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/parental/pin"), HttpGet]
-        public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaPinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] int household_id)
         {
-            PinResponse pinResponse = null;
+            KalturaPinResponse pinResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -174,9 +176,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{household_id}/purchase/settings"), HttpGet]
-        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaPurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] int household_id)
         {
-            PurchaseSettingsResponse purchaseResponse = null;
+            KalturaPurchaseSettingsResponse purchaseResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -233,9 +235,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("{household_id}/purchase/pin"), HttpGet]
-        public PinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaPinResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] int household_id)
         {
-            PinResponse pinResponse = null;
+            KalturaPinResponse pinResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -330,7 +332,7 @@ namespace WebAPI.Controllers
         [Route("{household_id}/subscriptions/{sub_id}"), HttpDelete]
         public bool CancelSubscriptionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int sub_id, [FromUri] bool is_force = false)
         {
-            TransactionType transaction_type = TransactionType.subscription;
+            KalturaTransactionType transaction_type = KalturaTransactionType.subscription;
             return CancelServiceNow(partner_id, household_id, sub_id, is_force, transaction_type);
         }
 
@@ -347,7 +349,7 @@ namespace WebAPI.Controllers
         [Route("{household_id}/ppvs/{ppv_id}"), HttpDelete]
         public bool CancelPPVNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int ppv_id, [FromUri] bool is_force = false)
         {
-            TransactionType transaction_type = TransactionType.ppv;
+            KalturaTransactionType transaction_type = KalturaTransactionType.ppv;
             return CancelServiceNow(partner_id, household_id, ppv_id, is_force, transaction_type);
         }
 
@@ -364,11 +366,11 @@ namespace WebAPI.Controllers
         [Route("{household_id}/collections/{collection_id}"), HttpDelete]
         public bool CancelCollectionNow([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int collection_id, [FromUri] bool is_force = false)
         {
-            TransactionType transaction_type = TransactionType.collection;
+            KalturaTransactionType transaction_type = KalturaTransactionType.collection;
             return CancelServiceNow(partner_id, household_id, collection_id, is_force, transaction_type);
         }
 
-        private static bool CancelServiceNow(string partner_id, int household_id, int asset_id, bool is_force, TransactionType transaction_type)
+        private static bool CancelServiceNow(string partner_id, int household_id, int asset_id, bool is_force, KalturaTransactionType transaction_type)
         {
             bool response = false;
 
@@ -433,9 +435,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>
         [Route("{household_id}"), HttpGet]
-        public Household GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<With> with = null)
+        public KalturaHousehold GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<KalturaHouseholdWith> with = null)
         {
-            Household response = null;
+            KalturaHousehold response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -444,7 +446,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
 
-                if (with != null && with.Contains(With.users_info))
+                if (with != null && with.Contains(KalturaHouseholdWith.users_info))
                 {
                     // get users ids lists
                     var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
@@ -460,7 +462,7 @@ namespace WebAPI.Controllers
                     allUserIds.AddRange(pendingUserIds);
 
                     //get users
-                    List<User> users = null;
+                    List<KalturaUser> users = null;
                     if (allUserIds.Count > 0)
                     {
                         users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
@@ -468,10 +470,10 @@ namespace WebAPI.Controllers
 
                     if (users != null)
                     {
-                        response.Users = Mapper.Map<List<SlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
-                        response.MasterUsers = Mapper.Map<List<SlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
-                        response.DefaultUsers = Mapper.Map<List<SlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
-                        response.PendingUsers = Mapper.Map<List<SlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
+                        response.Users = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
+                        response.MasterUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
+                        response.DefaultUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
+                        response.PendingUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
                     }
                 }
             }
@@ -484,7 +486,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            
+
             return response;
         }
 
@@ -496,9 +498,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
         [Route(""), HttpPost]
-        public Household AddHousehold([FromUri] string partner_id, [FromBody] AddHousehold request)
+        public KalturaHousehold AddHousehold([FromUri] string partner_id, [FromBody] KalturaAddHouseholdRequest request)
         {
-            Household response = null;
+            KalturaHousehold response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -616,10 +618,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("{household_id}/devices/pin"), HttpPost]
-        public Device RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
+        public KalturaDevice RegisterDeviceByPin([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
-            Device device = null;
-            
+            KalturaDevice device = null;
+
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
@@ -651,9 +653,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("{household_id}/payment_gateways/get"), HttpGet]
-        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
+        public Models.Billing.KalturaPaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
         {
-            Models.Billing.PaymentGWResponse response = null;
+            Models.Billing.KalturaPaymentGWResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -712,8 +714,9 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
+        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
         [Route("{household_id}/payment_gateways/add"), HttpPost]
-        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
+        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id, [FromUri] string charge_id)
         {
             bool response = false;
 
@@ -722,7 +725,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
+                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id, charge_id);
             }
             catch (ClientException ex)
             {
@@ -730,6 +733,85 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
+        /// </remarks>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="household_id">Household Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
+        [Route("{household_id}/payment_gateways/{id}"), HttpPost]
+        public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, id, household_id, charge_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
+
+        [Route("{household_id}/payment_gateways/{id}"), HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public bool _SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
+        {
+            return SetChargeID(partner_id, id, household_id, charge_id);
+        }
+
+        /// <summary>
+        /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006, PaymentGateWayNotExistForHH = 6007, PaymentGateWayNotExistForGroup = 6008
+        /// </remarks>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="household_id">Household Identifier</param>        
+        [Route("{household_id}/payment_gateways/{id}"), HttpGet]
+        public Models.Billing.KalturaPaymentGWHouseholdResponse GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        {
+            Models.Billing.KalturaPaymentGWHouseholdResponse response = null;
+
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+
+        [Route("{household_id}/payment_gateways/{id}"), HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public Models.Billing.KalturaPaymentGWHouseholdResponse _GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        {
+            return GetChargeID(partner_id, id, household_id);
         }
 
         #endregion

@@ -8,33 +8,33 @@ using System.Web;
 
 namespace WebAPI.Managers.Models
 {
-    [DataContract]
-    public class Status
-    {
-        [DataMember(Name = "code")]
-        public int Code { get; set; }
+    //[DataContract]
+    //public class Status
+    //{
+    //    [DataMember(Name = "code")]
+    //    public int Code { get; set; }
 
-        [DataMember(Name = "message")]
-        public string Message { get; set; }
+    //    [DataMember(Name = "message")]
+    //    public string Message { get; set; }
 
-        [DataMember(Name = "request_id")]
-        public string RequestID { get; set; }
+    //    [DataMember(Name = "request_id")]
+    //    public string RequestID { get; set; }
 
-        [DataMember(Name = "execution_time")]
-        public float ExecutionTime { get; set; }
+    //    [DataMember(Name = "execution_time")]
+    //    public float ExecutionTime { get; set; }
 
-        public Status(int code, string message, Guid reqID, float executionTime)
-        {
-            Code = code;
-            Message = message;
-            RequestID = reqID.ToString();
-            ExecutionTime = executionTime;
-        }
+    //    public Status(int code, string message, Guid reqID, float executionTime)
+    //    {
+    //        Code = code;
+    //        Message = message;
+    //        RequestID = reqID.ToString();
+    //        ExecutionTime = executionTime;
+    //    }
 
-        public Status()
-        {
-        }
-    }
+    //    public Status()
+    //    {
+    //    }
+    //}
 
     [DataContract]
     public class StatusWrapper
@@ -46,15 +46,15 @@ namespace WebAPI.Managers.Models
 
         public StatusWrapper(int code, Guid reqID, float executionTime, object result = null, string msg = null)
         {
-            Status = new Status(code, msg, reqID, executionTime);
+            ExecutionTime = executionTime;
             Result = result;
         }
 
-        [DataMember(Name = "result")]
+        [DataMember(Name = "result", Order = 0)]
         public object Result { get; set; }
 
-        [DataMember(Name = "status")]
-        public Status Status { get; set; }
+        [DataMember(Name = "executionTime", Order = 1)]
+        public float ExecutionTime { get; set; }
     }
 
     public enum StatusCode
@@ -73,6 +73,10 @@ namespace WebAPI.Managers.Models
         NotFound = 500007,
         PartnerInvalid = 500008,
         UserIDInvalid = 500009,
-        HouseholdInvalid = 500010
+        HouseholdInvalid = 500010,
+        InvalidService = 500011,
+        InvalidAction = 500012,
+        InvalidActionParameters = 500013,
+        InvalidJSONRequest = 500014
     }
 }

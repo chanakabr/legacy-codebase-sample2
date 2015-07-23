@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Container for translation
     /// </summary>
-    public class TranslationContainer
+    public class TranslationContainer : KalturaOTTObject
     {
         /// <summary>
         /// Language code

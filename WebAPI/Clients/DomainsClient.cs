@@ -36,9 +36,9 @@ namespace WebAPI.Clients
         #endregion
 
 
-        internal Household GetDomainInfo(int groupId, int domainId)
+        internal KalturaHousehold GetDomainInfo(int groupId, int domainId)
         {
-            Household result = null;
+            KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             WebAPI.Domains.DomainResponse response = null;
@@ -70,14 +70,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<Household>(response.Domain);
+            result = Mapper.Map<KalturaHousehold>(response.Domain);
 
             return result;
         }
 
-        internal Household AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)
+        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)
         {
-            Household result = null;
+            KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             WebAPI.Domains.DomainStatusResponse response = null;
@@ -109,7 +109,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<Household>(response.DomainResponse.m_oDomain);
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
 
             return result;
         }
@@ -222,9 +222,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal Device RegisterDeviceByPin(int groupId, int domainId, string deviceName, string pin)
+        internal KalturaDevice RegisterDeviceByPin(int groupId, int domainId, string deviceName, string pin)
         {
-            Device result = null;
+            KalturaDevice result = null;
             WebAPI.Domains.DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -257,7 +257,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<Device>(response.Device.m_oDevice);
+            result = Mapper.Map<KalturaDevice>(response.Device.m_oDevice);
 
             return result;
         }

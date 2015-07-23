@@ -60,10 +60,10 @@ namespace WebAPI.Clients
             return retVal;
         }
 
-        public AssetInfoWrapper SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
-            string filter, Order? orderBy, List<int> assetTypes, List<With> with)
+        public KalturaAssetInfoWrapper SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
+            string filter, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
-            AssetInfoWrapper result = new AssetInfoWrapper();
+            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -122,12 +122,12 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
                 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
-                    result.Assets = assetsInfo.Select(a => (AssetInfo)a).ToList();
+                    result.Assets = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
                 }
 
                 result.TotalItems = searchResponse.m_nTotalItems;
@@ -135,9 +135,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public SlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, Order? orderBy, List<int> assetTypes, List<With> with)
+        public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
-            SlimAssetInfoWrapper result = new SlimAssetInfoWrapper();
+            KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
 
             // Create our own filter - only search in title
             string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
@@ -199,12 +199,12 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
-                    result.Assets = assetsInfo.Select(a => (SlimAssetInfo)a).ToList();
+                    result.Assets = assetsInfo.Select(a => (KalturaSlimAssetInfo)a).ToList();
                 }
 
                 result.TotalItems = searchResponse.m_nTotalItems;
@@ -213,7 +213,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, WatchStatus? filterStatus, int days, List<int> assetTypes, List<With> withList)
+        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             WatchHistoryAssetWrapper finalResults = new WatchHistoryAssetWrapper();
 
@@ -257,7 +257,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<IAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
                 finalResults.TotalItems = watchHistoryResponse.m_nTotalItems;
@@ -265,13 +265,13 @@ namespace WebAPI.Clients
                 UserWatchHistory watchHistory = new UserWatchHistory();
                 foreach (var assetInfo in assetsInfo)
                 {
-                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((AssetInfo)assetInfo).Id.ToString());
+                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((KalturaAssetInfo)assetInfo).Id.ToString());
 
                     if (watchHistory != null)
                     {
-                        finalResults.WatchHistoryAssets.Add(new WatchHistoryAsset()
+                        finalResults.WatchHistoryAssets.Add(new KalturaWatchHistoryAsset()
                         {
-                            Asset = (AssetInfo)assetInfo,
+                            Asset = (KalturaAssetInfo)assetInfo,
                             Duration = watchHistory.Duration,
                             IsFinishedWatching = watchHistory.IsFinishedWatching,
                             LastWatched = watchHistory.LastWatch,
@@ -284,9 +284,9 @@ namespace WebAPI.Clients
             return finalResults;
         }
 
-        public List<AssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
+        public List<KalturaAssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
         {
-            List<AssetStats> result = null;
+            List<KalturaAssetStats> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
             {
                 m_sSignature = Signature,
@@ -304,7 +304,7 @@ namespace WebAPI.Clients
             if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
             {
                 result = response.m_lAssetStat != null ?
-                    Mapper.Map<List<AssetStats>>(response.m_lAssetStat) : null;
+                    Mapper.Map<List<KalturaAssetStats>>(response.m_lAssetStat) : null;
             }
             else
             {
@@ -314,9 +314,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public AssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<With> with)
+        public KalturaAssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
-            AssetInfoWrapper result = new AssetInfoWrapper();
+            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
             // build request
             MediaRelatedRequest request = new MediaRelatedRequest()
@@ -348,9 +348,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public AssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, Order? orderBy, List<With> with)
+        public KalturaAssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
         {
-            AssetInfoWrapper result = new AssetInfoWrapper();
+            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -405,9 +405,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public AssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<With> with)
+        public KalturaAssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
-            AssetInfoWrapper result = new AssetInfoWrapper();
+            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
             // build request
             MediaUpdateDateRequest request = new MediaUpdateDateRequest()
@@ -446,9 +446,9 @@ namespace WebAPI.Clients
         }
 
 
-        public WebAPI.Models.Catalog.Channel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
+        public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
         {
-            WebAPI.Models.Catalog.Channel result = null;
+            WebAPI.Models.Catalog.KalturaChannel result = null;
             ChannelObjRequest request = new ChannelObjRequest()
             {
                 m_sSignature = Signature,
@@ -468,7 +468,7 @@ namespace WebAPI.Clients
             if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
             {
                 result = response.ChannelObj != null ?
-                    Mapper.Map<WebAPI.Models.Catalog.Channel>(response.ChannelObj) : null;
+                    Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
             }
             else
             {
@@ -478,9 +478,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public Category GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
+        public KalturaCategory GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
         {
-            Category result = null;
+            KalturaCategory result = null;
             CategoryRequest request = new CategoryRequest()
             {
                 m_sSignature = Signature,
@@ -499,7 +499,7 @@ namespace WebAPI.Clients
             CategoryResponse response = null;
             if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null)
             {
-                result = Mapper.Map<Category>(response);
+                result = Mapper.Map<KalturaCategory>(response);
             }
             else
             {

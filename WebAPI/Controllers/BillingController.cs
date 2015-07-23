@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         /// <param name="ppv_id">PPV module identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
-        public BillingResponse ChargeUserForMediaFile([FromUri] string partner_id, [FromUri] string ppv_id, [FromBody] ChargePPV request, [FromUri]string udid = null)
+        public KalturaBillingResponse ChargeUserForMediaFile([FromUri] string partner_id, [FromUri] string ppv_id, [FromBody] KalturaChargePPV request, [FromUri]string udid = null)
         {
-            BillingResponse response = null;
+            KalturaBillingResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -62,9 +62,9 @@ namespace WebAPI.Controllers
         /// <param name="sub_id">Subscription identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("subscriptions/{sub_id}/buy"), HttpPost]
-        public BillingResponse ChargeUserForSubscription([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] Charge request, [FromUri]string udid = null)
+        public KalturaBillingResponse ChargeUserForSubscription([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] KalturaCharge request, [FromUri]string udid = null)
         {
-            BillingResponse response = null;
+            KalturaBillingResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -94,9 +94,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("payment_gateways/settings"), HttpGet]
-        public Models.Billing.PaymentGWSettingsResponse GetPaymentGWSettings([FromUri] string partner_id)
+        public Models.Billing.KalturaPaymentGWSettingsResponse GetPaymentGWSettings([FromUri] string partner_id)
         {
-            Models.Billing.PaymentGWSettingsResponse response = null;
+            Models.Billing.KalturaPaymentGWSettingsResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -122,9 +122,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("payment_gateways"), HttpGet]
-        public Models.Billing.PaymentGWResponse GetPaymentGW([FromUri] string partner_id)
+        public Models.Billing.KalturaPaymentGWResponse GetPaymentGW([FromUri] string partner_id)
         {
-            Models.Billing.PaymentGWResponse response = null;
+            Models.Billing.KalturaPaymentGWResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -210,7 +210,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="pgs">Payment GateWay Settings Object</param>
         [Route("payment_gateway/add"), HttpPost]
-        public bool InsertPaymentGW([FromUri] string partner_id, [FromBody] PaymentGW pgs)
+        public bool InsertPaymentGW([FromUri] string partner_id, [FromBody] KalturaPaymentGW pgs)
         {
             bool response = false;
 
@@ -306,7 +306,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
-        public bool SetPaymentGWSrttings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
+        public bool SetPaymentGWSettings([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string,string> settings)
         {
             bool response = false;
 
@@ -315,7 +315,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGWSrttings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().SetPaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {

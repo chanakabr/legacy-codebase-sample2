@@ -31,9 +31,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
         [Route("{user_id}/pin/generate"), HttpPost]
-        public LoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
+        public KalturaLoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
-            LoginPin response = null;
+            KalturaLoginPin response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/pin"), HttpGet]
-        public LoginPin GetGenerateLoginPin(string partner_id, string user_id, string secret = null)
+        public KalturaLoginPin GetGenerateLoginPin(string partner_id, string user_id, string secret = null)
         {
             return GenerateLoginPin(partner_id, user_id, secret);
         }
@@ -65,14 +65,14 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, ValidPin = 2005, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// UserNotInHousehold = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("login/pin"), HttpPost]
-        public User LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
+        public KalturaUser LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
         {
-            User response = null;
+            KalturaUser response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("login/pin"), HttpGet]
-        public User GetLogInWithPin(string partner_id, string pin, string udid, string secret = null)
+        public KalturaUser GetLogInWithPin(string partner_id, string pin, string udid, string secret = null)
         {
             return LogInWithPin(partner_id, pin, udid, secret);
         }
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User Identifier</param>
         /// <param name="pin">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011, PinMustBeDigitsOnly = 2012, PinCanNotStartWithZero = 2013
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
         [Route("{user_id}/pin"), HttpPost]
         public void SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
@@ -155,54 +155,9 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/views"), HttpPost]
-        public WatchHistoryAssetWrapper PostWatchHistory(string partner_id, string user_id, [FromBody] WatchHistory request, [FromBody] string language = null)
+        public WatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] KalturaWatchHistoryRequest request, [FromBody] string language = null)
         {
-            WatchHistoryAssetWrapper response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            // page size - 5 <= size <= 50
-            if (request.page_size == null || request.page_size == 0)
-            {
-                request.page_size = 25;
-            }
-            else if (request.page_size > 50)
-            {
-                request.page_size = 50;
-            }
-            else if (request.page_size < 5)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
-
-            List<int> filterTypes = null;
-            if (!string.IsNullOrEmpty(request.filter_types))
-            {
-                try
-                {
-                    filterTypes = request.filter_types.Split(',').Select(x => int.Parse(x)).ToList();
-                }
-                catch
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "invalid filter types");
-                }
-            }
-
-            // days - default value 7
-            if (request.days == 0)
-                request.days = 7;
-            try
-            {
-                // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, request.page_index, request.page_size,
-                                                                       request.filter_status, request.days, filterTypes, request.with);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            return WatchHistory(partner_id, user_id, request.filter_types, request.filter_status, request.days, request.page_index, request.page_size, request.with, language);
         }
 
         /// <summary>
@@ -225,8 +180,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper GetWatchHistory(string partner_id, string user_id, string filter_types = null, WatchStatus? filter_status = null,
-            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<With> with = null, string language = null)
+        public WatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
+            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
         {
             WatchHistoryAssetWrapper response = null;
 
@@ -286,9 +241,9 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("Login"), HttpPost]
-        public User Login([FromUri] string partner_id, [FromBody] LogIn request, [FromUri] string udid = null)
+        public KalturaUser Login([FromUri] string partner_id, [FromBody] KalturaLogIn request, [FromUri] string udid = null)
         {
-            User response = null;
+            KalturaUser response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -328,9 +283,9 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route(""), HttpPost]
-        public User SignUp([FromUri] string partner_id, [FromBody] SignUp request)
+        public KalturaUser SignUp([FromUri] string partner_id, [FromBody] KalturaSignUp request)
         {
-            User response = null;
+            KalturaUser response = null;
 
             if (request == null || request.userBasicData == null)
             {
@@ -434,9 +389,9 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("token/{token}"), HttpGet]
-        public User CheckPasswordToken([FromUri] string partner_id, [FromUri] string token)
+        public KalturaUser CheckPasswordToken([FromUri] string partner_id, [FromUri] string token)
         {
-            User response = null;
+            KalturaUser response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -506,9 +461,9 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}"), HttpGet]
-        public UsersList GetUsersData([FromUri] string partner_id, string user_id)
+        public KalturaUsersList GetUsersData([FromUri] string partner_id, string user_id)
         {
-            List<User> response = null;
+            List<KalturaUser> response = null;
 
             List<int> usersIds;
             try
@@ -541,7 +496,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
             
-            return new UsersList() { Users = response };
+            return new KalturaUsersList() { Users = response };
         }
 
         /// <summary>Edit user details.        
@@ -552,9 +507,9 @@ namespace WebAPI.Controllers
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("{user_id}"), HttpPut]
-        public User SetUserData([FromUri] string partner_id, string user_id, UserData user_data)
+        public KalturaUser SetUserData([FromUri] string partner_id, string user_id, KalturaUserData user_data)
         {
-            User response = null;
+            KalturaUser response = null;
             int groupId = int.Parse(partner_id);
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
@@ -593,9 +548,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("{user_id}/parental/rules"), HttpGet]
-        public ParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
         {
-            List<ParentalRule> response = null;
+            List<KalturaParentalRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -609,7 +564,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new ParentalRulesList() { ParentalRules = response };
+            return new KalturaParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -679,9 +634,9 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/parental/pin"), HttpGet]
-        public PinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaPinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
         {
-            PinResponse pinResponse = null;
+            KalturaPinResponse pinResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -734,9 +689,9 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/settings"), HttpGet]
-        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaPurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
         {
-            PurchaseSettingsResponse purchaseResponse = null;
+            KalturaPurchaseSettingsResponse purchaseResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -791,9 +746,9 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("{user_id}/purchase/pin"), HttpGet]
-        public PurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaPurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
         {
-            PurchaseSettingsResponse pinResponse = null;
+            KalturaPurchaseSettingsResponse pinResponse = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -849,9 +804,9 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
-        public ParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
+        public KalturaParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
-            List<ParentalRule> response = null;
+            List<KalturaParentalRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -870,7 +825,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new ParentalRulesList() { ParentalRules = response };
+            return new KalturaParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -883,9 +838,9 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpGet]
-        public ParentalRulesList GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
+        public KalturaParentalRulesList GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
         {
-            List<ParentalRule> response = null;
+            List<KalturaParentalRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -905,7 +860,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new ParentalRulesList() { ParentalRules = response };
+            return new KalturaParentalRulesList() { ParentalRules = response };
         }
 
         /// <summary>
@@ -1018,9 +973,9 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/media/{media_id}"), HttpGet]
-        public GenericRulesList GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        public KalturaGenericRulesList GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
         {
-            List<GenericRule> response = null;
+            List<KalturaGenericRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -1039,7 +994,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new GenericRulesList() { GenericRules = response };
+            return new KalturaGenericRulesList() { GenericRules = response };
         }
 
         /// <summary>
@@ -1053,9 +1008,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
-        public GenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
+        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
         {
-            List<GenericRule> response = null;
+            List<KalturaGenericRule> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -1074,7 +1029,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new GenericRulesList() { GenericRules = response };
+            return new KalturaGenericRulesList() { GenericRules = response };
         }
 
         #endregion
@@ -1093,7 +1048,7 @@ namespace WebAPI.Controllers
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("{user_id}/favorites/add"), HttpPost]
-        public void AddUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] AddUserFavorite request)
+        public void AddUserFavorite([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] KalturaAddUserFavoriteRequest request)
         {
 
             int groupId = int.Parse(partner_id);
@@ -1174,13 +1129,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}/favorites/get"), HttpGet]
-        public FavoriteList GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type= null,
+        public KalturaFavoriteList GetUserFavorites([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type= null,
             [FromUri] int household_id = 0, [FromUri] string udid = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<With>))] List<With> with = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null)
         {
-            List<Favorite> favorites = null;
-            List<Favorite> favoritesFinalList = null;
+            List<KalturaFavorite> favorites = null;
+            List<KalturaFavorite> favoritesFinalList = null;
             
             int groupId = int.Parse(partner_id);
 
@@ -1193,9 +1148,9 @@ namespace WebAPI.Controllers
                     
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
-                    AssetInfoWrapper assetInfoWrapper  = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
+                    KalturaAssetInfoWrapper assetInfoWrapper  = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
 
-                    favoritesFinalList = new List<Favorite>();
+                    favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
                     {
                         if (favorites[favoriteIndex].Asset.Id == assetInfoWrapper.Assets[assertIndex].Id)
@@ -1216,7 +1171,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new FavoriteList() { Favorites = favoritesFinalList };
+            return new KalturaFavoriteList() { Favorites = favoritesFinalList };
         }
 
         #endregion
@@ -1230,9 +1185,9 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User Id</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}/subscriptions/permitted"), HttpGet]
-        public EntitlementsList GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaEntitlementsList GetUserSubscriptions([FromUri] string partner_id, [FromUri] string user_id)
         {
-            List<Entitlement> response = new List<Entitlement>();
+            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
             int groupId = int.Parse(partner_id);
 
@@ -1246,7 +1201,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new EntitlementsList() { Entitlements = response };
+            return new KalturaEntitlementsList() { Entitlements = response };
         }
 
         /// <summary>
@@ -1258,9 +1213,9 @@ namespace WebAPI.Controllers
         /// <param name="page_size">page size</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{user_id}/transactions"), HttpGet]
-        public BillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
+        public KalturaBillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
         {
-            BillingTransactions response = new BillingTransactions();
+            KalturaBillingTransactions response = new KalturaBillingTransactions();
 
             int groupId = int.Parse(partner_id);
 

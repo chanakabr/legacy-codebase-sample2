@@ -25,15 +25,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<WebAPI.Models.Catalog.AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
+            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaAssetType, WebAPI.Catalog.StatsType>().ConstructUsing((KalturaAssetType type) =>
             {
                 WebAPI.Catalog.StatsType result;
                 switch (type)
                 {
-                    case AssetType.Media:
+                    case KalturaAssetType.media:
                         result = WebAPI.Catalog.StatsType.MEDIA;
                         break;
-                    case AssetType.Epg:
+                    case KalturaAssetType.epg:
                         result = WebAPI.Catalog.StatsType.EPG;
                         break;
                     default:
@@ -45,7 +45,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Parental Rules
 
             // ParentalRule
-            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.ParentalRule>()
+            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -60,18 +60,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
-            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.PinResponse>()
+            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.PurchaseSettingsResponse>()
+            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.GenericRule>()
+            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -81,20 +81,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Models.API.eParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
+        private static Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
         {
-            WebAPI.Models.API.eParentalRuleType result = Models.API.eParentalRuleType.all;
+            WebAPI.Models.API.KalturaParentalRuleType result = Models.API.KalturaParentalRuleType.all;
 
             switch (type)
             {
                 case WebAPI.Api.eParentalRuleType.All:
-                result = Models.API.eParentalRuleType.all;
+                result = Models.API.KalturaParentalRuleType.all;
                 break;
                 case WebAPI.Api.eParentalRuleType.Movies:
-                result = Models.API.eParentalRuleType.movies;
+                result = Models.API.KalturaParentalRuleType.movies;
                 break;
                 case WebAPI.Api.eParentalRuleType.TVSeries:
-                result = Models.API.eParentalRuleType.tv_series;
+                result = Models.API.KalturaParentalRuleType.tv_series;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown asset type");
@@ -103,20 +103,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.eRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
+        private static Models.API.KalturaRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
         {
-            WebAPI.Models.API.eRuleLevel result = Models.API.eRuleLevel.invalid;
+            WebAPI.Models.API.KalturaRuleLevel result = Models.API.KalturaRuleLevel.invalid;
 
             switch (type)
             {
                 case WebAPI.Api.eRuleLevel.User:
-                result = Models.API.eRuleLevel.user;
+                result = Models.API.KalturaRuleLevel.user;
                 break;
                 case WebAPI.Api.eRuleLevel.Domain:
-                result = Models.API.eRuleLevel.household;
+                result = Models.API.KalturaRuleLevel.household;
                 break;
                 case WebAPI.Api.eRuleLevel.Group:
-                result = Models.API.eRuleLevel.account;
+                result = Models.API.KalturaRuleLevel.account;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown rule level");
@@ -126,20 +126,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.ePurchaeSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
+        private static Models.API.KalturaPurchaseSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
         {
-            WebAPI.Models.API.ePurchaeSettingsType result = Models.API.ePurchaeSettingsType.block;
+            WebAPI.Models.API.KalturaPurchaseSettingsType result = Models.API.KalturaPurchaseSettingsType.block;
 
             switch (type)
             {
                 case WebAPI.Api.ePurchaeSettingsType.Allow:
-                result = Models.API.ePurchaeSettingsType.allow;
+                result = Models.API.KalturaPurchaseSettingsType.allow;
                 break;
                 case WebAPI.Api.ePurchaeSettingsType.Ask:
-                result = Models.API.ePurchaeSettingsType.ask;
+                result = Models.API.KalturaPurchaseSettingsType.ask;
                 break;
                 case WebAPI.Api.ePurchaeSettingsType.Block:
-                result = Models.API.ePurchaeSettingsType.block;
+                result = Models.API.KalturaPurchaseSettingsType.block;
                 break;
                 default:
                 throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");
@@ -149,23 +149,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.API.RuleType ConvertRuleType(WebAPI.Api.RuleType type)
+        private static Models.API.KalturaRuleType ConvertRuleType(WebAPI.Api.RuleType type)
         {
-            WebAPI.Models.API.RuleType result;
+            WebAPI.Models.API.KalturaRuleType result;
 
             switch (type)
             {
                 case RuleType.Parental:
-                    result = Models.API.RuleType.Parental;
+                    result = Models.API.KalturaRuleType.Parental;
                     break;
                 case RuleType.Geo:
-                    result = Models.API.RuleType.Geo;
+                    result = Models.API.KalturaRuleType.Geo;
                     break;
                 case RuleType.UserType:
-                    result = Models.API.RuleType.UserType;
+                    result = Models.API.KalturaRuleType.UserType;
                     break;
                 case RuleType.Device:
-                    result = Models.API.RuleType.Device;
+                    result = Models.API.KalturaRuleType.Device;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");

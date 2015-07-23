@@ -37,7 +37,7 @@ namespace WebAPI.Clients
 
         #endregion
 
-        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.TransactionType transaction_type, bool bIsForce)
+        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
         {
             WebAPI.ConditionalAccess.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -98,9 +98,9 @@ namespace WebAPI.Clients
             }
         }
 
-        public List<Models.ConditionalAccess.Entitlement> GetUserSubscriptions(int groupId, string user_id)
+        public List<Models.ConditionalAccess.KalturaEntitlement> GetUserSubscriptions(int groupId, string user_id)
         {
-            List<WebAPI.Models.ConditionalAccess.Entitlement> entitlements = null;
+            List<WebAPI.Models.ConditionalAccess.KalturaEntitlement> entitlements = null;
             WebAPI.ConditionalAccess.Entitlement response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -127,14 +127,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.Entitlement>>(response.entitelments);
+            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(response.entitelments);
 
             return entitlements;
         }
 
-        public Models.ConditionalAccess.BillingTransactions GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
+        public Models.ConditionalAccess.KalturaBillingTransactions GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
         {
-            Models.ConditionalAccess.BillingTransactions transactions = null;
+            Models.ConditionalAccess.KalturaBillingTransactions transactions = null;
             WebAPI.ConditionalAccess.BillingTransactions response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -161,15 +161,15 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.BillingTransactions>(response.transactions);
+            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactions>(response.transactions);
 
             return transactions;
         }
 
-        internal BillingResponse ChargeUserForMediaFile(int groupId, string siteGuid, double price, string currency, int fileId, string ppvModuleCode, string couponCode, 
+        internal KalturaBillingResponse ChargeUserForMediaFile(int groupId, string siteGuid, double price, string currency, int fileId, string ppvModuleCode, string couponCode, 
             string extraParams,string udid, string encryptedCvv)
         {
-            BillingResponse result = null;
+            KalturaBillingResponse result = null;
             WebAPI.ConditionalAccess.BillingStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -203,14 +203,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<BillingResponse>(response.BillingResponse);
+            result = Mapper.Map<KalturaBillingResponse>(response.BillingResponse);
 
             return result;
         }
 
-        internal BillingResponse ChargeUserForSubscription(int groupId, string siteGuid, double price, string currency, string subscriptionId, string couponCode, string extraParams, string udid, string encryptedCvv)
+        internal KalturaBillingResponse ChargeUserForSubscription(int groupId, string siteGuid, double price, string currency, string subscriptionId, string couponCode, string extraParams, string udid, string encryptedCvv)
         {
-            BillingResponse result = null;
+            KalturaBillingResponse result = null;
             WebAPI.ConditionalAccess.BillingStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -244,15 +244,15 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<BillingResponse>(response.BillingResponse);
+            result = Mapper.Map<KalturaBillingResponse>(response.BillingResponse);
 
             return result;
         }
 
-        internal List<SubscriptionPrice> GetSubscriptionsPrices(int groupId, List<string> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, List<string> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
             WebAPI.ConditionalAccess.SubscriptionsPricesResponse response = null;
-            List<SubscriptionPrice> prices = new List<SubscriptionPrice>();
+            List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -280,15 +280,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            prices = AutoMapper.Mapper.Map<List<SubscriptionPrice>>(response.SubscriptionsPrices);
+            prices = AutoMapper.Mapper.Map<List<KalturaSubscriptionPrice>>(response.SubscriptionsPrices);
 
             return prices;
         }
 
-        internal List<ItemPrice> GetItemsPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaItemPrice> GetItemsPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
             WebAPI.ConditionalAccess.MediaFileItemPricesContainerResponse response = null;
-            List<ItemPrice> prices = new List<ItemPrice>();
+            List<KalturaItemPrice> prices = new List<KalturaItemPrice>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -316,7 +316,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.ItemPrice>>(response.ItemsPrices);
+            prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaItemPrice>>(response.ItemsPrices);
 
             return prices;
         }

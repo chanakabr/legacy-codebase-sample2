@@ -13,18 +13,18 @@ namespace WebAPI.ObjectsConvertor
 {
     public class CatalogConvertor
     {
-        public delegate List<IAssetable> ConvertAssetsDelegate(int GroupId, List<BaseObject> assetBaseList, List<With> withList);
+        public delegate List<KalturaIAssetable> ConvertAssetsDelegate(int GroupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> withList);
 
-        public static List<IAssetable> ConvertBaseObjectsToAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<With> withList)
+        public static List<KalturaIAssetable> ConvertBaseObjectsToAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> withList)
         {
-            List<IAssetable> finalResults = new List<IAssetable>();
+            List<KalturaIAssetable> finalResults = new List<KalturaIAssetable>();
 
-            List<AssetStats> mediaAssetsStats = new List<AssetStats>();
-            List<AssetStats> epgAssetsStats = new List<AssetStats>();
+            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
 
             if (withList != null)
             {
-                if (withList.Contains(With.stats))
+                if (withList.Contains(KalturaCatalogWith.stats))
                 {
                     long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
                     long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
@@ -32,35 +32,35 @@ namespace WebAPI.ObjectsConvertor
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
                     if (mediaBaseListIds != null && mediaBaseListIds.Count > 0)
-                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(AssetType.Media));
+                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.media));
 
                     // get EPG IDs for assets statistics
                     List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
                     if (epgBaseListIds != null && epgBaseListIds.Count > 0)
-                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.Epg));
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.epg));
                 }
             }
             foreach (var item in assetBaseList)
             {
-                var assetInfo = Mapper.Map<AssetInfo>(item);
+                var assetInfo = Mapper.Map<KalturaAssetInfo>(item);
 
                 if (withList != null)
                 {
                     // get files data (media only)
-                    if (withList.Contains(With.files) && item.AssetType == eAssetTypes.MEDIA)
-                        assetInfo.Files = Mapper.Map<List<File>>(((MediaObj)item).m_lFiles);
+                    if (withList.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
+                        assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
-                    if (withList.Contains(With.images))
+                    if (withList.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<Image>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<Image>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data
-                    if (withList.Contains(With.stats))
+                    if (withList.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
@@ -74,16 +74,16 @@ namespace WebAPI.ObjectsConvertor
             return finalResults;
         }
 
-        public static List<IAssetable> ConvertBaseObjectsToSlimAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<With> with)
+        public static List<KalturaIAssetable> ConvertBaseObjectsToSlimAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> with)
         {
-            List<IAssetable> result = new List<IAssetable>();
+            List<KalturaIAssetable> result = new List<KalturaIAssetable>();
 
-            List<AssetStats> mediaAssetsStats = new List<AssetStats>();
-            List<AssetStats> epgAssetsStats = new List<AssetStats>();
+            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
 
             if (with != null)
             {
-                if (with.Contains(With.stats))
+                if (with.Contains(KalturaCatalogWith.stats))
                 {
                     long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
                     long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
@@ -91,36 +91,36 @@ namespace WebAPI.ObjectsConvertor
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
                     if (mediaBaseListIds != null && mediaBaseListIds.Count > 0)
-                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(AssetType.Media));
+                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.media));
 
                     // get EPG IDs for assets statistics
                     List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
                     if (epgBaseListIds != null && epgBaseListIds.Count > 0)
-                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.Epg));
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.epg));
                 }
             }
 
             foreach (var item in assetBaseList)
             {
-                var assetInfo = Mapper.Map<SlimAssetInfo>(item);
+                var assetInfo = Mapper.Map<KalturaSlimAssetInfo>(item);
 
                 if (with != null)
                 {
                     // get files data (media only)
-                    if (with.Contains(With.files) && item.AssetType == eAssetTypes.MEDIA)
-                        assetInfo.Files = Mapper.Map<List<File>>(((MediaObj)item).m_lFiles);
+                    if (with.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
+                        assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
-                    if (with.Contains(With.images))
+                    if (with.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<Image>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<Image>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data
-                    if (with.Contains(With.stats))
+                    if (with.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
                             assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
@@ -134,37 +134,37 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
-        public static OrderObj ConvertOrderToOrderObj(Order order)
+        public static OrderObj ConvertOrderToOrderObj(KalturaOrder order)
         {
             OrderObj result = new OrderObj();
 
             switch (order)
             {
-                case Order.a_to_z:
+                case KalturaOrder.a_to_z:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
-                case Order.z_to_a:
+                case KalturaOrder.z_to_a:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case Order.views:
+                case KalturaOrder.views:
                     result.m_eOrderBy = OrderBy.VIEWS;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case Order.ratings:
+                case KalturaOrder.ratings:
                     result.m_eOrderBy = OrderBy.RATING;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case Order.votes:
+                case KalturaOrder.votes:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case Order.newest:
+                case KalturaOrder.newest:
                     result.m_eOrderBy = OrderBy.CREATE_DATE;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case Order.relevancy:
+                case KalturaOrder.relevancy:
                     result.m_eOrderBy = OrderBy.RELATED;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;

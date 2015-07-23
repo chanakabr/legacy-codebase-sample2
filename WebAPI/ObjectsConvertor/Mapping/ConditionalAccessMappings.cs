@@ -16,18 +16,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //TransactionType to eTransactionType
-            Mapper.CreateMap<TransactionType, WebAPI.ConditionalAccess.eTransactionType>().ConstructUsing((TransactionType transactionType) =>
+            Mapper.CreateMap<KalturaTransactionType, WebAPI.ConditionalAccess.eTransactionType>().ConstructUsing((KalturaTransactionType transactionType) =>
             {
                 WebAPI.ConditionalAccess.eTransactionType result;
                 switch (transactionType)
                 {
-                    case TransactionType.ppv:
+                    case KalturaTransactionType.ppv:
                         result = WebAPI.ConditionalAccess.eTransactionType.PPV;
                         break;
-                    case TransactionType.subscription:
+                    case KalturaTransactionType.subscription:
                         result = WebAPI.ConditionalAccess.eTransactionType.Subscription;
                         break;
-                    case TransactionType.collection:
+                    case KalturaTransactionType.collection:
                         result = WebAPI.ConditionalAccess.eTransactionType.Collection;
                         break;
                     default:
@@ -37,7 +37,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             });
 
             //WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
-            Mapper.CreateMap<ConditionalAccess.Entitlements, Entitlement>()
+            Mapper.CreateMap<ConditionalAccess.Entitlements, KalturaEntitlement>()
                .ForMember(dest => dest.entitlementId, opt => opt.MapFrom(src => src.entitlementsId))
                .ForMember(dest => dest.currentUses, opt => opt.MapFrom(src => src.currentUses))
                .ForMember(dest => dest.currentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
@@ -57,7 +57,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
             //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, BillingTransaction>()
+            Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, KalturaBillingTransaction>()
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
@@ -77,17 +77,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
 
             //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, BillingTransactions>()
+            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, KalturaBillingTransactions>()
                .ForMember(dest => dest.transactionsCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
                .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
 
             
-            Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.Price>()
+            Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
 
             // BillingResponse
-            Mapper.CreateMap<ConditionalAccess.BillingResponse, BillingResponse>()
+            Mapper.CreateMap<ConditionalAccess.BillingResponse, KalturaBillingResponse>()
                .ForMember(dest => dest.ReceiptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
                .ForMember(dest => dest.ExternalReceiptCode, opt => opt.MapFrom(src => src.m_sExternalReceiptCode));
         }

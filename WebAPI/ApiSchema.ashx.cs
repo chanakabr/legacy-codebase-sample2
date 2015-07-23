@@ -70,7 +70,7 @@ namespace WebAPI
 
             //Printing enums
             context.Response.Write("<enums>\n");
-            foreach (Type t in enums)
+            foreach (Type t in enums.OrderBy(c => c.Name))
             {
                 context.Response.Write(string.Format("\t<enum name='{0}' enumType='string'>\n", t.Name));
 
@@ -84,7 +84,7 @@ namespace WebAPI
 
             //Running on classes
             context.Response.Write("<classes>\n");
-            foreach (Type t in classes)
+            foreach (Type t in classes.OrderBy(c => c.Name))
             {
                 var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
@@ -114,7 +114,7 @@ namespace WebAPI
                     foreach (XmlElement child in classNode[0].ChildNodes)
                     {
                         context.Response.Write(string.Format("\t<class name='{0}' description='{1}' {2}", t.Name,
-                            child.InnerText.Trim(), baseName));
+                            HttpUtility.HtmlEncode(child.InnerText.Trim()), baseName));
 
                         if (isAbstractOrInterface)
                             context.Response.Write("abstract='1'");
@@ -142,10 +142,10 @@ namespace WebAPI
             //Running on methods
             context.Response.Write("<services>\n");
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
-                t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")))
+                t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")).OrderBy(c => c.Name))
             {
                 context.Response.Write(string.Format("\t<service name='{0}'>\n", controller.Name.Replace("Controller", "")));
-                var methods = controller.GetMethods();
+                var methods = controller.GetMethods().OrderBy(z => z.Name);
                 foreach (var method in methods)
                 {
                     //Read only HTTP POST as we will have duplicates otherwise
@@ -175,9 +175,10 @@ namespace WebAPI
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
 
-                        context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' description='{3}'>\n", method.Name,
-                             controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
-                             desc.Trim().Replace('\'', '"')));
+                        context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{3}'>\n",
+                            method.Name,
+                            controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
+                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"'))));
 
                         foreach (var par in method.GetParameters())
                         {
@@ -192,7 +193,7 @@ namespace WebAPI
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
-                                getTypeAndArray(par.ParameterType), pdesc));
+                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc)));
                         }
 
                         context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
@@ -214,6 +215,8 @@ namespace WebAPI
             context.Response.Write("\t\t<ks type='string' alias='sessionId' description='Kaltura API session'/>\n");
             context.Response.Write("\t</request>\n");
             context.Response.Write("</configurations>\n");
+
+            context.Response.Write("</xml>");
         }
 
         private string getTypeAndArray(Type type)
@@ -244,7 +247,7 @@ namespace WebAPI
                         name = getTypeFriendlyName(type.GetGenericArguments()[0]);
                     //if Dictionary
                     else if (type.GetGenericArguments().Count() == 2)
-                        name = "dictionary";
+                        name = "map";
                     else
                         throw new Exception("Generic type unknown");
                 }
@@ -297,7 +300,7 @@ namespace WebAPI
                     var attr = dataMemberAttr.Name;
 
                     context.Response.Write(string.Format("\t\t<property name='{0}' {1} description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                           getTypeAndArray(pi.PropertyType), pdesc));
+                           getTypeAndArray(pi.PropertyType), HttpUtility.HtmlEncode(pdesc)));
                 }
                 else
                 {

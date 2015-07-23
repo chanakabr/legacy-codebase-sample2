@@ -223,7 +223,7 @@ namespace WebAPI.Utils
 
         
 
-        internal static List<IAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<With> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
+        internal static List<KalturaIAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
             var assets = GetOrderedAssets(client, assetsBaseData, request, cacheDuration);
             if (assets != null)
@@ -289,9 +289,9 @@ namespace WebAPI.Utils
             return finalResult;
         }
 
-        public static AssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<With> with)
+        public static KalturaAssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
         {
-            AssetInfoWrapper result = new AssetInfoWrapper();
+            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
 
             // fire request
             MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
@@ -310,9 +310,9 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static List<AssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<With> with)
+        public static List<KalturaAssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
         {
-            List<AssetInfo> result = null;
+            List<KalturaAssetInfo> result = null;
 
             // get base objects list
             List<BaseObject> assetsBaseDataList = mediaIds.Select(x => new BaseObject()
@@ -323,12 +323,12 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            List<IAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+            List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
             // build AssetInfoWrapper response
             if (assetsInfo != null)
             {
-                result = assetsInfo.Select(a => (AssetInfo)a).ToList();
+                result = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
             }
 
             return result;

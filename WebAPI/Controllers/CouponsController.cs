@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
         [Route("{code}"), HttpGet]
-        public CouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
         {
-            CouponDetails coupon = null;
+            KalturaCouponDetails coupon = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -48,28 +48,9 @@ namespace WebAPI.Controllers
 
         [Route("{code}"), HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public CouponDetails GetCouponStatusPost([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails _GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
         {
-            CouponDetails coupon = null;
-
-            int groupId = int.Parse(partner_id);
-
-            if (string.IsNullOrEmpty(code))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "code cannot be empty");
-            }
-
-            try
-            {
-                // call client
-                coupon = ClientsManager.PricingClient().GetCouponStatus(groupId, code);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return coupon;
+            return GetCouponStatus(partner_id, code);
         }
     }
 }

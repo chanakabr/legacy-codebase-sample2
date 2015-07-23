@@ -56,10 +56,10 @@ namespace WebAPI.Clients
 
         #region Parental Rules
 
-        internal List<Models.API.ParentalRule> GetGroupParentalRules(int groupId)
+        internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -86,15 +86,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
 
-        internal List<Models.API.ParentalRule> GetUserParentalRules(int groupId, string userId)
+        internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -121,15 +121,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
 
-        internal List<Models.API.ParentalRule> GetDomainParentalRules(int groupId, int domainId)
+        internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -156,7 +156,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
@@ -237,7 +237,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.API.PinResponse GetUserParentalPIN(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPIN(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -272,14 +272,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PinResponse response = null;
+            WebAPI.Models.API.KalturaPinResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PinResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPinResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.API.PinResponse GetDomainParentalPIN(int groupId, int domainId)
+        internal WebAPI.Models.API.KalturaPinResponse GetDomainParentalPIN(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -314,9 +314,9 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PinResponse response = null;
+            WebAPI.Models.API.KalturaPinResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PinResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPinResponse>(webServiceResponse);
 
             return response;
         }
@@ -473,7 +473,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.API.PurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -508,14 +508,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.KalturaPurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.API.PurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -550,14 +550,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.KalturaPurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.API.PurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
         {
             string pin = string.Empty;
 
@@ -592,14 +592,14 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.KalturaPurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
 
-        internal WebAPI.Models.API.PurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -634,9 +634,9 @@ namespace WebAPI.Clients
                 pin = webServiceResponse.pin;
             }
 
-            WebAPI.Models.API.PurchaseSettingsResponse response = null;
+            WebAPI.Models.API.KalturaPurchaseSettingsResponse response = null;
 
-            response = AutoMapper.Mapper.Map<WebAPI.Models.API.PurchaseSettingsResponse>(webServiceResponse);
+            response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettingsResponse>(webServiceResponse);
 
             return response;
         }
@@ -717,10 +717,10 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.ParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)
+        internal List<Models.API.KalturaParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -747,15 +747,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
 
-        internal List<Models.API.ParentalRule> GetUserEPGParentalRules(int groupId, string userId, long epgId)
+        internal List<Models.API.KalturaParentalRule> GetUserEPGParentalRules(int groupId, string userId, long epgId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.ParentalRule> rules = new List<Models.API.ParentalRule>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -782,7 +782,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.ParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
@@ -939,10 +939,10 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.GenericRule> GetMediaRules(int groupId, string userId, long mediaId, int domainId, string udid)
+        internal List<Models.API.KalturaGenericRule> GetMediaRules(int groupId, string userId, long mediaId, int domainId, string udid)
         {
             GenericRuleResponse response = null;
-            List<Models.API.GenericRule> rules = new List<Models.API.GenericRule>();
+            List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -969,15 +969,15 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.GenericRule>>(response.Rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaGenericRule>>(response.Rules);
 
             return rules;
         }
 
-        internal List<Models.API.GenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId)
+        internal List<Models.API.KalturaGenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId)
         {
             GenericRuleResponse response = null;
-            List<Models.API.GenericRule> rules = new List<Models.API.GenericRule>();
+            List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1004,7 +1004,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.GenericRule>>(response.Rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaGenericRule>>(response.Rules);
 
             return rules;
         }

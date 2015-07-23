@@ -16,7 +16,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
         public static void RegisterMappings()
         {
             //Device
-            Mapper.CreateMap<WebAPI.Domains.Device, Device>()
+            Mapper.CreateMap<WebAPI.Domains.Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
@@ -25,7 +25,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)));
 
             //HomeNetwork
-            Mapper.CreateMap<WebAPI.Domains.HomeNetwork, HomeNetwork>()
+            Mapper.CreateMap<WebAPI.Domains.HomeNetwork, KalturaHomeNetwork>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -33,7 +33,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             //DeviceContainer to DeviceFamily
-            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, DeviceFamily>()
+            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
@@ -41,7 +41,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Devices, opt => opt.MapFrom(src => src.DeviceInstances));
 
             //Domain
-            Mapper.CreateMap<WebAPI.Domains.Domain, Household>()
+            Mapper.CreateMap<WebAPI.Domains.Domain, KalturaHousehold>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nDomainID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
@@ -64,22 +64,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
         }
 
-        private static HouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)
+        private static KalturaHouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)
         {
-            HouseholdState result;
+            KalturaHouseholdState result;
             switch (type)
             {
                 case WebAPI.Domains.DomainStatus.OK:
-                    result = HouseholdState.ok;
+                    result = KalturaHouseholdState.ok;
                     break;
                 case WebAPI.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
-                    result = HouseholdState.created_without_npvr_account;
+                    result = KalturaHouseholdState.created_without_npvr_account;
                     break;
                 case WebAPI.Domains.DomainStatus.DomainSuspended:
-                    result = HouseholdState.suspended;
+                    result = KalturaHouseholdState.suspended;
                     break;
                 case WebAPI.Domains.DomainStatus.NoUsersInDomain:
-                    result = HouseholdState.no_users_in_household;
+                    result = KalturaHouseholdState.no_users_in_household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain state");
@@ -87,22 +87,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static HouseholdRestriction ConvertDomainRestriction(WebAPI.Domains.DomainRestriction type)
+        private static KalturaHouseholdRestriction ConvertDomainRestriction(WebAPI.Domains.DomainRestriction type)
         {
-            HouseholdRestriction result;
+            KalturaHouseholdRestriction result;
             switch (type)
             {
                 case WebAPI.Domains.DomainRestriction.Unrestricted:
-                    result = HouseholdRestriction.not_restricted;
+                    result = KalturaHouseholdRestriction.not_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.DeviceMasterRestricted:
-                    result = HouseholdRestriction.device_master_restricted;
+                    result = KalturaHouseholdRestriction.device_master_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.UserMasterRestricted:
-                    result = HouseholdRestriction.user_master_restricted;
+                    result = KalturaHouseholdRestriction.user_master_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.DeviceUserMasterRestricted:
-                    result = HouseholdRestriction.device_user_master_restricted;
+                    result = KalturaHouseholdRestriction.device_user_master_restricted;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain_restriction value");
@@ -110,19 +110,19 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static DeviceState ConvertDeviceState(WebAPI.Domains.DeviceState type)
+        private static KalturaDeviceState ConvertDeviceState(WebAPI.Domains.DeviceState type)
         {
-            DeviceState result;
+            KalturaDeviceState result;
             switch (type)
             {
                 case WebAPI.Domains.DeviceState.Activated:
-                    result = DeviceState.activated;
+                    result = KalturaDeviceState.activated;
                     break;
                 case WebAPI.Domains.DeviceState.Pending:
-                    result = DeviceState.pending;
+                    result = KalturaDeviceState.pending;
                     break;
                 case WebAPI.Domains.DeviceState.UnActivated:
-                    result = DeviceState.not_activated;
+                    result = KalturaDeviceState.not_activated;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown device state");

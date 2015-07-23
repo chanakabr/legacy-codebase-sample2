@@ -50,6 +50,14 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -65,11 +73,12 @@
     <Reference Include="log4net">
       <HintPath>..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="log4stash">
-      <HintPath>..\packages\log4stash.1.0.2\lib\net45\log4stash.dll</HintPath>
+    <Reference Include="log4stash, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4stash.1.0.2.1\lib\net45\log4stash.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.2.2\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.3.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -78,8 +87,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Sigil, Version=4.4.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -362,6 +371,9 @@
     <Content Include="Web References\Billing\PaymentGWSettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGWChargeIDResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -453,9 +465,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Pricing\SubscriptionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FacebookResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Social\module.disco" />
@@ -648,88 +657,91 @@
       <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
     <Compile Include="Controllers\PricingController.cs" />
+    <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
-    <Compile Include="Models\API\GenericRule.cs" />
-    <Compile Include="Models\API\GenericRulesList.cs" />
-    <Compile Include="Models\API\RuleType.cs" />
-    <Compile Include="Models\Catalog\SlimChannel.cs" />
-    <Compile Include="Models\Billing\PaymentGWBasic.cs" />
-    <Compile Include="Models\Billing\PaymentGW.cs" />
-    <Compile Include="Models\Billing\PaymentGWSettingsResponse.cs" />
-    <Compile Include="Models\Billing\PaymentGWResponse.cs" />
-    <Compile Include="Models\API\ParentalRulesList.cs" />
-    <Compile Include="Models\ConditionalAccess\BillingAction.cs" />
-    <Compile Include="Models\ConditionalAccess\BillingItemsType.cs" />
-    <Compile Include="Models\ConditionalAccess\BillingResponse.cs" />
-    <Compile Include="Models\ConditionalAccess\BillingTransactions.cs" />
-    <Compile Include="Models\ConditionalAccess\Charge.cs" />
-    <Compile Include="Models\ConditionalAccess\ChargePPV.cs" />
-    <Compile Include="Models\Pricing\CouponDetails.cs" />
-    <Compile Include="Models\Pricing\CouponStatus.cs" />
-    <Compile Include="Models\Pricing\ItemPricesList.cs" />
-    <Compile Include="Models\Pricing\PPVItemPriceDetails.cs" />
+    <Compile Include="Models\API\KalturaGenericRule.cs" />
+    <Compile Include="Models\API\KalturaGenericRulesList.cs" />
+    <Compile Include="Models\API\KalturaRuleType.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGWHouseholdResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGWBasic.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGW.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGWSettingsResponse.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGWResponse.cs" />
+    <Compile Include="Models\API\KalturaParentalRulesList.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaBillingTransactions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
+    <Compile Include="Models\General\KalturaOTTObject.cs" />
+    <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
+    <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
+    <Compile Include="Models\Pricing\KalturaItemPricesList.cs" />
+    <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
     <Compile Include="Models\General\TranslationContainer.cs" />
-    <Compile Include="Models\Pricing\CouponsGroup.cs" />
-    <Compile Include="Models\Pricing\DiscountModule.cs" />
-    <Compile Include="Models\Pricing\ItemPrice.cs" />
-    <Compile Include="Models\Pricing\PreviewModule.cs" />
-    <Compile Include="Models\Pricing\PriceDetails.cs" />
-    <Compile Include="Models\Pricing\PurchaseStatus.cs" />
-    <Compile Include="Models\ConditionalAccess\PremiumService.cs" />
-    <Compile Include="Models\Pricing\PricePlan.cs" />
-    <Compile Include="Models\Pricing\SubscriptionsList.cs" />
-    <Compile Include="Models\Pricing\SubscriptionPrice.cs" />
-    <Compile Include="Models\Pricing\SubscriptionsPricesList.cs" />
-    <Compile Include="Models\Pricing\UsageModule.cs" />
-    <Compile Include="Models\ConditionalAccess\EntitlementsList.cs" />
-    <Compile Include="Models\Domains\AddHousehold.cs" />
-    <Compile Include="Models\Domains\Device.cs" />
-    <Compile Include="Models\Domains\DeviceFamily.cs" />
-    <Compile Include="Models\Domains\DeviceState.cs" />
-    <Compile Include="Models\Domains\Household.cs" />
-    <Compile Include="Models\Domains\HouseholdRestriction.cs" />
-    <Compile Include="Models\Domains\HouseholdState.cs" />
-    <Compile Include="Models\Domains\HomeNetwork.cs" />
+    <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />
+    <Compile Include="Models\Pricing\KalturaDiscountModule.cs" />
+    <Compile Include="Models\Pricing\KalturaItemPrice.cs" />
+    <Compile Include="Models\Pricing\KalturaPreviewModule.cs" />
+    <Compile Include="Models\Pricing\KalturaPriceDetails.cs" />
+    <Compile Include="Models\Pricing\KalturaPurchaseStatus.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPremiumService.cs" />
+    <Compile Include="Models\Pricing\KalturaPricePlan.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionsList.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionPrice.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionsPricesList.cs" />
+    <Compile Include="Models\Pricing\KalturaUsageModule.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementsList.cs" />
+    <Compile Include="Models\Domains\KalturaAddHouseholdRequest.cs" />
+    <Compile Include="Models\Domains\KalturaDevice.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceFamily.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceState.cs" />
+    <Compile Include="Models\Domains\KalturaHousehold.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdRestriction.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdState.cs" />
+    <Compile Include="Models\Domains\KalturaHomeNetwork.cs" />
     <Compile Include="Models\General\SerializeableDictionary.cs" />
     <Compile Include="Models\MultiRequest\MultiRequest.cs" />
-    <Compile Include="Models\Pricing\Currency.cs" />
-    <Compile Include="Models\Pricing\Price.cs" />
-    <Compile Include="Models\Domains\With.cs" />
-    <Compile Include="Models\Pricing\Subscription.cs" />
+    <Compile Include="Models\Pricing\KalturaCurrency.cs" />
+    <Compile Include="Models\Pricing\KalturaPrice.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscription.cs" />
     <Compile Include="Models\Social\ClientFacebookResponse.cs" />
     <Compile Include="Models\Social\FacebookUser.cs" />
-    <Compile Include="Models\Users\AddUserFavorite.cs" />
-    <Compile Include="Models\Users\Favorite.cs" />
-    <Compile Include="Models\Users\FavoriteList.cs" />
-    <Compile Include="Models\Users\SlimUser.cs" />
+    <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaFavorite.cs" />
+    <Compile Include="Models\Users\KalturaFavoriteList.cs" />
+    <Compile Include="Models\Users\KalturaSlimUser.cs" />
     <Compile Include="Controllers\PartnersController.cs" />
-    <Compile Include="Models\API\PurchaseSettingsResponse.cs" />
-    <Compile Include="Models\Catalog\BaseAssetsRequest.cs" />
-    <Compile Include="Models\Catalog\Category.cs" />
-    <Compile Include="Models\Catalog\Channel.cs" />
-    <Compile Include="Models\Catalog\ChannelMedia.cs" />
-    <Compile Include="Models\Catalog\RelatedMedia.cs" />
+    <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />
+    <Compile Include="Models\Catalog\KalturaCategory.cs" />
+    <Compile Include="Models\Catalog\KalturaChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelMedia.cs" />
+    <Compile Include="Models\Catalog\KalturaRelatedMedia.cs" />
     <Compile Include="Controllers\HouseholdsController.cs" />
-    <Compile Include="Models\API\ParentalRule.cs" />
-    <Compile Include="Models\ConditionalAccess\Entitlement.cs" />
-    <Compile Include="Models\ConditionalAccess\PaymentMethod.cs" />
-    <Compile Include="Models\ConditionalAccess\TransactionType.cs" />
-    <Compile Include="Models\Users\Country.cs" />
-    <Compile Include="Models\Users\LogIn.cs" />
-    <Compile Include="Models\Users\LoginPin.cs" />
-    <Compile Include="Models\API\PinResponse.cs" />
-    <Compile Include="Models\Users\SignUp.cs" />
-    <Compile Include="Models\Users\User.cs" />
-    <Compile Include="Models\Users\UserBasicData.cs" />
-    <Compile Include="Models\Users\HouseholdSuspentionState.cs" />
-    <Compile Include="Models\Users\UserData.cs" />
-    <Compile Include="Models\Users\UsersList.cs" />
-    <Compile Include="Models\Users\UserState.cs" />
-    <Compile Include="Models\Users\UserType.cs" />
+    <Compile Include="Models\API\KalturaParentalRule.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPaymentMethod.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaTransactionType.cs" />
+    <Compile Include="Models\Users\KalturaCountry.cs" />
+    <Compile Include="Models\Users\KalturaLogIn.cs" />
+    <Compile Include="Models\Users\KalturaLoginPin.cs" />
+    <Compile Include="Models\API\KalturaPinResponse.cs" />
+    <Compile Include="Models\Users\KalturaSignUp.cs" />
+    <Compile Include="Models\Users\KalturaUser.cs" />
+    <Compile Include="Models\Users\KalturaUserBasicData.cs" />
+    <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
+    <Compile Include="Models\Users\KalturaUserData.cs" />
+    <Compile Include="Models\Users\KalturaUsersList.cs" />
+    <Compile Include="Models\Users\KalturaUserState.cs" />
+    <Compile Include="Models\Users\KalturaUserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
@@ -775,27 +787,27 @@
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="Models\Catalog\AssetType.cs" />
-    <Compile Include="Models\Catalog\Autocomplete.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetType.cs" />
+    <Compile Include="Models\Catalog\KalturaAutocompleteRequest.cs" />
     <Compile Include="Models\General\BaseListWrapper.cs" />
-    <Compile Include="Models\Catalog\IAssetable.cs" />
-    <Compile Include="Models\Catalog\Order.cs" />
-    <Compile Include="Models\Catalog\SearchAssets.cs" />
+    <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
+    <Compile Include="Models\Catalog\KalturaOrder.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchAssetsRequest.cs" />
     <Compile Include="Managers\Models\Language.cs" />
     <Compile Include="Managers\Models\KS.cs" />
-    <Compile Include="Models\Catalog\AssetInfo.cs" />
-    <Compile Include="Models\Catalog\AssetStats.cs" />
-    <Compile Include="Models\Catalog\BuzzScore.cs" />
-    <Compile Include="Models\Catalog\File.cs" />
-    <Compile Include="Models\Catalog\Image.cs" />
-    <Compile Include="Models\Catalog\SlimAssetInfo.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetInfo.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStats.cs" />
+    <Compile Include="Models\Catalog\KalturaBuzzScore.cs" />
+    <Compile Include="Models\Catalog\KalturaFile.cs" />
+    <Compile Include="Models\Catalog\KalturaImage.cs" />
+    <Compile Include="Models\Catalog\KalturaSlimAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
-    <Compile Include="Models\Users\SignIn.cs" />
-    <Compile Include="Models\Users\ClientUser.cs" />
-    <Compile Include="Models\Catalog\WatchHistory.cs" />
-    <Compile Include="Models\Catalog\WatchHistoryAsset.cs" />
-    <Compile Include="Models\Catalog\WatchStatus.cs" />
-    <Compile Include="Models\Catalog\With.cs" />
+    <Compile Include="Models\Users\KalturaSignIn.cs" />
+    <Compile Include="Models\Users\KalturaClientUser.cs" />
+    <Compile Include="Models\Catalog\KalturaWatchHistoryRequest.cs" />
+    <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />
+    <Compile Include="Models\Catalog\KalturaCatalogWith.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -940,10 +952,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Social/module.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Social\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

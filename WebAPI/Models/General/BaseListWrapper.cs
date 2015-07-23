@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// Base list wrapper
     /// </summary>
     [Serializable]
-    public class BaseListWrapper
+    public class KalturaBaseListWrapper : KalturaOTTObject
     {
         /// <summary>
         /// Total items
