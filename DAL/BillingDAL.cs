@@ -1515,22 +1515,6 @@ namespace DAL
             }
         }
 
-        public static bool IsPaymentGWHouseholdExist(int paymentGWId, int householdID)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_PaymentGWHouseholdExist");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@paymentGWId", paymentGWId);
-                sp.AddParameter("@householdID", householdID);
-                bool isExist = sp.ExecuteReturnValue<bool>();
-                return isExist;
-
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+        
     }
 }
