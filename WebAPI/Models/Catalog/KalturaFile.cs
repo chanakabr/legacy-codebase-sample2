@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         public int Id { get; set; }
 
         /// <summary>
-        /// Types of devide types as defined in the system
+        /// Device types as defined in the system
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]

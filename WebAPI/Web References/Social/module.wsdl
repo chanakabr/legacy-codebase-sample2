@@ -459,10 +459,16 @@
       <s:element name="FBUserDataResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FacebookResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseData" type="tns:FacebookResponseObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="FacebookResponseObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
@@ -515,6 +521,12 @@
           <s:element minOccurs="0" maxOccurs="1" name="created_time" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="FBUserRegister">
         <s:complexType>
           <s:sequence>
@@ -530,11 +542,11 @@
       <s:element name="FBUserRegisterResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserRegisterResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserRegisterResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="FBUserMerage">
+      <s:element name="FBUserMerge">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -546,10 +558,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="FBUserMerageResponse">
+      <s:element name="FBUserMergeResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserMerageResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserMergeResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -721,7 +733,7 @@
       <s:element name="FBUserUnmergeResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -770,12 +782,6 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="user" type="s1:UserResponseObject" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateFriendsActivityFeed">
@@ -837,7 +843,7 @@
       <s:element name="ArrayOfESocialPrivacy" nillable="true" type="tns:ArrayOfESocialPrivacy" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="FacebookConfig" nillable="true" type="tns:FacebookConfig" />
-      <s:element name="FacebookResponseObject" nillable="true" type="tns:FacebookResponseObject" />
+      <s:element name="FacebookResponse" nillable="true" type="tns:FacebookResponse" />
       <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfSocialActivityDoc" nillable="true" type="tns:ArrayOfSocialActivityDoc" />
@@ -1050,11 +1056,11 @@
   <wsdl:message name="FBUserRegisterSoapOut">
     <wsdl:part name="parameters" element="tns:FBUserRegisterResponse" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageSoapIn">
-    <wsdl:part name="parameters" element="tns:FBUserMerage" />
+  <wsdl:message name="FBUserMergeSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserMerge" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageSoapOut">
-    <wsdl:part name="parameters" element="tns:FBUserMerageResponse" />
+  <wsdl:message name="FBUserMergeSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserMergeResponse" />
   </wsdl:message>
   <wsdl:message name="FBObjectRequestSoapIn">
     <wsdl:part name="parameters" element="tns:FBObjectRequest" />
@@ -1229,9 +1235,9 @@
     <wsdl:part name="stg" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBUserDataHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageHttpPostIn">
+  <wsdl:message name="FBUserMergeHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="token" type="s:string" />
@@ -1239,8 +1245,8 @@
     <wsdl:part name="sUserName" type="s:string" />
     <wsdl:part name="sPass" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+  <wsdl:message name="FBUserMergeHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
   <wsdl:message name="SetUserExternalActionShareHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1325,7 +1331,7 @@
     <wsdl:part name="sPassword" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBUserUnmergeHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
   <wsdl:message name="FBTokenValidationHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1426,9 +1432,9 @@
       <wsdl:input message="tns:FBUserRegisterSoapIn" />
       <wsdl:output message="tns:FBUserRegisterSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <wsdl:input message="tns:FBUserMerageSoapIn" />
-      <wsdl:output message="tns:FBUserMerageSoapOut" />
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeSoapIn" />
+      <wsdl:output message="tns:FBUserMergeSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="FBObjectRequest">
       <wsdl:input message="tns:FBObjectRequestSoapIn" />
@@ -1528,9 +1534,9 @@
       <wsdl:input message="tns:FBUserDataHttpPostIn" />
       <wsdl:output message="tns:FBUserDataHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <wsdl:input message="tns:FBUserMerageHttpPostIn" />
-      <wsdl:output message="tns:FBUserMerageHttpPostOut" />
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeHttpPostIn" />
+      <wsdl:output message="tns:FBUserMergeHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="SetUserExternalActionShare">
       <wsdl:input message="tns:SetUserExternalActionShareHttpPostIn" />
@@ -1708,8 +1714,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <soap:operation soapAction="http://social.tvinci.com/FBUserMerage" style="document" />
+    <wsdl:operation name="FBUserMerge">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1972,8 +1978,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <soap12:operation soapAction="http://social.tvinci.com/FBUserMerage" style="document" />
+    <wsdl:operation name="FBUserMerge">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2200,8 +2206,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <http:operation location="/FBUserMerage" />
+    <wsdl:operation name="FBUserMerge">
+      <http:operation location="/FBUserMerge" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -2332,13 +2338,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <soap12:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/social/module.asmx" />
+      <http:address location="http://localhost/WS_Social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

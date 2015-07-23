@@ -658,6 +658,7 @@
     </Compile>
     <Compile Include="Controllers\PricingController.cs" />
     <Compile Include="Controllers\ServiceController.cs" />
+    <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -711,6 +712,8 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
+    <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
+    <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
@@ -751,6 +754,7 @@
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PricingMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\SocialMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
     <Compile Include="Managers\ClientManager\BaseClient.cs" />
     <Compile Include="Clients\BillingClient.cs" />
@@ -823,7 +827,6 @@
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
-    <Compile Include="Utils\Enums.cs" />
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
