@@ -119,6 +119,7 @@ namespace ApiObjects.Response
         PaymentGateWayParamsMissing = 6006,
         PaymentGateWayNotSetForHH = 6007,
         PaymentGateWayNotExist = 6008,
+        PaymentGateWayChargeIdMissing = 6009,
     
         // social 7000 - 7999
         Conflict = 7000,

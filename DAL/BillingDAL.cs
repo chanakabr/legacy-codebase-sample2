@@ -1359,7 +1359,7 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public static bool InsertPaymentGWTransaction(int groupID, int domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
         {
             try
@@ -1438,9 +1438,9 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayByExternalD");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@external_identifier", externaIdentifier);                
+                sp.AddParameter("@external_identifier", externaIdentifier);
                 DataSet ds = sp.ExecuteDataSet();
-                
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     paymentGWID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
@@ -1473,10 +1473,11 @@ namespace DAL
                 return false;
             }
         }
-        
-        public static string GetPaymentGWChargeID(int paymentGWID, int householdID)
+
+        public static string GetPaymentGWChargeID(int paymentGWID, int householdID, ref bool isPaymentGWHouseholdExist)
         {
             string chargeID = string.Empty;
+            isPaymentGWHouseholdExist = false;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayChargeId");
@@ -1484,10 +1485,11 @@ namespace DAL
                 sp.AddParameter("@payment_gateway_id", paymentGWID);
                 sp.AddParameter("@household_Id", householdID);
                 DataSet ds = sp.ExecuteDataSet();
-                
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     chargeID = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id");
+                    isPaymentGWHouseholdExist = true;
                 }
 
             }
@@ -1496,6 +1498,15 @@ namespace DAL
                 HandleException(ex);
             }
             return chargeID;
+        }
+
+
+        public static string GetPaymentGWChargeID(int paymentGWID, int householdID)
+        {
+            bool isPaymentGWHouseholdExist = false;
+        
+            return GetPaymentGWChargeID(paymentGWID, householdID, ref isPaymentGWHouseholdExist);
+
         }
 
         public static bool IsPaymentGWExist(int paymentGWId)
@@ -1509,12 +1520,12 @@ namespace DAL
                 return isExist;
 
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return false;
             }
         }
 
-        
+
     }
 }
