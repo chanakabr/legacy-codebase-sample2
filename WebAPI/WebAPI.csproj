@@ -684,7 +684,7 @@
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPricesList.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
-    <Compile Include="Models\General\TranslationContainer.cs" />
+    <Compile Include="Models\General\KalturaTranslationContainer.cs" />
     <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />
     <Compile Include="Models\Pricing\KalturaDiscountModule.cs" />
     <Compile Include="Models\Pricing\KalturaItemPrice.cs" />
@@ -706,7 +706,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdRestriction.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdState.cs" />
     <Compile Include="Models\Domains\KalturaHomeNetwork.cs" />
-    <Compile Include="Models\General\SerializeableDictionary.cs" />
+    <Compile Include="Models\General\KalturaSerializeableDictionary.cs" />
     <Compile Include="Models\MultiRequest\MultiRequest.cs" />
     <Compile Include="Models\Pricing\KalturaCurrency.cs" />
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
@@ -789,7 +789,7 @@
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\Catalog\KalturaAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaAutocompleteRequest.cs" />
-    <Compile Include="Models\General\BaseListWrapper.cs" />
+    <Compile Include="Models\General\KalturaBaseListWrapper.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
     <Compile Include="Models\Catalog\KalturaSearchAssetsRequest.cs" />

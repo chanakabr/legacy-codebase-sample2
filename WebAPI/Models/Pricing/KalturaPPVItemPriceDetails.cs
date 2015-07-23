@@ -75,7 +75,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ppv_descriptions")]
         [JsonProperty("ppv_descriptions")]
-        public List<TranslationContainer> PPVDescriptions { get; set; }
+        public List<KalturaTranslationContainer> PPVDescriptions { get; set; }
 
         /// <summary>
         /// If the item already purchased - the identifier of the user (in the household) who purchased this item 

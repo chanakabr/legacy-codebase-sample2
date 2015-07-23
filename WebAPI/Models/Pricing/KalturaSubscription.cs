@@ -98,14 +98,14 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
-        public List<TranslationContainer> Names { get; set; } // TODO: change to object
+        public List<KalturaTranslationContainer> Names { get; set; } // TODO: change to object
 
         /// <summary>
         /// A list of the descriptions of the subscriptions on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        public List<TranslationContainer> Descriptions { get; set; } // TODO: change to object
+        public List<KalturaTranslationContainer> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
         /// Identifier of the media associated with the subscription

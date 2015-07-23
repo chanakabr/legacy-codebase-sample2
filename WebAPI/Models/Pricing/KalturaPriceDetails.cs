@@ -39,6 +39,6 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        public List<TranslationContainer> Descriptions { get; set; }
+        public List<KalturaTranslationContainer> Descriptions { get; set; }
     }
 }

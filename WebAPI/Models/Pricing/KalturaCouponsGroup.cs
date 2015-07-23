@@ -33,7 +33,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        public List<TranslationContainer> Descriptions { get; set; } 
+        public List<KalturaTranslationContainer> Descriptions { get; set; } 
 
         /// <summary>
         /// The first date the coupons in this coupons group are valid
