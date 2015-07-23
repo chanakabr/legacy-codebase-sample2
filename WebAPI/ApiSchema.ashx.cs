@@ -114,7 +114,7 @@ namespace WebAPI
                     foreach (XmlElement child in classNode[0].ChildNodes)
                     {
                         context.Response.Write(string.Format("\t<class name='{0}' description='{1}' {2}", t.Name,
-                            child.InnerText.Trim(), baseName));
+                            child.InnerXml.Trim(), baseName));
 
                         if (isAbstractOrInterface)
                             context.Response.Write("abstract='1'");
@@ -166,7 +166,7 @@ namespace WebAPI
                             {
                                 if (classNode[0].ChildNodes[i].Name == "summary")
                                 {
-                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
+                                    desc = classNode[0].ChildNodes[i].InnerXml.Trim();
                                     break;
                                 }
                             }
@@ -187,7 +187,7 @@ namespace WebAPI
 
                             string pdesc = "";
                             if (descs.Count > 0)
-                                pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
+                                pdesc = descs[0].InnerXml.Trim().Replace('\'', '"');
 
                             if (string.IsNullOrEmpty(pdesc))
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
@@ -245,7 +245,7 @@ namespace WebAPI
                         name = getTypeFriendlyName(type.GetGenericArguments()[0]);
                     //if Dictionary
                     else if (type.GetGenericArguments().Count() == 2)
-                        name = "dictionary";
+                        name = "map";
                     else
                         throw new Exception("Generic type unknown");
                 }
@@ -287,7 +287,7 @@ namespace WebAPI
 
                     string pdesc = "";
                     if (descs.Count > 0)
-                        pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
+                        pdesc = descs[0].InnerXml.Trim().Replace('\'', '"');
 
                     //Type eType = null;
                     var dataMemberAttr = pi.GetCustomAttribute<DataMemberAttribute>();

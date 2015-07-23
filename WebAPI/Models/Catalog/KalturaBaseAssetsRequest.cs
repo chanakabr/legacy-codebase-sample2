@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaBaseAssetsRequest
     {
         /// <summary>
-        /// Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50
+        /// <![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]>
         /// </summary>
         [DataMember(Name = "page_size")]
         [JsonProperty(PropertyName = "page_size")]

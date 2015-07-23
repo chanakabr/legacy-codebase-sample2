@@ -173,7 +173,7 @@ namespace WebAPI.Controllers
         /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.</param>
         /// <param name="days">How many days back to return the watched media. If omitted, default to 7 days</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
-        /// <param name="page_size">Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50</param>
+        /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>

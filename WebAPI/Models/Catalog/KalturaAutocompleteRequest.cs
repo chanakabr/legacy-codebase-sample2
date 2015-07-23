@@ -45,7 +45,7 @@ namespace WebAPI.Models.Catalog
         public List<KalturaCatalogWith> with { get; set; }
 
         /// <summary>
-        /// Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5
+        /// <![CDATA[Maximum number of assets to return. Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5]]>
         /// </summary>
         [DataMember(Name = "size")]
         [JsonProperty(PropertyName = "size")]

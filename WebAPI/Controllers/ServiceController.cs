@@ -17,6 +17,22 @@ namespace WebAPI.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
+        private static void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
+        {
+            Assembly asm = Assembly.GetExecutingAssembly();
+            Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
+
+            if (controller == null)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+
+            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+            if (methodInfo == null)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
+
+            classInstance = Activator.CreateInstance(controller, null);
+        }
+
         [Route("{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action([FromUri] string service_name, [FromUri] string action_name)
         {
@@ -26,18 +42,10 @@ namespace WebAPI.Controllers
         [Route("{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action([FromUri] string service_name, [FromUri] string action_name)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
-            Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", service_name), false, true);
+            MethodInfo methodInfo = null;
+            object classInstance = null;
 
-            if (controller == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
-
-            MethodInfo methodInfo = controller.GetMethod(action_name, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-            if (methodInfo == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
-
-            object classInstance = Activator.CreateInstance(controller, null);
+            createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             string result = await Request.Content.ReadAsStringAsync();
             using (var input = new StringReader(result))
