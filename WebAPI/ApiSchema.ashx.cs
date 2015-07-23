@@ -10,6 +10,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
+using WebAPI.Models.General;
 
 namespace WebAPI
 {
@@ -86,13 +87,17 @@ namespace WebAPI
             context.Response.Write("<classes>\n");
             foreach (Type t in classes.OrderBy(c => c.Name))
             {
+                //Skip master base class
+                if (t == typeof(KalturaOTTObject))
+                    continue;
+
                 var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
                 if (classNode == null)
                     continue;
 
-                string baseName = t.BaseType != null && t.BaseType != typeof(Object) ? string.Format("base='{0}'",
-                    t.BaseType.Name) : "";
+                string baseName = t.BaseType != null && t.BaseType != typeof(Object) && t.BaseType != typeof(KalturaOTTObject) ?
+                    string.Format("base='{0}'", t.BaseType.Name) : "";
 
                 bool isAbstractOrInterface = t.IsInterface || t.IsAbstract;
 

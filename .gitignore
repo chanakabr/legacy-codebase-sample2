@@ -12,3 +12,4 @@ PrecompiledWeb/
 packages/
 WebAPI/Properties/AssemblyInfo.cs
 WebAPI/AutoMapper.xml
+WebAPI/settings.json
