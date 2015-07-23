@@ -4,10 +4,11 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using Newtonsoft.Json;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaFacebookResponse
+    public class KalturaFacebookResponse : KalturaOTTObject
     {
         /// <summary>
         /// User model status
