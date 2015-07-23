@@ -11993,8 +11993,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Purchase
         /// </summary>
-        public virtual PurchaseResponse Purchase(string siteGUID, double price, string currency, int contentID, int productID, int productType, string coupon, string userIP, string deviceName, 
-            int paymentGWId)
+        public virtual PurchaseResponse Purchase(string siteGUID, double price, string currency, int contentID, int productID, int productType, string coupon, 
+            string userIP, string deviceName, int paymentGWId)
         {
             PurchaseResponse response = new PurchaseResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
