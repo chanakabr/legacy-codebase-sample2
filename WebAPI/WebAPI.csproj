@@ -649,6 +649,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\BundlesController.cs" />
     <Compile Include="Controllers\CouponsController.cs" />
