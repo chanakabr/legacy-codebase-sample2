@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
         /// <param name="request">Sequential API calls' definitions</param>
         /// <returns></returns>
         [Route(""), HttpPost]
-        public object[] Do([FromBody] MultiRequest[] request)
+        public object[] Do([FromBody] KalturaMultiRequest[] request)
         {
             object[] responses = new object[request.Count()];
             for (int i = 0; i < request.Count(); i++)

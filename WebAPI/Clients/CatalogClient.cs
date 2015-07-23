@@ -213,9 +213,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public WatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
-            WatchHistoryAssetWrapper finalResults = new WatchHistoryAssetWrapper();
+            KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()

@@ -6,7 +6,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.MultiRequest
 {
-    public class MultiRequest : KalturaOTTObject
+    public class KalturaMultiRequest : KalturaOTTObject
     {
         public string service { get; set; }
         public string action { get; set; }

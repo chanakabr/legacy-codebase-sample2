@@ -21,6 +21,11 @@ namespace Validator
             bool found = false;
             foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")))
             {
+                if (!type.Name.StartsWith("Kaltura"))
+                {
+                    Console.WriteLine(string.Format("Model {0} doesn't have Kaltura prefix", type.Name));
+                    found = true;
+                }
                 if (!type.IsInterface && !type.IsEnum && !tt.IsAssignableFrom(type))
                 {
                     Console.WriteLine(string.Format("Model {0} doesn't inherit from {1}", type.Name, tt.Name));

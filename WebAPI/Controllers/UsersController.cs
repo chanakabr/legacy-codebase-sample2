@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{user_id}/views"), HttpPost]
-        public WatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] KalturaWatchHistoryRequest request, [FromBody] string language = null)
+        public KalturaWatchHistoryAssetWrapper _WatchHistory(string partner_id, string user_id, [FromBody] KalturaWatchHistoryRequest request, [FromBody] string language = null)
         {
             return WatchHistory(partner_id, user_id, request.filter_types, request.filter_status, request.days, request.page_index, request.page_size, request.with, language);
         }
@@ -180,10 +180,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         [Route("{user_id}/views"), HttpGet]
-        public WatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
+        public KalturaWatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
             int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
         {
-            WatchHistoryAssetWrapper response = null;
+            KalturaWatchHistoryAssetWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
