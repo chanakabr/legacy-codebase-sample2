@@ -1498,5 +1498,39 @@ namespace DAL
             return chargeID;
         }
 
+        public static bool IsPaymentGWExist(int paymentGWId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_PaymentGWExist");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@paymentGWId", paymentGWId);
+                bool isExist = sp.ExecuteReturnValue<bool>();
+                return isExist;
+
+            }
+            catch (Exception )
+            {
+                return false;
+            }
+        }
+
+        public static bool IsPaymentGWHouseholdExist(int paymentGWId, int householdID)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_PaymentGWHouseholdExist");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@paymentGWId", paymentGWId);
+                sp.AddParameter("@householdID", householdID);
+                bool isExist = sp.ExecuteReturnValue<bool>();
+                return isExist;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
