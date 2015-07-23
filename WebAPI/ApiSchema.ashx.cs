@@ -114,7 +114,7 @@ namespace WebAPI
                     foreach (XmlElement child in classNode[0].ChildNodes)
                     {
                         context.Response.Write(string.Format("\t<class name='{0}' description='{1}' {2}", t.Name,
-                            child.InnerXml.Trim(), baseName));
+                            HttpUtility.HtmlEncode(child.InnerText.Trim()), baseName));
 
                         if (isAbstractOrInterface)
                             context.Response.Write("abstract='1'");
@@ -166,7 +166,7 @@ namespace WebAPI
                             {
                                 if (classNode[0].ChildNodes[i].Name == "summary")
                                 {
-                                    desc = classNode[0].ChildNodes[i].InnerXml.Trim();
+                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
                                     break;
                                 }
                             }
@@ -178,7 +178,7 @@ namespace WebAPI
                         context.Response.Write(string.Format("\t\t<action name='{0}' path='{1}/{2}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{3}'>\n",
                             method.Name,
                             controller.GetCustomAttribute<RoutePrefixAttribute>().Prefix, ((RouteAttribute)attr).Template,
-                            desc.Trim().Replace('\'', '"')));
+                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"'))));
 
                         foreach (var par in method.GetParameters())
                         {
@@ -187,13 +187,13 @@ namespace WebAPI
 
                             string pdesc = "";
                             if (descs.Count > 0)
-                                pdesc = descs[0].InnerXml.Trim().Replace('\'', '"');
+                                pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
                             if (string.IsNullOrEmpty(pdesc))
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
-                                getTypeAndArray(par.ParameterType), pdesc));
+                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc)));
                         }
 
                         context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
@@ -215,6 +215,8 @@ namespace WebAPI
             context.Response.Write("\t\t<ks type='string' alias='sessionId' description='Kaltura API session'/>\n");
             context.Response.Write("\t</request>\n");
             context.Response.Write("</configurations>\n");
+
+            context.Response.Write("</xml>");
         }
 
         private string getTypeAndArray(Type type)
@@ -287,7 +289,7 @@ namespace WebAPI
 
                     string pdesc = "";
                     if (descs.Count > 0)
-                        pdesc = descs[0].InnerXml.Trim().Replace('\'', '"');
+                        pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
 
                     //Type eType = null;
                     var dataMemberAttr = pi.GetCustomAttribute<DataMemberAttribute>();
@@ -298,7 +300,7 @@ namespace WebAPI
                     var attr = dataMemberAttr.Name;
 
                     context.Response.Write(string.Format("\t\t<property name='{0}' {1} description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                           getTypeAndArray(pi.PropertyType), pdesc));
+                           getTypeAndArray(pi.PropertyType), HttpUtility.HtmlEncode(pdesc)));
                 }
                 else
                 {
