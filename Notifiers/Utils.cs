@@ -27,7 +27,6 @@ namespace Notifiers
             switch (nImplID)
             {
                 case 1:
-                    t = new Notifiers.TikleUsersNotifier(nGroupID);
                     break;
 
                 case 2:
@@ -51,8 +50,7 @@ namespace Notifiers
                 
             switch (nImplID)
 	        {	                  
-                case 1:
-                    t = new Notifiers.TikleSubscriptionNotifier(nGroupID);
+                case 1:                   
                     break;
 
                 case 2:
@@ -76,8 +74,7 @@ namespace Notifiers
 
             switch (nImplID)
 	        {                  
-                case 1:
-                    t = new Notifiers.TikleMediaNotifier(nGroupID);
+                case 1:                    
                     break;   
 
                 case 2:

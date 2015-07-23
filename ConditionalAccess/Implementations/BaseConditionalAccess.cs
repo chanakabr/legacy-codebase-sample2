@@ -74,13 +74,13 @@ namespace ConditionalAccess
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseAdapterResponse response,
+        protected abstract bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
             string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long billingTransactionID, ref long purchaseID);
 
-        protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseAdapterResponse response,
+        protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
          string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID);
 
-        protected abstract bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseAdapterResponse response,
+        protected abstract bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
             string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID);
        
 
@@ -11993,9 +11993,10 @@ namespace ConditionalAccess
         /// <summary>
         /// Purchase
         /// </summary>
-        public virtual PurchaseAdapterResponse Purchase(string siteGUID, double price, string currency, int contentID, int productID, int productType, string coupon, string userIP, string deviceName)
+        public virtual PurchaseResponse Purchase(string siteGUID, double price, string currency, int contentID, int productID, int productType, string coupon, string userIP, string deviceName, 
+            int paymentGWId)
         {
-            PurchaseAdapterResponse response = new PurchaseAdapterResponse();
+            PurchaseResponse response = new PurchaseResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
@@ -12052,13 +12053,13 @@ namespace ConditionalAccess
                 switch (productType)
                 {
                     case (int)eTransactionType.PPV:
-                        response = PurchasePPV(siteGUID, price, currency, contentID, productID, coupon, userIP, deviceName, houseHoldID);
+                        response = PurchasePPV(siteGUID, price, currency, contentID, productID, coupon, userIP, deviceName, houseHoldID, paymentGWId);
                         break;
                     case (int)eTransactionType.Subscription:
-                        response = PurchaseSubscription(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID);
+                        response = PurchaseSubscription(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID, paymentGWId);
                         break;
                     case (int)eTransactionType.Collection:
-                        response = PurchaseCollection(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID);                       
+                        response = PurchaseCollection(siteGUID, price, currency, productID, coupon, userIP, deviceName, houseHoldID, paymentGWId);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "unknown productType");
@@ -12086,9 +12087,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        private PurchaseAdapterResponse PurchaseCollection(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
+        private PurchaseResponse PurchaseCollection(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID, int paymentGWId)
         {
-            PurchaseAdapterResponse response = new PurchaseAdapterResponse();
+            PurchaseResponse response = new PurchaseResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
@@ -12119,7 +12120,7 @@ namespace ConditionalAccess
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
 
-                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Collection, billingGuid);
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Collection, billingGuid, paymentGWId);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long billingTransactionID = 0;
@@ -12189,9 +12190,9 @@ namespace ConditionalAccess
         }
 
 
-        private PurchaseAdapterResponse PurchaseSubscription(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
+        private PurchaseResponse PurchaseSubscription(string siteGUID, double price, string currency, int productID, string coupon, string userIP, string deviceName, int houseHoldID, int paymentGWId)
         {
-            PurchaseAdapterResponse response = new PurchaseAdapterResponse();
+            PurchaseResponse response = new PurchaseResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             { 
@@ -12220,7 +12221,7 @@ namespace ConditionalAccess
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
 
-                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Subscription, billingGuid);
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.Subscription, billingGuid, paymentGWId);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long billingTransactionID = 0;
@@ -12297,9 +12298,9 @@ namespace ConditionalAccess
         }
 
 
-        private PurchaseAdapterResponse PurchasePPV(string siteGUID, double price, string currency, int contentID, int productID, string coupon, string userIP, string deviceName, int houseHoldID)
+        private PurchaseResponse PurchasePPV(string siteGUID, double price, string currency, int contentID, int productID, string coupon, string userIP, string deviceName, int houseHoldID, int paymentGWId)
         {
-            PurchaseAdapterResponse response = new PurchaseAdapterResponse();
+            PurchaseResponse response = new PurchaseResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
@@ -12355,8 +12356,8 @@ namespace ConditionalAccess
                              
                         // create new GUID for billing_transacrion
                         Guid billingGuid = Guid.NewGuid();
-                       
-                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.PPV, billingGuid);
+
+                        response = HandlePurchase(siteGUID, houseHoldID, price, currency, userIP, customData, productID, eTransactionType.PPV, billingGuid, paymentGWId);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                         {
                             long lBillingTransactionID = 0;
@@ -12427,17 +12428,39 @@ namespace ConditionalAccess
             }
         }
 
-        private PurchaseAdapterResponse HandlePurchase(string siteGUID, int houseHoldID, double price, string currency, string userIP, string customData, int productID, eTransactionType eTransactionType, Guid billingGuid)
+        private PurchaseResponse HandlePurchase(string siteGUID, int houseHoldID, double price, string currency, string userIP, string customData, int productID, eTransactionType transactionType, Guid billingGuid, int paymentGWId)
         {
-            string userName = string.Empty;
-            string password = string.Empty;
-            TvinciBilling.module wsBillingService = null;
-            InitializeBillingModule(ref wsBillingService, ref userName, ref password);
-            //TO DO : complete this call 
-
-            // call new billing methode for charge adapter
-
-            return new PurchaseAdapterResponse();
+            PurchaseResponse response = new PurchaseResponse();
+            try
+            {                
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+                // call new billing methode for charge adapter
+               // TvinciBilling.PurchaseResponse billingResponse = wsBillingService.Purchase(userName, password, siteGUID, houseHoldID, price, currency, userIP, customData, productID, (int)transactionType, billingGuid.ToString(), paymentGWId);
+               // if (billingResponse != null)
+                //{
+                //    response.PGReferenceID = billingResponse.PGReferenceID;
+                //    response.PGResponseID = billingResponse.PGResponseID;
+                //    response.TransactionID = billingResponse.TransactionID;
+                //    if (billingResponse.Status != null)
+                //    {
+                //        response.Status = new ApiObjects.Response.Status((int)billingResponse.Status.Code, billingResponse.Status.Message);
+                //    }
+                //    else
+                //    {
+                //        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status return from billing service");
+                //    }
+                //}
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
+                    siteGUID, houseHoldID, price, currency, userIP, customData, productID, (int)transactionType, billingGuid.ToString(), paymentGWId), ex);
+                return new PurchaseResponse((int)eResponseStatus.Error, ex.Message);
+            }
         }
 
         private ApiObjects.Response.Status ValidatePPVModuleCode(int productID, int contentID, ref PPVModule thePPVModule)

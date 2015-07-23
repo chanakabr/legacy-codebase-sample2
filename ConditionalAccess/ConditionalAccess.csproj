@@ -361,6 +361,21 @@
     <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciBilling\PaymentGWChargeIDResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\PaymentGWResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\PaymentGWSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\PurchaseAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -470,10 +485,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Billing_B/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing_B/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

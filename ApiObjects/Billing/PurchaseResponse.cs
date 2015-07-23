@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ApiObjects.Billing
 { 
-    public class PurchaseAdapterResponse
+    public class PurchaseResponse
     {
         //Kaltura Payment Gateway response status code
         public ApiObjects.Response.Status Status { get; set; }
@@ -20,13 +20,22 @@ namespace ApiObjects.Billing
         //Original response ID that was provided from by the payment gateway. Returned only if the payment gateway provides this information.
         public string PGResponseID { get; set; }
 
-        public PurchaseAdapterResponse()
+        public PurchaseResponse()
         {
             Status = new ApiObjects.Response.Status();
         }
 
-        public PurchaseAdapterResponse(PurchaseAdapterResponse pr)
-        {            
+        public PurchaseResponse(PurchaseResponse pr)
+        {
+            this.TransactionID = pr.TransactionID;
+            this.Status = pr.Status;
+            this.PGResponseID = pr.PGResponseID;
+            this.PGReferenceID = pr.PGReferenceID;
+        }
+
+        public PurchaseResponse(int statusCode, string statusMessage)
+        {
+            Status = new Response.Status(statusCode, statusMessage);
         }
     }
 }
