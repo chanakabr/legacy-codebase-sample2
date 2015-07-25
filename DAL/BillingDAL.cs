@@ -1297,7 +1297,7 @@ namespace DAL
             return res;
         }
 
-        public static bool InsertPaymentGWPending(int groupID, PaymentGWPending paymentGWPending)
+        public static int InsertPaymentGWPending(int groupID, PaymentGWPending paymentGWPending)
         {
             try
             {
@@ -1308,12 +1308,12 @@ namespace DAL
                 sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
                 sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
 
-                bool isInsert = sp.ExecuteReturnValue<bool>();
-                return isInsert;
+                int newPaymentGWPending = sp.ExecuteReturnValue<int>();
+                return newPaymentGWPending;
             }
             catch (Exception)
             {
-                return false;
+                return 0;
             }
         }
 
@@ -1360,7 +1360,7 @@ namespace DAL
             }
         }
 
-        public static bool InsertPaymentGWTransaction(int groupID, int domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, int domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
         {
             try
             {
@@ -1378,12 +1378,12 @@ namespace DAL
                 sp.AddParameter("@content_id", paymentGWTransaction.ContentId);
 
 
-                bool isInsert = sp.ExecuteReturnValue<bool>();
-                return isInsert;
+                int newTransactionID = sp.ExecuteReturnValue<int>();
+                return newTransactionID;
             }
             catch (Exception)
             {
-                return false;
+                return 0;
             }
         }
 
