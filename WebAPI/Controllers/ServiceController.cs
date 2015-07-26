@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,51 +70,65 @@ namespace WebAPI.Controllers
         {
             MethodInfo methodInfo = null;
             object classInstance = null;
+            object response = null;
 
             createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             string result = await Request.Content.ReadAsStringAsync();
-            using (var input = new StringReader(result))
+
+            if (HttpContext.Current.Request.ContentType == "application/json")
             {
-                try
+                using (var input = new StringReader(result))
                 {
-                    JObject reqParams = JObject.Parse(input.ReadToEnd());
-
-                    ParameterInfo[] parameters = methodInfo.GetParameters();
-
-                    List<Object> methodParams = new List<object>();
-                    foreach (var p in parameters)
-                    {
-                        if (reqParams[p.Name] == null && p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                            continue;
-                        }
-
-                        methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
-                    }
-
                     try
                     {
-                        return methodInfo.Invoke(classInstance, methodParams.ToArray());
-                    }
-                    catch (TargetParameterCountException ex)
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters,
-                            "Mismatch in action parameters");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (ex.InnerException is ApiException)
-                    {
-                        throw ex.InnerException;
-                    }
+                        JObject reqParams = JObject.Parse(input.ReadToEnd());
 
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest,
-                        "Invalid JSON request");
+                        ParameterInfo[] parameters = methodInfo.GetParameters();
+
+                        List<Object> methodParams = new List<object>();
+                        foreach (var p in parameters)
+                        {
+                            if (reqParams[p.Name] == null && p.IsOptional)
+                            {
+                                methodParams.Add(Type.Missing);
+                                continue;
+                            }
+
+                            methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                        }
+
+                        try
+                        {
+                            response = methodInfo.Invoke(classInstance, methodParams.ToArray());
+                        }
+                        catch (TargetParameterCountException ex)
+                        {
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters,
+                                "Mismatch in action parameters");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.InnerException is ApiException)
+                        {
+                            throw ex.InnerException;
+                        }
+
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest,
+                            "Invalid JSON request");
+                    }
                 }
             }
+            else if (HttpContext.Current.Request.ContentType == "text/xml" ||
+                HttpContext.Current.Request.ContentType == "application/xml")
+            {
+                //TODO
+            }
+            else            
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid or missing");
+
+            return response;
         }
     }
 }
