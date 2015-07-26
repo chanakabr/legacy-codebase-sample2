@@ -651,8 +651,8 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
-    <Compile Include="Controllers\BundlesController.cs" />
-    <Compile Include="Controllers\CouponsController.cs" />
+    <Compile Include="Controllers\BundleController.cs" />
+    <Compile Include="Controllers\CouponController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
@@ -719,7 +719,7 @@
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
-    <Compile Include="Controllers\PartnersController.cs" />
+    <Compile Include="Controllers\PartnerController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\KalturaCategory.cs" />
@@ -780,7 +780,7 @@
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -19,8 +19,8 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [RoutePrefix("users")]
-    public class UsersController : ApiController
+    [RoutePrefix("user")]
+    public class UserController : ApiController
     {
         /// <summary>
         /// Generates a temporarily PIN that can allow a user to log-in.
@@ -460,7 +460,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{user_id}"), HttpGet]
+        [ApiAuthorize]
         public KalturaUsersList GetUsersData([FromUri] string partner_id, string user_id)
         {
             List<KalturaUser> response = null;
@@ -468,7 +468,7 @@ namespace WebAPI.Controllers
             List<int> usersIds;
             try
             {
-                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();                
             }
             catch
             {

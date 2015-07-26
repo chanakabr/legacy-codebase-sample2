@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("coupons")]
-    public class CouponsController : ApiController
+    [RoutePrefix("coupon")]
+    public class CouponController : ApiController
     {
         /// <summary>
         /// Returns the details and status of the received coupon code
