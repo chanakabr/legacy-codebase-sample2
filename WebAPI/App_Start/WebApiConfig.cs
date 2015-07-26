@@ -24,8 +24,8 @@ namespace WebAPI
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "{controller}/{id}"
-                //defaults: new { id = RouteParameter.Optional }
+                routeTemplate: "{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
             );
 
             Mapper.Initialize(cfg =>
