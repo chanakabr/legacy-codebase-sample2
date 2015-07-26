@@ -72,37 +72,40 @@ namespace Users
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
         {
+            DomainResponseObject oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
+
             try
             {
+                // create domain
                 Domain domain = DomainFactory.CreateDomain(sDomainName.Trim(), sDomainDescription.Trim(), nMasterUserGuid, nGroupID, sCoGuid);
 
-                DomainResponseObject oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UnKnown);
-
-                switch (domain.m_DomainStatus)
+                if (domain != null)
                 {
-                    case DomainStatus.OK: // add domain to Cache
-                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                        DomainsCache oDomainCache = DomainsCache.Instance();
-                        bool bInsertDomain = oDomainCache.InsertDomain(domain);
-                        break;
-                    case DomainStatus.UserExistsInOtherDomains:
-                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);
-                        break;
-                    case DomainStatus.DomainAlreadyExists:
-                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
-                        break;
-                    case DomainStatus.HouseholdUserFailed:
-                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
-                        break;
-                    case DomainStatus.Error:
-                        oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
-                        break;
-                    default:
-                        log.Error("Error - " + string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid));
-                        break;
+                    // check status
+                    switch (domain.m_DomainStatus)
+                    {
+                        case DomainStatus.OK: // add domain to Cache
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
+                            DomainsCache oDomainCache = DomainsCache.Instance();
+                            bool bInsertDomain = oDomainCache.InsertDomain(domain);
+                            break;
+                        case DomainStatus.UserExistsInOtherDomains:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);
+                            break;
+                        case DomainStatus.DomainAlreadyExists:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
+                            break;
+                        case DomainStatus.HouseholdUserFailed:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.HouseholdUserFailed);
+                            break;
+                        case DomainStatus.Error:
+                            oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
+                            break;
+                        default:
+                            log.Error("Error - " + string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid));
+                            break;
+                    }
                 }
-
-                return oDomainResponseObject;
             }
             catch (Exception ex)
             {
@@ -115,11 +118,10 @@ namespace Users
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-
                 log.Error("Exception - " + sb.ToString(), ex);
-
-                throw;
             }
+
+            return oDomainResponseObject;
         }
 
         public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID)
