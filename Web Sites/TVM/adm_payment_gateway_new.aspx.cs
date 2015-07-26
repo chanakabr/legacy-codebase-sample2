@@ -79,9 +79,25 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
         theRecord.AddRecord(dr_name);
 
-        DataRecordLongTextField dr_url = new DataRecordLongTextField("ltr", true, 60, 4);
+        DataRecordShortTextField dr_external_identifier = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_external_identifier.Initialize("External Identifier", "adm_table_header_nbg", "FormInput", "external_identifier", true);
+        theRecord.AddRecord(dr_external_identifier);
+
+        DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 4);
         dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
         theRecord.AddRecord(dr_url);
+
+        DataRecordShortIntField dr_pending_interval = new DataRecordShortIntField(true, 9, 9);
+        dr_pending_interval.Initialize("Pending Interval", "adm_table_header_nbg", "FormInput", "pending_interval", false);
+        theRecord.AddRecord(dr_pending_interval);
+
+        DataRecordShortIntField dr_pending_retries = new DataRecordShortIntField(true, 9, 9);
+        dr_pending_retries.Initialize("Pending Retries", "adm_table_header_nbg", "FormInput", "pending_retries", false);
+        theRecord.AddRecord(dr_pending_retries);
+
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 4);
+        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
+        theRecord.AddRecord(dr_shared_secret);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
