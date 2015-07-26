@@ -5,11 +5,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Routing;
+using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
@@ -17,7 +23,7 @@ namespace WebAPI.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
-        private static void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
+        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
@@ -30,7 +36,26 @@ namespace WebAPI.Controllers
             if (methodInfo == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
 
+            var authorization = methodInfo.CustomAttributes.Where(x => x.AttributeType == typeof(ApiAuthorizeAttribute)).FirstOrDefault();
+
+            if (authorization != null)
+            {
+                ApiAuthorizeAttribute auth = (ApiAuthorizeAttribute)authorization.Constructor
+                    .Invoke(authorization.ConstructorArguments.Select(x => x.Value).ToArray());
+
+                auth.OnAuthorization(ActionContext);
+            }
+
             classInstance = Activator.CreateInstance(controller, null);
+        }
+
+        [Route("getks"), HttpPost]
+        [ApiAuthorize(AllowAnonymous: true)]
+        public string GetKS(int group_id, string user_id)
+        {
+            string userSecret = GroupsManager.GetGroup(group_id).UserSecret;
+            KS ks = new KS(userSecret, group_id.ToString(), user_id, 32982398, KS.eUserType.USER, "", string.Empty);
+            return ks.ToString();
         }
 
         [Route("{service_name}/action/{action_name}"), HttpGet]

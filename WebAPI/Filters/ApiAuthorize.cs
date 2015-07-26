@@ -22,51 +22,78 @@ namespace WebAPI.Controllers
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
         private KS ks;
+        private bool allowAnonymous;
+
+        public ApiAuthorizeAttribute(bool AllowAnonymous = false)
+            : base()
+        {
+            allowAnonymous = AllowAnonymous;
+        }
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
             string ksVal = HttpContext.Current.Request.QueryString["ks"];
-            if (string.IsNullOrEmpty(ksVal))
+
+            if (string.IsNullOrEmpty(ksVal) && !allowAnonymous)
             {
-                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Empty KS");
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             }
-
-            StringBuilder sb = new StringBuilder(ksVal);
-            sb = sb.Replace("-", "+");
-            sb = sb.Replace("_", "/");
-            byte[] encryptedData = System.Convert.FromBase64String(sb.ToString());
-
-            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-
-            string[] ksParts = encryptedDataStr.Split('|');
-
-            int groupId = 0;
-            if (ksParts.Length != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+            else if (allowAnonymous)
             {
-                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
+                base.OnAuthorization(actionContext);
+                return;
             }
-
-            // get group secret
-            Group group = GroupsManager.GetGroup(groupId);
-            string adminSecret = group.UserSecret;
-
-            // build KS
-            ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
-
-            if (!ks.IsValid)
+            else
             {
-                throw new ForbiddenException((int)StatusCode.Forbidden, "KS expired");
+                StringBuilder sb = new StringBuilder(ksVal);
+                sb = sb.Replace("-", "+");
+                sb = sb.Replace("_", "/");
+
+                int groupId = 0;
+                byte[] encryptedData = null;
+                string encryptedDataStr = null;
+                string[] ksParts = null;
+
+                try
+                {
+                    encryptedData = System.Convert.FromBase64String(sb.ToString());
+                    encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+                    ksParts = encryptedDataStr.Split('|');
+                }
+                catch (Exception ex)
+                {
+                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                }
+
+                if (ksParts.Length != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+                {
+                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                }
+
+                // get group secret
+                Group group = GroupsManager.GetGroup(groupId);
+                string adminSecret = group.UserSecret;
+
+                // build KS
+                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
+
+                if (!ks.IsValid)
+                {
+                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "KS expired");
+                }
+
+                ks.SaveOnRequest();
+
+                base.OnAuthorization(actionContext);
             }
-            
-            actionContext.Request.Properties.Add("KS", ks);
-
-            base.OnAuthorization(actionContext);
-
         }
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
-            return true;
+            if (allowAnonymous)
+                return true;
+
+            return ks.IsValid;
 
             //eRole role;
             ////TODO: use the private KS above. when KS is completed, change this to extract from the KS object

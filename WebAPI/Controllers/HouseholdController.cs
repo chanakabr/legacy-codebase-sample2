@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Billing;
 using WebAPI.Models.ConditionalAccess;
@@ -17,8 +18,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("households")]
-    public class HouseholdsController : ApiController
+    [RoutePrefix("household")]
+    public class HouseholdController : ApiController
     {
         #region Parental and Purchase rules
 
@@ -433,18 +434,24 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// Household does not exist = 1006, Household user failed = 1007</remarks>
-        [Route("{household_id}"), HttpGet]
-        public KalturaHousehold GetHousehold([FromUri] string partner_id, [FromUri] int household_id, [FromUri] List<KalturaHouseholdWith> with = null)
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>        
+        [ApiAuthorize(AllowAnonymous: false)]
+        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWith> with = null)
         {
-            KalturaHousehold response = null;
+            var ks = KS.GetFromRequest();
 
+            KalturaHousehold response = null;
             int groupId = int.Parse(partner_id);
+
+            var user = ClientsManager.UsersClient().GetUsersData(groupId, new int[] { ks.UserId }.ToList<int>());
+
+            if (user.First().HouseholdID != household_id)
+                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
 
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().HouseholdID);
 
                 if (with != null && with.Contains(KalturaHouseholdWith.users_info))
                 {

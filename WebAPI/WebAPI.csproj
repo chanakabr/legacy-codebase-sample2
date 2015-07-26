@@ -726,7 +726,7 @@
     <Compile Include="Models\Catalog\KalturaChannel.cs" />
     <Compile Include="Models\Catalog\KalturaChannelMedia.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedMedia.cs" />
-    <Compile Include="Controllers\HouseholdsController.cs" />
+    <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Models\API\KalturaParentalRule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPaymentMethod.cs" />

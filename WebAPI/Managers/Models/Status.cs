@@ -67,7 +67,7 @@ namespace WebAPI.Managers.Models
         InternalConnectionIssue = 500001,
         Timeout = 500002,
         BadRequest = 500003,
-        Forbidden = 500004,
+        ServiceForbidden = 500004,
         Unauthorized = 500005,
         MissingConfiguration = 500006,
         NotFound = 500007,
@@ -77,6 +77,7 @@ namespace WebAPI.Managers.Models
         InvalidService = 500011,
         InvalidAction = 500012,
         InvalidActionParameters = 500013,
-        InvalidJSONRequest = 500014
+        InvalidJSONRequest = 500014,
+        InvalidKS = 500015
     }
 }

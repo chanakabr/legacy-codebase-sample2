@@ -10,7 +10,7 @@ namespace WebAPI.Exceptions
 {
     public class ForbiddenException : ApiException
     {
-        public ForbiddenException() : base(HttpStatusCode.OK, (int)StatusCode.Forbidden, "forbidden") { }
+        public ForbiddenException() : base(HttpStatusCode.OK, (int)StatusCode.ServiceForbidden, "forbidden") { }
 
         public ForbiddenException(int code, string msg) : base(HttpStatusCode.OK, code, !string.IsNullOrEmpty(msg) ? msg : "forbidden") { }
     }

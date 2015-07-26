@@ -10,6 +10,7 @@ using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 using System.Reflection;
+using WebAPI.Controllers;
 
 namespace WebAPI
 {
@@ -24,8 +25,8 @@ namespace WebAPI
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
+                routeTemplate: "{controller}/{id}"
+                //defaults: new { id = RouteParameter.Optional }
             );
 
             Mapper.Initialize(cfg =>
