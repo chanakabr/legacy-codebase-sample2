@@ -864,7 +864,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="ChargeID" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="Purchase">
+      <s:element name="Transact">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -882,14 +882,14 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="PurchaseResponse">
+      <s:element name="TransactResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="PurchaseResult" type="tns:PurchaseAdapterResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="TransactResult" type="tns:TransactResult" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="PurchaseAdapterResponse">
+      <s:complexType name="TransactResult">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="1" maxOccurs="1" name="TransactionID" type="s:int" />
@@ -906,7 +906,7 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PaymentGWResponse" nillable="true" type="tns:PaymentGWResponse" />
       <s:element name="PaymentGWChargeIDResponse" nillable="true" type="tns:PaymentGWChargeIDResponse" />
-      <s:element name="PurchaseAdapterResponse" nillable="true" type="tns:PurchaseAdapterResponse" />
+      <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetBillingCutomDataSoapIn">
@@ -1137,11 +1137,11 @@
   <wsdl:message name="GetHouseholdChargeIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetHouseholdChargeIDResponse" />
   </wsdl:message>
-  <wsdl:message name="PurchaseSoapIn">
-    <wsdl:part name="parameters" element="tns:Purchase" />
+  <wsdl:message name="TransactSoapIn">
+    <wsdl:part name="parameters" element="tns:Transact" />
   </wsdl:message>
-  <wsdl:message name="PurchaseSoapOut">
-    <wsdl:part name="parameters" element="tns:PurchaseResponse" />
+  <wsdl:message name="TransactSoapOut">
+    <wsdl:part name="parameters" element="tns:TransactResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1449,7 +1449,7 @@
   <wsdl:message name="GetHouseholdChargeIDHttpPostOut">
     <wsdl:part name="Body" element="tns:PaymentGWChargeIDResponse" />
   </wsdl:message>
-  <wsdl:message name="PurchaseHttpPostIn">
+  <wsdl:message name="TransactHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGUID" type="s:string" />
@@ -1463,8 +1463,8 @@
     <wsdl:part name="billingGuid" type="s:string" />
     <wsdl:part name="paymentGWId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="PurchaseHttpPostOut">
-    <wsdl:part name="Body" element="tns:PurchaseAdapterResponse" />
+  <wsdl:message name="TransactHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
   </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetBillingCutomData">
@@ -1619,9 +1619,9 @@
       <wsdl:input message="tns:GetHouseholdChargeIDSoapIn" />
       <wsdl:output message="tns:GetHouseholdChargeIDSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="Purchase">
-      <wsdl:input message="tns:PurchaseSoapIn" />
-      <wsdl:output message="tns:PurchaseSoapOut" />
+    <wsdl:operation name="Transact">
+      <wsdl:input message="tns:TransactSoapIn" />
+      <wsdl:output message="tns:TransactSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -1741,9 +1741,9 @@
       <wsdl:input message="tns:GetHouseholdChargeIDHttpPostIn" />
       <wsdl:output message="tns:GetHouseholdChargeIDHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="Purchase">
-      <wsdl:input message="tns:PurchaseHttpPostIn" />
-      <wsdl:output message="tns:PurchaseHttpPostOut" />
+    <wsdl:operation name="Transact">
+      <wsdl:input message="tns:TransactHttpPostIn" />
+      <wsdl:output message="tns:TransactHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2090,8 +2090,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Purchase">
-      <soap:operation soapAction="http://billing.tvinci.com/Purchase" style="document" />
+    <wsdl:operation name="Transact">
+      <soap:operation soapAction="http://billing.tvinci.com/Transact" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2444,8 +2444,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Purchase">
-      <soap12:operation soapAction="http://billing.tvinci.com/Purchase" style="document" />
+    <wsdl:operation name="Transact">
+      <soap12:operation soapAction="http://billing.tvinci.com/Transact" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2715,8 +2715,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Purchase">
-      <http:operation location="/Purchase" />
+    <wsdl:operation name="Transact">
+      <http:operation location="/Transact" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

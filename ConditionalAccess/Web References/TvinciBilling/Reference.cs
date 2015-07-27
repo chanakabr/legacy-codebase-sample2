@@ -67,6 +67,46 @@ namespace ConditionalAccess.TvinciBilling {
         
         private System.Threading.SendOrPostCallback Cellular_ChargeUserOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetPaymentGWSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPaymentGWOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPaymentGWSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentGWOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentGWSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertPaymentGWOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertPaymentGWSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPaymentGWOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertPaymentGWHouseHoldOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentGWHouseHoldOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetHouseHoldPaymentGWOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertPaymentGWPendingOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPaymentGWPendingOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentGWPendingOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertPaymentGWTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetPaymentGWTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentGWTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetHouseholdChargeIDOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetHouseholdChargeIDOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback TransactOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -163,26 +203,86 @@ namespace ConditionalAccess.TvinciBilling {
         public event Cellular_ChargeUserCompletedEventHandler Cellular_ChargeUserCompleted;
         
         /// <remarks/>
+        public event GetPaymentGWSettingsCompletedEventHandler GetPaymentGWSettingsCompleted;
+        
+        /// <remarks/>
+        public event SetPaymentGWCompletedEventHandler SetPaymentGWCompleted;
+        
+        /// <remarks/>
+        public event SetPaymentGWSettingsCompletedEventHandler SetPaymentGWSettingsCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentGWCompletedEventHandler DeletePaymentGWCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentGWSettingsCompletedEventHandler DeletePaymentGWSettingsCompleted;
+        
+        /// <remarks/>
+        public event InsertPaymentGWCompletedEventHandler InsertPaymentGWCompleted;
+        
+        /// <remarks/>
+        public event InsertPaymentGWSettingsCompletedEventHandler InsertPaymentGWSettingsCompleted;
+        
+        /// <remarks/>
+        public event GetPaymentGWCompletedEventHandler GetPaymentGWCompleted;
+        
+        /// <remarks/>
+        public event InsertPaymentGWHouseHoldCompletedEventHandler InsertPaymentGWHouseHoldCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentGWHouseHoldCompletedEventHandler DeletePaymentGWHouseHoldCompleted;
+        
+        /// <remarks/>
+        public event GetHouseHoldPaymentGWCompletedEventHandler GetHouseHoldPaymentGWCompleted;
+        
+        /// <remarks/>
+        public event InsertPaymentGWPendingCompletedEventHandler InsertPaymentGWPendingCompleted;
+        
+        /// <remarks/>
+        public event SetPaymentGWPendingCompletedEventHandler SetPaymentGWPendingCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentGWPendingCompletedEventHandler DeletePaymentGWPendingCompleted;
+        
+        /// <remarks/>
+        public event InsertPaymentGWTransactionCompletedEventHandler InsertPaymentGWTransactionCompleted;
+        
+        /// <remarks/>
+        public event SetPaymentGWTransactionCompletedEventHandler SetPaymentGWTransactionCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentGWTransactionCompletedEventHandler DeletePaymentGWTransactionCompleted;
+        
+        /// <remarks/>
+        public event SetHouseholdChargeIDCompletedEventHandler SetHouseholdChargeIDCompleted;
+        
+        /// <remarks/>
+        public event GetHouseholdChargeIDCompletedEventHandler GetHouseholdChargeIDCompleted;
+        
+        /// <remarks/>
+        public event TransactCompletedEventHandler TransactCompleted;
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetBillingCutomData(string sWUserName, string sWSPassword) {
+        public string GetBillingCutomData(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetBillingCutomData", new object[] {
-                        sWUserName,
+                        sWSUserName,
                         sWSPassword});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void GetBillingCutomDataAsync(string sWUserName, string sWSPassword) {
-            this.GetBillingCutomDataAsync(sWUserName, sWSPassword, null);
+        public void GetBillingCutomDataAsync(string sWSUserName, string sWSPassword) {
+            this.GetBillingCutomDataAsync(sWSUserName, sWSPassword, null);
         }
         
         /// <remarks/>
-        public void GetBillingCutomDataAsync(string sWUserName, string sWSPassword, object userState) {
+        public void GetBillingCutomDataAsync(string sWSUserName, string sWSPassword, object userState) {
             if ((this.GetBillingCutomDataOperationCompleted == null)) {
                 this.GetBillingCutomDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetBillingCutomDataOperationCompleted);
             }
             this.InvokeAsync("GetBillingCutomData", new object[] {
-                        sWUserName,
+                        sWSUserName,
                         sWSPassword}, this.GetBillingCutomDataOperationCompleted, userState);
         }
         
@@ -927,6 +1027,726 @@ namespace ConditionalAccess.TvinciBilling {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGWSettingsResponse GetPaymentGWSettings(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((PaymentGWSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword) {
+            this.GetPaymentGWSettingsAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetPaymentGWSettingsOperationCompleted == null)) {
+                this.GetPaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGWSettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetPaymentGWSettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetPaymentGWSettingsOperationCompleted(object arg) {
+            if ((this.GetPaymentGWSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPaymentGWSettingsCompleted(this, new GetPaymentGWSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPaymentGW(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int pendingInterval, int pendingRetries, string sharedSecret, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isDefault, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> isActive) {
+            object[] results = this.Invoke("SetPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        name,
+                        url,
+                        externalIdentifier,
+                        pendingInterval,
+                        pendingRetries,
+                        sharedSecret,
+                        isDefault,
+                        isActive});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int pendingInterval, int pendingRetries, string sharedSecret, System.Nullable<int> isDefault, System.Nullable<int> isActive) {
+            this.SetPaymentGWAsync(sWSUserName, sWSPassword, paymentGWID, name, url, externalIdentifier, pendingInterval, pendingRetries, sharedSecret, isDefault, isActive, null);
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGWID, string name, string url, string externalIdentifier, int pendingInterval, int pendingRetries, string sharedSecret, System.Nullable<int> isDefault, System.Nullable<int> isActive, object userState) {
+            if ((this.SetPaymentGWOperationCompleted == null)) {
+                this.SetPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWOperationCompleted);
+            }
+            this.InvokeAsync("SetPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        name,
+                        url,
+                        externalIdentifier,
+                        pendingInterval,
+                        pendingRetries,
+                        sharedSecret,
+                        isDefault,
+                        isActive}, this.SetPaymentGWOperationCompleted, userState);
+        }
+        
+        private void OnSetPaymentGWOperationCompleted(object arg) {
+            if ((this.SetPaymentGWCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPaymentGWCompleted(this, new SetPaymentGWCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+            object[] results = this.Invoke("SetPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        settings});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+            this.SetPaymentGWSettingsAsync(sWSUserName, sWSPassword, paymentGWID, settings, null);
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings, object userState) {
+            if ((this.SetPaymentGWSettingsOperationCompleted == null)) {
+                this.SetPaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWSettingsOperationCompleted);
+            }
+            this.InvokeAsync("SetPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        settings}, this.SetPaymentGWSettingsOperationCompleted, userState);
+        }
+        
+        private void OnSetPaymentGWSettingsOperationCompleted(object arg) {
+            if ((this.SetPaymentGWSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPaymentGWSettingsCompleted(this, new SetPaymentGWSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentGW(string sWSUserName, string sWSPassword, int paymentGwID) {
+            object[] results = this.Invoke("DeletePaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGwID) {
+            this.DeletePaymentGWAsync(sWSUserName, sWSPassword, paymentGwID, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWAsync(string sWSUserName, string sWSPassword, int paymentGwID, object userState) {
+            if ((this.DeletePaymentGWOperationCompleted == null)) {
+                this.DeletePaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID}, this.DeletePaymentGWOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentGWOperationCompleted(object arg) {
+            if ((this.DeletePaymentGWCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentGWCompleted(this, new DeletePaymentGWCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings) {
+            object[] results = this.Invoke("DeletePaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        settings});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings) {
+            this.DeletePaymentGWSettingsAsync(sWSUserName, sWSPassword, paymentGwID, settings, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings, object userState) {
+            if ((this.DeletePaymentGWSettingsOperationCompleted == null)) {
+                this.DeletePaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWSettingsOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        settings}, this.DeletePaymentGWSettingsOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentGWSettingsOperationCompleted(object arg) {
+            if ((this.DeletePaymentGWSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentGWSettingsCompleted(this, new DeletePaymentGWSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status InsertPaymentGW(string sWSUserName, string sWSPassword, PaymentGW pgw) {
+            object[] results = this.Invoke("InsertPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgw});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWAsync(string sWSUserName, string sWSPassword, PaymentGW pgw) {
+            this.InsertPaymentGWAsync(sWSUserName, sWSPassword, pgw, null);
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWAsync(string sWSUserName, string sWSPassword, PaymentGW pgw, object userState) {
+            if ((this.InsertPaymentGWOperationCompleted == null)) {
+                this.InsertPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWOperationCompleted);
+            }
+            this.InvokeAsync("InsertPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgw}, this.InsertPaymentGWOperationCompleted, userState);
+        }
+        
+        private void OnInsertPaymentGWOperationCompleted(object arg) {
+            if ((this.InsertPaymentGWCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertPaymentGWCompleted(this, new InsertPaymentGWCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status InsertPaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+            object[] results = this.Invoke("InsertPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        settings});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+            this.InsertPaymentGWSettingsAsync(sWSUserName, sWSPassword, paymentGWID, settings, null);
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings, object userState) {
+            if ((this.InsertPaymentGWSettingsOperationCompleted == null)) {
+                this.InsertPaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWSettingsOperationCompleted);
+            }
+            this.InvokeAsync("InsertPaymentGWSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGWID,
+                        settings}, this.InsertPaymentGWSettingsOperationCompleted, userState);
+        }
+        
+        private void OnInsertPaymentGWSettingsOperationCompleted(object arg) {
+            if ((this.InsertPaymentGWSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertPaymentGWSettingsCompleted(this, new InsertPaymentGWSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGWResponse GetPaymentGW(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((PaymentGWResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGWAsync(string sWSUserName, string sWSPassword) {
+            this.GetPaymentGWAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGWAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetPaymentGWOperationCompleted == null)) {
+                this.GetPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGWOperationCompleted);
+            }
+            this.InvokeAsync("GetPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetPaymentGWOperationCompleted, userState);
+        }
+        
+        private void OnGetPaymentGWOperationCompleted(object arg) {
+            if ((this.GetPaymentGWCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPaymentGWCompleted(this, new GetPaymentGWCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWHouseHold", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status InsertPaymentGWHouseHold(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID) {
+            object[] results = this.Invoke("InsertPaymentGWHouseHold", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        siteGuid,
+                        houseHoldID,
+                        chargeID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWHouseHoldAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID) {
+            this.InsertPaymentGWHouseHoldAsync(sWSUserName, sWSPassword, paymentGwID, siteGuid, houseHoldID, chargeID, null);
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWHouseHoldAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID, object userState) {
+            if ((this.InsertPaymentGWHouseHoldOperationCompleted == null)) {
+                this.InsertPaymentGWHouseHoldOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWHouseHoldOperationCompleted);
+            }
+            this.InvokeAsync("InsertPaymentGWHouseHold", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        siteGuid,
+                        houseHoldID,
+                        chargeID}, this.InsertPaymentGWHouseHoldOperationCompleted, userState);
+        }
+        
+        private void OnInsertPaymentGWHouseHoldOperationCompleted(object arg) {
+            if ((this.InsertPaymentGWHouseHoldCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertPaymentGWHouseHoldCompleted(this, new InsertPaymentGWHouseHoldCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWHouseHold", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentGWHouseHold(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int householdId) {
+            object[] results = this.Invoke("DeletePaymentGWHouseHold", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        siteGuid,
+                        householdId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWHouseHoldAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int householdId) {
+            this.DeletePaymentGWHouseHoldAsync(sWSUserName, sWSPassword, paymentGwID, siteGuid, householdId, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWHouseHoldAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int householdId, object userState) {
+            if ((this.DeletePaymentGWHouseHoldOperationCompleted == null)) {
+                this.DeletePaymentGWHouseHoldOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWHouseHoldOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentGWHouseHold", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwID,
+                        siteGuid,
+                        householdId}, this.DeletePaymentGWHouseHoldOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentGWHouseHoldOperationCompleted(object arg) {
+            if ((this.DeletePaymentGWHouseHoldCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentGWHouseHoldCompleted(this, new DeletePaymentGWHouseHoldCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseHoldPaymentGW", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGWResponse GetHouseHoldPaymentGW(string sWSUserName, string sWSPassword, string siteGuid, int houseHoldID) {
+            object[] results = this.Invoke("GetHouseHoldPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid,
+                        houseHoldID});
+            return ((PaymentGWResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetHouseHoldPaymentGWAsync(string sWSUserName, string sWSPassword, string siteGuid, int houseHoldID) {
+            this.GetHouseHoldPaymentGWAsync(sWSUserName, sWSPassword, siteGuid, houseHoldID, null);
+        }
+        
+        /// <remarks/>
+        public void GetHouseHoldPaymentGWAsync(string sWSUserName, string sWSPassword, string siteGuid, int houseHoldID, object userState) {
+            if ((this.GetHouseHoldPaymentGWOperationCompleted == null)) {
+                this.GetHouseHoldPaymentGWOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetHouseHoldPaymentGWOperationCompleted);
+            }
+            this.InvokeAsync("GetHouseHoldPaymentGW", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid,
+                        houseHoldID}, this.GetHouseHoldPaymentGWOperationCompleted, userState);
+        }
+        
+        private void OnGetHouseHoldPaymentGWOperationCompleted(object arg) {
+            if ((this.GetHouseHoldPaymentGWCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetHouseHoldPaymentGWCompleted(this, new GetHouseHoldPaymentGWCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWPending", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status InsertPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending) {
+            object[] results = this.Invoke("InsertPaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwPending});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending) {
+            this.InsertPaymentGWPendingAsync(sWSUserName, sWSPassword, pgwPending, null);
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, object userState) {
+            if ((this.InsertPaymentGWPendingOperationCompleted == null)) {
+                this.InsertPaymentGWPendingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWPendingOperationCompleted);
+            }
+            this.InvokeAsync("InsertPaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwPending}, this.InsertPaymentGWPendingOperationCompleted, userState);
+        }
+        
+        private void OnInsertPaymentGWPendingOperationCompleted(object arg) {
+            if ((this.InsertPaymentGWPendingCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertPaymentGWPendingCompleted(this, new InsertPaymentGWPendingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWPending", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> status) {
+            object[] results = this.Invoke("SetPaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwPending,
+                        status});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, System.Nullable<int> status) {
+            this.SetPaymentGWPendingAsync(sWSUserName, sWSPassword, pgwPending, status, null);
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, System.Nullable<int> status, object userState) {
+            if ((this.SetPaymentGWPendingOperationCompleted == null)) {
+                this.SetPaymentGWPendingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWPendingOperationCompleted);
+            }
+            this.InvokeAsync("SetPaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwPending,
+                        status}, this.SetPaymentGWPendingOperationCompleted, userState);
+        }
+        
+        private void OnSetPaymentGWPendingOperationCompleted(object arg) {
+            if ((this.SetPaymentGWPendingCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPaymentGWPendingCompleted(this, new SetPaymentGWPendingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWPending", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentGWPending(string sWSUserName, string sWSPassword, int paymentGwPendingID) {
+            object[] results = this.Invoke("DeletePaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwPendingID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWPendingAsync(string sWSUserName, string sWSPassword, int paymentGwPendingID) {
+            this.DeletePaymentGWPendingAsync(sWSUserName, sWSPassword, paymentGwPendingID, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWPendingAsync(string sWSUserName, string sWSPassword, int paymentGwPendingID, object userState) {
+            if ((this.DeletePaymentGWPendingOperationCompleted == null)) {
+                this.DeletePaymentGWPendingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWPendingOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentGWPending", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwPendingID}, this.DeletePaymentGWPendingOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentGWPendingOperationCompleted(object arg) {
+            if ((this.DeletePaymentGWPendingCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentGWPendingCompleted(this, new DeletePaymentGWPendingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status InsertPaymentGWTransaction(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction) {
+            object[] results = this.Invoke("InsertPaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        siteGuid,
+                        pgwTransaction});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction) {
+            this.InsertPaymentGWTransactionAsync(sWSUserName, sWSPassword, domainId, siteGuid, pgwTransaction, null);
+        }
+        
+        /// <remarks/>
+        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction, object userState) {
+            if ((this.InsertPaymentGWTransactionOperationCompleted == null)) {
+                this.InsertPaymentGWTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWTransactionOperationCompleted);
+            }
+            this.InvokeAsync("InsertPaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        siteGuid,
+                        pgwTransaction}, this.InsertPaymentGWTransactionOperationCompleted, userState);
+        }
+        
+        private void OnInsertPaymentGWTransactionOperationCompleted(object arg) {
+            if ((this.InsertPaymentGWTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertPaymentGWTransactionCompleted(this, new InsertPaymentGWTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPaymentGWTransaction(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction) {
+            object[] results = this.Invoke("SetPaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwTransaction});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction) {
+            this.SetPaymentGWTransactionAsync(sWSUserName, sWSPassword, pgwTransaction, null);
+        }
+        
+        /// <remarks/>
+        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction, object userState) {
+            if ((this.SetPaymentGWTransactionOperationCompleted == null)) {
+                this.SetPaymentGWTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWTransactionOperationCompleted);
+            }
+            this.InvokeAsync("SetPaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        pgwTransaction}, this.SetPaymentGWTransactionOperationCompleted, userState);
+        }
+        
+        private void OnSetPaymentGWTransactionOperationCompleted(object arg) {
+            if ((this.SetPaymentGWTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPaymentGWTransactionCompleted(this, new SetPaymentGWTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentGWTransaction(string sWSUserName, string sWSPassword, int paymentGwTransactionID) {
+            object[] results = this.Invoke("DeletePaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwTransactionID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int paymentGwTransactionID) {
+            this.DeletePaymentGWTransactionAsync(sWSUserName, sWSPassword, paymentGwTransactionID, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int paymentGwTransactionID, object userState) {
+            if ((this.DeletePaymentGWTransactionOperationCompleted == null)) {
+                this.DeletePaymentGWTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWTransactionOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentGWTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGwTransactionID}, this.DeletePaymentGWTransactionOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentGWTransactionOperationCompleted(object arg) {
+            if ((this.DeletePaymentGWTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentGWTransactionCompleted(this, new DeletePaymentGWTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetHouseholdChargeID", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string chargeID) {
+            object[] results = this.Invoke("SetHouseholdChargeID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalIdentifier,
+                        householdID,
+                        chargeID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetHouseholdChargeIDAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string chargeID) {
+            this.SetHouseholdChargeIDAsync(sWSUserName, sWSPassword, externalIdentifier, householdID, chargeID, null);
+        }
+        
+        /// <remarks/>
+        public void SetHouseholdChargeIDAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string chargeID, object userState) {
+            if ((this.SetHouseholdChargeIDOperationCompleted == null)) {
+                this.SetHouseholdChargeIDOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetHouseholdChargeIDOperationCompleted);
+            }
+            this.InvokeAsync("SetHouseholdChargeID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalIdentifier,
+                        householdID,
+                        chargeID}, this.SetHouseholdChargeIDOperationCompleted, userState);
+        }
+        
+        private void OnSetHouseholdChargeIDOperationCompleted(object arg) {
+            if ((this.SetHouseholdChargeIDCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetHouseholdChargeIDCompleted(this, new SetHouseholdChargeIDCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdChargeID", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGWChargeIDResponse GetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID) {
+            object[] results = this.Invoke("GetHouseholdChargeID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalIdentifier,
+                        householdID});
+            return ((PaymentGWChargeIDResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetHouseholdChargeIDAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID) {
+            this.GetHouseholdChargeIDAsync(sWSUserName, sWSPassword, externalIdentifier, householdID, null);
+        }
+        
+        /// <remarks/>
+        public void GetHouseholdChargeIDAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, object userState) {
+            if ((this.GetHouseholdChargeIDOperationCompleted == null)) {
+                this.GetHouseholdChargeIDOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetHouseholdChargeIDOperationCompleted);
+            }
+            this.InvokeAsync("GetHouseholdChargeID", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalIdentifier,
+                        householdID}, this.GetHouseholdChargeIDOperationCompleted, userState);
+        }
+        
+        private void OnGetHouseholdChargeIDOperationCompleted(object arg) {
+            if ((this.GetHouseholdChargeIDCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetHouseholdChargeIDCompleted(this, new GetHouseholdChargeIDCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/Transact", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, int householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId) {
+            object[] results = this.Invoke("Transact", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdID,
+                        price,
+                        currency,
+                        userIP,
+                        customData,
+                        productID,
+                        transactionType,
+                        billingGuid,
+                        paymentGWId});
+            return ((TransactResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, int householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId) {
+            this.TransactAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, transactionType, billingGuid, paymentGWId, null);
+        }
+        
+        /// <remarks/>
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, int householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId, object userState) {
+            if ((this.TransactOperationCompleted == null)) {
+                this.TransactOperationCompleted = new System.Threading.SendOrPostCallback(this.OnTransactOperationCompleted);
+            }
+            this.InvokeAsync("Transact", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdID,
+                        price,
+                        currency,
+                        userIP,
+                        customData,
+                        productID,
+                        transactionType,
+                        billingGuid,
+                        paymentGWId}, this.TransactOperationCompleted, userState);
+        }
+        
+        private void OnTransactOperationCompleted(object arg) {
+            if ((this.TransactCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.TransactCompleted(this, new TransactCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1043,6 +1863,552 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.variantField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class TransactResult {
+        
+        private Status statusField;
+        
+        private int transactionIDField;
+        
+        private string pGReferenceIDField;
+        
+        private string pGResponseIDField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TransactionID {
+            get {
+                return this.transactionIDField;
+            }
+            set {
+                this.transactionIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGReferenceID {
+            get {
+                return this.pGReferenceIDField;
+            }
+            set {
+                this.pGReferenceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGResponseID {
+            get {
+                return this.pGResponseIDField;
+            }
+            set {
+                this.pGResponseIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWChargeIDResponse {
+        
+        private Status respField;
+        
+        private string chargeIDField;
+        
+        /// <remarks/>
+        public Status Resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ChargeID {
+            get {
+                return this.chargeIDField;
+            }
+            set {
+                this.chargeIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWTransaction {
+        
+        private int idField;
+        
+        private int paymentGWIdField;
+        
+        private string externalTransactionIdField;
+        
+        private string externalStatusField;
+        
+        private int productTypeField;
+        
+        private int productIdField;
+        
+        private string billingGuidField;
+        
+        private int contentIdField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PaymentGWId {
+            get {
+                return this.paymentGWIdField;
+            }
+            set {
+                this.paymentGWIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalTransactionId {
+            get {
+                return this.externalTransactionIdField;
+            }
+            set {
+                this.externalTransactionIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalStatus {
+            get {
+                return this.externalStatusField;
+            }
+            set {
+                this.externalStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ProductType {
+            get {
+                return this.productTypeField;
+            }
+            set {
+                this.productTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ProductId {
+            get {
+                return this.productIdField;
+            }
+            set {
+                this.productIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BillingGuid {
+            get {
+                return this.billingGuidField;
+            }
+            set {
+                this.billingGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ContentId {
+            get {
+                return this.contentIdField;
+            }
+            set {
+                this.contentIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWPending {
+        
+        private int idField;
+        
+        private int paymentGWTransactionIdField;
+        
+        private System.DateTime nextRetryDateField;
+        
+        private int adapterRetryCountField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PaymentGWTransactionId {
+            get {
+                return this.paymentGWTransactionIdField;
+            }
+            set {
+                this.paymentGWTransactionIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime NextRetryDate {
+            get {
+                return this.nextRetryDateField;
+            }
+            set {
+                this.nextRetryDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int AdapterRetryCount {
+            get {
+                return this.adapterRetryCountField;
+            }
+            set {
+                this.adapterRetryCountField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWBasic {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWResponse {
+        
+        private Status respField;
+        
+        private PaymentGWBasic[] pgwField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentGWBasic[] pgw {
+            get {
+                return this.pgwField;
+            }
+            set {
+                this.pgwField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWSettings {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGW {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private bool isDefaultField;
+        
+        private int isActiveField;
+        
+        private string urlField;
+        
+        private string externalIdentifierField;
+        
+        private int pendingIntervalField;
+        
+        private int pendingRetriesField;
+        
+        private string sharedSecretField;
+        
+        private PaymentGWSettings[] settingsField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Url {
+            get {
+                return this.urlField;
+            }
+            set {
+                this.urlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalIdentifier {
+            get {
+                return this.externalIdentifierField;
+            }
+            set {
+                this.externalIdentifierField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PendingInterval {
+            get {
+                return this.pendingIntervalField;
+            }
+            set {
+                this.pendingIntervalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PendingRetries {
+            get {
+                return this.pendingRetriesField;
+            }
+            set {
+                this.pendingRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SharedSecret {
+            get {
+                return this.sharedSecretField;
+            }
+            set {
+                this.sharedSecretField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentGWSettings[] Settings {
+            get {
+                return this.settingsField;
+            }
+            set {
+                this.settingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGWSettingsResponse {
+        
+        private Status respField;
+        
+        private PaymentGW[] pgwField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentGW[] pgw {
+            get {
+                return this.pgwField;
+            }
+            set {
+                this.pgwField = value;
             }
         }
     }
@@ -1975,6 +3341,526 @@ namespace ConditionalAccess.TvinciBilling {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((BillingResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPaymentGWSettingsCompletedEventHandler(object sender, GetPaymentGWSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPaymentGWSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGWSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGWSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPaymentGWCompletedEventHandler(object sender, SetPaymentGWCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPaymentGWCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPaymentGWCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPaymentGWSettingsCompletedEventHandler(object sender, SetPaymentGWSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPaymentGWSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeletePaymentGWCompletedEventHandler(object sender, DeletePaymentGWCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentGWCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentGWCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeletePaymentGWSettingsCompletedEventHandler(object sender, DeletePaymentGWSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentGWSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertPaymentGWCompletedEventHandler(object sender, InsertPaymentGWCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertPaymentGWCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertPaymentGWCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertPaymentGWSettingsCompletedEventHandler(object sender, InsertPaymentGWSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertPaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertPaymentGWSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPaymentGWCompletedEventHandler(object sender, GetPaymentGWCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPaymentGWCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPaymentGWCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGWResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGWResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertPaymentGWHouseHoldCompletedEventHandler(object sender, InsertPaymentGWHouseHoldCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertPaymentGWHouseHoldCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertPaymentGWHouseHoldCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeletePaymentGWHouseHoldCompletedEventHandler(object sender, DeletePaymentGWHouseHoldCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentGWHouseHoldCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentGWHouseHoldCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetHouseHoldPaymentGWCompletedEventHandler(object sender, GetHouseHoldPaymentGWCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetHouseHoldPaymentGWCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetHouseHoldPaymentGWCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGWResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGWResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertPaymentGWPendingCompletedEventHandler(object sender, InsertPaymentGWPendingCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertPaymentGWPendingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertPaymentGWPendingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPaymentGWPendingCompletedEventHandler(object sender, SetPaymentGWPendingCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPaymentGWPendingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPaymentGWPendingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeletePaymentGWPendingCompletedEventHandler(object sender, DeletePaymentGWPendingCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentGWPendingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentGWPendingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertPaymentGWTransactionCompletedEventHandler(object sender, InsertPaymentGWTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertPaymentGWTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertPaymentGWTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPaymentGWTransactionCompletedEventHandler(object sender, SetPaymentGWTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPaymentGWTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPaymentGWTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeletePaymentGWTransactionCompletedEventHandler(object sender, DeletePaymentGWTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentGWTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentGWTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetHouseholdChargeIDCompletedEventHandler(object sender, SetHouseholdChargeIDCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetHouseholdChargeIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetHouseholdChargeIDCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetHouseholdChargeIDCompletedEventHandler(object sender, GetHouseholdChargeIDCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetHouseholdChargeIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetHouseholdChargeIDCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGWChargeIDResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGWChargeIDResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void TransactCompletedEventHandler(object sender, TransactCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class TransactCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal TransactCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactResult)(this.results[0]));
             }
         }
     }
