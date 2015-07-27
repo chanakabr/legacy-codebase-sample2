@@ -652,12 +652,17 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\BundleController.cs" />
+    <Compile Include="Controllers\CategoryController.cs" />
+    <Compile Include="Controllers\ChannelController.cs" />
     <Compile Include="Controllers\CouponController.cs" />
+    <Compile Include="Controllers\EntitlementController.cs" />
+    <Compile Include="Controllers\FavoriteController.cs" />
     <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\PaymentGatewayController.cs" />
     <Compile Include="Controllers\PricingController.cs" />
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
