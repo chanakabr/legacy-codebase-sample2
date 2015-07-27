@@ -126,6 +126,7 @@ namespace ApiObjects.Response
         SignatureMismatch = 2013,
         ErrorSavingPaymentGatewayTransaction = 2014,
         ErrorSavingPaymentGatewayPending = 2015,
+        ExternalIdntifierMissing = 2016,
 
         // social 7000 - 7999
         Conflict = 7000,
