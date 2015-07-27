@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -17,6 +18,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Purchase settings type - block, ask or allow
         /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "type")]
         public KalturaPurchaseSettingsType type
         {
             get;
@@ -27,7 +31,8 @@ namespace WebAPI.Models.API
         /// PIN applied on user or household
         /// </summary>
         [DataMember(Name = "pin")]
-        [JsonProperty(PropertyName = "pin", NullValueHandling = NullValueHandling.Ignore)]    
+        [JsonProperty(PropertyName = "pin", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "pin")]
         public string pin
         {
             get;
@@ -39,6 +44,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty(PropertyName = "origin")]
+        [XmlElement(ElementName = "origin")]
         public KalturaRuleLevel origin
         {
             get;

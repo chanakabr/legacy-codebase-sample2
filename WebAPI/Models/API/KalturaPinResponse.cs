@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -19,6 +20,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "pin")]
         [JsonProperty(PropertyName = "pin")]
+        [XmlElement(ElementName = "pin")]
         public string PIN
         {
             get;
@@ -30,6 +32,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty(PropertyName = "origin")]
+        [XmlElement(ElementName = "origin")]
         public KalturaRuleLevel origin
         {
             get;

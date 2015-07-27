@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -19,6 +20,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public long id;
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string name;
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
         public string description;
 
         /// <summary>
@@ -40,6 +44,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "order")]
         [JsonProperty("order")]
+        [XmlElement(ElementName = "order")]
         public int order;
 
         /// <summary>
@@ -47,6 +52,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "media_tag")]
         [JsonProperty("media_tag")]
+        [XmlElement(ElementName = "media_tag")]
         public int mediaTagTypeId;
 
         /// <summary>
@@ -54,6 +60,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "epg_tag")]
         [JsonProperty("epg_tag")]
+        [XmlElement(ElementName = "epg_tag")]
         public int epgTagTypeId;
 
         /// <summary>
@@ -61,6 +68,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "block_anonymous_access")]
         [JsonProperty("block_anonymous_access")]
+        [XmlElement(ElementName = "block_anonymous_access")]
         public bool blockAnonymousAccess;
 
         /// <summary>
@@ -68,6 +76,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
+        [XmlElement(ElementName = "rule_type")]
         public KalturaParentalRuleType ruleType;
 
         /// <summary>
@@ -75,6 +84,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "media_tag_values")]
         [JsonProperty("media_tag_values")]
+        [XmlElement(ElementName = "media_tag_values")]
         public List<string> mediaTagValues;
 
         /// <summary>
@@ -82,6 +92,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "epg_tag_values")]
         [JsonProperty("epg_tag_values")]
+        [XmlElement(ElementName = "epg_tag_values")]
         public List<string> epgTagValues;
 
         /// <summary>
@@ -89,6 +100,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
+        [XmlElement(ElementName = "is_default")]
         public bool isDefault;
 
         /// <summary>
@@ -96,6 +108,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
+        [XmlElement(ElementName = "origin")]
         public KalturaRuleLevel origin;
 
     }
