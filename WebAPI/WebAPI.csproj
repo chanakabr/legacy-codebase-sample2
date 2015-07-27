@@ -653,7 +653,7 @@
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\BundleController.cs" />
     <Compile Include="Controllers\CouponController.cs" />
-    <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
+    <Compile Include="Controllers\PaymentGatewayController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
