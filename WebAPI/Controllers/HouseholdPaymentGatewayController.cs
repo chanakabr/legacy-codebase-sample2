@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("household_payment_gateways")]
-    public class HouseholdPaymentGatewaysController : ApiController
+    public class HouseholdPaymentGatewayController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

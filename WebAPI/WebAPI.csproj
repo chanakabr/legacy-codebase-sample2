@@ -651,9 +651,9 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
-    <Compile Include="Controllers\BundlesController.cs" />
-    <Compile Include="Controllers\CouponsController.cs" />
-    <Compile Include="Controllers\HouseholdPaymentGatewaysController.cs" />
+    <Compile Include="Controllers\BundleController.cs" />
+    <Compile Include="Controllers\CouponController.cs" />
+    <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
