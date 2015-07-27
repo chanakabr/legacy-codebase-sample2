@@ -1361,7 +1361,7 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, int domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, long domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
         {
             try
             {
@@ -1475,7 +1475,7 @@ namespace DAL
             }
         }
 
-        public static string GetPaymentGWChargeID(int paymentGWID, int householdID, ref bool isPaymentGWHouseholdExist)
+        public static string GetPaymentGWChargeID(int paymentGWID, long householdID, ref bool isPaymentGWHouseholdExist)
         {
             string chargeID = string.Empty;
             isPaymentGWHouseholdExist = false;
@@ -1502,7 +1502,7 @@ namespace DAL
         }
 
 
-        public static string GetPaymentGWChargeID(int paymentGWID, int householdID)
+        public static string GetPaymentGWChargeID(int paymentGWID, long householdID)
         {
             bool isPaymentGWHouseholdExist = false;
         
