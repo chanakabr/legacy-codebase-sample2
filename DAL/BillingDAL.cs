@@ -1126,7 +1126,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGWBasic> GetHHPaymentGWList(int groupID, int houseHoldID, int status = 1, int isActive = 1)
+        public static List<PaymentGWBasic> GetHouseholdPaymentGateways(int groupID, int houseHoldID, int status = 1, int isActive = 1)
         {
             List<PaymentGWBasic> res = new List<PaymentGWBasic>();
             try
@@ -1137,6 +1137,7 @@ namespace DAL
                 sp.AddParameter("@houseHoldID", houseHoldID);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtPG = ds.Tables[0];
@@ -1161,12 +1162,12 @@ namespace DAL
             return res;
         }
 
-        public static bool InsertPaymentGWHouseHold(int groupID, int paymentGwID, int householdID, string chargeID, int status = 1)
+        public static bool Set_PaymentGateway_Household(int groupID, int paymentGwID, int householdID, string chargeID, int status = 1)
         {
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGateway_Household");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway_Household");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@PaymentGWID", paymentGwID);
                 sp.AddParameter("@householdID", householdID);
