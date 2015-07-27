@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -20,6 +21,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
+        [XmlElement(ElementName = "filter_types")]
         public string filter_types { get; set; }
 
         /// <summary>
@@ -29,6 +31,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_status")]
         [JsonProperty(PropertyName = "filter_status")]
+        [XmlElement(ElementName = "filter_status")]
         public KalturaWatchStatus? filter_status { get; set; }
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "days")]
         [JsonProperty(PropertyName = "days")]
+        [XmlElement(ElementName = "days")]
         public int days { get; set; }
 
     }

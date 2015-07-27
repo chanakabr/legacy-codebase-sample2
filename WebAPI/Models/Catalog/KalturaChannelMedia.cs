@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
+        [XmlElement(ElementName = "order_by")]
         public KalturaOrder? order_by { get; set; }
     }
 }

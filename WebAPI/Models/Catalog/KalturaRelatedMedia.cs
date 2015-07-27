@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -20,6 +21,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "media_types")]
         [JsonProperty(PropertyName = "media_types")]
+        [XmlElement(ElementName = "media_types")]
         public List<int> media_types { get; set; }
     }
 }

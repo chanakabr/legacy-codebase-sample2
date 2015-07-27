@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "page_size")]
         [JsonProperty(PropertyName = "page_size")]
+        [XmlElement(ElementName = "page_size")]
         public int? page_size { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "page_index")]
         [JsonProperty(PropertyName = "page_index")]
+        [XmlElement(ElementName = "page_index")]
         public int page_index { get; set; }
 
         /// <summary>
@@ -34,6 +37,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
+        [XmlElement(ElementName = "with")]
         public List<KalturaCatalogWith> with { get; set; }
     }
 }

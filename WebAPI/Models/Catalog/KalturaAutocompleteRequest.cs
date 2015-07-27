@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -20,6 +21,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
+        [XmlElement(ElementName = "filter_types")]
         public List<int> filter_types { get; set; }
 
         /// <summary>
@@ -27,6 +29,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "query")]
         [JsonProperty(PropertyName = "query")]
+        [XmlElement(ElementName = "query")]
         public string query { get; set; }
 
         /// <summary>
@@ -35,6 +38,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
+        [XmlElement(ElementName = "order_by")]
         public KalturaOrder? order_by { get; set; }
 
         /// <summary>
@@ -43,6 +47,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
+        [XmlElement(ElementName = "with")]
         public List<KalturaCatalogWith> with { get; set; }
 
         /// <summary>
@@ -50,6 +55,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "size")]
         [JsonProperty(PropertyName = "size")]
+        [XmlElement(ElementName = "size")]
         public int? size { get; set; }
     }
 }

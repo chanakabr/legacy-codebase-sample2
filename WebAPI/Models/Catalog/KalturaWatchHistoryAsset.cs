@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
+        [XmlElement(ElementName = "assets")]
         public List<KalturaWatchHistoryAsset> WatchHistoryAssets { get; set; }
 
         public KalturaWatchHistoryAssetWrapper()
@@ -38,6 +40,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
+        [XmlElement(ElementName = "asset")]
         public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>
@@ -45,6 +48,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "position")]
         [JsonProperty(PropertyName = "position")]
+        [XmlElement(ElementName = "position")]
         public int Position { get; set; }
 
         /// <summary>
@@ -52,6 +56,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "duration")]
         [JsonProperty(PropertyName = "duration")]
+        [XmlElement(ElementName = "duration")]
         public int Duration { get; set; }
 
         /// <summary>
@@ -59,6 +64,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "watched_date")]
         [JsonProperty(PropertyName = "watched_date")]
+        [XmlElement(ElementName = "watched_date")]
         public long LastWatched { get; set; }
 
         /// <summary>
@@ -66,6 +72,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "finished_watching")]
         [JsonProperty(PropertyName = "finished_watching")]
+        [XmlElement(ElementName = "finished_watching")]
         public bool IsFinishedWatching { get; set; }
     }
 }

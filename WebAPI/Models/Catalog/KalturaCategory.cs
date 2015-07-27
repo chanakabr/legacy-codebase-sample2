@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "parent_category_id")]
         [JsonProperty(PropertyName = "parent_category_id")]
+        [XmlElement(ElementName = "parent_category_id")]
         public long ParentCategoryId { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "child_categories")]
         [JsonProperty(PropertyName = "child_categories")]
+        [XmlElement(ElementName = "child_categories")]
         public List<KalturaCategory> ChildCategories { get; set; }
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty(PropertyName = "channels")]
+        [XmlElement(ElementName = "channels")]
         public List<KalturaChannel> Channels { get; set; }
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
+        [XmlElement(ElementName = "images")]
         public List<KalturaImage> Images { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
+        [XmlElement(ElementName = "order_by")]
         public List<KalturaSlimAssetInfo> Assets { get; set; }
     }
 
@@ -31,6 +33,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -39,6 +42,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
         public int Type { get; set; }
 
         /// <summary>
@@ -46,6 +50,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -53,6 +58,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
+        [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
         /// <summary>
@@ -60,6 +66,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "images")]
         public List<KalturaImage> Images { get; set; }
 
         /// <summary>
@@ -67,6 +74,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "files", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "files")]
         public List<KalturaFile> Files { get; set; }
 
         /// <summary>
@@ -74,6 +82,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "stats")]
         public KalturaAssetStats Statistics { get; set; }
       
     }

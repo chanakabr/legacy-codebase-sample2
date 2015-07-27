@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 
 namespace WebAPI.Models.Catalog
 {
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
+        [XmlElement(ElementName = "filter_types")]
         public List<int> filter_types { get; set; }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter")]
         [JsonProperty(PropertyName = "filter")]
+        [XmlElement(ElementName = "filter")]
         public string filter { get; set; }
 
         /// <summary>
@@ -38,6 +41,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order_by")]
         [JsonProperty(PropertyName = "order_by")]
+        [XmlElement(ElementName = "order_by")]
         public KalturaOrder? order_by { get; set; }
 
     }
