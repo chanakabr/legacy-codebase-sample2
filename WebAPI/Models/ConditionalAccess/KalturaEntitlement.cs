@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -19,6 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
         public KalturaTransactionType type;
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "entitlement_id")]
         [JsonProperty("entitlement_id")]
+        [XmlElement(ElementName = "entitlement_id")]
         public string entitlementId;
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "current_uses")]
         [JsonProperty("current_uses")]
+        [XmlElement(ElementName = "current_uses")]
         public int currentUses;
 
         /// <summary>
@@ -40,6 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
+        [XmlElement(ElementName = "end_date")]
         public long endDate { get; set; }
 
         /// <summary>
@@ -47,6 +52,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "current_date")]
         [JsonProperty("current_date")]
+        [XmlElement(ElementName = "current_date")]
         public long currentDate;
 
         /// <summary>
@@ -54,6 +60,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "last_view_date")]
         [JsonProperty("last_view_date")]
+        [XmlElement(ElementName = "last_view_date")]
         public long lastViewDate;
 
         /// <summary>
@@ -61,6 +68,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "purchase_date")]
         [JsonProperty("purchase_date")]
+        [XmlElement(ElementName = "purchase_date")]
         public long purchaseDate;
 
         /// <summary>
@@ -68,13 +76,15 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "purchase_id")]
         [JsonProperty("purchase_id")]
-        public int purchaseID; 
+        [XmlElement(ElementName = "purchase_id")]
+        public int purchaseID;
 
         /// <summary>
         ///Payment Method
         /// </summary>
         [DataMember(Name = "payment_method")]
         [JsonProperty("payment_method")]
+        [XmlElement(ElementName = "payment_method")]
         public KalturaPaymentMethod paymentMethod;
 
         /// <summary>
@@ -82,6 +92,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "device_udid")]
         [JsonProperty("device_udid")]
+        [XmlElement(ElementName = "device_udid")]
         public string deviceUDID;
 
         /// <summary>
@@ -89,6 +100,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "device_name")]
         [JsonProperty("device_name")]
+        [XmlElement(ElementName = "device_name")]
         public string deviceName;
 
         /// <summary>
@@ -96,6 +108,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "cancel_window")]
         [JsonProperty("cancel_window")]
+        [XmlElement(ElementName = "cancel_window")]
         public bool cancelWindow;
 
         /// <summary>
@@ -103,6 +116,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "max_uses")]
         [JsonProperty("max_uses")]
+        [XmlElement(ElementName = "max_uses")]
         public int maxUses;
 
         /// <summary>
@@ -110,6 +124,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "next_renewal_date")]
         [JsonProperty("next_renewal_date")]
+        [XmlElement(ElementName = "next_renewal_date")]
         public long nextRenewalDate;
 
         /// <summary>
@@ -117,6 +132,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "recurring_status")]
         [JsonProperty("recurring_status")]
+        [XmlElement(ElementName = "recurring_status")]
         public bool recurringStatus;
 
         /// <summary>
@@ -124,6 +140,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "is_renewable")]
         [JsonProperty("is_renewable")]
+        [XmlElement(ElementName = "is_renewable")]
         public bool isRenewable;
 
         /// <summary>
@@ -131,6 +148,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "media_file_id")]
         [JsonProperty("media_file_id")]
+        [XmlElement(ElementName = "media_file_id")]
         public int mediaFileID;
 
 
