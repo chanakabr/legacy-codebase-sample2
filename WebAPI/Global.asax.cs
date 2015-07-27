@@ -39,7 +39,7 @@ namespace WebAPI
 
             // get user agent
             if (HttpContext.Current.Request.UserAgent != null)
-                HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                HttpContext.Current.Items[Constants.CLIENT_TAG] = queryParams["clientTag"];
 
             // get host IP
             if (HttpContext.Current.Request.UserHostAddress != null)

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -100,6 +101,10 @@ namespace WebAPI.Controllers
 
                         try
                         {
+                            //If we got the clientTag from the JSON - override if does not exist
+                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]) && reqParams["clientTag"] != null)
+                                HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
+
                             response = methodInfo.Invoke(classInstance, methodParams.ToArray());
                         }
                         catch (TargetParameterCountException ex)
