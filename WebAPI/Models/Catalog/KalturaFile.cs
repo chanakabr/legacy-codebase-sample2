@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "asset_id")]
         [JsonProperty(PropertyName = "asset_id")]
+        [XmlElement(ElementName = "asset_id")]
         public int AssetId { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
         public int Id { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
         public string Type { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "url")]
         [JsonProperty(PropertyName = "url")]
+        [XmlElement(ElementName = "url")]
         public string Url { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
+        [XmlElement(ElementName = "assets")]
         public List<KalturaAssetInfo> Assets { get; set; }
     }
 
@@ -33,6 +35,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -41,6 +44,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
         public int Type { get; set; }
 
         /// <summary>
@@ -48,6 +52,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -55,6 +60,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
+        [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
         /// <summary>
@@ -62,6 +68,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
+        [XmlElement(ElementName = "images")]
         public List<KalturaImage> Images { get; set; }
 
         /// <summary>
@@ -69,6 +76,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "files", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "files")]
         public List<KalturaFile> Files { get; set; }
 
         /// <summary>
@@ -76,6 +84,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "metas")]
         [JsonProperty(PropertyName = "metas")]
+        [XmlElement(ElementName = "metas")]
         public SerializableDictionary<string, string> Metas { get; set; }
 
         /// <summary>
@@ -83,6 +92,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
+        [XmlElement(ElementName = "tags")]
         public SerializableDictionary<string, List<string>> Tags { get; set; }
 
         /// <summary>
@@ -90,6 +100,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "start_date")]
         [JsonProperty(PropertyName = "start_date")]
+        [XmlElement(ElementName = "start_date")]
         public long StartDate { get; set; }
 
         /// <summary>
@@ -97,6 +108,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty(PropertyName = "end_date")]
+        [XmlElement(ElementName = "end_date")]
         public long EndDate { get; set; }
 
         /// <summary>
@@ -104,6 +116,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "stats")]
         public KalturaAssetStats Statistics { get; set; }
 
         /// <summary>
@@ -113,6 +126,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "extra_params", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "extra_params")]
         public SerializableDictionary<string, string> ExtraParams { get; set; }
     }
 }

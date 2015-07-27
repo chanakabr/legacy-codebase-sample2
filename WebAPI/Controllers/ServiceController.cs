@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
             {
                 //TODO
             }
-            else            
+            else
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid or missing");
 
             return response;
