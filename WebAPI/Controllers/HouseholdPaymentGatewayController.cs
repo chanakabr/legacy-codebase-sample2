@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("{household_id}/payment_gateways/get"), HttpGet]
-        public Models.Billing.KalturaPaymentGWResponse GetHouseholdPaymentGateways([FromUri] string partner_id, [FromUri] long household_id, [FromUri] string user_id)
+        public Models.Billing.KalturaPaymentGWResponse Get([FromUri] string partner_id, [FromUri] long household_id, [FromUri] string user_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
 
@@ -63,8 +63,8 @@ namespace WebAPI.Controllers
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
-        [Route("{household_id}/payment_gateways/add"), HttpPost]
-        public bool SetHouseholdPaymentGateway([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id, [FromUri] string charge_id)
+        [Route("{household_id}/payment_gateways/set"), HttpPost]
+        public bool Set([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id, [FromUri] string charge_id)
         {
             bool response = false;
 
