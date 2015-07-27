@@ -103,7 +103,7 @@ namespace WebAPI.Clients
             return paymentGW;
         }
 
-        public Models.Billing.KalturaPaymentGWResponse GetHouseHoldPaymentGW(int groupId, string siteGuid, string householdID)
+        public Models.Billing.KalturaPaymentGWResponse GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             Models.Billing.KalturaPaymentGWResponse paymentGW = null;
             WebAPI.Billing.PaymentGWResponse response = null;
@@ -113,8 +113,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int house_hold_id = int.Parse(householdID);
-                    response = Billing.GetHouseHoldPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, house_hold_id);
+                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
                 }
             }
             catch (Exception ex)
@@ -359,7 +358,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGWHouseHold(int groupId, int paymentGwID, string siteGuid, string householdID, string ChargeID)
+        public bool SetHouseHoldPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID, string ChargeID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -368,8 +367,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int house_hold_id = int.Parse(householdID);
-                    response = Billing.InsertPaymentGWHouseHold(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, house_hold_id, ChargeID);
+                    response = Billing.SetHouseHoldPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID, ChargeID);
                 }
             }
             catch (Exception ex)

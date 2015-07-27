@@ -649,35 +649,6 @@ namespace WebAPI.Controllers
         }
 
         #region payment gateway
-        /// <summary>
-        /// Returns payment gateway for household
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
-        /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="household_id">House Hold Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        [Route("{household_id}/payment_gateways/get"), HttpGet]
-        public Models.Billing.KalturaPaymentGWResponse GetPaymentGW([FromUri] string partner_id, [FromUri] string household_id, [FromUri] string user_id)
-        {
-            Models.Billing.KalturaPaymentGWResponse response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.BillingClient().GetHouseHoldPaymentGW(groupId, user_id, household_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
 
         /// <summary>
         /// Delete payment gateway from household
@@ -701,38 +672,6 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.BillingClient().DeletePaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Insert new payment gateway for household
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
-        /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="household_id">House Hold Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
-        [Route("{household_id}/payment_gateways/add"), HttpPost]
-        public bool InsertPaymentGWHouseHold([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id, [FromUri] string charge_id)
-        {
-            bool response = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id, charge_id);
             }
             catch (ClientException ex)
             {
