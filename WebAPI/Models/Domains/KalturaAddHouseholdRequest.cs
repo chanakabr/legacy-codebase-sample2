@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "master_user_id")]
         [JsonProperty("master_user_id")]
+        [XmlElement(ElementName = "master_user_id")]
         public string MasterUserId { get; set; }
     }
 }

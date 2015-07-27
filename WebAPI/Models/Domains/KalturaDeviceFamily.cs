@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "device_limit")]
         [JsonProperty("device_limit")]
+        [XmlElement(ElementName = "device_limit")]
         public int DeviceLimit { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "concurrent_limit")]
         [JsonProperty("concurrent_limit")]
+        [XmlElement(ElementName = "concurrent_limit")]
         public int ConcurrentLimit { get; set; }
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "devices")]
         [JsonProperty("devices")]
+        [XmlElement(ElementName = "devices")]
         public List<KalturaDevice> Devices { get; set; }
     }
 }

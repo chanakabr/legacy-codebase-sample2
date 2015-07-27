@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "udid")]
         [JsonProperty("udid")]
+        [XmlElement(ElementName = "udid")]
         public string Udid { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "brand")]
         [JsonProperty("brand")]
+        [XmlElement(ElementName = "brand")]
         public string Brand { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "brand_id")]
         [JsonProperty("brand_id")]
+        [XmlElement(ElementName = "brand_id")]
         public int BrandId { get; set; }
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "activated_on")]
         [JsonProperty("activated_on")]
+        [XmlElement(ElementName = "activated_on")]
         public DateTime ActivatedOn { get; set; }
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "state")]
         [JsonProperty("state")]
+        [XmlElement(ElementName = "state")]
         public KalturaDeviceState State { get; set; }
     }
 }
