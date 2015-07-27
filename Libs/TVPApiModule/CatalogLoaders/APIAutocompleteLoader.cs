@@ -95,25 +95,23 @@ namespace TVPApiModule.CatalogLoaders
             }
 
             // Convert lists to dictionaries for easier access by ID later on
-            Dictionary<string, MediaObj> idToMedia = null;
-            Dictionary<string, ProgramObj> idToEpg = null;
+            Dictionary<string, MediaObj> idToMedia = new Dictionary<string, MediaObj>();
+            Dictionary<string, ProgramObj> idToEpg = new Dictionary<string,ProgramObj>();
 
             if (medias != null)
             {
-                idToMedia = medias.ToDictionary<MediaObj, string>(media => media.AssetId);
-            }
-            else
-            {
-                idToMedia = new Dictionary<string, MediaObj>();
+                medias.ForEach(media =>
+                {
+                    idToMedia[media.AssetId] = media;
+                });
             }
 
             if (epgs != null)
             {
-                idToEpg = epgs.ToDictionary<ProgramObj, string>(epg => epg.AssetId);
-            }
-            else
-            {
-                idToEpg = new Dictionary<string, ProgramObj>();
+                epgs.ForEach(epg =>
+                {
+                    idToEpg[epg.AssetId] = epg;
+                });
             }
 
             List<SlimAssetInfo> result = new List<SlimAssetInfo>();
