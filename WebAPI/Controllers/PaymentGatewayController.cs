@@ -82,5 +82,36 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Delete payment gateway from household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="household_id">House Hold Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        [Route("{household_id}/payment_gateways/delete"), HttpPost]
+        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().DeletePaymentGWHouseHold(groupId, payment_gateway_id, user_id, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

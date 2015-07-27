@@ -26,96 +26,69 @@ namespace WebAPI.Controllers
     [RoutePrefix("catalog")]
     public class CatalogController : ApiController
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
         /// <summary>
-        /// Returns related media by media identifier<br />        
-        /// </summary>        
-        /// <param name="media_id">Media identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="media_types">Related media types list - possible values:
-        /// any media type ID (according to media type IDs defined dynamically in the system).
-        /// If omitted – all types should be included.</param>
-        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
-        /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
-        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="household_id">Household identifier</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("media/{media_id}/related"), HttpGet]
-        public KalturaAssetInfoWrapper GetRelatedMedia(string partner_id, int media_id,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
-            int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            string language = null, string user_id = null, int household_id = 0)
-        {
-            KalturaAssetInfoWrapper response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            if (media_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
-            }
-
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (page_size == null || page_size > 10 || page_size < 1)
-            {
-                page_size = 5;
-            }
-
-            try
-            {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, media_id, media_types, with);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Returns all channel media        
+        /// Get recently watched media for user, ordered by recently watched first.    
         /// </summary>
-        /// <param name="channel_id">Channel identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use channel default ordering.</param>
+        /// <param name="partner_id" >Partner identifier</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="filter_types">List of asset types to search within. The list is a string separated be comma.
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="filter_status">Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
+        /// If omitted or specified filter = all – return all types.
+        /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.</param>
+        /// <param name="days">How many days back to return the watched media. If omitted, default to 7 days</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
         /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="household_id">Household identifier</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("channels/{channel_id}/media"), HttpGet]
-        public KalturaAssetInfoWrapper GetChannelMedia(string partner_id, int channel_id, KalturaOrder? order_by = null, 
-            int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            string language = null, string user_id = null, int household_id = 0)
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        [Route("{user_id}/views"), HttpGet]
+        public KalturaWatchHistoryAssetWrapper WatchHistory(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
+            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
         {
-            KalturaAssetInfoWrapper response = null;
+            KalturaWatchHistoryAssetWrapper response = null;
 
             int groupId = int.Parse(partner_id);
 
-            if (channel_id == 0)
+            // page size - 5 <= size <= 50
+            if (page_size == null || page_size == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
+                page_size = 25;
+            }
+            else if (page_size > 50)
+            {
+                page_size = 50;
+            }
+            else if (page_size < 5)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (page_size == null || page_size > 10 || page_size < 1)
+            List<int> filterTypes = null;
+            if (!string.IsNullOrEmpty(filter_types))
             {
-                page_size = 5;
+                try
+                {
+                    filterTypes = filter_types.Split(',').Select(x => int.Parse(x)).ToList();
+                }
+                catch
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "invalid filter types");
+                }
             }
 
+            // days - default value 7
+            if (days == 0)
+                days = 7;
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, channel_id, order_by.Value, with);
+                // call client
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, page_index, page_size, filter_status, days, filterTypes, with);
             }
             catch (ClientException ex)
             {
@@ -123,7 +96,7 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
+        }        
 
         /// <summary>
         /// Returns media by media identifiers        
@@ -185,7 +158,5 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        
     }
 }

@@ -13,7 +13,6 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
-
 namespace WebAPI.Controllers
 {
     /// <summary>
@@ -22,41 +21,6 @@ namespace WebAPI.Controllers
     [RoutePrefix("user")]
     public class UserController : ApiController
     {
-        /// <summary>
-        /// Generates a temporarily PIN that can allow a user to log-in.
-        /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="secret">Additional security parameter for optional enhanced security</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User doesn't exist = 2000, User suspended = 2001
-        /// </remarks>
-        [Route("{user_id}/pin/generate"), HttpPost]
-        public KalturaLoginPin GenerateLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
-        {
-            KalturaLoginPin response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, user_id, secret);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{user_id}/pin"), HttpGet]
-        public KalturaLoginPin GetGenerateLoginPin(string partner_id, string user_id, string secret = null)
-        {
-            return GenerateLoginPin(partner_id, user_id, secret);
-        }
-
         /// <summary>
         /// User sign-in via a time-expired sign-in PIN.        
         /// </summary>
@@ -93,66 +57,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("login/pin"), HttpGet]
-        public KalturaUser GetLogInWithPin(string partner_id, string pin, string udid, string secret = null)
-        {
-            return LogInWithPin(partner_id, pin, udid, secret);
-        }
-
-        /// <summary>
-        /// Set a temporarily PIN that can allow a user to log-in.        
-        /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="pin">Device Identifier</param>
-        /// <param name="secret">Additional security parameter to validate the login</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
-        /// </remarks>
-        [Route("{user_id}/pin"), HttpPost]
-        public void SetLoginPin([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
-        {
-            int groupId = int.Parse(partner_id);
-
-            if (string.IsNullOrEmpty(pin))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
-            }
-
-            try
-            {
-                // call client
-                ClientsManager.UsersClient().SetLoginPin(groupId, user_id, pin, secret);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-        }
-
-        /// <summary>
-        /// Immediately expires a pre-set login-PIN.
-        /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{user_id}/pin"), HttpDelete]
-        public void ClearLoginPin([FromUri] string partner_id, [FromUri] string user_id)
-        {
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-        }
-
 
         /// <summary>
         /// login with user name and password.
@@ -206,8 +110,7 @@ namespace WebAPI.Controllers
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
-        [Route(""), HttpPost]
-        public KalturaUser SignUp([FromUri] string partner_id, [FromBody] KalturaSignUp request)
+        public KalturaUser Add([FromUri] string partner_id, [FromBody] KalturaSignUp request)
         {
             KalturaUser response = null;
 
@@ -385,7 +288,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
-        public KalturaUsersList GetUsersData([FromUri] string partner_id, string user_id)
+        public KalturaUsersList Get([FromUri] string partner_id, string user_id)
         {
             List<KalturaUser> response = null;
 
@@ -431,7 +334,7 @@ namespace WebAPI.Controllers
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("{user_id}"), HttpPut]
-        public KalturaUser SetUserData([FromUri] string partner_id, string user_id, KalturaUserData user_data)
+        public KalturaUser Update([FromUri] string partner_id, string user_id, KalturaUserData user_data)
         {
             KalturaUser response = null;
             int groupId = int.Parse(partner_id);
@@ -460,263 +363,6 @@ namespace WebAPI.Controllers
         }
 
         #region Parental Rules
-
-        /// <summary>
-        /// Return the parental rules that applies to the user. Can include rules that have been associated in account, household, or user level.        
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001
-        /// </remarks>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <returns>List of parental rules applied to the user</returns>
-        [Route("{user_id}/parental/rules"), HttpGet]
-        public KalturaParentalRulesList GetParentalRules([FromUri] string partner_id, [FromUri] string user_id)
-        {
-            List<KalturaParentalRule> response = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.ApiClient().GetUserParentalRules(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return new KalturaParentalRulesList() { ParentalRules = response };
-        }
-
-        /// <summary>
-        /// Enabled a parental rule for a specific user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental/rules/{rule_id}"), HttpPost]
-        public bool EnableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 1);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Disables a parental rule for a specific user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
-        /// <param name="user_id">User Identifier</param>
-        /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <returns>Success or failure and reason</returns>
-        [Route("{user_id}/parental/rules/{rule_id}"), HttpDelete]
-        public bool DisableParentalRule([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().SetUserParentalRule(groupId, user_id, rule_id, 0);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Retrieve the parental PIN that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/parental/pin"), HttpGet]
-        public KalturaPinResponse GetParentalPIN([FromUri] string partner_id, [FromUri] string user_id)
-        {
-            KalturaPinResponse pinResponse = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return pinResponse;
-        }
-
-        /// <summary>
-        /// Set the parental PIN that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="pin">New PIN to set</param>
-        /// <returns>Success / Fail</returns>
-        [Route("{user_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
-        {
-            bool success = false;
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().SetUserParentalPIN(int.Parse(partner_id), user_id, pin);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Retrieve the purchase settings that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase/settings"), HttpGet]
-        public KalturaPurchaseSettingsResponse GetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id)
-        {
-            KalturaPurchaseSettingsResponse purchaseResponse = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return purchaseResponse;
-        }
-
-        /// <summary>
-        /// Set the purchase settings that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="setting">New settings to apply</param>
-        /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/settings"), HttpPost]
-        public bool SetPurchaseSettings([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int setting)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, user_id, setting);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Retrieve the purchase PIN that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// 5001 = No PIN defined, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase/pin"), HttpGet]
-        public KalturaPurchaseSettingsResponse GetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id)
-        {
-            KalturaPurchaseSettingsResponse pinResponse = null;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return pinResponse;
-        }
-
-        /// <summary>
-        /// Set the purchase PIN that applies for the user.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="pin">New PIN to apply</param>
-        /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/pin"), HttpPost]
-        public bool SetPurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, user_id, pin);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
 
         /// <summary>
         /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.        
@@ -785,76 +431,6 @@ namespace WebAPI.Controllers
             }
 
             return new KalturaParentalRulesList() { ParentalRules = response };
-        }
-
-        /// <summary>
-        /// Validate that a given parental PIN for a user is valid.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="pin">PIN to validate</param>
-        /// <returns>Success / fail</returns>
-        [Route("{user_id}/parental/pin/validate"), HttpPost]
-        public bool ValidateParentalPIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            // parameters validation
-            if (string.IsNullOrEmpty(pin))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
-            }
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, user_id, pin);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Validate that a given purchase PIN for a user is valid.         
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="pin">PIN to validate</param>
-        /// <returns>Success / fail</returns>
-        [Route("{user_id}/purchase/pin/validate"), HttpPost]
-        public bool ValidatePurchasePIN([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
-        {
-            bool success = false;
-
-            int groupId = int.Parse(partner_id);
-
-            // parameters validation
-            if (string.IsNullOrEmpty(pin))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
-            }
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().ValidatePurchasePIN(groupId, user_id, pin);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
         }
 
         /// <summary>
@@ -958,38 +534,5 @@ namespace WebAPI.Controllers
         }
 
         #endregion
-
-        #region ConditionalAccess
-
-        /// <summary>
-        /// Gets user transaction history.        
-        /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Id</param>
-        /// <param name="page_number">page number</param>
-        /// <param name="page_size">page size</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{user_id}/transactions"), HttpGet]
-        public KalturaBillingTransactions GetUserTransactionHistory([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
-        {
-            KalturaBillingTransactions response = new KalturaBillingTransactions();
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, user_id, page_number, page_size);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-        
-        #endregion
-
     }
 }

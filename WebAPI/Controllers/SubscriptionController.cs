@@ -16,8 +16,8 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("bundle")]
-    public class BundleController : ApiController
+    [RoutePrefix("subscription")]
+    public class SubscriptionController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("subscriptions/{subscriptions_ids}"), HttpGet]
-        public KalturaSubscriptionsList GetSubscriptionsData([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
+        public KalturaSubscriptionsList Get([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
 
@@ -93,6 +93,51 @@ namespace WebAPI.Controllers
             }
 
             return new KalturaSubscriptionsList() { Subscriptions = subscruptions };
+        }
+
+        /// <summary>
+        /// Returns a list of subscriptions that contain the supplied file
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="media_id">Media identifier</param>
+        /// <param name="file_id">Media file identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="language">Language code</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
+        ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        [Route("files/{file_id}/subscriptions"), HttpGet]
+        public List<KalturaSubscription> GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
+        {
+            List<KalturaSubscription> subscruptions = null;
+            List<int> subscriptionsIds = null;
+
+            int groupId = int.Parse(partner_id);
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
+            }
+            if (file_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "file_id cannot be 0");
+            }
+
+            try
+            {
+                // call client
+                subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, media_id, file_id);
+
+                if (subscriptionsIds != null && subscriptionsIds.Count > 0)
+                {
+                    subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToList(), udid, language);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return subscruptions;
         }
     }
 }

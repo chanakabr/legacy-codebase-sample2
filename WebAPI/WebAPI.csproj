@@ -651,9 +651,19 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
-    <Compile Include="Controllers\BundleController.cs" />
+    <Compile Include="Controllers\ChannelMediaController.cs" />
+    <Compile Include="Controllers\HouseholdDeviceController.cs" />
+    <Compile Include="Controllers\HouseholdParentalPinController.cs" />
+    <Compile Include="Controllers\HouseholdParentalRuleController.cs" />
+    <Compile Include="Controllers\HouseholdPurchasePinController.cs" />
+    <Compile Include="Controllers\HouseholdPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\HouseholdUserController.cs" />
+    <Compile Include="Controllers\PriceController.cs" />
+    <Compile Include="Controllers\RelatedMediaController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\ChannelController.cs" />
+    <Compile Include="Controllers\PaymentGatewayProfileSettingsController.cs" />
     <Compile Include="Controllers\CouponController.cs" />
     <Compile Include="Controllers\EntitlementController.cs" />
     <Compile Include="Controllers\FavoriteController.cs" />
@@ -662,10 +672,15 @@
     <Compile Include="Controllers\MultiRequestController.cs" />
     <Compile Include="ApiSchema.ashx.cs">
       <DependentUpon>ApiSchema.ashx</DependentUpon>
-    </Compile>    
-    <Compile Include="Controllers\PricingController.cs" />
+    </Compile>
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
+    <Compile Include="Controllers\UserLoginPinController.cs" />
+    <Compile Include="Controllers\UserParentalPinController.cs" />
+    <Compile Include="Controllers\UserParentalRuleController.cs" />
+    <Compile Include="Controllers\UserPurchasePinController.cs" />
+    <Compile Include="Controllers\UserPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\UserTransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -725,7 +740,7 @@
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
-    <Compile Include="Controllers\PartnerController.cs" />
+    <Compile Include="Controllers\ParentalRuleProfileController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\KalturaCategory.cs" />

@@ -10,28 +10,28 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("payment_gateway_profile")]
-    public class PaymentGatewayProfileController : ApiController
+    [RoutePrefix("payment_gateway_profile_settings")]
+    public class PaymentGatewayProfileSettingsController : ApiController
     {
         /// <summary>
-        /// Returns all payment gateways for partner : id + name
+        /// Returns all payment gateway settings for partner
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
-        [Route("payment_gateways"), HttpGet]
-        public Models.Billing.KalturaPaymentGWResponse List([FromUri] string partner_id)
+        [Route("payment_gateways/settings"), HttpGet]
+        public Models.Billing.KalturaPaymentGWSettingsResponse List([FromUri] string partner_id)
         {
-            Models.Billing.KalturaPaymentGWResponse response = null;
+            Models.Billing.KalturaPaymentGWSettingsResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGW(groupId);
+                response = ClientsManager.BillingClient().GetPaymentGWSettings(groupId);
             }
             catch (ClientException ex)
             {
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete payment gateway by payment gateway id
+        /// Delete payment gateway specific settings by settings keys 
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
@@ -50,8 +50,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        [Route("payment_gateways/{payment_gateway_id}/delete"), HttpPost]
-        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id)
+        /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
+        [Route("payment_gateways/{payment_gateway_id}/settings/delete"), HttpPost]
+        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
             bool response = false;
 
@@ -60,36 +61,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGW(groupId, payment_gateway_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-        
-        /// <summary>
-        /// Insert new payment gateway for partner
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
-        /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="pgs">Payment GateWay Settings Object</param>
-        [Route("payment_gateway/add"), HttpPost]
-        public bool Add([FromUri] string partner_id, [FromBody] KalturaPaymentGW pgs)
-        {
-            bool response = false;
-
-            int groupId = int.Parse(partner_id);
-
-            try
-            {
-                // call client
-                response = ClientsManager.BillingClient().InsertPaymentGW(groupId, pgs);
+                response = ClientsManager.BillingClient().DeletePaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {
@@ -100,7 +72,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update payment gateway details
+        /// Insert new settings for payment gateway for partner
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
@@ -108,14 +80,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="name">Payment Gateway Name</param>
-        ///<param name="url">Payment Gateway Url</param>
-        ///<param name="is_default">Payment Gateway is default or not </param>
-        ///<param name="is_active">Payment Gateway is active or not </param>
-        ///<param name="external_identifier">Payment Gateway external identifier</param>
-        [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
-        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active,
-            [FromUri] string external_identifier, [FromUri]  int pendding_interval, [FromUri] int pendding_retries, [FromUri] string shared_secret)
+        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        [Route("payment_gateways/{payment_gateway_id}/settings/add"), HttpPost]
+        public bool Add([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
             bool response = false;
 
@@ -124,8 +91,37 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, url, external_identifier, pendding_interval,
-                    pendding_retries, shared_secret, is_default, is_active);
+                response = ClientsManager.BillingClient().InsertPaymentGWSettings(groupId, payment_gateway_id, settings);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update settings for payment gateway 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        [Route("payment_gateways/{payment_gateway_id}/settings/update"), HttpPost]
+        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        {
+            bool response = false;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentGWSettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {

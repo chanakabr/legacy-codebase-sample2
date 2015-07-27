@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
         [Route("{code}"), HttpGet]
-        public KalturaCouponDetails GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails Get([FromUri] string partner_id, [FromUri] string code)
         {
             KalturaCouponDetails coupon = null;
 
@@ -44,13 +44,6 @@ namespace WebAPI.Controllers
             }
 
             return coupon;
-        }
-
-        [Route("{code}"), HttpPost]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public KalturaCouponDetails _GetCouponStatus([FromUri] string partner_id, [FromUri] string code)
-        {
-            return GetCouponStatus(partner_id, code);
         }
     }
 }
