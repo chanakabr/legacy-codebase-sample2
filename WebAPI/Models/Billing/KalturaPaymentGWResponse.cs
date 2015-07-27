@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Billing
         /// </summary>
         [DataMember(Name = "payment_gateway_basic")]
         [JsonProperty("payment_gateway_basic")]
+        [XmlElement(ElementName = "payment_gateway_basic")]
         public List<KalturaPaymentGWBasic> pgw { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -15,6 +16,7 @@ namespace WebAPI.Models.Billing
         /// </summary>
         [DataMember(Name = "charge_id")]
         [JsonProperty("charge_id")]
+        [XmlElement(ElementName = "charge_id")]
         public string  chargeID { get; set; }
     }
 }
