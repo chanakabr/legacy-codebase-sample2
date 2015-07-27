@@ -995,6 +995,7 @@ namespace Catalog
                             searchResults.m_resultIDs.Clear();
 
                             int validNumberOfMediasRange = pageSize;
+                            // check which results should be returned
 
                             if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, pageIndex, ref validNumberOfMediasRange))
                             {
