@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "coupons_group")]
         [JsonProperty("coupons_group")]
+        [XmlElement(ElementName = "coupons_group")]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "coupon_status")]
         [JsonProperty("coupon_status")]
+        [XmlElement(ElementName = "coupon_status")]
         public KalturaCouponStatus CouponStatus { get; set; }
     }
 }

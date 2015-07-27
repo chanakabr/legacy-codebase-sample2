@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "life_cycle")]
         [JsonProperty("life_cycle")]
+        [XmlElement(ElementName = "life_cycle")]
         public int LifeCycle { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "non_renewable_period")]
         [JsonProperty("non_renewable_period")]
+        [XmlElement(ElementName = "non_renewable_period")]
         public int NonRenewablePeriod { get; set; }
 
         

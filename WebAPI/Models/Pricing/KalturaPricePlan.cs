@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 
 namespace WebAPI.Models.Pricing
 {
@@ -17,6 +18,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "is_renewable")]
         [JsonProperty("is_renewable")]
+        [XmlElement(ElementName = "is_renewable")]
         public bool IsRenewable { get; set; }
 
         /// <summary>
@@ -24,6 +26,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "renewals_number")]
         [JsonProperty("renewals_number")]
+        [XmlElement(ElementName = "renewals_number")]
         public int RenewalsNumber { get; set; }
 
         /// <summary>
@@ -31,6 +34,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price_id")]
         [JsonProperty("price_id")]
+        [XmlElement(ElementName = "price_id")]
         public int price_id { get; set; }
     }
 }

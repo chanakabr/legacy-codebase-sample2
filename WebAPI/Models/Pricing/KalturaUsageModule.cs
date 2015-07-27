@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "max_views_number")]
         [JsonProperty("max_views_number")]
+        [XmlElement(ElementName = "max_views_number")]
         public int MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "view_life_cycle")]
         [JsonProperty("view_life_cycle")]
+        [XmlElement(ElementName = "view_life_cycle")]
         public int ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "full_life_cycle")]
         [JsonProperty("full_life_cycle")]
+        [XmlElement(ElementName = "full_life_cycle")]
         public int FullLifeCycle { get; set; }
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "coupon_id")]
         [JsonProperty("coupon_id")]
+        [XmlElement(ElementName = "coupon_id")]
         public int CouponId { get; set; }
 
         /// <summary>
@@ -60,6 +67,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "is_subscription_only")]
         [JsonProperty("is_subscription_only")]
+        [XmlElement(ElementName = "is_subscription_only")]
         public bool IsSubscriptionOnly { get; set; }
                 
         /// <summary>
@@ -67,6 +75,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "waiver_period")]
         [JsonProperty("waiver_period")]
+        [XmlElement(ElementName = "waiver_period")]
         public int WaiverPeriod { get; set; }
 
         /// <summary>
@@ -74,6 +83,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "is_waiver_enabled")]
         [JsonProperty("is_waiver_enabled")]
+        [XmlElement(ElementName = "is_waiver_enabled")]
         public bool IsWaiverEnabled { get; set; }
 
         /// <summary>
@@ -81,6 +91,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "is_offline_playback")]
         [JsonProperty("is_offline_playback")]
+        [XmlElement(ElementName = "is_offline_playback")]
         public bool IsOfflinePlayback { get; set; }
 
 

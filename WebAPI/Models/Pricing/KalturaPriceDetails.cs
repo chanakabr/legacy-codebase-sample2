@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public int Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
         public string name { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
+        [XmlElement(ElementName = "price")]
         public KalturaPrice Price { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
+        [XmlElement(ElementName = "descriptions")]
         public List<KalturaTranslationContainer> Descriptions { get; set; }
     }
 }

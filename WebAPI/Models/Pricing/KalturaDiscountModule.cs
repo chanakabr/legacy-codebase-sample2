@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "percent")]
         [JsonProperty("percent")]
+        [XmlElement(ElementName = "percent")]
         public double Percent { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
+        [XmlElement(ElementName = "start_date")]
         public DateTime StartDate { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
+        [XmlElement(ElementName = "end_date")]
         public DateTime EndDate { get; set; }
     }
 }

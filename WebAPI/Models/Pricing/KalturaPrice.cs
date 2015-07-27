@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "amount")]
         [JsonProperty("amount")]
+        [XmlElement(ElementName = "amount")]
         public double Amount { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "currency")]
         [JsonProperty("currency")]
+        [XmlElement(ElementName = "currency")]
         public string Currency { get; set; }
     }
 }

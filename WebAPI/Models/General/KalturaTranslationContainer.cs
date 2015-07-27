@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 
 namespace WebAPI.Models.General
 {
@@ -17,6 +18,7 @@ namespace WebAPI.Models.General
         /// </summary>
         [DataMember(Name = "language")]
         [JsonProperty("language")]
+        [XmlElement(ElementName = "language")]
         public string Language { get; set; }
 
         /// <summary>
@@ -24,6 +26,7 @@ namespace WebAPI.Models.General
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty("value")]
+        [XmlElement(ElementName = "value")]
         public string Value { get; set; }
     }
 }
