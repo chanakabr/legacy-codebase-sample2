@@ -264,7 +264,7 @@ namespace ConditionalAccess
         protected override bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword, long purchaseID, long billingRefTransactionID, ref TvinciBilling.module wsBillingService)
         {
             return wsBillingService.UpdatePurchaseIDInBilling(sWSUsername, sWSPassword, purchaseID, billingRefTransactionID);
-                     
+
         }
 
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription theSub,
@@ -676,51 +676,47 @@ namespace ConditionalAccess
         }
 
 
-        protected override bool HandlePPVBillingSuccess(string siteGUID, int houseHoldID, Subscription relevantSub, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
-            string customData, PPVModule thePPVModule, int productID, int contentID, Guid billingGuid, ref long billingTransactionID, ref long purchaseID)
+        protected override bool HandlePPVBillingSuccess(string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
+                                                        string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
+                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, ref long purchaseID)
         {
-            bool res = true;
+            purchaseID = 0;
             try
             {
+                // update coupon uses
                 HandleCouponUses(relevantSub, productID.ToString(), siteGUID, price, currency, contentID, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
-                if (response != null)
+                bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
+                DateTime utcNow = DateTime.UtcNow;
+                DateTime endDate = utcNow;
+                if (isPPVUsageModuleExists)
                 {
-                    billingTransactionID = response.TransactionID;
-                    bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
-                    DateTime utcNow = DateTime.UtcNow;
-                    DateTime endDate = utcNow;
-                    if (isPPVUsageModuleExists)
-                    {
-                        endDate = Utils.GetEndDateTime(utcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    }
-                    int maxNumOfViews = isPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
-                    string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
+                    endDate = Utils.GetEndDateTime(utcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                }
+                int maxNumOfViews = isPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
+                string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
-                    purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productID, siteGUID, price, currency, maxNumOfViews, customData, subscriptionCode, billingTransactionID, utcNow, endDate,
-                        utcNow, country, string.Empty, deviceName, houseHoldID, billingGuid.ToString());
-                    if (!(purchaseID > 0))
-                    {
-                        res = false;
-                        log.Debug("HandlePPVBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", billingTransactionID, siteGUID, coupon, contentID));
-                        WriteToUserLog(siteGUID, string.Format("HandlePPVBillingSuccess. No purchase id. contentID:  {0} , Coupon Code: {1}", contentID, coupon));
-                    }
-                }
-                else
+                purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productID, siteGUID, price, currency, maxNumOfViews, customData, subscriptionCode,
+                                                                        billingTransactionId, utcNow, endDate, utcNow, country, string.Empty, deviceName, houseHoldID,
+                                                                        billingGuid);
+                if (purchaseID == 0)
                 {
-                    res = false;
-                    log.Error("HandlePPVBillingSuccess - " + string.Format("No billing transaction id. Site Guid: {0} , contentID: {1} , Coupon Code: {2}", siteGUID, contentID, coupon));
+                    log.ErrorFormat("Failed to insert PPV purchase. Billing transaction ID: {0} , Siteguid: {1} , Content ID: {2}, Product ID: {3}",
+                                    billingTransactionId, // {0}
+                                    siteGUID,             // {1}
+                                    contentID,            // {2}
+                                    productID);           // {3}
                 }
-                return res;
             }
             catch (Exception ex)
             {
                 log.Error("fail HandlePPVBillingSuccess ", ex);
-                return false;
             }
+
+            return purchaseID > 0;
         }
 
-        protected override bool HandleSubscriptionBillingSuccess(string siteGUID, int houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
-         string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID)
+        protected override bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
+         string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long billingTransactionID, ref long purchaseID)
         {
             bool res = true;
             try
@@ -768,8 +764,8 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandleCollectionBillingSuccess(string siteGUID, int houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
-            string customData, int productID, Guid billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID)
+        protected override bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, PurchaseResponse response,
+            string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, ref long billingTransactionID, ref long purchaseID)
         {
             bool res = true;
             try
@@ -778,8 +774,8 @@ namespace ConditionalAccess
                 if (response != null)
                 {
                     if (response.TransactionID > 0)
-                    {                       
-                        bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);                       
+                    {
+                        bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
                         billingTransactionID = response.TransactionID;
 
                         DateTime utcNow = DateTime.UtcNow;
@@ -808,7 +804,7 @@ namespace ConditionalAccess
             }
             catch (Exception)
             {
-                
+
                 throw;
             }
         }

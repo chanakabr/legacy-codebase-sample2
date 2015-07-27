@@ -87,7 +87,7 @@ namespace ApiObjects.Response
         NoMediaRelatedToFile = 3017,
         NoContentID = 3018,
         NoProductID = 3019,
-        NoValidCoupon = 3020,
+        CouponNotValid = 3020,
         PPVPurchased = 3021,
         Free = 3022,
         ForPurchaseSubscriptionOnly = 3023,
@@ -110,7 +110,7 @@ namespace ApiObjects.Response
         RuleNotExists = 5003,
 
         // Billing 6000 - 6999
-        PriceNotCorrect = 6000,
+        IncorrectPrice = 6000,
         UnKnownPPVModule = 6001,
         ExpiredCard = 6002,
         CellularPermissionsError = 6003,

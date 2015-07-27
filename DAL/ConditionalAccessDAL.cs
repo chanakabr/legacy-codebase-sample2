@@ -610,7 +610,7 @@ namespace DAL
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     string sCustomData = string.Empty;
-                    
+
                     for (int i = 0; i < dt.Rows.Count && !res; i++)
                     {
                         DataRow dr = dt.Rows[i];
@@ -757,7 +757,7 @@ namespace DAL
 
 
         public static long Insert_NewPPVPurchase(long groupID, long contentID, string siteGuid, double price, string currency, long maxNumOfUses, string customData, string subscriptionCode,
-            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, int householdID, string billingGuid)
+            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -765,21 +765,21 @@ namespace DAL
             sp.AddParameter("@MediaFileID", contentID);
             sp.AddParameter("@SiteGuid", siteGuid);
             sp.AddParameter("@Price", price);
-            sp.AddParameter("@CurrencyCode", currency);            
+            sp.AddParameter("@CurrencyCode", currency);
             sp.AddParameter("@MaxNumOfUses", maxNumOfUses);
-            sp.AddParameter("@CustomData", customData);            
+            sp.AddParameter("@CustomData", customData);
             sp.AddParameter("@BillingTransactionID", billingTransactionID);
-            sp.AddParameter("@StartDate", startDate);           
+            sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@UpdaterID", 0);
             sp.AddParameter("@UpdateDate", createAndUpdateDate);
-            sp.AddParameter("@CreateDate", createAndUpdateDate);            
+            sp.AddParameter("@CreateDate", createAndUpdateDate);
             sp.AddParameter("@CountryCode", country);
             sp.AddParameter("@LanguageCode", language);
-            sp.AddParameter("@DeviceName", deviceName);           
+            sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@domainID", householdID);
             sp.AddParameter("@billingGuid", billingGuid);
-            
+
             if (!string.IsNullOrEmpty(subscriptionCode))
             {
                 sp.AddParameter("@SubscriptionCode", subscriptionCode);
@@ -792,7 +792,7 @@ namespace DAL
         public static long Insert_NewPPVPurchase(long lGroupID, long lMediaFileID, string sSiteGuid, double dPrice,
        string sCurrencyCode, long lMaxNumOfUses, string sCustomData, string sSubscriptionCode,
        long lBillingTransactionID, DateTime dtStartDate, DateTime dtEndDate, DateTime dtCreateAndUpdateDate,
-       string sCountryCode, string sLanguageCode, string sDeviceName, string sConnKey, int domainID)
+       string sCountryCode, string sLanguageCode, string sDeviceName, string sConnKey, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -974,7 +974,7 @@ namespace DAL
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
-            
+
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -1003,7 +1003,7 @@ namespace DAL
             sp.AddParameter("@MPPPurchaseID", lPurchaseID);
 
             return sp.ExecuteReturnValue<bool>();
-        }             
+        }
 
         public static bool Update_SubscriptionPurchaseEndDate(int? nID, string sSiteGuid, int? nBillingTransID, DateTime endDate)
         {
@@ -1023,7 +1023,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
             long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID)
+            DateTime dtCreateAndUpdateDate, string sConnKey, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -1072,7 +1072,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPPVPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
-            sp.AddParameter("@SiteGuid",sSiteGuid );
+            sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
 
             return sp.ExecuteReturnValue<bool>();
@@ -1202,7 +1202,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool Get_LatestCreateDateOfBundleUses(string sBundleCode, int nGroupID, List<int> userIDs, List<int> relatedMediaFiles, 
+        public static bool Get_LatestCreateDateOfBundleUses(string sBundleCode, int nGroupID, List<int> userIDs, List<int> relatedMediaFiles,
             bool bIsSub, ref DateTime dtCreateDateOfBundleUse, ref DateTime dtNow)
         {
             bool res = false;
@@ -1279,7 +1279,7 @@ namespace DAL
                                 colsToCreateDateMapping.Add(bundleCode, latestCreateDate);
                             }
                         }
-                        
+
                     } // end for
                 }
 
@@ -1374,7 +1374,7 @@ namespace DAL
 
             return res;
         }
-     
+
 
 
         public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID)
@@ -1408,7 +1408,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
 
         public static string Get_LicensedLinkSecretCode(long groupID)
         {
@@ -1467,7 +1467,7 @@ namespace DAL
             return nStreamingCoID;
         }
 
-        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID) 
+        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
@@ -1560,7 +1560,7 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }        
+        }
 
         public static bool Get_LatestMediaFilesUse(List<int> usersList, List<int> mediaFileIDs, ref string ppvModuleCode,
             ref bool isOfflineStatus, ref DateTime dateNow, ref DateTime purchaseDate)
@@ -1730,7 +1730,7 @@ namespace DAL
             sp.AddParameter("@StreamingCoID", fileMainStreamingCoID);
 
             DataSet ds = sp.ExecuteDataSet();
-            
+
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -1825,7 +1825,7 @@ namespace DAL
             return (dtUserPurchases);
         }
 
-        public static long Get_LastDomainDLM(int groupID, int domainID)
+        public static long Get_LastDomainDLM(int groupID, long domainID)
         {
             long dlmID = 0;
 
@@ -1870,8 +1870,8 @@ namespace DAL
         }
 
 
-        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle, 
-            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, int houseHoldID)            
+        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
+            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long houseHoldID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1879,20 +1879,20 @@ namespace DAL
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@SubscriptionCode", subscriptionCode);
             sp.AddParameter("@SiteGuid", siteGUID);
-            sp.AddParameter("@CustomData", customData);            
+            sp.AddParameter("@CustomData", customData);
             sp.AddParameter("@MaxNumOfUses", maxNumOfUses);
             sp.AddParameter("@ViewLifeCycleSecs", viewLifeCycle);
             sp.AddParameter("@LastViewDate", DBNull.Value); // make sure it is correct
             sp.AddParameter("@StartDate", subscriptionStartDate);
             sp.AddParameter("@EndDate", subscriptionEndDate);
-            sp.AddParameter("@IsRecurringStatus", isRecurring ? 1 : 0);            
-            sp.AddParameter("@BillingTransactionID", billingTransactionID);            
+            sp.AddParameter("@IsRecurringStatus", isRecurring ? 1 : 0);
+            sp.AddParameter("@BillingTransactionID", billingTransactionID);
             sp.AddParameter("@Price", price);
             sp.AddParameter("@CurrencyCode", currency);
             sp.AddParameter("@UpdaterID", 0);
             sp.AddParameter("@UpdateDate", createAndUpdateDate);
-            sp.AddParameter("@CreateDate", createAndUpdateDate);            
-            sp.AddParameter("@CountryCode", country);            
+            sp.AddParameter("@CreateDate", createAndUpdateDate);
+            sp.AddParameter("@CountryCode", country);
             sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@PreviewModuleID", previewModuleID);
             sp.AddParameter("@domainID", houseHoldID);
@@ -1901,7 +1901,7 @@ namespace DAL
         }
 
         public static long Insert_NewMColPurchase(int groupID, string collectionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle, long billingTransactionID,
-            DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, int houseHoldID)
+            DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, long houseHoldID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1913,14 +1913,14 @@ namespace DAL
             sp.AddParameter("@ViewLifeCycleSecs", viewLifeCycle);
             sp.AddParameter("@StartDate", collectionStartDate);
             sp.AddParameter("@EndDate", collectionEndDate);
-            sp.AddParameter("@BillingTransactionID", billingTransactionID);            
+            sp.AddParameter("@BillingTransactionID", billingTransactionID);
             sp.AddParameter("@Price", price);
             sp.AddParameter("@CurrencyCode", currency);
             sp.AddParameter("@UpdaterID", 0);
             sp.AddParameter("@UpdateDate", createAndUpdateDate);
-            sp.AddParameter("@CreateDate", createAndUpdateDate);            
-            sp.AddParameter("@CountryCode", country);            
-            sp.AddParameter("@DeviceName", deviceName);            
+            sp.AddParameter("@CreateDate", createAndUpdateDate);
+            sp.AddParameter("@CountryCode", country);
+            sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@domainID", houseHoldID);
 
             return sp.ExecuteReturnValue<long>();
