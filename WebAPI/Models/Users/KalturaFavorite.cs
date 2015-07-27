@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
+        [XmlElement(ElementName = "asset")]
         public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "extra_data")]
         [JsonProperty("extra_data")]
+        [XmlElement(ElementName = "extra_data")]
         public string ExtraData { get; set; }
 
     }

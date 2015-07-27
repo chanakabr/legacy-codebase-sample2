@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
         public int? Id { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
         public string Description { get; set; }
     }
 }

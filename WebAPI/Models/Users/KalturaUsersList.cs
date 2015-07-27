@@ -21,6 +21,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "users")]
         [JsonProperty("users")]
+        [XmlElement(ElementName = "users")]
         public List<KalturaUser> Users { get; set; }
     }
 }

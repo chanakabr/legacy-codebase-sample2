@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -18,6 +19,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "media_type")]
         [JsonProperty("media_type")]
+        [XmlElement(ElementName = "media_type")]
         public string MediaType { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "media_id")]
         [JsonProperty("media_id")]
+        [XmlElement(ElementName = "media_id")]
         public string MediaId { get; set; }
 
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "extra_data")]
         [JsonProperty("extra_data")]
+        [XmlElement(ElementName = "extra_data")]
         public string ExtraData { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using WebAPI.Models.General;
+using System.Xml.Serialization;
 
 namespace WebAPI.Models.Users
 {
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "basic_data")]
         [JsonProperty("basic_data")]
+        [XmlElement(ElementName = "basic_data")]
         [Required]
         public KalturaUserBasicData userBasicData { get; set; }
 
@@ -26,7 +28,8 @@ namespace WebAPI.Models.Users
         /// Dynamic Data
         /// </summary>
         [DataMember(Name = "dynamic_data")]
-        [JsonProperty("dynamic_data")]       
+        [JsonProperty("dynamic_data")]
+        [XmlElement(ElementName = "dynamic_data")]
         public Dictionary<string, string> userDynamicData { get; set; }
 
     }
