@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
+using System.Xml.Serialization;
 
 namespace WebAPI.Models.Social
 {
@@ -16,6 +17,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
         public string Status { get; set; }
 
         /// <summary>
@@ -23,6 +25,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "user_id")]
         [JsonProperty("user_id")]
+        [XmlElement(ElementName = "user_id")]
         public string UserId { get; set; }
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "kaltura_username")]
         [JsonProperty("kaltura_username")]
+        [XmlElement(ElementName = "kaltura_username")]
         public string KalturaName { get; set; }
 
         /// <summary>
@@ -37,6 +41,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "facebook_username")]
         [JsonProperty("facebook_username")]
+        [XmlElement(ElementName = "facebook_username")]
         public string FacebookName { get; set; }
 
         /// <summary>
@@ -44,6 +49,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "pic")]
         [JsonProperty("pic")]
+        [XmlElement(ElementName = "pic")]
         public string Pic { get; set; }
 
         /// <summary>
@@ -51,6 +57,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "data")]
         [JsonProperty("data")]
+        [XmlElement(ElementName = "data")]
         public string Data { get; set; }
 
         /// <summary>
@@ -58,6 +65,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "min_friends_limitation")]
         [JsonProperty("min_friends_limitation")]
+        [XmlElement(ElementName = "min_friends_limitation")]
         public string MinFriends { get; set; }
 
         /// <summary>
@@ -65,6 +73,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "token")]
         [JsonProperty("token")]
+        [XmlElement(ElementName = "token")]
         public string Token { get; set; }
 
         /// <summary>
@@ -72,6 +81,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "facebook_user")]
         [JsonProperty("facebook_user")]
+        [XmlElement(ElementName = "facebook_user")]
         public KalturaFacebookUser FacebookUser { get; set; }
     }
 }
