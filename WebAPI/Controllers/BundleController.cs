@@ -16,8 +16,8 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("bundles")]
-    public class BundlesController : ApiController
+    [RoutePrefix("bundle")]
+    public class BundleController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

@@ -9,6 +9,8 @@ using WebAPI.Utils;
 using WebAPI.Models;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
+using System.Web.Http.Controllers;
+using System.Net.Http;
 
 namespace WebAPI.Managers.Models
 {
@@ -16,7 +18,7 @@ namespace WebAPI.Managers.Models
     {
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
-        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}_d{4}";
+        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}";
 
         private string encryptedValue;
         private int groupId;
@@ -118,15 +120,15 @@ namespace WebAPI.Managers.Models
 
             if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(hashSHA1(fieldsWithRandom)))
             {
-                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
+                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
             }
 
             //parse fields
             string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            if (fields == null || fields.Length != 5)
+            if (fields == null || fields.Length != 4)
             {
-                throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
+                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
             }
 
             ks.privilege = fields[0];
@@ -136,7 +138,7 @@ namespace WebAPI.Managers.Models
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
+                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
                 }
 
                 switch (pair[0])
@@ -158,7 +160,7 @@ namespace WebAPI.Managers.Models
                         ks.data = pair[1];
                         break;
                     default:
-                        throw new UnauthorizedException((int)StatusCode.Unauthorized, "Wrong KS format");
+                        throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
                 }
             }
 
@@ -276,6 +278,16 @@ namespace WebAPI.Managers.Models
             byte[] b = new byte[size];
             new Random().NextBytes(b);
             return b;
+        }
+
+        internal void SaveOnRequest()
+        {
+            HttpContext.Current.Items.Add("KS", this);
+        }
+
+        internal static KS GetFromRequest()
+        {
+            return (KS) HttpContext.Current.Items["KS"];
         }
     }
 }

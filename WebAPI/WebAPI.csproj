@@ -720,14 +720,14 @@
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
-    <Compile Include="Controllers\PartnersController.cs" />
+    <Compile Include="Controllers\PartnerController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\KalturaCategory.cs" />
     <Compile Include="Models\Catalog\KalturaChannel.cs" />
     <Compile Include="Models\Catalog\KalturaChannelMedia.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedMedia.cs" />
-    <Compile Include="Controllers\HouseholdsController.cs" />
+    <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Models\API\KalturaParentalRule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPaymentMethod.cs" />
@@ -781,7 +781,7 @@
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
