@@ -596,6 +596,62 @@ namespace ElasticSearch.Searcher
             return indexes;
         }
 
+
+        public static string GetTypes(UnifiedSearchDefinitions definitions)
+        {
+            string types = string.Empty;
+
+            string media = "media";
+            string epg = "epg";
+
+            // If language isn't default
+            if (definitions.langauge != null &&
+                !definitions.langauge.IsDefault)
+            {
+                if (definitions.shouldSearchMedia)
+                {
+                    // If both
+                    if (definitions.shouldSearchEpg)
+                    {
+                        types = string.Format("{0}_{2},{1}_{2}", media, epg, definitions.langauge.Code);
+                    }
+                    // if only media
+                    else
+                    {
+                        types = string.Format("{0}_{1}", media, definitions.langauge.Code);
+                    }
+                }
+                // If only epg
+                else if (definitions.shouldSearchEpg)
+                {
+                    types = string.Format("{0}_{1}", epg, definitions.langauge.Code);
+                }
+            }
+            else
+            {
+                if (definitions.shouldSearchMedia)
+                {
+                    // If both
+                    if (definitions.shouldSearchEpg)
+                    {
+                        types = string.Format("{0},{1}", media, epg);
+                    }
+                    // if only media
+                    else
+                    {
+                        types = media;
+                    }
+                }
+                // If only epg
+                else if (definitions.shouldSearchEpg)
+                {
+                    types = epg;
+                }
+            }
+             
+            return types;
+        }
+
         #endregion
 
         #region Protected and Private Methods
@@ -920,6 +976,7 @@ namespace ElasticSearch.Searcher
         }
 
         #endregion
+
     }
 
 }
