@@ -115,12 +115,18 @@ namespace ApiObjects.Response
         ExpiredCard = 6002,
         CellularPermissionsError = 6003,
         UnKnownBillingProvider = 6004,
-        PaymentGateWayIDMissing = 6005,        
+        PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006,
         PaymentGateWayNotSetForHH = 6007,
         PaymentGateWayNotExist = 6008,
         PaymentGateWayChargeIdMissing = 6009,
-    
+        UnknownErrorWhenConnectingPaymentGatewayAdapter = 6010,
+        NoConfigurationFound = 6011,
+        AdapterAppFailure = 6012,
+        SignatureMismatch = 2013,
+        ErrorSavingPaymentGatewayTransaction = 2014,
+        ErrorSavingPaymentGatewayPending = 2015,
+
         // social 7000 - 7999
         Conflict = 7000,
         MinFriendsLimitation = 7001
