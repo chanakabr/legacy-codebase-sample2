@@ -992,10 +992,11 @@ namespace Catalog
             {
                 int httpStatus = 0;
 
-                string sIndexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
-                string sUrl = string.Format("{0}/{1}/_search", ES_BASE_ADDRESS, sIndexes);
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
+                string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
-                string queryResultString = m_oESApi.SendPostHttpReq(sUrl, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
 
                 if (httpStatus == STATUS_OK)
                 {
@@ -1048,23 +1049,37 @@ namespace Catalog
 
                             searchResultsList.Clear();
 
-                            int validNumberOfMediasRange = pageSize;
+                            // check which results should be returned
+                            bool illegalRequest = false;
 
-                            if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIds.Count, pageIndex, ref validNumberOfMediasRange))
+                            if (pageSize < 0 || pageIndex < 0)
                             {
-                                if (validNumberOfMediasRange > 0)
+                                // illegal parameters
+                                illegalRequest = true;
+                            }
+                            else
+                            {
+                                if (pageSize == 0 && pageIndex == 0)
                                 {
-                                    assetIds = orderedIds.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
+                                    // return all results
+                                }
+                                else
+                                {
+                                    // apply paging on results 
+                                    assetIds = orderedIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
                                 }
                             }
 
-                            foreach (int id in assetIds)
+                            if (!illegalRequest)
                             {
-                                UnifiedSearchResult tempResult;
+                                UnifiedSearchResult temporaryResult;
 
-                                if (idToResultDictionary.TryGetValue(id, out tempResult))
+                                foreach (int id in assetIds)
                                 {
-                                    searchResultsList.Add(tempResult);
+                                    if (idToResultDictionary.TryGetValue(id, out temporaryResult))
+                                    {
+                                        searchResultsList.Add(temporaryResult);
+                                    }
                                 }
                             }
                         }
