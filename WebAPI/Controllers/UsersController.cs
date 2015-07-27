@@ -1006,9 +1006,10 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG program identifier</param>
         /// <param name="household_id">Household identifier</param>        
+        /// <param name="channel_media_id">Linear channel's media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpGet]
-        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, int household_id = 0)
+        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, [FromUri] long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
@@ -1022,7 +1023,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetEpgRules(groupId, user_id, epg_id, household_id);
+                response = ClientsManager.ApiClient().GetEpgRules(groupId, user_id, epg_id, household_id, channel_media_id);
             }
             catch (ClientException ex)
             {
