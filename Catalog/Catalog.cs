@@ -2139,13 +2139,19 @@ namespace Catalog
 
                 if (group != null)
                 {
-                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
+                        lIds, eAssetType.MEDIA, eAction, DateTime.Now);
 
-                    if (data != null)
-                    {
-                        BaseQueue queue = new CatalogQueue();
-                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eUpdatedObjectType.ToString()));
-                    }
+                    var queue = new CatalogQueue();
+
+                    bIsUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
+                    //ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
+
+                    //if (data != null)
+                    //{
+                    //    BaseQueue queue = new CatalogQueue();
+                        //bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eUpdatedObjectType.ToString()));
+                    //}
                 }
             }
 

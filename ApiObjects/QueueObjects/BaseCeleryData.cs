@@ -8,10 +8,12 @@ namespace ApiObjects.MediaIndexingObjects
     [Serializable]
     public class BaseCeleryData : QueueObject
     {
-        #region Properties       
+        #region Properties
+
         public string id;
         public string task;
         public List<object> args;
+
         #endregion
 
         public BaseCeleryData()
