@@ -1383,6 +1383,8 @@ namespace DAL
                 sp.AddParameter("@product_id", paymentGWTransaction.ProductId);
                 sp.AddParameter("@billing_guid", paymentGWTransaction.BillingGuid);
                 sp.AddParameter("@content_id", paymentGWTransaction.ContentId);
+                sp.AddParameter("@adapter_massege", paymentGWTransaction.AdapterMassege);
+                sp.AddParameter("@massege", paymentGWTransaction.Massege);
 
 
                 int newTransactionID = sp.ExecuteReturnValue<int>();
