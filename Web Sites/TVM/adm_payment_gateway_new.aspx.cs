@@ -26,7 +26,27 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                Int32 nID = DBManipulator.DoTheWork("billing_connection");                
+                Int32 nID = DBManipulator.DoTheWork("billing_connection");
+
+                // set adapter configuration
+                Billing.module billing = new Billing.module();
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
+                string sWSURL = GetWSURL("billing_ws");
+                if (sWSURL != "")
+                    billing.Url = sWSURL;
+                try
+                {
+                    Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
+                    Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                }
                 return;
             }
             
@@ -119,5 +139,10 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_payment_gateway_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    static public string GetWSURL(string sKey)
+    {
+        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 }
