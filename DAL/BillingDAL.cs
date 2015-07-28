@@ -1143,7 +1143,7 @@ namespace DAL
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", houseHoldID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
