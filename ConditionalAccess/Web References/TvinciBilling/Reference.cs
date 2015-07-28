@@ -1697,7 +1697,7 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/Transact", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId) {
+        public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId) {
             object[] results = this.Invoke("Transact", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1708,19 +1708,20 @@ namespace ConditionalAccess.TvinciBilling {
                         userIP,
                         customData,
                         productID,
-                        transactionType,
+                        productType,
+                        contentID,
                         billingGuid,
                         paymentGWId});
             return ((TransactResult)(results[0]));
         }
         
         /// <remarks/>
-        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId) {
-            this.TransactAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, transactionType, billingGuid, paymentGWId, null);
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId) {
+            this.TransactAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, productType, contentID, billingGuid, paymentGWId, null);
         }
         
         /// <remarks/>
-        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, int transactionType, string billingGuid, int paymentGWId, object userState) {
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, object userState) {
             if ((this.TransactOperationCompleted == null)) {
                 this.TransactOperationCompleted = new System.Threading.SendOrPostCallback(this.OnTransactOperationCompleted);
             }
@@ -1734,7 +1735,8 @@ namespace ConditionalAccess.TvinciBilling {
                         userIP,
                         customData,
                         productID,
-                        transactionType,
+                        productType,
+                        contentID,
                         billingGuid,
                         paymentGWId}, this.TransactOperationCompleted, userState);
         }
@@ -1883,6 +1885,8 @@ namespace ConditionalAccess.TvinciBilling {
         
         private string pGResponseIDField;
         
+        private eTransactionState stateField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -1922,6 +1926,16 @@ namespace ConditionalAccess.TvinciBilling {
                 this.pGResponseIDField = value;
             }
         }
+        
+        /// <remarks/>
+        public eTransactionState State {
+            get {
+                return this.stateField;
+            }
+            set {
+                this.stateField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -1955,6 +1969,28 @@ namespace ConditionalAccess.TvinciBilling {
                 this.messageField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum eTransactionState {
+        
+        /// <remarks/>
+        Created,
+        
+        /// <remarks/>
+        Failed,
+        
+        /// <remarks/>
+        Completed,
+        
+        /// <remarks/>
+        Pending,
+        
+        /// <remarks/>
+        Canceled,
     }
     
     /// <remarks/>
@@ -2111,6 +2147,8 @@ namespace ConditionalAccess.TvinciBilling {
         
         private int adapterRetryCountField;
         
+        private string billingGuidField;
+        
         /// <remarks/>
         public int ID {
             get {
@@ -2148,6 +2186,16 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.adapterRetryCountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BillingGuid {
+            get {
+                return this.billingGuidField;
+            }
+            set {
+                this.billingGuidField = value;
             }
         }
     }
@@ -2871,6 +2919,22 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         UserSuspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum eTransactionType {
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+        
+        /// <remarks/>
+        Collection,
     }
     
     /// <remarks/>

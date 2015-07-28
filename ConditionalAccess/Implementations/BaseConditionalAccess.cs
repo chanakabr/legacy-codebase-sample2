@@ -12159,7 +12159,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, eTransactionType.Collection, billingGuid, paymentGwId);
+                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
                         if (response != null &&
                             response.Status != null &&
                             response.Status.Code == (int)eResponseStatus.OK)
@@ -12288,7 +12288,7 @@ namespace ConditionalAccess
 
                         // purchase
                         response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId,
-                                                  eTransactionType.Subscription, billingGuid, paymentGwId);
+                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
                         if (response != null &&
                             response.Status != null &&
                             response.Status.Code == (int)eResponseStatus.OK)
@@ -12454,7 +12454,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, paymentGwId);
+                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
                         if (response != null &&
                             response.Status != null &&
                             response.Status.Code == (int)eResponseStatus.OK)
@@ -12543,7 +12543,7 @@ namespace ConditionalAccess
         }
 
         protected PurchaseResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                  int productID, eTransactionType transactionType, string billingGuid, int paymentGWId)
+                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId)
         {
             PurchaseResponse response = new PurchaseResponse();
 
@@ -12567,7 +12567,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, (int)transactionType, billingGuid, paymentGWId);
+                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId);
 
                 if (transactionResponse != null)
                 {

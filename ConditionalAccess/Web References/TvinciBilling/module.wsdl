@@ -719,6 +719,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="PaymentGWTransactionId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="NextRetryDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="AdapterRetryCount" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="BillingGuid" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="InsertPaymentGWPendingResponse">
@@ -876,12 +877,20 @@
             <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="customData" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="productID" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="productType" type="tns:eTransactionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="contentID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGWId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="eTransactionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="PPV" />
+          <s:enumeration value="Subscription" />
+          <s:enumeration value="Collection" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="TransactResponse">
         <s:complexType>
           <s:sequence>
@@ -895,8 +904,18 @@
           <s:element minOccurs="1" maxOccurs="1" name="TransactionID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="State" type="tns:eTransactionState" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="eTransactionState">
+        <s:restriction base="s:string">
+          <s:enumeration value="Created" />
+          <s:enumeration value="Failed" />
+          <s:enumeration value="Completed" />
+          <s:enumeration value="Pending" />
+          <s:enumeration value="Canceled" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -1459,7 +1478,8 @@
     <wsdl:part name="userIP" type="s:string" />
     <wsdl:part name="customData" type="s:string" />
     <wsdl:part name="productID" type="s:string" />
-    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
+    <wsdl:part name="contentID" type="s:string" />
     <wsdl:part name="billingGuid" type="s:string" />
     <wsdl:part name="paymentGWId" type="s:string" />
   </wsdl:message>
