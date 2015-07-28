@@ -51,6 +51,7 @@ namespace WebAPI.Controllers
             classInstance = Activator.CreateInstance(controller, null);
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("getks"), HttpPost]
         [ApiAuthorize(AllowAnonymous: true)]
         public string GetKS(int group_id, string user_id)
@@ -60,12 +61,14 @@ namespace WebAPI.Controllers
             return ks.ToString();
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action([FromUri] string service_name, [FromUri] string action_name)
         {
             return await Action(service_name, action_name);
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action([FromUri] string service_name, [FromUri] string action_name)
         {
