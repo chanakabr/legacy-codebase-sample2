@@ -115,7 +115,7 @@ namespace ApiObjects.Response
         UnKnownBillingProvider = 6004,
         PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006,
-        PaymentGateWayNotSetForHH = 6007,
+        PaymentGateWayNotSetForHousehold = 6007,
         PaymentGateWayNotExist = 6008,
         PaymentGateWayChargeIdMissing = 6009,
         UnknownErrorWhenConnectingPaymentGatewayAdapter = 6010,
