@@ -33,8 +33,8 @@ namespace WebAPI.Controllers
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("subscriptions/{subscriptions_ids}/prices"), HttpGet]
-        public KalturaSubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null, 
-            [FromUri] string coupon_code = null, [FromUri] string udid = null , [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
+        public KalturaSubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null,
+            [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
         {
             List<KalturaSubscriptionPrice> subscriptionPrices = null;
 
@@ -64,28 +64,26 @@ namespace WebAPI.Controllers
         /// Returns a list of subscriptions data.
         /// </summary>
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="subscriptions_ids">Subscription identifiers (separated by ,)</param>
+        /// <param name="subscriptions_ids">Subscription identifiers</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("subscriptions/{subscriptions_ids}"), HttpGet]
-        public KalturaSubscriptionsList Get([FromUri] string partner_id, string subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
+        public KalturaSubscriptionsList Get(string partner_id, int[] subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
 
             int groupId = int.Parse(partner_id);
 
-            if (string.IsNullOrEmpty(subscriptions_ids))
+            if (subscriptions_ids.Count() == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscriptions_ids cannot be empty");
             }
 
-            List<string> subscriptionsIds = subscriptions_ids.Split(',').Distinct().ToList();
-
             try
             {
                 // call client
-                subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds, udid, language);
+                subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids.Select(x => x.ToString()).ToList(),
+                    udid, language);
             }
             catch (ClientException ex)
             {
