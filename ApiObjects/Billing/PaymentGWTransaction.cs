@@ -15,8 +15,8 @@ namespace ApiObjects.Billing
         public int ProductId { get; set; }
         public string BillingGuid { get; set; }
         public int ContentId { get; set; }
-        public string AdapterMassege { get; set; }        
-        public string Massege { get; set; }        
+        public string AdapterMessage { get; set; }        
+        public string Message { get; set; }        
                 
         public PaymentGWTransaction() { }
 
@@ -34,8 +34,8 @@ namespace ApiObjects.Billing
             this.ProductType = paymentGWTransaction.ProductType;
             this.BillingGuid = paymentGWTransaction.BillingGuid;
             this.ContentId = paymentGWTransaction.ContentId;
-            this.AdapterMassege = paymentGWTransaction.AdapterMassege;
-            this.Massege = paymentGWTransaction.Massege;
+            this.AdapterMessage = paymentGWTransaction.AdapterMessage;
+            this.Message = paymentGWTransaction.Message;
         }
     }
 }
