@@ -1174,7 +1174,7 @@ namespace DAL
            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-           long lPreviewModuleID, string sCollectionCode)
+           long lPreviewModuleID, string sCollectionCode, string billingGuid = null)
         {
 
             return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
@@ -1191,7 +1191,7 @@ namespace DAL
             double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
             string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
             long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks,
-            string sCollectionCode)
+            string sCollectionCode, string billingGuid = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1248,6 +1248,9 @@ namespace DAL
             {
                 sp.AddParameter("@CollectionCode", sCollectionCode);
             }
+
+            sp.AddParameter("@billingGuid", billingGuid);
+
             return sp.ExecuteReturnValue<long>();
 
         }

@@ -1365,7 +1365,7 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGWTransaction paymentGWTransaction)
         {
             try
             {
