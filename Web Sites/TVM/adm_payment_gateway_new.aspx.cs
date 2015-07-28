@@ -128,7 +128,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         theRecord.AddRecord(dr_pending_retries);
 
         DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
+        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", true);
         theRecord.AddRecord(dr_shared_secret);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);

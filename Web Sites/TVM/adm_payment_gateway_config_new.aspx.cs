@@ -32,6 +32,31 @@ public partial class adm_payment_gateway_config_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("billing_connection");
+                int paymentGatewayId = 0;
+
+                if (Session["paymentGW_id"] != null && string.IsNullOrEmpty(Session["paymentGW_id"].ToString()) && int.TryParse(Session["paymentGW_id"].ToString(), out paymentGatewayId))
+                {
+                    // set adapter configuration
+                    Billing.module billing = new Billing.module();
+
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = "";
+                    string sWSPass = "";
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("billing_ws");
+                    if (!string.IsNullOrEmpty(sWSURL))
+                        billing.Url = sWSURL;
+                    try
+                    {
+                        Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, paymentGatewayId);
+                        Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code), "SetPaymentGatewayConfiguration");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                    }
+                }
+
                 return;
             }
             if (Request.QueryString["payment_gateway_config_id"] != null && Request.QueryString["payment_gateway_config_id"].ToString() != "")
