@@ -1140,7 +1140,7 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentHHGatewayList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@roupID", groupID);
+                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", houseHoldID);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
