@@ -11994,10 +11994,10 @@ namespace ConditionalAccess
         /// <summary>
         /// Purchase
         /// </summary>
-        public virtual PurchaseResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
+        public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
                                                  eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId)
         {
-            PurchaseResponse response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}",
@@ -12110,9 +12110,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        private PurchaseResponse PurchaseCollection(string siteguid, long houseHoldId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchaseCollection(string siteguid, long houseHoldId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
         {
-            PurchaseResponse response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
@@ -12238,10 +12238,10 @@ namespace ConditionalAccess
         }
 
 
-        private PurchaseResponse PurchaseSubscription(string siteguid, long houseHoldId, double price, string currency, int productId,
+        private TransactionResponse PurchaseSubscription(string siteguid, long houseHoldId, double price, string currency, int productId,
                                                       string coupon, string userIp, string deviceName, int paymentGwId)
         {
-            PurchaseResponse response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
@@ -12377,9 +12377,9 @@ namespace ConditionalAccess
         }
 
 
-        private PurchaseResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
         {
-            PurchaseResponse response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}",
@@ -12542,10 +12542,10 @@ namespace ConditionalAccess
             return response;
         }
 
-        protected PurchaseResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
+        protected TransactionResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
                                                   int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId)
         {
-            PurchaseResponse response = new PurchaseResponse();
+            TransactionResponse response = new TransactionResponse();
 
             string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
                                         siteGUID,                 // {0}
@@ -12589,7 +12589,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 log.Error(logString, ex);
-                response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
             return response;
