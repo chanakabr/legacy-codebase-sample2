@@ -1871,7 +1871,7 @@ namespace DAL
 
 
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
-            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long houseHoldID)
+            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long houseHoldID, string billingGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1896,12 +1896,15 @@ namespace DAL
             sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@PreviewModuleID", previewModuleID);
             sp.AddParameter("@domainID", houseHoldID);
+            sp.AddParameter("@billingGuid", billingGuid);
 
             return sp.ExecuteReturnValue<long>();
         }
 
-        public static long Insert_NewMColPurchase(int groupID, string collectionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle, long billingTransactionID,
-            DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, long houseHoldID)
+        public static long Insert_NewMColPurchase(int groupID, string collectionCode, string siteGUID, double price, string currency, string customData,
+                                                  string country, string deviceName, int maxNumOfUses, int viewLifeCycle, long billingTransactionID,
+                                                  DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, long houseHoldID,
+                                                  string billingGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1922,6 +1925,7 @@ namespace DAL
             sp.AddParameter("@CountryCode", country);
             sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@domainID", houseHoldID);
+            sp.AddParameter("@billingGuid", billingGuid);
 
             return sp.ExecuteReturnValue<long>();
         }

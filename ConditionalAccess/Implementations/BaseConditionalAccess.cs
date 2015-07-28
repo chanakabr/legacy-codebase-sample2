@@ -11995,7 +11995,7 @@ namespace ConditionalAccess
         /// Purchase
         /// </summary>
         public virtual PurchaseResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-                                                 int productType, string coupon, string userIp, string deviceName, int paymentGwId)
+                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId)
         {
             PurchaseResponse response = new PurchaseResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -12007,7 +12007,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 contentId,                                                     // {4}
                 productId,                                                     // {5}   
-                productType,                                                   // {6}
+                transactionType.ToString(),                                    // {6}
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {7}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {8}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {9}
@@ -12043,15 +12043,6 @@ namespace ConditionalAccess
             if (productId < 1)
             {
                 response.Status.Message = "Illegal product ID";
-                log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
-                return response;
-            }
-
-            // validate product type
-            eTransactionType transactionType = eTransactionType.Collection;
-            if (!Enum.TryParse(productType.ToString(), out transactionType))
-            {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "unknown productType");
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 return response;
             }
@@ -12106,7 +12097,7 @@ namespace ConditionalAccess
                         response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
                         break;
                     default:
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "llegal product ID");
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         break;
                 }

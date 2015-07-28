@@ -745,7 +745,7 @@ namespace ConditionalAccess
                     // grant entitlement
                     purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
                                  deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                                 previewModuleID, utcNow, subscriptionEndDate, utcNow, houseHoldId);
+                                 previewModuleID, utcNow, subscriptionEndDate, utcNow, houseHoldId, billingGuid);
 
                     if (purchaseId == 0)
                     {
@@ -794,7 +794,7 @@ namespace ConditionalAccess
                     purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
                                                                              deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
                                                                              usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
-                                                                             utcNow, collectionEndDate, utcNow, houseHoldID);
+                                                                             utcNow, collectionEndDate, utcNow, houseHoldID, billingGuid);
 
                     if (purchaseId < 1)
                     {
