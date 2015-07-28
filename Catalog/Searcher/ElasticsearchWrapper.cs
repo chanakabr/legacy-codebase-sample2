@@ -1420,10 +1420,9 @@ namespace Catalog
 
             filter.AddChild(idsTerm);
 
+            #endregion
 
             filteredQuery.Filter.FilterSettings = filter;
-
-            #endregion
 
             IESFacet facet = null;
 
