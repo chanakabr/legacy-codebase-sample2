@@ -83,7 +83,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_external_identifier.Initialize("External Identifier", "adm_table_header_nbg", "FormInput", "external_identifier", true);
         theRecord.AddRecord(dr_external_identifier);
 
-        DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 4);
+        DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
         theRecord.AddRecord(dr_url);
 
@@ -95,7 +95,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_pending_retries.Initialize("Pending Retries", "adm_table_header_nbg", "FormInput", "pending_retries", false);
         theRecord.AddRecord(dr_pending_retries);
 
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 4);
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
 
