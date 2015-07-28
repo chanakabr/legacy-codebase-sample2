@@ -1353,6 +1353,11 @@ namespace Catalog
             List<int> sortedList = null;
             HashSet<int> alreadyContainedIds = null;
 
+            ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary = 
+                new ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>>();
+            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsFacetsDictionary =
+                new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
+
             #region Define Facet Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
@@ -1413,15 +1418,14 @@ namespace Catalog
 
             #endregion
 
-            #region Define IDs filter
+            #region Define IDs term
 
             ESTerms idsTerm = new ESTerms(true)
             {
                 Key = "media_id"
             };
 
-            // Convert all Ids to strings
-            idsTerm.Value.AddRange(assetIds.Select(id => id.ToString()));
+            idsTerm.Value.Add("0");
 
             filter.AddChild(idsTerm);
 
@@ -1447,21 +1451,100 @@ namespace Catalog
                 };
             }
 
+            #endregion
+
+            #region Split call of facets query to pieces
+
+            int facetsSize = 5000;
+
+            //Start MultiThread Call
+            List<Task> tasks = new List<Task>();
+
+            // Split the request to small pieces, to avoid timeout exceptions
+            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += facetsSize)
+            {
+                idsTerm.Value.Clear();
+
+                // Convert partial Ids to strings
+                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(facetsSize).Select(id => id.ToString()));
+
+                string facetRequestBody = facet.ToString();
+
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+
+                // Create a task for the search and merge of partial facets
+                Task task = Task.Factory.StartNew((obj) =>
+                    {
+                        // Get facet results
+                        string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+
+                        if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+                        {
+                            // Parse string into dictionary
+                            var partialDictionary = ESTermsStatsFacet.FacetResults(ref facetsResults);
+
+                            // Run on partial dictionary and merge into main dictionary
+                            foreach (var mainPart in partialDictionary)
+                            {
+                                if (!ratingsFacetsDictionary.ContainsKey(mainPart.Key))
+                                {
+                                    ratingsFacetsDictionary[mainPart.Key] = new List<ESTermsStatsFacet.StatisticFacetResult>();
+                                }
+
+                                foreach (var singleResult in mainPart.Value)
+                                {
+                                    ratingsFacetsDictionary[mainPart.Key].Add(singleResult);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Parse string into dictionary
+                            var partialDictionary = ESTermsFacet.FacetResults(ref facetsResults);
+
+                            // Run on partial dictionary and merge into main dictionary
+                            foreach (var mainPart in partialDictionary)
+                            {
+                                if (!countsFacetsDictionary.ContainsKey(mainPart.Key))
+                                {
+                                    countsFacetsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                }
+
+                                foreach (var singleResult in mainPart.Value)
+                                {
+                                    countsFacetsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                }
+                            }
+                        }
+                    }, 
+                    new Object());
+
+                tasks.Add(task);
+            }
+
+            Task.WaitAll(tasks.ToArray());
 
             #endregion
 
-            string facetRequestBody = facet.ToString();
+            #region Process Facets
 
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+            // get a sorted list of the asset Ids that have statistical data in the facet
+            sortedList = new List<int>();
+            alreadyContainedIds = new HashSet<int>();
 
-            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
-
-            // Take thre stringy result, parse it and get a sorted list of the asset Ids that have statistical data in the facet
-            if (!string.IsNullOrEmpty(facetsResults))
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                sortedList = ProcessFacetResults(facetsResults, orderBy, orderDirection, ref alreadyContainedIds);
+                ProcessRatingsFacetsResult(ratingsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
+            }
+            // If it is not ratings - just use count
+            else
+            {
+                ProcessCountFacetsResults(countsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
             }
 
+            #endregion
+            
             if (sortedList == null)
             {
                 sortedList = new List<int>();
@@ -1495,96 +1578,91 @@ namespace Catalog
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static List<int> ProcessFacetResults(string facetsResults, ApiObjects.SearchObjects.OrderBy orderBy,
-            OrderDir orderDirection, ref HashSet<int> alreadyContainedIds)
+        private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary, 
+            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
         {
-            List<int> sortedList = new List<int>();
-            alreadyContainedIds = new HashSet<int>();
-
-            // Ratings is a special case, because it is not based on count, but on average instead
-            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            if (facetsDictionary != null && facetsDictionary.Count > 0)
             {
-                // Get facet results
-                Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
-                    ESTermsStatsFacet.FacetResults(ref facetsResults);
+                ConcurrentDictionary<string, int> statResult;
 
-                if (facetsDictionary != null && facetsDictionary.Count > 0)
+                //retrieve specific facet result
+                facetsDictionary.TryGetValue("stats", out statResult);
+
+                if (statResult != null && statResult.Count > 0)
                 {
-                    List<ESTermsStatsFacet.StatisticFacetResult> statResult;
-
-                    //retrieve specific facet result
-                    facetsDictionary.TryGetValue("stats", out statResult);
-
-                    if (statResult != null && statResult.Count > 0)
+                    // We base this section on the assumption that facets request is sorted, descending
+                    foreach (string facetKey in statResult.Keys)
                     {
-                        // sort ASCENDING - different than normal execution!
-                        statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
+                        int count = statResult[facetKey];
 
-                        foreach (var result in statResult)
+                        int currentId;
+
+                        if (int.TryParse(facetKey, out currentId))
                         {
-                            int currentId;
-
-                            // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
-                            if (int.TryParse(result.term, out currentId))
+                            // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                            if (orderDirection == OrderDir.ASC)
                             {
-                                if (orderDirection == OrderDir.ASC)
-                                {
-                                    sortedList.Insert(0, currentId);
-                                }
-                                else
-                                {
-                                    sortedList.Add(currentId);
-                                }
-
-                                alreadyContainedIds.Add(currentId);
+                                sortedList.Insert(0, currentId);
                             }
+                            else
+                            {
+                                sortedList.Add(currentId);
+                            }
+
+                            alreadyContainedIds.Add(currentId);
                         }
                     }
                 }
             }
-            // If it is not ratings - just use count
-            else
-            {
-                //Get facet results
-                Dictionary<string, Dictionary<string, int>> facetsDictionary = ESTermsFacet.FacetResults(ref facetsResults);
-
-                if (facetsDictionary != null && facetsDictionary.Count > 0)
-                {
-                    Dictionary<string, int> statResult;
-
-                    //retrieve specific facet result
-                    facetsDictionary.TryGetValue("stats", out statResult);
-
-                    if (statResult != null && statResult.Count > 0)
-                    {
-                        // We base this section on the assumption that facets request is sorted, descending
-                        foreach (string facetKey in statResult.Keys)
-                        {
-                            int count = statResult[facetKey];
-
-                            int currentId;
-
-                            if (int.TryParse(facetKey, out currentId))
-                            {
-                                // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                                if (orderDirection == OrderDir.ASC)
-                                {
-                                    sortedList.Insert(0, currentId);
-                                }
-                                else
-                                {
-                                    sortedList.Add(currentId);
-                                }
-
-                                alreadyContainedIds.Add(currentId);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return sortedList;
         }
+
+        /// <summary>
+        /// After receiving a result from ES server, process it to create a list of Ids with the given order
+        /// </summary>
+        /// <param name="facetsResults"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <param name="alreadyContainedIds"></param>
+        /// <returns></returns>
+        private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary, 
+            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
+        {
+
+            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            {
+                List<ESTermsStatsFacet.StatisticFacetResult> statResult;
+
+                //retrieve specific facet result
+                facetsDictionary.TryGetValue("stats", out statResult);
+
+                if (statResult != null && statResult.Count > 0)
+                {
+                    // sort ASCENDING - different than normal execution!
+                    statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
+
+                    foreach (var result in statResult)
+                    {
+                        int currentId;
+
+                        // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
+                        if (int.TryParse(result.term, out currentId))
+                        {
+                            if (orderDirection == OrderDir.ASC)
+                            {
+                                sortedList.Insert(0, currentId);
+                            }
+                            else
+                            {
+                                sortedList.Add(currentId);
+                            }
+
+                            alreadyContainedIds.Add(currentId);
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
     }
 
