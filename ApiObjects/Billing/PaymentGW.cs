@@ -11,7 +11,10 @@ namespace ApiObjects.Billing
         public string Name { get; set; }
         public bool IsDefault { get; set; }
         public int IsActive { get; set; }
-        public string Url { get; set; }
+        public string AdapterUrl { get; set; }
+        public string TransactUrl { get; set; }
+        public string StatusUrl { get; set; }
+        public string RenewUrl { get; set; }
         public string ExternalIdentifier { get; set; }
         public int PendingInterval { get; set; }
         public int PendingRetries { get; set; }
@@ -28,7 +31,10 @@ namespace ApiObjects.Billing
             this.Name = pgw.Name;
             this.IsDefault = pgw.IsDefault;
             this.IsActive = pgw.IsActive;
-            this.Url = pgw.Url;
+            this.AdapterUrl = pgw.AdapterUrl;
+            this.TransactUrl = pgw.TransactUrl;
+            this.StatusUrl = pgw.StatusUrl;
+            this.RenewUrl = pgw.RenewUrl;
             this.ExternalIdentifier = pgw.ExternalIdentifier;
             this.PendingInterval = pgw.PendingInterval;
             this.PendingRetries = pgw.PendingRetries;

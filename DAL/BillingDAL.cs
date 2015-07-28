@@ -1000,7 +1000,10 @@ namespace DAL
                             pgw.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval");
                             pgw.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries");
                             pgw.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
-                            pgw.Url = ODBCWrapper.Utils.GetSafeStr(dr, "url");
+                            pgw.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
+                            pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
+                            pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1207,7 +1210,7 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string url, string externalIdentifier, int pendingInterval, int pendingRetries,
+        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
             string sharedSecret, int? isDefault, int? isActive)
         {
             try
@@ -1221,7 +1224,10 @@ namespace DAL
                 sp.AddParameter("@pending_interval", pendingInterval);
                 sp.AddParameter("@pending_retries", pendingRetries);
                 sp.AddParameter("@shared_secret", sharedSecret);
-                sp.AddParameter("@url", url);
+                sp.AddParameter("@adapter_url", adapterUrl);
+                sp.AddParameter("@transact_url", transactUrl);
+                sp.AddParameter("@status_url", statusUrl);
+                sp.AddParameter("@renew_url", renewUrl);
                 sp.AddParameter("@isDefault", isDefault);
                 sp.AddParameter("@isActive", isActive);
 
@@ -1242,7 +1248,10 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", pgw.Name);
-                sp.AddParameter("@url", pgw.Url);
+                sp.AddParameter("@adapter_url", pgw.AdapterUrl);
+                sp.AddParameter("@transact_url", pgw.TransactUrl);
+                sp.AddParameter("@status_url", pgw.StatusUrl);
+                sp.AddParameter("@renew_url", pgw.RenewUrl);
                 sp.AddParameter("@external_identifier", pgw.ExternalIdentifier);
                 sp.AddParameter("@pending_interval", pgw.PendingInterval);
                 sp.AddParameter("@pending_retries", pgw.PendingRetries);
