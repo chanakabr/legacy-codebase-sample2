@@ -83,9 +83,21 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_external_identifier.Initialize("External Identifier", "adm_table_header_nbg", "FormInput", "external_identifier", true);
         theRecord.AddRecord(dr_external_identifier);
 
-        DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
-        theRecord.AddRecord(dr_url);
+        DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", false);
+        theRecord.AddRecord(dr_adapter_url);
+
+        DataRecordShortTextField dr_transact_url = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_transact_url.Initialize("Payment Gateway Transact URL", "adm_table_header_nbg", "FormInput", "transact_url", false);
+        theRecord.AddRecord(dr_transact_url);
+
+        DataRecordShortTextField dr_status_url = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_status_url.Initialize("Payment Gateway Status URL", "adm_table_header_nbg", "FormInput", "status_url", false);
+        theRecord.AddRecord(dr_status_url);
+
+        DataRecordShortTextField dr_renew_url = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_renew_url.Initialize("Payment Gateway Renew URL", "adm_table_header_nbg", "FormInput", "renew_url", false);
+        theRecord.AddRecord(dr_renew_url);
 
         DataRecordShortIntField dr_pending_interval = new DataRecordShortIntField(true, 9, 9);
         dr_pending_interval.Initialize("Pending Interval", "adm_table_header_nbg", "FormInput", "pending_interval", false);
