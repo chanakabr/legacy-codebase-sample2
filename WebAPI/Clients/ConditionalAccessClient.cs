@@ -13,6 +13,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
+using WebAPI.ConditionalAccess;
 
 namespace WebAPI.Clients
 {
@@ -108,7 +109,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetUserSubscriptions(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id);            
+                    response = ConditionalAccess.GetUserSubscriptions(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id);
                 }
             }
             catch (Exception ex)
@@ -166,8 +167,8 @@ namespace WebAPI.Clients
             return transactions;
         }
 
-        internal KalturaBillingResponse ChargeUserForMediaFile(int groupId, string siteGuid, double price, string currency, int fileId, string ppvModuleCode, string couponCode, 
-            string extraParams,string udid, string encryptedCvv)
+        internal KalturaBillingResponse ChargeUserForMediaFile(int groupId, string siteGuid, double price, string currency, int fileId, string ppvModuleCode, string couponCode,
+            string extraParams, string udid, string encryptedCvv)
         {
             KalturaBillingResponse result = null;
             WebAPI.ConditionalAccess.BillingStatusResponse response = null;
@@ -178,7 +179,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.CC_ChargeUserForMediaFile(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, fileId, 
+                    response = ConditionalAccess.CC_ChargeUserForMediaFile(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, fileId,
                         ppvModuleCode, couponCode, Utils.Utils.GetClientIP(), extraParams, string.Empty, string.Empty, udid, string.Empty, encryptedCvv);
                 }
             }
@@ -260,13 +261,13 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, 
+                    response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
                         subscriptionsIds.ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -302,7 +303,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -319,6 +320,51 @@ namespace WebAPI.Clients
             prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaItemPrice>>(response.ItemsPrices);
 
             return prices;
+        }
+
+        internal KalturaTransactionResponse Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
+                                                     int productId, KalturaTransactionType clientTransactionType, string coupon, string deviceName, int paymentGwId)
+        {
+            KalturaTransactionResponse clientResponse = null;
+            TransactionResponse wsResponse = new TransactionResponse();
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                // convert local enu, to ws enum
+                WebAPI.ConditionalAccess.eTransactionType transactionType = Mapper.Map<WebAPI.ConditionalAccess.eTransactionType>(clientTransactionType);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, groupId, price,
+                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), deviceName, paymentGwId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaTransactionResponse>(wsResponse);
+
+            return clientResponse;
         }
     }
 }

@@ -408,6 +408,9 @@
     <Content Include="Web References\ConditionalAccess\SubscriptionsPricesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\TransactionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -675,6 +678,7 @@
     </Compile>
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
+    <Compile Include="Controllers\TransactionController.cs" />
     <Compile Include="Controllers\UserLoginPinController.cs" />
     <Compile Include="Controllers\UserParentalPinController.cs" />
     <Compile Include="Controllers\UserParentalRuleController.cs" />
@@ -701,6 +705,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaTransactionResponse.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />

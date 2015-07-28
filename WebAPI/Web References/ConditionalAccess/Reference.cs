@@ -192,6 +192,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetUserSubscriptionsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback PurchaseOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -472,6 +474,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event GetUserSubscriptionsCompletedEventHandler GetUserSubscriptionsCompleted;
+        
+        /// <remarks/>
+        public event PurchaseCompletedEventHandler PurchaseCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3991,27 +3996,27 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainServices", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainServicesResponse GetDomainServices(string wsUsername, string wsPassword, int domainID) {
+        public DomainServicesResponse GetDomainServices(string sWSUserName, string sWSPassword, int domainID) {
             object[] results = this.Invoke("GetDomainServices", new object[] {
-                        wsUsername,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         domainID});
             return ((DomainServicesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainServicesAsync(string wsUsername, string wsPassword, int domainID) {
-            this.GetDomainServicesAsync(wsUsername, wsPassword, domainID, null);
+        public void GetDomainServicesAsync(string sWSUserName, string sWSPassword, int domainID) {
+            this.GetDomainServicesAsync(sWSUserName, sWSPassword, domainID, null);
         }
         
         /// <remarks/>
-        public void GetDomainServicesAsync(string wsUsername, string wsPassword, int domainID, object userState) {
+        public void GetDomainServicesAsync(string sWSUserName, string sWSPassword, int domainID, object userState) {
             if ((this.GetDomainServicesOperationCompleted == null)) {
                 this.GetDomainServicesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainServicesOperationCompleted);
             }
             this.InvokeAsync("GetDomainServices", new object[] {
-                        wsUsername,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         domainID}, this.GetDomainServicesOperationCompleted, userState);
         }
         
@@ -4052,6 +4057,59 @@ namespace WebAPI.ConditionalAccess {
             if ((this.GetUserSubscriptionsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUserSubscriptionsCompleted(this, new GetUserSubscriptionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Purchase", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+            object[] results = this.Invoke("Purchase", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        houshold,
+                        price,
+                        currency,
+                        contentId,
+                        productId,
+                        transactionType,
+                        coupon,
+                        userIp,
+                        deviceName,
+                        paymentGwId});
+            return ((TransactionResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, houshold, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGwId, null);
+        }
+        
+        /// <remarks/>
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, object userState) {
+            if ((this.PurchaseOperationCompleted == null)) {
+                this.PurchaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnPurchaseOperationCompleted);
+            }
+            this.InvokeAsync("Purchase", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        houshold,
+                        price,
+                        currency,
+                        contentId,
+                        productId,
+                        transactionType,
+                        coupon,
+                        userIp,
+                        deviceName,
+                        paymentGwId}, this.PurchaseOperationCompleted, userState);
+        }
+        
+        private void OnPurchaseOperationCompleted(object arg) {
+            if ((this.PurchaseCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.PurchaseCompleted(this, new PurchaseCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4274,6 +4332,96 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         Offline,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class TransactionResponse {
+        
+        private Status statusField;
+        
+        private int transactionIDField;
+        
+        private string pGReferenceIDField;
+        
+        private string pGResponseIDField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TransactionID {
+            get {
+                return this.transactionIDField;
+            }
+            set {
+                this.transactionIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGReferenceID {
+            get {
+                return this.pGReferenceIDField;
+            }
+            set {
+                this.pGReferenceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGResponseID {
+            get {
+                return this.pGResponseIDField;
+            }
+            set {
+                this.pGResponseIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -4534,39 +4682,6 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.entitelmentsField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
             }
         }
     }
@@ -5802,6 +5917,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         UserSuspended,
+        
+        /// <remarks/>
+        NotForPurchase,
     }
     
     /// <remarks/>
@@ -10656,6 +10774,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Entitlement)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void PurchaseCompletedEventHandler(object sender, PurchaseCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class PurchaseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal PurchaseCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactionResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactionResponse)(this.results[0]));
             }
         }
     }

@@ -15,7 +15,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings()
         {
-            //TransactionType to eTransactionType
+            // TransactionType to eTransactionType
             Mapper.CreateMap<KalturaTransactionType, WebAPI.ConditionalAccess.eTransactionType>().ConstructUsing((KalturaTransactionType transactionType) =>
             {
                 WebAPI.ConditionalAccess.eTransactionType result;
@@ -31,12 +31,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result = WebAPI.ConditionalAccess.eTransactionType.Collection;
                         break;
                     default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");                        
+                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
                 }
                 return result;
             });
 
-            //WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
+            // WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
             Mapper.CreateMap<ConditionalAccess.Entitlements, KalturaEntitlement>()
                .ForMember(dest => dest.entitlementId, opt => opt.MapFrom(src => src.entitlementsId))
                .ForMember(dest => dest.currentUses, opt => opt.MapFrom(src => src.currentUses))
@@ -56,7 +56,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.paymentMethod));
 
 
-            //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
             Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, KalturaBillingTransaction>()
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => Utils.SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
@@ -71,17 +71,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.purchasedItemName, opt => opt.MapFrom(src => src.m_sPurchasedItemName))
                .ForMember(dest => dest.purchasedItemCode, opt => opt.MapFrom(src => src.m_sPurchasedItemCode))
                .ForMember(dest => dest.recieptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
-               .ForMember(dest => dest.remarks, opt => opt.MapFrom(src => src.m_sRemarks))               
+               .ForMember(dest => dest.remarks, opt => opt.MapFrom(src => src.m_sRemarks))
                .ForMember(dest => dest.paymentMethodExtraDetails, opt => opt.MapFrom(src => src.m_sPaymentMethodExtraDetails))
                .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
                ;
 
-            //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
             Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, KalturaBillingTransactions>()
                .ForMember(dest => dest.transactionsCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
                .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
 
-            
+
             Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
@@ -90,6 +90,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ConditionalAccess.BillingResponse, KalturaBillingResponse>()
                .ForMember(dest => dest.ReceiptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
                .ForMember(dest => dest.ExternalReceiptCode, opt => opt.MapFrom(src => src.m_sExternalReceiptCode));
+
+            // TransactionResponse to KalturaTransactionResponse
+            Mapper.CreateMap<ConditionalAccess.TransactionResponse, KalturaTransactionResponse>()
+               .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
+               .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
+               .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseID));
         }
     }
 }
