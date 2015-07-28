@@ -8,6 +8,7 @@ namespace ApiObjects.Billing
         public int PaymentGWTransactionId { get; set; }
         public DateTime NextRetryDate { get; set; }
         public int AdapterRetryCount { get; set; }
+        public string BillingGuid { get; set; }
 
         public PaymentGWPending() { }
 
@@ -16,6 +17,7 @@ namespace ApiObjects.Billing
             this.AdapterRetryCount = paymentGWPending.AdapterRetryCount;
             this.ID = paymentGWPending.ID;
             this.NextRetryDate = paymentGWPending.NextRetryDate;
+            this.BillingGuid = paymentGWPending.BillingGuid;
         }
     }
 }

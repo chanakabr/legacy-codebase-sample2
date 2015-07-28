@@ -1181,7 +1181,7 @@ namespace DAL
                 sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
                 sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
                 dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
-                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode);
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode, billingGuid);
         }
 
         public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
@@ -1249,7 +1249,7 @@ namespace DAL
                 sp.AddParameter("@CollectionCode", sCollectionCode);
             }
 
-            sp.AddParameter("@billingGuid", billingGuid);
+            sp.AddParameter("@BillingGuid", billingGuid);
 
             return sp.ExecuteReturnValue<long>();
 

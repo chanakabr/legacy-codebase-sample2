@@ -1312,6 +1312,7 @@ namespace DAL
                 sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
                 sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
                 sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
+                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
 
                 int newPaymentGWPending = sp.ExecuteReturnValue<int>();
                 return newPaymentGWPending;
@@ -1332,6 +1333,7 @@ namespace DAL
                 sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
                 sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
                 sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
+                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
 
                 if (status.HasValue)
                     sp.AddParameter("@status", status.Value);
