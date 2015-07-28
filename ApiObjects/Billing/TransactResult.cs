@@ -9,7 +9,7 @@ namespace ApiObjects.Billing
     {
         public ApiObjects.Response.Status Status { get; set; }
 
-          //Kaltura unique ID representing the transaction
+        //Kaltura unique ID representing the transaction
         public int TransactionID { get; set; }
 
         //Transaction reference ID that were returned from the payment gateway. Returned only if the payment gateway provides this information
@@ -17,6 +17,8 @@ namespace ApiObjects.Billing
 
         //Original response ID that was provided from by the payment gateway. Returned only if the payment gateway provides this information.
         public string PGResponseID { get; set; }
+
+        public eTransactionState State { get; set; }
 
         public TransactResult()
         {
