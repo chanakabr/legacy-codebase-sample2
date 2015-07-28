@@ -2143,7 +2143,7 @@ namespace ConditionalAccess
             }
             else
             {
-                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}, func:{2}", sWSPassword, sWSPassword));
+                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}", sWSPassword, sWSPassword));
             }
 
             return nGroupID;
@@ -2156,7 +2156,7 @@ namespace ConditionalAccess
 
             if (nGroupID == 0)
             {
-                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}, func:{2}", sWSPassword, sWSPassword));
+                log.Debug("WS ignored - " + string.Format("user:{0}, pass:{1}", sWSPassword, sWSPassword));
             }
 
             return nGroupID;
