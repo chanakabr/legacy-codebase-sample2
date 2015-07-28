@@ -18,4 +18,11 @@ namespace Users
         public ListType listType { get; set; }
         public ItemType itemType { get; set; }
     }
+
+    public class UserItemListsResponse
+    {
+        public List<UserItemList> UserItemLists { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
+
+    }
 }

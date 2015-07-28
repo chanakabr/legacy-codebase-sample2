@@ -684,6 +684,7 @@ namespace Users
                 }
                 catch
                 {
+                    return null;
                 }
 
                 DataTable dt = UsersDal.GetItemFromList(nSiteGuid, (int)userItemList.listType, (int)userItemList.itemType, nGroupID);
