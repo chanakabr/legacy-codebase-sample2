@@ -137,7 +137,7 @@ namespace WebAPI.Clients
             return paymentGW;
         }
 
-        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string url, string externalIdentifier, int pendingInterval, int pendingRetries,
+        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
             string sharedSecret, int? isDefault, int? isActive)
         {
             WebAPI.Billing.Status response = null;
@@ -147,14 +147,14 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, url, externalIdentifier,
+                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, adapterUrl, transactUrl, statusUrl, renewUrl, externalIdentifier,
                         pendingInterval, pendingRetries, sharedSecret, isDefault, isActive);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SetPaymentGW.  groupID: {0}, paymentGWID: {1}, name: {2}, url: {3}, isDefault: {4}, isActive: {5}, exception: {6}",
-                    groupId, paymentGWID, name, url, isDefault, isActive, ex);
+                log.ErrorFormat("Error while SetPaymentGW.  groupID: {0}, paymentGWID: {1}, name: {2}, adapterUrl: {3}, transactUrl: {4}, statusUrl: {5}, renewUrl: {6}, isDefault: {7}, isActive: {8}, exception: {9}",
+                    groupId, paymentGWID, name, adapterUrl, transactUrl, statusUrl, renewUrl, isDefault, isActive, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

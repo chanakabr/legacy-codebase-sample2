@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         ///<param name="is_active">Payment Gateway is active or not </param>
         ///<param name="external_identifier">Payment Gateway external identifier</param>
         [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
-        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string url, [FromUri] int is_default, [FromUri] int is_active,
+        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string adapter_url, [FromUri] string transact_url, [FromUri] string status_url, [FromUri] string renew_url, [FromUri] int is_default, [FromUri] int is_active,
             [FromUri] string external_identifier, [FromUri]  int pendding_interval, [FromUri] int pendding_retries, [FromUri] string shared_secret)
         {
             bool response = false;
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, url, external_identifier, pendding_interval,
+                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pendding_interval,
                     pendding_retries, shared_secret, is_default, is_active);
             }
             catch (ClientException ex)

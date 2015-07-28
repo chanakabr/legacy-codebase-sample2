@@ -15,7 +15,7 @@ namespace WebAPI.Models.Billing
     public class KalturaPaymentGW : KalturaOTTObject
     {
         /// <summary>
-        /// payment gateway id
+        /// Payment gateway id
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
@@ -23,7 +23,7 @@ namespace WebAPI.Models.Billing
         public int ID { get; set; }
 
         /// <summary>
-        /// payment gateway name
+        /// Payment gateway name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
@@ -31,14 +31,14 @@ namespace WebAPI.Models.Billing
         public string Name { get; set; }
 
         /// <summary>
-        /// payment gateway default (true / false)
+        /// Payment gateway default (true / false)
         /// </summary>
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
         public bool IsDefault { get; set; }
         /// <summary>
-        /// payment gateway is active status
+        /// Payment gateway is active status
         /// </summary>
 
         [DataMember(Name = "is_active")]
@@ -47,15 +47,39 @@ namespace WebAPI.Models.Billing
         public int IsActive { get; set; }
 
         /// <summary>
-        /// payment gateway url
+        /// Payment gateway adapter URL
         /// </summary>
-        [DataMember(Name = "url")]
-        [JsonProperty("url")]
-        [XmlElement(ElementName = "url")]
-        public string Url { get; set; }
+        [DataMember(Name = "adapter_url")]
+        [JsonProperty("adapter_url")]
+        [XmlElement(ElementName = "adapter_url")]
+        public string AdapterUrl { get; set; }
 
         /// <summary>
-        /// payment gateway extra parameters
+        /// Payment gateway transact URL
+        /// </summary>
+        [DataMember(Name = "transact_url")]
+        [JsonProperty("transact_url")]
+        [XmlElement(ElementName = "transact_url")]
+        public string TransactUrl { get; set; }
+
+        /// <summary>
+        /// Payment gateway status URL
+        /// </summary>
+        [DataMember(Name = "status_url")]
+        [JsonProperty("status_url")]
+        [XmlElement(ElementName = "status_url")]
+        public string StatusUrl { get; set; }
+
+        /// <summary>
+        /// Payment gateway renew URL
+        /// </summary>
+        [DataMember(Name = "renew_url")]
+        [JsonProperty("renew_url")]
+        [XmlElement(ElementName = "renew_url")]
+        public string RenewUrl { get; set; }
+
+        /// <summary>
+        /// Payment gateway extra parameters
         /// </summary>
         [DataMember(Name = "payment_gatewaye_settings")]
         [JsonProperty("payment_gatewaye_settings")]
@@ -63,7 +87,7 @@ namespace WebAPI.Models.Billing
         public Dictionary<string,string> Settings { get; set; }
 
         /// <summary>
-        /// payment gateway external identifier
+        /// Payment gateway external identifier
         /// </summary>
         [DataMember(Name = "external_identifier")]
         [JsonProperty("external_identifier")]
