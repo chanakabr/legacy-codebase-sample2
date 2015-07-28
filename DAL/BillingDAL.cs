@@ -973,7 +973,7 @@ namespace DAL
         }
 
 
-        public static List<PaymentGW> GetPaymentGWSettingsList(int groupID, int status = 1, int isActive = 1)
+        public static List<PaymentGW> GetPaymentGWSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
         {
             List<PaymentGW> res = new List<PaymentGW>();
             try
@@ -981,6 +981,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWSettingsList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@paymentGWId", paymentGWId);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -999,6 +1000,7 @@ namespace DAL
                             pgw.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval");
                             pgw.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries");
                             pgw.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            pgw.Url = ODBCWrapper.Utils.GetSafeStr(dr, "url");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1029,6 +1031,8 @@ namespace DAL
             }
             return res;
         }
+
+
 
         public static bool SetPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
         {
@@ -1126,14 +1130,14 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGWBasic> GetHouseholdPaymentGateways(int groupID, int houseHoldID, int status = 1, int isActive = 1)
+        public static List<PaymentGWBasic> GetHouseholdPaymentGateways(int groupID, long houseHoldID, int status = 1, int isActive = 1)
         {
             List<PaymentGWBasic> res = new List<PaymentGWBasic>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentHHGatewayList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@roupID", groupID);
                 sp.AddParameter("@houseHoldID", houseHoldID);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
@@ -1162,7 +1166,7 @@ namespace DAL
             return res;
         }
 
-        public static bool Set_PaymentGateway_Household(int groupID, int paymentGwID, int householdID, string chargeID, int status = 1)
+        public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, string chargeID, int status = 1)
         {
             bool res = false;
             try
@@ -1308,6 +1312,7 @@ namespace DAL
                 sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
                 sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
                 sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
+                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
 
                 int newPaymentGWPending = sp.ExecuteReturnValue<int>();
                 return newPaymentGWPending;
@@ -1328,6 +1333,7 @@ namespace DAL
                 sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
                 sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
                 sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
+                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
 
                 if (status.HasValue)
                     sp.AddParameter("@status", status.Value);
@@ -1361,7 +1367,7 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, int siteGuid, PaymentGWTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGWTransaction paymentGWTransaction)
         {
             try
             {
@@ -1501,32 +1507,13 @@ namespace DAL
             return chargeID;
         }
 
-
         public static string GetPaymentGWChargeID(int paymentGWID, long householdID)
         {
             bool isPaymentGWHouseholdExist = false;
-        
+
             return GetPaymentGWChargeID(paymentGWID, householdID, ref isPaymentGWHouseholdExist);
 
         }
-
-        public static bool IsPaymentGWExist(int paymentGWId)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_PaymentGWExist");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@paymentGWId", paymentGWId);
-                bool isExist = sp.ExecuteReturnValue<bool>();
-                return isExist;
-
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
 
     }
 }

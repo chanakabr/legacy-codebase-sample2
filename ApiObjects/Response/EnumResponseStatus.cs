@@ -72,7 +72,6 @@ namespace ApiObjects.Response
         ServiceNotAllowed = 3003,
         InvalidBaseLink = 3004,
         ContentAlreadyConsumed = 3005,
-        //PatymentGateWay Response
         SuccessfulCharge = 3006,
         NoChargeDone = 3007,
         InsufficientFunds = 3008,
@@ -95,7 +94,6 @@ namespace ApiObjects.Response
         NotForPurchase = 3025,
         Fail = 3026,
 
-
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,
@@ -115,12 +113,19 @@ namespace ApiObjects.Response
         ExpiredCard = 6002,
         CellularPermissionsError = 6003,
         UnKnownBillingProvider = 6004,
-        PaymentGateWayIDMissing = 6005,        
+        PaymentGateWayIDMissing = 6005,
         PaymentGateWayParamsMissing = 6006,
         PaymentGateWayNotSetForHH = 6007,
         PaymentGateWayNotExist = 6008,
         PaymentGateWayChargeIdMissing = 6009,
-    
+        UnknownErrorWhenConnectingPaymentGatewayAdapter = 6010,
+        NoConfigurationFound = 6011,
+        AdapterAppFailure = 6012,
+        SignatureMismatch = 6013,
+        ErrorSavingPaymentGatewayTransaction = 6014,
+        ErrorSavingPaymentGatewayPending = 6015,
+        ExternalIdntifierMissing = 6016,
+
         // social 7000 - 7999
         Conflict = 7000,
         MinFriendsLimitation = 7001

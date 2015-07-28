@@ -329,4 +329,19 @@ namespace ApiObjects
         [EnumMember]
         All
     }
+
+    [Serializable]
+    public enum eTransactionState
+    {
+        [EnumMember]
+        Created,
+        [EnumMember]
+        Failed,
+        [EnumMember]
+        Completed,
+        [EnumMember]
+        Pending,
+        [EnumMember]
+        Canceled,
+    }
 }
