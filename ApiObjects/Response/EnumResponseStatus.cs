@@ -125,7 +125,12 @@ namespace ApiObjects.Response
         ErrorSavingPaymentGatewayTransaction = 6014,
         ErrorSavingPaymentGatewayPending = 6015,
         ExternalIdntifierMissing = 6016,
-        ErrorSavingPaymentGatewayHousehold = 6015,
+        ErrorSavingPaymentGatewayHousehold = 6017,
+        NoPaymentGateway = 6018,
+        InvalidPaymentGatewayId = 6019,
+        PaymentGatewayNameMissing = 6020,
+        PaymentGatewaySharedSecretMissing = 6021,
+        PaymentGatewayAlreadyExist = 6022,
 
         // social 7000 - 7999
         Conflict = 7000,
