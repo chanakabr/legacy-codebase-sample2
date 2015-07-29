@@ -160,6 +160,7 @@ namespace WebAPI.Controllers
         /// <param name="sub_id">Subscription identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("{sub_id}/buy"), HttpPost]
+        [Obsolete]
         public KalturaBillingResponse Buy([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] KalturaCharge request, [FromUri]string udid = null)
         {
             KalturaBillingResponse response = null;

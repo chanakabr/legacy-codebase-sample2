@@ -653,6 +653,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\ChannelMediaController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
@@ -796,7 +797,6 @@
     <Compile Include="Clients\SocialClient.cs" />
     <Compile Include="Clients\UsersClient.cs" />
     <Compile Include="Managers\CatalogCacheManager.cs" />
-    <Compile Include="Controllers\CatalogController.cs" />
     <Compile Include="Filters\ApiAuthorize.cs" />
     <Compile Include="Filters\ExceptionFilter.cs" />
     <Compile Include="Exceptions\ApiException.cs" />

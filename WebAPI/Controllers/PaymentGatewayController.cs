@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        [Route("{household_id}/payment_gateways/list"), HttpGet]
+        [Route("{household_id}/payment_gateways/list"), HttpPost]
         public Models.Billing.KalturaPaymentGWResponse List([FromUri] string partner_id, [FromUri] long household_id, [FromUri] string user_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
@@ -52,7 +52,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
 
         /// <summary>
         /// Insert new payment gateway for household

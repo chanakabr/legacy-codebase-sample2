@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Web.Http;
+using System.Web.Http.Description;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -19,6 +20,7 @@ using WebAPI.Models.MultiRequest;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("multirequest")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class MultiRequestController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -96,7 +98,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         /// <param name="request">Sequential API calls' definitions</param>
         /// <returns></returns>
-        [Route(""), HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public object[] Do([FromBody] KalturaMultiRequest[] request)
         {
             object[] responses = new object[request.Count()];
