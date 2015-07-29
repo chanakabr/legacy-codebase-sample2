@@ -3256,10 +3256,11 @@ namespace ConditionalAccess
                         //check DomainStatus
                         if (response.m_user != null)
                         {
+                            status = ResponseStatus.OK;
+
                             if (houseHoldID == 0) // no domain id was sent
                             {
                                 houseHoldID = response.m_user.m_domianID;
-                                status = ResponseStatus.OK;
                             }
                             else if (houseHoldID != response.m_user.m_domianID)
                             {
