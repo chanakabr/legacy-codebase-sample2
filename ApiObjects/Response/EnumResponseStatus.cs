@@ -125,6 +125,7 @@ namespace ApiObjects.Response
         ErrorSavingPaymentGatewayTransaction = 6014,
         ErrorSavingPaymentGatewayPending = 6015,
         ExternalIdntifierMissing = 6016,
+        SignaturesDoNotMatch = 6017,
 
         // social 7000 - 7999
         Conflict = 7000,

@@ -12637,6 +12637,28 @@ namespace ConditionalAccess
                 return response;
             }
         }
+
+        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            
+            // log
+            log.DebugFormat("update pending transaction: paymentGatewayId = {0}, externalTransactionId = {1}, transactionState = {2}, signature = {3}",
+                paymentGatewayId, externalTransactionId, transactionState, signature);
+
+            // update billing
+            string userName = string.Empty;
+            string password = string.Empty;
+            TvinciBilling.module wsBillingService = null;
+            InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+            //var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, externalTransactionId, transactionState, signature)
+
+
+            // update cas
+
+            return response;
+        }
     }
 
 }
