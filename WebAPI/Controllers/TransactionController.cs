@@ -25,13 +25,11 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Item identifier: PPV/Subscription/Collection identifier</param>
         /// <param name="coupon">Coupon code</param>
         /// <param name="product_type">Purchase item type: PPV/Subscription/Collection</param>
-        /// <param name="device_name">Client device name</param>
-        /// <param name="payment_gateway_id">Identifier of the purchase gateway</param>
+        /// <param name="udid">Client UDID</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
-                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] string coupon, [FromUri] KalturaTransactionType product_type,
-                                                   [FromUri] string device_name, [FromUri] int payment_gateway_id)
+                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon, [FromUri] string udid)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
@@ -48,7 +46,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, user_id, household_id, price, currency, content_id, product_id, product_type, coupon, device_name, payment_gateway_id);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, user_id, household_id, price, currency, content_id, product_id, product_type, coupon, udid, 0);
             }
             catch (ClientException ex)
             {
