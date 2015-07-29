@@ -35,37 +35,17 @@ namespace WebAPI.Controllers
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
+            // validate group ID
             int groupId = 0;
             if (!int.TryParse(partner_id, out groupId))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
-
             // validate user id
             if (string.IsNullOrEmpty(user_id))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
 
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
+            // validate currency
+            if (string.IsNullOrEmpty(currency))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
 
             try
