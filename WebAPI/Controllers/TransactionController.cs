@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
 
             // validate currency
             if (string.IsNullOrEmpty(currency))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
 
             try
             {
