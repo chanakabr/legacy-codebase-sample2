@@ -693,7 +693,6 @@
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRulesList.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWHouseholdResponse.cs" />
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGWBasic.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGW.cs" />

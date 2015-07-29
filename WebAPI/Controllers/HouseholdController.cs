@@ -209,26 +209,23 @@ namespace WebAPI.Controllers
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household Identifier</param>        
         [Route("{household_id}/payment_gateways/{id}"), HttpGet]
-        public Models.Billing.KalturaPaymentGWHouseholdResponse GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        public string GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
         {
-            Models.Billing.KalturaPaymentGWHouseholdResponse response = null;
-
-
+            string chargeId = string.Empty;
 
             int groupId = int.Parse(partner_id);
-
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return chargeId;
         }
 
         #endregion

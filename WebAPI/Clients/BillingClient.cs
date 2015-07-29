@@ -398,8 +398,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int hhID = int.Parse(householdId);
-                    response = Billing.SetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, hhID, chargeId);
+                    int household = int.Parse(householdId);
+                    response = Billing.SetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, household, chargeId);
                 }
             }
             catch (Exception ex)
@@ -421,9 +421,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal Models.Billing.KalturaPaymentGWHouseholdResponse GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
+        internal string GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
         {
-            Models.Billing.KalturaPaymentGWHouseholdResponse paymentGWHouseholdResponse = null;
+            //Models.Billing.KalturaPaymentGWHouseholdResponse paymentGWHouseholdResponse = null;
             WebAPI.Billing.PaymentGWChargeIDResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -452,9 +452,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Resp.Code, response.Resp.Message);
             }
 
-            paymentGWHouseholdResponse = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWHouseholdResponse>(response);
+           // paymentGWHouseholdResponse = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGWHouseholdResponse>(response);
 
-            return paymentGWHouseholdResponse;
+            return response.ChargeID;
         }
 
         #endregion

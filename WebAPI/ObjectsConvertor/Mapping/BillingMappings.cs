@@ -52,11 +52,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PendingRetries, opt => opt.MapFrom(src => src.PendingRetries))
                 .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)));
-
-
-            //from local object to WS object
-            Mapper.CreateMap<PaymentGWChargeIDResponse, WebAPI.Models.Billing.KalturaPaymentGWHouseholdResponse>()
-                .ForMember(dest => dest.chargeID, opt => opt.MapFrom(src => src.ChargeID));
+            
         }
 
 
