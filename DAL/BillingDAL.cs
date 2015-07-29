@@ -1138,7 +1138,7 @@ namespace DAL
             List<PaymentGWBasic> res = new List<PaymentGWBasic>();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentHHGatewayList");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", houseHoldID);
