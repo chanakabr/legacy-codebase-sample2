@@ -35,10 +35,7 @@ namespace WebAPI.Controllers
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             // validate user id
             if (string.IsNullOrEmpty(user_id))

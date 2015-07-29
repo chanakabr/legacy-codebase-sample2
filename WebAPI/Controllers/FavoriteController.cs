@@ -29,11 +29,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/favorites/add"), HttpPost]
         public void Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] KalturaAddUserFavoriteRequest request)
         {
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             // parameters validation
             if (request.MediaType.Trim().Length == 0)
@@ -76,11 +72,7 @@ namespace WebAPI.Controllers
         [Route("{user_id}/favorites/delete"), HttpPost]
         public void Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
         {
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             // parameters validation
             if (media_ids == null | media_ids.Count == 0)
@@ -121,11 +113,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -161,6 +150,5 @@ namespace WebAPI.Controllers
 
             return new KalturaFavoriteList() { Favorites = favoritesFinalList };
         }
-
     }
 }

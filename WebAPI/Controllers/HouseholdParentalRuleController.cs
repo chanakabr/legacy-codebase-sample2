@@ -25,11 +25,8 @@ namespace WebAPI.Controllers
         public KalturaParentalRulesList List([FromUri] string partner_id, [FromUri] int household_id)
         {
             List<KalturaParentalRule> response = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -57,11 +54,8 @@ namespace WebAPI.Controllers
         public bool Enable([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
             bool success = false;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -90,10 +84,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {

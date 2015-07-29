@@ -27,10 +27,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             if (channel_id == 0)
             {

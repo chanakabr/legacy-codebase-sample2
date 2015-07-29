@@ -25,11 +25,8 @@ namespace WebAPI.Controllers
         public KalturaFacebookResponse GetFBUserData([FromUri] string partner_id, [FromUri] string token)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
@@ -66,11 +63,8 @@ namespace WebAPI.Controllers
         public KalturaFacebookResponse FBUserRegister([FromUri] string partner_id, [FromUri] string token, [FromUri] bool should_create_domain, [FromUri] bool subscribe_newsletter)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             string ip = Utils.Utils.GetClientIP();
 
@@ -125,11 +119,8 @@ namespace WebAPI.Controllers
         public KalturaFacebookResponse FBUserMerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password, [FromUri] string facebook_id)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
@@ -166,11 +157,8 @@ namespace WebAPI.Controllers
         public KalturaFacebookResponse FBUserUnmerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
