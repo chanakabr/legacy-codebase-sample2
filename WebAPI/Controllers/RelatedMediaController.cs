@@ -30,8 +30,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("media/{media_id}/related"), HttpGet]
-        public KalturaAssetInfoWrapper Get(string partner_id, int media_id,
+        [Route("media/{media_id}/related"), HttpPost]
+        public KalturaAssetInfoWrapper List(string partner_id, int media_id,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
             int page_index = 0, int? page_size = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
