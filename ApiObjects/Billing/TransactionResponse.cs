@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects.Billing
-{ 
+{
     public class TransactionResponse
     {
         //Kaltura Payment Gateway response status code
@@ -21,6 +21,8 @@ namespace ApiObjects.Billing
         public string PGResponseID { get; set; }
 
         public string State { get; set; }
+
+        public long CreatedAt { get; set; }
 
         public TransactionResponse()
         {

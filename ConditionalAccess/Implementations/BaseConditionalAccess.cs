@@ -24,6 +24,7 @@ using ConditionalAccess.Response;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Billing;
+using TVinciShared;
 
 namespace ConditionalAccess
 {
@@ -76,15 +77,15 @@ namespace ConditionalAccess
 
         protected abstract bool HandlePPVBillingSuccess(string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, ref long purchaseID);
+                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime purchaseDate, ref long purchaseID);
 
         protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long purchaseID);
+                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime purchaseDate, ref long purchaseID);
 
         protected abstract bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
-                                                              string billingGuid, bool isEntitledToPreviewModule, ref long purchaseID);
+                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime purchaseDate, ref long purchaseID);
 
 
         /*
@@ -12047,6 +12048,9 @@ namespace ConditionalAccess
                 return response;
             }
 
+            // get current purchase date
+            DateTime utcNow = DateTime.UtcNow;
+
             try
             {
                 // validate user
@@ -12085,16 +12089,19 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                // update current date
+                utcNow = DateTime.UtcNow;
+
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, utcNow);
                         break;
                     case eTransactionType.Subscription:
-                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, utcNow);
                         break;
                     case eTransactionType.Collection:
-                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, utcNow);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -12107,10 +12114,11 @@ namespace ConditionalAccess
                 log.Error(string.Format("Purchase Error. data: {0}", logString, ex));
             }
 
+            response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(utcNow);
             return response;
         }
 
-        private TransactionResponse PurchaseCollection(string siteguid, long houseHoldId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchaseCollection(string siteguid, long houseHoldId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId, DateTime purchaseDate)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -12169,7 +12177,7 @@ namespace ConditionalAccess
                                 long purchaseID = 0;
                                 bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
                                                                                           country, deviceName, response.TransactionID, customData, productId,
-                                                                                          billingGuid, isEntitledToPreviewModule, ref purchaseID);
+                                                                                          billingGuid, isEntitledToPreviewModule, purchaseDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {
@@ -12248,7 +12256,7 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchaseSubscription(string siteguid, long houseHoldId, double price, string currency, int productId,
-                                                      string coupon, string userIp, string deviceName, int paymentGwId)
+                                                      string coupon, string userIp, string deviceName, int paymentGwId, DateTime purchaseDate)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -12309,7 +12317,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, response.TransactionID, customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, false, ref purchaseID);
+                                                                                      billingGuid.ToString(), entitleToPreview, false, purchaseDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {
@@ -12394,7 +12402,8 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon,
+                                                string userIp, string deviceName, int paymentGwId, DateTime purchaseDate)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -12483,7 +12492,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
                                                                                    country, deviceName, response.TransactionID, customData, thePPVModule,
-                                                                                   productId, contentId, billingGuid, ref purchaseId);
+                                                                                   productId, contentId, billingGuid, purchaseDate, ref purchaseId);
 
                                 if (handleBillingPassed)
                                 {
