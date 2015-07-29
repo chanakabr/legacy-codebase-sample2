@@ -2122,29 +2122,27 @@ namespace Catalog
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
 
-        private static bool Update(List<int> lIds, int nGroupId, eObjectType eUpdatedObjectType, eAction eAction)
+        private static bool Update(List<int> ids, int groupId, eObjectType updatedObjectType, eAction action)
         {
-            bool bIsUpdateIndexSucceeded = false;
+            bool isUpdateIndexSucceeded = false;
 
-            if (lIds != null && lIds.Count > 0)
+            if (ids != null && ids.Count > 0)
             {
-
                 GroupManager groupManager = new GroupManager();
 
                 CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
+                int parentGroupId = catalogCache.GetParentGroup(groupId);
 
-
-                Group group = groupManager.GetGroup(nParentGroupID);
+                Group group = groupManager.GetGroup(parentGroupId);
 
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        lIds, eAssetType.MEDIA, eAction, DateTime.Now);
+                        ids, eAssetType.MEDIA, action, DateTime.Now);
 
                     var queue = new CatalogQueue();
 
-                    bIsUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
+                    isUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
                     //ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
 
                     //if (data != null)
@@ -2155,39 +2153,44 @@ namespace Catalog
                 }
             }
 
-            return bIsUpdateIndexSucceeded;
+            return isUpdateIndexSucceeded;
         }
 
-
-        private static bool UpdateEpg(List<int> lIds, int nGroupId, eObjectType eObjectType, eAction eAction)
+        private static bool UpdateEpg(List<int> ids, int groupId, eObjectType objectType, eAction action)
         {
-            bool bIsUpdateIndexSucceeded = false;
+            bool isUpdateIndexSucceeded = false;
 
-            if (lIds != null && lIds.Count > 0)
+            if (ids != null && ids.Count > 0)
             {
                 GroupManager groupManager = new GroupManager();
 
                 CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(nGroupId);
+                int parentGroupID = catalogCache.GetParentGroup(groupId);
 
 
-                Group group = groupManager.GetGroup(nParentGroupID);
+                Group group = groupManager.GetGroup(parentGroupID);
 
                 if (group != null)
                 {
-                    ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eObjectType, eAction);
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
+                        ids, eAssetType.PROGRAM, action, DateTime.Now);
 
-                    if (data != null)
-                    {
-                        BaseQueue queue = new CatalogQueue();
-                        bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eObjectType.ToString()));
-                    }
+                    var queue = new CatalogQueue();
+
+                    isUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
+
+                    //ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eObjectType, eAction);
+
+                    //if (data != null)
+                    //{
+                    //    BaseQueue queue = new CatalogQueue();
+                    //    bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eObjectType.ToString()));
+                    //}
                 }
             }
 
-            return bIsUpdateIndexSucceeded;
+            return isUpdateIndexSucceeded;
         }
-
 
         #endregion
 
