@@ -21,8 +21,8 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
-        [Route("payment_gateways"), HttpGet]
-        public Models.Billing.KalturaPaymentGWResponse List([FromUri] string partner_id)
+        [Route("payment_gateways"), HttpPost]
+        public Models.Billing.KalturaPaymentGWResponse List(string partner_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
 
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         [Route("payment_gateways/{payment_gateway_id}/delete"), HttpPost]
-        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id)
+        public bool Delete(string partner_id, int payment_gateway_id)
         {
             bool response = false;
 
@@ -84,9 +84,9 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="pgs">Payment GateWay Settings Object</param>
+        /// <param name="payment_gateway">Payment GateWay Settings Object</param>
         [Route("payment_gateway/add"), HttpPost]
-        public bool Add([FromUri] string partner_id, [FromBody] KalturaPaymentGW pgs)
+        public bool Add(string partner_id, KalturaPaymentGW payment_gateway)
         {
             bool response = false;
 
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGW(groupId, pgs);
+                response = ClientsManager.BillingClient().InsertPaymentGW(groupId, payment_gateway);
             }
             catch (ClientException ex)
             {
