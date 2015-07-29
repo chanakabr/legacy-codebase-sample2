@@ -1472,26 +1472,6 @@ namespace DAL
             return paymentGWID;
         }
 
-        public static bool SetPaymentGWHousehold(int groupID, int paymentGWID, int householdID, string chargeID)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway_HH_ChargeID");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupID);
-                sp.AddParameter("@paymentGW_id", paymentGWID);
-                sp.AddParameter("@household_id", householdID);
-                sp.AddParameter("@charge_id", chargeID);
-
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public static string GetPaymentGWChargeID(int paymentGWID, long householdID, ref bool isPaymentGWHouseholdExist)
         {
             string chargeID = string.Empty;
