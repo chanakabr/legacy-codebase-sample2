@@ -10,6 +10,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
+using WebAPI.Catalog;
 
 namespace WebAPI.Controllers
 {
@@ -41,7 +42,6 @@ namespace WebAPI.Controllers
             int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
-            
             int groupId = int.Parse(partner_id);
 
             // page size - 5 <= size <= 50
@@ -57,6 +57,11 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
+
+            // validate and convert filter status
+            eWatchStatus filterStatusHelper = eWatchStatus.All;
+            if (filter_status != null)
+                Enum.TryParse<eWatchStatus>(filter_status.ToString(), out filterStatusHelper);
 
             List<int> filterTypes = null;
             if (!string.IsNullOrEmpty(filter_types))
@@ -77,7 +82,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, page_index, page_size, filter_status, days, filterTypes, with);
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, page_index, page_size, filterStatusHelper, days, filterTypes, with);
             }
             catch (ClientException ex)
             {

@@ -213,14 +213,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, KalturaWatchStatus? filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, eWatchStatus filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
-
-            // validate and convert filter status
-            eWatchStatus filterStatusHelper = eWatchStatus.All;
-            if (filterStatus != null)
-                Enum.TryParse<eWatchStatus>(filterStatus.ToString(), out filterStatusHelper);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -237,7 +232,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 AssetTypes = assetTypes,
-                FilterStatus = filterStatusHelper,
+                FilterStatus = filterStatus,
                 NumOfDays = days,
                 OrderDir = OrderDir.DESC
             };
