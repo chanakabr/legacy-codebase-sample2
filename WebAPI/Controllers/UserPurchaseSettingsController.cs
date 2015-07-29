@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("get"), HttpGet]
+        [Route("get"), HttpPost]
         public KalturaPurchaseSettingsResponse Get([FromUri] string partner_id, [FromUri] string user_id)
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
