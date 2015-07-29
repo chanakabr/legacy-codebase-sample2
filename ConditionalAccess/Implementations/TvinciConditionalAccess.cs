@@ -428,7 +428,7 @@ namespace ConditionalAccess
             lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, lMediaFileID, sSiteGUID, dPrice, sCurrency,
                 bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
                 relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, dtUtcNow, dtEndDate,
-                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, string.Empty, domianID);
+                dtUtcNow, sCountryCd, sLanguageCode, sDeviceName, domianID, string.Empty);
 
             if (lPurchaseID > 0)
             {
