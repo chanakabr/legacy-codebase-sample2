@@ -41,11 +41,8 @@ namespace WebAPI.Controllers
             int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             // page size - 5 <= size <= 50
             if (page_size == null || page_size == 0)

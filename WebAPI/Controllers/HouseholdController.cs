@@ -38,10 +38,10 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+
+
+            int groupId = int.Parse(partner_id);
+
 
             try
             {
@@ -70,13 +70,9 @@ namespace WebAPI.Controllers
         public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWith> with = null)
         {
             var ks = KS.GetFromRequest();
-
             KalturaHousehold response = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new int[] { ks.UserId }.ToList<int>());
 
@@ -143,10 +139,7 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold response = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(request.MasterUserId))
             {
@@ -189,10 +182,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -223,10 +213,10 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGWHouseholdResponse response = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+
+
+            int groupId = int.Parse(partner_id);
+
 
             try
             {

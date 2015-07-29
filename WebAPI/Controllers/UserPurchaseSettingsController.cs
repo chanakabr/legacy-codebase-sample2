@@ -26,10 +26,7 @@ namespace WebAPI.Controllers
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -58,10 +55,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {

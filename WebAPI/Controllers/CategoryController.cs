@@ -26,11 +26,8 @@ namespace WebAPI.Controllers
         public KalturaCategory Get(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
             KalturaCategory response = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             if (category_id == 0)
             {

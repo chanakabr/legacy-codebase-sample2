@@ -25,11 +25,8 @@ namespace WebAPI.Controllers
         public KalturaLoginPin Add([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             KalturaLoginPin response = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -56,10 +53,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         public void Update([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -86,10 +80,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         public void Delete([FromUri] string partner_id, [FromUri] string user_id)
         {
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {

@@ -26,10 +26,7 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGWSettingsResponse response = null;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -58,11 +55,8 @@ namespace WebAPI.Controllers
         public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
         {
             bool response = false;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -92,10 +86,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {
@@ -125,10 +116,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+            int groupId = int.Parse(partner_id);
 
             try
             {
