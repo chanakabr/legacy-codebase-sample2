@@ -321,7 +321,6 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                
                 try
                 {
                     domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
@@ -329,30 +328,48 @@ namespace TVPApiServices
                     if (domains == null || domains.Count() == 0)
                         return devDomains;
 
-                    // Tokenization: validate domains - find siteGuids domain
-                    Domain siteGuidsDomain = AuthorizationManager.GetSiteGuidsDomain(initObj.SiteGuid, domains);
-                        
-                    // device is in wrong domain - return 403
-                    if (AuthorizationManager.IsTokenizationEnabled() && siteGuidsDomain == null)
+                    // if tokenization enabled 
+                    if (AuthorizationManager.IsTokenizationEnabled())
                     {
-                        AuthorizationManager.Instance.returnError(403);
-                        return null;
-                    }
+                        // Tokenization: validate domains - find siteGuid's domain
+                        Domain siteGuidsDomain = AuthorizationManager.GetSiteGuidsDomain(initObj.SiteGuid, domains);
+                        if (siteGuidsDomain == null)
+                        {
+                            AuthorizationManager.Instance.returnError(403);
+                            return null;
+                        }
 
-                    // device in siteGuids domain return only the relevant domain
+                        // device in siteGuid's domain return only the relevant domain
+                        else
+                        {
+                            devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[1]
+                            {
+                                new TVPApiModule.Services.ApiDomainsService.DeviceDomain()
+                                {
+                                    DomainID = siteGuidsDomain.m_nDomainID,
+                                    DomainName = siteGuidsDomain.m_sName,
+                                    SiteGuid = siteGuidsDomain.m_masterGUIDs != null && siteGuidsDomain.m_masterGUIDs.Count() > 0 ? siteGuidsDomain.m_masterGUIDs[0].ToString() : string.Empty,
+                                    DefaultUser = siteGuidsDomain.m_DefaultUsersIDs != null && siteGuidsDomain.m_DefaultUsersIDs.Count() > 0 ? siteGuidsDomain.m_DefaultUsersIDs[0].ToString() : string.Empty,
+                                    DomainStatus = siteGuidsDomain.m_DomainStatus
+                                }
+                            };
+                        }
+                    }
+                    // tokenization is disabled - return the same value as before
                     else
                     {
-                        devDomains = new TVPApiModule.Services.ApiDomainsService.DeviceDomain[1]
+                        devDomains = new ApiDomainsService.DeviceDomain[domains.Count()];
+                        for (int i = 0; i < domains.Count(); i++)
                         {
-                            new TVPApiModule.Services.ApiDomainsService.DeviceDomain()
+                            devDomains[i] = new ApiDomainsService.DeviceDomain()
                             {
-                                DomainID = siteGuidsDomain.m_nDomainID,
-                                DomainName = siteGuidsDomain.m_sName,
-                                SiteGuid = siteGuidsDomain.m_masterGUIDs != null && siteGuidsDomain.m_masterGUIDs.Count() > 0 ? siteGuidsDomain.m_masterGUIDs[0].ToString() : string.Empty,
-                                DefaultUser = siteGuidsDomain.m_DefaultUsersIDs != null && siteGuidsDomain.m_DefaultUsersIDs.Count() > 0 ? siteGuidsDomain.m_DefaultUsersIDs[0].ToString() : string.Empty,
-                                DomainStatus = siteGuidsDomain.m_DomainStatus
-                            }
-                        };
+                                DomainID = domains[i].m_nDomainID,
+                                DomainName = domains[i].m_sName,
+                                SiteGuid = domains[i].m_masterGUIDs != null && domains[i].m_masterGUIDs.Count() > 0 ? domains[i].m_masterGUIDs[0].ToString() : string.Empty,
+                                DefaultUser = domains[i].m_DefaultUsersIDs != null && domains[i].m_DefaultUsersIDs.Count() > 0 ? domains[i].m_DefaultUsersIDs[0].ToString() : string.Empty,
+                                DomainStatus = domains[i].m_DomainStatus
+                            };
+                        }
                     }
                 }
                 catch (Exception ex)
