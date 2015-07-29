@@ -333,7 +333,7 @@ namespace WebAPI.Clients
 
             try
             {
-                // convert local enu, to ws enum
+                // convert local enumerator, to web service enumerator
                 WebAPI.ConditionalAccess.eTransactionType transactionType = Mapper.Map<WebAPI.ConditionalAccess.eTransactionType>(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
