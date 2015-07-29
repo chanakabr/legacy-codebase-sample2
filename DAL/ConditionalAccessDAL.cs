@@ -766,6 +766,7 @@ namespace DAL
             sp.AddParameter("@SiteGuid", siteGuid);
             sp.AddParameter("@Price", price);
             sp.AddParameter("@CurrencyCode", currency);
+            sp.AddParameter("@NumOfUses", 0);
             sp.AddParameter("@MaxNumOfUses", maxNumOfUses);
             sp.AddParameter("@CustomData", customData);
             sp.AddParameter("@BillingTransactionID", billingTransactionID);
@@ -779,8 +780,17 @@ namespace DAL
             sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@domainID", householdID);
             sp.AddParameter("@billingGuid", billingGuid);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@LastViewDate", DBNull.Value);
+            sp.AddParameter("@PublishDate", DBNull.Value);
 
-            if (!string.IsNullOrEmpty(subscriptionCode))
+            if (string.IsNullOrEmpty(subscriptionCode))
+            {
+                sp.AddParameter("@SubscriptionCode", string.Empty);
+
+            }
+            else
             {
                 sp.AddParameter("@SubscriptionCode", subscriptionCode);
             }
@@ -788,44 +798,6 @@ namespace DAL
             return sp.ExecuteReturnValue<long>();
         }
 
-
-        public static long Insert_NewPPVPurchase(long lGroupID, long lMediaFileID, string sSiteGuid, double dPrice,
-       string sCurrencyCode, long lMaxNumOfUses, string sCustomData, string sSubscriptionCode,
-       long lBillingTransactionID, DateTime dtStartDate, DateTime dtEndDate, DateTime dtCreateAndUpdateDate,
-       string sCountryCode, string sLanguageCode, string sDeviceName, string sConnKey, long domainID)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
-            sp.AddParameter("@GroupID", lGroupID);
-            sp.AddParameter("@MediaFileID", lMediaFileID);
-            sp.AddParameter("@SiteGuid", sSiteGuid);
-            sp.AddParameter("@Price", dPrice);
-            sp.AddParameter("@CurrencyCode", sCurrencyCode);
-            sp.AddParameter("@NumOfUses", 0);
-            sp.AddParameter("@MaxNumOfUses", lMaxNumOfUses);
-            sp.AddParameter("@CustomData", sCustomData);
-            sp.AddParameter("@LastViewDate", DBNull.Value);
-            if (!string.IsNullOrEmpty(sSubscriptionCode))
-                sp.AddParameter("@SubscriptionCode", sSubscriptionCode);
-            else
-                sp.AddParameter("@SubscriptionCode", DBNull.Value);
-            sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
-            sp.AddParameter("@StartDate", dtStartDate);
-            sp.AddParameter("@IsActive", 1);
-            sp.AddParameter("@Status", 1);
-            sp.AddParameter("@EndDate", dtEndDate);
-            sp.AddParameter("@UpdaterID", 0);
-            sp.AddParameter("@UpdateDate", dtCreateAndUpdateDate);
-            sp.AddParameter("@CreateDate", dtCreateAndUpdateDate);
-            sp.AddParameter("@PublishDate", DBNull.Value);
-            sp.AddParameter("@CountryCode", sCountryCode);
-            sp.AddParameter("@LanguageCode", sLanguageCode);
-            sp.AddParameter("@DeviceName", sDeviceName);
-            sp.AddParameter("@RelPp", DBNull.Value);
-            sp.AddParameter("@domainID", domainID);
-
-            return sp.ExecuteReturnValue<long>();
-        }
 
         public static long Insert_NewMPPPurchase(long lGroupID, string sSubscriptionCode, string sSiteGuid,
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
