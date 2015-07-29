@@ -12161,19 +12161,20 @@ namespace ConditionalAccess
                         // purchase
                         response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
                         if (response != null &&
-                            response.Status != null &&
-                            response.Status.Code == (int)eResponseStatus.OK)
+                            response.Status != null)
                         {
-                            // grant entitlement
-                            long purchaseID = 0;
-                            bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
-                                                                                      country, deviceName, response.TransactionID, customData, productId,
-                                                                                      billingGuid, isEntitledToPreviewModule, ref purchaseID);
-
-                            if (handleBillingPassed)
+                            if (response.Status.Code == (int)eResponseStatus.OK)
                             {
-                                // entitlement passed - build notification message
-                                var dicData = new Dictionary<string, object>()
+                                // purchase passed, grant entitlement
+                                long purchaseID = 0;
+                                bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
+                                                                                          country, deviceName, response.TransactionID, customData, productId,
+                                                                                          billingGuid, isEntitledToPreviewModule, ref purchaseID);
+
+                                if (handleBillingPassed)
+                                {
+                                    // entitlement passed - build notification message
+                                    var dicData = new Dictionary<string, object>()
                                 {
                                     {"CollectionCode", productId},
                                     {"BillingTransactionID", response.TransactionID},
@@ -12183,22 +12184,28 @@ namespace ConditionalAccess
                                     {"CustomData", customData}
                                 };
 
-                                // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                                    // notify purchase
+                                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                                    {
+                                        log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    }
+                                }
+                                else
                                 {
-                                    log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    // purchase passed, entitlement failed
+                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                                 }
                             }
                             else
                             {
-                                // purchase passed, entitlement failed
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                // purchase failed - received error status
                                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                             }
                         }
                         else
                         {
-                            // purchase failed
+                            // purchase failed - no status error
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
@@ -12219,6 +12226,8 @@ namespace ConditionalAccess
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The collection is already purchased");
                             break;
                         case PriceReason.SubscriptionPurchased:
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionPurchased, "The subscription is already purchased");
+                            break;
                         case PriceReason.CollectionPurchased:
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The collection is already purchased");
                             break;
@@ -12290,26 +12299,28 @@ namespace ConditionalAccess
                         response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId,
                                                   TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
                         if (response != null &&
-                            response.Status != null &&
-                            response.Status.Code == (int)eResponseStatus.OK)
+                            response.Status != null)
                         {
-                            long purchaseID = 0;
-
-                            // grant entitlement
-                            bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
-                                                                                  country, deviceName, response.TransactionID, customData, productId,
-                                                                                  billingGuid.ToString(), entitleToPreview, false, ref purchaseID);
-
-                            if (handleBillingPassed)
+                            if (response.Status.Code == (int)eResponseStatus.OK)
                             {
-                                // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-                                if (subscription.m_nDomainLimitationModule != 0)
-                                {
-                                    UpdateDLM(houseHoldId, subscription.m_nDomainLimitationModule);
-                                }
+                                // purchase passed
+                                long purchaseID = 0;
 
-                                // build notification message
-                                var dicData = new Dictionary<string, object>()
+                                // grant entitlement
+                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
+                                                                                      country, deviceName, response.TransactionID, customData, productId,
+                                                                                      billingGuid.ToString(), entitleToPreview, false, ref purchaseID);
+
+                                if (handleBillingPassed)
+                                {
+                                    // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                                    if (subscription.m_nDomainLimitationModule != 0)
+                                    {
+                                        UpdateDLM(houseHoldId, subscription.m_nDomainLimitationModule);
+                                    }
+
+                                    // build notification message
+                                    var dicData = new Dictionary<string, object>()
                                 {
                                     {"SubscriptionCode", productId},
                                     {"BillingTransactionID", response.TransactionID},
@@ -12319,22 +12330,28 @@ namespace ConditionalAccess
                                     {"CustomData", customData}
                                 };
 
-                                // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                                    // notify purchase
+                                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                                    {
+                                        log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    }
+                                }
+                                else
                                 {
-                                    log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    // purchase passed, entitlement failed
+                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                                 }
                             }
                             else
                             {
-                                // purchase passed, entitlement failed
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                // purchase failed - received error status
                                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                             }
                         }
                         else
                         {
-                            // purchase failed
+                            // purchase failed - no status error
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
@@ -12352,14 +12369,14 @@ namespace ConditionalAccess
                     switch (priceReason)
                     {
                         case PriceReason.Free:
-                            response.Status.Message = string.Format("The subscription = {0} is already purchased", productId);
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The item is free");
                             break;
-
                         case PriceReason.SubscriptionPurchased:
-                        case PriceReason.CollectionPurchased:
-                            response.Status.Message = string.Format("The subscription = {0} is already purchased", productId);
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionPurchased, "The subscription is already purchased");
                             break;
-
+                        case PriceReason.CollectionPurchased:
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The collection is already purchased");
+                            break;
                         default:
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                             break;
@@ -12456,46 +12473,54 @@ namespace ConditionalAccess
                         // purchase
                         response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
                         if (response != null &&
-                            response.Status != null &&
-                            response.Status.Code == (int)eResponseStatus.OK)
+                            response.Status != null)
                         {
-                            long purchaseId = 0;
-
-                            // grant entitlement
-                            bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
-                                                                               country, deviceName, response.TransactionID, customData, thePPVModule,
-                                                                               productId, contentId, billingGuid, ref purchaseId);
-
-                            if (handleBillingPassed)
+                            if (response.Status.Code == (int)eResponseStatus.OK)
                             {
-                                // entitlement passed - build notification message
-                                var dicData = new Dictionary<string, object>()
-                                {
-                                    {"MediaFileID", contentId},
-                                    {"BillingTransactionID", response.TransactionID},
-                                    {"PPVModuleCode", productId},
-                                    {"SiteGUID", siteguid},
-                                    {"CouponCode", coupon},
-                                    {"CustomData", customData},
-                                    {"PurchaseID", purchaseId}
-                                };
+                                // purchase passed
+                                long purchaseId = 0;
 
-                                // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
+                                // grant entitlement
+                                bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
+                                                                                   country, deviceName, response.TransactionID, customData, thePPVModule,
+                                                                                   productId, contentId, billingGuid, ref purchaseId);
+
+                                if (handleBillingPassed)
                                 {
-                                    log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    // entitlement passed - build notification message
+                                    var dicData = new Dictionary<string, object>()
+                                    {
+                                        {"MediaFileID", contentId},
+                                        {"BillingTransactionID", response.TransactionID},
+                                        {"PPVModuleCode", productId},
+                                        {"SiteGUID", siteguid},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData},
+                                        {"PurchaseID", purchaseId}
+                                    };
+
+                                    // notify purchase
+                                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
+                                    {
+                                        log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                    }
+                                }
+                                else
+                                {
+                                    // purchase passed, entitlement failed
+                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed, entitlement failed");
+                                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                                 }
                             }
                             else
                             {
-                                // purchase passed, entitlement failed
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed, entitlement failed");
+                                // purchase failed - received error status
                                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                             }
                         }
                         else
                         {
-                            // purchase failed
+                            // purchase failed - no status error
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
@@ -12575,6 +12600,7 @@ namespace ConditionalAccess
                     response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
                     response.PGResponseID = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
                     response.TransactionID = transactionResponse.TransactionID;
+                    response.State = transactionResponse.State.ToString();
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);

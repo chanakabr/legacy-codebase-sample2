@@ -2096,7 +2096,7 @@ namespace Users
                 }
                 else
                 {
-                    //in case user exists, but pendding , update its status to active, return OK
+                    //in case user exists, but pending , update its status to active, return OK
                     int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
 
                     if (rowsAffected < 1)
