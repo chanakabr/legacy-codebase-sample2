@@ -123,7 +123,7 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
                 List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
-                
+
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
@@ -217,6 +217,11 @@ namespace WebAPI.Clients
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
+            // validate and convert filter status
+            eWatchStatus filterStatusHelper = eWatchStatus.All;
+            if (filterStatus != null)
+                Enum.TryParse<eWatchStatus>(filterStatus.ToString(), out filterStatusHelper);
+
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
             {
@@ -232,7 +237,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 AssetTypes = assetTypes,
-                FilterStatus = (eWatchStatus)Enum.Parse(typeof(eWatchStatus), filterStatus.ToString()),
+                FilterStatus = filterStatusHelper,
                 NumOfDays = days,
                 OrderDir = OrderDir.DESC
             };
@@ -340,7 +345,7 @@ namespace WebAPI.Clients
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}", 
+            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
@@ -380,7 +385,7 @@ namespace WebAPI.Clients
                 m_nChannelID = channelId,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                m_oOrderObj = order, 
+                m_oOrderObj = order,
             };
 
             // build failover cache key
