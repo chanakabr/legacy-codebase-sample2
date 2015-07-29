@@ -337,7 +337,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id"> User identifiers</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
-        [Route("update"), HttpPut]
+        [Route("update"), HttpPost]
         public KalturaUser Update([FromUri] string partner_id, string user_id, KalturaUserData user_data)
         {
             KalturaUser response = null;
