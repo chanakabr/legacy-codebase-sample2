@@ -95,6 +95,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ConditionalAccess.TransactionResponse, KalturaTransactionResponse>()
                .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
                .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
+               .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
                .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseID));
         }
     }

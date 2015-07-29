@@ -2355,6 +2355,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="TransactionID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />

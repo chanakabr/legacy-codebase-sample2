@@ -4350,6 +4350,8 @@ namespace WebAPI.ConditionalAccess {
         
         private string pGResponseIDField;
         
+        private string stateField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -4387,6 +4389,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.pGResponseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string State {
+            get {
+                return this.stateField;
+            }
+            set {
+                this.stateField = value;
             }
         }
     }

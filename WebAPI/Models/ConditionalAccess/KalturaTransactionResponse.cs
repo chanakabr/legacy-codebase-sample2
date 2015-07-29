@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaTransactionResponse : KalturaOTTObject
     {
         /// <summary>
-        /// Kaltura transaction unique ID
+        /// Kaltura unique ID representing the transaction
         /// </summary>
         [DataMember(Name = "transaction_id")]
         [JsonProperty("transaction_id")]
@@ -36,5 +36,13 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("payment_gateway_response_id")]
         [XmlElement(ElementName = "payment_gateway_response_id")]
         public string PGResponseID { get; set; }
+
+        /// <summary>
+        /// Transaction state
+        /// </summary>
+        [DataMember(Name = "state")]
+        [JsonProperty("state")]
+        [XmlElement(ElementName = "state")]
+        public string State { get; set; }
     }
 }
