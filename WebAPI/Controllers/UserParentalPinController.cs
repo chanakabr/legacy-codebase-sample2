@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/parental/pin"), HttpGet]
+        [Route("get"), HttpGet]
         public KalturaPinResponse Get([FromUri] string partner_id, [FromUri] string user_id)
         {
             KalturaPinResponse pinResponse = null;
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/parental/pin"), HttpPost]
+        [Route("update"), HttpPost]
         public bool Update([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("{user_id}/parental/pin/validate"), HttpPost]
+        [Route("validate"), HttpPost]
         public bool Validate([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin)
         {
             bool success = false;

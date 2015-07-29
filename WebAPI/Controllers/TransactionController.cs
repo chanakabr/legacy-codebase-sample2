@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <param name="device_name">Client device name</param>
         /// <param name="payment_gateway_id">Identifier of the purchase gateway</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("transaction/purchase"), HttpGet]
+        [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
                                                    [FromUri] int content_id, [FromUri] int product_id, [FromUri] string coupon, [FromUri] KalturaTransactionType product_type,
                                                    [FromUri] string device_name, [FromUri] int payment_gateway_id)

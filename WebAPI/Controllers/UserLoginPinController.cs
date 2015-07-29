@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
-        [Route("{user_id}/pin/generate"), HttpPost]
+        [Route("add"), HttpPost]
         public KalturaLoginPin Add([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string secret = null)
         {
             KalturaLoginPin response = null;
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
-        [Route("{user_id}/pin"), HttpPost]
+        [Route("update"), HttpPost]
         public void Update([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string pin, [FromUri] string secret = null)
         {
             int groupId = int.Parse(partner_id);
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{user_id}/pin"), HttpDelete]
+        [Route("delete"), HttpPost]
         public void Delete([FromUri] string partner_id, [FromUri] string user_id)
         {
             int groupId = int.Parse(partner_id);

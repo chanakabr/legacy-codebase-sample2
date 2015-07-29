@@ -180,9 +180,13 @@ namespace WebAPI
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
 
-                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}'>\n",
-                            method.Name,                            
-                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"'))));
+                        string deprecatedAttr = "";
+                        if (method.GetCustomAttribute<ObsoleteAttribute>() != null)                        
+                            deprecatedAttr = string.Format("deprecated='1'");
+                    
+                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2}>\n",
+                            method.Name,
+                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr));
 
                         foreach (var par in method.GetParameters())
                         {
