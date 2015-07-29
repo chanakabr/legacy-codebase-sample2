@@ -10,7 +10,7 @@ namespace QueueWrapper
     {
         public CatalogQueue()
         {
-            this.Implementation = new RabbitQueue();
+            this.Implementation = new RabbitQueue(Enums.ConfigType.DefaultConfig, true);
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)

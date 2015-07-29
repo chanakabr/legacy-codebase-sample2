@@ -13,17 +13,19 @@ namespace ApiObjects.MediaIndexingObjects
         public string id;
         public string task;
         public List<object> args;
+        public object kwargs;
 
         #endregion
 
         public BaseCeleryData()
         {
+            kwargs = new object();
             args = new List<object>();
         }
 
-
         public BaseCeleryData(string sID, string sTask, List<object> lArgs)
         {
+            kwargs = new object();
             task = sTask;
             id = sID;       
             args = lArgs;
@@ -31,6 +33,7 @@ namespace ApiObjects.MediaIndexingObjects
 
         public BaseCeleryData(string sID, string sTask, params object[] lArgs)
         {
+            kwargs = new object();
             task = sTask;
             id = sID;
             args = new List<object>();
