@@ -12575,6 +12575,7 @@ namespace ConditionalAccess
                     response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
                     response.PGResponseID = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
                     response.TransactionID = transactionResponse.TransactionID;
+                    response.State = transactionResponse.State.ToString();
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
