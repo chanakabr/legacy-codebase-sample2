@@ -51,41 +51,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// Charges a user for subscription        
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
-        /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="udid">Device UDID</param>
-        /// <param name="sub_id">Subscription identifier</param>
-        /// <param name="request">Charge request parameters</param>
-        [Route("subscriptions/{sub_id}/buy"), HttpPost]
-        public KalturaBillingResponse ChargeUserForSubscription([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] KalturaCharge request, [FromUri]string udid = null)
-        {
-            KalturaBillingResponse response = null;
-
-            // validate group ID
-            int groupId = 0;
-            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
-
-            try
-            {
-                // call client
-                response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, request.UserId, request.Price, request.Currency, sub_id, request.CouponCode,
-                    request.ExtraParams, udid, request.EncryptedCvv);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
+        }        
     }
 }
