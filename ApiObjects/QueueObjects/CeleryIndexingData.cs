@@ -40,9 +40,9 @@ namespace ApiObjects
                 // task = const
                 TASK,
                 groupId,
-                assetType,
                 assetIds,
-                action,
+                assetType.ToString(),
+                action.ToString(),
                 date.Ticks)
         {
             // Basic member initialization
