@@ -177,12 +177,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006
+        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006, ErrorSavingPaymentGatewayHousehold = 6015,
+        /// PaymentGateWayNotExist = 6008
         /// </remarks>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
-        /// <param name="household_id">Household Identifier</param>
-        /// <param name="user_id">User Identifier</param>
+        /// <param name="household_id">Household Identifier</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("{household_id}/payment_gateways/{id}"), HttpPost]
         public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
