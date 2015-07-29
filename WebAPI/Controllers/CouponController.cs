@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
-        [Route("{code}"), HttpGet]
+        [Route("get"), HttpPost]
         public KalturaCouponDetails Get([FromUri] string partner_id, [FromUri] string code)
         {
             KalturaCouponDetails coupon = null;

@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021</remarks>
-        [Route("{household_id}/devices/{udid}"), HttpDelete]
+        [Route("delete"), HttpPost]
         public bool Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string udid)
         {
             int groupId = int.Parse(partner_id);
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">Pin code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
-        [Route("{household_id}/devices/pin"), HttpPost]
+        [Route("add"), HttpPost]
         public KalturaDevice Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string device_name, [FromUri] string pin)
         {
             KalturaDevice device = null;

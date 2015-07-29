@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Id</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{user_id}/subscriptions/permitted"), HttpGet]
+        [Route("list"), HttpPost]
         public KalturaEntitlementsList List([FromUri] string partner_id, [FromUri] string user_id)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
-        [Route("{household_id}/cancel/{asset_id}"), HttpDelete]
+        [Route("cancel"), HttpPost]
         public bool Cancel([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int asset_id, KalturaTransactionType transaction_type, [FromUri] bool is_force = false)
         {
             bool response = false;
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         /// <param name="sub_id">Subscription Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
-        [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
+        [Route("cancel_renewal"), HttpPost]
         public void CancelRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
             int groupId = int.Parse(partner_id);

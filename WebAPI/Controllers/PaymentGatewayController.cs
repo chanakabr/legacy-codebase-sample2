@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        [Route("{household_id}/payment_gateways/list"), HttpPost]
+        [Route("list"), HttpPost]
         public Models.Billing.KalturaPaymentGWResponse List([FromUri] string partner_id, [FromUri] long household_id, [FromUri] string user_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
-        [Route("{household_id}/payment_gateways/set"), HttpPost]
+        [Route("set"), HttpPost]
         public bool Set([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id, [FromUri] string charge_id)
         {
             bool response = false;
@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">House Hold Identifier</param>
         /// <param name="user_id">User Identifier</param>
-        [Route("{household_id}/payment_gateways/delete"), HttpPost]
+        [Route("delete"), HttpPost]
         public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
         {
             bool response = false;

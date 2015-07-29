@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
-        [Route("{household_id}/parental/rules"), HttpGet]
+        [Route("list"), HttpPost]
         public KalturaParentalRulesList List([FromUri] string partner_id, [FromUri] int household_id)
         {
             List<KalturaParentalRule> response = null;
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
-        [Route("{household_id}/parental/rules/{rule_id}"), HttpPost]
+        [Route("enable"), HttpPost]
         public bool Enable([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
-        [Route("{household_id}/parental/rules/{rule_id}"), HttpDelete]
+        [Route("disable"), HttpPost]
         public bool Disable([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
         {
             bool success = false;

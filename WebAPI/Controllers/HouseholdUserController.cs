@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
-        [Route("{household_id}/users/{user_id}"), HttpDelete]
+        [Route("delete"), HttpPost]
         public bool Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id)
         {
             int groupId = int.Parse(partner_id);
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
-        [Route("{household_id}/users/{user_id}"), HttpPost]
+        [Route("add"), HttpPost]
         public bool Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master = false)
         {
             int groupId = int.Parse(partner_id);

@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>The parental rules defined for the account</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{partner_id}/parental/rules"), HttpGet]
+        [Route("list"), HttpPost]
         public KalturaParentalRulesList List([FromUri] string partner_id)
         {
             List<KalturaParentalRule> response = null;
