@@ -161,6 +161,5 @@ namespace WebAPI.Controllers
 
             return new KalturaFavoriteList() { Favorites = favoritesFinalList };
         }
-
     }
 }

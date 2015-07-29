@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
-        [Route("login/pin"), HttpPost]
+        [Route("login_with_pin"), HttpPost]
         public KalturaUser LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
         {
             KalturaUser response = null;
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
-        [Route("Login"), HttpPost]
+        [Route("login"), HttpPost]
         public KalturaUser Login([FromUri] string partner_id, [FromBody] KalturaLogIn request, [FromUri] string udid = null)
         {
             KalturaUser response = null;
@@ -116,6 +116,7 @@ namespace WebAPI.Controllers
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
+        [Route("add"), HttpPost]
         public KalturaUser Add([FromUri] string partner_id, [FromBody] KalturaSignUp request)
         {
             KalturaUser response = null;
@@ -311,6 +312,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
+        [Route("get"), HttpPost]
         public KalturaUsersList Get([FromUri] string partner_id, string user_id)
         {
             List<KalturaUser> response = null;
@@ -359,7 +361,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id"> User identifiers</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
-        [Route("{user_id}"), HttpPut]
+        [Route("update"), HttpPut]
         public KalturaUser Update([FromUri] string partner_id, string user_id, KalturaUserData user_data)
         {
             KalturaUser response = null;
@@ -403,7 +405,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental/rules/media/{media_id}"), HttpGet]
+        [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
         public KalturaParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
         {
             List<KalturaParentalRule> response = null;

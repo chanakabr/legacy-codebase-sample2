@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("{user_id}/purchase/settings"), HttpGet]
+        [Route("get"), HttpGet]
         public KalturaPurchaseSettingsResponse Get([FromUri] string partner_id, [FromUri] string user_id)
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{user_id}/purchase/settings"), HttpPost]
+        [Route("update"), HttpPost]
         public bool Update([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int setting)
         {
             bool success = false;
