@@ -38,7 +38,10 @@ namespace WebAPI.Controllers
         {
             KalturaUser response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -73,7 +76,10 @@ namespace WebAPI.Controllers
         {
             KalturaUser response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (request == null)
             {
@@ -114,6 +120,11 @@ namespace WebAPI.Controllers
         {
             KalturaUser response = null;
 
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+
             if (request == null || request.userBasicData == null)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "SignUp or UserBasicData is null");
@@ -125,7 +136,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SignUp(int.Parse(partner_id), request.userBasicData, request.userDynamicData, request.password, request.affiliateCode);
+                response = ClientsManager.UsersClient().SignUp(groupId, request.userBasicData, request.userDynamicData, request.password, request.affiliateCode);
             }
             catch (ClientException ex)
             {
@@ -150,7 +161,10 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(username))
             {
@@ -186,7 +200,10 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -220,7 +237,10 @@ namespace WebAPI.Controllers
         {
             KalturaUser response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(token))
             {
@@ -257,7 +277,10 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
@@ -295,7 +318,7 @@ namespace WebAPI.Controllers
             List<int> usersIds;
             try
             {
-                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();                
+                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
             }
             catch
             {
@@ -306,7 +329,10 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no user id in list");
             }
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
@@ -322,7 +348,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            
+
             return new KalturaUsersList() { Users = response };
         }
 
@@ -337,7 +363,11 @@ namespace WebAPI.Controllers
         public KalturaUser Update([FromUri] string partner_id, string user_id, KalturaUserData user_data)
         {
             KalturaUser response = null;
-            int groupId = int.Parse(partner_id);
+
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
@@ -378,7 +408,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // parameters validation
             if (media_id == 0)
@@ -412,7 +445,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // parameters validation
             if (epg_id == 0)
@@ -446,7 +482,10 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
@@ -477,7 +516,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaGenericRule> response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // parameters validation
             if (media_id == 0)
@@ -513,7 +555,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaGenericRule> response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // parameters validation
             if (epg_id == 0)

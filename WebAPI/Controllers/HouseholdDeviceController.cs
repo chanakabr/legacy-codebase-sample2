@@ -24,7 +24,10 @@ namespace WebAPI.Controllers
         [Route("{household_id}/devices/{udid}"), HttpDelete]
         public bool Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string udid)
         {
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
@@ -53,12 +56,15 @@ namespace WebAPI.Controllers
         {
             KalturaDevice device = null;
 
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+
             if (string.IsNullOrEmpty(pin))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
-
-            int groupId = int.Parse(partner_id);
 
             try
             {

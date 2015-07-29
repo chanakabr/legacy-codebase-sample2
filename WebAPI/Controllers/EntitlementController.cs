@@ -24,7 +24,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
@@ -55,7 +58,10 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (asset_id == 0)
             {
@@ -89,7 +95,10 @@ namespace WebAPI.Controllers
         [Route("{household_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
         public void CancelRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(sub_id))
             {

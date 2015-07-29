@@ -32,7 +32,10 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // parameters validation
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
@@ -89,7 +92,10 @@ namespace WebAPI.Controllers
         {
             KalturaSlimAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (size == null || size > 10 || size < 1)

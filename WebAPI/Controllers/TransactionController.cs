@@ -13,23 +13,56 @@ namespace WebAPI.Controllers
     [RoutePrefix("transaction")]
     public class TransactionController : ApiController
     {
-
-
-        // TODO: finish documentation
         /// <summary>
         /// Performs PPV/Subscription/Collection purchase.
         /// </summary>
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="token">Facebook token</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="price">Item price</param>
+        /// <param name="currency">Payment currency</param>
+        /// <param name="content_id">In case the transaction type is PPV - the content ID represent the relevant file identifier</param>
+        /// <param name="product_id">Item identifier: PPV/Subscription/Collection identifier</param>
+        /// <param name="coupon">Coupon code</param>
+        /// <param name="transaction_type">Purchase item type: PPV/Subscription/Collection</param>
+        /// <param name="device_name">Client device name</param>
+        /// <param name="payment_gateway_id">Identifier of the purchase gateway</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("transaction/purchase"), HttpGet]
-        public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency, [FromUri] int content_id, [FromUri] int product_id, [FromUri] string coupon, [FromUri] KalturaTransactionType transaction_type, [FromUri] string device_name, [FromUri] int payment_gateway_id)
+        public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
+                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] string coupon, [FromUri] KalturaTransactionType transaction_type,
+                                                   [FromUri] string device_name, [FromUri] int payment_gateway_id)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
-            int groupId = int.Parse(partner_id);
+
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
 
-            // TODO: finish variable validation
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
 
             // validate user id
             if (string.IsNullOrEmpty(user_id))

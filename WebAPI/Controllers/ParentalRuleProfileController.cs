@@ -29,10 +29,15 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
+
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetGroupParentalRules(int.Parse(partner_id));
+                response = ClientsManager.ApiClient().GetGroupParentalRules(groupId);
             }
             catch (ClientException ex)
             {

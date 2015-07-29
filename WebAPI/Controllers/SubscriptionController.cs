@@ -38,7 +38,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaSubscriptionPrice> subscriptionPrices = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (string.IsNullOrEmpty(subscriptions_ids))
             {
@@ -72,7 +75,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaSubscription> subscruptions = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (subscriptions_ids.Count() == 0)
             {
@@ -109,7 +115,10 @@ namespace WebAPI.Controllers
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;
 
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             if (media_id == 0)
             {

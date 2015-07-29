@@ -24,7 +24,10 @@ namespace WebAPI.Controllers
         [Route("{household_id}/users/{user_id}"), HttpDelete]
         public bool Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id)
         {
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
@@ -53,7 +56,10 @@ namespace WebAPI.Controllers
         [Route("{household_id}/users/{user_id}"), HttpPost]
         public bool Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master = false)
         {
-            int groupId = int.Parse(partner_id);
+            // validate group ID
+            int groupId = 0;
+            if (!int.TryParse(partner_id, out groupId) || groupId < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal partner ID");
 
             try
             {
