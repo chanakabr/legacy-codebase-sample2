@@ -1715,6 +1715,20 @@ namespace DAL
             return purchaseSetting;
         }
 
+        public static string Get_Group_DefaultPIN(int groupId)
+        {
+            string pin = string.Empty;
+
+            object value = ODBCWrapper.Utils.GetTableSingleVal("group_rule_settings", "DEFAULT_PARENTAL_PIN", "GROUP_ID", "=", groupId);
+
+            if (value != null && value != DBNull.Value)
+            {
+                pin = Convert.ToString(value);
+            }
+
+            return pin;
+        }
+
         public static bool Get_PurchaseSettings(int groupId, int domainId, string siteGuid, out eRuleLevel level, out ePurchaeSettingsType type)
         {
             bool success = false;
