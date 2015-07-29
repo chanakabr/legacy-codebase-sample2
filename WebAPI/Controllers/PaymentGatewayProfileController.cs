@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
-        [Route("payment_gateways"), HttpPost]
+        [Route("list"), HttpPost]
         public Models.Billing.KalturaPaymentGWResponse List(string partner_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        [Route("payment_gateways/{payment_gateway_id}/delete"), HttpPost]
+        [Route("delete"), HttpPost]
         public bool Delete(string partner_id, int payment_gateway_id)
         {
             bool response = false;
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway">Payment GateWay Settings Object</param>
-        [Route("payment_gateway/add"), HttpPost]
+        [Route("add"), HttpPost]
         public bool Add(string partner_id, KalturaPaymentGW payment_gateway)
         {
             bool response = false;
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
         ///<param name="pending_interval">Payment Gateway pending interval</param>
         ///<param name="pending_retries">Payment Gateway pending retries</param>
         ///<param name="shared_secret">Payment Gateway shared secret</param>
-        [Route("payment_gateways/{payment_gateway_id}/update"), HttpPost]
+        [Route("update"), HttpPost]
         public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string adapter_url, [FromUri] string transact_url,
             [FromUri] string status_url, [FromUri] string renew_url, [FromUri] int is_default, [FromUri] int is_active, [FromUri] string external_identifier, [FromUri]  int pending_interval, 
             [FromUri] int pending_retries, [FromUri] string shared_secret)
