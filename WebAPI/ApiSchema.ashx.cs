@@ -14,6 +14,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI
 {
+    /// <summary>
+    /// XXX: SHOULD BE REFACTORED SOMETIME TO USE XMLDOCUMENT...
+    /// </summary>
     public class ApiSchema : IHttpHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -60,14 +63,40 @@ namespace WebAPI
             context.Response.Write(string.Format("<?xml version=\"1.0\"?>\n<xml apiVersion=\"{0}\" generatedDate=\"{1}\">\n",
                 fvi.FileVersion, Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
+            List<Type> types = asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")).ToList();
+            List<Type> sortedTypes = new List<Type>();
+
+            var classesTypes = types.Where(yy => !yy.IsEnum);
+            //Ordering by dependency
+            foreach (Type tp in classesTypes)
+                sortedTypes.Add(tp);
+
+            foreach (Type tp in classesTypes)
+            {                
+                //No need to handle
+                if (tp.BaseType == typeof(Object))
+                    continue;
+
+                sortedTypes.Remove(tp);
+                if (tp.BaseType != null)
+                {
+                    int idx = sortedTypes.FindIndex(xx => xx == tp.BaseType);
+                    sortedTypes.Insert(idx, tp);
+                }
+                else
+                    sortedTypes.Insert(0, tp);
+            }
+
             //Running on models first
-            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")))
+            foreach (Type type in sortedTypes)
             {
                 if (type.BaseType == typeof(Enum))
                     enums.Add(type);
                 else
                     classes.Add(type);
             }
+
+            classes.Reverse();
 
             //Printing enums
             context.Response.Write("<enums>\n");
@@ -85,7 +114,7 @@ namespace WebAPI
 
             //Running on classes
             context.Response.Write("<classes>\n");
-            foreach (Type t in classes.OrderBy(c => c.Name))
+            foreach (Type t in classes)
             {
                 //Skip master base class
                 if (t == typeof(KalturaOTTObject))
@@ -181,9 +210,9 @@ namespace WebAPI
                             log.Error("Empty description in method - " + method.Name);
 
                         string deprecatedAttr = "";
-                        if (method.GetCustomAttribute<ObsoleteAttribute>() != null)                        
+                        if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
                             deprecatedAttr = string.Format("deprecated='1'");
-                    
+
                         context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2}>\n",
                             method.Name,
                             HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr));
