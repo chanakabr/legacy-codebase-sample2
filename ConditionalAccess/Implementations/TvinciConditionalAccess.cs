@@ -678,7 +678,7 @@ namespace ConditionalAccess
 
         protected override bool HandlePPVBillingSuccess(string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime purchaseDate, ref long purchaseId)
+                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, ref long purchaseId)
         {
             purchaseId = 0;
             try
@@ -689,10 +689,10 @@ namespace ConditionalAccess
                 bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
                 // get PPV end date
-                DateTime endDate = purchaseDate;
+                DateTime endDate = entitlementDate;
                 if (isPPVUsageModuleExists)
                 {
-                    endDate = Utils.GetEndDateTime(purchaseDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    endDate = Utils.GetEndDateTime(entitlementDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
                 }
 
                 int maxNumOfViews = isPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
@@ -700,8 +700,8 @@ namespace ConditionalAccess
 
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productId, siteguid, price, currency, maxNumOfViews,
-                                                                        customData, subscriptionCode, billingTransactionId, purchaseDate, endDate,
-                                                                        purchaseDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
+                                                                        customData, subscriptionCode, billingTransactionId, entitlementDate, endDate,
+                                                                        entitlementDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
                 if (purchaseId < 1)
                 {
                     // entitlement failed
@@ -722,7 +722,7 @@ namespace ConditionalAccess
 
         protected override bool HandleSubscriptionBillingSuccess(string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
                                                                  string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime purchaseDate, ref long purchaseId)
+                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId)
         {
             purchaseId = 0;
             try
@@ -739,12 +739,12 @@ namespace ConditionalAccess
                     }
 
                     // get subscription end date
-                    DateTime subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, purchaseDate);
+                    DateTime subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
 
                     // grant entitlement
                     purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
                                  deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                                 previewModuleID, purchaseDate, subscriptionEndDate, purchaseDate, houseHoldId, billingGuid);
+                                 previewModuleID, entitlementDate, subscriptionEndDate, entitlementDate, houseHoldId, billingGuid);
 
                     if (purchaseId == 0)
                     {
@@ -774,7 +774,7 @@ namespace ConditionalAccess
 
         protected override bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                                string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                               int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime purchaseDate, ref long purchaseId)
+                                                               int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseId)
         {
             purchaseId = 0;
             try
@@ -786,13 +786,13 @@ namespace ConditionalAccess
                     bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
 
                     // get collection end date
-                    DateTime collectionEndDate = CalcCollectionEndDate(collection, purchaseDate);
+                    DateTime collectionEndDate = CalcCollectionEndDate(collection, entitlementDate);
 
                     // grant entitlement
                     purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
                                                                              deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
                                                                              usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
-                                                                             purchaseDate, collectionEndDate, purchaseDate, houseHoldID, billingGuid);
+                                                                             entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
 
                     if (purchaseId < 1)
                     {
