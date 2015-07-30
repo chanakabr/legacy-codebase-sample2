@@ -2143,13 +2143,11 @@ namespace Catalog
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
-                    //ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eUpdatedObjectType, eAction);
 
-                    //if (data != null)
-                    //{
-                    //    BaseQueue queue = new CatalogQueue();
-                        //bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eUpdatedObjectType.ToString()));
-                    //}
+                    // backward compatibility
+                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
+
+                    queue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
                 }
             }
 
@@ -2179,13 +2177,10 @@ namespace Catalog
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, "tasks.process_update_index");
 
-                    //ApiObjects.MediaIndexingObjects.IndexingData data = new ApiObjects.MediaIndexingObjects.IndexingData(lIds, group.m_nParentGroupID, eObjectType, eAction);
+                    // Backward compatibility
+                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
 
-                    //if (data != null)
-                    //{
-                    //    BaseQueue queue = new CatalogQueue();
-                    //    bIsUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, eObjectType.ToString()));
-                    //}
+                    queue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
                 }
             }
 
