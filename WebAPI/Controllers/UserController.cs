@@ -5,8 +5,10 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using System.Web.Routing;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -69,11 +71,11 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaUser Login([FromUri] string partner_id, [FromBody] KalturaLogIn request, [FromUri] string udid = null)
+        public KalturaLoginResponse Login([FromUri] string partner_id, [FromBody] KalturaLogIn request, [FromUri] string udid = null)
         {
             KalturaUser response = null;
 
-            int groupId = int.Parse(partner_id);
+            int partnerID = int.Parse(partner_id);
 
             if (request == null)
             {
@@ -86,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(groupId, request.Username, request.Password, udid, request.ExtraParams);
+                response = ClientsManager.UsersClient().Login(partnerID, request.Username, request.Password, udid, request.ExtraParams);
             }
             catch (ClientException ex)
             {
@@ -98,7 +100,10 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return response;
+            string userSecret = GroupsManager.GetGroup(partnerID).UserSecret;
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, "", string.Empty);
+
+            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }
 
         /// <summary>

@@ -745,6 +745,7 @@
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
+    <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
