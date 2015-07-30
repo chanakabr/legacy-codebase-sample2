@@ -263,7 +263,7 @@ namespace WebAPI
                 return string.Format("type='array' arrayType='{1}'", getTypeFriendlyName(type), name);
             }
 
-            return string.Format("type='{0}' {1} default='{2}'", getTypeFriendlyName(type), isNullable ? "optional='1'" : "", getDefaultForType(type));
+            return string.Format("type='{0}'{1}default='{2}'", getTypeFriendlyName(type), isNullable ? " optional='1' " : " ", getDefaultForType(type));
         }
 
         private string getDefaultForType(Type type)

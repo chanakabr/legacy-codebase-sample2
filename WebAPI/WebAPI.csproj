@@ -687,6 +687,7 @@
     <Compile Include="Controllers\UserPurchaseSettingsController.cs" />
     <Compile Include="Controllers\UserTransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
+    <Compile Include="Filters\KSExtractor.cs" />
     <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />

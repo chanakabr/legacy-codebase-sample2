@@ -40,8 +40,9 @@ namespace WebAPI
             config.Formatters.Add(new CustomXmlFormatter());
             config.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 
-            config.Filters.Add(new ValidateModelAttribute());
-            config.Filters.Add(new ValidateRequest());
+            config.Filters.Add(new KSExtractor());
+            config.Filters.Add(new ValidateModelAttribute());            
+            //config.Filters.Add(new ValidateRequest());
             config.Filters.Add(new VoidActionFilter());
             config.MessageHandlers.Add(new WrappingHandler());
 

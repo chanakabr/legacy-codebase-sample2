@@ -21,7 +21,6 @@ namespace WebAPI.Controllers
         [Flags]
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
-        private KS ks;
         private bool allowAnonymous;
 
         public ApiAuthorizeAttribute(bool AllowAnonymous = false)
@@ -32,9 +31,9 @@ namespace WebAPI.Controllers
 
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            string ksVal = HttpContext.Current.Request.QueryString["ks"];
+            KS ks = KS.GetFromRequest();
 
-            if (string.IsNullOrEmpty(ksVal) && !allowAnonymous)
+            if (ks == null && !allowAnonymous)
             {
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             }
@@ -43,49 +42,6 @@ namespace WebAPI.Controllers
                 base.OnAuthorization(actionContext);
                 return;
             }
-            else
-            {
-                StringBuilder sb = new StringBuilder(ksVal);
-                sb = sb.Replace("-", "+");
-                sb = sb.Replace("_", "/");
-
-                int groupId = 0;
-                byte[] encryptedData = null;
-                string encryptedDataStr = null;
-                string[] ksParts = null;
-
-                try
-                {
-                    encryptedData = System.Convert.FromBase64String(sb.ToString());
-                    encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                    ksParts = encryptedDataStr.Split('|');
-                }
-                catch (Exception ex)
-                {
-                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
-                }
-
-                if (ksParts.Length != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
-                {
-                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
-                }
-
-                // get group secret
-                Group group = GroupsManager.GetGroup(groupId);
-                string adminSecret = group.UserSecret;
-
-                // build KS
-                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
-
-                if (!ks.IsValid)
-                {
-                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "KS expired");
-                }
-
-                ks.SaveOnRequest();
-
-                base.OnAuthorization(actionContext);
-            }
         }
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
@@ -93,7 +49,8 @@ namespace WebAPI.Controllers
             if (allowAnonymous)
                 return true;
 
-            return ks.IsValid;
+            KS ks = KS.GetFromRequest();
+            return ks != null && ks.IsValid;
 
             //eRole role;
             ////TODO: use the private KS above. when KS is completed, change this to extract from the KS object
