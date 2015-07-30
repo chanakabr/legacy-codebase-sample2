@@ -40,7 +40,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                 {
                     if (IsExternalIDExists(coll["1_val"], pgid))
                     {
-                        Session["error_msg"] = "External Id must be uniqe";
+                        Session["error_msg"] = "External Id must be unique";
                         flag = true;
                     }
                     else
@@ -191,7 +191,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                 res = true;
                 int pgeid = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
                 string pgname = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
-                Logger.Logger.Log("ValidateExternalID", string.Format("id:{0}, name:{1}", pgeid, pgname), "payment_gateway");
+                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}, name:{1}", pgeid, pgname), "payment_gateway");
             }
         }
         selectQuery.Finish();
