@@ -66,13 +66,15 @@ namespace WebAPI
             List<Type> types = asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")).ToList();
             List<Type> sortedTypes = new List<Type>();
 
-            var classesTypes = types.Where(yy => !yy.IsEnum);
             //Ordering by dependency
-            foreach (Type tp in classesTypes)
+            foreach (Type tp in types)
                 sortedTypes.Add(tp);
 
-            foreach (Type tp in classesTypes)
-            {                
+            foreach (Type tp in types)
+            {
+                if (tp.IsEnum)
+                    continue;
+
                 //No need to handle
                 if (tp.BaseType == typeof(Object))
                     continue;
