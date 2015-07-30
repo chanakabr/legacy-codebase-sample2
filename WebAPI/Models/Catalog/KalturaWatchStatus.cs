@@ -7,10 +7,10 @@ namespace WebAPI.Models.Catalog
 {
     public enum KalturaWatchStatus
     {
-        Progress,
+        progress,
 
-        Done,
+        done,
 
-        All
+        all
     }
 }

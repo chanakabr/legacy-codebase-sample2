@@ -156,16 +156,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case RuleType.Parental:
-                    result = Models.API.KalturaRuleType.Parental;
+                    result = Models.API.KalturaRuleType.parental;
                     break;
                 case RuleType.Geo:
-                    result = Models.API.KalturaRuleType.Geo;
+                    result = Models.API.KalturaRuleType.geo;
                     break;
                 case RuleType.UserType:
-                    result = Models.API.KalturaRuleType.UserType;
+                    result = Models.API.KalturaRuleType.user_type;
                     break;
                 case RuleType.Device:
-                    result = Models.API.KalturaRuleType.Device;
+                    result = Models.API.KalturaRuleType.device;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");

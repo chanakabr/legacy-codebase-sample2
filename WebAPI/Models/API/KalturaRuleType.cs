@@ -7,9 +7,9 @@ namespace WebAPI.Models.API
 {
     public enum KalturaRuleType
     {
-        Parental = 0, 
-        Geo = 1, 
-        UserType = 2, 
-        Device = 3
+        parental = 0, 
+        geo = 1, 
+        user_type = 2, 
+        device = 3
     }
 }
