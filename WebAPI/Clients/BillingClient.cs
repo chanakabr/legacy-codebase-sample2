@@ -389,7 +389,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool SetHouseholdChargeID(int groupId, string externalIdentifier, string householdId, string chargeId)
+        internal bool SetHouseholdChargeID(int groupId, string externalIdentifier, int householdId, string chargeId)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -398,8 +398,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int household = int.Parse(householdId);
-                    response = Billing.SetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, household, chargeId);
+                    response = Billing.SetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, chargeId);
                 }
             }
             catch (Exception ex)

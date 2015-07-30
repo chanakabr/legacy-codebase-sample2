@@ -178,7 +178,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("{household_id}/payment_gateways/{id}"), HttpPost]
-        public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id, [FromUri] string charge_id)
+        public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] int household_id, [FromUri] string charge_id)
         {
             bool response = false;
 
