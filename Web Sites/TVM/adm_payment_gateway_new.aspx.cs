@@ -24,30 +24,54 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            bool flag = false;
+
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                Int32 nID = DBManipulator.DoTheWork("billing_connection");
-
-                // set adapter configuration
-                Billing.module billing = new Billing.module();
-
-                string sIP = "1.1.1.1";
-                string sWSUserName = "";
-                string sWSPass = "";
-                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = GetWSURL("billing_ws");
-                if (sWSURL != "")
-                    billing.Url = sWSURL;
-                try
+                int pgid = 0;
+                // Validate uniqe external id
+                if (Session["paymentGW_id"] != null && Session["paymentGW_id"].ToString() != "" && int.Parse(Session["paymentGW_id"].ToString()) != 0)
                 {
-                    Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
-                    Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
+                    int.TryParse(Session["paymentGW_id"].ToString(), out pgid);
                 }
-                catch (Exception ex)
+
+                System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+                if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"])) 
                 {
-                    Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                    if (IsExternalIDExists(coll["1_val"], pgid))
+                    {
+                        Session["error_msg"] = "External Id must be uniqe";
+                        flag = true;
+                    }
+                    else
+                    {
+                        Int32 nID = DBManipulator.DoTheWork("billing_connection");
+
+                        // set adapter configuration
+                        Billing.module billing = new Billing.module();
+
+                        string sIP = "1.1.1.1";
+                        string sWSUserName = "";
+                        string sWSPass = "";
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
+                        string sWSURL = GetWSURL("billing_ws");
+                        if (sWSURL != "")
+                            billing.Url = sWSURL;
+                        try
+                        {
+                            Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
+                            Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                        }
+
+                        return;
+                    }
                 }
-                return;
+    
+           
             }
             
             Int32 nMenuID = 0;
@@ -58,7 +82,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
             {
                 Session["paymentGW_id"] = int.Parse(Request.QueryString["paymentGW_id"].ToString());
             }
-            else
+            else if (!flag)
                 Session["paymentGW_id"] = 0;
         }
     }
@@ -120,7 +144,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         theRecord.AddRecord(dr_renew_url);
 
         DataRecordShortIntField dr_pending_interval = new DataRecordShortIntField(true, 9, 9);
-        dr_pending_interval.Initialize("Pending Interval", "adm_table_header_nbg", "FormInput", "pending_interval", false);
+        dr_pending_interval.Initialize("Pending Interval (Minutes)", "adm_table_header_nbg", "FormInput", "pending_interval", false);
         theRecord.AddRecord(dr_pending_interval);
 
         DataRecordShortIntField dr_pending_retries = new DataRecordShortIntField(true, 9, 9);
@@ -144,5 +168,35 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
     static public string GetWSURL(string sKey)
     {
         return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+    }
+
+    static private bool IsExternalIDExists(string extId, int pgid)
+    {
+        int groupID = LoginManager.GetLoginGroupID();
+        bool res = false;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("billing_connection");
+        selectQuery += "select ID from payment_gateway where status=1 and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("external_identifier", "=", extId);
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "<>", pgid);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                res = true;
+                int pgeid = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+                string pgname = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
+                Logger.Logger.Log("ValidateExternalID", string.Format("id:{0}, name:{1}", pgeid, pgname), "payment_gateway");
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        return res;
     }
 }

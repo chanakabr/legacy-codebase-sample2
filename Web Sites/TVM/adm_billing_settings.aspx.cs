@@ -79,8 +79,12 @@ public partial class adm_billing_settings : System.Web.UI.Page
             theRecord.SetConnectionKey("billing_connection");
 
             DataRecordDropDownField dr_paymentGW = new DataRecordDropDownField("payment_gateway", "name", "id", "group_id", groupId, 60, true);
-            dr_paymentGW.Initialize("Default Payment GateWay", "adm_table_header_nbg", "FormInput", "DEFAULT_PAYMENT_GATEWAY", false);
+            dr_paymentGW.Initialize("Active Payment Gateway", "adm_table_header_nbg", "FormInput", "DEFAULT_PAYMENT_GATEWAY", false);
             theRecord.AddRecord(dr_paymentGW);
+
+            DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
+            dr_SecurityQuestion.Initialize("Enable Payment Gateway Selection", "adm_table_header_nbg", "FormInput", "ENABLE_PAYMENT_GATEWAY_SELECTION", false);
+            theRecord.AddRecord(dr_SecurityQuestion);
 
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
@@ -94,7 +98,8 @@ public partial class adm_billing_settings : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            selectQuery += "select * from F_Get_GroupsParent(" + groupID.ToString() + ")";
+            selectQuery += "select PARENT_GROUP_ID from groups where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
