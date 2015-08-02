@@ -352,6 +352,12 @@ namespace ApiObjects
         InsufficientFunds,
 
         [EnumMember]
-        ReasonUnknown
+        ReasonUnknown,
+
+        [EnumMember]
+        InvalidAccount,
+
+        [EnumMember]
+        UnknownPaymentGatewayResponse
     }
 }
