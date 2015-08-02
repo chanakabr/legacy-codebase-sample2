@@ -12164,7 +12164,10 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed, update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
@@ -12306,7 +12309,10 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
                                 long purchaseID = 0;
@@ -12485,7 +12491,10 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
                                 long purchaseId = 0;
@@ -12629,6 +12638,16 @@ namespace ConditionalAccess
                             case (int)eResponseStatus.ReasonUnknown:
 
                                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Reason unknown");
+                                break;
+
+                            case (int)eResponseStatus.UnknownPaymentGatewayResponse:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Unknown payment gateway response");
+                                break;
+
+                            case (int)eResponseStatus.InvalidAccount:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Invalid account");
                                 break;
 
                             default:
