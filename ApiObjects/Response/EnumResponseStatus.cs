@@ -131,6 +131,12 @@ namespace ApiObjects.Response
         PaymentGatewayNameMissing = 6020,
         PaymentGatewaySharedSecretMissing = 6021,
         PaymentGatewayAlreadyExist = 6022,
+        PaymentGateWayHouseholdMissing = 6023,
+        HouseholdAlreadySetToPaymentGateway = 6024,
+        ChargeIdAlreadySetToHouseholdPaymentGateway = 6025,
+        ChargeIdNotSetToHousehold = 6026,
+        HouseholdNotSetToPaymentGateway = 6027,
+
 
         // social 7000 - 7999
         Conflict = 7000,

@@ -89,6 +89,7 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="Billing\HouseholdPaymentGateway.cs" />
     <Compile Include="Billing\PaymentGWBasic.cs" />
     <Compile Include="Billing\PaymentGW.cs" />
     <Compile Include="Billing\PaymentGWChargeIDResponse.cs" />
