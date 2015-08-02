@@ -19,7 +19,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
-        [XmlElement(ElementName = "order_by")]
+        [XmlElement(ElementName = "assets")]
         public List<KalturaSlimAssetInfo> Assets { get; set; }
     }
 

@@ -33,9 +33,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        public KalturaAssetInfoWrapper List(string partner_id, int[] media_ids, int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            string language = null, string user_id = null, int household_id = 0)
+        public KalturaAssetInfoWrapper Get(string partner_id, int[] media_ids, int page_index = 0, int? page_size = null,
+            List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -151,6 +150,56 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filter_types, with);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns related media by media identifier<br />        
+        /// </summary>        
+        /// <param name="media_id">Media identifier</param>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="media_types">Related media types list - possible values:
+        /// any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
+        /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        [Route("related"), HttpPost]
+        public KalturaAssetInfoWrapper Related(string partner_id, int media_id,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
+            int page_index = 0, int? page_size = null,
+            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
+            string language = null, string user_id = null, int household_id = 0)
+        {
+            KalturaAssetInfoWrapper response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
+            }
+
+            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
+            if (page_size == null || page_size > 10 || page_size < 1)
+            {
+                page_size = 5;
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, media_id, media_types, with);
             }
             catch (ClientException ex)
             {

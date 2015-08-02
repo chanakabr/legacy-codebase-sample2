@@ -14,6 +14,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI
 {
+    /// <summary>
+    /// XXX: SHOULD BE REFACTORED SOMETIME TO USE XMLDOCUMENT...
+    /// </summary>
     public class ApiSchema : IHttpHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -60,14 +63,42 @@ namespace WebAPI
             context.Response.Write(string.Format("<?xml version=\"1.0\"?>\n<xml apiVersion=\"{0}\" generatedDate=\"{1}\">\n",
                 fvi.FileVersion, Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
+            List<Type> types = asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")).ToList();
+            List<Type> sortedTypes = new List<Type>();
+
+            //Ordering by dependency
+            foreach (Type tp in types)
+                sortedTypes.Add(tp);
+
+            foreach (Type tp in types)
+            {
+                if (tp.IsEnum)
+                    continue;
+
+                //No need to handle
+                if (tp.BaseType == typeof(Object))
+                    continue;
+
+                sortedTypes.Remove(tp);
+                if (tp.BaseType != null)
+                {
+                    int idx = sortedTypes.FindIndex(xx => xx == tp.BaseType);
+                    sortedTypes.Insert(idx, tp);
+                }
+                else
+                    sortedTypes.Insert(0, tp);
+            }
+
             //Running on models first
-            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")))
+            foreach (Type type in sortedTypes)
             {
                 if (type.BaseType == typeof(Enum))
                     enums.Add(type);
                 else
                     classes.Add(type);
             }
+
+            classes.Reverse();
 
             //Printing enums
             context.Response.Write("<enums>\n");
@@ -85,7 +116,7 @@ namespace WebAPI
 
             //Running on classes
             context.Response.Write("<classes>\n");
-            foreach (Type t in classes.OrderBy(c => c.Name))
+            foreach (Type t in classes)
             {
                 //Skip master base class
                 if (t == typeof(KalturaOTTObject))
@@ -144,6 +175,8 @@ namespace WebAPI
 
             context.Response.Write("</classes>\n");
 
+            var routePrefix = asm.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
+
             //Running on methods
             context.Response.Write("<services>\n");
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
@@ -181,12 +214,12 @@ namespace WebAPI
                             log.Error("Empty description in method - " + method.Name);
 
                         string deprecatedAttr = "";
-                        if (method.GetCustomAttribute<ObsoleteAttribute>() != null)                        
-                            deprecatedAttr = string.Format("deprecated='1'");
-                    
-                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2}>\n",
-                            method.Name,
-                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr));
+                        if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
+                            deprecatedAttr = string.Format("deprecated='1'");                        
+
+                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2} path='/{3}/{4}/{5}'>\n",
+                            method.Name, HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr,
+                            routePrefix, controller.Name.Replace("Controller", ""), method.Name));
 
                         foreach (var par in method.GetParameters())
                         {

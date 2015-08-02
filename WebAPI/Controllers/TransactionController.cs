@@ -23,10 +23,10 @@ namespace WebAPI.Controllers
         /// <param name="currency">Payment currency</param>
         /// <param name="content_id">In case the transaction type is PPV - the content ID represent the relevant file identifier</param>
         /// <param name="product_id">Item identifier: PPV/Subscription/Collection identifier</param>
-        /// <param name="coupon">Coupon code</param>
+        /// <param name="coupon">Coupon code</param> 
         /// <param name="product_type">Purchase item type: PPV/Subscription/Collection</param>
         /// <param name="udid">Client UDID</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
                                                    [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon, [FromUri] string udid)

@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Validator
 {
@@ -30,6 +33,28 @@ namespace Validator
                 {
                     Console.WriteLine(string.Format("Model {0} doesn't inherit from {1}", type.Name, tt.Name));
                     found = true;
+                }
+
+                foreach (PropertyInfo m in type.GetProperties())
+                {
+                    var xeAttr = m.GetCustomAttributes<XmlElementAttribute>();
+                    var dmAttr = m.GetCustomAttributes<DataMemberAttribute>();
+                    var jpAttr = m.GetCustomAttributes<JsonPropertyAttribute>();
+
+                    if (xeAttr.Count() == 0 || dmAttr.Count() == 0 && jpAttr.Count() == 0)
+                    {
+                        Console.WriteLine(string.Format("Model {0} doesn't have one of the properties on {1}", type.Name, m.Name));
+                        found = true;
+                    }
+                    else
+                    {
+                        if (xeAttr.First().ElementName != dmAttr.First().Name || dmAttr.First().Name != jpAttr.First().PropertyName ||
+                            xeAttr.First().ElementName != jpAttr.First().PropertyName)
+                        {
+                            Console.WriteLine(string.Format("Model {0} has a mismatch in properties names", m.Name));
+                            found = true;
+                        }
+                    }
                 }
             }
 

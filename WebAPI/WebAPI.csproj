@@ -663,7 +663,6 @@
     <Compile Include="Controllers\HouseholdPurchaseSettingsController.cs" />
     <Compile Include="Controllers\HouseholdUserController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
-    <Compile Include="Controllers\RelatedMediaController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\ChannelController.cs" />

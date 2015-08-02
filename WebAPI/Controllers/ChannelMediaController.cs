@@ -11,7 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("related_media")]
+    [RoutePrefix("channel_media")]
     public class ChannelMediaController : ApiController
     {
         /// <summary>
