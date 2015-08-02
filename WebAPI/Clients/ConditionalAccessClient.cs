@@ -366,5 +366,43 @@ namespace WebAPI.Clients
 
             return clientResponse;
         }
+
+        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, string externalTransactionId, KalturaTransactionState transactionState, string signature)
+        {
+            Status wsResponse = null;
+
+            // get group 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                // convert local enumerator, to web service enumerator
+                WebAPI.ConditionalAccess.eTransactionState wsTransactionState = WebAPI.ObjectsConvertor.Mapping.ConditionalAccessMappings.ConvertDomainStatus(transactionState);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId,
+                        externalTransactionId, wsTransactionState, signature);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Code, wsResponse.Message);
+            }
+        }
     }
 }

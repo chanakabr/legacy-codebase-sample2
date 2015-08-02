@@ -55,5 +55,30 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Updates a pending transaction state (can be called only from a payment gateway adapter application, makes validation using signature and shared secret).
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="payment_gateway_id">Payment gateway identifier</param>
+        /// <param name="external_transaction_id">external transaction identifier</param>
+        /// <param name="state">The state of the transaction to update</param>
+        /// <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
+        /// <remarks>Possible status codes: signature does not match = 6023, error while updating pending transaction = 6024, payment gateway does not exist = 6008, no payment gateway was found = 6018,
+        /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        public void UpdateState(string partner_id, string payment_gateway_id, string external_transaction_id, KalturaTransactionState state, string signature)
+        {
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                ClientsManager.ConditionalAccessClient().UpdatePendingTransaction(groupId, payment_gateway_id, external_transaction_id, state, signature);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }
