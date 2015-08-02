@@ -1506,5 +1506,64 @@ namespace DAL
 
         }
 
+
+        public static bool UpdatePaymentGatewayPendingTransaction(string billingGuid, int status, out int rows)
+        {
+            rows = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPendingTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@billing_guid", billingGuid);
+                sp.AddParameter("@status", status);
+                rows = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating payment Gateway pending transaction: ex = {0}, billingGuid = {1}", ex, billingGuid);
+                return false;
+            }
+
+            return true;
+        }
+
+        public static PaymentGWTransaction GetPaymentGatewayTransaction(int paymentGatewayId, string externalTransactionId)
+        {
+            PaymentGWTransaction transaction = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
+                sp.AddParameter("@external_transaction_id", externalTransactionId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                     DataTable dt = ds.Tables[0];
+                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                     {
+                         transaction = new PaymentGWTransaction()
+                         {
+                             AdapterMessage = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["adapter_message"]),
+                             BillingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]),
+                             ContentId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["content_id"]),
+                             ExternalStatus = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["external_status"]),
+                             ExternalTransactionId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["external_transaction_id"]),
+                             ID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]),
+                             Message = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["message"]),
+                             PaymentGWId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["payment_gateway_id"]),
+                             ProductId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_id"]),
+                             ProductType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"])
+                         };
+                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Getting payment gateway transaction: ex = {0}, paymentGatewayId = {1}, externalTransactionId = {2}", ex, paymentGatewayId, externalTransactionId);
+            }
+            return transaction;
+        }
     }
 }

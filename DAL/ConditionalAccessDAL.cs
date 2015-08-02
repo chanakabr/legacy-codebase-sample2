@@ -1901,5 +1901,36 @@ namespace DAL
 
             return sp.ExecuteReturnValue<long>();
         }
+
+        public static bool UpdatePPVPurchaseActiveStatus(string billingGuid, int isActive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@is_active", isActive);
+            sp.AddParameter("@billing_guid", billingGuid);
+
+            return sp.ExecuteReturnValue<int>() > 0;            
+        }
+        
+        public static bool UpdateSubscriptionPurchaseActiveStatus(string billingGuid, int isActive, int isRecurringStatus)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@is_active", isActive);
+            sp.AddParameter("@billing_guid", billingGuid);
+            sp.AddParameter("@is_recurring_status", isRecurringStatus);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool UpdateCollectionPurchaseActiveStatus(string billingGuid, int isActive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@is_active", isActive);
+            sp.AddParameter("@billing_guid", billingGuid);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }

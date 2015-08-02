@@ -132,6 +132,9 @@ namespace ApiObjects.Response
         PaymentGatewaySharedSecretMissing = 6021,
         PaymentGatewayAlreadyExist = 6022,
         SignatureDoesNotMatch = 6023,
+        ErrorUpdatingPendingTransaction = 6024,
+        PaymentGatewayTransactionNotFound = 6025,
+        PaymentGatewayTransactionIsNotPending = 6026,
 
         // social 7000 - 7999
         Conflict = 7000,

@@ -21,7 +21,7 @@ namespace ApiObjects.Billing
         public PaymentGWTransaction() { }
 
         /// <summary>
-        /// dfdf sdf asd 
+        /// 
         /// </summary>
         /// <param name="paymentGWTransaction"></param>
         public PaymentGWTransaction(PaymentGWTransaction paymentGWTransaction)
