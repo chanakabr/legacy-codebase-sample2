@@ -175,6 +175,8 @@ namespace WebAPI
 
             context.Response.Write("</classes>\n");
 
+            var routePrefix = asm.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
+
             //Running on methods
             context.Response.Write("<services>\n");
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
@@ -213,11 +215,11 @@ namespace WebAPI
 
                         string deprecatedAttr = "";
                         if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
-                            deprecatedAttr = string.Format("deprecated='1'");
+                            deprecatedAttr = string.Format("deprecated='1'");                        
 
-                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2}>\n",
-                            method.Name,
-                            HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr));
+                        context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2} path='/{3}/{4}/{5}'>\n",
+                            method.Name, HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr,
+                            routePrefix, controller.Name.Replace("Controller", ""), method.Name));
 
                         foreach (var par in method.GetParameters())
                         {
