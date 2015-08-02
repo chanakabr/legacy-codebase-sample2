@@ -136,7 +136,7 @@ namespace ApiObjects.Response
         ChargeIdAlreadySetToHouseholdPaymentGateway = 6025,
         ChargeIdNotSetToHousehold = 6026,
         HouseholdNotSetToPaymentGateway = 6027,
-
+        PaymentGatewaySelectionIsDisabled = 6028,
 
         // social 7000 - 7999
         Conflict = 7000,
