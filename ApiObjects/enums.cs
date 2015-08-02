@@ -335,13 +335,23 @@ namespace ApiObjects
     {
         [EnumMember]
         Created,
+
         [EnumMember]
         Failed,
+
         [EnumMember]
         Completed,
+
         [EnumMember]
         Pending,
+
         [EnumMember]
         Canceled,
+
+        [EnumMember]
+        InsufficientFunds,
+
+        [EnumMember]
+        ReasonUnknown
     }
 }

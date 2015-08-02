@@ -12612,12 +12612,28 @@ namespace ConditionalAccess
                 {
                     // convert response to purchase response
                     response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
-                    response.PGResponseID = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
+                    response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
                     response.TransactionID = transactionResponse.TransactionID;
                     response.State = transactionResponse.State.ToString();
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
+
+                        switch (transactionResponse.Status.Code)
+                        {
+                            case (int)eResponseStatus.InsufficientFunds:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Insufficient funds");
+                                break;
+
+                            case (int)eResponseStatus.ReasonUnknown:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Reason unknown");
+                                break;
+
+                            default:
+                                break;
+                        }
                     }
                     else
                     {
