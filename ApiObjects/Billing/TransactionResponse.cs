@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects.Billing
-{ 
+{
     public class TransactionResponse
     {
-        //Kaltura Payment Gateway response status code
+        //Kaltura purchase response status
         public ApiObjects.Response.Status Status { get; set; }
 
         //Kaltura unique ID representing the transaction
@@ -18,9 +18,11 @@ namespace ApiObjects.Billing
         public string PGReferenceID { get; set; }
 
         //Original response ID that was provided from by the payment gateway. Returned only if the payment gateway provides this information.
-        public string PGResponseID { get; set; }
+        public string PGResponseCode { get; set; }
 
         public string State { get; set; }
+
+        public long CreatedAt { get; set; }
 
         public TransactionResponse()
         {
@@ -31,7 +33,7 @@ namespace ApiObjects.Billing
         {
             this.TransactionID = transactionResponse.TransactionID;
             this.Status = transactionResponse.Status;
-            this.PGResponseID = transactionResponse.PGResponseID;
+            this.PGResponseCode = transactionResponse.PGResponseCode;
             this.PGReferenceID = transactionResponse.PGReferenceID;
         }
 

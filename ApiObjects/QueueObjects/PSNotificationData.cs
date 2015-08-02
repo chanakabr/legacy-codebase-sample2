@@ -9,14 +9,9 @@ using System.Text;
 namespace ApiObjects.MediaIndexingObjects
 {
     [Serializable]
-    public class PSNotificationData : QueueObject
+    public class PSNotificationData : BaseCeleryData
     {
         #region Data Members
-
-        // celery task messages data members
-        public string id;
-        public string task;
-        public List<object> args;
 
         /// <summary>
         /// Data to serialize

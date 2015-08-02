@@ -334,14 +334,30 @@ namespace ApiObjects
     public enum eTransactionState
     {
         [EnumMember]
-        Created = -1,
+        Created,
+
         [EnumMember]
-        Failed = 3,
+        Failed,
+
         [EnumMember]
-        Completed = 0,
+        Completed,
+
         [EnumMember]
-        Pending = 1,
+        Pending,
+
         [EnumMember]
-        Canceled = 2,
+        Canceled,
+
+        [EnumMember]
+        InsufficientFunds,
+
+        [EnumMember]
+        ReasonUnknown,
+
+        [EnumMember]
+        InvalidAccount,
+
+        [EnumMember]
+        UnknownPaymentGatewayResponse
     }
 }

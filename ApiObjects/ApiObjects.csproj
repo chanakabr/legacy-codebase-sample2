@@ -89,6 +89,7 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="Billing\HouseholdPaymentGateway.cs" />
     <Compile Include="Billing\PaymentGWBasic.cs" />
     <Compile Include="Billing\PaymentGW.cs" />
     <Compile Include="Billing\PaymentGWChargeIDResponse.cs" />
@@ -163,11 +164,12 @@
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
-    <Compile Include="MediaIndexingObjects\BaseCeleryData.cs" />
-    <Compile Include="MediaIndexingObjects\IndexingData.cs" />
-    <Compile Include="MediaIndexingObjects\PSNotificationData.cs" />
-    <Compile Include="MediaIndexingObjects\QueueObject.cs" />
-    <Compile Include="MediaIndexingObjects\SocialData.cs" />
+    <Compile Include="QueueObjects\BaseCeleryData.cs" />
+    <Compile Include="QueueObjects\CeleryIndexingData.cs" />
+    <Compile Include="QueueObjects\IndexingData.cs" />
+    <Compile Include="QueueObjects\PSNotificationData.cs" />
+    <Compile Include="QueueObjects\QueueObject.cs" />
+    <Compile Include="QueueObjects\SocialData.cs" />
     <Compile Include="MediaMarkObject.cs" />
     <Compile Include="MediaFileObject.cs" />
     <Compile Include="MediaInfoObject.cs" />
@@ -192,7 +194,7 @@
     <Compile Include="Rules\ParentalRule.cs" />
     <Compile Include="Rules\ParentalRulesResponse.cs" />
     <Compile Include="PicObject.cs" />
-    <Compile Include="MediaIndexingObjects\PictureData.cs" />
+    <Compile Include="QueueObjects\PictureData.cs" />
     <Compile Include="PlayerIMRequestObject.cs" />
     <Compile Include="PlayListSchema.cs" />
     <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />
@@ -268,6 +270,9 @@
     <None Include="Epg\xmltv.xsd">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MediaIndexingObjects\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

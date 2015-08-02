@@ -24,6 +24,7 @@ using ConditionalAccess.Response;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Billing;
+using TVinciShared;
 
 namespace ConditionalAccess
 {
@@ -76,15 +77,15 @@ namespace ConditionalAccess
 
         protected abstract bool HandlePPVBillingSuccess(string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, ref long purchaseID);
+                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID);
 
         protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, ref long purchaseID);
+                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID);
 
         protected abstract bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
-                                                              string billingGuid, bool isEntitledToPreviewModule, ref long purchaseID);
+                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
 
 
         /*
@@ -12163,13 +12164,20 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
-                                // purchase passed, grant entitlement
+                                // purchase passed, update entitlement date
+                                DateTime entitlementDate = DateTime.UtcNow;
+                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
+                                // grant entitlement
                                 long purchaseID = 0;
                                 bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
                                                                                           country, deviceName, response.TransactionID, customData, productId,
-                                                                                          billingGuid, isEntitledToPreviewModule, ref purchaseID);
+                                                                                          billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {
@@ -12301,15 +12309,22 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
                                 long purchaseID = 0;
 
+                                // update entitlement date
+                                DateTime entitlementDate = DateTime.UtcNow;
+                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, response.TransactionID, customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, false, ref purchaseID);
+                                                                                      billingGuid.ToString(), entitleToPreview, false, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {
@@ -12321,14 +12336,14 @@ namespace ConditionalAccess
 
                                     // build notification message
                                     var dicData = new Dictionary<string, object>()
-                                {
-                                    {"SubscriptionCode", productId},
-                                    {"BillingTransactionID", response.TransactionID},
-                                    {"SiteGUID", siteguid},
-                                    {"PurchaseID", purchaseID},
-                                    {"CouponCode", coupon},
-                                    {"CustomData", customData}
-                                };
+                                    {
+                                        {"SubscriptionCode", productId},
+                                        {"BillingTransactionID", response.TransactionID},
+                                        {"SiteGUID", siteguid},
+                                        {"PurchaseID", purchaseID},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData}
+                                    };
 
                                     // notify purchase
                                     if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
@@ -12394,7 +12409,8 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon,
+                                                string userIp, string deviceName, int paymentGwId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -12475,15 +12491,22 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            if (response.Status.Code == (int)eResponseStatus.OK)
+                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            if (response.Status.Code == (int)eResponseStatus.OK &&
+                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                                response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
                                 long purchaseId = 0;
 
+                                // update entitlement date
+                                DateTime entitlementDate = DateTime.UtcNow;
+                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
                                 // grant entitlement
                                 bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
                                                                                    country, deviceName, response.TransactionID, customData, thePPVModule,
-                                                                                   productId, contentId, billingGuid, ref purchaseId);
+                                                                                   productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
                                 if (handleBillingPassed)
                                 {
@@ -12598,12 +12621,38 @@ namespace ConditionalAccess
                 {
                     // convert response to purchase response
                     response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
-                    response.PGResponseID = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
+                    response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
                     response.TransactionID = transactionResponse.TransactionID;
                     response.State = transactionResponse.State.ToString();
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
+
+                        switch (transactionResponse.Status.Code)
+                        {
+                            case (int)eResponseStatus.InsufficientFunds:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Insufficient funds");
+                                break;
+
+                            case (int)eResponseStatus.ReasonUnknown:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Reason unknown");
+                                break;
+
+                            case (int)eResponseStatus.UnknownPaymentGatewayResponse:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Unknown payment gateway response");
+                                break;
+
+                            case (int)eResponseStatus.InvalidAccount:
+
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Invalid account");
+                                break;
+
+                            default:
+                                break;
+                        }
                     }
                     else
                     {
