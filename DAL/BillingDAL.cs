@@ -1384,7 +1384,7 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGWTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGWTransaction)
         {
             try
             {
@@ -1402,6 +1402,7 @@ namespace DAL
                 sp.AddParameter("@content_id", paymentGWTransaction.ContentId);
                 sp.AddParameter("@adapter_message", paymentGWTransaction.AdapterMessage);
                 sp.AddParameter("@message", paymentGWTransaction.Message);
+                sp.AddParameter("@state", paymentGWTransaction.State);
 
 
                 int newTransactionID = sp.ExecuteReturnValue<int>();
@@ -1413,7 +1414,7 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGWTransaction(int groupID, PaymentGWTransaction paymentGWTransaction)
+        public static bool SetPaymentGWTransaction(int groupID, PaymentGatewayTransaction paymentGWTransaction)
         {
             try
             {
@@ -1534,9 +1535,9 @@ namespace DAL
             return true;
         }
 
-        public static PaymentGWTransaction GetPaymentGatewayTransaction(int paymentGatewayId, string externalTransactionId)
+        public static PaymentGatewayTransaction GetPaymentGatewayTransaction(int paymentGatewayId, string externalTransactionId)
         {
-            PaymentGWTransaction transaction = null;
+            PaymentGatewayTransaction transaction = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayTransaction");
@@ -1550,7 +1551,7 @@ namespace DAL
                     DataTable dt = ds.Tables[0];
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        transaction = new PaymentGWTransaction()
+                        transaction = new PaymentGatewayTransaction()
                         {
                             AdapterMessage = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["adapter_message"]),
                             BillingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]),

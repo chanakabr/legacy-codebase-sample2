@@ -97,7 +97,7 @@
     <Compile Include="Billing\PaymentGWSettings.cs" />
     <Compile Include="Billing\PaymentGWSettingsResponse.cs" />
     <Compile Include="Billing\PaymentGWResponse.cs" />
-    <Compile Include="Billing\PaymentGWTransaction.cs" />
+    <Compile Include="Billing\PaymentGatewayTransaction.cs" />
     <Compile Include="Billing\TransactionResponse.cs" />
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
