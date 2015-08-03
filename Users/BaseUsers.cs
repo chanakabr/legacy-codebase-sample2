@@ -120,14 +120,14 @@ namespace Users
             if (sItemType.Trim().Length == 0)
             {
                 status.Code = (int)eResponseStatus.Error;
-                status.Message = "Item Type is empty "; 
+                status.Message = "Item Type is empty ";
                 return false;
             }
 
             if (sItemCode.Trim().Length == 0)
             {
                 status.Code = (int)eResponseStatus.Error;
-                status.Message = "Item Code is empty "; 
+                status.Message = "Item Code is empty ";
                 return false;
             }
 
@@ -917,10 +917,10 @@ namespace Users
             }
             return sNewPIN;
         }
-        
+
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS"); 
+            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS");
             int maxlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MAX_NUMBER_OF_DIGITS");
             if (minlength == 0)
             {
@@ -935,7 +935,7 @@ namespace Users
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "Pin must be between" + minlength.ToString() + " - " + maxlength.ToString() + " digit");
                 return false;
-            }           
+            }
             response = new ApiObjects.Response.Status();
             return true;
         }
@@ -991,7 +991,7 @@ namespace Users
          * return UserResponse
          * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
          */
-        public UserResponse ValidateLoginWithPin(int groupID, string PIN, string secret)
+        public UserResponse ValidateLoginWithPin(string PIN, string secret)
         {
             UserResponse response = new UserResponse();
             try
@@ -1001,7 +1001,7 @@ namespace Users
                 bool security = false;
                 bool loginViaPin = false;
                 DateTime expiredPIN = DateTime.MaxValue;
-                DataRow dr = UsersDal.GetUserByPIN(groupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
+                DataRow dr = UsersDal.GetUserByPIN(m_nGroupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
 
                 if (!loginViaPin)
                 {
@@ -1031,7 +1031,7 @@ namespace Users
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "valid pin and user");
                         response.user = new UserResponseObject();
-                        response.user.m_user = new User(groupID, userId);
+                        response.user.m_user = new User(m_nGroupID, userId);
                     }
                 }
                 else
@@ -1043,7 +1043,7 @@ namespace Users
             {
                 response = new UserResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
-                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
+                log.ErrorFormat("SignInWithPIN - Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, m_nGroupID);
             }
             return response;
         }
@@ -1071,22 +1071,22 @@ namespace Users
                 {
                     return response;
                 }
-                // chaeck validation of PIN code
+                // check validation of PIN code
                 bool isValidPin = isValidPIN(PIN, out response);
                 if (!isValidPin)
                 {
                     return response;
                 }
-                // check if forece security question  + login via pin is allowed
+                // check if force security question  + login via pin is allowed
                 bool loginViaPin = false;
                 bool securityQuestion = false;
                 UsersDal.Get_LoginSettings(groupID, out securityQuestion, out loginViaPin);
                 if (loginViaPin && (!securityQuestion || (securityQuestion && !string.IsNullOrEmpty(secret))))
                 {
                     //The PIN should be verified to be unique (among all active PINs)
-                    bool codeExsits = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);
-                    if (codeExsits)
-                    {                        
+                    bool codeExists = UsersDal.PinCodeExsits(groupID, PIN, DateTime.UtcNow);
+                    if (codeExists)
+                    {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     else

@@ -1082,14 +1082,14 @@ namespace DAL
             return resultTable;
         }
 
-        public static bool DeletePaymentGW(int groupID, int paymentGwID)
+        public static bool DeletePaymentGateway(int groupID, int paymentGatewayId)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGateway");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGwID);
+                sp.AddParameter("@ID", paymentGatewayId);
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
@@ -1218,26 +1218,25 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
-            string sharedSecret, int? isDefault, int? isActive)
+        public static bool SetPaymentGateway(int groupID, PaymentGW paymentGateway)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGateway");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGWID);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@external_identifier", externalIdentifier);
-                sp.AddParameter("@pending_interval", pendingInterval);
-                sp.AddParameter("@pending_retries", pendingRetries);
-                sp.AddParameter("@shared_secret", sharedSecret);
-                sp.AddParameter("@adapter_url", adapterUrl);
-                sp.AddParameter("@transact_url", transactUrl);
-                sp.AddParameter("@status_url", statusUrl);
-                sp.AddParameter("@renew_url", renewUrl);
-                sp.AddParameter("@isDefault", isDefault);
-                sp.AddParameter("@isActive", isActive);
+                sp.AddParameter("@ID", paymentGateway.ID);
+                sp.AddParameter("@name", paymentGateway.Name);
+                sp.AddParameter("@external_identifier", paymentGateway.ExternalIdentifier);
+                sp.AddParameter("@pending_interval", paymentGateway.PendingInterval);
+                sp.AddParameter("@pending_retries", paymentGateway.PendingRetries);
+                sp.AddParameter("@shared_secret", paymentGateway.SharedSecret);
+                sp.AddParameter("@adapter_url", paymentGateway.AdapterUrl);
+                sp.AddParameter("@transact_url", paymentGateway.TransactUrl);
+                sp.AddParameter("@status_url", paymentGateway.StatusUrl);
+                sp.AddParameter("@renew_url", paymentGateway.RenewUrl);
+                sp.AddParameter("@isDefault", paymentGateway.IsDefault);
+                sp.AddParameter("@isActive", paymentGateway.IsActive);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
