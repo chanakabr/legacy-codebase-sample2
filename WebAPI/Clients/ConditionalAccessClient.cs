@@ -367,7 +367,8 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, string externalTransactionId, KalturaTransactionState transactionState, string signature)
+        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, 
+            string externalStatus, string externalMessage, string signature)
         {
             Status wsResponse = null;
 
@@ -376,14 +377,11 @@ namespace WebAPI.Clients
 
             try
             {
-                // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionState wsTransactionState = WebAPI.ObjectsConvertor.Mapping.ConditionalAccessMappings.ConvertDomainStatus(transactionState);
-
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId,
-                        externalTransactionId, wsTransactionState, signature);
+                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId, 
+                        adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
                 }
             }
             catch (Exception ex)

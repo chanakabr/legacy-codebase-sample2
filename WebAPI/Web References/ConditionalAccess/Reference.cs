@@ -4120,24 +4120,27 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature) {
+        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
+                        adapterTransactionState,
+                        adapterMessage,
                         externalTransactionId,
-                        transactionState,
+                        externalStatus,
+                        externalMessage,
                         signature});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature) {
-            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, externalTransactionId, transactionState, signature, null);
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature, null);
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature, object userState) {
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature, object userState) {
             if ((this.UpdatePendingTransactionOperationCompleted == null)) {
                 this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
             }
@@ -4145,8 +4148,11 @@ namespace WebAPI.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
+                        adapterTransactionState,
+                        adapterMessage,
                         externalTransactionId,
-                        transactionState,
+                        externalStatus,
+                        externalMessage,
                         signature}, this.UpdatePendingTransactionOperationCompleted, userState);
         }
         
@@ -4392,9 +4398,11 @@ namespace WebAPI.ConditionalAccess {
         
         private string pGReferenceIDField;
         
-        private string pGResponseIDField;
+        private string pGResponseCodeField;
         
         private string stateField;
+        
+        private long createdAtField;
         
         /// <remarks/>
         public Status Status {
@@ -4427,12 +4435,12 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string PGResponseID {
+        public string PGResponseCode {
             get {
-                return this.pGResponseIDField;
+                return this.pGResponseCodeField;
             }
             set {
-                this.pGResponseIDField = value;
+                this.pGResponseCodeField = value;
             }
         }
         
@@ -4443,6 +4451,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreatedAt {
+            get {
+                return this.createdAtField;
+            }
+            set {
+                this.createdAtField = value;
             }
         }
     }
@@ -8718,28 +8736,6 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         UserSuspended,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public enum eTransactionState {
-        
-        /// <remarks/>
-        Created,
-        
-        /// <remarks/>
-        Failed,
-        
-        /// <remarks/>
-        Completed,
-        
-        /// <remarks/>
-        Pending,
-        
-        /// <remarks/>
-        Canceled,
     }
     
     /// <remarks/>
