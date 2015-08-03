@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008,  Payment Gateway Identifier is Required = 6005, Payment Gateway Not Exist = 6008
+        /// Not found = 500007, Partner is invalid = 500008,  Payment gateway identifier is required = 6005, Payment gateway not exist = 6008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, External Idntifier is Required = 6016, Name is Required = 6020, Shared Secret is Required = 6021, External Identifier Must Be Unique = 6040, No Payment Gateway To Insert = 6041
+        /// Not found = 500007, Partner is invalid = 500008, External idntifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway">Payment Gateway Object</param>
@@ -104,8 +104,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006,
-        /// Not found = 500007, Partner is invalid = 500008, Payment Gateway Identifier is Required = 6005, Name is Required = 6020, Shared Secret is Required = 6021, External Idntifier Missing = 6016, 
-        /// External Identifier Must Be Unique = 6040            
+        /// Not found = 500007, Partner is invalid = 500008, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
+        /// External identifier must be unique = 6040            
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
