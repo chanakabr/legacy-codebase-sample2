@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 [XmlRoot("dictionary")]
 public class SerializableDictionary<TKey, TValue>
@@ -54,15 +55,16 @@ public class SerializableDictionary<TKey, TValue>
             writer.WriteStartElement("item");
 
             writer.WriteStartElement("itemKey");
-            //keySerializer.Serialize(writer, key);
             writer.WriteString(key.ToString());
             writer.WriteEndElement();
 
-            valueSerializer.Serialize(writer, this[key]);
-            //writer.WriteStartElement("value");
-            //TValue value = this[key];
-            //valueSerializer.Serialize(writer, value);
-            //writer.WriteEndElement();
+            //if (this[key].GetType() == typeof(string))
+            //{
+            //    valueSerializer.Serialize(writer,
+            //        new KalturaString() { value = (string)Convert.ChangeType(this[key], typeof(string)) });
+            //}
+            //else
+                valueSerializer.Serialize(writer, this[key]);
 
             writer.WriteEndElement();
         }
