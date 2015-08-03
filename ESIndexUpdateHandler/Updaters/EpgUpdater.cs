@@ -10,21 +10,39 @@ namespace ESIndexUpdateHandler.Updaters
 {
     public class EpgUpdater : IUpdateable
     {
+        #region Consts
+        
         public static readonly string EPG = "epg";
 
-        private int m_nGroupID;
-        private ElasticSearch.Common.ESSerializer m_oESSerializer;
-        private ElasticSearch.Common.ElasticSearchApi m_oESApi;
+        #endregion
+
+        #region Data Members
+
+        private int groupId;
+        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ElasticSearchApi esApi;
+
+        #endregion
+
+        #region Properties
 
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public EpgUpdater(int nGroupID)
+        #endregion
+
+        #region Ctors
+
+        public EpgUpdater(int groupId)
         {
-            m_nGroupID = nGroupID;
-            m_oESSerializer = new ElasticSearch.Common.ESSerializer();
-            m_oESApi = new ElasticSearch.Common.ElasticSearchApi();
+            this.groupId = groupId;
+            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
+
+        #endregion
+
+        #region Interface methods
 
         public bool Start()
         {
@@ -38,9 +56,9 @@ namespace ESIndexUpdateHandler.Updaters
                 return result;
             }
 
-            if (!m_oESApi.IndexExists(ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(m_nGroupID)))
+            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type EPG for group {0} does not exist", m_nGroupID), "ESUpdateHandler");
+                Logger.Logger.Log("Error", string.Format("Index of type EPG for group {0} does not exist", groupId), "ESUpdateHandler");
                 return result;
             }
 
@@ -48,90 +66,124 @@ namespace ESIndexUpdateHandler.Updaters
             {
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
-                    result = DeleteEpg(IDs);
-                    break;
+                result = DeleteEpg(IDs);
+                break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                    result = UpdateEpg(IDs);
-                    break;
+                result = UpdateEpg(IDs);
+                break;
                 default:
-                    result = true;
-                    break;
+                result = true;
+                break;
             }
 
             return result;
         }
 
-        private bool UpdateEpg(List<int> lEpgIDs)
+        #endregion
+
+        #region Private Methods
+        
+        private bool UpdateEpg(List<int> epgIds)
         {
-            bool bRes = false;
+            bool result = false;
 
             try
             {
+                Task<EpgCB>[] programsTasks = new Task<EpgCB>[epgIds.Count];
 
-                Task<EpgCB>[] tPrograms = new Task<EpgCB>[lEpgIDs.Count];
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
                 //bulk insert
-                for (int i = 0; i < lEpgIDs.Count; i++)
+                for (int i = 0; i < epgIds.Count; i++)
                 {
-                    tPrograms[i] = Task.Factory.StartNew<EpgCB>(
+                    programsTasks[i] = Task.Factory.StartNew<EpgCB>(
                         (index) =>
                         {
-                            return ElasticsearchTasksCommon.Utils.GetEpgProgram(m_nGroupID, (int)index);
-                        }, lEpgIDs[i]);
+                            return ElasticsearchTasksCommon.Utils.GetEpgProgram(groupId, (int)index);
+                        }, epgIds[i]);
                 }
 
-                Task.WaitAll(tPrograms);
+                Task.WaitAll(programsTasks);
 
-                List<EpgCB> lEpg = tPrograms.Select(t => t.Result).Where(t => t != null).ToList();
+                List<EpgCB> lEpg = programsTasks.Select(t => t.Result).Where(t => t != null).ToList();
 
                 if (lEpg != null & lEpg.Count > 0)
                 {
-
-                    List<ESBulkRequestObj<ulong>> lBulkObj = new List<ESBulkRequestObj<ulong>>();
-                    string sSerializedEpg;
-                    string sAlias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(m_nGroupID);
+                    List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                    string serializedEpg;
+                    string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
 
                     foreach (EpgCB epg in lEpg)
                     {
-                        sSerializedEpg = m_oESSerializer.SerializeEpgObject(epg);
-                        lBulkObj.Add(new ESBulkRequestObj<ulong>() { docID = epg.EpgID, index = sAlias, type = EPG, Operation = eOperation.index, document = sSerializedEpg });
+                        serializedEpg = esSerializer.SerializeEpgObject(epg);
+                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                        {
+                            docID = epg.EpgID,
+                            index = alias,
+                            type = EPG,
+                            Operation = eOperation.index,
+                            document = serializedEpg
+                        });
                     }
 
-                    m_oESApi.CreateBulkIndexRequest(lBulkObj);
+                    var invalidResults = esApi.CreateBulkIndexRequest(bulkRequests);
 
-                    bRes = true;
+                    if (invalidResults != null && invalidResults.Count > 0)
+                    {
+                        foreach (var invalidResult in invalidResults)
+                        {
+                            Logger.Logger.Log("Error", string.Format(
+                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                groupId, EPG, invalidResult.docID, invalidResult.document), "ESUpdateHandler");
+                        }
+
+                        result = false;
+                    }
+                    else
+                    {
+                        result = true;
+                    }
                 }
             }
-            catch { }
-
-            return bRes;
-        }
-
-        private bool DeleteEpg(List<int> lEpgIDs)
-        {
-            bool bRes = false;
-
-            if (lEpgIDs != null & lEpgIDs.Count > 0)
+            catch  (Exception ex)
             {
-                List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
-                string sAlias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(m_nGroupID);
-
-                foreach (int epgId in lEpgIDs)
-                {
-                    lBulkObj.Add(new ESBulkRequestObj<int>() { docID = epgId, index = sAlias, type = EPG, Operation = eOperation.delete });
-                }
-
-                m_oESApi.CreateBulkIndexRequest(lBulkObj);
-
-                bRes = true;
+                Logger.Logger.Log("Error", string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), "ESUpdateHandler");
+                throw ex;
             }
 
-
-            return bRes;
+            return result;
         }
 
-        
+        private bool DeleteEpg(List<int> epgIDs)
+        {
+            bool result = false;
+
+            if (epgIDs != null & epgIDs.Count > 0)
+            {
+                List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
+                string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+
+                foreach (int epgId in epgIDs)
+                {
+                    bulkRequests.Add(new ESBulkRequestObj<int>()
+                    {
+                        docID = epgId,
+                        index = alias,
+                        type = EPG,
+                        Operation = eOperation.delete
+                    });
+                }
+
+                esApi.CreateBulkIndexRequest(bulkRequests);
+
+                result = true;
+            }
+
+            return result;
+        }
+
+        #endregion
+
     }
 }
