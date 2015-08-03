@@ -28,9 +28,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, Adapter app failure = 6012,
-        /// Signature mismatch = 6013, No payment gateway was found = 6018, Signature does not match = 6023, Error while updating pending transaction = 6024, No response from payment gateway = 6030, 
-        /// Invalid account = 6031, Insufficient funds = 6032, Unknown payment gateway response = 6033, Payment gateway adapter user known = 6034, Payment gateway adapter reason unknown = 6035,
-        /// Unknown transaction state = 6042 </remarks>
+        /// Signature mismatch = 6013, No response from payment gateway = 6030,  Invalid account = 6031, Insufficient funds = 6032, Unknown payment gateway response = 6033,
+        /// Payment gateway adapter user known = 6034, Payment gateway adapter reason unknown = 6035, Unknown transaction state = 6042 </remarks>
         [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
                                                    [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon)
