@@ -664,7 +664,6 @@
             <s:element minOccurs="1" maxOccurs="1" name="paymentGwID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="houseHoldID" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="chargeID" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -775,11 +774,11 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="pgwTransaction" type="tns:PaymentGWTransaction" />
+            <s:element minOccurs="0" maxOccurs="1" name="pgwTransaction" type="tns:PaymentGatewayTransaction" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="PaymentGWTransaction">
+      <s:complexType name="PaymentGatewayTransaction">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="PaymentGWId" type="s:int" />
@@ -791,6 +790,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ContentId" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="AdapterMessage" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="State" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="InsertPaymentGWTransactionResponse">
@@ -805,7 +805,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="pgwTransaction" type="tns:PaymentGWTransaction" />
+            <s:element minOccurs="0" maxOccurs="1" name="pgwTransaction" type="tns:PaymentGatewayTransaction" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -922,6 +922,10 @@
           <s:enumeration value="Completed" />
           <s:enumeration value="Pending" />
           <s:enumeration value="Canceled" />
+          <s:enumeration value="InsufficientFunds" />
+          <s:enumeration value="ReasonUnknown" />
+          <s:enumeration value="InvalidAccount" />
+          <s:enumeration value="UnknownPaymentGatewayResponse" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SetPaymentGatewayConfiguration">
@@ -946,8 +950,11 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterTransactionState" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="adapterMessage" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="transactionState" type="tns:eTransactionState" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalStatus" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalMessage" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="signature" type="s:string" />
           </s:sequence>
         </s:complexType>
@@ -964,6 +971,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="BillingGuid" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="ProductType" type="tns:eTransactionType" />
+          <s:element minOccurs="1" maxOccurs="1" name="TransactionState" type="tns:eTransactionState" />
         </s:sequence>
       </s:complexType>
       <s:element name="string" nillable="true" type="s:string" />
@@ -1472,7 +1480,6 @@
     <wsdl:part name="paymentGwID" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="houseHoldID" type="s:string" />
-    <wsdl:part name="chargeID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetHouseHoldPaymentGatewayHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
@@ -1561,8 +1568,11 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="adapterTransactionState" type="s:string" />
+    <wsdl:part name="adapterMessage" type="s:string" />
     <wsdl:part name="externalTransactionId" type="s:string" />
-    <wsdl:part name="transactionState" type="s:string" />
+    <wsdl:part name="externalStatus" type="s:string" />
+    <wsdl:part name="externalMessage" type="s:string" />
     <wsdl:part name="signature" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionHttpPostOut">

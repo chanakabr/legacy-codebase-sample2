@@ -12,5 +12,7 @@ namespace ApiObjects.Billing
         public string BillingGuid { get; set; }
 
         public eTransactionType ProductType { get; set; }
+
+        public eTransactionState TransactionState { get; set; }
     }
 }

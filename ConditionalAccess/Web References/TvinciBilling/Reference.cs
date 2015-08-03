@@ -1326,24 +1326,23 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetHouseHoldPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetHouseHoldPaymentGateway(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID) {
+        public Status SetHouseHoldPaymentGateway(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID) {
             object[] results = this.Invoke("SetHouseHoldPaymentGateway", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGwID,
                         siteGuid,
-                        houseHoldID,
-                        chargeID});
+                        houseHoldID});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetHouseHoldPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID) {
-            this.SetHouseHoldPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGwID, siteGuid, houseHoldID, chargeID, null);
+        public void SetHouseHoldPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID) {
+            this.SetHouseHoldPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGwID, siteGuid, houseHoldID, null);
         }
         
         /// <remarks/>
-        public void SetHouseHoldPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, string chargeID, object userState) {
+        public void SetHouseHoldPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int houseHoldID, object userState) {
             if ((this.SetHouseHoldPaymentGatewayOperationCompleted == null)) {
                 this.SetHouseHoldPaymentGatewayOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetHouseHoldPaymentGatewayOperationCompleted);
             }
@@ -1352,8 +1351,7 @@ namespace ConditionalAccess.TvinciBilling {
                         sWSPassword,
                         paymentGwID,
                         siteGuid,
-                        houseHoldID,
-                        chargeID}, this.SetHouseHoldPaymentGatewayOperationCompleted, userState);
+                        houseHoldID}, this.SetHouseHoldPaymentGatewayOperationCompleted, userState);
         }
         
         private void OnSetHouseHoldPaymentGatewayOperationCompleted(object arg) {
@@ -1538,7 +1536,7 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status InsertPaymentGWTransaction(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction) {
+        public Status InsertPaymentGWTransaction(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGatewayTransaction pgwTransaction) {
             object[] results = this.Invoke("InsertPaymentGWTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1549,12 +1547,12 @@ namespace ConditionalAccess.TvinciBilling {
         }
         
         /// <remarks/>
-        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction) {
+        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGatewayTransaction pgwTransaction) {
             this.InsertPaymentGWTransactionAsync(sWSUserName, sWSPassword, domainId, siteGuid, pgwTransaction, null);
         }
         
         /// <remarks/>
-        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGWTransaction pgwTransaction, object userState) {
+        public void InsertPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, int domainId, int siteGuid, PaymentGatewayTransaction pgwTransaction, object userState) {
             if ((this.InsertPaymentGWTransactionOperationCompleted == null)) {
                 this.InsertPaymentGWTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWTransactionOperationCompleted);
             }
@@ -1575,7 +1573,7 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGWTransaction(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction) {
+        public Status SetPaymentGWTransaction(string sWSUserName, string sWSPassword, PaymentGatewayTransaction pgwTransaction) {
             object[] results = this.Invoke("SetPaymentGWTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1584,12 +1582,12 @@ namespace ConditionalAccess.TvinciBilling {
         }
         
         /// <remarks/>
-        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction) {
+        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGatewayTransaction pgwTransaction) {
             this.SetPaymentGWTransactionAsync(sWSUserName, sWSPassword, pgwTransaction, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGWTransaction pgwTransaction, object userState) {
+        public void SetPaymentGWTransactionAsync(string sWSUserName, string sWSPassword, PaymentGatewayTransaction pgwTransaction, object userState) {
             if ((this.SetPaymentGWTransactionOperationCompleted == null)) {
                 this.SetPaymentGWTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWTransactionOperationCompleted);
             }
@@ -1799,24 +1797,27 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UpdatePendingResponse UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature) {
+        public UpdatePendingResponse UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
+                        adapterTransactionState,
+                        adapterMessage,
                         externalTransactionId,
-                        transactionState,
+                        externalStatus,
+                        externalMessage,
                         signature});
             return ((UpdatePendingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature) {
-            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, externalTransactionId, transactionState, signature, null);
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature, null);
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, string externalTransactionId, eTransactionState transactionState, string signature, object userState) {
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature, object userState) {
             if ((this.UpdatePendingTransactionOperationCompleted == null)) {
                 this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
             }
@@ -1824,8 +1825,11 @@ namespace ConditionalAccess.TvinciBilling {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
+                        adapterTransactionState,
+                        adapterMessage,
                         externalTransactionId,
-                        transactionState,
+                        externalStatus,
+                        externalMessage,
                         signature}, this.UpdatePendingTransactionOperationCompleted, userState);
         }
         
@@ -1971,6 +1975,8 @@ namespace ConditionalAccess.TvinciBilling {
         
         private eTransactionType productTypeField;
         
+        private eTransactionState transactionStateField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -1998,6 +2004,16 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.productTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eTransactionState TransactionState {
+            get {
+                return this.transactionStateField;
+            }
+            set {
+                this.transactionStateField = value;
             }
         }
     }
@@ -2049,6 +2065,40 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         Collection,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum eTransactionState {
+        
+        /// <remarks/>
+        Created,
+        
+        /// <remarks/>
+        Failed,
+        
+        /// <remarks/>
+        Completed,
+        
+        /// <remarks/>
+        Pending,
+        
+        /// <remarks/>
+        Canceled,
+        
+        /// <remarks/>
+        InsufficientFunds,
+        
+        /// <remarks/>
+        ReasonUnknown,
+        
+        /// <remarks/>
+        InvalidAccount,
+        
+        /// <remarks/>
+        UnknownPaymentGatewayResponse,
     }
     
     /// <remarks/>
@@ -2123,28 +2173,6 @@ namespace ConditionalAccess.TvinciBilling {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public enum eTransactionState {
-        
-        /// <remarks/>
-        Created,
-        
-        /// <remarks/>
-        Failed,
-        
-        /// <remarks/>
-        Completed,
-        
-        /// <remarks/>
-        Pending,
-        
-        /// <remarks/>
-        Canceled,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
@@ -2181,7 +2209,7 @@ namespace ConditionalAccess.TvinciBilling {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWTransaction {
+    public partial class PaymentGatewayTransaction {
         
         private int idField;
         
@@ -2202,6 +2230,8 @@ namespace ConditionalAccess.TvinciBilling {
         private string adapterMessageField;
         
         private string messageField;
+        
+        private int stateField;
         
         /// <remarks/>
         public int ID {
@@ -2300,6 +2330,16 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.messageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int State {
+            get {
+                return this.stateField;
+            }
+            set {
+                this.stateField = value;
             }
         }
     }

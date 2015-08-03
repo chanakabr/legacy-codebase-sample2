@@ -1515,15 +1515,20 @@ namespace DAL
 
         }
 
-        public static bool UpdatePaymentGatewayPendingTransaction(string billingGuid, int status, out int rows)
+        public static bool UpdatePaymentGatewayPendingTransaction(string billingGuid, int adapterTransactionState, string adapterMessage, string externalStatus,
+            string externalMessage)
         {
-            rows = 0;
+            int rows = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPendingTransaction");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@billing_guid", billingGuid);
-                sp.AddParameter("@status", status);
+                sp.AddParameter("@adapter_transaction_state", adapterTransactionState);
+                sp.AddParameter("@adapter_message", adapterMessage);
+                sp.AddParameter("@external_status", externalStatus);
+                sp.AddParameter("@external_message", externalMessage);
+
                 rows = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1532,15 +1537,19 @@ namespace DAL
                 return false;
             }
 
-            return true;
+            return rows > 0;
         }
 
-        public static PaymentGatewayTransaction GetPaymentGatewayTransaction(int paymentGatewayId, string externalTransactionId)
+        public static bool GetPendingPaymentGatewayTransactionDetails(int paymentGatewayId, string externalTransactionId, out string billingGuid, out int productType, 
+            out int transactionState, out int pendingTransactionState)
         {
-            PaymentGatewayTransaction transaction = null;
+            billingGuid = string.Empty;
+            productType = 0;
+            transactionState = 0;
+            pendingTransactionState = 0;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayTransaction");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PendingPaymentGatewayTransactionDetails");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@external_transaction_id", externalTransactionId);
@@ -1551,19 +1560,11 @@ namespace DAL
                     DataTable dt = ds.Tables[0];
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        transaction = new PaymentGatewayTransaction()
-                        {
-                            AdapterMessage = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["adapter_message"]),
-                            BillingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]),
-                            ContentId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["content_id"]),
-                            ExternalStatus = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["external_status"]),
-                            ExternalTransactionId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["external_transaction_id"]),
-                            ID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]),
-                            Message = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["message"]),
-                            PaymentGWId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["payment_gateway_id"]),
-                            ProductId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_id"]),
-                            ProductType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"])
-                        };
+                        billingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]); 
+                        productType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"]);
+                        transactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["state"]);
+                        pendingTransactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["pgpState"]);
+                        return true;
                     }
                 }
             }
@@ -1571,7 +1572,7 @@ namespace DAL
             {
                 log.ErrorFormat("Error while Getting payment gateway transaction: ex = {0}, paymentGatewayId = {1}, externalTransactionId = {2}", ex, paymentGatewayId, externalTransactionId);
             }
-            return transaction;
+            return false;
         }
 
         public static HouseholdPaymentGateway GetHouseholdPaymentGateway(int groupID, int paymentGatewayId, long householdId)

@@ -12713,14 +12713,14 @@ namespace ConditionalAccess
             }
         }
 
-        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, string externalTransactionId, ConditionalAccess.TvinciBilling.eTransactionState transactionState, 
-            string signature)
+        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, 
+            string externalMessage, string signature)
         {
             ApiObjects.Response.Status response;
             
             // log
-            log.DebugFormat("update pending transaction: paymentGatewayId = {0}, externalTransactionId = {1}, transactionState = {2}, signature = {3}",
-                paymentGatewayId, externalTransactionId, transactionState, signature);
+            log.DebugFormat("update pending transaction: paymentGatewayId = {0}, adapterTransactionState = {1}, adapterMessage = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, signature = {6}",
+                paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
 
             try
             {
@@ -12730,7 +12730,7 @@ namespace ConditionalAccess
                 TvinciBilling.module wsBillingService = null;
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
-                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, externalTransactionId, transactionState, signature);
+                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
 
                 // validate response
                 if (billingResponse == null)
@@ -12745,14 +12745,14 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                // update cas
 
                 // if status pending or completed - nothing to update
-                if (transactionState == TvinciBilling.eTransactionState.Completed || transactionState == TvinciBilling.eTransactionState.Pending)
+                if (billingResponse.TransactionState == TvinciBilling.eTransactionState.Completed || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
                 {   
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
+                // update cas
                 else
                 {
                     bool isUpdated = false;
@@ -12774,12 +12774,10 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        return response;
                     }
                     else
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
-                        return response;
                     }
                 }
             }
@@ -12787,9 +12785,7 @@ namespace ConditionalAccess
             {
                 log.Error("UpdatePendingTransaction  ", ex);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while updating pending transaction");
-                return response;
             }
-
             return response;
         }
     }
