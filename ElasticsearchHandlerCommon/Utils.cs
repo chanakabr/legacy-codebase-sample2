@@ -518,6 +518,35 @@ namespace ElasticsearchTasksCommon
             return res;
         }
 
+        public static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages)
+        {
+            List<EpgCB> results = new List<EpgCB>();
+
+            // If no language was received - just get epg program by old method
+            if (languages == null || languages.Count == 0)
+            {
+                EpgCB program = GetEpgProgram(groupId, epgId);
+
+                results.Add(program);
+            }
+            else
+            {
+                try
+                {
+                    EpgBL.BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+
+                    ulong uEpgID = (ulong)epgId;
+                    results = epgBL.GetEpgCB(uEpgID, languages);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", epgId, ex.Message, ex.StackTrace), "ESUpdateHandler");
+                }
+            }
+
+            return results;
+        }
+
         public static Dictionary<ulong, EpgCB> GetEpgPrograms(int nGroupID, DateTime? dDateTime, int nEpgID)
         {
             Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();

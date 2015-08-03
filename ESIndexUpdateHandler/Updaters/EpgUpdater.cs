@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ElasticSearch.Common;
+using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,60 +91,101 @@ namespace ESIndexUpdateHandler.Updaters
 
             try
             {
-                Task<EpgCB>[] programsTasks = new Task<EpgCB>[epgIds.Count];
+                // get all languages per group
+                Group group = GroupsCache.Instance().GetGroup(this.groupId);
+
+                if (group == null)
+                {
+                    return false;
+                }
+
+                // dictionary contains all language ids and its  code (string)
+                List<LanguageObj> languages = group.GetLangauges();
+                List<string> languageCodes = new List<string>();
+
+                if (languages != null)
+                {
+                    languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
+                }
+                else
+                {
+                    // return false; // perhaps?
+                    Logger.Logger.Log("Warning", string.Format(
+                        "Group {0} has no languages defined.", groupId), "ESUpdateHandler");
+                }
+
+                Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
 
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
                 //bulk insert
                 for (int i = 0; i < epgIds.Count; i++)
                 {
-                    programsTasks[i] = Task.Factory.StartNew<EpgCB>(
-                        (index) =>
+                    programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
+                        (epgId) =>
                         {
-                            return ElasticsearchTasksCommon.Utils.GetEpgProgram(groupId, (int)index);
+                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
                         }, epgIds[i]);
                 }
 
                 Task.WaitAll(programsTasks);
 
-                List<EpgCB> lEpg = programsTasks.Select(t => t.Result).Where(t => t != null).ToList();
+                List<EpgCB> epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
 
-                if (lEpg != null & lEpg.Count > 0)
+                if (epgObjects != null & epgObjects.Count > 0)
                 {
-                    List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
-                    string serializedEpg;
-                    string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+                    // Temporarily - assume success
+                    bool temporaryResult = true;
 
-                    foreach (EpgCB epg in lEpg)
+                    // Create dictionary by languages
+                    foreach (LanguageObj language in languages)
                     {
-                        serializedEpg = esSerializer.SerializeEpgObject(epg);
-                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
-                        {
-                            docID = epg.EpgID,
-                            index = alias,
-                            type = EPG,
-                            Operation = eOperation.index,
-                            document = serializedEpg
-                        });
-                    }
+                        // Filter programs to current language
+                        List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg => 
+                            epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                    var invalidResults = esApi.CreateBulkIndexRequest(bulkRequests);
-
-                    if (invalidResults != null && invalidResults.Count > 0)
-                    {
-                        foreach (var invalidResult in invalidResults)
+                        if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                         {
-                            Logger.Logger.Log("Error", string.Format(
-                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
-                                groupId, EPG, invalidResult.docID, invalidResult.document), "ESUpdateHandler");
+                            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                            string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+
+                            // Create bulk request object for each program
+                            foreach (EpgCB epg in epgObjects)
+                            {
+                                string serializedEpg = esSerializer.SerializeEpgObject(epg);
+                                bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                                {
+                                    docID = epg.EpgID,
+                                    index = alias,
+                                    type = EPG,
+                                    Operation = eOperation.index,
+                                    document = serializedEpg
+                                });
+                            }
+
+                            // send request to ES API
+                            var invalidResults = esApi.CreateBulkIndexRequest(bulkRequests);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var invalidResult in invalidResults)
+                                {
+                                    Logger.Logger.Log("Error", string.Format(
+                                        "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                        groupId, EPG, invalidResult.docID, invalidResult.document), "ESUpdateHandler");
+                                }
+
+                                result = false;
+                                temporaryResult = false;
+                            }
+                            else
+                            {
+                                temporaryResult &= true;
+                            }
                         }
+                    }
 
-                        result = false;
-                    }
-                    else
-                    {
-                        result = true;
-                    }
+                    result = temporaryResult;
                 }
             }
             catch  (Exception ex)
