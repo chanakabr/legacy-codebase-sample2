@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGW(groupId);
+                response = ClientsManager.BillingClient().GetPaymentGateway(groupId);
             }
             catch (ClientException ex)
             {
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Not found = 500007, Partner is invalid = 500008,  Payment Gateway Identifier is Required = 6005, Payment Gateway Not Exist = 6008
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
@@ -75,13 +75,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, External Idntifier is Missing = 6016, No Payment Gateway = 6018, Name is Missing = 6020, Shared Secret is Missing = 6021,   
-        /// Payment Gateway Already Exist = 6022
+        /// Not found = 500007, Partner is invalid = 500008, External Idntifier is Required = 6016, Name is Required = 6020, Shared Secret is Required = 6021, External Identifier Must Be Unique = 6040, No Payment Gateway To Insert = 6041
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
-        /// <param name="payment_gateway">Payment GateWay Settings Object</param>
+        /// <param name="payment_gateway">Payment Gateway Object</param>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, KalturaPaymentGW payment_gateway)
+        public bool Add(string partner_id, KalturaPaymentGatewayData payment_gateway)
         {
             bool response = false;
 
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGW(groupId, payment_gateway);
+                response = ClientsManager.BillingClient().InsertPaymentGateway(groupId, payment_gateway);
             }
             catch (ClientException ex)
             {
@@ -104,27 +103,15 @@ namespace WebAPI.Controllers
         /// Update payment gateway details
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006,         
-        /// Not found = 500007, Partner is invalid = 500008, Payment Gateway Identifier is Missing = 6005, Name is Missing = 6020, Shared Secret is Missing = 6021, External Idntifier Missing = 6016, 
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006,
+        /// Not found = 500007, Partner is invalid = 500008, Payment Gateway Identifier is Required = 6005, Name is Required = 6020, Shared Secret is Required = 6021, External Idntifier Missing = 6016, 
         /// External Identifier Must Be Unique = 6040            
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="name">Payment Gateway Name</param>
-        ///<param name="adapter_url">Payment Gateway adapter url</param>
-        ///<param name="transact_url">Payment Gateway transact url</param>
-        ///<param name="status_url">Payment Gateway status url</param>
-        ///<param name="renew_url">Payment Gateway renew url</param>
-        ///<param name="is_default">Payment Gateway is default or not </param>
-        ///<param name="is_active">Payment Gateway is active or not </param>
-        ///<param name="external_identifier">Payment Gateway external identifier</param>
-        ///<param name="pending_interval">Payment Gateway pending interval</param>
-        ///<param name="pending_retries">Payment Gateway pending retries</param>
-        ///<param name="shared_secret">Payment Gateway shared secret</param>
+        /// <param name="payment_gateway">Payment Gateway Object</param>       
         [Route("update"), HttpPost]
-        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string name, [FromUri] string adapter_url, [FromUri] string transact_url,
-            [FromUri] string status_url, [FromUri] string renew_url, [FromUri] int is_default, [FromUri] int is_active, [FromUri] string external_identifier, [FromUri]  int pending_interval, 
-            [FromUri] int pending_retries, [FromUri] string shared_secret)
+        public bool Update(string partner_id, int payment_gateway_id, KalturaPaymentGatewayData payment_gateway)
         {
             bool response = false;
 
@@ -133,8 +120,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGateway(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pending_interval,
-                    pending_retries, shared_secret, is_default, is_active);
+                response = ClientsManager.BillingClient().SetPaymentGateway(groupId, payment_gateway_id, payment_gateway);
             }
             catch (ClientException ex)
             {

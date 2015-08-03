@@ -35,24 +35,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.KalturaPaymentGWBasic>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name));
-          
-            //from local object to WS object
-            //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGW, PaymentGW>()
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
+
+            //from local object to WS object            
+            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayData, PaymentGW>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.TransactUrl))
                 .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.StatusUrl))
                 .ForMember(dest => dest.RenewUrl, opt => opt.MapFrom(src => src.RenewUrl))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => Convert.ToInt32(src.IsDefault)))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
                 .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PendingInterval))
                 .ForMember(dest => dest.PendingRetries, opt => opt.MapFrom(src => src.PendingRetries))
                 .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)));
-            
+
         }
 
 
