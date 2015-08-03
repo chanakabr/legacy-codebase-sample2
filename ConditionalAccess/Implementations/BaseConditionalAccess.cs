@@ -12176,7 +12176,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 long purchaseID = 0;
                                 bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
-                                                                                          country, deviceName, response.TransactionID, customData, productId,
+                                                                                          country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                           billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
@@ -12323,7 +12323,7 @@ namespace ConditionalAccess
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
-                                                                                      country, deviceName, response.TransactionID, customData, productId,
+                                                                                      country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                       billingGuid.ToString(), entitleToPreview, false, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
@@ -12505,7 +12505,7 @@ namespace ConditionalAccess
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
-                                                                                   country, deviceName, response.TransactionID, customData, thePPVModule,
+                                                                                   country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
                                                                                    productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
                                 if (handleBillingPassed)
@@ -12622,7 +12622,7 @@ namespace ConditionalAccess
                     // convert response to purchase response
                     response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
                     response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
-                    response.TransactionID = transactionResponse.TransactionID;
+                    response.TransactionID = transactionResponse.TransactionID.ToString();
                     response.State = transactionResponse.State.ToString();
                     if (transactionResponse.Status != null)
                     {
@@ -12713,11 +12713,11 @@ namespace ConditionalAccess
             }
         }
 
-        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, 
+        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus,
             string externalMessage, string signature)
         {
             ApiObjects.Response.Status response;
-            
+
             // log
             log.DebugFormat("update pending transaction: paymentGatewayId = {0}, adapterTransactionState = {1}, adapterMessage = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, signature = {6}",
                 paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
@@ -12748,7 +12748,7 @@ namespace ConditionalAccess
 
                 // if status pending or completed - nothing to update
                 if (billingResponse.TransactionState == TvinciBilling.eTransactionState.Completed || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
-                {   
+                {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }

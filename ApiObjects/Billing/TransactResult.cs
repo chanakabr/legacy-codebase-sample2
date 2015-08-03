@@ -10,7 +10,7 @@ namespace ApiObjects.Billing
         public ApiObjects.Response.Status Status { get; set; }
 
         //Kaltura unique ID representing the transaction
-        public int TransactionID { get; set; }
+        public long TransactionID { get; set; }
 
         //Transaction reference ID that were returned from the payment gateway. Returned only if the payment gateway provides this information
         public string PGReferenceID { get; set; }
@@ -24,6 +24,6 @@ namespace ApiObjects.Billing
         {
         }
 
-      
+
     }
 }
