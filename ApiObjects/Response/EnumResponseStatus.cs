@@ -136,6 +136,7 @@ namespace ApiObjects.Response
         ErrorUpdatingPendingTransaction = 6037,
         PaymentGatewayTransactionNotFound = 6038,
         PaymentGatewayTransactionIsNotPending = 6039,
+        ExternalIdentifierMustBeUnique = 6040,        
 
         // social 7000 - 7999
         Conflict = 7000,
