@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>        
         [Route("set"), HttpPost]
-        public bool Set([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id, [FromUri] string charge_id)
+        public bool Set([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id)
         {
             bool response = false;
 
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetHouseHoldPaymentGateway(groupId, payment_gateway_id, user_id, household_id, charge_id);
+                response = ClientsManager.BillingClient().SetHouseHoldPaymentGateway(groupId, payment_gateway_id, user_id, household_id);
             }
             catch (ClientException ex)
             {

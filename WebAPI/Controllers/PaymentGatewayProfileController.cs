@@ -75,8 +75,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, NoPaymentGateway = 6018, PaymentGatewayNameMissing = 6020, PaymentGatewaySharedSecretMissing = 6021,  
-        /// PaymentGatewayAlreadyExist = 6022
+        /// Not found = 500007, Partner is invalid = 500008, External Idntifier is Missing = 6016, No Payment Gateway = 6018, Name is Missing = 6020, Shared Secret is Missing = 6021,   
+        /// Payment Gateway Already Exist = 6022
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway">Payment GateWay Settings Object</param>
@@ -104,8 +104,9 @@ namespace WebAPI.Controllers
         /// Update payment gateway details
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006,         
+        /// Not found = 500007, Partner is invalid = 500008, Payment Gateway Identifier is Missing = 6005, Name is Missing = 6020, Shared Secret is Missing = 6021, External Idntifier Missing = 6016, 
+        /// External Identifier Must Be Unique = 6040            
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -132,7 +133,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pending_interval,
+                response = ClientsManager.BillingClient().SetPaymentGateway(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pending_interval,
                     pending_retries, shared_secret, is_default, is_active);
             }
             catch (ClientException ex)

@@ -137,7 +137,7 @@ namespace WebAPI.Clients
             return paymentGW;
         }
 
-        public bool SetPaymentGW(int groupId, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
+        public bool SetPaymentGateway(int groupId, int paymentGatewayId, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
             string sharedSecret, int? isDefault, int? isActive)
         {
             WebAPI.Billing.Status response = null;
@@ -147,14 +147,14 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetPaymentGW(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, name, adapterUrl, transactUrl, statusUrl, renewUrl, externalIdentifier,
+                    response = Billing.SetPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name, adapterUrl, transactUrl, statusUrl, renewUrl, externalIdentifier,
                         pendingInterval, pendingRetries, sharedSecret, isDefault, isActive);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while SetPaymentGW.  groupID: {0}, paymentGWID: {1}, name: {2}, adapterUrl: {3}, transactUrl: {4}, statusUrl: {5}, renewUrl: {6}, isDefault: {7}, isActive: {8}, exception: {9}",
-                    groupId, paymentGWID, name, adapterUrl, transactUrl, statusUrl, renewUrl, isDefault, isActive, ex);
+                    groupId, paymentGatewayId, name, adapterUrl, transactUrl, statusUrl, renewUrl, isDefault, isActive, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -358,7 +358,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SetHouseHoldPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID, string ChargeID)
+        public bool SetHouseHoldPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -367,7 +367,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetHouseHoldPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID, ChargeID);
+                    response = Billing.SetHouseHoldPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID);
                 }
             }
             catch (Exception ex)
