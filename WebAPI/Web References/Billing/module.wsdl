@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -899,7 +899,7 @@
       <s:complexType name="TransactResult">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="TransactionID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="TransactionID" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="tns:eTransactionState" />
@@ -940,8 +940,11 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterTransactionState" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="adapterMessage" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="transactionState" type="tns:eTransactionState" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalStatus" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalMessage" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="signature" type="s:string" />
           </s:sequence>
         </s:complexType>
@@ -958,6 +961,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="BillingGuid" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="ProductType" type="tns:eTransactionType" />
+          <s:element minOccurs="1" maxOccurs="1" name="TransactionState" type="tns:eTransactionState" />
         </s:sequence>
       </s:complexType>
       <s:element name="string" nillable="true" type="s:string" />
@@ -1554,8 +1558,11 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="adapterTransactionState" type="s:string" />
+    <wsdl:part name="adapterMessage" type="s:string" />
     <wsdl:part name="externalTransactionId" type="s:string" />
-    <wsdl:part name="transactionState" type="s:string" />
+    <wsdl:part name="externalStatus" type="s:string" />
+    <wsdl:part name="externalMessage" type="s:string" />
     <wsdl:part name="signature" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionHttpPostOut">

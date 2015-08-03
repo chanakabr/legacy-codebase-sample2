@@ -4394,7 +4394,7 @@ namespace WebAPI.ConditionalAccess {
         
         private Status statusField;
         
-        private int transactionIDField;
+        private string transactionIDField;
         
         private string pGReferenceIDField;
         
@@ -4415,7 +4415,7 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public int TransactionID {
+        public string TransactionID {
             get {
                 return this.transactionIDField;
             }
