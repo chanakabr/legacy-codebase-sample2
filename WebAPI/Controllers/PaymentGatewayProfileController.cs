@@ -104,8 +104,9 @@ namespace WebAPI.Controllers
         /// Update payment gateway details
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006,         
+        /// Not found = 500007, Partner is invalid = 500008, Payment Gateway IdM issing = 6005, Payment Gateway Name Missing = 6020, Payment Gateway Shared Secret Missing = 6021, Payment Gateway Already Exist = 6022,        
+        /// External Idntifier Missing = 6016,
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -132,7 +133,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGW(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pending_interval,
+                response = ClientsManager.BillingClient().SetPaymentGateway(groupId, payment_gateway_id, name, adapter_url, transact_url, status_url, renew_url, external_identifier, pending_interval,
                     pending_retries, shared_secret, is_default, is_active);
             }
             catch (ClientException ex)
