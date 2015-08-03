@@ -182,7 +182,7 @@ namespace WebAPI
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
                 t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")).OrderBy(c => c.Name))
             {
-                context.Response.Write(string.Format("\t<service name='{0}'>\n", controller.Name.Replace("Controller", "")));
+                context.Response.Write(string.Format("\t<service name='{0}' id='{0}'>\n", controller.Name.Replace("Controller", "")));
                 var methods = controller.GetMethods().OrderBy(z => z.Name);
                 foreach (var method in methods)
                 {
@@ -237,7 +237,11 @@ namespace WebAPI
                                 getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc)));
                         }
 
-                        context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
+                        if (method.ReturnType != typeof(void))
+                            context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
+                        else
+                            context.Response.Write("\t\t\t<result />\n");
+
                         context.Response.Write("\t\t</action>\n");
                     }
                 };

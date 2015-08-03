@@ -15,11 +15,12 @@ namespace WebAPI.Models.Billing
     public class KalturaPaymentGWResponse : KalturaOTTObject
     {
         /// <summary>
-        /// List of payment_gateway
+        /// List of payment_gateway 
         /// </summary>
-        [DataMember(Name = "payment_gateway_basic")]
-        [JsonProperty("payment_gateway_basic")]
-        [XmlElement(ElementName = "payment_gateway_basic")]
+        [DataMember(Name = "payment_gateway_basic")]   
+        [JsonProperty("payment_gateway_basic")]        
+        [XmlArray(ElementName = "payment_gateway_basic")]
+        [XmlArrayItem("item")]  
         public List<KalturaPaymentGWBasic> pgw { get; set; }
     }
 }

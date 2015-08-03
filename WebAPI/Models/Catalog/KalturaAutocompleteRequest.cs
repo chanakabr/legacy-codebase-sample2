@@ -21,7 +21,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
-        [XmlElement(ElementName = "filter_types")]
+        [XmlArray(ElementName = "filter_types")]
+        [XmlArrayItem("item")] 
         public List<int> filter_types { get; set; }
 
         /// <summary>
@@ -47,10 +48,11 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        [XmlElement(ElementName = "with")]
+        [XmlArray(ElementName = "with")]
+        [XmlArrayItem("item")] 
         public List<KalturaCatalogWith> with { get; set; }
 
-        /// <summary>
+        /// <summary>    
         /// <![CDATA[Maximum number of assets to return. Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5]]>
         /// </summary>
         [DataMember(Name = "size")]

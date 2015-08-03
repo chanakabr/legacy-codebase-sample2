@@ -21,7 +21,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "entitlements")]
         [JsonProperty("entitlements")]
-        [XmlElement(ElementName = "entitlements")]
+        [XmlArray(ElementName = "entitlements")]
+        [XmlArrayItem("item")] 
         public List<KalturaEntitlement> Entitlements { get; set; }
     }
 }

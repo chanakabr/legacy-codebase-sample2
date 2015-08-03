@@ -17,9 +17,10 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// List of payment_gateway_settings
         /// </summary>
-        [DataMember(Name = "payment_gateway")]
+        [DataMember(Name = "payment_gateway")]        
         [JsonProperty("payment_gateway")]
-        [XmlElement(ElementName = "payment_gateway")]
+        [XmlArray(ElementName = "payment_gateway")]
+        [XmlArrayItem("item")]  
         public List<KalturaPaymentGW> pgw { get; set; }      
     }
 }

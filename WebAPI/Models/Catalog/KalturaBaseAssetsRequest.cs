@@ -37,7 +37,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        [XmlElement(ElementName = "with")]
+        [XmlArray(ElementName = "with")]
+        [XmlArrayItem("item")] 
         public List<KalturaCatalogWith> with { get; set; }
     }
 }

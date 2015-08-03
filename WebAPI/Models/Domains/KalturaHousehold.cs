@@ -84,7 +84,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "users")]
         [JsonProperty("users")]
-        [XmlElement(ElementName = "users")]
+        [XmlArray(ElementName = "users")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimUser> Users { get; set; }
 
         /// <summary>
@@ -92,7 +93,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "master_users")]
         [JsonProperty("master_users")]
-        [XmlElement(ElementName = "master_users")]
+        [XmlArray(ElementName = "master_users")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimUser> MasterUsers { get; set; }
 
         /// <summary>
@@ -100,7 +102,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "default_users")]
         [JsonProperty("default_users")]
-        [XmlElement(ElementName = "default_users")]
+        [XmlArray(ElementName = "default_users")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimUser> DefaultUsers { get; set; }
 
         /// <summary>
@@ -108,7 +111,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "pending_users")]
         [JsonProperty("pending_users")]
-        [XmlElement(ElementName = "pending_users")]
+        [XmlArray(ElementName = "pending_users")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimUser> PendingUsers { get; set; }
 
         /// <summary>
@@ -164,7 +168,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "home_networks")]
         [JsonProperty("home_networks")]
-        [XmlElement(ElementName = "home_networks")]
+        [XmlArray(ElementName = "home_networks")]
+        [XmlArrayItem("item")] 
         public List<KalturaHomeNetwork> HomeNetworks{ get; set; }
         
         /// <summary>
@@ -172,7 +177,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "device_families")]
         [JsonProperty("device_families")]
-        [XmlElement(ElementName = "device_families")]
+        [XmlArray(ElementName = "device_families")]
+        [XmlArrayItem("item")] 
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
     }
 }

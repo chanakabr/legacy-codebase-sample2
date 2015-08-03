@@ -21,7 +21,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "subscriptions")]
         [JsonProperty("subscriptions")]
-        [XmlElement(ElementName = "subscriptions")]
+        [XmlArray(ElementName = "subscriptions")]
+        [XmlArrayItem("item")] 
         public List<KalturaSubscription> Subscriptions { get; set; }
     }
 }

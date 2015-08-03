@@ -13,12 +13,13 @@ namespace WebAPI.Models.Users
     [XmlRoot("favorites")]
     public class KalturaFavoriteList : KalturaOTTObject
     {
-        /// <summary>
+        /// <summary> 
         /// A list of favorites
         /// </summary>
         [DataMember(Name = "favorites")]
         [JsonProperty("favorites")]
-        [XmlElement(ElementName = "favorites")]
+        [XmlArray(ElementName = "favorites")]
+        [XmlArrayItem("item")] 
         public List<KalturaFavorite> Favorites { get; set; }
     }
 }

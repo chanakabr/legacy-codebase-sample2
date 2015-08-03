@@ -21,7 +21,8 @@ namespace WebAPI.Models.MultiRequest
         public string action { get; set; }
         [XmlElement(ElementName = "parameters")]
         [JsonProperty("parameters")]
-        [DataMember(Name = "parameters")]
+        [XmlArray(ElementName = "parameters")]
+        [XmlArrayItem("item")] 
         public string[] parameters { get; set; }
     }
 }

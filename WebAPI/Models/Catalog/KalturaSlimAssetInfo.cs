@@ -19,7 +19,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
-        [XmlElement(ElementName = "assets")]
+        [XmlArray(ElementName = "assets")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimAssetInfo> Assets { get; set; }
     }
 
@@ -66,7 +67,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "images")]
+        [XmlArray(ElementName = "images")]
+        [XmlArrayItem("item")] 
         public List<KalturaImage> Images { get; set; }
 
         /// <summary>
@@ -74,7 +76,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "files", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "files")]
+        [XmlArray(ElementName = "files")]
+        [XmlArrayItem("item")] 
         public List<KalturaFile> Files { get; set; }
 
         /// <summary>

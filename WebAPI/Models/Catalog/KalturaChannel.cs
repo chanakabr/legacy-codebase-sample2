@@ -43,7 +43,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        [XmlElement(ElementName = "images")]
+        [XmlArray(ElementName = "images")]
+        [XmlArrayItem("item")] 
         public List<KalturaImage> Images { get; set; }
 
         /// <summary>
@@ -51,7 +52,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "media_types")]
         [JsonProperty(PropertyName = "media_types")]
-        [XmlElement(ElementName = "media_types")]
+        [XmlArray(ElementName = "media_types")]
+        [XmlArrayItem("item")] 
         public List<int> MediaTypes { get; set; }
     }
 }

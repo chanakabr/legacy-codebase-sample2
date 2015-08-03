@@ -30,7 +30,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty("channels")]
-        [XmlElement(ElementName = "channels")]
+        [XmlArray(ElementName = "channels")]
+        [XmlArrayItem("item")] 
         public List<KalturaSlimChannel> Channels { get; set; } 
 
         /// <summary>
@@ -54,7 +55,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "file_types")]
         [JsonProperty("file_types")]
-        [XmlElement(ElementName = "file_types")]
+        [XmlArray(ElementName = "file_types")]
+        [XmlArrayItem("item")] 
         public List<int> FileTypes { get; set; }
         
         /// <summary>
@@ -110,7 +112,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
-        [XmlElement(ElementName = "names")]
+        [XmlArray(ElementName = "names")]
+        [XmlArrayItem("item")] 
         public List<KalturaTranslationContainer> Names { get; set; } // TODO: change to object
 
         /// <summary>
@@ -118,7 +121,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        [XmlElement(ElementName = "descriptions")]
+        [XmlArray(ElementName = "descriptions")]
+        [XmlArrayItem("item")] 
         public List<KalturaTranslationContainer> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
@@ -150,7 +154,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price_plans")]
         [JsonProperty("price_plans")]
-        [XmlElement(ElementName = "price_plans")]
+        [XmlArray(ElementName = "price_plans")]
+        [XmlArrayItem("item")] 
         public List<KalturaPricePlan> PricePlans { get; set; }
 
         /// <summary>
@@ -174,7 +179,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "premium_services")]
         [JsonProperty("premium_services")]
-        [XmlElement(ElementName = "premium_services")]
+        [XmlArray(ElementName = "premium_services")]
+        [XmlArrayItem("item")] 
         public List<KalturaPremiumService> PremiumServices { get; set; }
 
         #region Usage Module
@@ -216,7 +222,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "user_types")]
         [JsonProperty("user_types")]
-        [XmlElement(ElementName = "user_types")]
+        [XmlArray(ElementName = "user_types")]
+        [XmlArrayItem("item")] 
         public List<KalturaUserType> UserTypes { get; set; }
 
         #endregion

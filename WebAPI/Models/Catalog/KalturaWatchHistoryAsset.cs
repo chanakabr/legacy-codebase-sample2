@@ -20,7 +20,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assets")]
         [JsonProperty(PropertyName = "assets")]
-        [XmlElement(ElementName = "assets")]
+        [XmlArray(ElementName = "assets")]
+        [XmlArrayItem("item")] 
         public List<KalturaWatchHistoryAsset> WatchHistoryAssets { get; set; }
 
         public KalturaWatchHistoryAssetWrapper()

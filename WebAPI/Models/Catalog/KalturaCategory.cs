@@ -43,7 +43,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "child_categories")]
         [JsonProperty(PropertyName = "child_categories")]
-        [XmlElement(ElementName = "child_categories")]
+        [XmlArray(ElementName = "child_categories")]
+        [XmlArrayItem("item")] 
         public List<KalturaCategory> ChildCategories { get; set; }
 
         /// <summary>
@@ -51,7 +52,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty(PropertyName = "channels")]
-        [XmlElement(ElementName = "channels")]
+        [XmlArray(ElementName = "channels")]
+        [XmlArrayItem("item")] 
         public List<KalturaChannel> Channels { get; set; }
 
         /// <summary>
@@ -59,7 +61,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        [XmlElement(ElementName = "images")]
+        [XmlArray(ElementName = "images")]
+        [XmlArrayItem("item")] 
         public List<KalturaImage> Images { get; set; }
     }
 }

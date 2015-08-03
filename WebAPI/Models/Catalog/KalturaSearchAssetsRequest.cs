@@ -20,7 +20,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
-        [XmlElement(ElementName = "filter_types")]
+        [XmlArray(ElementName = "filter_types")]
+        [XmlArrayItem("item")] 
         public List<int> filter_types { get; set; }
 
         /// <summary>

@@ -27,7 +27,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ppv_price_details")]
         [JsonProperty("ppv_price_details")]
-        [XmlElement(ElementName = "ppv_price_details")]
+        [XmlArray(ElementName = "ppv_price_details")]
+        [XmlArrayItem("item")] 
         public List<KalturaPPVItemPriceDetails> PPVPriceDetails { get; set; }
 
         /// <summary>

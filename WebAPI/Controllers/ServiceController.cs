@@ -21,7 +21,7 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service")]
+    [RoutePrefix("api/service")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {

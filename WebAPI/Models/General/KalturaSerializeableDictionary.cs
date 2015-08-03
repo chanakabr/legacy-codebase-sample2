@@ -53,14 +53,16 @@ public class SerializableDictionary<TKey, TValue>
         {
             writer.WriteStartElement("item");
 
-            writer.WriteStartElement("key");
-            keySerializer.Serialize(writer, key);
+            writer.WriteStartElement("itemKey");
+            //keySerializer.Serialize(writer, key);
+            writer.WriteString(key.ToString());
             writer.WriteEndElement();
 
-            writer.WriteStartElement("value");
-            TValue value = this[key];
-            valueSerializer.Serialize(writer, value);
-            writer.WriteEndElement();
+            valueSerializer.Serialize(writer, this[key]);
+            //writer.WriteStartElement("value");
+            //TValue value = this[key];
+            //valueSerializer.Serialize(writer, value);
+            //writer.WriteEndElement();
 
             writer.WriteEndElement();
         }

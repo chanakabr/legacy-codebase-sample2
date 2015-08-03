@@ -37,6 +37,22 @@ namespace Validator
 
                 foreach (PropertyInfo m in type.GetProperties())
                 {
+                    if (m.PropertyType.IsArray || (m.PropertyType.IsGenericType &&
+                        m.PropertyType.GetGenericTypeDefinition() != typeof(Dictionary<,>)
+                        && m.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>)
+                        && m.PropertyType.GetGenericTypeDefinition().BaseType.Name != "Dictionary`2"))
+                    {
+                        var xaAttr = m.GetCustomAttributes<XmlArrayAttribute>();
+                        var xaiAttr = m.GetCustomAttributes<XmlArrayItemAttribute>();
+                        if (xaAttr.FirstOrDefault() == null || xaiAttr.FirstOrDefault() == null)
+                        {
+                            Console.WriteLine(string.Format("Model {0} doesn't have one of the Array properties on {1}", type.Name, m.Name));
+                            found = true;
+                        }
+
+                        continue;
+                    }
+
                     var xeAttr = m.GetCustomAttributes<XmlElementAttribute>();
                     var dmAttr = m.GetCustomAttributes<DataMemberAttribute>();
                     var jpAttr = m.GetCustomAttributes<JsonPropertyAttribute>();
