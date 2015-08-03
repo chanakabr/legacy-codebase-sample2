@@ -14,6 +14,7 @@ using WebAPI.Catalog;
 
 namespace WebAPI.Controllers
 {
+    [RoutePrefix("service/assetView/action")]
     public class AssetViewController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

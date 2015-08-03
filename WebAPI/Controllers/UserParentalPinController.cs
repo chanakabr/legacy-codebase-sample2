@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("user_parental_pin")]
+    [RoutePrefix("service/userParentalPin/action")]
     public class UserParentalPinController : ApiController
     {
         /// <summary>
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("get"), HttpGet]
+        [Route("get"), HttpPost]
         public KalturaPinResponse Get([FromUri] string partner_id, [FromUri] string user_id)
         {
             KalturaPinResponse pinResponse = null;

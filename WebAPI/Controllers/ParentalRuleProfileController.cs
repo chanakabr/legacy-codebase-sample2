@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("parental_rule_profile")]
+    [RoutePrefix("service/parentalRuleProfile/action")]
     public class ParentalRuleProfileController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("categories")]
+    [RoutePrefix("service/category/action")]
     public class CategoryController : ApiController
     {
         /// <summary>

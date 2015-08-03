@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("channels")]
+    [RoutePrefix("service/channel/action")]
     public class ChannelController : ApiController
     {
         /// <summary>

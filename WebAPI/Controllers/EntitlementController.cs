@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("entitlement")]
+    [RoutePrefix("service/entitlement/action")]
     public class EntitlementController : ApiController
     {
         /// <summary>
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         /// <param name="sub_id">Subscription Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
-        [Route("cancel_renewal"), HttpPost]
+        [Route("cancelRenewal"), HttpPost]
         public void CancelRenewal([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string sub_id)
         {
             int groupId = int.Parse(partner_id);

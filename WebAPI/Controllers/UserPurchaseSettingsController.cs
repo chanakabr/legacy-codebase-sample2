@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("user_purchase_settings")]
+    [RoutePrefix("service/userPurchaseSettings/action")]
     public class UserPurchaseSettingsController : ApiController
     {
         /// <summary>

@@ -18,7 +18,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("household")]
+    [RoutePrefix("service/household/action")]
     public class HouseholdController : ApiController
     {
         #region Parental and Purchase rules
@@ -33,15 +33,11 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <returns>Success / fail</returns>
-        [Route("{household_id}/parental/rules/default"), HttpDelete]
+        [Route("disableDefaultParentalRule"), HttpPost]
         public bool DisableDefaultParentalRule([FromUri] string partner_id, [FromUri] int household_id)
         {
             bool success = false;
-
-
-
             int groupId = int.Parse(partner_id);
-
 
             try
             {
@@ -67,6 +63,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
+        [Route("get"), HttpPost]
         public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWith> with = null)
         {
             var ks = KS.GetFromRequest();
@@ -135,6 +132,7 @@ namespace WebAPI.Controllers
         /// <param name="request">Request parameters</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
+        [Route("add"), HttpPost]
         public KalturaHousehold Add([FromUri] string partner_id, [FromBody] KalturaAddHouseholdRequest request)
         {
             KalturaHousehold response = null;
@@ -178,7 +176,7 @@ namespace WebAPI.Controllers
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household Identifier</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
-        [Route("{household_id}/payment_gateways/{id}"), HttpPost]
+        [Route("setChargeID"), HttpPost]
         public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] int household_id, [FromUri] string charge_id)
         {
             bool response = false;
@@ -210,7 +208,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household Identifier</param>        
-        [Route("{household_id}/payment_gateways/{id}"), HttpGet]
+        [Route("getChargeID"), HttpPost]
         public string GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
         {
             string chargeId = string.Empty;

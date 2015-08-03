@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("price")]
+    [RoutePrefix("service/price/action")]
     public class PriceController : ApiController
     {
         /// <summary>
@@ -24,8 +24,8 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("files/{files_ids}/prices"), HttpGet]
-        public KalturaItemPricesList GetItemsPrices([FromUri] string partner_id, [FromUri] string files_ids, [FromUri] string user_id = null,
+        [Route("get"), HttpGet]
+        public KalturaItemPricesList Get([FromUri] string partner_id, [FromUri] string files_ids, [FromUri] string user_id = null,
             [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
         {
             List<KalturaItemPrice> ppvPrices = null;

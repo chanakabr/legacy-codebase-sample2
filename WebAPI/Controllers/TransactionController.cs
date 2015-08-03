@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("transaction")]
+    [RoutePrefix("service/transaction/action")]
     public class TransactionController : ApiController
     {
         /// <summary>
@@ -70,6 +70,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: signature does not match = 6036, error while updating pending transaction = 6037, payment gateway not exist = 6008,
         /// Payment gateway transaction was not found = 6038, Unknown transaction state = 6042, Payment gateway transaction is not pending = 6039,
         /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        [Route("update"), HttpPost]
         public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string adapter_message, string external_transaction_id, string external_status, 
             string external_message, string signature)
         {

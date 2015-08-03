@@ -17,7 +17,7 @@ using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("subscription")]
+    [RoutePrefix("service/subscription/action")]
     public class SubscriptionController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("subscriptions/{subscriptions_ids}/prices"), HttpGet]
+        [Route("getPrices"), HttpGet]
         public KalturaSubscriptionsPricesList GetSubscriptionsPrices([FromUri] string partner_id, [FromUri] string subscriptions_ids, [FromUri] string user_id = null,
             [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
         {
@@ -69,6 +69,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        [Route("get"), HttpPost]
         public KalturaSubscriptionsList Get(string partner_id, int[] subscriptions_ids, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
@@ -104,7 +105,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
         ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("files/{file_id}/subscriptions"), HttpGet]
+        [Route("getSubscriptionsContainingMediaFile"), HttpPost]
         public List<KalturaSubscription> GetSubscriptionIDsContainingMediaFile([FromUri] string partner_id, [FromUri] int media_id, [FromUri] int file_id, [FromUri] string udid = null, [FromUri] string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
@@ -150,7 +151,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="sub_id">Subscription identifier</param>
         /// <param name="request">Charge request parameters</param>
-        [Route("{sub_id}/buy"), HttpPost]
+        [Route("buy"), HttpPost]
         [Obsolete]
         public KalturaBillingResponse Buy([FromUri] string partner_id, [FromUri] string sub_id, [FromBody] KalturaCharge request, [FromUri]string udid = null)
         {

@@ -11,7 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("coupon")]
+    [RoutePrefix("service/coupon/action")]
     public class CouponController : ApiController
     {
         /// <summary>
