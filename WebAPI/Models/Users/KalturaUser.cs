@@ -44,8 +44,9 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
-        [XmlElement(ElementName = "dynamic_data")]
-        public SerializableDictionary<string, string> DynamicData { get; set; }
+        [XmlArray(ElementName = "dynamic_data")]
+        [XmlArrayItem("item")]
+        public List<KalturaKeyValue> DynamicData { get; set; }
 
         /// <summary>
         /// Is the user the household master

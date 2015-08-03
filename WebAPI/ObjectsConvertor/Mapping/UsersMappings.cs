@@ -195,23 +195,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Dictionary<string, string> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        private static List<KalturaKeyValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
         {
-            Dictionary<string, string> result = null;
-
+            List<KalturaKeyValue> result = null;
+            
             if (userDynamicData != null && userDynamicData.m_sUserData != null)
             {
-                result = new Dictionary<string, string>();
+                result = new List<KalturaKeyValue>();
                 foreach (var data in userDynamicData.m_sUserData)
                 {
                     if (!string.IsNullOrEmpty(data.m_sDataType))
                     {
-                        result.Add(data.m_sDataType, data.m_sValue);
+                        result.Add(new KalturaKeyValue() { key = data.m_sDataType, value = data.m_sValue });
                     }
                 }
             }
+
             return result;
         }
-
     }
 }
