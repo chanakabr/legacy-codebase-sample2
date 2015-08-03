@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         /// <param name="rule_id">Rule Identifier</param>
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
-        [Route("disable"), HttpDelete]
+        [Route("disable"), HttpPost]
         public bool Disable([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
         {
             bool success = false;
