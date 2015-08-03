@@ -95,30 +95,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
                .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
-               .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseID));
-        }
-
-        public static WebAPI.ConditionalAccess.eTransactionState ConvertDomainStatus(KalturaTransactionState type)
-        {
-            WebAPI.ConditionalAccess.eTransactionState result;
-            switch (type)
-            {
-                case KalturaTransactionState.canceled:
-                    result = WebAPI.ConditionalAccess.eTransactionState.Canceled;
-                    break;
-                case KalturaTransactionState.completed:
-                    result = WebAPI.ConditionalAccess.eTransactionState.Completed;
-                    break;
-                case KalturaTransactionState.failed:
-                    result = WebAPI.ConditionalAccess.eTransactionState.Failed;
-                    break;
-                case KalturaTransactionState.pending:
-                    result = WebAPI.ConditionalAccess.eTransactionState.Pending;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown transaction state");
-            }
-            return result;
+               .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode));
         }
     }
 }
