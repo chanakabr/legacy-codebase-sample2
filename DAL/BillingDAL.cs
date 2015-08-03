@@ -1218,7 +1218,7 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGW(int groupID, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
+        public static bool SetPaymentGateway(int groupID, int paymentGWID, string name, string adapterUrl, string transactUrl, string statusUrl, string renewUrl, string externalIdentifier, int pendingInterval, int pendingRetries,
             string sharedSecret, int? isDefault, int? isActive)
         {
             try
