@@ -15,27 +15,47 @@ namespace ESIndexUpdateHandler.Updaters
 {
     public class MediaUpdater : IUpdateable
     {
+        #region Consts
+        
         public static readonly string MEDIA = "media";
 
-        private int m_nGroupID;
-        private ElasticSearch.Common.ESSerializer m_oESSerializer;
-        private ElasticSearch.Common.ElasticSearchApi m_oESApi;
+        #endregion
+
+        #region Data Members
+
+        private int groupID;
+        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ElasticSearchApi esApi;
+
+        #endregion
+
+        #region Properties
 
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public MediaUpdater(int nGroupID)
+        #endregion
+
+        #region Ctors
+
+        public MediaUpdater(int groupID)
         {
-            m_nGroupID = nGroupID;
-            m_oESSerializer = new ElasticSearch.Common.ESSerializer();
-            m_oESApi = new ElasticSearch.Common.ElasticSearchApi();
+            this.groupID = groupID;
+            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
+
+        #endregion
+
+        #region Interface Methods
 
         public bool Start()
         {
             bool result = false;
+
             Logger.Logger.Log("Info", "Start Media update", "ESUpdateHandler");
-            if (IDs == null || IDs.Count == 0)
+
+            if (this.IDs == null || this.IDs.Count == 0)
             {
                 Logger.Logger.Log("Info", "Media id list empty", "ESUpdateHandler");
                 result = true;
@@ -43,9 +63,10 @@ namespace ESIndexUpdateHandler.Updaters
                 return result;
             }
 
-            if (!m_oESApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(m_nGroupID)))
+            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(groupID)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type media for group {0} does not exist", m_nGroupID), "ESUpdateHandler");
+                Logger.Logger.Log("Error", string.Format("Index of type media for group {0} does not exist", groupID), "ESUpdateHandler");
+
                 return result;
             }
 
@@ -54,61 +75,70 @@ namespace ESIndexUpdateHandler.Updaters
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                    result = UpdateMedias(IDs);
-                    break;
+                result = UpdateMedias(IDs);
+                break;
                 case ApiObjects.eAction.Delete:
-                    result = Delete(IDs);
-                    break;
+                result = Delete(IDs);
+                break;
                 default:
-                    result = true;
-                    break;
+                result = true;
+                break;
             }
 
             return result;
         }
 
-        private bool UpdateMedias(List<int> lMediaIDs)
+        #endregion
+
+        #region Private Methods
+
+        private bool UpdateMedias(List<int> mediaIds)
         {
-            bool bRes = true;
+            bool result = true;
             GroupManager groupManager = new GroupManager();
-            Group oGroup = groupManager.GetGroup(m_nGroupID);
+            Group group = groupManager.GetGroup(this.groupID);
 
-            if (oGroup == null)
+            if (group == null)
+            {
                 return false;
+            }
 
-            bool bTempRes;
-            foreach (int nMediaID in lMediaIDs)
+            bool tempResult;
+
+            foreach (int mediaId in mediaIds)
             {
                 try
                 {
                     //Create Media Object
-                    Dictionary<int, Dictionary<int, Media>> dMedias = ElasticsearchTasksCommon.Utils.GetGroupMedias(m_nGroupID, nMediaID);
+                    Dictionary<int, Dictionary<int, Media>> mediaDictionary = ElasticsearchTasksCommon.Utils.GetGroupMedias(groupID, mediaId);
 
-                    if (dMedias != null)
+                    if (mediaDictionary != null)
                     {
-                        List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
-
-                        if (dMedias.ContainsKey(nMediaID))
+                        // Just to be sure
+                        if (mediaDictionary.ContainsKey(mediaId))
                         {
-                            foreach (int nLangID in dMedias[nMediaID].Keys)
+                            foreach (int languageId in mediaDictionary[mediaId].Keys)
                             {
-                                Media oMedia = dMedias[nMediaID][nLangID];
+                                Media media = mediaDictionary[mediaId][languageId];
 
-                                if (oMedia != null)
+                                if (media != null)
                                 {
-                                    string sMediaObj;
+                                    string serializedMedia;
 
-                                    sMediaObj = m_oESSerializer.SerializeMediaObject(oMedia);
+                                    serializedMedia = esSerializer.SerializeMediaObject(media);
 
-                                    string sType = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, oGroup.GetLanguage(nLangID));
-                                    if (!string.IsNullOrEmpty(sMediaObj))
+                                    string type = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+
+                                    if (!string.IsNullOrEmpty(serializedMedia))
                                     {
+                                        tempResult = esApi.InsertRecord(groupID.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
+                                        result &= tempResult;
 
-                                        bTempRes = m_oESApi.InsertRecord(m_nGroupID.ToString(), sType, oMedia.m_nMediaID.ToString(), sMediaObj);
-                                        bRes &= bTempRes;
-                                        if (!bTempRes)
+                                        if (!tempResult)
                                         {
-                                            Logger.Logger.Log("Error", string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3}", m_nGroupID, sType, oMedia.m_nMediaID, sMediaObj), "ESUpdateHandler");
+                                            Logger.Logger.Log("Error", string.Format(
+                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};", 
+                                                groupID, type, media.m_nMediaID, serializedMedia), "ESUpdateHandler");
                                         }
                                     }
                                 }
@@ -119,36 +149,35 @@ namespace ESIndexUpdateHandler.Updaters
                 catch (Exception ex)
                 {
                     Logger.Logger.Log("Error", string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), "ESUpdateHandler");
+                    throw ex;
                 }
             }
 
-            return bRes;
+            return result;
         }
-        
-        private bool Delete(List<int> lMediaIDs)
-        {
-            bool bRes = true;
 
-            string sIndex = m_nGroupID.ToString();
-            bool bTemp;
+        private bool Delete(List<int> mediaIDs)
+        {
+            bool result = true;
+            string index = groupID.ToString();
+            
             ESDeleteResult deleteResult;
-            foreach (int id in lMediaIDs)
+
+            foreach (int id in mediaIDs)
             {
-                deleteResult = m_oESApi.DeleteDoc(sIndex, MEDIA, id.ToString());
+                deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
 
                 if (!deleteResult.Ok)
                 {
-                    Logger.Logger.Log("Error", String.Concat("Could not delete media from ES. Media id=",id), "ESUpdateHandler");
+                    Logger.Logger.Log("Error", String.Concat("Could not delete media from ES. Media id=", id), "ESUpdateHandler");
                 }
 
-                bRes &= deleteResult.Ok;
+                result &= deleteResult.Ok;
             }
 
-            return bRes;
+            return result;
         }
 
-        
-
-
+        #endregion
     }
 }
