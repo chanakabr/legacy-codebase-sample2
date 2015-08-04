@@ -20,10 +20,11 @@ namespace ApiObjects.Billing
 
         public eTransactionState State { get; set; }
 
+        // Adapter failure reason code 
+        public int FailReasonCode { get; set; }
+
         public TransactResult()
         {
         }
-
-
     }
 }

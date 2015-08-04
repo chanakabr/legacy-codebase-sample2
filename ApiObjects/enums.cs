@@ -337,9 +337,9 @@ namespace ApiObjects
         Failed,
 
         [EnumMember]
-        Ok,
+        Pending,
 
         [EnumMember]
-        Pending
+        Ok
     }
 }
