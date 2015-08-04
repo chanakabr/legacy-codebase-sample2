@@ -138,6 +138,7 @@ namespace ApiObjects.Response
         ExternalIdentifierMustBeUnique = 6040,   
         NoPaymentGatewayToInsert = 6041,        
         UnknownTransactionState = 6042,
+        PaymentGatewayNotValid = 6043,
 
         // social 7000 - 7999
         Conflict = 7000,

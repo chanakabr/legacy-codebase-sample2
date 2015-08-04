@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace ApiObjects.Billing
 {
@@ -19,6 +17,8 @@ namespace ApiObjects.Billing
         public int PendingInterval { get; set; }
         public int PendingRetries { get; set; }
         public string SharedSecret { get; set; }
+        [XmlIgnore]
+        public int Status { get; set; }
         public List<PaymentGWSettings> Settings { get; set; }
 
         public PaymentGW()
@@ -39,6 +39,7 @@ namespace ApiObjects.Billing
             this.PendingInterval = pgw.PendingInterval;
             this.PendingRetries = pgw.PendingRetries;
             this.SharedSecret = pgw.SharedSecret;
+            this.Status = pgw.Status;
             this.Settings = pgw.Settings;
         }
     }

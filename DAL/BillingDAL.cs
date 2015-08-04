@@ -972,7 +972,6 @@ namespace DAL
             return sRet;
         }
 
-
         public static List<PaymentGW> GetPaymentGWSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
         {
             List<PaymentGW> res = new List<PaymentGW>();
@@ -1034,8 +1033,6 @@ namespace DAL
             }
             return res;
         }
-
-
 
         public static bool SetPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
         {
@@ -1595,6 +1592,37 @@ namespace DAL
                         Selected = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "selected"),
                         ChargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id"),
                         HouseholdId = householdId
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return res;
+        }
+
+
+        public static PaymentGW GetPaymentGateway(int groupID, int paymentGatewayId, int isActive = 1, int status =1)
+        {
+            PaymentGW res = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@status", status);
+                sp.AddParameter("@isActive", isActive);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = new PaymentGW()
+                    {
+                        ID = paymentGatewayId,
+                        Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status"),
+                        IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active")                        
                     };
                 }
             }
