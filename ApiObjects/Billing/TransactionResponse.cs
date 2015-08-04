@@ -22,6 +22,9 @@ namespace ApiObjects.Billing
 
         public string State { get; set; }
 
+        // Adapter failure reason code 
+        public int FailReasonCode { get; set; }
+
         public long CreatedAt { get; set; }
 
         public TransactionResponse()

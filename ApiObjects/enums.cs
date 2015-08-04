@@ -334,12 +334,12 @@ namespace ApiObjects
     public enum eTransactionState
     {
         [EnumMember]
-        Failed,
+        OK = 0,
 
         [EnumMember]
-        Pending,
+        Pending = 1,
 
         [EnumMember]
-        Ok
+        Failed = 2
     }
 }
