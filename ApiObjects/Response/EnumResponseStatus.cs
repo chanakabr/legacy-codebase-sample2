@@ -83,7 +83,7 @@ namespace ApiObjects.Response
         Free = 3022,
         ForPurchaseSubscriptionOnly = 3023,
         SubscriptionPurchased = 3024,
-        NotForPurchase = 3025,
+        NotForPurchase = 3025,  
         Fail = 3026,
 
         //Catalog 4000 - 4999
