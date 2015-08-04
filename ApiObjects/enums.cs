@@ -342,4 +342,14 @@ namespace ApiObjects
         [EnumMember]
         Failed = 2
     }
+
+    [Serializable]
+    public enum eHouseholdPaymentGatewaySelectedBy
+    {
+        [EnumMember]
+        Account,
+
+        [EnumMember]
+        Household
+    }
 }

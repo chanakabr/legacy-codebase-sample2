@@ -7,7 +7,7 @@ namespace ApiObjects.Billing
 {
     public class PaymentGatewayChargeIDResponse
     {
-        public ApiObjects.Response.Status Resp { get; set; }
+        public ApiObjects.Response.Status ResponseStatus { get; set; }
         public string ChargeID { get; set; }
 
         public PaymentGatewayChargeIDResponse()
@@ -18,7 +18,7 @@ namespace ApiObjects.Billing
         public PaymentGatewayChargeIDResponse(PaymentGatewayChargeIDResponse paymentGWChargeIDResponse)
         {
             this.ChargeID = paymentGWChargeIDResponse.ChargeID;
-            this.Resp = paymentGWChargeIDResponse.Resp;
+            this.ResponseStatus = paymentGWChargeIDResponse.ResponseStatus;
         }
     }
 }

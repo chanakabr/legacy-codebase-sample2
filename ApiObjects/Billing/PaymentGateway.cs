@@ -19,28 +19,32 @@ namespace ApiObjects.Billing
         public string SharedSecret { get; set; }
         [XmlIgnore]
         public int Status { get; set; }
+        [XmlIgnore]
+        public int Selected { get; set; }
+        
         public List<PaymentGatewaySettings> Settings { get; set; }
 
         public PaymentGateway()
         {
         }
 
-        public PaymentGateway(PaymentGateway pgw)
+        public PaymentGateway(PaymentGateway paymentGateway)
         {
-            this.ID = pgw.ID;
-            this.Name = pgw.Name;
-            this.IsDefault = pgw.IsDefault;
-            this.IsActive = pgw.IsActive;
-            this.AdapterUrl = pgw.AdapterUrl;
-            this.TransactUrl = pgw.TransactUrl;
-            this.StatusUrl = pgw.StatusUrl;
-            this.RenewUrl = pgw.RenewUrl;
-            this.ExternalIdentifier = pgw.ExternalIdentifier;
-            this.PendingInterval = pgw.PendingInterval;
-            this.PendingRetries = pgw.PendingRetries;
-            this.SharedSecret = pgw.SharedSecret;
-            this.Status = pgw.Status;
-            this.Settings = pgw.Settings;
+            this.ID = paymentGateway.ID;
+            this.Name = paymentGateway.Name;
+            this.IsDefault = paymentGateway.IsDefault;
+            this.IsActive = paymentGateway.IsActive;
+            this.AdapterUrl = paymentGateway.AdapterUrl;
+            this.TransactUrl = paymentGateway.TransactUrl;
+            this.StatusUrl = paymentGateway.StatusUrl;
+            this.RenewUrl = paymentGateway.RenewUrl;
+            this.ExternalIdentifier = paymentGateway.ExternalIdentifier;
+            this.PendingInterval = paymentGateway.PendingInterval;
+            this.PendingRetries = paymentGateway.PendingRetries;
+            this.SharedSecret = paymentGateway.SharedSecret;
+            this.Status = paymentGateway.Status;
+            this.Selected = paymentGateway.Selected;
+            this.Settings = paymentGateway.Settings;
         }
     }
 }

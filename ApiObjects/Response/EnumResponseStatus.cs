@@ -139,6 +139,7 @@ namespace ApiObjects.Response
         NoPaymentGatewayToInsert = 6041,        
         UnknownTransactionState = 6042,
         PaymentGatewayNotValid = 6043,
+        HouseholdRequired = 6044,
 
         // social 7000 - 7999
         Conflict = 7000,

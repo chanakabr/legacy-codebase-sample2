@@ -1130,7 +1130,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGatewayBasic> GetHouseholdPaymentGateways(int groupID, long houseHoldID, int? selected, int status = 1, int isActive = 1)
+        public static List<PaymentGatewayBasic> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
         {
             List<PaymentGatewayBasic> res = new List<PaymentGatewayBasic>();
             try
@@ -1138,7 +1138,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@houseHoldID", houseHoldID);
+                sp.AddParameter("@houseHoldID", householdId);
                 sp.AddParameter("@status", status);
                 if (selected.HasValue)
                 {
@@ -1169,6 +1169,38 @@ namespace DAL
             }
             return res;
         }
+
+        public static PaymentGateway GetSelectedHouseholdPaymentGateway(int groupID, long householdId)
+        {
+            PaymentGateway paymentGateway = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SelectedHouseholdPaymentGateway");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@houseHoldID", householdId);
+                sp.AddParameter("@status", 1);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dr = ds.Tables[0].Rows[0];
+                    paymentGateway = new PaymentGateway();
+                    paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                    paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                    paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");                    
+                    int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                    paymentGateway.IsDefault = isDefault == 1 ? true : false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return paymentGateway;
+        }
+
 
         public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, int? selected, string chargeID = null, int status = 1)
         {
@@ -1296,7 +1328,7 @@ namespace DAL
             }
         }
 
-        public static bool DeletePaymentGWHouseHold(int groupID, int paymentGwID, int houseHoldID)
+        public static bool DeletePaymentGWHousehold(int groupID, int paymentGwID, int householdId)
         {
             bool res = false;
             try
@@ -1304,7 +1336,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGW_HouseHold");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@PaymentGWID", paymentGwID);
-                sp.AddParameter("@householdID", houseHoldID);
+                sp.AddParameter("@householdID", householdId);
                 sp.AddParameter("@groupID", groupID);
                 res = sp.ExecuteReturnValue<bool>();
             }
@@ -1536,7 +1568,7 @@ namespace DAL
             return rows > 0;
         }
 
-        public static bool GetPendingPaymentGatewayTransactionDetails(int paymentGatewayId, string externalTransactionId, out string billingGuid, out int productType, 
+        public static bool GetPendingPaymentGatewayTransactionDetails(int paymentGatewayId, string externalTransactionId, out string billingGuid, out int productType,
             out int transactionState, out int pendingTransactionState)
         {
             billingGuid = string.Empty;
@@ -1556,7 +1588,7 @@ namespace DAL
                     DataTable dt = ds.Tables[0];
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        billingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]); 
+                        billingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["billing_guid"]);
                         productType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"]);
                         transactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["state"]);
                         pendingTransactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["pgpState"]);
@@ -1603,7 +1635,7 @@ namespace DAL
         }
 
 
-        public static PaymentGateway GetPaymentGateway(int groupID, int paymentGatewayId, int isActive = 1, int status =1)
+        public static PaymentGateway GetPaymentGateway(int groupID, int paymentGatewayId, int isActive = 1, int status = 1)
         {
             PaymentGateway res = null;
             try
@@ -1622,7 +1654,7 @@ namespace DAL
                     {
                         ID = paymentGatewayId,
                         Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status"),
-                        IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active")                        
+                        IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active")
                     };
                 }
             }
