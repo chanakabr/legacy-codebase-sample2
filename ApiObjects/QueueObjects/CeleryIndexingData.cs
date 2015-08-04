@@ -38,8 +38,11 @@ namespace ApiObjects
                 // id = guid
                 Guid.NewGuid().ToString(),
                 // task = const
-                TASK,
-                groupId,
+                TASK, 
+                // No ETA and no expires
+                null, 
+                null,
+                groupId, 
                 assetIds,
                 assetType.ToString(),
                 action.ToString(),

@@ -14,6 +14,8 @@ namespace ApiObjects.MediaIndexingObjects
         public string task;
         public List<object> args;
         public object kwargs;
+        public string eta;
+        public string expires;
 
         #endregion
 
@@ -23,21 +25,41 @@ namespace ApiObjects.MediaIndexingObjects
             args = new List<object>();
         }
 
-        public BaseCeleryData(string sID, string sTask, List<object> lArgs)
+        public BaseCeleryData(string id, string task, List<object> args, DateTime? eta = null, DateTime? expires = null)
         {
             kwargs = new object();
-            task = sTask;
-            id = sID;       
-            args = lArgs;
+            this.task = task;
+            this.id = id;       
+            this.args = args;
+
+            if (eta != null && eta.HasValue)
+            {
+                this.eta = eta.Value.ToString("o");
+            }
+
+            if (expires != null && expires.HasValue)
+            {
+                this.expires = expires.Value.ToString("o");
+            }
         }
 
-        public BaseCeleryData(string sID, string sTask, params object[] lArgs)
+        public BaseCeleryData(string id, string task, DateTime? eta = null,  DateTime? expires = null, params object[] args)
         {
             kwargs = new object();
-            task = sTask;
-            id = sID;
-            args = new List<object>();
-            args.AddRange(lArgs);
+            this.task = task;
+            this.id = id;
+            this.args = new List<object>();
+            this.args.AddRange(args);
+            
+            if (eta != null && eta.HasValue)
+            {
+                this.eta = eta.Value.ToString("o");
+            }
+
+            if (expires != null && expires.HasValue)
+            {
+                this.expires = expires.Value.ToString("o");
+            }
         }
     }
 }
