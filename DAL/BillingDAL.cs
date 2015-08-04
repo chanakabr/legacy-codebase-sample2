@@ -1543,8 +1543,7 @@ namespace DAL
 
         }
 
-        public static bool UpdatePaymentGatewayPendingTransaction(string billingGuid, int adapterTransactionState, string adapterMessage, string externalStatus,
-            string externalMessage)
+        public static bool UpdatePaymentGatewayPendingTransaction(string billingGuid, int adapterTransactionState, string externalStatus, string externalMessage, int failReason)
         {
             int rows = 0;
             try
@@ -1553,7 +1552,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@billing_guid", billingGuid);
                 sp.AddParameter("@adapter_transaction_state", adapterTransactionState);
-                sp.AddParameter("@adapter_message", adapterMessage);
+                sp.AddParameter("@fail_reason", failReason);
                 sp.AddParameter("@external_status", externalStatus);
                 sp.AddParameter("@external_message", externalMessage);
 
