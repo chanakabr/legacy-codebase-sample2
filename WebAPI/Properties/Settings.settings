@@ -9,19 +9,19 @@
       <Value Profile="(Default)">http://192.168.192.146/webservices/social/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Billing_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://192.168.192.146/webservices/billing/module.asmx</Value>
-    </Setting>
-    <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_conditionalaccess/module.asmx</Value>
+      <Value Profile="(Default)">http://localhost/ws_billing/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.192.146/webservices/pricing/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Users_UsersService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/WS_Users/module.asmx</Value>
+      <Value Profile="(Default)">http://localhost/ws_users/module.asmx</Value>
+    </Setting>
+    <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost/ws_conditionalaccess/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Api_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://192.168.192.146/webservices/api/api.asmx</Value>
+      <Value Profile="(Default)">http://localhost/ws_api/api.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

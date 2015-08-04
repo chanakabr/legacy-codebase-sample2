@@ -25,11 +25,14 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Item identifier: PPV/Subscription/Collection identifier</param>
         /// <param name="coupon">Coupon code</param> 
         /// <param name="product_type">Purchase item type: PPV/Subscription/Collection</param>
-        /// <param name="udid">Client UDID</param>
-        /// <remarks>Possible status codes: credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: 
+        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
+        /// Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, Adapter app failure = 6012,
+        /// Signature mismatch = 6013, No response from payment gateway = 6030,  Invalid account = 6031, Insufficient funds = 6032, Unknown payment gateway response = 6033,
+        /// Payment gateway adapter user known = 6034, Payment gateway adapter reason unknown = 6035, Unknown transaction state = 6042 </remarks>
         [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
-                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon, [FromUri] string udid)
+                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
@@ -46,7 +49,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, user_id, household_id, price, currency, content_id, product_id, product_type, coupon, udid, 0);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, user_id, household_id, price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
             }
             catch (ClientException ex)
             {
@@ -71,7 +74,7 @@ namespace WebAPI.Controllers
         /// Payment gateway transaction was not found = 6038, Unknown transaction state = 6042, Payment gateway transaction is not pending = 6039,
         /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("update"), HttpPost]
-        public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string adapter_message, string external_transaction_id, string external_status, 
+        public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string adapter_message, string external_transaction_id, string external_status,
             string external_message, string signature)
         {
             int groupId = int.Parse(partner_id);
@@ -79,7 +82,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().UpdatePendingTransaction(groupId, payment_gateway_id, adapter_transaction_state, adapter_message, external_transaction_id, external_status, 
+                ClientsManager.ConditionalAccessClient().UpdatePendingTransaction(groupId, payment_gateway_id, adapter_transaction_state, adapter_message, external_transaction_id, external_status,
                     external_message, signature);
             }
             catch (ClientException ex)

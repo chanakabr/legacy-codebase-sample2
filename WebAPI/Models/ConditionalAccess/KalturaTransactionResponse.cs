@@ -17,7 +17,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "transaction_id")]
         [JsonProperty("transaction_id")]
         [XmlElement(ElementName = "transaction_id")]
-        public int TransactionID { get; set; }
+        public string TransactionID { get; set; }
 
         /// <summary>
         /// Transaction reference ID received from the payment gateway. 

@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Not found = 500007, Partner is invalid = 500008, Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGWSettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().InsertPaymentGatewaySettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {
