@@ -15,27 +15,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings()
         {
-            // TransactionType to eTransactionType
-            Mapper.CreateMap<KalturaTransactionType, WebAPI.ConditionalAccess.eTransactionType>().ConstructUsing((KalturaTransactionType transactionType) =>
-            {
-                WebAPI.ConditionalAccess.eTransactionType result;
-                switch (transactionType)
-                {
-                    case KalturaTransactionType.ppv:
-                        result = WebAPI.ConditionalAccess.eTransactionType.PPV;
-                        break;
-                    case KalturaTransactionType.subscription:
-                        result = WebAPI.ConditionalAccess.eTransactionType.Subscription;
-                        break;
-                    case KalturaTransactionType.collection:
-                        result = WebAPI.ConditionalAccess.eTransactionType.Collection;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
-                }
-                return result;
-            });
-
             // WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
             Mapper.CreateMap<ConditionalAccess.Entitlements, KalturaEntitlement>()
                .ForMember(dest => dest.entitlementId, opt => opt.MapFrom(src => src.entitlementsId))
@@ -95,7 +74,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
                .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
-               .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode));
+               .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode))
+               .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode));
+        }
+
+        // TransactionType to eTransactionType
+        public static WebAPI.ConditionalAccess.eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)
+        {
+            WebAPI.ConditionalAccess.eTransactionType result;
+            switch (clientTransactionType)
+            {
+                case KalturaTransactionType.ppv:
+                    result = WebAPI.ConditionalAccess.eTransactionType.PPV;
+                    break;
+                case KalturaTransactionType.subscription:
+                    result = WebAPI.ConditionalAccess.eTransactionType.Subscription;
+                    break;
+                case KalturaTransactionType.collection:
+                    result = WebAPI.ConditionalAccess.eTransactionType.Collection;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
+            }
+            return result;
         }
     }
 }

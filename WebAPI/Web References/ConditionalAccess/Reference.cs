@@ -4402,6 +4402,8 @@ namespace WebAPI.ConditionalAccess {
         
         private string stateField;
         
+        private int failReasonCodeField;
+        
         private long createdAtField;
         
         /// <remarks/>
@@ -4451,6 +4453,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int FailReasonCode {
+            get {
+                return this.failReasonCodeField;
+            }
+            set {
+                this.failReasonCodeField = value;
             }
         }
         

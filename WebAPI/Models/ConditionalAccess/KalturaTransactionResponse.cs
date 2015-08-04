@@ -44,5 +44,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("state")]
         [XmlElement(ElementName = "state")]
         public string State { get; set; }
+
+
+        /// <summary>
+        /// Adapter failure reason code
+        /// </summary>
+        [DataMember(Name = "fail_reason_code")]
+        [JsonProperty("fail_reason_code")]
+        [XmlElement(ElementName = "fail_reason_code")]
+        public int FailReasonCode { get; set; }
     }
 }
