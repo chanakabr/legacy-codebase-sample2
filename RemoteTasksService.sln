@@ -61,6 +61,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupsCacheManager", "..\tv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPG_XDTVTransform", "EPG_XDTVTransform\EPG_XDTVTransform.csproj", "{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendingChargeHandler", "PendingChargeHandler\PendingChargeHandler.csproj", "{1AAE1B8A-483D-423A-97B8-1430098CEF46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -335,6 +337,15 @@ Global
 		{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4F57CBCF-ABEC-4645-A01A-3001F6BE5C15}.Release|x86.ActiveCfg = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Basic|x86.ActiveCfg = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
