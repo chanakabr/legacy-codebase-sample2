@@ -38,8 +38,8 @@ namespace ApiObjects
                 // id = guid
                 Guid.NewGuid().ToString(),
                 // task = const
-                TASK,
-                groupId,
+                TASK, 
+                groupId, 
                 assetIds,
                 assetType.ToString(),
                 action.ToString(),
