@@ -24,6 +24,27 @@ namespace WebAPI.Controllers
     public class UserController : ApiController
     {
         /// <summary>
+        /// Returns tokens (KS and refresh token) for anonymous access
+        /// </summary>
+        /// <param name="partner_id">The partner ID</param>
+        /// <param name="udid">The caller device's UDID</param>
+        /// <returns>KalturaLoginResponse</returns>
+        [Route("anonymousLogin"), HttpPost]
+        public KalturaLoginResponse AnonymousLogin(string partner_id, string udid = null)
+        {
+            int partnerID = int.Parse(partner_id);
+
+            string userSecret = GroupsManager.GetGroup(partnerID).UserSecret;
+            var l = new List<KeyValuePair<string, string>>();
+            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
+            string payload = KS.preparePayloadData(l);
+
+            KS ks = new KS(userSecret, partner_id, "0", Int32.MaxValue, KS.eUserType.USER, payload, string.Empty);
+
+            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = null };
+        }
+
+        /// <summary>
         /// User sign-in via a time-expired sign-in PIN.        
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
@@ -36,7 +57,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("login_with_pin"), HttpPost]
-        public KalturaUser LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
+        public KalturaLoginResponse LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
         {
             KalturaUser response = null;
 
@@ -57,7 +78,13 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
+            var l = new List<KeyValuePair<string, string>>();
+            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
+            string payload = KS.preparePayloadData(l);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
+
+            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }
 
         /// <summary>
@@ -101,7 +128,10 @@ namespace WebAPI.Controllers
             }
 
             string userSecret = GroupsManager.GetGroup(partnerID).UserSecret;
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, "", string.Empty);
+            var l = new List<KeyValuePair<string, string>>();
+            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
+            string payload = KS.preparePayloadData(l);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }

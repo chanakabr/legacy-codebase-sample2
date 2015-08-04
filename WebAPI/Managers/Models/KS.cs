@@ -28,6 +28,8 @@ namespace WebAPI.Managers.Models
         private string privilege;
         private string data;
 
+        public const string PAYLOAD_UDID = "UDID";
+
         public enum eUserType { USER = 0, ADMIN = 2 }
 
         public bool IsValid
@@ -280,6 +282,11 @@ namespace WebAPI.Managers.Models
             return b;
         }
 
+        public static string preparePayloadData(List<KeyValuePair<string, string>> pairs)
+        {
+            return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
+        }
+
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items.Add("KS", this);
@@ -287,7 +294,7 @@ namespace WebAPI.Managers.Models
 
         internal static KS GetFromRequest()
         {
-            return (KS) HttpContext.Current.Items["KS"];
+            return (KS)HttpContext.Current.Items["KS"];
         }
     }
 }
