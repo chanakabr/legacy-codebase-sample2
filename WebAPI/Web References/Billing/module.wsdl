@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -597,20 +597,20 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="InsertPaymentGWSettings">
+      <s:element name="InsertPaymentGatewaySettings">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGWID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:ArrayOfPaymentGWSettings" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="InsertPaymentGWSettingsResponse">
+      <s:element name="InsertPaymentGatewaySettingsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertPaymentGWSettingsResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="InsertPaymentGatewaySettingsResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1127,11 +1127,11 @@
   <wsdl:message name="InsertPaymentGatewaySoapOut">
     <wsdl:part name="parameters" element="tns:InsertPaymentGatewayResponse" />
   </wsdl:message>
-  <wsdl:message name="InsertPaymentGWSettingsSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertPaymentGWSettings" />
+  <wsdl:message name="InsertPaymentGatewaySettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertPaymentGatewaySettings" />
   </wsdl:message>
-  <wsdl:message name="InsertPaymentGWSettingsSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertPaymentGWSettingsResponse" />
+  <wsdl:message name="InsertPaymentGatewaySettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertPaymentGatewaySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetPaymentGatewaySoapIn">
     <wsdl:part name="parameters" element="tns:GetPaymentGateway" />
@@ -1669,9 +1669,9 @@
       <wsdl:input message="tns:InsertPaymentGatewaySoapIn" />
       <wsdl:output message="tns:InsertPaymentGatewaySoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="InsertPaymentGWSettings">
-      <wsdl:input message="tns:InsertPaymentGWSettingsSoapIn" />
-      <wsdl:output message="tns:InsertPaymentGWSettingsSoapOut" />
+    <wsdl:operation name="InsertPaymentGatewaySettings">
+      <wsdl:input message="tns:InsertPaymentGatewaySettingsSoapIn" />
+      <wsdl:output message="tns:InsertPaymentGatewaySettingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetPaymentGateway">
       <wsdl:input message="tns:GetPaymentGatewaySoapIn" />
@@ -2091,8 +2091,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="InsertPaymentGWSettings">
-      <soap:operation soapAction="http://billing.tvinci.com/InsertPaymentGWSettings" style="document" />
+    <wsdl:operation name="InsertPaymentGatewaySettings">
+      <soap:operation soapAction="http://billing.tvinci.com/InsertPaymentGatewaySettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2463,8 +2463,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="InsertPaymentGWSettings">
-      <soap12:operation soapAction="http://billing.tvinci.com/InsertPaymentGWSettings" style="document" />
+    <wsdl:operation name="InsertPaymentGatewaySettings">
+      <soap12:operation soapAction="http://billing.tvinci.com/InsertPaymentGatewaySettings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

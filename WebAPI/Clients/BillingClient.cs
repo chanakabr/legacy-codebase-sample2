@@ -325,7 +325,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGWSettings(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        public bool InsertPaymentGatewaySettings(int groupId, int paymentGatewayId, Dictionary<string, string> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -335,12 +335,12 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Billing.PaymentGWSettings[] request = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
-                    response = Billing.InsertPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, request);
+                    response = Billing.InsertPaymentGatewaySettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, request);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertPaymentGWParams.  groupID: {0}, paymentGwID: {1} ,exception: {2}", groupId, paymentGwID, ex);
+                log.ErrorFormat("Error while InsertPaymentGWParams.  groupID: {0}, paymentGwID: {1} ,exception: {2}", groupId, paymentGatewayId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
