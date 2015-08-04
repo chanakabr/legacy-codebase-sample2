@@ -17,7 +17,7 @@ namespace WebAPI
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("http://localhost:1213/docs/v1/swagger");
+                client.BaseAddress = new Uri(context.Request.Url.AbsoluteUri.Replace("swagger.ashx", "docs/v1/swagger"));
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
