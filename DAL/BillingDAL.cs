@@ -1278,7 +1278,7 @@ namespace DAL
             }
         }
 
-        public static bool InsertPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
+        public static bool InsertPaymentGatewaySettings(int groupID, int paymentGWID, List<PaymentGWSettings> settings)
         {
             try
             {
