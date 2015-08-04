@@ -80,7 +80,8 @@ namespace WebAPI.Controllers
 
             string result = await Request.Content.ReadAsStringAsync();
 
-            //XXX: currently we know how to get only JSON response ---- if (HttpContext.Current.Request.ContentType == "application/json")
+            if (HttpContext.Current.Request.ContentType == "application/json" || 
+                string.IsNullOrEmpty(HttpContext.Current.Request.ContentType))
             {
                 using (var input = new StringReader(result))
                 {
@@ -128,13 +129,13 @@ namespace WebAPI.Controllers
                     }
                 }
             }
-            //else if (HttpContext.Current.Request.ContentType == "text/xml" ||
-            //    HttpContext.Current.Request.ContentType == "application/xml")
-            //{
-            //    //TODO
-            //}
-            //else
-            //    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid or missing");
+            else if (HttpContext.Current.Request.ContentType == "text/xml" ||
+                HttpContext.Current.Request.ContentType == "application/xml")
+            {
+                //TODO
+            }
+            else
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid or missing");
 
             return response;
         }
