@@ -80,7 +80,8 @@ namespace WebAPI.Controllers
 
             string result = await Request.Content.ReadAsStringAsync();
 
-            if (HttpContext.Current.Request.ContentType == "application/json")
+            if (HttpContext.Current.Request.ContentType == "application/json" || 
+                string.IsNullOrEmpty(HttpContext.Current.Request.ContentType))
             {
                 using (var input = new StringReader(result))
                 {
