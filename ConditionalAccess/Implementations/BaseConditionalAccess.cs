@@ -12722,7 +12722,7 @@ namespace ConditionalAccess
 
 
                 // if status pending or completed - nothing to update
-                if (billingResponse.TransactionState == TvinciBilling.eTransactionState.Completed || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
+                if (billingResponse.TransactionState == TvinciBilling.eTransactionState.Ok || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
