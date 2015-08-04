@@ -903,19 +903,14 @@
           <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="tns:eTransactionState" />
+          <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eTransactionState">
         <s:restriction base="s:string">
-          <s:enumeration value="Created" />
           <s:enumeration value="Failed" />
-          <s:enumeration value="Completed" />
           <s:enumeration value="Pending" />
-          <s:enumeration value="Canceled" />
-          <s:enumeration value="InsufficientFunds" />
-          <s:enumeration value="ReasonUnknown" />
-          <s:enumeration value="InvalidAccount" />
-          <s:enumeration value="UnknownPaymentGatewayResponse" />
+          <s:enumeration value="Ok" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SetPaymentGatewayConfiguration">

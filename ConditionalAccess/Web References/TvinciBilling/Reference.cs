@@ -2054,31 +2054,13 @@ namespace ConditionalAccess.TvinciBilling {
     public enum eTransactionState {
         
         /// <remarks/>
-        Created,
-        
-        /// <remarks/>
         Failed,
-        
-        /// <remarks/>
-        Completed,
         
         /// <remarks/>
         Pending,
         
         /// <remarks/>
-        Canceled,
-        
-        /// <remarks/>
-        InsufficientFunds,
-        
-        /// <remarks/>
-        ReasonUnknown,
-        
-        /// <remarks/>
-        InvalidAccount,
-        
-        /// <remarks/>
-        UnknownPaymentGatewayResponse,
+        Ok,
     }
     
     /// <remarks/>
@@ -2098,6 +2080,8 @@ namespace ConditionalAccess.TvinciBilling {
         private string pGResponseIDField;
         
         private eTransactionState stateField;
+        
+        private int failReasonCodeField;
         
         /// <remarks/>
         public Status Status {
@@ -2146,6 +2130,16 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int FailReasonCode {
+            get {
+                return this.failReasonCodeField;
+            }
+            set {
+                this.failReasonCodeField = value;
             }
         }
     }

@@ -12164,9 +12164,9 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            // Status OK + (State OK || State Pending) = grant entitlement
                             if (response.Status.Code == (int)eResponseStatus.OK &&
-                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                               (response.State.Equals(eTransactionState.OK.ToString()) ||
                                 response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed, update entitlement date
@@ -12309,9 +12309,9 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            // Status OK + (State OK || State Pending) = grant entitlement
                             if (response.Status.Code == (int)eResponseStatus.OK &&
-                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                               (response.State.Equals(eTransactionState.OK.ToString()) ||
                                 response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
@@ -12491,9 +12491,9 @@ namespace ConditionalAccess
                         if (response != null &&
                             response.Status != null)
                         {
-                            // Status OK + (State Completed || State Pending) = grant entitlement
+                            // Status OK + (State OK || State Pending) = grant entitlement
                             if (response.Status.Code == (int)eResponseStatus.OK &&
-                               (response.State.Equals(eTransactionState.Completed.ToString()) ||
+                               (response.State.Equals(eTransactionState.OK.ToString()) ||
                                 response.State.Equals(eTransactionState.Pending.ToString())))
                             {
                                 // purchase passed
@@ -12624,35 +12624,10 @@ namespace ConditionalAccess
                     response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
                     response.TransactionID = transactionResponse.TransactionID.ToString();
                     response.State = transactionResponse.State.ToString();
+                    response.FailReasonCode = transactionResponse.FailReasonCode;
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
-
-                        switch (transactionResponse.Status.Code)
-                        {
-                            case (int)eResponseStatus.InsufficientFunds:
-
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Insufficient funds");
-                                break;
-
-                            case (int)eResponseStatus.ReasonUnknown:
-
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Reason unknown");
-                                break;
-
-                            case (int)eResponseStatus.UnknownPaymentGatewayResponse:
-
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Unknown payment gateway response");
-                                break;
-
-                            case (int)eResponseStatus.InvalidAccount:
-
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Invalid account");
-                                break;
-
-                            default:
-                                break;
-                        }
                     }
                     else
                     {
