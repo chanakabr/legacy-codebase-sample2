@@ -5,16 +5,16 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGWBasic
+    public class PaymentGatewayBasic
     {
         public int ID { get; set; }
         public string Name { get; set; }
 
-        public PaymentGWBasic()
+        public PaymentGatewayBasic()
         {
         }
 
-        public PaymentGWBasic(int id, string name)
+        public PaymentGatewayBasic(int id, string name)
         {
             this.ID = id;
             this.Name = name;

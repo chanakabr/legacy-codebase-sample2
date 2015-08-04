@@ -5,17 +5,17 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGWChargeIDResponse
+    public class PaymentGatewayChargeIDResponse
     {
         public ApiObjects.Response.Status Resp { get; set; }
         public string ChargeID { get; set; }
 
-        public PaymentGWChargeIDResponse()
+        public PaymentGatewayChargeIDResponse()
         {
 
         }
 
-        public PaymentGWChargeIDResponse(PaymentGWChargeIDResponse paymentGWChargeIDResponse)
+        public PaymentGatewayChargeIDResponse(PaymentGatewayChargeIDResponse paymentGWChargeIDResponse)
         {
             this.ChargeID = paymentGWChargeIDResponse.ChargeID;
             this.Resp = paymentGWChargeIDResponse.Resp;

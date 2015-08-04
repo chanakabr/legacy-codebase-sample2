@@ -2,7 +2,7 @@
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGWPending
+    public class PaymentGatewayPending
     {
         public int ID { get; set; }
         public int PaymentGWTransactionId { get; set; }
@@ -10,9 +10,9 @@ namespace ApiObjects.Billing
         public int AdapterRetryCount { get; set; }
         public string BillingGuid { get; set; }
 
-        public PaymentGWPending() { }
+        public PaymentGatewayPending() { }
 
-        public PaymentGWPending(PaymentGWPending paymentGWPending)
+        public PaymentGatewayPending(PaymentGatewayPending paymentGWPending)
         {
             this.AdapterRetryCount = paymentGWPending.AdapterRetryCount;
             this.ID = paymentGWPending.ID;

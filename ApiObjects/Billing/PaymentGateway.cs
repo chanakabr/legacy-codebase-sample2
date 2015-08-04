@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGW
+    public class PaymentGateway
     {
         public int ID { get; set; }
         public string Name { get; set; }
@@ -19,13 +19,13 @@ namespace ApiObjects.Billing
         public string SharedSecret { get; set; }
         [XmlIgnore]
         public int Status { get; set; }
-        public List<PaymentGWSettings> Settings { get; set; }
+        public List<PaymentGatewaySettings> Settings { get; set; }
 
-        public PaymentGW()
+        public PaymentGateway()
         {
         }
 
-        public PaymentGW(PaymentGW pgw)
+        public PaymentGateway(PaymentGateway pgw)
         {
             this.ID = pgw.ID;
             this.Name = pgw.Name;
