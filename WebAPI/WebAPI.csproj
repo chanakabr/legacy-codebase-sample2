@@ -245,6 +245,7 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Swagger.ashx" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -859,6 +860,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Swagger.ashx.cs">
+      <DependentUpon>Swagger.ashx</DependentUpon>
     </Compile>
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
