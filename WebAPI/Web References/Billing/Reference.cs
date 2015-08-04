@@ -1038,11 +1038,11 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGWSettingsResponse GetPaymentGWSettings(string sWSUserName, string sWSPassword) {
+        public PaymentGatewaySettingsResponse GetPaymentGWSettings(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetPaymentGWSettings", new object[] {
                         sWSUserName,
                         sWSPassword});
-            return ((PaymentGWSettingsResponse)(results[0]));
+            return ((PaymentGatewaySettingsResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1069,7 +1069,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGW paymentGateway) {
+        public Status SetPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGateway paymentGateway) {
             object[] results = this.Invoke("SetPaymentGateway", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1079,12 +1079,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void SetPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGW paymentGateway) {
+        public void SetPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGateway paymentGateway) {
             this.SetPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGatewayId, paymentGateway, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGW paymentGateway, object userState) {
+        public void SetPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGateway paymentGateway, object userState) {
             if ((this.SetPaymentGatewayOperationCompleted == null)) {
                 this.SetPaymentGatewayOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGatewayOperationCompleted);
             }
@@ -1104,7 +1104,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+        public Status SetPaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("SetPaymentGWSettings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1114,12 +1114,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings) {
+        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGatewaySettings[] settings) {
             this.SetPaymentGWSettingsAsync(sWSUserName, sWSPassword, paymentGWID, settings, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGWSettings[] settings, object userState) {
+        public void SetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGatewaySettings[] settings, object userState) {
             if ((this.SetPaymentGWSettingsOperationCompleted == null)) {
                 this.SetPaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWSettingsOperationCompleted);
             }
@@ -1172,7 +1172,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status DeletePaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings) {
+        public Status DeletePaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("DeletePaymentGWSettings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1182,12 +1182,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings) {
+        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGatewaySettings[] settings) {
             this.DeletePaymentGWSettingsAsync(sWSUserName, sWSPassword, paymentGwID, settings, null);
         }
         
         /// <remarks/>
-        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGWSettings[] settings, object userState) {
+        public void DeletePaymentGWSettingsAsync(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGatewaySettings[] settings, object userState) {
             if ((this.DeletePaymentGWSettingsOperationCompleted == null)) {
                 this.DeletePaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentGWSettingsOperationCompleted);
             }
@@ -1207,7 +1207,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status InsertPaymentGateway(string sWSUserName, string sWSPassword, PaymentGW pgw) {
+        public Status InsertPaymentGateway(string sWSUserName, string sWSPassword, PaymentGateway pgw) {
             object[] results = this.Invoke("InsertPaymentGateway", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1216,12 +1216,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void InsertPaymentGatewayAsync(string sWSUserName, string sWSPassword, PaymentGW pgw) {
+        public void InsertPaymentGatewayAsync(string sWSUserName, string sWSPassword, PaymentGateway pgw) {
             this.InsertPaymentGatewayAsync(sWSUserName, sWSPassword, pgw, null);
         }
         
         /// <remarks/>
-        public void InsertPaymentGatewayAsync(string sWSUserName, string sWSPassword, PaymentGW pgw, object userState) {
+        public void InsertPaymentGatewayAsync(string sWSUserName, string sWSPassword, PaymentGateway pgw, object userState) {
             if ((this.InsertPaymentGatewayOperationCompleted == null)) {
                 this.InsertPaymentGatewayOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGatewayOperationCompleted);
             }
@@ -1240,7 +1240,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGatewaySettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status InsertPaymentGatewaySettings(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGWSettings[] settings) {
+        public Status InsertPaymentGatewaySettings(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("InsertPaymentGatewaySettings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1250,12 +1250,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void InsertPaymentGatewaySettingsAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGWSettings[] settings) {
+        public void InsertPaymentGatewaySettingsAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGatewaySettings[] settings) {
             this.InsertPaymentGatewaySettingsAsync(sWSUserName, sWSPassword, paymentGatewayId, settings, null);
         }
         
         /// <remarks/>
-        public void InsertPaymentGatewaySettingsAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGWSettings[] settings, object userState) {
+        public void InsertPaymentGatewaySettingsAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGatewaySettings[] settings, object userState) {
             if ((this.InsertPaymentGatewaySettingsOperationCompleted == null)) {
                 this.InsertPaymentGatewaySettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGatewaySettingsOperationCompleted);
             }
@@ -1275,11 +1275,11 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGWResponse GetPaymentGateway(string sWSUserName, string sWSPassword) {
+        public PaymentGatewayResponse GetPaymentGateway(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetPaymentGateway", new object[] {
                         sWSUserName,
                         sWSPassword});
-            return ((PaymentGWResponse)(results[0]));
+            return ((PaymentGatewayResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1380,13 +1380,13 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdPaymentGateways", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGWResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int houseHoldID) {
+        public PaymentGatewayResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int houseHoldID) {
             object[] results = this.Invoke("GetHouseholdPaymentGateways", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         houseHoldID});
-            return ((PaymentGWResponse)(results[0]));
+            return ((PaymentGatewayResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1415,7 +1415,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGWPending", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status InsertPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending) {
+        public Status InsertPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending) {
             object[] results = this.Invoke("InsertPaymentGWPending", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1424,12 +1424,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending) {
+        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending) {
             this.InsertPaymentGWPendingAsync(sWSUserName, sWSPassword, pgwPending, null);
         }
         
         /// <remarks/>
-        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, object userState) {
+        public void InsertPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending, object userState) {
             if ((this.InsertPaymentGWPendingOperationCompleted == null)) {
                 this.InsertPaymentGWPendingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertPaymentGWPendingOperationCompleted);
             }
@@ -1448,7 +1448,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWPending", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> status) {
+        public Status SetPaymentGWPending(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> status) {
             object[] results = this.Invoke("SetPaymentGWPending", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1458,12 +1458,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, System.Nullable<int> status) {
+        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending, System.Nullable<int> status) {
             this.SetPaymentGWPendingAsync(sWSUserName, sWSPassword, pgwPending, status, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGWPending pgwPending, System.Nullable<int> status, object userState) {
+        public void SetPaymentGWPendingAsync(string sWSUserName, string sWSPassword, PaymentGatewayPending pgwPending, System.Nullable<int> status, object userState) {
             if ((this.SetPaymentGWPendingOperationCompleted == null)) {
                 this.SetPaymentGWPendingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGWPendingOperationCompleted);
             }
@@ -1656,13 +1656,13 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdChargeID", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGWChargeIDResponse GetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID) {
+        public PaymentGatewayChargeIDResponse GetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID) {
             object[] results = this.Invoke("GetHouseholdChargeID", new object[] {
                         sWSUserName,
                         sWSPassword,
                         externalIdentifier,
                         householdID});
-            return ((PaymentGWChargeIDResponse)(results[0]));
+            return ((PaymentGatewayChargeIDResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2156,7 +2156,7 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWChargeIDResponse {
+    public partial class PaymentGatewayChargeIDResponse {
         
         private Status respField;
         
@@ -2330,7 +2330,7 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWPending {
+    public partial class PaymentGatewayPending {
         
         private int idField;
         
@@ -2399,7 +2399,7 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWBasic {
+    public partial class PaymentGatewayBasic {
         
         private int idField;
         
@@ -2432,11 +2432,11 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWResponse {
+    public partial class PaymentGatewayResponse {
         
         private Status respField;
         
-        private PaymentGWBasic[] pgwField;
+        private PaymentGatewayBasic[] pgwField;
         
         /// <remarks/>
         public Status resp {
@@ -2449,7 +2449,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWBasic[] pgw {
+        public PaymentGatewayBasic[] pgw {
             get {
                 return this.pgwField;
             }
@@ -2465,7 +2465,7 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWSettings {
+    public partial class PaymentGatewaySettings {
         
         private string keyField;
         
@@ -2498,7 +2498,7 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGW {
+    public partial class PaymentGateway {
         
         private int idField;
         
@@ -2524,7 +2524,7 @@ namespace WebAPI.Billing {
         
         private string sharedSecretField;
         
-        private PaymentGWSettings[] settingsField;
+        private PaymentGatewaySettings[] settingsField;
         
         /// <remarks/>
         public int ID {
@@ -2647,7 +2647,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWSettings[] Settings {
+        public PaymentGatewaySettings[] Settings {
             get {
                 return this.settingsField;
             }
@@ -2663,11 +2663,11 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGWSettingsResponse {
+    public partial class PaymentGatewaySettingsResponse {
         
         private Status respField;
         
-        private PaymentGW[] pgwField;
+        private PaymentGateway[] pgwField;
         
         /// <remarks/>
         public Status resp {
@@ -2680,7 +2680,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGW[] pgw {
+        public PaymentGateway[] pgw {
             get {
                 return this.pgwField;
             }
@@ -3640,10 +3640,10 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWSettingsResponse Result {
+        public PaymentGatewaySettingsResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PaymentGWSettingsResponse)(this.results[0]));
+                return ((PaymentGatewaySettingsResponse)(this.results[0]));
             }
         }
     }
@@ -3822,10 +3822,10 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWResponse Result {
+        public PaymentGatewayResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PaymentGWResponse)(this.results[0]));
+                return ((PaymentGatewayResponse)(this.results[0]));
             }
         }
     }
@@ -3900,10 +3900,10 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWResponse Result {
+        public PaymentGatewayResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PaymentGWResponse)(this.results[0]));
+                return ((PaymentGatewayResponse)(this.results[0]));
             }
         }
     }
@@ -4108,10 +4108,10 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGWChargeIDResponse Result {
+        public PaymentGatewayChargeIDResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PaymentGWChargeIDResponse)(this.results[0]));
+                return ((PaymentGatewayChargeIDResponse)(this.results[0]));
             }
         }
     }

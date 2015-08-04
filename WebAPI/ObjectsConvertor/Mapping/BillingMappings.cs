@@ -12,11 +12,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<PaymentGWSettingsResponse, WebAPI.Models.Billing.KalturaPaymentGWSettingsResponse>()
+            Mapper.CreateMap<PaymentGatewaySettingsResponse, WebAPI.Models.Billing.KalturaPaymentGWSettingsResponse>()
                 .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
 
             //PaymentGWConfigResponse to PaymentGWConfigResponse
-            Mapper.CreateMap<PaymentGW, WebAPI.Models.Billing.KalturaPaymentGW>()
+            Mapper.CreateMap<PaymentGateway, WebAPI.Models.Billing.KalturaPaymentGW>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -29,15 +29,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
 
-            Mapper.CreateMap<PaymentGWResponse, WebAPI.Models.Billing.KalturaPaymentGWResponse>()
+            Mapper.CreateMap<PaymentGatewayResponse, WebAPI.Models.Billing.KalturaPaymentGWResponse>()
                  .ForMember(dest => dest.pgw, opt => opt.MapFrom(src => src.pgw));
 
-            Mapper.CreateMap<PaymentGWBasic, WebAPI.Models.Billing.KalturaPaymentGWBasic>()
+            Mapper.CreateMap<PaymentGatewayBasic, WebAPI.Models.Billing.KalturaPaymentGWBasic>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name));
 
             //from local object to WS object            
-            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayData, PaymentGW>()
+            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayData, PaymentGateway>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.TransactUrl))
@@ -54,19 +54,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
 
-        public static Billing.PaymentGWSettings[] ConvertPaymentGatewaySettings(Dictionary<string, string> settings)
+        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<string, string> settings)
         {
-            List<Billing.PaymentGWSettings> result = null;
+            List<Billing.PaymentGatewaySettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
-                result = new List<PaymentGWSettings>();
-                Billing.PaymentGWSettings pc;
+                result = new List<PaymentGatewaySettings>();
+                Billing.PaymentGatewaySettings pc;
                 foreach (KeyValuePair<string, string> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new Billing.PaymentGWSettings();
+                        pc = new Billing.PaymentGatewaySettings();
                         pc.key = data.Key;
                         pc.value = data.Value;
                         result.Add(pc);
@@ -83,7 +83,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, string> ConvertPaymentGatewaySettings(Billing.PaymentGWSettings[] settings)
+        public static Dictionary<string, string> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
         {
             Dictionary<string, string> result = null;
 
