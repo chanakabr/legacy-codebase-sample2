@@ -366,7 +366,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetHouseHoldPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID);
+                    response = Billing.SetHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID);
                 }
             }
             catch (Exception ex)
@@ -444,9 +444,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Resp.Code != (int)StatusCode.OK)
+            if (response.ResponseStatus.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Resp.Code, response.Resp.Message);
+                throw new ClientException((int)response.ResponseStatus.Code, response.ResponseStatus.Message);
             }
 
             return response.ChargeID;
