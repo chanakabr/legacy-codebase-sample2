@@ -15,7 +15,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/asset/action")]
+    [RoutePrefix("_service/asset/action")]
     public class AssetController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

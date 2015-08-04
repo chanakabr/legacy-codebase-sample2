@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/paymentGatewayProfile/action")]
+    [RoutePrefix("_service/paymentGatewayProfile/action")]
     public class PaymentGatewayProfileController : ApiController
     {
         /// <summary>

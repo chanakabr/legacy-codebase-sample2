@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/entitlement/action")]
+    [RoutePrefix("_service/entitlement/action")]
     public class EntitlementController : ApiController
     {
         /// <summary>

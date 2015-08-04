@@ -51,15 +51,6 @@ namespace WebAPI.Controllers
 
             KS ks = KS.GetFromRequest();
             return ks != null && ks.IsValid;
-
-            //eRole role;
-            ////TODO: use the private KS above. when KS is completed, change this to extract from the KS object
-            //if (!Enum.TryParse(HttpContext.Current.Request.QueryString["ks"], false, out role) || ((Role & role) != role))
-            //{
-            //    return false;
-            //}
-
-            //return true;
         }
     }
 }

@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/favorite/action")]
+    [RoutePrefix("_service/favorite/action")]
     public class FavoriteController : ApiController
     {
         /// <summary>

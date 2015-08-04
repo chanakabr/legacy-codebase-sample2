@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/billing/action")]
+    [RoutePrefix("_service/billing/action")]
     public class BillingController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

@@ -17,7 +17,7 @@ using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/subscription/action")]
+    [RoutePrefix("_service/subscription/action")]
     public class SubscriptionController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

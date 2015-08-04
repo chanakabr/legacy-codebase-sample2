@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/social/action")]
+    [RoutePrefix("_service/social/action")]
     public class SocialController : ApiController
     {
         /// <summary>

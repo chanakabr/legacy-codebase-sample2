@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/householdDevice/action")]
+    [RoutePrefix("_service/householdDevice/action")]
     public class HouseholdDeviceController : ApiController
     {
         /// <summary>

@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/price/action")]
+    [RoutePrefix("_service/price/action")]
     public class PriceController : ApiController
     {
         /// <summary>

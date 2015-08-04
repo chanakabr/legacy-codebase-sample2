@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/userLoginPin/action")]
+    [RoutePrefix("_service/userLoginPin/action")]
     public class UserLoginPinController : ApiController
     {
         /// <summary>

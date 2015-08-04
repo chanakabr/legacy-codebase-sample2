@@ -18,7 +18,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("service/household/action")]
+    [RoutePrefix("_service/household/action")]
     public class HouseholdController : ApiController
     {
         #region Parental and Purchase rules

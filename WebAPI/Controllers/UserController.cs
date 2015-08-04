@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [RoutePrefix("service/user/action")]
+    [RoutePrefix("_service/user/action")]
     public class UserController : ApiController
     {
         /// <summary>
