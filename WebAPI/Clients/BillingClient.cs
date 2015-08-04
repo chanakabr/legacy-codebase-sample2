@@ -39,7 +39,7 @@ namespace WebAPI.Clients
         public Models.Billing.KalturaPaymentGWSettingsResponse GetPaymentGWSettings(int groupId)
         {
             Models.Billing.KalturaPaymentGWSettingsResponse paymentGWSettings = null;
-            WebAPI.Billing.PaymentGWSettingsResponse response = null;
+            WebAPI.Billing.PaymentGatewaySettingsResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -73,7 +73,7 @@ namespace WebAPI.Clients
         public Models.Billing.KalturaPaymentGWResponse GetPaymentGateway(int groupId)
         {
             Models.Billing.KalturaPaymentGWResponse paymentGW = null;
-            WebAPI.Billing.PaymentGWResponse response = null;
+            WebAPI.Billing.PaymentGatewayResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -107,7 +107,7 @@ namespace WebAPI.Clients
         public Models.Billing.KalturaPaymentGWResponse GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             Models.Billing.KalturaPaymentGWResponse paymentGW = null;
-            WebAPI.Billing.PaymentGWResponse response = null;
+            WebAPI.Billing.PaymentGatewayResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -147,7 +147,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Billing.PaymentGW request = Mapper.Map<WebAPI.Billing.PaymentGW>(paymentGateway);
+                    WebAPI.Billing.PaymentGateway request = Mapper.Map<WebAPI.Billing.PaymentGateway>(paymentGateway);
                     response = Billing.SetPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, request);
                 }
             }
@@ -178,7 +178,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Billing.PaymentGWSettings[] configs = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    WebAPI.Billing.PaymentGatewaySettings[] configs = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
                     response = Billing.SetPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, configs);
                 }
             }
@@ -239,7 +239,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Billing.PaymentGWSettings[] settings = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    WebAPI.Billing.PaymentGatewaySettings[] settings = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
                     response = Billing.DeletePaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, settings);
                 }
             }
@@ -302,7 +302,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Billing.PaymentGW request = Mapper.Map<WebAPI.Billing.PaymentGW>(pgw);
+                    WebAPI.Billing.PaymentGateway request = Mapper.Map<WebAPI.Billing.PaymentGateway>(pgw);
                     response = Billing.InsertPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, request);
                 }
             }
@@ -334,7 +334,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Billing.PaymentGWSettings[] request = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
+                    WebAPI.Billing.PaymentGatewaySettings[] request = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
                     response = Billing.InsertPaymentGatewaySettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, request);
                 }
             }
@@ -421,7 +421,7 @@ namespace WebAPI.Clients
 
         internal string GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
         {
-            WebAPI.Billing.PaymentGWChargeIDResponse response = null;
+            WebAPI.Billing.PaymentGatewayChargeIDResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
