@@ -1412,28 +1412,29 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGWTransaction)
+        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction pgt)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGWTransactions");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransactions");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupID);
                 sp.AddParameter("@domain_id", domainId);
                 sp.AddParameter("@site_guid", siteGuid);
-                sp.AddParameter("@payment_gateway_id", paymentGWTransaction.PaymentGWId);
-                sp.AddParameter("@external_transaction_id", paymentGWTransaction.ExternalTransactionId);
-                sp.AddParameter("@external_status", paymentGWTransaction.ExternalStatus);
-                sp.AddParameter("@product_type", paymentGWTransaction.ProductType);
-                sp.AddParameter("@product_id", paymentGWTransaction.ProductId);
-                sp.AddParameter("@billing_guid", paymentGWTransaction.BillingGuid);
-                sp.AddParameter("@content_id", paymentGWTransaction.ContentId);
-                sp.AddParameter("@adapter_message", paymentGWTransaction.AdapterMessage);
-                sp.AddParameter("@message", paymentGWTransaction.Message);
-                sp.AddParameter("@state", paymentGWTransaction.State);
-
-
+                sp.AddParameter("@payment_gateway_id", pgt.PaymentGWId);
+                sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
+                sp.AddParameter("@external_status", pgt.ExternalStatus);
+                sp.AddParameter("@product_type", pgt.ProductType);
+                sp.AddParameter("@product_id", pgt.ProductId);
+                sp.AddParameter("@billing_guid", pgt.BillingGuid);
+                sp.AddParameter("@content_id", pgt.ContentId);                
+                sp.AddParameter("@message", pgt.Message);
+                sp.AddParameter("@state", pgt.State);
+                sp.AddParameter("@failReason", pgt.FailReason);
+                sp.AddParameter("@payload", pgt.Payload);
+                
                 int newTransactionID = sp.ExecuteReturnValue<int>();
+
                 return newTransactionID;
             }
             catch (Exception)
@@ -1442,20 +1443,20 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGWTransaction(int groupID, PaymentGatewayTransaction paymentGWTransaction)
+        public static bool SetPaymentGWTransaction(int groupID, PaymentGatewayTransaction pgt)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWTransactions");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", paymentGWTransaction.ID);
-                sp.AddParameter("@payment_gateway_id", paymentGWTransaction.PaymentGWId);
-                sp.AddParameter("@external_transaction_id", paymentGWTransaction.ExternalTransactionId);
-                sp.AddParameter("@external_status", paymentGWTransaction.ExternalStatus);
-                sp.AddParameter("@product_type", paymentGWTransaction.ProductType);
-                sp.AddParameter("@product_id", paymentGWTransaction.ProductId);
-                sp.AddParameter("@billing_guid", paymentGWTransaction.BillingGuid);
-                sp.AddParameter("@content_id", paymentGWTransaction.ContentId);
+                sp.AddParameter("@ID", pgt.ID);
+                sp.AddParameter("@payment_gateway_id", pgt.PaymentGWId);
+                sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
+                sp.AddParameter("@external_status", pgt.ExternalStatus);
+                sp.AddParameter("@product_type", pgt.ProductType);
+                sp.AddParameter("@product_id", pgt.ProductId);
+                sp.AddParameter("@billing_guid", pgt.BillingGuid);
+                sp.AddParameter("@content_id", pgt.ContentId);
 
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
@@ -1662,6 +1663,31 @@ namespace DAL
                 HandleException(ex);
             }
             return res;
+        }
+
+        public static bool GetPaymentGatewayFailReason(int failReasonCode, out bool failReasonCodeExist)
+        {
+            int createTransaction = 0;
+            failReasonCodeExist = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayFailReason");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@failReason", failReasonCode);                
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    createTransaction = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "CREATE_TRANSACTION");
+                    failReasonCodeExist = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return Convert.ToBoolean(createTransaction);
         }
     }
 }
