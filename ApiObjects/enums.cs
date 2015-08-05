@@ -209,7 +209,8 @@ namespace ApiObjects
         SOCIAL,
         CONDITIONALACCESS,
         CATALOG,
-        NOTIFICATION
+        NOTIFICATION,
+        REMOTETASK
     }
 
 
@@ -328,5 +329,28 @@ namespace ApiObjects
 
         [EnumMember]
         All
+    }
+
+    [Serializable]
+    public enum eTransactionState
+    {
+        [EnumMember]
+        OK = 0,
+
+        [EnumMember]
+        Pending = 1,
+
+        [EnumMember]
+        Failed = 2
+    }
+
+    [Serializable]
+    public enum eHouseholdPaymentGatewaySelectedBy
+    {
+        [EnumMember]
+        Account,
+
+        [EnumMember]
+        Household
     }
 }

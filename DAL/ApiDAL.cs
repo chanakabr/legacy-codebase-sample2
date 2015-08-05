@@ -1174,14 +1174,14 @@ namespace DAL
            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-           long lPreviewModuleID, string sCollectionCode)
+           long lPreviewModuleID, string sCollectionCode, string billingGuid = null)
         {
 
             return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
                 sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
                 sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
                 dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
-                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode);
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode, billingGuid);
         }
 
         public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
@@ -1191,7 +1191,7 @@ namespace DAL
             double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
             string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
             long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks,
-            string sCollectionCode)
+            string sCollectionCode, string billingGuid = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1248,6 +1248,9 @@ namespace DAL
             {
                 sp.AddParameter("@CollectionCode", sCollectionCode);
             }
+
+            sp.AddParameter("@BillingGuid", billingGuid);
+
             return sp.ExecuteReturnValue<long>();
 
         }
@@ -1718,6 +1721,20 @@ namespace DAL
             }
 
             return purchaseSetting;
+        }
+
+        public static string Get_Group_DefaultPIN(int groupId)
+        {
+            string pin = string.Empty;
+
+            object value = ODBCWrapper.Utils.GetTableSingleVal("group_rule_settings", "DEFAULT_PARENTAL_PIN", "GROUP_ID", "=", groupId);
+
+            if (value != null && value != DBNull.Value)
+            {
+                pin = Convert.ToString(value);
+            }
+
+            return pin;
         }
 
         public static bool Get_PurchaseSettings(int groupId, int domainId, string siteGuid, out eRuleLevel level, out ePurchaeSettingsType type)

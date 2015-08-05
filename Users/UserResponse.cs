@@ -22,6 +22,5 @@ namespace Users
             this.resp = resp;
             this.user = user;
         }
-
     }
 }

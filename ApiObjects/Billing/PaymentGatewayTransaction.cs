@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGWTransaction
+    public class PaymentGatewayTransaction
     {
         public int ID { get; set; }
         public int PaymentGWId { get; set; }
@@ -14,17 +14,18 @@ namespace ApiObjects.Billing
         public int ProductType { get; set; }
         public int ProductId { get; set; }
         public string BillingGuid { get; set; }
-        public int ContentId { get; set; }
-        
-
-        
-        public PaymentGWTransaction() { }
+        public int ContentId { get; set; }        
+        public string Message { get; set; }
+        public int State { get; set; }
+        public int FailReason { get; set; }        
+                
+        public PaymentGatewayTransaction() { }
 
         /// <summary>
-        /// dfdf sdf asd 
+        /// 
         /// </summary>
         /// <param name="paymentGWTransaction"></param>
-        public PaymentGWTransaction(PaymentGWTransaction paymentGWTransaction)
+        public PaymentGatewayTransaction(PaymentGatewayTransaction paymentGWTransaction)
         {
             this.ID = paymentGWTransaction.ID;
             this.PaymentGWId = paymentGWTransaction.PaymentGWId;
@@ -33,7 +34,10 @@ namespace ApiObjects.Billing
             this.ProductId = paymentGWTransaction.ProductId;
             this.ProductType = paymentGWTransaction.ProductType;
             this.BillingGuid = paymentGWTransaction.BillingGuid;
-            this.ContentId = paymentGWTransaction.ContentId;
+            this.ContentId = paymentGWTransaction.ContentId;            
+            this.Message = paymentGWTransaction.Message;
+            this.State = paymentGWTransaction.State;
+            this.FailReason = paymentGWTransaction.FailReason;
         }
     }
 }
