@@ -17,8 +17,7 @@ namespace ApiObjects.Billing
         public int ContentId { get; set; }        
         public string Message { get; set; }
         public int State { get; set; }
-        public int FailReason { get; set; }
-        public string Payload { get; set; }
+        public int FailReason { get; set; }        
                 
         public PaymentGatewayTransaction() { }
 
@@ -39,7 +38,6 @@ namespace ApiObjects.Billing
             this.Message = paymentGWTransaction.Message;
             this.State = paymentGWTransaction.State;
             this.FailReason = paymentGWTransaction.FailReason;
-            this.Payload = paymentGWTransaction.Payload;
         }
     }
 }

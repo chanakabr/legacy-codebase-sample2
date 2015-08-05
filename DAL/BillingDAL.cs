@@ -1347,17 +1347,17 @@ namespace DAL
             return res;
         }
 
-        public static int InsertPaymentGWPending(int groupID, PaymentGatewayPending paymentGWPending)
+        public static int InsertPaymentGWPending(int groupID, PaymentGatewayPending paymentGatewayPending)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGWPending");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupID);
-                sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
-                sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
-                sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
-                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
+                sp.AddParameter("@next_retry_date", paymentGatewayPending.NextRetryDate);
+                sp.AddParameter("@adapter_retry_count", paymentGatewayPending.AdapterRetryCount);
+                sp.AddParameter("@payment_gateway_transaction_id", paymentGatewayPending.PaymentGatewayTransactionId);
+                sp.AddParameter("@billing_guid", paymentGatewayPending.BillingGuid);
 
                 int newPaymentGWPending = sp.ExecuteReturnValue<int>();
                 return newPaymentGWPending;
@@ -1368,17 +1368,17 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGWPending(int groupID, int? status, PaymentGatewayPending paymentGWPending)
+        public static bool SetPaymentGWPending(int groupID, int? status, PaymentGatewayPending paymentGatewayPending)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWPending");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", paymentGWPending.ID);
-                sp.AddParameter("@payment_gateway_transaction_id", paymentGWPending.PaymentGWTransactionId);
-                sp.AddParameter("@next_retry_date", paymentGWPending.NextRetryDate);
-                sp.AddParameter("@adapter_retry_count", paymentGWPending.AdapterRetryCount);
-                sp.AddParameter("@billing_guid", paymentGWPending.BillingGuid);
+                sp.AddParameter("@ID", paymentGatewayPending.ID);
+                sp.AddParameter("@payment_gateway_transaction_id", paymentGatewayPending.PaymentGatewayTransactionId);
+                sp.AddParameter("@next_retry_date", paymentGatewayPending.NextRetryDate);
+                sp.AddParameter("@adapter_retry_count", paymentGatewayPending.AdapterRetryCount);
+                sp.AddParameter("@billing_guid", paymentGatewayPending.BillingGuid);
 
                 if (status.HasValue)
                     sp.AddParameter("@status", status.Value);
@@ -1431,7 +1431,6 @@ namespace DAL
                 sp.AddParameter("@message", pgt.Message);
                 sp.AddParameter("@state", pgt.State);
                 sp.AddParameter("@failReason", pgt.FailReason);
-                sp.AddParameter("@payload", pgt.Payload);
                 
                 int newTransactionID = sp.ExecuteReturnValue<int>();
 
@@ -1668,6 +1667,7 @@ namespace DAL
         public static bool GetPaymentGatewayFailReason(int failReasonCode, out bool failReasonCodeExist)
         {
             int createTransaction = 0;
+            string description = string.Empty;
             failReasonCodeExist = false;
             try
             {
@@ -1679,6 +1679,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     createTransaction = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "CREATE_TRANSACTION");
+                    description = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "DESCRIPTION");
                     failReasonCodeExist = true;
                 }
 
@@ -1687,7 +1688,7 @@ namespace DAL
             {
                 HandleException(ex);
             }
-            return Convert.ToBoolean(createTransaction);
+            return createTransaction == 1;
         }
     }
 }
