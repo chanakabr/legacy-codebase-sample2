@@ -12688,14 +12688,14 @@ namespace ConditionalAccess
             }
         }
 
-        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus,
-            string externalMessage, string signature)
+        public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
+            string externalMessage, int failReason, string signature)
         {
             ApiObjects.Response.Status response;
 
             // log
-            log.DebugFormat("update pending transaction: paymentGatewayId = {0}, adapterTransactionState = {1}, adapterMessage = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, signature = {6}",
-                paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
+            log.DebugFormat("update pending transaction: paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, signature = {6}",
+                paymentGatewayId, adapterTransactionState, failReason, externalTransactionId, externalStatus, externalMessage, signature);
 
             try
             {
@@ -12705,7 +12705,8 @@ namespace ConditionalAccess
                 TvinciBilling.module wsBillingService = null;
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
-                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
+                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, adapterTransactionState, externalTransactionId, 
+                    externalStatus, externalMessage, failReason,signature);
 
                 // validate response
                 if (billingResponse == null)
@@ -12722,7 +12723,7 @@ namespace ConditionalAccess
 
 
                 // if status pending or completed - nothing to update
-                if (billingResponse.TransactionState == TvinciBilling.eTransactionState.Ok || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
+                if (billingResponse.TransactionState == TvinciBilling.eTransactionState.OK || billingResponse.TransactionState == TvinciBilling.eTransactionState.Pending)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
