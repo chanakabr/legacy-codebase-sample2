@@ -75,7 +75,7 @@ namespace WebAPI.Managers.Models
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
-            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, data);
+            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, !string.IsNullOrEmpty(data) ? HttpUtility.UrlEncode(data) : string.Empty);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = createRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -110,7 +110,7 @@ namespace WebAPI.Managers.Models
 
             // decrypt fields
             string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-            int fieldsWithRandomIndex = encryptedDataStr.LastIndexOf('|') + 1;
+            int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
             byte[] fieldsWithHashBytes = aesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
 
             // trim Right 0
@@ -159,7 +159,7 @@ namespace WebAPI.Managers.Models
                         ks.userId = user;
                         break;
                     case "d":
-                        ks.data = pair[1];
+                        ks.data = !string.IsNullOrEmpty(pair[1]) ? HttpUtility.UrlDecode(pair[1]) : string.Empty;
                         break;
                     default:
                         throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
@@ -197,9 +197,9 @@ namespace WebAPI.Managers.Models
             byte[] ivBytes = new byte[BLOCK_SIZE];
 
             // Text
-            //int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
-            //byte[] textAsBytes = new byte[textSize];
-            //Array.Copy(text, 0, textAsBytes, 0, text.Length);
+            int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
 
             // Decrypt
             using (Aes aesAlg = Aes.Create())
