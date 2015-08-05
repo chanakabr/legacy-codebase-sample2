@@ -17,6 +17,7 @@ using System.Web.Http.Description;
 using System.Web.Routing;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
@@ -52,16 +53,6 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("getks"), HttpPost]
-        [ApiAuthorize(AllowAnonymous: true)]
-        public string GetKS(int group_id, string user_id)
-        {
-            string userSecret = GroupsManager.GetGroup(group_id).UserSecret;
-            KS ks = new KS(userSecret, group_id.ToString(), user_id, 32982398, KS.eUserType.USER, "", string.Empty);
-            return ks.ToString();
-        }
-
-        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action([FromUri] string service_name, [FromUri] string action_name)
         {
@@ -78,64 +69,16 @@ namespace WebAPI.Controllers
 
             createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
-            string result = await Request.Content.ReadAsStringAsync();
-
-            if (HttpContext.Current.Request.ContentType == "application/json" || 
-                string.IsNullOrEmpty(HttpContext.Current.Request.ContentType))
+            try
             {
-                using (var input = new StringReader(result))
-                {
-                    try
-                    {
-                        JObject reqParams = JObject.Parse(input.ReadToEnd());
-
-                        ParameterInfo[] parameters = methodInfo.GetParameters();
-
-                        List<Object> methodParams = new List<object>();
-                        foreach (var p in parameters)
-                        {
-                            if (reqParams[p.Name] == null && p.IsOptional)
-                            {
-                                methodParams.Add(Type.Missing);
-                                continue;
-                            }
-
-                            methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
-                        }
-
-                        try
-                        {
-                            //If we got the clientTag from the JSON - override if does not exist
-                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]) && reqParams["clientTag"] != null)
-                                HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
-
-                            response = methodInfo.Invoke(classInstance, methodParams.ToArray());
-                        }
-                        catch (TargetParameterCountException ex)
-                        {
-                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters,
-                                "Mismatch in action parameters");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.InnerException is ApiException)
-                        {
-                            throw ex.InnerException;
-                        }
-
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest,
-                            "Invalid JSON request");
-                    }
-                }
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_PAYLOAD_KEY];
+                response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
-            else if (HttpContext.Current.Request.ContentType == "text/xml" ||
-                HttpContext.Current.Request.ContentType == "application/xml")
+            catch (Exception ex)
             {
-                //TODO
+                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error,
+                    "Unable to perform action");
             }
-            else
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid or missing");
 
             return response;
         }
