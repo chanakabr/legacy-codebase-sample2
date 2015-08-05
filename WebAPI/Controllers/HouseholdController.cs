@@ -168,9 +168,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006, 
-        /// Payment Gateway Not Exist = 6008, Payment Gateway Charge Id Missing = 6009, External Idntifier Missing = 6016, Error Saving PaymentGateway Household = 6017,
-        /// Charge Id Already Set To Household Payment Gateway = 6025
+        /// Not found = 500007, Partner is invalid = 500008, 
+        /// Domain not exists = 1006, Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
@@ -202,8 +202,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, UserDoesNotExist = 2000, UserNotInDomain = 1005, UserWithNoDomain = 2024, UserSuspended = 2001, DomainNotExists = 1006,
-        /// Payment Gateway Not Exist For Household = 6007, Payment GateWay Not Exist For Group = 6008, External Idntifier Missing  = 6016, Charge Id Not Set To Household = 6024
+        /// Not found = 500007, Partner is invalid = 500008, 
+        /// Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
