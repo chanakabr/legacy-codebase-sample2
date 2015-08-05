@@ -27,9 +27,9 @@ namespace PendingTransactionHandler.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_cas/module.asmx")]
-        public string PendingChargeHandler_WS_CAS_module {
+        public string PendingTransactionHandler_WS_CAS_module {
             get {
-                return ((string)(this["PendingChargeHandler_WS_CAS_module"]));
+                return ((string)(this["PendingTransactionHandler_WS_CAS_module"]));
             }
         }
     }

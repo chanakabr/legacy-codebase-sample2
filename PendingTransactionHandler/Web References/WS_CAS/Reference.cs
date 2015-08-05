@@ -198,7 +198,7 @@ namespace PendingTransactionHandler.WS_CAS {
         
         /// <remarks/>
         public module() {
-            this.Url = global::PendingTransactionHandler.Properties.Settings.Default.PendingChargeHandler_WS_CAS_module;
+            this.Url = global::PendingTransactionHandler.Properties.Settings.Default.PendingTransactionHandler_WS_CAS_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
