@@ -1,21 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using KLogMonitor;
+using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ESIndexUpdateHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string HandleTask(string data)
         {
             string res = "failure";
 
             try
             {
-                Logger.Logger.Log("Info", string.Concat("starting update request. data=", data), "ESUpdateHandler");
+                log.InfoFormat("starting update request. data={0}", data);
 
                 DocsUpdateRequest request = JsonConvert.DeserializeObject<DocsUpdateRequest>(data);
 

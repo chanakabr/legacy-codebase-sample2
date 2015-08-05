@@ -9,11 +9,15 @@ using System.Threading.Tasks;
 using TvinciCache;
 using TVinciShared;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace PendingTransactionHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region ITaskHandler Members
 
         public string HandleTask(string data)
@@ -22,8 +26,8 @@ namespace PendingTransactionHandler
 
             try
             {
-                Logger.Logger.Log("Info", string.Concat("starting pending charge request. data=", data), "PendingTransactionHandler");
-
+                log.InfoFormat("starting pending charge request. data={0}", data);
+                
                 PendingTransactionRequest request = JsonConvert.DeserializeObject<PendingTransactionRequest>(data);
 
                 string url = WS_Utils.GetTcmConfigValue("WS_CAS");
