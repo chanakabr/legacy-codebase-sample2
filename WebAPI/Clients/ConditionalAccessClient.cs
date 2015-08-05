@@ -368,8 +368,8 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId,
-            string externalStatus, string externalMessage, string signature)
+        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, 
+            string externalMessage, int failReason, string signature)
         {
             Status wsResponse = null;
 
@@ -382,7 +382,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId,
-                        adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
+                        adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature);
                 }
             }
             catch (Exception ex)

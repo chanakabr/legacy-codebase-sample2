@@ -68,25 +68,25 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="payment_gateway_id">Payment gateway identifier</param>
         /// <param name="adapter_transaction_state">Payment gateway adapter application state for the transaction to update</param>
-        /// <param name="adapter_message">Payment gateway adapter application message to update</param> 
         /// <param name="external_transaction_id">external transaction identifier</param>
         /// <param name="external_status">Payment gateway transaction status</param>
         /// <param name="external_message">Payment gateway message</param>
+        /// <param name="fail_reason">The reason the transaction failed</param>
         /// <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
-        /// <remarks>Possible status codes: signature does not match = 6036, error while updating pending transaction = 6037, payment gateway not exist = 6008,
-        /// Payment gateway transaction was not found = 6038, Unknown transaction state = 6042, Payment gateway transaction is not pending = 6039,
+        /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
+        /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
         /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("update"), HttpPost]
-        public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string adapter_message, string external_transaction_id, string external_status,
-            string external_message, string signature)
+        public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status,
+            string external_message, int fail_reason, string signature)
         {
             int groupId = int.Parse(partner_id);
 
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().UpdatePendingTransaction(groupId, payment_gateway_id, adapter_transaction_state, adapter_message, external_transaction_id, external_status,
-                    external_message, signature);
+                ClientsManager.ConditionalAccessClient().UpdatePendingTransaction(groupId, payment_gateway_id, adapter_transaction_state, external_transaction_id, external_status,
+                    external_message, fail_reason, signature);
             }
             catch (ClientException ex)
             {

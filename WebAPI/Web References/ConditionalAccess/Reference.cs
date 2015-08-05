@@ -4120,27 +4120,27 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
+        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
-            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature, null);
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature, null);
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature, object userState) {
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature, object userState) {
             if ((this.UpdatePendingTransactionOperationCompleted == null)) {
                 this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
             }
@@ -4149,10 +4149,10 @@ namespace WebAPI.ConditionalAccess {
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature}, this.UpdatePendingTransactionOperationCompleted, userState);
         }
         
