@@ -14,11 +14,10 @@ namespace ApiObjects.Billing
         public int ProductType { get; set; }
         public int ProductId { get; set; }
         public string BillingGuid { get; set; }
-        public int ContentId { get; set; }
-        public string AdapterMessage { get; set; }        
+        public int ContentId { get; set; }        
         public string Message { get; set; }
         public int State { get; set; }
-        public int FailReason { get; set; }
+        public int FailReason { get; set; }        
                 
         public PaymentGatewayTransaction() { }
 
@@ -35,8 +34,7 @@ namespace ApiObjects.Billing
             this.ProductId = paymentGWTransaction.ProductId;
             this.ProductType = paymentGWTransaction.ProductType;
             this.BillingGuid = paymentGWTransaction.BillingGuid;
-            this.ContentId = paymentGWTransaction.ContentId;
-            this.AdapterMessage = paymentGWTransaction.AdapterMessage;
+            this.ContentId = paymentGWTransaction.ContentId;            
             this.Message = paymentGWTransaction.Message;
             this.State = paymentGWTransaction.State;
             this.FailReason = paymentGWTransaction.FailReason;

@@ -140,6 +140,7 @@ namespace ApiObjects.Response
         UnknownTransactionState = 6042,
         PaymentGatewayNotValid = 6043,
         HouseholdRequired = 6044,
+        PaymentGatewayAdapterFailReasonUnknown = 6045,
 
         // social 7000 - 7999
         Conflict = 7000,
