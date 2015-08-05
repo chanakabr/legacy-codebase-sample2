@@ -52,6 +52,36 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Returns payment gateway for household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
+        /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
+        /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027 
+        /// </remarks>
+        /// <param name="partner_id">Partner identifier</param>    
+        /// <param name="household_id">Household Identifier</param>        
+        [Route("get"), HttpPost]
+        public Models.Billing.KalturaHouseholdPaymentGatewayResponse Get([FromUri] string partner_id, [FromUri] long household_id)
+        {
+            Models.Billing.KalturaHouseholdPaymentGatewayResponse response = null;
+
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetSelectedHouseholdPaymentGateway(groupId, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Insert new payment gateway for household
         /// </summary>
         /// <remarks>

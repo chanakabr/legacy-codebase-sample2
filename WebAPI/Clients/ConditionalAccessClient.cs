@@ -14,6 +14,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.ConditionalAccess;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {
@@ -334,7 +335,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = Mapper.Map<WebAPI.ConditionalAccess.eTransactionType>(clientTransactionType);
+                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -367,7 +368,7 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, 
+        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId,
             string externalStatus, string externalMessage, string signature)
         {
             Status wsResponse = null;
@@ -380,7 +381,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId, 
+                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId,
                         adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature);
                 }
             }

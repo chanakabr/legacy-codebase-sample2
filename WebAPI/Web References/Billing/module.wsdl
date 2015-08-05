@@ -646,21 +646,21 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="SetHouseHoldPaymentGateway">
+      <s:element name="SetHouseholdPaymentGateway">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGwID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houseHoldID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="SetHouseHoldPaymentGatewayResponse">
+      <s:element name="SetHouseholdPaymentGatewayResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetHouseHoldPaymentGatewayResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetHouseholdPaymentGatewayResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -688,7 +688,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houseHoldID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -699,6 +699,35 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetSelectedHouseholdPaymentGateway">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSelectedHouseholdPaymentGatewayResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSelectedHouseholdPaymentGatewayResult" type="tns:HouseholdPaymentGatewayResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="HouseholdPaymentGatewayResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentGateway" type="tns:PaymentGatewayBasic" />
+          <s:element minOccurs="1" maxOccurs="1" name="SelectedBy" type="tns:eHouseholdPaymentGatewaySelectedBy" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eHouseholdPaymentGatewaySelectedBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="Account" />
+          <s:enumeration value="Household" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="InsertPaymentGWPending">
         <s:complexType>
           <s:sequence>
@@ -859,7 +888,7 @@
       </s:element>
       <s:complexType name="PaymentGatewayChargeIDResponse">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseStatus" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="ChargeID" type="s:string" />
         </s:sequence>
       </s:complexType>
@@ -903,19 +932,14 @@
           <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="tns:eTransactionState" />
+          <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eTransactionState">
         <s:restriction base="s:string">
-          <s:enumeration value="Created" />
-          <s:enumeration value="Failed" />
-          <s:enumeration value="Completed" />
+          <s:enumeration value="OK" />
           <s:enumeration value="Pending" />
-          <s:enumeration value="Canceled" />
-          <s:enumeration value="InsufficientFunds" />
-          <s:enumeration value="ReasonUnknown" />
-          <s:enumeration value="InvalidAccount" />
-          <s:enumeration value="UnknownPaymentGatewayResponse" />
+          <s:enumeration value="Failed" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SetPaymentGatewayConfiguration">
@@ -972,6 +996,7 @@
       <s:element name="PaymentGatewaySettingsResponse" nillable="true" type="tns:PaymentGatewaySettingsResponse" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PaymentGatewayResponse" nillable="true" type="tns:PaymentGatewayResponse" />
+      <s:element name="HouseholdPaymentGatewayResponse" nillable="true" type="tns:HouseholdPaymentGatewayResponse" />
       <s:element name="PaymentGatewayChargeIDResponse" nillable="true" type="tns:PaymentGatewayChargeIDResponse" />
       <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
       <s:element name="UpdatePendingResponse" nillable="true" type="tns:UpdatePendingResponse" />
@@ -1139,11 +1164,11 @@
   <wsdl:message name="GetPaymentGatewaySoapOut">
     <wsdl:part name="parameters" element="tns:GetPaymentGatewayResponse" />
   </wsdl:message>
-  <wsdl:message name="SetHouseHoldPaymentGatewaySoapIn">
-    <wsdl:part name="parameters" element="tns:SetHouseHoldPaymentGateway" />
+  <wsdl:message name="SetHouseholdPaymentGatewaySoapIn">
+    <wsdl:part name="parameters" element="tns:SetHouseholdPaymentGateway" />
   </wsdl:message>
-  <wsdl:message name="SetHouseHoldPaymentGatewaySoapOut">
-    <wsdl:part name="parameters" element="tns:SetHouseHoldPaymentGatewayResponse" />
+  <wsdl:message name="SetHouseholdPaymentGatewaySoapOut">
+    <wsdl:part name="parameters" element="tns:SetHouseholdPaymentGatewayResponse" />
   </wsdl:message>
   <wsdl:message name="DeleteHouseholdPaymentGatewaySoapIn">
     <wsdl:part name="parameters" element="tns:DeleteHouseholdPaymentGateway" />
@@ -1156,6 +1181,12 @@
   </wsdl:message>
   <wsdl:message name="GetHouseholdPaymentGatewaysSoapOut">
     <wsdl:part name="parameters" element="tns:GetHouseholdPaymentGatewaysResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewaySoapIn">
+    <wsdl:part name="parameters" element="tns:GetSelectedHouseholdPaymentGateway" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewaySoapOut">
+    <wsdl:part name="parameters" element="tns:GetSelectedHouseholdPaymentGatewayResponse" />
   </wsdl:message>
   <wsdl:message name="InsertPaymentGWPendingSoapIn">
     <wsdl:part name="parameters" element="tns:InsertPaymentGWPending" />
@@ -1464,14 +1495,14 @@
   <wsdl:message name="GetPaymentGatewayHttpPostOut">
     <wsdl:part name="Body" element="tns:PaymentGatewayResponse" />
   </wsdl:message>
-  <wsdl:message name="SetHouseHoldPaymentGatewayHttpPostIn">
+  <wsdl:message name="SetHouseholdPaymentGatewayHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="paymentGwID" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="houseHoldID" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="SetHouseHoldPaymentGatewayHttpPostOut">
+  <wsdl:message name="SetHouseholdPaymentGatewayHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="DeleteHouseholdPaymentGatewayHttpPostIn">
@@ -1488,10 +1519,18 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="houseHoldID" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetHouseholdPaymentGatewaysHttpPostOut">
     <wsdl:part name="Body" element="tns:PaymentGatewayResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:HouseholdPaymentGatewayResponse" />
   </wsdl:message>
   <wsdl:message name="DeletePaymentGWPendingHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1677,9 +1716,9 @@
       <wsdl:input message="tns:GetPaymentGatewaySoapIn" />
       <wsdl:output message="tns:GetPaymentGatewaySoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="SetHouseHoldPaymentGateway">
-      <wsdl:input message="tns:SetHouseHoldPaymentGatewaySoapIn" />
-      <wsdl:output message="tns:SetHouseHoldPaymentGatewaySoapOut" />
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <wsdl:input message="tns:SetHouseholdPaymentGatewaySoapIn" />
+      <wsdl:output message="tns:SetHouseholdPaymentGatewaySoapOut" />
     </wsdl:operation>
     <wsdl:operation name="DeleteHouseholdPaymentGateway">
       <wsdl:input message="tns:DeleteHouseholdPaymentGatewaySoapIn" />
@@ -1688,6 +1727,10 @@
     <wsdl:operation name="GetHouseholdPaymentGateways">
       <wsdl:input message="tns:GetHouseholdPaymentGatewaysSoapIn" />
       <wsdl:output message="tns:GetHouseholdPaymentGatewaysSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <wsdl:input message="tns:GetSelectedHouseholdPaymentGatewaySoapIn" />
+      <wsdl:output message="tns:GetSelectedHouseholdPaymentGatewaySoapOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertPaymentGWPending">
       <wsdl:input message="tns:InsertPaymentGWPendingSoapIn" />
@@ -1823,9 +1866,9 @@
       <wsdl:input message="tns:GetPaymentGatewayHttpPostIn" />
       <wsdl:output message="tns:GetPaymentGatewayHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="SetHouseHoldPaymentGateway">
-      <wsdl:input message="tns:SetHouseHoldPaymentGatewayHttpPostIn" />
-      <wsdl:output message="tns:SetHouseHoldPaymentGatewayHttpPostOut" />
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <wsdl:input message="tns:SetHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:SetHouseholdPaymentGatewayHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="DeleteHouseholdPaymentGateway">
       <wsdl:input message="tns:DeleteHouseholdPaymentGatewayHttpPostIn" />
@@ -1834,6 +1877,10 @@
     <wsdl:operation name="GetHouseholdPaymentGateways">
       <wsdl:input message="tns:GetHouseholdPaymentGatewaysHttpPostIn" />
       <wsdl:output message="tns:GetHouseholdPaymentGatewaysHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <wsdl:input message="tns:GetSelectedHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:GetSelectedHouseholdPaymentGatewayHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="DeletePaymentGWPending">
       <wsdl:input message="tns:DeletePaymentGWPendingHttpPostIn" />
@@ -2109,8 +2156,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SetHouseHoldPaymentGateway">
-      <soap:operation soapAction="http://billing.tvinci.com/SetHouseHoldPaymentGateway" style="document" />
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <soap:operation soapAction="http://billing.tvinci.com/SetHouseholdPaymentGateway" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2129,6 +2176,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetHouseholdPaymentGateways">
       <soap:operation soapAction="http://billing.tvinci.com/GetHouseholdPaymentGateways" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <soap:operation soapAction="http://billing.tvinci.com/GetSelectedHouseholdPaymentGateway" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2481,8 +2537,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SetHouseHoldPaymentGateway">
-      <soap12:operation soapAction="http://billing.tvinci.com/SetHouseHoldPaymentGateway" style="document" />
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <soap12:operation soapAction="http://billing.tvinci.com/SetHouseholdPaymentGateway" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2501,6 +2557,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetHouseholdPaymentGateways">
       <soap12:operation soapAction="http://billing.tvinci.com/GetHouseholdPaymentGateways" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <soap12:operation soapAction="http://billing.tvinci.com/GetSelectedHouseholdPaymentGateway" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2806,8 +2871,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SetHouseHoldPaymentGateway">
-      <http:operation location="/SetHouseHoldPaymentGateway" />
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <http:operation location="/SetHouseholdPaymentGateway" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -2826,6 +2891,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetHouseholdPaymentGateways">
       <http:operation location="/GetHouseholdPaymentGateways" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <http:operation location="/GetSelectedHouseholdPaymentGateway" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

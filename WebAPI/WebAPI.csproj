@@ -259,6 +259,9 @@
     <Content Include="Web References\Api\GenericRuleResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\HouseholdPaymentGatewayResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -379,6 +382,15 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGatewayResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGatewaySettingsResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -700,6 +712,8 @@
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRulesList.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
+    <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewayResponse.cs" />
+    <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayData.cs" />
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGWBasic.cs" />
