@@ -76,8 +76,13 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.InnerException is ApiException)
+                {
+                    throw ex.InnerException;
+                }
+
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error,
-                    "Unable to perform action");
+                "Unable to perform action");
             }
 
             return response;
