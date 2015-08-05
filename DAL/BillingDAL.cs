@@ -1643,8 +1643,6 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@paymentGatewayId", paymentGatewayId);
                 sp.AddParameter("@groupId", groupID);
-                sp.AddParameter("@status", status);
-                sp.AddParameter("@isActive", isActive);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
