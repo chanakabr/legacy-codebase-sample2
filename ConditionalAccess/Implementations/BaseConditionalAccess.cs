@@ -5029,6 +5029,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" Exception msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
+                return null;
             }
             return ret;
 
