@@ -160,20 +160,20 @@ namespace WebAPI.Filters
             int groupId = 0;
             byte[] encryptedData = null;
             string encryptedDataStr = null;
-            List<string> ksParts = null;
+            string[] ksParts = null;
 
             try
             {
                 encryptedData = System.Convert.FromBase64String(sb.ToString());
                 encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                ksParts = reverseStringFormat("{0}|{1}|{2}", encryptedDataStr);//encryptedDataStr.Split('|');
+                ksParts = encryptedDataStr.Split('|');
             }
             catch (Exception ex)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
             }
 
-            if (ksParts.Count != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+            if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
                 return;
@@ -193,24 +193,6 @@ namespace WebAPI.Filters
             }
 
             ks.SaveOnRequest();
-        }
-
-        private static List<string> reverseStringFormat(string template, string str)
-        {
-            template = System.Text.RegularExpressions.Regex.Replace(template, @"[\\\^\$\.\|\?\*\+\(\)]", m => "\\" + m.Value);
-            string pattern = "^" + System.Text.RegularExpressions.Regex.Replace(template, @"\{[0-9]+\}", "(.*?)") + "$";
-
-            System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(pattern);
-            System.Text.RegularExpressions.Match match = r.Match(str);
-
-            List<string> ret = new List<string>();
-
-            for (int i = 1; i < match.Groups.Count; i++)
-            {
-                ret.Add(match.Groups[i].Value);
-            }
-
-            return ret;
         }
     }
 }
