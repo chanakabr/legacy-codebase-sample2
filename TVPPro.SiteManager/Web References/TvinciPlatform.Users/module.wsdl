@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://users.tvinci.com/">
       <s:element name="CheckUserPassword">
@@ -470,14 +470,14 @@
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoritObjectResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoriteResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="FavoritObjectResponse">
+      <s:complexType name="FavoriteResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="FavoritObjects" type="tns:ArrayOfFavoritObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Favorites" type="tns:ArrayOfFavoritObject" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfFavoritObject">
@@ -1272,10 +1272,16 @@
       <s:element name="GetItemFromListResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:ArrayOfUserItemList" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:UserItemListsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="UserItemListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UserItemLists" type="tns:ArrayOfUserItemList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfUserItemList">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemList" nillable="true" type="tns:UserItemList" />
@@ -1590,7 +1596,7 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
-      <s:element name="FavoritObjectResponse" nillable="true" type="tns:FavoritObjectResponse" />
+      <s:element name="FavoriteResponse" nillable="true" type="tns:FavoriteResponse" />
       <s:element name="ArrayOfUserResponseObject" nillable="true" type="tns:ArrayOfUserResponseObject" />
       <s:element name="ArrayOfUserBasicData" nillable="true" type="tns:ArrayOfUserBasicData" />
       <s:element name="ResponseStatus" type="tns:ResponseStatus" />
@@ -2226,7 +2232,7 @@
     <wsdl:part name="sItemType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
-    <wsdl:part name="Body" element="tns:FavoritObjectResponse" />
+    <wsdl:part name="Body" element="tns:FavoriteResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserByFacebookIDHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

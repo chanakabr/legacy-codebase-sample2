@@ -192,6 +192,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetUserSubscriptionsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback PurchaseOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -474,6 +478,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         public event GetUserSubscriptionsCompletedEventHandler GetUserSubscriptionsCompleted;
         
         /// <remarks/>
+        public event PurchaseCompletedEventHandler PurchaseCompleted;
+        
+        /// <remarks/>
+        public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PermittedMediaContainer[] GetUserPermittedItems(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetUserPermittedItems", new object[] {
@@ -508,12 +518,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PermittedMediaContainer[] GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
+        public PermittedMediaContainerResponse GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainPermittedItems", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((PermittedMediaContainer[])(results[0]));
+            return ((PermittedMediaContainerResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4056,6 +4066,104 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Purchase", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+            object[] results = this.Invoke("Purchase", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        houshold,
+                        price,
+                        currency,
+                        contentId,
+                        productId,
+                        transactionType,
+                        coupon,
+                        userIp,
+                        deviceName,
+                        paymentGwId});
+            return ((TransactionResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, houshold, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGwId, null);
+        }
+        
+        /// <remarks/>
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, object userState) {
+            if ((this.PurchaseOperationCompleted == null)) {
+                this.PurchaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnPurchaseOperationCompleted);
+            }
+            this.InvokeAsync("Purchase", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        houshold,
+                        price,
+                        currency,
+                        contentId,
+                        productId,
+                        transactionType,
+                        coupon,
+                        userIp,
+                        deviceName,
+                        paymentGwId}, this.PurchaseOperationCompleted, userState);
+        }
+        
+        private void OnPurchaseOperationCompleted(object arg) {
+            if ((this.PurchaseCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.PurchaseCompleted(this, new PurchaseCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayId,
+                        adapterTransactionState,
+                        externalTransactionId,
+                        externalStatus,
+                        externalMessage,
+                        failReason,
+                        signature});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature, null);
+        }
+        
+        /// <remarks/>
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature, object userState) {
+            if ((this.UpdatePendingTransactionOperationCompleted == null)) {
+                this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("UpdatePendingTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayId,
+                        adapterTransactionState,
+                        externalTransactionId,
+                        externalStatus,
+                        externalMessage,
+                        failReason,
+                        signature}, this.UpdatePendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnUpdatePendingTransactionOperationCompleted(object arg) {
+            if ((this.UpdatePendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdatePendingTransactionCompleted(this, new UpdatePendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4274,6 +4382,132 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         Offline,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class TransactionResponse {
+        
+        private Status statusField;
+        
+        private string transactionIDField;
+        
+        private string pGReferenceIDField;
+        
+        private string pGResponseCodeField;
+        
+        private string stateField;
+        
+        private int failReasonCodeField;
+        
+        private long createdAtField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string TransactionID {
+            get {
+                return this.transactionIDField;
+            }
+            set {
+                this.transactionIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGReferenceID {
+            get {
+                return this.pGReferenceIDField;
+            }
+            set {
+                this.pGReferenceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGResponseCode {
+            get {
+                return this.pGResponseCodeField;
+            }
+            set {
+                this.pGResponseCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string State {
+            get {
+                return this.stateField;
+            }
+            set {
+                this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int FailReasonCode {
+            get {
+                return this.failReasonCodeField;
+            }
+            set {
+                this.failReasonCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreatedAt {
+            get {
+                return this.createdAtField;
+            }
+            set {
+                this.createdAtField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -4544,39 +4778,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DomainServicesResponse {
         
         private Status statusField;
@@ -4759,8 +4960,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
@@ -4855,7 +5056,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -4864,7 +5065,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -8493,6 +8694,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainerResponse {
+        
+        private PermittedMediaContainer[] permittedMediaContainerField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PermittedMediaContainer[] PermittedMediaContainer {
+            get {
+                return this.permittedMediaContainerField;
+            }
+            set {
+                this.permittedMediaContainerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
@@ -8593,10 +8827,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public PermittedMediaContainer[] Result {
+        public PermittedMediaContainerResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PermittedMediaContainer[])(this.results[0]));
+                return ((PermittedMediaContainerResponse)(this.results[0]));
             }
         }
     }
@@ -10659,6 +10893,58 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Entitlement)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void PurchaseCompletedEventHandler(object sender, PurchaseCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class PurchaseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal PurchaseCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactionResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactionResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void UpdatePendingTransactionCompletedEventHandler(object sender, UpdatePendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdatePendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdatePendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }
