@@ -518,12 +518,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PermittedMediaContainer[] GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
+        public PermittedMediaContainerResponse GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainPermittedItems", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((PermittedMediaContainer[])(results[0]));
+            return ((PermittedMediaContainerResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4120,27 +4120,27 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
+        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
-            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature, null);
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature, null);
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature, object userState) {
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature, object userState) {
             if ((this.UpdatePendingTransactionOperationCompleted == null)) {
                 this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
             }
@@ -4149,10 +4149,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature}, this.UpdatePendingTransactionOperationCompleted, userState);
         }
         
@@ -8694,6 +8694,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainerResponse {
+        
+        private PermittedMediaContainer[] permittedMediaContainerField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PermittedMediaContainer[] PermittedMediaContainer {
+            get {
+                return this.permittedMediaContainerField;
+            }
+            set {
+                this.permittedMediaContainerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
@@ -8794,10 +8827,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public PermittedMediaContainer[] Result {
+        public PermittedMediaContainerResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PermittedMediaContainer[])(this.results[0]));
+                return ((PermittedMediaContainerResponse)(this.results[0]));
             }
         }
     }

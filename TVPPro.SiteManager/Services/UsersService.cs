@@ -1095,7 +1095,7 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 var res =  PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
-                UserFavorites = res.FavoritObjects;
+                UserFavorites = res.Favorites;
             }
             catch (Exception ex)
             {

@@ -1074,7 +1074,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserFavorites", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FavoritObjectResponse GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
+        public FavoriteResponse GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
             object[] results = this.Invoke("GetUserFavorites", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1082,7 +1082,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         domainID,
                         sDeviceUDID,
                         sItemType});
-            return ((FavoritObjectResponse)(results[0]));
+            return ((FavoriteResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2503,12 +2503,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetItemFromList", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserItemList[] GetItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList) {
+        public UserItemListsResponse GetItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList) {
             object[] results = this.Invoke("GetItemFromList", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userItemList});
-            return ((UserItemList[])(results[0]));
+            return ((UserItemListsResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3875,30 +3875,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class ItemObj {
+    public partial class UserItemListsResponse {
         
-        private int itemField;
+        private UserItemList[] userItemListsField;
         
-        private System.Nullable<int> orderNumField;
+        private Status statusField;
         
         /// <remarks/>
-        public int item {
+        public UserItemList[] UserItemLists {
             get {
-                return this.itemField;
+                return this.userItemListsField;
             }
             set {
-                this.itemField = value;
+                this.userItemListsField = value;
             }
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> orderNum {
+        public Status Status {
             get {
-                return this.orderNumField;
+                return this.statusField;
             }
             set {
-                this.orderNumField = value;
+                this.statusField = value;
             }
         }
     }
@@ -3956,6 +3955,40 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             }
             set {
                 this.itemTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class ItemObj {
+        
+        private int itemField;
+        
+        private System.Nullable<int> orderNumField;
+        
+        /// <remarks/>
+        public int item {
+            get {
+                return this.itemField;
+            }
+            set {
+                this.itemField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> orderNum {
+            get {
+                return this.orderNumField;
+            }
+            set {
+                this.orderNumField = value;
             }
         }
     }
@@ -4272,11 +4305,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class FavoritObjectResponse {
+    public partial class FavoriteResponse {
         
         private Status statusField;
         
-        private FavoritObject[] favoritObjectsField;
+        private FavoritObject[] favoritesField;
         
         /// <remarks/>
         public Status Status {
@@ -4289,12 +4322,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public FavoritObject[] FavoritObjects {
+        public FavoritObject[] Favorites {
             get {
-                return this.favoritObjectsField;
+                return this.favoritesField;
             }
             set {
-                this.favoritObjectsField = value;
+                this.favoritesField = value;
             }
         }
     }
@@ -4879,10 +4912,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public FavoritObjectResponse Result {
+        public FavoriteResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FavoritObjectResponse)(this.results[0]));
+                return ((FavoriteResponse)(this.results[0]));
             }
         }
     }
@@ -5901,10 +5934,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public UserItemList[] Result {
+        public UserItemListsResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((UserItemList[])(this.results[0]));
+                return ((UserItemListsResponse)(this.results[0]));
             }
         }
     }

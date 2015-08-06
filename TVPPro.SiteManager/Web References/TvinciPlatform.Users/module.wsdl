@@ -470,14 +470,14 @@
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoritObjectResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoriteResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="FavoritObjectResponse">
+      <s:complexType name="FavoriteResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="FavoritObjects" type="tns:ArrayOfFavoritObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Favorites" type="tns:ArrayOfFavoritObject" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfFavoritObject">
@@ -1272,10 +1272,16 @@
       <s:element name="GetItemFromListResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:ArrayOfUserItemList" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:UserItemListsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="UserItemListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UserItemLists" type="tns:ArrayOfUserItemList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfUserItemList">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemList" nillable="true" type="tns:UserItemList" />
@@ -1590,7 +1596,7 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
-      <s:element name="FavoritObjectResponse" nillable="true" type="tns:FavoritObjectResponse" />
+      <s:element name="FavoriteResponse" nillable="true" type="tns:FavoriteResponse" />
       <s:element name="ArrayOfUserResponseObject" nillable="true" type="tns:ArrayOfUserResponseObject" />
       <s:element name="ArrayOfUserBasicData" nillable="true" type="tns:ArrayOfUserBasicData" />
       <s:element name="ResponseStatus" type="tns:ResponseStatus" />
@@ -2226,7 +2232,7 @@
     <wsdl:part name="sItemType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
-    <wsdl:part name="Body" element="tns:FavoritObjectResponse" />
+    <wsdl:part name="Body" element="tns:FavoriteResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserByFacebookIDHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

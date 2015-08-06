@@ -71,10 +71,22 @@
       <s:element name="GetDomainPermittedItemsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainPermittedItemsResult" type="tns:ArrayOfPermittedMediaContainer" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainPermittedItemsResult" type="tns:PermittedMediaContainerResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="PermittedMediaContainerResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PermittedMediaContainer" type="tns:ArrayOfPermittedMediaContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetUserExpiredItems">
         <s:complexType>
           <s:sequence>
@@ -173,12 +185,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="altUrl" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetLicensedLinkWithCoupon">
@@ -2367,10 +2373,10 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="adapterTransactionState" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="adapterMessage" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalTransactionId" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalStatus" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalMessage" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="failReason" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="signature" type="s:string" />
           </s:sequence>
         </s:complexType>
@@ -2383,6 +2389,7 @@
         </s:complexType>
       </s:element>
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
+      <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
@@ -3192,7 +3199,7 @@
     <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainPermittedItemsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfPermittedMediaContainer" />
+    <wsdl:part name="Body" element="tns:PermittedMediaContainerResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserExpiredItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4199,10 +4206,10 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="paymentGatewayId" type="s:string" />
     <wsdl:part name="adapterTransactionState" type="s:string" />
-    <wsdl:part name="adapterMessage" type="s:string" />
     <wsdl:part name="externalTransactionId" type="s:string" />
     <wsdl:part name="externalStatus" type="s:string" />
     <wsdl:part name="externalMessage" type="s:string" />
+    <wsdl:part name="failReason" type="s:string" />
     <wsdl:part name="signature" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionHttpPostOut">
