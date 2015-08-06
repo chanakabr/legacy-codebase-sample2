@@ -1412,11 +1412,11 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGateway)
+        public static int InsertPaymentGatewayTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGateway)
         {
             try
             {
-                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransactions");
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransaction");
                 storedProcedure.SetConnectionKey("BILLING_CONNECTION_STRING");
                 storedProcedure.AddParameter("@group_id", groupID);
                 storedProcedure.AddParameter("@domain_id", domainId);
