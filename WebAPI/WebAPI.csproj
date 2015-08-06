@@ -727,6 +727,8 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPermittedMedia.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPermittedMediaList.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
