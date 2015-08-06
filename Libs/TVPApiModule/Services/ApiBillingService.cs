@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVPApi;
-using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.TvinciPlatform.api;
-using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
-using KLogMonitor;
+﻿using KLogMonitor;
+using System;
 using System.Reflection;
+using TVPApi;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiModule.Services
 {
@@ -69,7 +64,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail GetLastBillingTypeUserInfo(string sSiteGuid)
+        public AdyenBillingDetail GetLastBillingTypeUserInfo(string sSiteGuid)
         {
             TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail lastBillingInfo = null;
             try
@@ -86,5 +81,50 @@ namespace TVPApiModule.Services
 
             return lastBillingInfo;
         }
+
+        public TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetHouseholdChargeID(string externalIdentifier, int householdId)
+        {
+            TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.GetHouseholdChargeID(m_wsUserName, m_wsPassword, externalIdentifier, householdId);
+                    response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse(result);                    
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetHouseholdChargeID, Error Message: {0}, params: externalIdentifier: {1}, householdId: {2} ",
+                    ex.Message, externalIdentifier, householdId);
+            }
+
+            return response;
+        }
+
+        public ClientResponseStatus SetHouseholdChargeID(string externalIdentifier, int householdId, string chargeID)
+        {
+            ClientResponseStatus clientResponse;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.SetHouseholdChargeID(m_wsUserName, m_wsPassword, externalIdentifier, householdId, chargeID);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetHouseholdChargeID, Error Message: {0}, params: externalIdentifier: {1}, householdId: {2}, chargeID: {3} ",
+                    ex.Message, externalIdentifier, householdId, chargeID);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+
+            }
+
+            return clientResponse;
+        }
+
     }
 }

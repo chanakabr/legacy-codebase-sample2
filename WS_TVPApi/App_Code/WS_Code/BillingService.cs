@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using TVPApi;
-using TVPPro.SiteManager.Helper;
-using System.Web.Services;
-using TVPApiModule.Services;
-using TVPPro.SiteManager.Context;
-using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
+﻿using KLogMonitor;
+using System;
+using System.Reflection;
 using System.Web;
+using System.Web.Services;
+using TVPApi;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
-using KLogMonitor;
-using System.Reflection;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiServices
 {
@@ -120,6 +112,86 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get a household’s billing account identifier (charge ID) in a given payment gateway")]
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetChargeID(InitializationObject initObj, string externalIdentifier, int householdId)
+        {
+            TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse response = null;
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetChargeID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, householdId, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetHouseholdChargeID(externalIdentifier, householdId);
+                  
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Set a household’s billing account identifier (charge ID) for a given payment gateway")]
+        [PrivateMethod]
+        public ClientResponseStatus SetChargeID(InitializationObject initObj, string externalIdentifier, int householdId, string chargeId)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetChargeID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, householdId, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).SetHouseholdChargeID(externalIdentifier,householdId, chargeId);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
         #endregion
+
+              
     }
 }

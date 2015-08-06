@@ -203,6 +203,7 @@
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
+    <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\Rules\GenericRule.cs" />
@@ -440,7 +441,9 @@
   <ItemGroup>
     <None Include="Web References\yes.tvinci.ITProxy\service.disco" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Objects\Responses\ConditionalAccess\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

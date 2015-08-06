@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
 using TVPApi;
-using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.TvinciPlatform.Billing;
-using TVPApiModule.Objects;
-using TVPPro.SiteManager.Context;
 
 namespace TVPApiServices
 {
@@ -23,5 +16,11 @@ namespace TVPApiServices
 
         [OperationContract]
         AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetChargeID(InitializationObject initObj, string externalIdentifier, int domainId);
+
+        [OperationContract]
+        ClientResponseStatus SetChargeID(InitializationObject initObj, string externalIdentifier, int domainId, string chargeId);       
     }
 }
