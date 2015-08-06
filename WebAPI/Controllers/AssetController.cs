@@ -10,6 +10,7 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
@@ -75,15 +76,15 @@ namespace WebAPI.Controllers
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
-        public KalturaAssetInfoWrapper Search(string partner_id, KalturaSearchAssetsRequest request, string language = null)
+        [ApiAuthorize]
+        public KalturaAssetInfoWrapper Search(KalturaSearchAssetsRequest request, string language = null)
         {
             KalturaAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)

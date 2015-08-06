@@ -99,12 +99,20 @@ namespace WebAPI.Filters
                                 }
                                 else if (reqParams[p.Name] == null)
                                 {
-                                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in action parameters");
+                                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
                                     return;
                                 }
 
-                                //We deserialize the object based on the method parameter type
-                                methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                                try
+                                {
+                                    //We deserialize the object based on the method parameter type
+                                    methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                                }
+                                catch (Exception ex)
+                                {
+                                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
+                                    return;
+                                }
                             }
 
                             HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
