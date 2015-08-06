@@ -114,7 +114,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get a household’s billing account identifier (charge ID) in a given payment gateway")]
         [PrivateMethod]
-        public TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetChargeID(InitializationObject initObj, string externalIdentifier, int householdId)
+        public TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetChargeID(InitializationObject initObj, string pg_ext_id, int domain_id)
         {
             TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse response = null;
 
@@ -125,14 +125,14 @@ namespace TVPApiServices
             {
                 // Tokenization: validate domain and udid
                 if (AuthorizationManager.IsTokenizationEnabled() &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, householdId, initObj.UDID, groupID, initObj.Platform))
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domain_id, initObj.UDID, groupID, initObj.Platform))
                 {
                     return null;
                 }
 
                 try
                 {
-                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetHouseholdChargeID(externalIdentifier, householdId);
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetHouseholdChargeID(pg_ext_id, domain_id);
                   
                 }
                 catch (Exception ex)
@@ -154,7 +154,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Set a household’s billing account identifier (charge ID) for a given payment gateway")]
         [PrivateMethod]
-        public ClientResponseStatus SetChargeID(InitializationObject initObj, string externalIdentifier, int householdId, string chargeId)
+        public ClientResponseStatus SetChargeID(InitializationObject initObj, string pg_ext_id, int domain_id, string charge_id)
         {
             TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
@@ -164,14 +164,14 @@ namespace TVPApiServices
             {
                 // Tokenization: validate domain and udid
                 if (AuthorizationManager.IsTokenizationEnabled() &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, householdId, initObj.UDID, groupID, initObj.Platform))
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domain_id, initObj.UDID, groupID, initObj.Platform))
                 {
                     return null;
                 }
 
                 try
                 {
-                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).SetHouseholdChargeID(externalIdentifier,householdId, chargeId);
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).SetHouseholdChargeID(pg_ext_id,domain_id, charge_id);
                 }
                 catch (Exception ex)
                 {
