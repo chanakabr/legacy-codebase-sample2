@@ -11,6 +11,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 using WebAPI.Catalog;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
@@ -39,11 +40,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         [Route("list"), HttpPost]
-        public KalturaWatchHistoryAssetWrapper List(string partner_id, string user_id, string filter_types = null, KalturaWatchStatus? filter_status = null,
-            int days = 0, int page_index = 0, int? page_size = null, [FromUri] List<KalturaCatalogWith> with = null, string language = null)
+        [ApiAuthorize]
+        public KalturaWatchHistoryAssetWrapper List(string filter_types = null, KalturaWatchStatus? filter_status = null,
+            int days = 0, int page_index = 0, int? page_size = null, List<KalturaCatalogWith> with = null, string language = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
+            int userId = KS.GetFromRequest().UserId;
 
             // page size - 5 <= size <= 50
             if (page_size == null || page_size == 0)
@@ -83,7 +86,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, user_id, language, page_index, page_size, filterStatusHelper, days, filterTypes, with);
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(),
+                    language, page_index, page_size, filterStatusHelper, days, filterTypes, with);
             }
             catch (ClientException ex)
             {

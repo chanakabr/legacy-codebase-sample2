@@ -130,7 +130,7 @@ namespace WebAPI.Managers.Models
 
             if (fields == null || fields.Length != 4)
             {
-                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
             }
 
             ks.privilege = fields[0];
@@ -140,7 +140,7 @@ namespace WebAPI.Managers.Models
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
                 }
 
                 switch (pair[0])
@@ -162,7 +162,7 @@ namespace WebAPI.Managers.Models
                         ks.data = !string.IsNullOrEmpty(pair[1]) ? HttpUtility.UrlDecode(pair[1]) : string.Empty;
                         break;
                     default:
-                        throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                        throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
                 }
             }
 

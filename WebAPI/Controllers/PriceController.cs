@@ -25,8 +25,8 @@ namespace WebAPI.Controllers
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        public KalturaItemPricesList Get([FromUri] string partner_id, [FromUri] string files_ids, [FromUri] string user_id = null,
-            [FromUri] string coupon_code = null, [FromUri] string udid = null, [FromUri] string language = null, [FromUri] bool should_get_only_lowest = false)
+        public KalturaItemPricesList Get(string partner_id, string files_ids, string user_id = null,
+            string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
         {
             List<KalturaItemPrice> ppvPrices = null;
             

@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="page_size">page size</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaBillingTransactions List([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int page_number, [FromUri] int page_size)
+        public KalturaBillingTransactions List(string partner_id, string user_id, int page_number, int page_size)
         {
             KalturaBillingTransactions response = new KalturaBillingTransactions();
 

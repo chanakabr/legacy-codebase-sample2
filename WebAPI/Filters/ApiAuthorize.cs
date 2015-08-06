@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
             }
             else if (!ks.IsValid)
             {
-                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
+                throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Invalid KS - Expired");
             }
 
             return true;

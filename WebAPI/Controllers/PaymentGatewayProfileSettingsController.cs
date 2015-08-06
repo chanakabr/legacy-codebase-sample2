@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGWSettingsResponse List([FromUri] string partner_id)
+        public Models.Billing.KalturaPaymentGWSettingsResponse List(string partner_id)
         {
             Models.Billing.KalturaPaymentGWSettingsResponse response = null;
 
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
         [Route("delete"), HttpPost]
-        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        public bool Delete(string partner_id, int payment_gateway_id, Dictionary<string, string> settings)
         {
             bool response = false;
             
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("add"), HttpPost]
-        public bool Add([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        public bool Add(string partner_id, int payment_gateway_id, Dictionary<string, string> settings)
         {
             bool response = false;
 
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("update"), HttpPost]
-        public bool Update([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromBody] Dictionary<string, string> settings)
+        public bool Update(string partner_id, int payment_gateway_id, Dictionary<string, string> settings)
         {
             bool response = false;
 

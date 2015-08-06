@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
-        public bool Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id)
+        public bool Delete(string partner_id, int household_id, string user_id)
         {
             int groupId = int.Parse(partner_id);
 
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
-        public bool Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string master_user_id, [FromUri] bool is_master = false)
+        public bool Add(string partner_id, int household_id, string user_id, string master_user_id, bool is_master = false)
         {
             int groupId = int.Parse(partner_id);
 

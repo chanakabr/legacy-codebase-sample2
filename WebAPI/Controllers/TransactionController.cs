@@ -34,8 +34,8 @@ namespace WebAPI.Controllers
         /// Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
         [Route("purchase"), HttpPost]
-        public KalturaTransactionResponse Purchase([FromUri] string partner_id, [FromUri] string user_id, [FromUri] int household_id, [FromUri] double price, [FromUri] string currency,
-                                                   [FromUri] int content_id, [FromUri] int product_id, [FromUri] KalturaTransactionType product_type, [FromUri] string coupon)
+        public KalturaTransactionResponse Purchase(string partner_id, string user_id, int household_id, double price, string currency,
+                                                   int content_id, int product_id, KalturaTransactionType product_type, string coupon)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 

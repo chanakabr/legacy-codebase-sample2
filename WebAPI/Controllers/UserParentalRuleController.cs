@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("list"), HttpPost]
-        public KalturaParentalRulesList List([FromUri] string partner_id, [FromUri] string user_id)
+        public KalturaParentalRulesList List(string partner_id, string user_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
-        public bool Enable([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
+        public bool Enable(string partner_id, string user_id, long rule_id)
         {
             bool success = false;
             
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
-        public bool Disable([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long rule_id)
+        public bool Disable(string partner_id, string user_id, long rule_id)
         {
             bool success = false;
             

@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// <param name="ppv_id">PPV module identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
-        public KalturaBillingResponse ChargeUserForMediaFile([FromUri] string partner_id, [FromUri] string ppv_id, [FromBody] KalturaChargePPV request, [FromUri]string udid = null)
+        public KalturaBillingResponse ChargeUserForMediaFile(string partner_id, string ppv_id, KalturaChargePPV request, [FromUri]string udid = null)
         {
             KalturaBillingResponse response = null;
 

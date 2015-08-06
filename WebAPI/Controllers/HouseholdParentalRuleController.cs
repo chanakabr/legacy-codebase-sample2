@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("list"), HttpPost]
-        public KalturaParentalRulesList List([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaParentalRulesList List(string partner_id, int household_id)
         {
             List<KalturaParentalRule> response = null;
             
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
-        public bool Enable([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
+        public bool Enable(string partner_id, int household_id, long rule_id)
         {
             bool success = false;
             
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         [Route("disable"), HttpPost]
-        public bool Disable([FromUri] string partner_id, [FromUri] int household_id, [FromUri] long rule_id)
+        public bool Disable(string partner_id, int household_id, long rule_id)
         {
             bool success = false;
 
