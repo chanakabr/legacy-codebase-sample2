@@ -23,8 +23,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get recently watched media for user, ordered by recently watched first.    
         /// </summary>
-        /// <param name="partner_id" >Partner identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="filter_types">List of asset types to search within. The list is a string separated be comma.
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>

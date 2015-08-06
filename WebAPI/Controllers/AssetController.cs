@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
         /// Returns media by media identifiers        
         /// </summary>
         /// <param name="media_ids">Media identifiers separated by ',' </param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
         /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
@@ -124,7 +123,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array</param>
         /// <param name="filter_types">List of asset types to search within.
@@ -167,7 +165,6 @@ namespace WebAPI.Controllers
         /// Returns related media by media identifier<br />        
         /// </summary>        
         /// <param name="media_id">Media identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="media_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>
