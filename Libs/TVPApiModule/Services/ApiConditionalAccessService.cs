@@ -877,7 +877,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    retVal = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                    var res = m_Module.GetDomainPermittedItems(m_wsUserName, m_wsPassword, domainID);
+                    if (res != null)
+                    {
+                        retVal = res.PermittedMediaContainer;
+                    }
                 }
             }
             catch (Exception ex)

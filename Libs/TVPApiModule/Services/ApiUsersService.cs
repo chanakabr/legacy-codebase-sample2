@@ -187,7 +187,7 @@ namespace TVPApiModule.Services
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType);
-                    response = res.FavoritObjects;
+                    response = res.Favorites;
                 }
             }
             catch (Exception ex)
@@ -953,7 +953,9 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                    var response = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                    if (response != null)
+                        res = response.UserItemLists;
                 }
             }
             catch (Exception ex)
