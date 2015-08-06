@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="token">Facebook token</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getFBUserData"), HttpPost]
-        public KalturaFacebookResponse GetFBUserData([FromUri] string partner_id, [FromUri] string token)
+        public KalturaFacebookResponse GetFBUserData(string partner_id, string token)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbRegister"), HttpPost]
-        public KalturaFacebookResponse FBUserRegister([FromUri] string partner_id, [FromUri] string token, [FromUri] bool should_create_domain, [FromUri] bool subscribe_newsletter)
+        public KalturaFacebookResponse FBUserRegister(string partner_id, string token, bool should_create_domain, bool subscribe_newsletter)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         /// <param name="facebook_id">Facebook identifier</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbMerge"), HttpPost]
-        public KalturaFacebookResponse FBUserMerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password, [FromUri] string facebook_id)
+        public KalturaFacebookResponse FBUserMerge(string partner_id, string token, string username, string password, string facebook_id)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         /// <param name="password">Password</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbUnmerge"), HttpPost]
-        public KalturaFacebookResponse FBUserUnmerge([FromUri] string partner_id, [FromUri] string token, [FromUri] string username, [FromUri] string password)
+        public KalturaFacebookResponse FBUserUnmerge(string partner_id, string token, string username, string password)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             

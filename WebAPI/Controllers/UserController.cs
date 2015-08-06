@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
 
-            KS ks = new KS(userSecret, partner_id, "0", Int32.MaxValue, KS.eUserType.USER, payload, string.Empty);
+            KS ks = new KS(userSecret, partner_id, "0", 24 * 60 * 60, KS.eUserType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = null };
         }
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("login_with_pin"), HttpPost]
-        public KalturaLoginResponse LogInWithPin([FromUri] string partner_id, [FromUri] string pin, [FromUri] string udid = null, [FromUri] string secret = null)
+        public KalturaLoginResponse LogInWithPin(string partner_id, string pin, string udid = null, string secret = null)
         {
             KalturaUser response = null;
 
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login([FromUri] string partner_id, [FromBody] KalturaLogIn request, [FromUri] string udid = null)
+        public KalturaLoginResponse Login(string partner_id, KalturaLogIn request, string udid = null)
         {
             KalturaUser response = null;
 
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaUser Add([FromUri] string partner_id, [FromBody] KalturaSignUp request)
+        public KalturaUser Add(string partner_id, KalturaSignUp request)
         {
             KalturaUser response = null;
             
@@ -184,7 +184,7 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{username}/password/send"), HttpPost]
-        public bool SendNewPassword([FromUri] string partner_id, [FromUri] string username)
+        public bool SendNewPassword(string partner_id, string username)
         {
             bool response = false;
 
@@ -220,7 +220,7 @@ namespace WebAPI.Controllers
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User does not exist = 2000, Wrong username or password = 1011</remarks>
         [Route("{username}/password/reset"), HttpPost]
-        public bool RenewPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string password)
+        public bool RenewPassword(string partner_id, string username, string password)
         {
             bool response = false;
 
@@ -254,7 +254,7 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("token/{token}"), HttpPost]
-        public KalturaUser CheckPasswordToken([FromUri] string partner_id, [FromUri] string token)
+        public KalturaUser CheckPasswordToken(string partner_id, string token)
         {
             KalturaUser response = null;
 
@@ -291,7 +291,7 @@ namespace WebAPI.Controllers
         /// <param name="new_password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("{username}/password"), HttpPost]
-        public bool ChangeUserPassword([FromUri] string partner_id, [FromUri] string username, [FromUri] string old_password, [FromUri] string new_password)
+        public bool ChangeUserPassword(string partner_id, string username, string old_password, string new_password)
         {
             bool response = false;
 
@@ -327,7 +327,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
         [Route("get"), HttpPost]
-        public KalturaUsersList Get([FromUri] string partner_id, string user_id)
+        public KalturaUsersList Get(string partner_id, string user_id)
         {
             List<KalturaUser> response = null;
 
@@ -373,7 +373,7 @@ namespace WebAPI.Controllers
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
-        public KalturaUser Update([FromUri] string partner_id, string user_id, KalturaUserData user_data)
+        public KalturaUser Update(string partner_id, string user_id, KalturaUserData user_data)
         {
             KalturaUser response = null;
             
@@ -414,7 +414,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
-        public KalturaParentalRulesList GetParentalMediaRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long media_id)
+        public KalturaParentalRulesList GetParentalMediaRules(string partner_id, string user_id, long media_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -451,7 +451,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpPost]
-        public KalturaParentalRulesList GetParentalEPGRules([FromUri] string partner_id, [FromUri] string user_id, [FromUri] long epg_id)
+        public KalturaParentalRulesList GetParentalEPGRules(string partner_id, string user_id, long epg_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -488,7 +488,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/parental/rules/default"), HttpPost]
-        public bool DisableDefaultParentalRule([FromUri] string partner_id, [FromUri] string user_id)
+        public bool DisableDefaultParentalRule(string partner_id, string user_id)
         {
             bool success = false;
 
@@ -561,7 +561,7 @@ namespace WebAPI.Controllers
         /// <param name="channel_media_id">Linear channel's media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpPost]
-        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, [FromUri] long epg_id, long channel_media_id, int household_id = 0)
+        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 

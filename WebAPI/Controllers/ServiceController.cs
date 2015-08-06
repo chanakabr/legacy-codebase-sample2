@@ -54,14 +54,14 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{service_name}/action/{action_name}"), HttpGet]
-        public async Task<object> _Action([FromUri] string service_name, [FromUri] string action_name)
+        public async Task<object> _Action(string service_name, string action_name)
         {
             return await Action(service_name, action_name);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("{service_name}/action/{action_name}"), HttpPost]
-        public async Task<object> Action([FromUri] string service_name, [FromUri] string action_name)
+        public async Task<object> Action(string service_name, string action_name)
         {
             MethodInfo methodInfo = null;
             object classInstance = null;
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_PAYLOAD_KEY];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
             catch (Exception ex)

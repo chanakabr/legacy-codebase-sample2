@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
-        public KalturaCouponDetails Get([FromUri] string partner_id, [FromUri] string code)
+        public KalturaCouponDetails Get(string partner_id, string code)
         {
             KalturaCouponDetails coupon = null;
             

@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGWResponse List([FromUri] string partner_id, [FromUri] long household_id, [FromUri] string user_id)
+        public Models.Billing.KalturaPaymentGWResponse List(string partner_id, long household_id, string user_id)
         {
             Models.Billing.KalturaPaymentGWResponse response = null;
 
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">Household Identifier</param>        
         [Route("get"), HttpPost]
-        public Models.Billing.KalturaHouseholdPaymentGatewayResponse Get([FromUri] string partner_id, [FromUri] long household_id)
+        public Models.Billing.KalturaHouseholdPaymentGatewayResponse Get(string partner_id, long household_id)
         {
             Models.Billing.KalturaHouseholdPaymentGatewayResponse response = null;
 
@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>        
         [Route("set"), HttpPost]
-        public bool Set([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] long household_id, [FromUri] string user_id)
+        public bool Set(string partner_id, int payment_gateway_id, long household_id, string user_id)
         {
             bool response = false;
 
@@ -127,7 +127,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("delete"), HttpPost]
-        public bool Delete([FromUri] string partner_id, [FromUri] int payment_gateway_id, [FromUri] string household_id, [FromUri] string user_id)
+        public bool Delete(string partner_id, int payment_gateway_id, string household_id, string user_id)
         {
             bool response = false;
 

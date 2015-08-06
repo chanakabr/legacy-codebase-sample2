@@ -29,28 +29,23 @@ namespace WebAPI.Controllers
             allowAnonymous = AllowAnonymous;
         }
 
-        public override void OnAuthorization(HttpActionContext actionContext)
-        {
-            KS ks = KS.GetFromRequest();
-
-            if (ks == null && !allowAnonymous)
-            {
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-            }
-            else if (allowAnonymous)
-            {
-                base.OnAuthorization(actionContext);
-                return;
-            }
-        }
-
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
             if (allowAnonymous)
                 return true;
 
             KS ks = KS.GetFromRequest();
-            return ks != null && ks.IsValid;
+
+            if (ks == null)
+            {
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+            }
+            else if (!ks.IsValid)
+            {
+                throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Invalid KS - Expired");
+            }
+
+            return true;
         }
     }
 }

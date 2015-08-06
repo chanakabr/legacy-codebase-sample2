@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
-        public void Add([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [FromUri] string udid, [FromBody] KalturaAddUserFavoriteRequest request)
+        public void Add(string partner_id, int household_id, string user_id, string udid, KalturaAddUserFavoriteRequest request)
         {
             int groupId = int.Parse(partner_id);
 
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("delete"), HttpPost]
-        public void Delete([FromUri] string partner_id, [FromUri] int household_id, [FromUri] string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
+        public void Delete(string partner_id, int household_id, string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
         {
             int groupId = int.Parse(partner_id);
 
@@ -106,8 +106,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaFavoriteList List([FromUri] string partner_id, [FromUri] string user_id, [FromUri] string media_type = null,
-            [FromUri] int household_id = 0, [FromUri] string udid = null,
+        public KalturaFavoriteList List(string partner_id, string user_id, string media_type = null,
+            int household_id = 0, string udid = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null)
         {

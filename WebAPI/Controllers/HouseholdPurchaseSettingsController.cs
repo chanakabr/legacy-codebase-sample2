@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("get"), HttpPost]
-        public KalturaPurchaseSettingsResponse Get([FromUri] string partner_id, [FromUri] int household_id)
+        public KalturaPurchaseSettingsResponse Get(string partner_id, int household_id)
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
             
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
-        public bool Update([FromUri] string partner_id, [FromUri] int household_id, [FromUri] int setting)
+        public bool Update(string partner_id, int household_id, int setting)
         {
             bool success = false;
 

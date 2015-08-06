@@ -10,6 +10,7 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
@@ -24,7 +25,6 @@ namespace WebAPI.Controllers
         /// Returns media by media identifiers        
         /// </summary>
         /// <param name="media_ids">Media identifiers separated by ',' </param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="page_index">Page number to return. If omitted will return first page.</param>
         /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
@@ -34,12 +34,13 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
-        public KalturaAssetInfoWrapper Get(string partner_id, int[] media_ids, int page_index = 0, int? page_size = null,
+        [ApiAuthorize]
+        public KalturaAssetInfoWrapper Get(int[] media_ids, int page_index = 0, int? page_size = null,
             List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (media_ids.Count() == 0)
             {
@@ -75,15 +76,15 @@ namespace WebAPI.Controllers
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
-        public KalturaAssetInfoWrapper Search(string partner_id, KalturaSearchAssetsRequest request, string language = null)
+        [ApiAuthorize]
+        public KalturaAssetInfoWrapper Search(KalturaSearchAssetsRequest request, string language = null)
         {
             KalturaAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
@@ -122,7 +123,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array</param>
         /// <param name="filter_types">List of asset types to search within.
@@ -133,14 +133,15 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
-        public KalturaSlimAssetInfoWrapper Autocomplete(string partner_id, string query,
+        [ApiAuthorize]
+        public KalturaSlimAssetInfoWrapper Autocomplete(string query,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
             KalturaSlimAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (size == null || size > 10 || size < 1)
@@ -164,7 +165,6 @@ namespace WebAPI.Controllers
         /// Returns related media by media identifier<br />        
         /// </summary>        
         /// <param name="media_id">Media identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="media_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>
@@ -177,7 +177,8 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("related"), HttpPost]
-        public KalturaAssetInfoWrapper Related(string partner_id, int media_id,
+        [ApiAuthorize]
+        public KalturaAssetInfoWrapper Related(int media_id,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
             int page_index = 0, int? page_size = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
@@ -185,7 +186,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoWrapper response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (media_id == 0)
             {

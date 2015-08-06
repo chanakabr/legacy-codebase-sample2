@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <returns>Success / fail</returns>
         [Route("disableDefaultParentalRule"), HttpPost]
-        public bool DisableDefaultParentalRule([FromUri] string partner_id, [FromUri] int household_id)
+        public bool DisableDefaultParentalRule(string partner_id, int household_id)
         {
             bool success = false;
             int groupId = int.Parse(partner_id);
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
-        public KalturaHousehold Add([FromUri] string partner_id, [FromBody] KalturaAddHouseholdRequest request)
+        public KalturaHousehold Add(string partner_id, KalturaAddHouseholdRequest request)
         {
             KalturaHousehold response = null;
 
@@ -177,7 +177,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
-        public bool SetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] int household_id, [FromUri] string charge_id)
+        public bool SetChargeID(string partner_id, string id, int household_id, string charge_id)
         {
             bool response = false;
 
@@ -209,7 +209,7 @@ namespace WebAPI.Controllers
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household Identifier</param>        
         [Route("getChargeID"), HttpPost]
-        public string GetChargeID([FromUri] string partner_id, [FromUri] string id, [FromUri] string household_id)
+        public string GetChargeID(string partner_id, string id, string household_id)
         {
             string chargeId = string.Empty;
 
