@@ -31,7 +31,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("dynamic_data")]
         [XmlElement(ElementName = "dynamic_data")]
         [Required]
-        public Dictionary<string, string> userDynamicData { get; set; }
+        public SerializableDictionary<string, string> userDynamicData { get; set; }
 
         /// <summary>
         /// Desired Password
