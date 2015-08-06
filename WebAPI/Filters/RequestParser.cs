@@ -22,11 +22,17 @@ namespace WebAPI.Filters
 {
     public class RequestParser : ActionFilterAttribute
     {
-        public const string REQUEST_PAYLOAD_KEY = "requestPayload";
+        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
+        public const string REQUEST_PARTNER_ID = "requestPartnerID";
+
+        public static string PartnerID
+        {
+            get { return (string)HttpContext.Current.Items[REQUEST_PARTNER_ID]; }
+        }
 
         public static object GetRequestPayload()
         {
-            return HttpContext.Current.Items[REQUEST_PAYLOAD_KEY];
+            return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
 
         private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
@@ -70,14 +76,17 @@ namespace WebAPI.Filters
                             if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]) &&
                                 reqParams["clientTag"] != null)
                             {
+                                //For logging
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
                             if (reqParams["ks"] != null)
-                            {
                                 parseKS(actionContext, reqParams["ks"].ToObject<string>());
-                            }
 
+                            if (reqParams["partner_id"] != null)
+                                HttpContext.Current.Items.Add(REQUEST_PARTNER_ID, reqParams["partner_id"].ToObject(typeof(string)));
+
+                            //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
 
                             List<Object> methodParams = new List<object>();
@@ -98,7 +107,7 @@ namespace WebAPI.Filters
                                 methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
                             }
 
-                            HttpContext.Current.Items.Add(REQUEST_PAYLOAD_KEY, methodParams);
+                            HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
                         }
                         catch (JsonReaderException ex)
                         {

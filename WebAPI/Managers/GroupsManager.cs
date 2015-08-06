@@ -45,7 +45,7 @@ namespace WebAPI.ClientManagers
         }
 
         public static Group GetGroup(int groupId)
-        {
+        {            
             if (instance == null)
                 instance = new GroupsManager();
 

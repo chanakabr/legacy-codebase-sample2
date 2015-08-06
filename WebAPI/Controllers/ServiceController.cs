@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_PAYLOAD_KEY];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
             catch (Exception ex)

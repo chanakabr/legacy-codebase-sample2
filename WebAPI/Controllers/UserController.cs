@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
 
-            KS ks = new KS(userSecret, partner_id, "0", Int32.MaxValue, KS.eUserType.USER, payload, string.Empty);
+            KS ks = new KS(userSecret, partner_id, "0", 24 * 60 * 60, KS.eUserType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = null };
         }
