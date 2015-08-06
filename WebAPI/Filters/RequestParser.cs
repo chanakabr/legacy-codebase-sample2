@@ -120,6 +120,7 @@ namespace WebAPI.Filters
                         catch (JsonReaderException ex)
                         {
                             createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                            return;
                         }
                     }
                 }
@@ -128,9 +129,13 @@ namespace WebAPI.Filters
                 {
                     //TODO
                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "XML is currently not supported");
+                    return;
                 }
                 else
+                {
                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid");
+                    return;
+                }
             }
 
             base.OnActionExecuting(actionContext);
@@ -171,6 +176,7 @@ namespace WebAPI.Filters
             if (ksParts.Count != 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                return;
             }
 
             // get group secret
@@ -183,6 +189,7 @@ namespace WebAPI.Filters
             if (!ks.IsValid)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "KS Expired");
+                return;
             }
 
             ks.SaveOnRequest();
