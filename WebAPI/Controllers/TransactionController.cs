@@ -26,12 +26,10 @@ namespace WebAPI.Controllers
         /// <param name="coupon">Coupon code</param> 
         /// <param name="product_type">Purchase item type: PPV/Subscription/Collection</param>
         /// <remarks>Possible status codes: 
-        /// UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, CouponNotValid = 3020, PPVPurchased = 3021, Free = 3022, ForPurchaseSubscriptionOnly = 3023,
-        /// SubscriptionPurchased = 3024, NotForPurchase = 3025, IncorrectPrice = 6000, UnKnownPPVModule = 6001, Payment gateway not set for household = 6007,
-        /// Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, Adapter app failure = 6012,
-        /// Signature mismatch = 6013, No response from payment gateway = 6030,  Invalid account = 6031, Insufficient funds = 6032, Unknown payment gateway response = 6033,
-        /// Payment gateway adapter user known = 6034, Payment gateway adapter reason unknown = 6035, Unknown transaction state = 6042, Credentials = 500000,
-        /// Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
+        /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// Subscription purchased = 3024, Not for purchase = 3025, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
+        /// Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, No response from payment gateway = 6030, 
+        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
         [Route("purchase"), HttpPost]
         public KalturaTransactionResponse Purchase(string partner_id, string user_id, int household_id, double price, string currency,

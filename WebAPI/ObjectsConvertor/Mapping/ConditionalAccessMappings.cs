@@ -75,7 +75,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
                .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode))
-               .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode));
+               .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode))
+               .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
             // PermittedMediaContainer to KalturaPermittedMedia
             Mapper.CreateMap<ConditionalAccess.PermittedMediaContainer, KalturaPermittedMedia>()
