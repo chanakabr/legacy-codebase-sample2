@@ -1454,7 +1454,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.")]
         [PrivateMethod]
-        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, int household_id, double price, string currency,
+        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, double price, string currency,
             int content_id, int product_id, eTransactionType product_type, string coupon)
         {
             TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
@@ -1466,14 +1466,14 @@ namespace TVPApiServices
             {
                 // Tokenization: validate domain and udid
                 if (AuthorizationManager.IsTokenizationEnabled() &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, household_id, initObj.UDID, groupID, initObj.Platform))
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
                     return null;
                 }
 
                 try
                 {
-                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).Purchase(user_id, household_id, price, currency,
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).Purchase(user_id, price, currency,
                         content_id, product_id, product_type, coupon, string.Empty, 0);
 
                 }
