@@ -149,5 +149,8 @@ namespace TVPApiServices
         [OperationContract]
         ServicesResponse GetDomainServices(InitializationObject initObj, int domainID);
 
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, int household_id, double price, string currency, int content_id, int product_id,
+            eTransactionType product_type, string coupon);
     }
 }

@@ -1537,5 +1537,40 @@ namespace TVPApiModule.Services
             }
             return response;
         }
+
+        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(string userId, int householdId, double price, string currency, int contentId, int productId,
+            eTransactionType productType, string coupon, string deviceName, int pgwId)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.Purchase(m_wsUserName, m_wsPassword, userId, householdId, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, pgwId);
+                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat(@"Error calling webservice protocol : Purchase, Error Message: {0}, params: userId: {1}, householdId: {2}, price: {3}, currency: {4}, contentId: {5}, productId: {6} 
+                    , productType: {7}, coupon: {8}, deviceName: {9}, pgwId: {10}",
+                    ex.Message,                                 //{0}
+                    userId != null ? userId : string.Empty,   //{1}
+                    householdId,         //{2}
+                    price,         //{3}
+                    currency != null ? currency : string.Empty,           //{4}
+                    contentId,         //{5}
+                    productId,         //{6}
+                    productType.ToString(),         //{7}
+                    coupon != null ? coupon : string.Empty,         //{8}
+                    deviceName != null ? deviceName : string.Empty,       //{9}
+                    pgwId         //{10}                    
+                    );
+            }
+
+            return response;
+        }
+
     }
 }
