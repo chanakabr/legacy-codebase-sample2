@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Script.Serialization;
 
-namespace ApiObjects.MediaIndexingObjects
+namespace ApiObjects
 {
     public class PictureData : QueueObject
     {

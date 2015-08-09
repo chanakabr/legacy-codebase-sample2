@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ApiObjects.MediaIndexingObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ApiObjects.MediaIndexingObjects
+namespace ApiObjects
 {
     [Serializable]
     public class BaseCeleryData : QueueObject

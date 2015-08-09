@@ -71,6 +71,7 @@
     <Compile Include="Interfaces\IQueueImpl.cs" />
     <Compile Include="QueueImplFactory.cs" />
     <Compile Include="Queues\QueueObjects\EPGQueue.cs" />
+    <Compile Include="Queues\QueueObjects\PendingTransactionsQueue.cs" />
     <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
     <Compile Include="Queues\QueueObjects\PSNotificationsQueue.cs" />
     <Compile Include="Queues\QueueObjects\SocialQueue.cs" />

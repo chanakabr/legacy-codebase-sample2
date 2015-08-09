@@ -17,8 +17,20 @@ namespace ApiObjects.Billing
         public int ContentId { get; set; }        
         public string Message { get; set; }
         public int State { get; set; }
-        public int FailReason { get; set; }        
-                
+        public int FailReason { get; set; }
+
+        public string PaymentDetails
+        {
+            get;
+            set;
+        }
+
+        public string PaymentMethod
+        {
+            get;
+            set;
+        }
+
         public PaymentGatewayTransaction() { }
 
         /// <summary>

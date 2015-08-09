@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using QueueWrapper;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 namespace TVinciShared
 {
@@ -563,7 +564,7 @@ namespace TVinciShared
 
             string id = Guid.NewGuid().ToString();
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");
-            ApiObjects.MediaIndexingObjects.PictureData data = new ApiObjects.MediaIndexingObjects.PictureData(id, task, args);
+            ApiObjects.PictureData data = new ApiObjects.PictureData(id, task, args);
             log.Debug("Queue - " + string.Format("{0}, {1}, {2}", nParentGroupID, id, task));
 
             //update the Queue with picture data

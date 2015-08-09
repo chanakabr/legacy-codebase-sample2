@@ -37,20 +37,20 @@ namespace QueueWrapper
             ReadRabbitParameters();
         }
 
-        public virtual bool Enqueue(string sDataToIndex, string sRouteKey)
+        public virtual bool Enqueue(string dataToIndex, string routingKey)
         {
             bool bIsEnqueueSucceeded = false;
             try
             {
-                if (!string.IsNullOrEmpty(sDataToIndex))
+                if (!string.IsNullOrEmpty(dataToIndex))
                 {
                     RabbitConfigurationData configData = CreateRabbitConfigurationData();
 
                     if (configData != null)
                     {
-                        configData.RoutingKey = sRouteKey;
+                        configData.RoutingKey = routingKey;
 
-                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
+                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, dataToIndex);
                     }
                 }
             }

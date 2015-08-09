@@ -1412,27 +1412,29 @@ namespace DAL
             }
         }
 
-        public static int InsertPaymentGWTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction pgt)
+        public static int InsertPaymentGatewayTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGateway)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransactions");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupID);
-                sp.AddParameter("@domain_id", domainId);
-                sp.AddParameter("@site_guid", siteGuid);
-                sp.AddParameter("@payment_gateway_id", pgt.PaymentGWId);
-                sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
-                sp.AddParameter("@external_status", pgt.ExternalStatus);
-                sp.AddParameter("@product_type", pgt.ProductType);
-                sp.AddParameter("@product_id", pgt.ProductId);
-                sp.AddParameter("@billing_guid", pgt.BillingGuid);
-                sp.AddParameter("@content_id", pgt.ContentId);                
-                sp.AddParameter("@message", pgt.Message);
-                sp.AddParameter("@state", pgt.State);
-                sp.AddParameter("@failReason", pgt.FailReason);
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransaction");
+                storedProcedure.SetConnectionKey("BILLING_CONNECTION_STRING");
+                storedProcedure.AddParameter("@group_id", groupID);
+                storedProcedure.AddParameter("@domain_id", domainId);
+                storedProcedure.AddParameter("@site_guid", siteGuid);
+                storedProcedure.AddParameter("@payment_gateway_id", paymentGateway.PaymentGWId);
+                storedProcedure.AddParameter("@external_transaction_id", paymentGateway.ExternalTransactionId);
+                storedProcedure.AddParameter("@external_status", paymentGateway.ExternalStatus);
+                storedProcedure.AddParameter("@product_type", paymentGateway.ProductType);
+                storedProcedure.AddParameter("@product_id", paymentGateway.ProductId);
+                storedProcedure.AddParameter("@billing_guid", paymentGateway.BillingGuid);
+                storedProcedure.AddParameter("@content_id", paymentGateway.ContentId);                
+                storedProcedure.AddParameter("@message", paymentGateway.Message);
+                storedProcedure.AddParameter("@state", paymentGateway.State);
+                storedProcedure.AddParameter("@failReason", paymentGateway.FailReason);
+                storedProcedure.AddParameter("@paymentDetails", paymentGateway.PaymentDetails);
+                storedProcedure.AddParameter("@paymentMethod", paymentGateway.PaymentMethod);
                 
-                int newTransactionID = sp.ExecuteReturnValue<int>();
+                int newTransactionID = storedProcedure.ExecuteReturnValue<int>();
 
                 return newTransactionID;
             }

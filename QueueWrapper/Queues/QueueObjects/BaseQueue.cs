@@ -23,7 +23,7 @@ namespace QueueWrapper
         #region IQueuable
 
         //public abstract bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, int nGroupId);
-        public virtual bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, string sRouteKey)
+        public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey)
         {
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
@@ -33,7 +33,7 @@ namespace QueueWrapper
                 sMessage = record.ToString();
                 if (this.Implementation != null)
                 {
-                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, sRouteKey);
+                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey);
                 }
             }
 

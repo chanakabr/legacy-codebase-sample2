@@ -12850,6 +12850,105 @@ namespace ConditionalAccess
             }
             return response;
         }
+
+        public ApiObjects.Response.Status CheckPendingTransaction(long pendingTransactionId, int numberOfRetries, string billingGuid, 
+            long paymengGatewayTransactionId, string siteGuid, long domainId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            // log
+            log.DebugFormat("CheckPendingTransaction: pendingTransactionId {0}, numberOfRetries {1}, billingGuid {2}, paymengGatewayTransactionId {3}",
+                pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId);
+
+            try
+            {
+                #region Validate user and domain
+                
+                var validateUser = Utils.ValidateUser(this.m_nGroupID, siteGuid, ref domainId);
+
+                if (validateUser != ResponseStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateUser.ToString());
+                    return response;
+                }
+
+                var validateDomain = Utils.ValidateDomain(this.m_nGroupID, (int)domainId);
+
+                if (validateDomain != TvinciDomains.DomainStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateDomain.ToString());
+                    return response;
+                }
+
+                #endregion
+
+                // update billing
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module billingWebService = null;
+                InitializeBillingModule(ref billingWebService, ref userName, ref password);
+
+                TransactionResponse billingResponse = null;
+                    // TODO: call billing
+
+                // validate response
+                if (billingResponse == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while checking pending transaction");
+                    return response;
+                }
+
+                if (billingResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status(billingResponse.Status.Code, billingResponse.Status.Message);
+                    return response;
+                }
+
+
+                // if status pending or completed - nothing to update
+                if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
+                                billingResponse.State.Equals(eTransactionState.Pending.ToString())))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return response;
+                }
+                // update cas
+                else
+                {
+                    bool isUpdated = false;
+                    //switch (billingResponse.ProductType)
+                    //{
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.PPV:
+                    //    isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingResponse.BillingGuid, 0);
+                    //    break;
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Subscription:
+                    //    isUpdated = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingResponse.BillingGuid, 0, 0);
+                    //    break;
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Collection:
+                    //    isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingResponse.BillingGuid, 0);
+                    //    break;
+                    //    default:
+                    //    break;
+                    //}
+
+                    if (isUpdated)
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    else
+                    {
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("CheckPendingTransaction  ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while cfhecking pending transaction");
+            }
+
+            return response;          
+        }
     }
 
 }

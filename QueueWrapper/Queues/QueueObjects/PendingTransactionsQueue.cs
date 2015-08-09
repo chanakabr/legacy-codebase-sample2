@@ -1,15 +1,17 @@
-﻿using System;
+﻿using QueueWrapper.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace QueueWrapper.Queues.QueueObjects
+namespace QueueWrapper
 {
-    public class SocialQueue : BaseQueue
+    public class PendingTransactionsQueue : BaseQueue
     {
-        public SocialQueue()
+        public PendingTransactionsQueue()
+            : base()
         {
-            this.Implementation = new RabbitQueue(Enums.ConfigType.SocialFeedConfig, true);
+            this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
         }
 
         public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
@@ -19,7 +21,6 @@ namespace QueueWrapper.Queues.QueueObjects
 
         public override T Dequeue<T>(string sQueueName, out string sAckId)
         {
-            sAckId = string.Empty;
             return base.Dequeue<T>(sQueueName, out sAckId);
         }
     }
