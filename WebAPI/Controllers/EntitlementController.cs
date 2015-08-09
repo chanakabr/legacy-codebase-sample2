@@ -13,31 +13,31 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/entitlement/action")]
     public class EntitlementController : ApiController
     {
-        /// <summary>
-        /// Gets list of Entitlement (subscriptions) by a given user.    
-        /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Id</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("list"), HttpPost]
-        public KalturaEntitlementsList List(string partner_id, string user_id)
-        {
-            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+        ///// <summary>
+        ///// Gets list of Entitlement (subscriptions) by a given user.    
+        ///// </summary>        
+        ///// <param name="partner_id">Partner Identifier</param>
+        ///// <param name="user_id">User Id</param>
+        ///// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        //[Route("list"), HttpPost]
+        //public KalturaEntitlementsList List(string partner_id, string user_id)
+        //{
+        //    List<KalturaEntitlement> response = new List<KalturaEntitlement>();
             
-            int groupId = int.Parse(partner_id);
+        //    int groupId = int.Parse(partner_id);
 
-            try
-            {
-                // call client
-                response = ClientsManager.ConditionalAccessClient().GetUserSubscriptions(groupId, user_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+        //    try
+        //    {
+        //        // call client
+        //        response = ClientsManager.ConditionalAccessClient().GetUserSubscriptions(groupId, user_id);
+        //    }
+        //    catch (ClientException ex)
+        //    {
+        //        ErrorUtils.HandleClientException(ex);
+        //    }
 
-            return new KalturaEntitlementsList() { Entitlements = response };
-        }
+        //    return new KalturaEntitlementsList() { Entitlements = response };
+        //}
 
         /// <summary>
         /// Immediately cancel a household subscription or PPV or collection 
@@ -104,6 +104,63 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+        }
+
+        /// <summary>
+        /// Gets all the entitled media items for a household
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="filter">Request filter</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        [Route("list"), HttpPost]
+        public KalturaEntitlementsList List(string partner_id, KalturaEntitlementsFilter filter)
+        {
+            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+
+            int groupId = int.Parse(partner_id);
+
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (string.IsNullOrEmpty(filter.Id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                switch (filter.By)
+                {
+                    case KalturaReferenceType.user:
+                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, filter.Id, filter.EntitlementType);
+                        break;
+                    case KalturaReferenceType.household:
+                        {
+                            int householdId;
+                            if (int.TryParse(filter.Id, out householdId))
+                            {
+                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, householdId, filter.EntitlementType);
+                            }
+                            else
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household id must be int");
+                            }
+                            break;
+                        }
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
+                        break;
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaEntitlementsList() { Entitlements = response };
         }
     }
 }

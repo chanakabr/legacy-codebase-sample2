@@ -361,7 +361,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool ClearLoginPIN(int groupId, string userId)
+        public bool ClearLoginPIN(int groupId, string userId, string pinCode)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -370,7 +370,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ClearLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                    response = Users.ClearLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pinCode);
                 }
             }
             catch (Exception ex)
