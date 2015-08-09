@@ -16,10 +16,10 @@ namespace ApiObjects
 
         #region Data Members
 
-        private int pendingTransactionId;
+        private long pendingTransactionId;
         private int numberOfRetries;
         private string billingGuid;
-        private int paymengGatewayTransactionId;
+        private long paymengGatewayTransactionId;
 
         #endregion
 
@@ -44,7 +44,9 @@ namespace ApiObjects
                 pendingTransactionId,
                 numberOfRetries,
                 productId,
-                productType
+                productType,
+                billingGuid,
+                paymengGatewayTransactionId
             };
         }
     }
