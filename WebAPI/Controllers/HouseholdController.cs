@@ -174,7 +174,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
-        /// <param name="household_id">Household Identifier</param>        
+        /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         public bool SetChargeID(string partner_id, string id, int household_id, string charge_id)
@@ -207,7 +207,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
-        /// <param name="household_id">Household Identifier</param>        
+        /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
         public string GetChargeID(string partner_id, string id, string household_id)
         {
