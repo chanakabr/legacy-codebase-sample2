@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Media file details
     /// </summary>
-    public class KalturaFile : KalturaOTTObject
+    public class KalturaMediaFile : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset

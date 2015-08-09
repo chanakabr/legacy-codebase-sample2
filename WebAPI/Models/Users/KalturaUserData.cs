@@ -30,7 +30,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
         [XmlElement(ElementName = "dynamic_data")]
-        public Dictionary<string, string> userDynamicData { get; set; }
-
+        public SerializableDictionary<string, string> userDynamicData { get; set; }
     }
 }

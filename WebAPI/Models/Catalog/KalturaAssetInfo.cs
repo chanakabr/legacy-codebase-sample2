@@ -71,7 +71,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images")]
         [XmlArray(ElementName = "images")]
         [XmlArrayItem("item")] 
-        public List<KalturaImage> Images { get; set; }
+        public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
         /// Files
@@ -80,7 +80,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "files")]
         [XmlArrayItem("item")] 
-        public List<KalturaFile> Files { get; set; }
+        public List<KalturaMediaFile> Files { get; set; }
 
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
@@ -120,7 +120,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "stats")]
-        public KalturaAssetStats Statistics { get; set; }
+        public KalturaAssetStatistics Statistics { get; set; }
 
         /// <summary>
         /// A collection of additional key value pairs that are available per asset type. Possible keys: 

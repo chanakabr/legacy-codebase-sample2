@@ -69,16 +69,16 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "images")]
         [XmlArrayItem("item")] 
-        public List<KalturaImage> Images { get; set; }
+        public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
         /// Files
         /// </summary>
-        [DataMember(Name = "files", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "files")]
+        [DataMember(Name = "media_files", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "media_files", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "media_files")]
         [XmlArrayItem("item")] 
-        public List<KalturaFile> Files { get; set; }
+        public List<KalturaMediaFile> MediaFiles { get; set; }
 
         /// <summary>
         /// Collection of add-on statistical information for the media. See AssetStats model for more information
@@ -86,7 +86,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "stats")]
-        public KalturaAssetStats Statistics { get; set; }
+        public KalturaAssetStatistics Statistics { get; set; }
       
     }
 }

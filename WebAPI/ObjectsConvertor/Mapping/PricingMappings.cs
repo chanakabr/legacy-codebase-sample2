@@ -61,7 +61,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod));
 
             // UserType
-            Mapper.CreateMap<Pricing.UserType, Models.Users.KalturaUserType>()
+            Mapper.CreateMap<Pricing.UserType, Models.Users.KalturaOTTUserType>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 

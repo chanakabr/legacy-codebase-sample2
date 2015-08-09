@@ -27,8 +27,9 @@ namespace WebAPI.Controllers
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
-        public void Add(string partner_id, int household_id, string user_id, string udid, KalturaAddUserFavoriteRequest request)
+        public bool Add(string partner_id, int household_id, string user_id, string udid, KalturaAddUserFavoriteRequest request)
         {
+            bool res = false;
             int groupId = int.Parse(partner_id);
 
             // parameters validation
@@ -50,13 +51,14 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().AddUserFavorite(groupId, user_id, household_id, udid, request.MediaType, request.MediaId, request.ExtraData);
+                res = ClientsManager.UsersClient().AddUserFavorite(groupId, user_id, household_id, udid, request.MediaType, request.MediaId, request.ExtraData);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
+            return res;
         }
 
         /// <summary>

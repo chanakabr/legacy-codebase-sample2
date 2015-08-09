@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Image details
     /// </summary>
-    public class KalturaImage : KalturaOTTObject
+    public class KalturaMediaImage : KalturaOTTObject
     {
         /// <summary>
         /// Image aspect ratio

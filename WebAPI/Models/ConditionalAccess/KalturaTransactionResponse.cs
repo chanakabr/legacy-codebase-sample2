@@ -48,10 +48,20 @@ namespace WebAPI.Models.ConditionalAccess
 
         /// <summary>
         /// Adapter failure reason code
+        /// Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
+        /// No response from payment gateway = 25, Exceeded retry limit = 26       
         /// </summary>
         [DataMember(Name = "fail_reason_code")]
         [JsonProperty("fail_reason_code")]
         [XmlElement(ElementName = "fail_reason_code")]
         public int FailReasonCode { get; set; }
+
+        /// <summary>
+        /// Entitlement creation date
+        /// </summary>
+        [DataMember(Name = "created_at")]
+        [JsonProperty("created_at")]
+        [XmlElement(ElementName = "created_at")]
+        public int CreatedAt { get; set; }
     }
 }

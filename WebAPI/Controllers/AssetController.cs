@@ -135,8 +135,7 @@ namespace WebAPI.Controllers
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> filter_types = null,
+            List<KalturaCatalogWith> with = null, List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
             KalturaSlimAssetInfoWrapper response = null;

@@ -38,7 +38,7 @@ namespace WebAPI.Models.Users
         /// </summary>        
         [DataMember(Name = "extra_params")]
         [JsonProperty("extra_params")]
-        [XmlElement(ElementName = "extra_params")]    
-        public Dictionary<string, string> ExtraParams { get; set; }
+        [XmlElement(ElementName = "extra_params")]
+        public SerializableDictionary<string, string> ExtraParams { get; set; }
     }
 }

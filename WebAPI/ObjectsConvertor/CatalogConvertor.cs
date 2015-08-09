@@ -19,8 +19,8 @@ namespace WebAPI.ObjectsConvertor
         {
             List<KalturaIAssetable> finalResults = new List<KalturaIAssetable>();
 
-            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
-            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
 
             if (withList != null)
             {
@@ -48,15 +48,15 @@ namespace WebAPI.ObjectsConvertor
                 {
                     // get files data (media only)
                     if (withList.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
-                        assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
+                        assetInfo.Files = Mapper.Map<List<KalturaMediaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
                     if (withList.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data
@@ -78,8 +78,8 @@ namespace WebAPI.ObjectsConvertor
         {
             List<KalturaIAssetable> result = new List<KalturaIAssetable>();
 
-            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
-            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
 
             if (with != null)
             {
@@ -108,15 +108,15 @@ namespace WebAPI.ObjectsConvertor
                 {
                     // get files data (media only)
                     if (with.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
-                        assetInfo.Files = Mapper.Map<List<KalturaFile>>(((MediaObj)item).m_lFiles);
+                        assetInfo.MediaFiles = Mapper.Map<List<KalturaMediaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
                     if (with.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data

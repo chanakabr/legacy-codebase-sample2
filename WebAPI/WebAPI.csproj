@@ -795,7 +795,7 @@
     <Compile Include="Models\Users\KalturaUserData.cs" />
     <Compile Include="Models\Users\KalturaUsersList.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
-    <Compile Include="Models\Users\KalturaUserType.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
@@ -841,7 +841,6 @@
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\Catalog\KalturaAssetType.cs" />
-    <Compile Include="Models\Catalog\KalturaAutocompleteRequest.cs" />
     <Compile Include="Models\General\KalturaBaseListWrapper.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
@@ -849,13 +848,12 @@
     <Compile Include="Managers\Models\Language.cs" />
     <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfo.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetStats.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStatistics.cs" />
     <Compile Include="Models\Catalog\KalturaBuzzScore.cs" />
-    <Compile Include="Models\Catalog\KalturaFile.cs" />
-    <Compile Include="Models\Catalog\KalturaImage.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFile.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaImage.cs" />
     <Compile Include="Models\Catalog\KalturaSlimAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
-    <Compile Include="Models\Users\KalturaSignIn.cs" />
     <Compile Include="Models\Users\KalturaClientUser.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryRequest.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />

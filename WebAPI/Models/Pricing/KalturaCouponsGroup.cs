@@ -30,7 +30,6 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
 
-
         /// <summary>
         /// A list of the descriptions of the coupon group on different languages (language code and translation)
         /// </summary>

@@ -224,7 +224,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("user_types")]
         [XmlArray(ElementName = "user_types")]
         [XmlArrayItem("item")] 
-        public List<KalturaUserType> UserTypes { get; set; }
+        public List<KalturaOTTUserType> UserTypes { get; set; }
 
         #endregion
     }

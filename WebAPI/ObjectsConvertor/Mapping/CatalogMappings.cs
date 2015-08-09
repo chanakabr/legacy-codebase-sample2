@@ -15,21 +15,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //MediaPicture to Image
-            Mapper.CreateMap<Picture, KalturaImage>()
+            Mapper.CreateMap<Picture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio));
 
             //EPGPicture to Image
-            Mapper.CreateMap<EpgPicture, KalturaImage>()
+            Mapper.CreateMap<EpgPicture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.PicHeight))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio));
 
             //File 
-            Mapper.CreateMap<FileMedia, KalturaFile>()
+            Mapper.CreateMap<FileMedia, KalturaMediaFile>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nMediaID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nFileId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
@@ -42,7 +42,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
             //AssetStats 
-            Mapper.CreateMap<AssetStatsResult, KalturaAssetStats>()
+            Mapper.CreateMap<AssetStatsResult, KalturaAssetStatistics>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                  .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.m_nLikes))
                  .ForMember(dest => dest.Views, opt => opt.MapFrom(src => src.m_nViews))
@@ -114,7 +114,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
 
             //CategoryResponse to Category
-            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaCategory>()
+            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.m_nParentCategoryID))

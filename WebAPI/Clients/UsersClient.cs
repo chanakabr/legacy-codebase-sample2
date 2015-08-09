@@ -50,7 +50,7 @@ namespace WebAPI.Clients
                     {
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
                     }
-                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId, 
+                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
                         group.ShouldSupportSingleLogin, keyValueList.ToArray());
                 }
             }
@@ -464,8 +464,9 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public void AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
+        public bool AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
         {
+            bool res = false;
             Group group = GroupsManager.GetGroup(groupId);
 
             WebAPI.Users.Status response = null;
@@ -491,6 +492,10 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+            else
+                res = true;
+
+            return res;
         }
 
         public void RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)

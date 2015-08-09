@@ -182,6 +182,11 @@ namespace WebAPI
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
                 t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")).OrderBy(c => c.Name))
             {
+                var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
+
+                if (controllerAttr != null && controllerAttr.IgnoreApi)
+                    continue;
+
                 context.Response.Write(string.Format("\t<service name='{0}' id='{0}'>\n", controller.Name.Replace("Controller", "")));
                 var methods = controller.GetMethods().OrderBy(z => z.Name);
                 foreach (var method in methods)
@@ -215,7 +220,7 @@ namespace WebAPI
 
                         string deprecatedAttr = "";
                         if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
-                            deprecatedAttr = string.Format("deprecated='1'");                        
+                            deprecatedAttr = string.Format("deprecated='1'");
 
                         context.Response.Write(string.Format("\t\t<action name='{0}' enableInMultiRequest='0' supportedRequestFormats='json' supportedResponseFormats='json,xml' description='{1}' {2} path='/{3}/{4}/{5}'>\n",
                             method.Name, HttpUtility.HtmlEncode(desc.Trim().Replace('\'', '"')), deprecatedAttr,
@@ -282,22 +287,41 @@ namespace WebAPI
             //Handling arrays
             else if (type.IsArray || type.IsGenericType)
             {
+                string arrayType = "";
                 string name = "";
+
                 if (type.IsArray)
-                    name = getTypeFriendlyName(type.GetElementType());
+                {
+                    arrayType = getTypeFriendlyName(type.GetElementType());
+                    name = "array";
+                }
                 else if (type.IsGenericType)
                 {
+                    Type dictType = typeof(SerializableDictionary<,>);
+
                     //if List
                     if (type.GetGenericArguments().Count() == 1)
-                        name = getTypeFriendlyName(type.GetGenericArguments()[0]);
+                    {
+                        arrayType = getTypeFriendlyName(type.GetGenericArguments()[0]);
+                        name = "array";
+                    }
                     //if Dictionary
-                    else if (type.GetGenericArguments().Count() == 2)
+                    else if (type.GetGenericArguments().Count() == 2 &&
+                        dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
+                        dictType.MakeGenericType(type.GetGenericArguments()) == type)
+                    {
+                        arrayType = getTypeFriendlyName(type.GetGenericArguments()[1]);
                         name = "map";
+                    }
+                    else if (type.GetGenericArguments().Count() == 2)
+                    {
+
+                    }
                     else
                         throw new Exception("Generic type unknown");
                 }
 
-                return string.Format("type='array' arrayType='{1}'", getTypeFriendlyName(type), name);
+                return string.Format("type='{0}' arrayType='{1}'", name, arrayType);
             }
 
             return string.Format("type='{0}'{1}default='{2}'", getTypeFriendlyName(type), isNullable ? " optional='1' " : " ", getDefaultForType(type));
@@ -368,6 +392,8 @@ namespace WebAPI
                 return "float";
             if (type == typeof(bool))
                 return "bool";
+            if (type.IsEnum)
+                return type.Name;
 
             return type.Name;
         }

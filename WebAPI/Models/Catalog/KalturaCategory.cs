@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Category details
     /// </summary>
-    public class KalturaCategory : KalturaOTTObject
+    public class KalturaOTTCategory : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the category
@@ -45,7 +45,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "child_categories")]
         [XmlArray(ElementName = "child_categories")]
         [XmlArrayItem("item")] 
-        public List<KalturaCategory> ChildCategories { get; set; }
+        public List<KalturaOTTCategory> ChildCategories { get; set; }
 
         /// <summary>
         /// Category channels
@@ -63,6 +63,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images")]
         [XmlArray(ElementName = "images")]
         [XmlArrayItem("item")] 
-        public List<KalturaImage> Images { get; set; }
+        public List<KalturaMediaImage> Images { get; set; }
     }
 }
