@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRulesList() { ParentalRules = response };
+            return new KalturaParentalRulesList() { ParentalRule = response };
         }
     }
 }
