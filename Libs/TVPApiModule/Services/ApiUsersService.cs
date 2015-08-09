@@ -1085,7 +1085,7 @@ namespace TVPApiModule.Services
             return clientResponse;
         }
 
-        public ClientResponseStatus ClearLoginPIN(string siteGuid)
+        public ClientResponseStatus ClearLoginPINs(string siteGuid, string pinCode)
         {
             TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
             ClientResponseStatus clientResponse;
@@ -1094,7 +1094,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.ClearLoginPIN(m_wsUserName, m_wsPassword, siteGuid);
+                    result = m_Module.ClearLoginPIN(m_wsUserName, m_wsPassword, siteGuid, pinCode);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }

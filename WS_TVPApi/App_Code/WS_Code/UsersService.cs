@@ -733,7 +733,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "ClearLoginPIN")]
         [PrivateMethod]
-        public ClientResponseStatus ClearLoginPIN(InitializationObject initObj)
+        public ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode)
         {
             TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
@@ -743,7 +743,38 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ClearLoginPIN(initObj.SiteGuid);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ClearLoginPINs(initObj.SiteGuid, pinCode);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "ClearLoginPIN")]
+        [PrivateMethod]
+        public ClientResponseStatus DeleteUserLoginPinCodes(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ClearUserLoginPinCodes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ClearLoginPINs(initObj.SiteGuid, null);
                 }
                 catch (Exception ex)
                 {

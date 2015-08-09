@@ -69,11 +69,17 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(InitializationObject initObj, string secret);
+        
         [OperationContract]
         TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret);
+        
         [OperationContract]
         TVPApiModule.Objects.Responses.ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret);
+        
         [OperationContract]
-        TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPIN(InitializationObject initObj);
+        TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ClientResponseStatus DeleteUserLoginPinCodes(InitializationObject initObj);
     }
 }
