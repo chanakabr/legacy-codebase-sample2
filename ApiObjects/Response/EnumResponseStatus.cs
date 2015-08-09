@@ -115,7 +115,7 @@ namespace ApiObjects.Response
         SignatureMismatch = 6013,
         ErrorSavingPaymentGatewayTransaction = 6014,
         ErrorSavingPaymentGatewayPending = 6015,
-        ExternalIdntifierRequired = 6016,
+        ExternalIdentifierRequired = 6016,
         ErrorSavingPaymentGatewayHousehold = 6017,
         NoPaymentGateway = 6018,        
         PaymentGatewayNameRequired = 6020,
