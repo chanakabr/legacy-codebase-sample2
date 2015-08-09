@@ -114,7 +114,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
 
             //CategoryResponse to Category
-            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaCategory>()
+            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.m_nParentCategoryID))

@@ -478,9 +478,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaCategory GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
+        public KalturaOTTCategory GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
         {
-            KalturaCategory result = null;
+            KalturaOTTCategory result = null;
             CategoryRequest request = new CategoryRequest()
             {
                 m_sSignature = Signature,
@@ -499,7 +499,7 @@ namespace WebAPI.Clients
             CategoryResponse response = null;
             if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null)
             {
-                result = Mapper.Map<KalturaCategory>(response);
+                result = Mapper.Map<KalturaOTTCategory>(response);
             }
             else
             {

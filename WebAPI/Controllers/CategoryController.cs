@@ -23,9 +23,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
-        public KalturaCategory Get(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
+        public KalturaOTTCategory Get(string partner_id, int category_id, string language = null, string user_id = null, int household_id = 0)
         {
-            KalturaCategory response = null;
+            KalturaOTTCategory response = null;
             
             int groupId = int.Parse(partner_id);
 
