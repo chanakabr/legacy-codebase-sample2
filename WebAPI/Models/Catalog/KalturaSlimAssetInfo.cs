@@ -69,7 +69,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "images")]
         [XmlArrayItem("item")] 
-        public List<KalturaImage> Images { get; set; }
+        public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
         /// Files

@@ -54,9 +54,9 @@ namespace WebAPI.ObjectsConvertor
                     if (withList.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data
@@ -114,9 +114,9 @@ namespace WebAPI.ObjectsConvertor
                     if (with.Contains(KalturaCatalogWith.images))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((MediaObj)item).m_lPicture);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((MediaObj)item).m_lPicture);
                         else
-                            assetInfo.Images = Mapper.Map<List<KalturaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
+                            assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(((ProgramObj)item).m_oProgram.EPG_PICTURES);
                     }
 
                     // get statistics data

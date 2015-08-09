@@ -15,14 +15,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //MediaPicture to Image
-            Mapper.CreateMap<Picture, KalturaImage>()
+            Mapper.CreateMap<Picture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio));
 
             //EPGPicture to Image
-            Mapper.CreateMap<EpgPicture, KalturaImage>()
+            Mapper.CreateMap<EpgPicture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.PicHeight))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
