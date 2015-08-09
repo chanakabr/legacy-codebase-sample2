@@ -194,11 +194,15 @@ namespace PendingTransactionHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback PurchaseOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
         public module() {
-            this.Url = global::PendingTransactionHandler.Properties.Settings.Default.PendingTransactionHandler_WS_CAS_module;
+            this.Url = global::PendingTransactionHandler.Properties.Settings.Default.PendingChargeHandler_WS_CAS_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -479,6 +483,12 @@ namespace PendingTransactionHandler.WS_CAS {
         public event PurchaseCompletedEventHandler PurchaseCompleted;
         
         /// <remarks/>
+        public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
+        
+        /// <remarks/>
+        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PermittedMediaContainer[] GetUserPermittedItems(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetUserPermittedItems", new object[] {
@@ -513,12 +523,12 @@ namespace PendingTransactionHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PermittedMediaContainer[] GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
+        public PermittedMediaContainerResponse GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainPermittedItems", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((PermittedMediaContainer[])(results[0]));
+            return ((PermittedMediaContainerResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4114,6 +4124,90 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayId,
+                        adapterTransactionState,
+                        externalTransactionId,
+                        externalStatus,
+                        externalMessage,
+                        failReason,
+                        signature});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature, null);
+        }
+        
+        /// <remarks/>
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature, object userState) {
+            if ((this.UpdatePendingTransactionOperationCompleted == null)) {
+                this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("UpdatePendingTransaction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayId,
+                        adapterTransactionState,
+                        externalTransactionId,
+                        externalStatus,
+                        externalMessage,
+                        failReason,
+                        signature}, this.UpdatePendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnUpdatePendingTransactionOperationCompleted(object arg) {
+            if ((this.UpdatePendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdatePendingTransactionCompleted(this, new UpdatePendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId) {
+            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        pendingTransactionId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymengGatewayTransactionId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId, object userState) {
+            if ((this.CheckPendingTransactionOperationCompleted == null)) {
+                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        pendingTransactionId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymengGatewayTransactionId}, this.CheckPendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnCheckPendingTransactionOperationCompleted(object arg) {
+            if ((this.CheckPendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4344,13 +4438,17 @@ namespace PendingTransactionHandler.WS_CAS {
         
         private Status statusField;
         
-        private int transactionIDField;
+        private string transactionIDField;
         
         private string pGReferenceIDField;
         
-        private string pGResponseIDField;
+        private string pGResponseCodeField;
         
         private string stateField;
+        
+        private int failReasonCodeField;
+        
+        private long createdAtField;
         
         /// <remarks/>
         public Status Status {
@@ -4363,7 +4461,7 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public int TransactionID {
+        public string TransactionID {
             get {
                 return this.transactionIDField;
             }
@@ -4383,12 +4481,12 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public string PGResponseID {
+        public string PGResponseCode {
             get {
-                return this.pGResponseIDField;
+                return this.pGResponseCodeField;
             }
             set {
-                this.pGResponseIDField = value;
+                this.pGResponseCodeField = value;
             }
         }
         
@@ -4399,6 +4497,26 @@ namespace PendingTransactionHandler.WS_CAS {
             }
             set {
                 this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int FailReasonCode {
+            get {
+                return this.failReasonCodeField;
+            }
+            set {
+                this.failReasonCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreatedAt {
+            get {
+                return this.createdAtField;
+            }
+            set {
+                this.createdAtField = value;
             }
         }
     }
@@ -4886,10 +5004,10 @@ namespace PendingTransactionHandler.WS_CAS {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
@@ -4982,15 +5100,6 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
@@ -5000,7 +5109,7 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5009,7 +5118,16 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -8620,6 +8738,39 @@ namespace PendingTransactionHandler.WS_CAS {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainerResponse {
+        
+        private PermittedMediaContainer[] permittedMediaContainerField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PermittedMediaContainer[] PermittedMediaContainer {
+            get {
+                return this.permittedMediaContainerField;
+            }
+            set {
+                this.permittedMediaContainerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
@@ -8720,10 +8871,10 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public PermittedMediaContainer[] Result {
+        public PermittedMediaContainerResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PermittedMediaContainer[])(this.results[0]));
+                return ((PermittedMediaContainerResponse)(this.results[0]));
             }
         }
     }
@@ -10812,6 +10963,58 @@ namespace PendingTransactionHandler.WS_CAS {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((TransactionResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdatePendingTransactionCompletedEventHandler(object sender, UpdatePendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdatePendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdatePendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

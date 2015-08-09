@@ -44,12 +44,19 @@ namespace PendingTransactionHandler
                 }
 
                 bool success = false;
-                //cas.DoAction(username, password, "");
+                
+                Status status = cas.CheckPendingTransaction(username, password, 
+                    request.PendingTransactionId, request.NumberOfRetries, request.BillingGuide, request.PaymengGatewayTransactionId);
+
+                if (status != null && status.Code == 0)
+                {
+                    success = true;
+                }
 
                 if (!success)
                 {
                     throw new Exception(string.Format(
-                        "Pending charge request on {0} did not finish successfully.", request.ID));
+                        "Pending charge request on {0} did not finish successfully.", request.PendingTransactionId));
                 }
             }
             catch (Exception ex)

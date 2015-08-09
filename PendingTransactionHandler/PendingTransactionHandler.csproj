@@ -147,6 +147,9 @@
     <None Include="Web References\WS_CAS\PermittedMediaContainer1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\WS_CAS\PermittedMediaContainerResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_CAS\PermittedSubscriptionContainer1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

@@ -18,8 +18,29 @@ namespace PendingTransactionHandler
             set;
         }
 
-        [JsonProperty("id")]
-        public long ID
+        [JsonProperty("pending_transaction_id")]
+        public long PendingTransactionId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("number_of_retries")]
+        public int NumberOfRetries
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("billing_guid")]
+        public string BillingGuide
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("payment_gateway_transaction_id")]
+        public long PaymengGatewayTransactionId
         {
             get;
             set;
