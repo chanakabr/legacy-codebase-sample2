@@ -19,8 +19,8 @@ namespace WebAPI.ObjectsConvertor
         {
             List<KalturaIAssetable> finalResults = new List<KalturaIAssetable>();
 
-            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
-            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
 
             if (withList != null)
             {
@@ -78,8 +78,8 @@ namespace WebAPI.ObjectsConvertor
         {
             List<KalturaIAssetable> result = new List<KalturaIAssetable>();
 
-            List<KalturaAssetStats> mediaAssetsStats = new List<KalturaAssetStats>();
-            List<KalturaAssetStats> epgAssetsStats = new List<KalturaAssetStats>();
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
 
             if (with != null)
             {

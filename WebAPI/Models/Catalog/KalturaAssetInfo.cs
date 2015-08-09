@@ -120,7 +120,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "stats")]
-        public KalturaAssetStats Statistics { get; set; }
+        public KalturaAssetStatistics Statistics { get; set; }
 
         /// <summary>
         /// A collection of additional key value pairs that are available per asset type. Possible keys: 

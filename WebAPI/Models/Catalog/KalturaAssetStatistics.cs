@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
-    public class KalturaAssetStats : KalturaOTTObject
+    public class KalturaAssetStatistics : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset

@@ -849,7 +849,7 @@
     <Compile Include="Managers\Models\Language.cs" />
     <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfo.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetStats.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStatistics.cs" />
     <Compile Include="Models\Catalog\KalturaBuzzScore.cs" />
     <Compile Include="Models\Catalog\KalturaFile.cs" />
     <Compile Include="Models\Catalog\KalturaImage.cs" />

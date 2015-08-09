@@ -284,9 +284,9 @@ namespace WebAPI.Clients
             return finalResults;
         }
 
-        public List<KalturaAssetStats> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
+        public List<KalturaAssetStatistics> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
         {
-            List<KalturaAssetStats> result = null;
+            List<KalturaAssetStatistics> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
             {
                 m_sSignature = Signature,
@@ -304,7 +304,7 @@ namespace WebAPI.Clients
             if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
             {
                 result = response.m_lAssetStat != null ?
-                    Mapper.Map<List<KalturaAssetStats>>(response.m_lAssetStat) : null;
+                    Mapper.Map<List<KalturaAssetStatistics>>(response.m_lAssetStat) : null;
             }
             else
             {

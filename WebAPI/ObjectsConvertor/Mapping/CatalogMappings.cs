@@ -42,7 +42,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
             //AssetStats 
-            Mapper.CreateMap<AssetStatsResult, KalturaAssetStats>()
+            Mapper.CreateMap<AssetStatsResult, KalturaAssetStatistics>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                  .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.m_nLikes))
                  .ForMember(dest => dest.Views, opt => opt.MapFrom(src => src.m_nViews))
