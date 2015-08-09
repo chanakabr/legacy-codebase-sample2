@@ -850,7 +850,7 @@
     <Compile Include="Models\Catalog\KalturaAssetInfo.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStatistics.cs" />
     <Compile Include="Models\Catalog\KalturaBuzzScore.cs" />
-    <Compile Include="Models\Catalog\KalturaFile.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFile.cs" />
     <Compile Include="Models\Catalog\KalturaImage.cs" />
     <Compile Include="Models\Catalog\KalturaSlimAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
