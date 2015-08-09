@@ -96,8 +96,8 @@ namespace Users
             * 
             * 
             */
-            m_sStreamType = Utils.GetWSURL(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
-            m_sProfile = Utils.GetWSURL(GetProfileConfigKey(m_groupID, m_deviceBrandID));
+            m_sStreamType = Utils.GetTcmConfigValue(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
+            m_sProfile = Utils.GetTcmConfigValue(GetProfileConfigKey(m_groupID, m_deviceBrandID));
 
         }
 

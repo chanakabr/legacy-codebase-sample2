@@ -121,7 +121,7 @@ namespace Users
                 else
                 {
                     // load user assembly
-                    string usersAssemblyLocation = Utils.GetWSURL("USERS_ASSEMBLY_LOCATION");
+                    string usersAssemblyLocation = Utils.GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
                     Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
                         usersAssemblyLocation + "\\", moduleName));
 
@@ -187,7 +187,7 @@ namespace Users
 
         }
 
-        static public string GetWSURL(string sKey)
+        static public string GetTcmConfigValue(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
@@ -367,7 +367,7 @@ namespace Users
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                string sWSURL = Utils.GetWSURL("api_ws");
+                string sWSURL = Utils.GetTcmConfigValue("api_ws");
 
                 if (sWSURL.Length > 0)
                 {
@@ -511,7 +511,7 @@ namespace Users
         static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = GetWSURL(sKey);
+            string rawStrFromConfig = GetTcmConfigValue(sKey);
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

@@ -831,11 +831,11 @@ namespace Users
             }
             return sNewPIN;
         }
-        
+
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MIN_NUMBER_OF_DIGITS"));
-            int maxlength = ODBCWrapper.Utils.GetIntSafeVal(Utils.GetWSURL("PIN_MAX_NUMBER_OF_DIGITS"));
+            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS");
+            int maxlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MAX_NUMBER_OF_DIGITS");
             if (minlength == 0)
             {
                 minlength = PIN_MIN_NUMBER_OF_DIGITS; //default number of digits
@@ -849,18 +849,18 @@ namespace Users
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotInTheRightLength, "Pin must be between" + minlength.ToString() + " - " + maxlength.ToString() + " digit");
                 return false;
-            }           
+            }
             response = new ApiObjects.Response.Status();
             return true;
         }
 
         private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
-        {   
-            int userId = 0;            
+        {
+            int userId = 0;
             bool parse = int.TryParse(siteGuid, out userId);
             bool isUserValid = false;
-            UserActivationState activStatus = new UserActivationState();            
-            
+            UserActivationState activStatus = new UserActivationState();
+
             if (parse)
             {
                 List<int> groupIdList = UtilsDal.GetAllRelatedGroups(groupID);
@@ -876,7 +876,7 @@ namespace Users
                     case UserActivationState.Activated:
                     case UserActivationState.UserWIthNoDomain:
                     case UserActivationState.UserRemovedFromDomain:
-                    case UserActivationState.NotActivated: 
+                    case UserActivationState.NotActivated:
                     case UserActivationState.NotActivatedByMaster:
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "User valid");
                         isUserValid = true;
@@ -903,7 +903,7 @@ namespace Users
          * return UserResponse
          * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
          */
-        public UserResponse ValidateLoginWithPin(int groupID, string PIN, string secret)
+        public UserResponse ValidateLoginWithPin(string PIN, string secret)
         {
             UserResponse response = new UserResponse();
             try
@@ -913,7 +913,7 @@ namespace Users
                 bool security = false;
                 bool loginViaPin = false;
                 DateTime expiredPIN = DateTime.MaxValue;
-                DataRow dr = UsersDal.GetUserByPIN(groupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
+                DataRow dr = UsersDal.GetUserByPIN(m_nGroupID, PIN, secret, out security, out loginViaPin, out expiredPIN);
 
                 if (!loginViaPin)
                 {
@@ -943,7 +943,7 @@ namespace Users
                     {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "valid pin and user");
                         response.user = new UserResponseObject();
-                        response.user.m_user = new User(groupID, userId);
+                        response.user.m_user = new User(m_nGroupID, userId);
                     }
                 }
                 else
@@ -955,7 +955,7 @@ namespace Users
             {
                 response = new UserResponse();
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
-                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, groupID), "Users");
+                Logger.Logger.Log("SignInWithPIN", string.Format("Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, m_nGroupID), "Users");
             }
             return response;
         }
