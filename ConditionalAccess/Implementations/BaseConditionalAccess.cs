@@ -4917,7 +4917,7 @@ namespace ConditionalAccess
 
                 log.Error("Error - " + sb.ToString());
 
-                res = new PermittedMediaContainer[0];
+                res = null;
             }
 
             return res;
@@ -4927,7 +4927,6 @@ namespace ConditionalAccess
         /// </summary>
         public virtual PermittedMediaContainer[] GetUserPermittedItems(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
-            //PermittedMediaContainer[] ret = null;
             PermittedMediaContainer[] ret = { };
             Int32[] nMediaFilesIDs = null;
             Hashtable h = new Hashtable();
@@ -4983,7 +4982,7 @@ namespace ConditionalAccess
 
 
                         string sPPVCode = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
-
+                        
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
 
@@ -4992,9 +4991,10 @@ namespace ConditionalAccess
                             IsCancellationWindow(ref oUsageModule, sPPVCode, dCreateDate, ref bCancellationWindow, eTransactionType.PPV);
                         }
 
+                        long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
 
                         PermittedMediaContainer p = new PermittedMediaContainer();
-                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
+                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, payMet, sDeviceUDID, sPPVCode, purchaseId, bCancellationWindow);
                         h[nMediaFileID] = p;
                         ++i;
                     }
@@ -5061,6 +5061,8 @@ namespace ConditionalAccess
                 if (allCollectionsPurchases != null)
                 {
                     Int32 nCount = allCollectionsPurchases.Rows.Count;
+                    ret = new PermittedCollectionContainer[nCount];
+
                     if (numOfItems == 0)
                     {
                         numOfItems = nCount;
@@ -5068,10 +5070,6 @@ namespace ConditionalAccess
                     else if (numOfItems != 0 && numOfItems < nCount)
                     {
                         nCount = numOfItems;
-                    }
-                    if (nCount > 0)
-                    {
-                        ret = new PermittedCollectionContainer[nCount];
                     }
                     int i = 0;
                     TvinciPricing.UsageModule oUsageModule = null;
@@ -5141,6 +5139,7 @@ namespace ConditionalAccess
                 log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
+                ret = null;
             }
             return ret;
         }
@@ -5190,6 +5189,8 @@ namespace ConditionalAccess
                 if (allSubscriptionsPurchases != null)
                 {
                     Int32 nCount = allSubscriptionsPurchases.Rows.Count;
+                    ret = new PermittedSubscriptionContainer[nCount];
+
                     if (numOfItems == 0)
                     {
                         numOfItems = nCount;
@@ -5197,10 +5198,6 @@ namespace ConditionalAccess
                     else if (numOfItems != 0 && numOfItems < nCount)
                     {
                         nCount = numOfItems;
-                    }
-                    if (nCount > 0)
-                    {
-                        ret = new PermittedSubscriptionContainer[nCount];
                     }
                     int i = 0;
 
@@ -5289,6 +5286,8 @@ namespace ConditionalAccess
 
                 log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
+
+                ret = null;
             }
             return ret;
         }
@@ -11959,9 +11958,9 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Subscriptions
         /// </summary>
-        public virtual Entitlement GetUserSubscriptions(string sSiteGUID)
+        public virtual Entitlements GetUserSubscriptions(string sSiteGUID)
         {
-            Entitlement response = new Entitlement();
+            Entitlements response = new Entitlements();
 
             try
             {
@@ -11969,29 +11968,115 @@ namespace ConditionalAccess
                 if (psc != null && psc.Length > 0)
                 {
                     // fill Entitlement object
-                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                    response.entitelments = new List<Entitlements>();
+                    response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.entitelments = new List<Entitlement>();
                     foreach (PermittedSubscriptionContainer item in psc)
                     {
-                        Entitlements ent = new Entitlements(item);
+                        Entitlement ent = new Entitlement(item);
                         response.entitelments.Add(ent);
                     }
                 }
                 else
                 {
-                    response = new Entitlement();
-                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                    response = new Entitlements();
+                    response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
                 }
             }
             catch (Exception ex)
             {
                 log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
-                response = new Entitlement();
-                response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                response = new Entitlements();
+                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             return response;
         }
 
+        /// <summary>
+        /// Get users' entitlements (PPV or subscriptions or collections)
+        /// </summary>
+        public virtual Entitlements GetUsersEntitlements(List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0)
+        {
+            Entitlements response = new Entitlements();
+            response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+
+            try
+            {
+
+                switch (type)
+                {
+                    case eTransactionType.PPV:
+                        {
+                            PermittedMediaContainer[] pmc = GetUserPermittedItems(userIds, false, 0);
+                            if (pmc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");                                
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedMediaContainer item in pmc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    case eTransactionType.Subscription:
+                        {
+                            PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(userIds, false, 0);
+                            if (psc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");  
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedSubscriptionContainer item in psc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    case eTransactionType.Collection:
+                        {
+                            PermittedCollectionContainer[] pcc = GetUserPermittedCollections(userIds, false, 0);
+                            if (pcc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedCollectionContainer item in pcc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
+                response = new Entitlements();
+                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type)
+        {
+            int userId;
+            int.TryParse(siteGuid, out userId);
+            return GetUsersEntitlements(new List<int>() { userId }, type);
+        }
+
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type)
+        {
+            List<int> intUsersList = GetDomainsUsers(domainId);
+            return GetUsersEntitlements(intUsersList, type);
+        }
 
         /// <summary>
         /// Purchase
