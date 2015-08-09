@@ -762,5 +762,40 @@ namespace ODBCWrapper
             }
             return sqlInfo;
         }
+
+        public static DataRow GetTableSingleRow(string tableName, long id, string connectionKey = "", int timeInCache = -1)
+        {
+            DataRow result = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            if (timeInCache != -1)
+            {
+                selectQuery.SetCachedSec(timeInCache);
+            }
+
+            if (connectionKey != "")
+            {
+                selectQuery.SetConnectionKey(connectionKey);
+            }
+
+            //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += "SELECT * FROM " + tableName + " WHERE ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", id);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                var table = selectQuery.Table("query");
+
+                if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0];
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
     }
 }
