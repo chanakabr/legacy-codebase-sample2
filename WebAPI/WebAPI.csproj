@@ -795,7 +795,7 @@
     <Compile Include="Models\Users\KalturaUserData.cs" />
     <Compile Include="Models\Users\KalturaUsersList.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
-    <Compile Include="Models\Users\KalturaUserType.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />

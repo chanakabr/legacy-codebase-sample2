@@ -30,7 +30,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
 
             // UserType
-            Mapper.CreateMap<Users.UserType, KalturaUserType>()
+            Mapper.CreateMap<Users.UserType, KalturaOTTUserType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
@@ -104,7 +104,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sCountryCode, opt => opt.MapFrom(src => src.Code));
 
             // UserType
-            Mapper.CreateMap<KalturaUserType, Users.UserType>()
+            Mapper.CreateMap<KalturaOTTUserType, Users.UserType>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 

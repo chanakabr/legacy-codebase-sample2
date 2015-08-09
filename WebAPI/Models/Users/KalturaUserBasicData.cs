@@ -132,6 +132,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "user_type")]
         [JsonProperty("user_type")]
         [XmlElement(ElementName = "user_type")]
-        public KalturaUserType UserType { get; set; }
+        public KalturaOTTUserType UserType { get; set; }
     }
 }
