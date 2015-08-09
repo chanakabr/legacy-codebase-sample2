@@ -182,6 +182,11 @@ namespace WebAPI
             foreach (Type controller in asm.GetTypes().Where(t => t.Namespace != null &&
                 t.Namespace.StartsWith("WebAPI.Controllers") && t.Name.EndsWith("Controller")).OrderBy(c => c.Name))
             {
+                var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
+
+                if (controllerAttr != null && controllerAttr.IgnoreApi)
+                    continue;
+
                 context.Response.Write(string.Format("\t<service name='{0}' id='{0}'>\n", controller.Name.Replace("Controller", "")));
                 var methods = controller.GetMethods().OrderBy(z => z.Name);
                 foreach (var method in methods)
