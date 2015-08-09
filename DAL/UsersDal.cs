@@ -1905,7 +1905,7 @@ namespace DAL
             }
         }
 
-        public static bool ExpirePINByUserID(int groupID, string siteGuid)
+        public static bool ExpirePINsByUserID(int groupID, string siteGuid)
         {
             try
             {
@@ -1967,6 +1967,23 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static bool UpdateLoginPinStatusByPinCode(int groupID, string siteGuid, string pinCode)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_LoginPinStatusByPinCode");
+                sp.AddParameter("@group_id", groupID);
+                sp.AddParameter("@site_guid", siteGuid);
+                sp.AddParameter("@pin_code", pinCode);
+                int rows = sp.ExecuteReturnValue<int>();
+                return rows > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
     } 
 }
