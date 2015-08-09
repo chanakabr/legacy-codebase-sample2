@@ -46,7 +46,8 @@ namespace PendingTransactionHandler
                 bool success = false;
                 
                 Status status = cas.CheckPendingTransaction(username, password, 
-                    request.PendingTransactionId, request.NumberOfRetries, request.BillingGuide, request.PaymengGatewayTransactionId);
+                    request.PendingTransactionId, request.NumberOfRetries, request.BillingGuide, request.PaymengGatewayTransactionId,
+                    request.SiteGuid, request.HouseholdId);
 
                 if (status != null && status.Code == 0)
                 {

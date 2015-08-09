@@ -4170,24 +4170,26 @@ namespace PendingTransactionHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId) {
+        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId, string siteGuid, long domainId) {
             object[] results = this.Invoke("CheckPendingTransaction", new object[] {
                         wsUserName,
                         wsPassword,
                         pendingTransactionId,
                         numberOfRetries,
                         billingGuid,
-                        paymengGatewayTransactionId});
+                        paymengGatewayTransactionId,
+                        siteGuid,
+                        domainId});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId) {
-            this.CheckPendingTransactionAsync(wsUserName, wsPassword, pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId, null);
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId, string siteGuid, long domainId) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId, siteGuid, domainId, null);
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId, object userState) {
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long pendingTransactionId, int numberOfRetries, string billingGuid, long paymengGatewayTransactionId, string siteGuid, long domainId, object userState) {
             if ((this.CheckPendingTransactionOperationCompleted == null)) {
                 this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
             }
@@ -4197,7 +4199,9 @@ namespace PendingTransactionHandler.WS_CAS {
                         pendingTransactionId,
                         numberOfRetries,
                         billingGuid,
-                        paymengGatewayTransactionId}, this.CheckPendingTransactionOperationCompleted, userState);
+                        paymengGatewayTransactionId,
+                        siteGuid,
+                        domainId}, this.CheckPendingTransactionOperationCompleted, userState);
         }
         
         private void OnCheckPendingTransactionOperationCompleted(object arg) {

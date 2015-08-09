@@ -45,5 +45,19 @@ namespace PendingTransactionHandler
             get;
             set;
         }
+
+        [JsonProperty("site_guid")]
+        public string SiteGuid
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("household_id")]
+        public long HouseholdId
+        {
+            get;
+            set;
+        }
     }
 }
