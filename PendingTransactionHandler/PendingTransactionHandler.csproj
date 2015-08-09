@@ -192,10 +192,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://192.168.162.178:82/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_CAS\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.162.178:82/ws_cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

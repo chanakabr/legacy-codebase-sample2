@@ -32,5 +32,15 @@ namespace PendingTransactionHandler.Properties {
                 return ((string)(this["PendingTransactionHandler_WS_CAS_module"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.162.178:82/ws_cas/module.asmx")]
+        public string PendingChargeHandler_WS_CAS_module {
+            get {
+                return ((string)(this["PendingChargeHandler_WS_CAS_module"]));
+            }
+        }
     }
 }

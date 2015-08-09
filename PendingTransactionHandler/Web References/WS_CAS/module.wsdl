@@ -7132,13 +7132,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap:address location="http://192.168.162.178:82/ws_cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap12:address location="http://192.168.162.178:82/ws_cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/ws_cas/module.asmx" />
+      <http:address location="http://192.168.162.178:82/ws_cas/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
