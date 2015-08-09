@@ -169,6 +169,7 @@
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
     <Compile Include="QueueObjects\IndexingData.cs" />
+    <Compile Include="QueueObjects\PendingTransactionData.cs" />
     <Compile Include="QueueObjects\PSNotificationData.cs" />
     <Compile Include="QueueObjects\QueueObject.cs" />
     <Compile Include="QueueObjects\SocialData.cs" />

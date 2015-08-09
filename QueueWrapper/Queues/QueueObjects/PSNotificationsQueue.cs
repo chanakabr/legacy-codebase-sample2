@@ -19,7 +19,7 @@ namespace QueueWrapper
             this.Implementation = new RabbitQueue(ConfigType.ProfessionalServicesNotificationsConfig, true);
         }
 
-        public override bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, string sRouteKey)
+        public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
         {
             return base.Enqueue(record, sRouteKey);
         }

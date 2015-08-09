@@ -1,4 +1,5 @@
-﻿using ApiObjects.MediaIndexingObjects;
+﻿using ApiObjects;
+using ApiObjects.MediaIndexingObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;

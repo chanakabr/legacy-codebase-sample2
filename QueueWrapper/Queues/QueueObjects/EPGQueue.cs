@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper.Enums;
+using ApiObjects;
 
 namespace QueueWrapper.Queues.QueueObjects
 {

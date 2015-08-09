@@ -6,7 +6,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 
-namespace ApiObjects.MediaIndexingObjects
+namespace ApiObjects
 {
     public abstract class QueueObject
     {
