@@ -1690,5 +1690,34 @@ namespace DAL
             }
             return createTransaction == 1;
         }
+
+        public static PaymentGatewayTransaction GetPaymentGatewayTransactionByID(long id)
+        {
+            PaymentGatewayTransaction response = null;
+
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("payment_gateway_transactions", id);
+
+            if (row != null)
+            {
+                response = new PaymentGatewayTransaction()
+                {
+                    ID = (int)id,
+                    BillingGuid = ODBCWrapper.Utils.ExtractString(row, "billing_guid"),
+                    ContentId = ODBCWrapper.Utils.ExtractInteger(row, "content_id"),
+                    ExternalStatus = ODBCWrapper.Utils.ExtractString(row, "external_status"),
+                    ExternalTransactionId = ODBCWrapper.Utils.ExtractString(row, "external_transaction_id"),
+                    FailReason = ODBCWrapper.Utils.ExtractInteger(row, "fail_reason"),
+                    Message = ODBCWrapper.Utils.ExtractString(row, "message"),
+                    PaymentDetails = ODBCWrapper.Utils.ExtractString(row, "payment_details"),
+                    PaymentGWId = ODBCWrapper.Utils.ExtractInteger(row, "payment_gateway_id"),
+                    PaymentMethod = ODBCWrapper.Utils.ExtractString(row, "payment_method"),
+                    ProductId = ODBCWrapper.Utils.ExtractInteger(row, "product_id"),
+                    ProductType = ODBCWrapper.Utils.ExtractInteger(row, "product_type"),
+                    State = ODBCWrapper.Utils.ExtractInteger(row, "state")
+                };
+            }
+
+            return response;
+        }
     }
 }
