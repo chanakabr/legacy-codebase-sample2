@@ -77,26 +77,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
                .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode))
-<<<<<<< HEAD
-               .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode));
-=======
                .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode))
                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
-
-            // PermittedMediaContainer to KalturaPermittedMedia
-            Mapper.CreateMap<ConditionalAccess.PermittedMediaContainer, KalturaPermittedMedia>()
-               .ForMember(dest => dest.CurrentViews, opt => opt.MapFrom(src => src.m_nCurrentUses))
-               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.m_sDeviceName))
-               .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.m_sDeviceUDID))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dEndDate))
-               .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
-               .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.m_bCancelWindow))
-               .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => src.m_dLastViewDate))
-               .ForMember(dest => dest.MaxViews, opt => opt.MapFrom(src => src.m_nMaxUses))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_nMediaID))
-               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.m_purchaseMethod))
-               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.m_dPurchaseDate));
->>>>>>> 194f9c4e35001f0349c03497dd20899337214339
         }
 
         // TransactionType to eTransactionType
