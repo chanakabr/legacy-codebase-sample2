@@ -841,7 +841,6 @@
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
     <Compile Include="Models\Catalog\KalturaAssetType.cs" />
-    <Compile Include="Models\Catalog\KalturaAutocompleteRequest.cs" />
     <Compile Include="Models\General\KalturaBaseListWrapper.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
