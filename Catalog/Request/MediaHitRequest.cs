@@ -151,7 +151,7 @@ namespace Catalog.Request
             int nFull = 0;
             int nExitFull = 0;
             int nSendToFriend = 0;
-            int nPlayTime = 30;
+            int nPlayTime = 0;
             int nMediaDuration = 0;
             DateTime dNow = DateTime.UtcNow;
             int nUpdaterID = 0;

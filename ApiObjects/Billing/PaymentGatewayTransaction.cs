@@ -8,7 +8,7 @@ namespace ApiObjects.Billing
     public class PaymentGatewayTransaction
     {
         public int ID { get; set; }
-        public int PaymentGWId { get; set; }
+        public int PaymentGatewayID { get; set; }
         public string ExternalTransactionId { get; set; }
         public string ExternalStatus { get; set; }
         public int ProductType { get; set; }
@@ -36,20 +36,20 @@ namespace ApiObjects.Billing
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="paymentGWTransaction"></param>
-        public PaymentGatewayTransaction(PaymentGatewayTransaction paymentGWTransaction)
+        /// <param name="original"></param>
+        public PaymentGatewayTransaction(PaymentGatewayTransaction original)
         {
-            this.ID = paymentGWTransaction.ID;
-            this.PaymentGWId = paymentGWTransaction.PaymentGWId;
-            this.ExternalTransactionId = paymentGWTransaction.ExternalTransactionId;
-            this.ExternalStatus = paymentGWTransaction.ExternalStatus;
-            this.ProductId = paymentGWTransaction.ProductId;
-            this.ProductType = paymentGWTransaction.ProductType;
-            this.BillingGuid = paymentGWTransaction.BillingGuid;
-            this.ContentId = paymentGWTransaction.ContentId;            
-            this.Message = paymentGWTransaction.Message;
-            this.State = paymentGWTransaction.State;
-            this.FailReason = paymentGWTransaction.FailReason;
+            this.ID = original.ID;
+            this.PaymentGatewayID = original.PaymentGatewayID;
+            this.ExternalTransactionId = original.ExternalTransactionId;
+            this.ExternalStatus = original.ExternalStatus;
+            this.ProductId = original.ProductId;
+            this.ProductType = original.ProductType;
+            this.BillingGuid = original.BillingGuid;
+            this.ContentId = original.ContentId;            
+            this.Message = original.Message;
+            this.State = original.State;
+            this.FailReason = original.FailReason;
         }
     }
 }
