@@ -2748,14 +2748,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
+        public PinCodeResponse SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
             object[] results = this.Invoke("SetLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         PIN,
                         secret});
-            return ((Status)(results[0]));
+            return ((PinCodeResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -6029,10 +6029,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public Status Result {
+        public PinCodeResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((PinCodeResponse)(this.results[0]));
             }
         }
     }
