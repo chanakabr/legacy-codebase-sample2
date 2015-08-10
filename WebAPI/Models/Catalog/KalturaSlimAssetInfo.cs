@@ -17,11 +17,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Assets
         /// </summary>
-        [DataMember(Name = "assets")]
-        [JsonProperty(PropertyName = "assets")]
-        [XmlArray(ElementName = "assets")]
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
-        public List<KalturaSlimAssetInfo> Assets { get; set; }
+        public List<KalturaSlimAssetInfo> Objects { get; set; }
     }
 
     /// <summary>

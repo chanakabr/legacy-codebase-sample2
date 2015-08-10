@@ -304,7 +304,7 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Assets = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;

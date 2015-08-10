@@ -18,15 +18,15 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// WatchHistoryAssets Models
         /// </summary>
-        [DataMember(Name = "assets")]
-        [JsonProperty(PropertyName = "assets")]
-        [XmlArray(ElementName = "assets")]
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
-        public List<KalturaWatchHistoryAsset> WatchHistoryAssets { get; set; }
+        public List<KalturaWatchHistoryAsset> Objects { get; set; }
 
         public KalturaWatchHistoryAssetWrapper()
         {            
-            WatchHistoryAssets = new List<KalturaWatchHistoryAsset>();
+            Objects = new List<KalturaWatchHistoryAsset>();
         }
     }
 

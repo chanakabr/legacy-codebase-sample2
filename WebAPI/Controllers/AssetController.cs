@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
                     page_size, media_ids.ToList(), with);
 
                 // if no response - return not found status 
-                if (response == null || response.Assets == null || response.Assets.Count == 0)
+                if (response == null || response.Objects == null || response.Objects.Count == 0)
                 {
                     throw new NotFoundException();
                 }
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
-        [ApiAuthorize]
+        //[ApiAuthorize]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query,
             List<KalturaCatalogWith> with = null, List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)

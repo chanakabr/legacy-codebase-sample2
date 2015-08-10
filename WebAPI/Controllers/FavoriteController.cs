@@ -132,9 +132,9 @@ namespace WebAPI.Controllers
                     favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
                     {
-                        if (favorites[favoriteIndex].Asset.Id == assetInfoWrapper.Assets[assertIndex].Id)
+                        if (favorites[favoriteIndex].Asset.Id == assetInfoWrapper.Objects[assertIndex].Id)
                         {
-                            favorites[favoriteIndex].Asset = assetInfoWrapper.Assets[assertIndex];
+                            favorites[favoriteIndex].Asset = assetInfoWrapper.Objects[assertIndex];
                             favoritesFinalList.Add(favorites[favoriteIndex]);
                             assertIndex++;
                         }
