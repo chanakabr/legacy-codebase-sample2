@@ -12851,14 +12851,14 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CheckPendingTransaction(long pendingTransactionId, int numberOfRetries, string billingGuid, 
-            long paymengGatewayTransactionId, string siteGuid, long domainId)
+        public ApiObjects.Response.Status CheckPendingTransaction(long paymentGatewayPendingId, int numberOfRetries, string billingGuid, 
+            long paymentGatewayTransactionId, string siteGuid, long domainId)
         {
             ApiObjects.Response.Status response = null;
 
             // log
-            log.DebugFormat("CheckPendingTransaction: pendingTransactionId {0}, numberOfRetries {1}, billingGuid {2}, paymengGatewayTransactionId {3}",
-                pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId);
+            log.DebugFormat("CheckPendingTransaction: paymentGatewayPendingId {0}, numberOfRetries {1}, billingGuid {2}, paymengGatewayTransactionId {3}",
+                paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId);
 
             try
             {
@@ -12888,8 +12888,8 @@ namespace ConditionalAccess
                 TvinciBilling.module billingWebService = null;
                 InitializeBillingModule(ref billingWebService, ref userName, ref password);
 
-                TransactionResponse billingResponse = null;
-                    // TODO: call billing
+                var billingResponse = billingWebService.CheckPendingTransaction(userName, password,
+                    paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid);
 
                 // validate response
                 if (billingResponse == null)
@@ -12943,8 +12943,8 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error("CheckPendingTransaction  ", ex);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while cfhecking pending transaction");
+                log.ErrorFormat("CheckPendingTransaction error {0} ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while checking pending transaction");
             }
 
             return response;          
