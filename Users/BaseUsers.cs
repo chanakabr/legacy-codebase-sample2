@@ -973,21 +973,25 @@ namespace Users
         /// <param name="groupID">group id</param>
         /// <param name="secret">must be supplied if security is forced</param>
         /// <returns></returns>
-        public ApiObjects.Response.Status SetLoginPIN(string siteGuid, string pinCode, int groupID, string secret)
+        public PinCodeResponse SetLoginPIN(string siteGuid, string pinCode, int groupID, string secret)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            PinCodeResponse response = new PinCodeResponse();
             try
             {
-                // check if user is valid 
                 string userName = string.Empty;
-                if (!IsUserValid(groupID, siteGuid, out response))
+
+                // check if user is valid 
+                ApiObjects.Response.Status status = null;
+                if (!IsUserValid(groupID, siteGuid, out status))
                 {
+                    response.resp = status;
                     return response;
                 }
 
                 // validate pin code
-                if (!isValidPIN(pinCode, out response))
+                if (!isValidPIN(pinCode, out status))
                 {
+                    response.resp = status;
                     return response;
                 }
 
@@ -1001,7 +1005,7 @@ namespace Users
                     // the pin code must be unique (among all other active pin codes) - if not return error
                     if (UsersDal.PinCodeExsits(groupID, pinCode, DateTime.UtcNow))
                     {                        
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     // insert new PIN to user with expired date 
                     else
@@ -1010,28 +1014,32 @@ namespace Users
 
                         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "login pin code was set for user");
+                            response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["expired_date"]);
+                            response.pinCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["pinCode"]);
+                            response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["user_id"]);
+
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "login pin code was set for user");
                         }
                         else
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to set pin code for user");
+                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to set pin code for user");
                         }
                     }
                 }
                 // login via pin is not allowed
                 else if (!loginViaPin)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "login via pin is not allowed");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "login via pin is not allowed");
                 }
                 // security parameter must be provided
                 else 
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "missing security parameter");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "missing security parameter");
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
                 Logger.Logger.Log("SetLoginPIN", string.Format("Failed ex = {0}, siteGuid = {1}, pinCode = {2}, groupID = {3}, ", ex.Message, siteGuid, pinCode, groupID), "Users");
             }
             return response;
