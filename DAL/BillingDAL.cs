@@ -1421,7 +1421,7 @@ namespace DAL
                 storedProcedure.AddParameter("@group_id", groupID);
                 storedProcedure.AddParameter("@domain_id", domainId);
                 storedProcedure.AddParameter("@site_guid", siteGuid);
-                storedProcedure.AddParameter("@payment_gateway_id", paymentGateway.PaymentGWId);
+                storedProcedure.AddParameter("@payment_gateway_id", paymentGateway.PaymentGatewayID);
                 storedProcedure.AddParameter("@external_transaction_id", paymentGateway.ExternalTransactionId);
                 storedProcedure.AddParameter("@external_status", paymentGateway.ExternalStatus);
                 storedProcedure.AddParameter("@product_type", paymentGateway.ProductType);
@@ -1451,7 +1451,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWTransactions");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@ID", pgt.ID);
-                sp.AddParameter("@payment_gateway_id", pgt.PaymentGWId);
+                sp.AddParameter("@payment_gateway_id", pgt.PaymentGatewayID);
                 sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
                 sp.AddParameter("@external_status", pgt.ExternalStatus);
                 sp.AddParameter("@product_type", pgt.ProductType);
@@ -1709,7 +1709,7 @@ namespace DAL
                     FailReason = ODBCWrapper.Utils.ExtractInteger(row, "fail_reason"),
                     Message = ODBCWrapper.Utils.ExtractString(row, "message"),
                     PaymentDetails = ODBCWrapper.Utils.ExtractString(row, "payment_details"),
-                    PaymentGWId = ODBCWrapper.Utils.ExtractInteger(row, "payment_gateway_id"),
+                    PaymentGatewayID = ODBCWrapper.Utils.ExtractInteger(row, "payment_gateway_id"),
                     PaymentMethod = ODBCWrapper.Utils.ExtractString(row, "payment_method"),
                     ProductId = ODBCWrapper.Utils.ExtractInteger(row, "product_id"),
                     ProductType = ODBCWrapper.Utils.ExtractInteger(row, "product_type"),
@@ -1718,6 +1718,28 @@ namespace DAL
             }
 
             return response;
+        }
+
+        public static int UpdatePaymentGatewayPending(int groupID, PaymentGatewayPending pending)
+        {
+            int result = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPending");
+                storedProcedure.SetConnectionKey("BILLING_CONNECTION_STRING");
+                storedProcedure.AddParameter("@billing_guid", pending.BillingGuid);
+                storedProcedure.AddParameter("@next_retry_date", pending.NextRetryDate);
+                storedProcedure.AddParameter("@adapter_retry_count", pending.AdapterRetryCount);
+
+                result = storedProcedure.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating payment Gateway pending pending: ex = {0}, billingGuid = {1}", ex, pending.BillingGuid);
+            }
+
+            return result;
         }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -740,7 +740,7 @@
       <s:complexType name="PaymentGatewayPending">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PaymentGWTransactionId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaymentGatewayTransactionId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="NextRetryDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="AdapterRetryCount" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="BillingGuid" type="s:string" />
@@ -800,17 +800,18 @@
       <s:complexType name="PaymentGatewayTransaction">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PaymentGWId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaymentGatewayID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="ExternalTransactionId" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="ExternalStatus" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="ProductType" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ProductId" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="BillingGuid" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="ContentId" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="AdapterMessage" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="FailReason" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentDetails" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentMethod" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="InsertPaymentGWTransactionResponse">
@@ -934,6 +935,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="PGResponseID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="tns:eTransactionState" />
           <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentDetails" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentMethod" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eTransactionState">
@@ -989,6 +992,26 @@
           <s:element minOccurs="1" maxOccurs="1" name="TransactionState" type="tns:eTransactionState" />
         </s:sequence>
       </s:complexType>
+      <s:element name="CheckPendingTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayPendingId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="numberOfRetries" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayTransactionId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckPendingTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckPendingTransactionResult" type="tns:TransactResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -1254,6 +1277,12 @@
   </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionSoapOut">
     <wsdl:part name="parameters" element="tns:UpdatePendingTransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckPendingTransaction" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckPendingTransactionResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1608,6 +1637,18 @@
   <wsdl:message name="UpdatePendingTransactionHttpPostOut">
     <wsdl:part name="Body" element="tns:UpdatePendingResponse" />
   </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayPendingId" type="s:string" />
+    <wsdl:part name="numberOfRetries" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetBillingCutomData">
       <wsdl:input message="tns:GetBillingCutomDataSoapIn" />
@@ -1777,6 +1818,10 @@
       <wsdl:input message="tns:UpdatePendingTransactionSoapIn" />
       <wsdl:output message="tns:UpdatePendingTransactionSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionSoapIn" />
+      <wsdl:output message="tns:CheckPendingTransactionSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetBillingCutomData">
@@ -1910,6 +1955,10 @@
     <wsdl:operation name="UpdatePendingTransaction">
       <wsdl:input message="tns:UpdatePendingTransactionHttpPostIn" />
       <wsdl:output message="tns:UpdatePendingTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:CheckPendingTransactionHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2285,6 +2334,15 @@
     </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <soap:operation soapAction="http://billing.tvinci.com/UpdatePendingTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <soap:operation soapAction="http://billing.tvinci.com/CheckPendingTransaction" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2673,6 +2731,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <soap12:operation soapAction="http://billing.tvinci.com/CheckPendingTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2971,16 +3038,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <http:operation location="/CheckPendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_Billing/module.asmx" />
+      <soap:address location="http://localhost:82/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_Billing/module.asmx" />
+      <soap12:address location="http://localhost:82/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_Billing/module.asmx" />
+      <http:address location="http://localhost:82/WS_Billing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
