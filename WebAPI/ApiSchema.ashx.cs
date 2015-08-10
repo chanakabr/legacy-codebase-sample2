@@ -68,6 +68,9 @@ namespace WebAPI
             List<Field> fields = new List<Field>();
             foreach (Type tp in types)
             {
+                if (tp.IsInterface)
+                    continue;
+
                 if (tp.IsEnum)
                     continue;
 
