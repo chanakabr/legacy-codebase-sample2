@@ -130,7 +130,7 @@ namespace WebAPI.Clients
                     result.Assets = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
                 }
 
-                result.TotalItems = searchResponse.m_nTotalItems;
+                result.TotalCount = searchResponse.m_nTotalItems;
             }
             return result;
         }
@@ -207,7 +207,7 @@ namespace WebAPI.Clients
                     result.Assets = assetsInfo.Select(a => (KalturaSlimAssetInfo)a).ToList();
                 }
 
-                result.TotalItems = searchResponse.m_nTotalItems;
+                result.TotalCount = searchResponse.m_nTotalItems;
             }
 
             return result;
@@ -260,7 +260,7 @@ namespace WebAPI.Clients
                 List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
-                finalResults.TotalItems = watchHistoryResponse.m_nTotalItems;
+                finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
 
                 UserWatchHistory watchHistory = new UserWatchHistory();
                 foreach (var assetInfo in assetsInfo)
@@ -400,7 +400,7 @@ namespace WebAPI.Clients
             {
 
                 result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, channelResponse.m_nMedias, request, CacheDuration, with);
-                result.TotalItems = channelResponse.m_nTotalItems;
+                result.TotalCount = channelResponse.m_nTotalItems;
             }
             return result;
         }
@@ -439,7 +439,7 @@ namespace WebAPI.Clients
             {
 
                 result.Assets = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
-                result.TotalItems = mediaIdsResponse.m_nTotalItems;
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
             return result;

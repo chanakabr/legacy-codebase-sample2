@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset wrapper
     /// </summary>
     [Serializable]
-    public class KalturaWatchHistoryAssetWrapper : KalturaBaseListWrapper, KalturaIAssetable
+    public class KalturaWatchHistoryAssetWrapper : KalturaListResponse, KalturaIAssetable
     {
         /// <summary>
         /// WatchHistoryAssets Models

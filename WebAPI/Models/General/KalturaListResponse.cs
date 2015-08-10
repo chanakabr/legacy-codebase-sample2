@@ -12,14 +12,14 @@ namespace WebAPI.Models.General
     /// Base list wrapper
     /// </summary>
     [Serializable]
-    public class KalturaBaseListWrapper : KalturaOTTObject
+    public class KalturaListResponse : KalturaOTTObject
     {
         /// <summary>
         /// Total items
         /// </summary>
-        [DataMember(Name = "total_items")]
-        [JsonProperty(PropertyName = "total_items")]
-        [XmlElement(ElementName="total_items")]
-        public int TotalItems { get; set; }
+        [DataMember(Name = "totalCount")]
+        [JsonProperty(PropertyName = "totalCount")]
+        [XmlElement(ElementName = "totalCount")]
+        public int TotalCount { get; set; }
     }
 }
