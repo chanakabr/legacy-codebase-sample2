@@ -30,6 +30,8 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PPVModule))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
+        private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -194,13 +196,13 @@ namespace PendingTransactionHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback PurchaseOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GrantEntitlementsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
         
         private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserEntitlementsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -239,6 +241,9 @@ namespace PendingTransactionHandler.WS_CAS {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
+        
+        /// <remarks/>
+        public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -487,6 +492,9 @@ namespace PendingTransactionHandler.WS_CAS {
         public event PurchaseCompletedEventHandler PurchaseCompleted;
         
         /// <remarks/>
+        public event GrantEntitlementsCompletedEventHandler GrantEntitlementsCompleted;
+        
+        /// <remarks/>
         public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
         
         /// <remarks/>
@@ -496,7 +504,39 @@ namespace PendingTransactionHandler.WS_CAS {
         public event GetUserEntitlementsCompletedEventHandler GetUserEntitlementsCompleted;
         
         /// <remarks/>
-        public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
+            object[] results = this.Invoke("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type});
+            return ((Entitlements)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
+            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, object userState) {
+            if ((this.GetDomainEntitlementsOperationCompleted == null)) {
+                this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type}, this.GetDomainEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainEntitlementsOperationCompleted(object arg) {
+            if ((this.GetDomainEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -4134,6 +4174,53 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GrantEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status GrantEntitlements(string sWSUserName, string sWSPassword, string siteguid, long housholdId, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, bool history) {
+            object[] results = this.Invoke("GrantEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        housholdId,
+                        contentId,
+                        productId,
+                        transactionType,
+                        userIp,
+                        deviceName,
+                        history});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GrantEntitlementsAsync(string sWSUserName, string sWSPassword, string siteguid, long housholdId, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, bool history) {
+            this.GrantEntitlementsAsync(sWSUserName, sWSPassword, siteguid, housholdId, contentId, productId, transactionType, userIp, deviceName, history, null);
+        }
+        
+        /// <remarks/>
+        public void GrantEntitlementsAsync(string sWSUserName, string sWSPassword, string siteguid, long housholdId, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, bool history, object userState) {
+            if ((this.GrantEntitlementsOperationCompleted == null)) {
+                this.GrantEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGrantEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GrantEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        housholdId,
+                        contentId,
+                        productId,
+                        transactionType,
+                        userIp,
+                        deviceName,
+                        history}, this.GrantEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGrantEntitlementsOperationCompleted(object arg) {
+            if ((this.GrantEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GrantEntitlementsCompleted(this, new GrantEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
@@ -4257,41 +4344,6 @@ namespace PendingTransactionHandler.WS_CAS {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
-            object[] results = this.Invoke("GetDomainEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        domainId,
-                        type});
-            return ((Entitlements)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
-            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, null);
-        }
-        
-        /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, object userState) {
-            if ((this.GetDomainEntitlementsOperationCompleted == null)) {
-                this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
-            }
-            this.InvokeAsync("GetDomainEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        domainId,
-                        type}, this.GetDomainEntitlementsOperationCompleted, userState);
-        }
-        
-        private void OnGetDomainEntitlementsOperationCompleted(object arg) {
-            if ((this.GetDomainEntitlementsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4313,176 +4365,48 @@ namespace PendingTransactionHandler.WS_CAS {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum eTransactionType {
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+        
+        /// <remarks/>
+        Collection,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PermittedMediaContainer {
+    public partial class Entitlements {
         
-        private int m_nMediaIDField;
+        private Status statusField;
         
-        private int m_nMediaFileIDField;
-        
-        private int m_nMaxUsesField;
-        
-        private int m_nCurrentUsesField;
-        
-        private System.DateTime m_dEndDateField;
-        
-        private System.DateTime m_dCurrentDateField;
-        
-        private System.DateTime m_dPurchaseDateField;
-        
-        private System.DateTime m_dLastViewDateField;
-        
-        private PaymentMethod m_purchaseMethodField;
-        
-        private string m_sDeviceUDIDField;
-        
-        private string m_sDeviceNameField;
-        
-        private bool m_bCancelWindowField;
-        
-        private long purchaseIDField;
-        
-        private string pPVCodeField;
+        private Entitlement[] entitelmentsField;
         
         /// <remarks/>
-        public int m_nMediaID {
+        public Status status {
             get {
-                return this.m_nMediaIDField;
+                return this.statusField;
             }
             set {
-                this.m_nMediaIDField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nMediaFileID {
+        public Entitlement[] entitelments {
             get {
-                return this.m_nMediaFileIDField;
+                return this.entitelmentsField;
             }
             set {
-                this.m_nMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxUses {
-            get {
-                return this.m_nMaxUsesField;
-            }
-            set {
-                this.m_nMaxUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCurrentUses {
-            get {
-                return this.m_nCurrentUsesField;
-            }
-            set {
-                this.m_nCurrentUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dCurrentDate {
-            get {
-                return this.m_dCurrentDateField;
-            }
-            set {
-                this.m_dCurrentDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dPurchaseDate {
-            get {
-                return this.m_dPurchaseDateField;
-            }
-            set {
-                this.m_dPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dLastViewDate {
-            get {
-                return this.m_dLastViewDateField;
-            }
-            set {
-                this.m_dLastViewDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod m_purchaseMethod {
-            get {
-                return this.m_purchaseMethodField;
-            }
-            set {
-                this.m_purchaseMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceUDID {
-            get {
-                return this.m_sDeviceUDIDField;
-            }
-            set {
-                this.m_sDeviceUDIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceName {
-            get {
-                return this.m_sDeviceNameField;
-            }
-            set {
-                this.m_sDeviceNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long PurchaseID {
-            get {
-                return this.purchaseIDField;
-            }
-            set {
-                this.purchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PPVCode {
-            get {
-                return this.pPVCodeField;
-            }
-            set {
-                this.pPVCodeField = value;
+                this.entitelmentsField = value;
             }
         }
     }
@@ -4490,50 +4414,34 @@ namespace PendingTransactionHandler.WS_CAS {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum PaymentMethod {
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
         
         /// <remarks/>
-        Unknown,
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
         
         /// <remarks/>
-        CreditCard,
-        
-        /// <remarks/>
-        SMS,
-        
-        /// <remarks/>
-        PayPal,
-        
-        /// <remarks/>
-        DebitCard,
-        
-        /// <remarks/>
-        Ideal,
-        
-        /// <remarks/>
-        Incaso,
-        
-        /// <remarks/>
-        Gift,
-        
-        /// <remarks/>
-        Visa,
-        
-        /// <remarks/>
-        MasterCard,
-        
-        /// <remarks/>
-        InApp,
-        
-        /// <remarks/>
-        M1,
-        
-        /// <remarks/>
-        ChangeSubscription,
-        
-        /// <remarks/>
-        Offline,
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -4625,313 +4533,6 @@ namespace PendingTransactionHandler.WS_CAS {
             }
             set {
                 this.createdAtField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Entitlement {
-        
-        private int mediaFileIDField;
-        
-        private eTransactionType typeField;
-        
-        private string entitlementIdField;
-        
-        private int currentUsesField;
-        
-        private System.DateTime endDateField;
-        
-        private System.DateTime currentDateField;
-        
-        private System.DateTime lastViewDateField;
-        
-        private System.DateTime purchaseDateField;
-        
-        private int purchaseIDField;
-        
-        private PaymentMethod paymentMethodField;
-        
-        private string deviceUDIDField;
-        
-        private string deviceNameField;
-        
-        private bool cancelWindowField;
-        
-        private int maxUsesField;
-        
-        private System.DateTime nextRenewalDateField;
-        
-        private bool recurringStatusField;
-        
-        private bool isRenewableField;
-        
-        private int mediaIDField;
-        
-        /// <remarks/>
-        public int mediaFileID {
-            get {
-                return this.mediaFileIDField;
-            }
-            set {
-                this.mediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eTransactionType type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string entitlementId {
-            get {
-                return this.entitlementIdField;
-            }
-            set {
-                this.entitlementIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int currentUses {
-            get {
-                return this.currentUsesField;
-            }
-            set {
-                this.currentUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime endDate {
-            get {
-                return this.endDateField;
-            }
-            set {
-                this.endDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime currentDate {
-            get {
-                return this.currentDateField;
-            }
-            set {
-                this.currentDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime lastViewDate {
-            get {
-                return this.lastViewDateField;
-            }
-            set {
-                this.lastViewDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime purchaseDate {
-            get {
-                return this.purchaseDateField;
-            }
-            set {
-                this.purchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int purchaseID {
-            get {
-                return this.purchaseIDField;
-            }
-            set {
-                this.purchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod paymentMethod {
-            get {
-                return this.paymentMethodField;
-            }
-            set {
-                this.paymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string deviceUDID {
-            get {
-                return this.deviceUDIDField;
-            }
-            set {
-                this.deviceUDIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string deviceName {
-            get {
-                return this.deviceNameField;
-            }
-            set {
-                this.deviceNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool cancelWindow {
-            get {
-                return this.cancelWindowField;
-            }
-            set {
-                this.cancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int maxUses {
-            get {
-                return this.maxUsesField;
-            }
-            set {
-                this.maxUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime nextRenewalDate {
-            get {
-                return this.nextRenewalDateField;
-            }
-            set {
-                this.nextRenewalDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool recurringStatus {
-            get {
-                return this.recurringStatusField;
-            }
-            set {
-                this.recurringStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool isRenewable {
-            get {
-                return this.isRenewableField;
-            }
-            set {
-                this.isRenewableField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int mediaID {
-            get {
-                return this.mediaIDField;
-            }
-            set {
-                this.mediaIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum eTransactionType {
-        
-        /// <remarks/>
-        PPV,
-        
-        /// <remarks/>
-        Subscription,
-        
-        /// <remarks/>
-        Collection,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Entitlements {
-        
-        private Status statusField;
-        
-        private Entitlement[] entitelmentsField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Entitlement[] entitelments {
-            get {
-                return this.entitelmentsField;
-            }
-            set {
-                this.entitelmentsField = value;
             }
         }
     }
@@ -5124,14 +4725,14 @@ namespace PendingTransactionHandler.WS_CAS {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
@@ -5220,7 +4821,7 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
+    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5283,7 +4884,7 @@ namespace PendingTransactionHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -8244,6 +7845,55 @@ namespace PendingTransactionHandler.WS_CAS {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum PaymentMethod {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        CreditCard,
+        
+        /// <remarks/>
+        SMS,
+        
+        /// <remarks/>
+        PayPal,
+        
+        /// <remarks/>
+        DebitCard,
+        
+        /// <remarks/>
+        Ideal,
+        
+        /// <remarks/>
+        Incaso,
+        
+        /// <remarks/>
+        Gift,
+        
+        /// <remarks/>
+        Visa,
+        
+        /// <remarks/>
+        MasterCard,
+        
+        /// <remarks/>
+        InApp,
+        
+        /// <remarks/>
+        M1,
+        
+        /// <remarks/>
+        ChangeSubscription,
+        
+        /// <remarks/>
+        Offline,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
@@ -8891,6 +8541,408 @@ namespace PendingTransactionHandler.WS_CAS {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainer {
+        
+        private int m_nMediaIDField;
+        
+        private int m_nMediaFileIDField;
+        
+        private int m_nMaxUsesField;
+        
+        private int m_nCurrentUsesField;
+        
+        private System.DateTime m_dEndDateField;
+        
+        private System.DateTime m_dCurrentDateField;
+        
+        private System.DateTime m_dPurchaseDateField;
+        
+        private System.DateTime m_dLastViewDateField;
+        
+        private PaymentMethod m_purchaseMethodField;
+        
+        private string m_sDeviceUDIDField;
+        
+        private string m_sDeviceNameField;
+        
+        private bool m_bCancelWindowField;
+        
+        private long purchaseIDField;
+        
+        private string pPVCodeField;
+        
+        /// <remarks/>
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                this.m_nMediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMediaFileID {
+            get {
+                return this.m_nMediaFileIDField;
+            }
+            set {
+                this.m_nMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxUses {
+            get {
+                return this.m_nMaxUsesField;
+            }
+            set {
+                this.m_nMaxUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nCurrentUses {
+            get {
+                return this.m_nCurrentUsesField;
+            }
+            set {
+                this.m_nCurrentUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dCurrentDate {
+            get {
+                return this.m_dCurrentDateField;
+            }
+            set {
+                this.m_dCurrentDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dPurchaseDate {
+            get {
+                return this.m_dPurchaseDateField;
+            }
+            set {
+                this.m_dPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dLastViewDate {
+            get {
+                return this.m_dLastViewDateField;
+            }
+            set {
+                this.m_dLastViewDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod m_purchaseMethod {
+            get {
+                return this.m_purchaseMethodField;
+            }
+            set {
+                this.m_purchaseMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceUDID {
+            get {
+                return this.m_sDeviceUDIDField;
+            }
+            set {
+                this.m_sDeviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceName {
+            get {
+                return this.m_sDeviceNameField;
+            }
+            set {
+                this.m_sDeviceNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long PurchaseID {
+            get {
+                return this.purchaseIDField;
+            }
+            set {
+                this.purchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PPVCode {
+            get {
+                return this.pPVCodeField;
+            }
+            set {
+                this.pPVCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Entitlement {
+        
+        private int mediaFileIDField;
+        
+        private eTransactionType typeField;
+        
+        private string entitlementIdField;
+        
+        private int currentUsesField;
+        
+        private System.DateTime endDateField;
+        
+        private System.DateTime currentDateField;
+        
+        private System.DateTime lastViewDateField;
+        
+        private System.DateTime purchaseDateField;
+        
+        private int purchaseIDField;
+        
+        private PaymentMethod paymentMethodField;
+        
+        private string deviceUDIDField;
+        
+        private string deviceNameField;
+        
+        private bool cancelWindowField;
+        
+        private int maxUsesField;
+        
+        private System.DateTime nextRenewalDateField;
+        
+        private bool recurringStatusField;
+        
+        private bool isRenewableField;
+        
+        private int mediaIDField;
+        
+        /// <remarks/>
+        public int mediaFileID {
+            get {
+                return this.mediaFileIDField;
+            }
+            set {
+                this.mediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eTransactionType type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string entitlementId {
+            get {
+                return this.entitlementIdField;
+            }
+            set {
+                this.entitlementIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int currentUses {
+            get {
+                return this.currentUsesField;
+            }
+            set {
+                this.currentUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime endDate {
+            get {
+                return this.endDateField;
+            }
+            set {
+                this.endDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime currentDate {
+            get {
+                return this.currentDateField;
+            }
+            set {
+                this.currentDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime lastViewDate {
+            get {
+                return this.lastViewDateField;
+            }
+            set {
+                this.lastViewDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime purchaseDate {
+            get {
+                return this.purchaseDateField;
+            }
+            set {
+                this.purchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int purchaseID {
+            get {
+                return this.purchaseIDField;
+            }
+            set {
+                this.purchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod paymentMethod {
+            get {
+                return this.paymentMethodField;
+            }
+            set {
+                this.paymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string deviceUDID {
+            get {
+                return this.deviceUDIDField;
+            }
+            set {
+                this.deviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string deviceName {
+            get {
+                return this.deviceNameField;
+            }
+            set {
+                this.deviceNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool cancelWindow {
+            get {
+                return this.cancelWindowField;
+            }
+            set {
+                this.cancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int maxUses {
+            get {
+                return this.maxUsesField;
+            }
+            set {
+                this.maxUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime nextRenewalDate {
+            get {
+                return this.nextRenewalDateField;
+            }
+            set {
+                this.nextRenewalDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool recurringStatus {
+            get {
+                return this.recurringStatusField;
+            }
+            set {
+                this.recurringStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool isRenewable {
+            get {
+                return this.isRenewableField;
+            }
+            set {
+                this.isRenewableField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int mediaID {
+            get {
+                return this.mediaIDField;
+            }
+            set {
+                this.mediaIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
@@ -8945,6 +8997,32 @@ namespace PendingTransactionHandler.WS_CAS {
         
         /// <remarks/>
         UserSuspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Entitlements Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Entitlements)(this.results[0]));
+            }
+        }
     }
     
     /// <remarks/>
@@ -11089,6 +11167,32 @@ namespace PendingTransactionHandler.WS_CAS {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GrantEntitlementsCompletedEventHandler(object sender, GrantEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GrantEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GrantEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void UpdatePendingTransactionCompletedEventHandler(object sender, UpdatePendingTransactionCompletedEventArgs e);
     
     /// <remarks/>
@@ -11152,32 +11256,6 @@ namespace PendingTransactionHandler.WS_CAS {
         private object[] results;
         
         internal GetUserEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Entitlements Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Entitlements)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetDomainEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
