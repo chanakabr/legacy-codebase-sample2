@@ -20,8 +20,8 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User to charge </param>
         /// <param name="household_id">Household to charge </param>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
-        /// <param name="currency">Identifier for paying currency, accirding to ISO 4217</param>
-        /// <param name="content_id">Identifier for the content to purchase. Relevent only if Product type = PPV</param>
+        /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
+        /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="coupon">Coupon code</param> 

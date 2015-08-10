@@ -290,9 +290,6 @@
     <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\Entitlement.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\ConditionalAccess\BillingTransactions.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -393,6 +390,9 @@
     <Content Include="Web References\Billing\PaymentGatewaySettingsResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\Entitlements.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -428,6 +428,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\TransactionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PermittedMediaContainerResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Domains\module.disco" />
@@ -653,9 +656,6 @@
     <Content Include="Web References\Users\UserGroupRuleResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Users\UserItemList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Users\UserOfflineObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -727,8 +727,8 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactions.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPermittedMedia.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPermittedMediaList.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
@@ -932,6 +932,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Users\UsersResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UserItemListsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">

@@ -103,7 +103,7 @@ namespace WebAPI.Clients
         public List<Models.ConditionalAccess.KalturaEntitlement> GetUserSubscriptions(int groupId, string user_id)
         {
             List<WebAPI.Models.ConditionalAccess.KalturaEntitlement> entitlements = null;
-            WebAPI.ConditionalAccess.Entitlement response = null;
+            WebAPI.ConditionalAccess.Entitlements response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -124,9 +124,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (response.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.status.Code, response.status.Message);
             }
 
             entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(response.entitelments);
@@ -402,6 +402,132 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(wsResponse.Code, wsResponse.Message);
             }
+        }
+
+        //internal List<KalturaEntitlement> GetDomainPermittedItems(int groupId, int domainId)
+        //{
+        //    List<KalturaEntitlement> entitlements = null;
+        //    PermittedMediaContainerResponse wsResponse = new PermittedMediaContainerResponse();
+
+        //    // get group ID
+        //    Group group = GroupsManager.GetGroup(groupId);
+
+        //    try
+        //    {
+        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+        //        {
+        //            // fire request
+        //            wsResponse = ConditionalAccess.GetDomainPermittedItems(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+        //        ErrorUtils.HandleWSException(ex);
+        //    }
+
+        //    if (wsResponse == null)
+        //    {
+        //        // general exception
+        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //    }
+
+        //    if (wsResponse.Status.Code != (int)StatusCode.OK)
+        //    {
+        //        // internal web service exception
+        //        throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+        //    }
+
+        //    // convert response
+        //    entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.PermittedMediaContainer);
+
+        //    return entitlements;
+        //}
+
+        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type)
+        {
+            List<KalturaEntitlement> entitlements = null;
+            Entitlements wsResponse = null;
+
+            // convert WS eTransactionType to KalturaTransactionType
+            eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = ConditionalAccess.GetDomainEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, wsType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
+            }
+
+            // convert response
+            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
+
+            return entitlements;
+        }
+
+        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type)
+        {
+            List<KalturaEntitlement> entitlements = null;
+            Entitlements wsResponse = null;
+
+            // convert WS eTransactionType to KalturaTransactionType
+            eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = ConditionalAccess.GetUserEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
+            }
+
+            // convert response
+            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
+
+            return entitlements;
         }
     }
 }

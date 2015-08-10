@@ -16,23 +16,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             // WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
-            Mapper.CreateMap<ConditionalAccess.Entitlements, KalturaEntitlement>()
-               .ForMember(dest => dest.entitlementId, opt => opt.MapFrom(src => src.entitlementsId))
-               .ForMember(dest => dest.currentUses, opt => opt.MapFrom(src => src.currentUses))
-               .ForMember(dest => dest.currentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
-               .ForMember(dest => dest.lastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
-               .ForMember(dest => dest.purchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.purchaseDate)))
-               .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.purchaseID))
-               .ForMember(dest => dest.deviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
-               .ForMember(dest => dest.deviceName, opt => opt.MapFrom(src => src.deviceName))
-               .ForMember(dest => dest.cancelWindow, opt => opt.MapFrom(src => src.cancelWindow))
-               .ForMember(dest => dest.maxUses, opt => opt.MapFrom(src => src.maxUses))
-               .ForMember(dest => dest.nextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
-               .ForMember(dest => dest.recurringStatus, opt => opt.MapFrom(src => src.recurringStatus))
-               .ForMember(dest => dest.isRenewable, opt => opt.MapFrom(src => src.isRenewable))
-               .ForMember(dest => dest.mediaFileID, opt => opt.MapFrom(src => src.mediaFileID))
-               .ForMember(dest => dest.type, opt => opt.MapFrom(src => src.type))
-               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.paymentMethod));
+            Mapper.CreateMap<ConditionalAccess.Entitlement, KalturaEntitlement>()
+               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
+               .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => src.currentDate))
+               .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => src.lastViewDate))
+               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.purchaseDate))
+               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
+               .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+               .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
+               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => src.nextRenewalDate))
+               .ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))
+               .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => src.mediaFileID))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.endDate))
+               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
+               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
 
             // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
             Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, KalturaBillingTransaction>()
@@ -77,20 +79,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode))
                .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode))
                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
-
-            // PermittedMediaContainer to KalturaPermittedMedia
-            Mapper.CreateMap<ConditionalAccess.PermittedMediaContainer, KalturaPermittedMedia>()
-               .ForMember(dest => dest.CurrentViews, opt => opt.MapFrom(src => src.m_nCurrentUses))
-               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.m_sDeviceName))
-               .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.m_sDeviceUDID))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dEndDate))
-               .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
-               .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.m_bCancelWindow))
-               .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => src.m_dLastViewDate))
-               .ForMember(dest => dest.MaxViews, opt => opt.MapFrom(src => src.m_nMaxUses))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_nMediaID))
-               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.m_purchaseMethod))
-               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.m_dPurchaseDate));
         }
 
         // TransactionType to eTransactionType

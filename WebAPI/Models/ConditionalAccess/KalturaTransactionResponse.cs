@@ -38,7 +38,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string PGResponseID { get; set; }
 
         /// <summary>
-        /// Transaction state
+        /// Transaction state: OK/Pending/Failed
         /// </summary>
         [DataMember(Name = "state")]
         [JsonProperty("state")]

@@ -196,6 +196,10 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUserEntitlementsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -484,6 +488,12 @@ namespace WebAPI.ConditionalAccess {
         public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
         
         /// <remarks/>
+        public event GetUserEntitlementsCompletedEventHandler GetUserEntitlementsCompleted;
+        
+        /// <remarks/>
+        public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PermittedMediaContainer[] GetUserPermittedItems(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetUserPermittedItems", new object[] {
@@ -518,12 +528,12 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PermittedMediaContainer[] GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
+        public PermittedMediaContainerResponse GetDomainPermittedItems(string sWSUserName, string sWSPassword, int nDomainID) {
             object[] results = this.Invoke("GetDomainPermittedItems", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID});
-            return ((PermittedMediaContainer[])(results[0]));
+            return ((PermittedMediaContainerResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4034,12 +4044,12 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserSubscriptions", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlement GetUserSubscriptions(string sWSUserName, string sWSPassword, string sSiteGUID) {
+        public Entitlements GetUserSubscriptions(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetUserSubscriptions", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGUID});
-            return ((Entitlement)(results[0]));
+            return ((Entitlements)(results[0]));
         }
         
         /// <remarks/>
@@ -4164,6 +4174,76 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type) {
+            object[] results = this.Invoke("GetUserEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        type});
+            return ((Entitlements)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type) {
+            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, object userState) {
+            if ((this.GetUserEntitlementsOperationCompleted == null)) {
+                this.GetUserEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        type}, this.GetUserEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserEntitlementsOperationCompleted(object arg) {
+            if ((this.GetUserEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserEntitlementsCompleted(this, new GetUserEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
+            object[] results = this.Invoke("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type});
+            return ((Entitlements)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
+            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, object userState) {
+            if ((this.GetDomainEntitlementsOperationCompleted == null)) {
+                this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type}, this.GetDomainEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainEntitlementsOperationCompleted(object arg) {
+            if ((this.GetDomainEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4213,6 +4293,10 @@ namespace WebAPI.ConditionalAccess {
         private string m_sDeviceNameField;
         
         private bool m_bCancelWindowField;
+        
+        private long purchaseIDField;
+        
+        private string pPVCodeField;
         
         /// <remarks/>
         public int m_nMediaID {
@@ -4331,6 +4415,26 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long PurchaseID {
+            get {
+                return this.purchaseIDField;
+            }
+            set {
+                this.purchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PPVCode {
+            get {
+                return this.pPVCodeField;
+            }
+            set {
+                this.pPVCodeField = value;
             }
         }
     }
@@ -4516,13 +4620,13 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Entitlements {
+    public partial class Entitlement {
         
         private int mediaFileIDField;
         
         private eTransactionType typeField;
         
-        private string entitlementsIdField;
+        private string entitlementIdField;
         
         private int currentUsesField;
         
@@ -4552,6 +4656,8 @@ namespace WebAPI.ConditionalAccess {
         
         private bool isRenewableField;
         
+        private int mediaIDField;
+        
         /// <remarks/>
         public int mediaFileID {
             get {
@@ -4573,12 +4679,12 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string entitlementsId {
+        public string entitlementId {
             get {
-                return this.entitlementsIdField;
+                return this.entitlementIdField;
             }
             set {
-                this.entitlementsIdField = value;
+                this.entitlementIdField = value;
             }
         }
         
@@ -4721,6 +4827,16 @@ namespace WebAPI.ConditionalAccess {
                 this.isRenewableField = value;
             }
         }
+        
+        /// <remarks/>
+        public int mediaID {
+            get {
+                return this.mediaIDField;
+            }
+            set {
+                this.mediaIDField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -4745,24 +4861,24 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Entitlement {
+    public partial class Entitlements {
         
-        private Status respField;
+        private Status statusField;
         
-        private Entitlements[] entitelmentsField;
+        private Entitlement[] entitelmentsField;
         
         /// <remarks/>
-        public Status resp {
+        public Status status {
             get {
-                return this.respField;
+                return this.statusField;
             }
             set {
-                this.respField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public Entitlements[] entitelments {
+        public Entitlement[] entitelments {
             get {
                 return this.entitelmentsField;
             }
@@ -4839,8 +4955,8 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
@@ -4881,6 +4997,15 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelDeleteResponse : NPVRResponse {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LicensedLinkNPVRResponse : NPVRResponse {
         
         private string mainUrlField;
@@ -4894,15 +5019,6 @@ namespace WebAPI.ConditionalAccess {
                 this.mainUrlField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelDeleteResponse : NPVRResponse {
     }
     
     /// <remarks/>
@@ -4960,13 +5076,13 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
@@ -5056,7 +5172,7 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5065,7 +5181,7 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5083,7 +5199,16 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5102,15 +5227,6 @@ namespace WebAPI.ConditionalAccess {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -8694,6 +8810,39 @@ namespace WebAPI.ConditionalAccess {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainerResponse {
+        
+        private PermittedMediaContainer[] permittedMediaContainerField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PermittedMediaContainer[] PermittedMediaContainer {
+            get {
+                return this.permittedMediaContainerField;
+            }
+            set {
+                this.permittedMediaContainerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
@@ -8794,10 +8943,10 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public PermittedMediaContainer[] Result {
+        public PermittedMediaContainerResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PermittedMediaContainer[])(this.results[0]));
+                return ((PermittedMediaContainerResponse)(this.results[0]));
             }
         }
     }
@@ -10856,10 +11005,10 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public Entitlement Result {
+        public Entitlements Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Entitlement)(this.results[0]));
+                return ((Entitlements)(this.results[0]));
             }
         }
     }
@@ -10912,6 +11061,58 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetUserEntitlementsCompletedEventHandler(object sender, GetUserEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Entitlements Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Entitlements)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Entitlements Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Entitlements)(this.results[0]));
             }
         }
     }

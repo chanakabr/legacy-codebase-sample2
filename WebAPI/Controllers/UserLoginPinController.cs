@@ -72,20 +72,43 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately expires a pre-set login-PIN.
+        /// Immediately expires all pre set login pin codes for the user.
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("delete"), HttpPost]
-        public void Delete(string partner_id, string user_id)
+        [Route("deleteAll"), HttpPost]
+        public void DeleteAll(string partner_id, string user_id)
         {
             int groupId = int.Parse(partner_id);
 
             try
             {
                 // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id);
+                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id, null);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Immediately expires a given pre set login pin code for the user.
+        /// </summary>
+        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="user_id">User Identifier</param>
+        /// <param name="pin_code">Login pin code to expire</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        [Route("delete"), HttpPost]
+        public void Delete(string partner_id, string user_id, string pin_code)
+        {
+            int groupId = int.Parse(partner_id);
+
+            try
+            {
+                // call client
+                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id, pin_code);
             }
             catch (ClientException ex)
             {
