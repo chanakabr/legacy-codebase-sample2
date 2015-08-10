@@ -854,7 +854,6 @@
     <Compile Include="Models\Catalog\KalturaMediaImage.cs" />
     <Compile Include="Models\Catalog\KalturaSlimAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
-    <Compile Include="Models\Users\KalturaClientUser.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryRequest.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />

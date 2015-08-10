@@ -17,12 +17,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings()
         {
-            //User 
-            Mapper.CreateMap<Users.UserResponseObject, KalturaClientUser>()
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_sSiteGUID)))
-                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => SerializationUtils.MaskSensitiveObject(src.m_user.m_domianID.ToString())))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName));
-
             // PinCode
             Mapper.CreateMap<Users.PinCodeResponse, KalturaLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
