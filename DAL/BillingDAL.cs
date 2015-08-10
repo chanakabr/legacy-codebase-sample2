@@ -1328,16 +1328,16 @@ namespace DAL
             }
         }
 
-        public static bool DeletePaymentGWHousehold(int groupID, int paymentGwID, int householdId)
+        public static bool DeletePaymentGatewayHousehold(int groupID, int paymentGwID, int householdId)
         {
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGW_HouseHold");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGateway_Household");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@PaymentGWID", paymentGwID);
-                sp.AddParameter("@householdID", householdId);
-                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGwID);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@groupId", groupID);
                 res = sp.ExecuteReturnValue<bool>();
             }
             catch (Exception ex)
