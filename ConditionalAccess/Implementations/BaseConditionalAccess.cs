@@ -12794,7 +12794,7 @@ namespace ConditionalAccess
         }
 
         public ApiObjects.Response.Status CheckPendingTransaction(long paymentGatewayPendingId, int numberOfRetries, string billingGuid, 
-            long paymentGatewayTransactionId, string siteGuid, long domainId)
+            long paymentGatewayTransactionId, string siteGuid)
         {
             ApiObjects.Response.Status response = null;
 
@@ -12805,7 +12805,9 @@ namespace ConditionalAccess
             try
             {
                 #region Validate user and domain
-                
+
+                long domainId = 0;
+
                 var validateUser = Utils.ValidateUser(this.m_nGroupID, siteGuid, ref domainId);
 
                 if (validateUser != ResponseStatus.OK)
@@ -12814,16 +12816,9 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                var validateDomain = Utils.ValidateDomain(this.m_nGroupID, (int)domainId);
-
-                if (validateDomain != TvinciDomains.DomainStatus.OK)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateDomain.ToString());
-                    return response;
-                }
-
                 #endregion
 
+                //GetEntitlement(
                 // update billing
                 string userName = string.Empty;
                 string password = string.Empty;
@@ -12845,7 +12840,6 @@ namespace ConditionalAccess
                     response = new ApiObjects.Response.Status(billingResponse.Status.Code, billingResponse.Status.Message);
                     return response;
                 }
-
 
                 // if status pending or completed - nothing to update
                 if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
