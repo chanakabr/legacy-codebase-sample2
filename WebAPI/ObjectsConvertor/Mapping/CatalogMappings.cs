@@ -223,18 +223,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Dictionary<string, List<string>> BuildTagsDictionary(List<Tags> list)
+        private static Dictionary<string, string> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
+            Dictionary<string, string> tags = new Dictionary<string, string>();
 
             foreach (var tag in list)
             {
-                tags.Add(tag.m_oTagMeta.m_sName, tag.m_lValues);
+                //FIX
+                tags.Add(tag.m_oTagMeta.m_sName, string.Join(";", tag.m_lValues));
             }
 
             return tags;

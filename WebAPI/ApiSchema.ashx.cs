@@ -64,41 +64,58 @@ namespace WebAPI
                 fvi.FileVersion, Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
             List<Type> types = asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")).ToList();
-            List<Type> sortedTypes = new List<Type>();
 
-            //Ordering by dependency
-            foreach (Type tp in types)
-                sortedTypes.Add(tp);
-
+            List<Field> fields = new List<Field>();
             foreach (Type tp in types)
             {
                 if (tp.IsEnum)
                     continue;
 
-                //No need to handle
-                if (tp.BaseType == typeof(Object))
-                    continue;
+                Field f = new Field();
+                f.Name = tp.Name;
+                List<string> dependant = new List<string>();
 
-                sortedTypes.Remove(tp);
-                if (tp.BaseType != null)
+                foreach (var property in tp.GetProperties())
                 {
-                    int idx = sortedTypes.FindIndex(xx => xx == tp.BaseType);
-                    sortedTypes.Insert(idx, tp);
+                    if (property.PropertyType.IsGenericType)
+                    {
+                        foreach (var ga in property.PropertyType.GetGenericArguments())
+                        {
+                            if (isNeeded(ga))
+                                dependant.Add(ga.Name);
+                        }
+                    }
+                    else if (property.PropertyType.IsArray)
+                    {
+                        var arrType = property.PropertyType.GetElementType();
+                        if (isNeeded(arrType))
+                            dependant.Add(arrType.Name);
+                    }
+                    else
+                    {
+                        if (isNeeded(property.PropertyType))
+                            dependant.Add(property.PropertyType.Name);
+                    }
                 }
-                else
-                    sortedTypes.Insert(0, tp);
+
+                if (tp.BaseType != null && isNeeded(tp.BaseType))
+                    dependant.Add(tp.BaseType.Name);
+
+                //Removes duplicates and prevents circular dependency
+                f.DependsOn = dependant.Distinct().Where(item => item != tp.Name).ToList();
+                fields.Add(f);
             }
 
-            //Running on models first
-            foreach (Type type in sortedTypes)
+            int[] sortOrder = getTopologicalSortOrder(fields);
+
+            List<Type> sortedTypes = new List<Type>();
+            for (int i = 0; i < sortOrder.Length; i++)
             {
-                if (type.BaseType == typeof(Enum))
-                    enums.Add(type);
-                else
-                    classes.Add(type);
+                var field = fields[sortOrder[i]];
+                sortedTypes.Insert(0, types.Where(yy => yy.Name == field.Name).First());
             }
 
-            classes.Reverse();
+            enums = types.Where(zz => zz.IsEnum).ToList();
 
             //Printing enums
             context.Response.Write("<enums>\n");
@@ -116,7 +133,7 @@ namespace WebAPI
 
             //Running on classes
             context.Response.Write("<classes>\n");
-            foreach (Type t in classes)
+            foreach (Type t in sortedTypes)
             {
                 //Skip master base class
                 if (t == typeof(KalturaOTTObject))
@@ -269,6 +286,11 @@ namespace WebAPI
             context.Response.Write("</xml>");
         }
 
+        private bool isNeeded(Type type)
+        {
+            return !type.IsPrimitive && type != typeof(object) && type != typeof(string) && !type.IsEnum && type != typeof(DateTime);
+        }
+
         private string getTypeAndArray(Type type)
         {
             bool isNullable = false;
@@ -404,6 +426,158 @@ namespace WebAPI
             {
                 return false;
             }
+        }
+
+        class TopologicalSorter
+        {
+            #region - Private Members -
+
+            private readonly int[] _vertices; // list of vertices
+            private readonly int[,] _matrix; // adjacency matrix
+            private int _numVerts; // current number of vertices
+            private readonly int[] _sortedArray;
+
+            #endregion
+
+            #region - CTors -
+
+            public TopologicalSorter(int size)
+            {
+                _vertices = new int[size];
+                _matrix = new int[size, size];
+                _numVerts = 0;
+                for (int i = 0; i < size; i++)
+                    for (int j = 0; j < size; j++)
+                        _matrix[i, j] = 0;
+                _sortedArray = new int[size]; // sorted vert labels
+            }
+
+            #endregion
+
+            #region - Public Methods -
+
+            public int AddVertex(int vertex)
+            {
+                _vertices[_numVerts++] = vertex;
+                return _numVerts - 1;
+            }
+
+            public void AddEdge(int start, int end)
+            {
+                _matrix[start, end] = 1;
+            }
+
+            public int[] Sort() // toplogical sort
+            {
+                while (_numVerts > 0) // while vertices remain,
+                {
+
+                    // get a vertex with no successors, or -1
+                    int currentVertex = noSuccessors();
+                    //HttpContext.Current.Response.Write("<p>vertx:" + i + "</p>");
+                    //HttpContext.Current.Response.Flush();
+                    if (currentVertex == -1) // must be a cycle                
+                        throw new Exception("Graph has cycles");
+
+                    // insert vertex label in sorted array (start at end)
+                    _sortedArray[_numVerts - 1] = _vertices[currentVertex];
+
+                    deleteVertex(currentVertex); // delete vertex
+                }
+
+                // vertices all gone; return sortedArray
+                return _sortedArray;
+            }
+
+            #endregion
+
+            #region - Private Helper Methods -
+
+            // returns vert with no successors (or -1 if no such verts)
+            private int noSuccessors()
+            {
+                for (int row = 0; row < _numVerts; row++)
+                {
+                    bool isEdge = false; // edge from row to column in adjMat
+                    for (int col = 0; col < _numVerts; col++)
+                    {
+                        if (_matrix[row, col] > 0) // if edge to another,
+                        {
+                            isEdge = true;
+                            break; // this vertex has a successor try another
+                        }
+                    }
+                    if (!isEdge) // if no edges, has no successors
+                        return row;
+                }
+                return -1; // no
+            }
+
+            private void deleteVertex(int delVert)
+            {
+                // if not last vertex, delete from vertexList
+                if (delVert != _numVerts - 1)
+                {
+                    for (int j = delVert; j < _numVerts - 1; j++)
+                        _vertices[j] = _vertices[j + 1];
+
+                    for (int row = delVert; row < _numVerts - 1; row++)
+                        moveRowUp(row, _numVerts);
+
+                    for (int col = delVert; col < _numVerts - 1; col++)
+                        moveColLeft(col, _numVerts - 1);
+                }
+                _numVerts--; // one less vertex
+            }
+
+            private void moveRowUp(int row, int length)
+            {
+                for (int col = 0; col < length; col++)
+                    _matrix[row, col] = _matrix[row + 1, col];
+            }
+
+            private void moveColLeft(int col, int length)
+            {
+                for (int row = 0; row < length; row++)
+                    _matrix[row, col] = _matrix[row, col + 1];
+            }
+
+            #endregion
+        }
+
+        private static int[] getTopologicalSortOrder(List<Field> fields)
+        {
+            TopologicalSorter g = new TopologicalSorter(fields.Count);
+            Dictionary<string, int> _indexes = new Dictionary<string, int>();
+
+            //add vertices
+            for (int i = 0; i < fields.Count; i++)
+            {
+                _indexes[fields[i].Name.ToLower()] = g.AddVertex(i);
+            }
+
+            //add edges
+            for (int i = 0; i < fields.Count; i++)
+            {
+                if (fields[i].DependsOn != null)
+                {
+                    for (int j = 0; j < fields[i].DependsOn.Count; j++)
+                    {
+                        g.AddEdge(i,
+                            _indexes[fields[i].DependsOn[j].ToLower()]);
+                    }
+                }
+            }
+
+            int[] result = g.Sort();
+            return result;
+
+        }
+
+        class Field
+        {
+            public string Name { get; set; }
+            public List<string> DependsOn { get; set; }
         }
     }
 }

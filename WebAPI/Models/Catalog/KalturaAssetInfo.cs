@@ -96,7 +96,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         [XmlElement("tags")]
-        public SerializableDictionary<string, List<string>> Tags { get; set; }
+        public SerializableDictionary<string, string> Tags { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
