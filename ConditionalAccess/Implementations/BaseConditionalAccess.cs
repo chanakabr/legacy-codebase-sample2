@@ -12893,7 +12893,7 @@ namespace ConditionalAccess
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
                                                                                               string.Empty, string.Empty, deviceName);
 
-                if (ePriceReason != PriceReason.ForPurchase || !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
+                if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {
                     // not for purchase
                     status = SetResponseStatus(ePriceReason);
