@@ -1364,7 +1364,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed in Update_BillingStatusAndReason_ByBillingGuid. ex = {0}", ex.Message);
+                log.ErrorFormat("Failed in Update_BillingStatusAndReason_ByBillingGuid. ex = {0}. Billing Guid = {1}", ex, billingGuid);
                 result = false;
             }
 
