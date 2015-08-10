@@ -1188,7 +1188,7 @@ namespace DAL
                     paymentGateway = new PaymentGateway();
                     paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                     paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                    paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");                    
+                    paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
                     int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                     paymentGateway.IsDefault = isDefault == 1 ? true : false;
                 }
@@ -1427,13 +1427,13 @@ namespace DAL
                 storedProcedure.AddParameter("@product_type", paymentGateway.ProductType);
                 storedProcedure.AddParameter("@product_id", paymentGateway.ProductId);
                 storedProcedure.AddParameter("@billing_guid", paymentGateway.BillingGuid);
-                storedProcedure.AddParameter("@content_id", paymentGateway.ContentId);                
+                storedProcedure.AddParameter("@content_id", paymentGateway.ContentId);
                 storedProcedure.AddParameter("@message", paymentGateway.Message);
                 storedProcedure.AddParameter("@state", paymentGateway.State);
                 storedProcedure.AddParameter("@failReason", paymentGateway.FailReason);
                 storedProcedure.AddParameter("@paymentDetails", paymentGateway.PaymentDetails);
                 storedProcedure.AddParameter("@paymentMethod", paymentGateway.PaymentMethod);
-                
+
                 int newTransactionID = storedProcedure.ExecuteReturnValue<int>();
 
                 return newTransactionID;
@@ -1604,7 +1604,7 @@ namespace DAL
             return false;
         }
 
-        public static HouseholdPaymentGateway GetHouseholdPaymentGateway(int groupID, int paymentGatewayId, long householdId)
+        public static HouseholdPaymentGateway GetHouseholdPaymentGateway(int groupID, int paymentGatewayId, long householdId, int status = 1)
         {
             HouseholdPaymentGateway res = null;
             try
@@ -1614,6 +1614,7 @@ namespace DAL
                 sp.AddParameter("@paymentGatewayId", paymentGatewayId);
                 sp.AddParameter("@householdId", householdId);
                 sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSet();
 
 
@@ -1673,7 +1674,7 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayFailReason");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@failReason", failReasonCode);                
+                sp.AddParameter("@failReason", failReasonCode);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
