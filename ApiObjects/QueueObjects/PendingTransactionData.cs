@@ -43,10 +43,9 @@ namespace ApiObjects
 
             this.args = new List<object>()
             {
+                groupId,
                 paymentGatewayPendingId,
                 numberOfRetries,
-                productId,
-                productType,
                 billingGuid,
                 paymentGatewayTransactionId,
                 siteGuid
