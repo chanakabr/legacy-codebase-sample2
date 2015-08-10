@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (pager.PageSize == null || pager.PageSize > 10 || pager.PageSize < 1)
+            if (pager.PageSize > 10 || pager.PageSize < 1)
             {
                 pager.PageSize = 5;
             }

@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
 
             // page size - 5 <= size <= 50
-            if (pager.PageSize == null || pager.PageSize == 0)
+            if (pager.PageSize == 0)
             {
                 pager.PageSize = 25;
             }
