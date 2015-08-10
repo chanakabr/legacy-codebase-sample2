@@ -128,7 +128,7 @@ namespace WebAPI
 
                 //Print values
                 foreach (var v in Enum.GetValues(t))
-                    context.Response.Write(string.Format("\t\t<const name='{0}' />\n", v));
+                    context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", v.ToString().ToUpper(), v));
 
                 context.Response.Write("\t</enum>\n");
             }

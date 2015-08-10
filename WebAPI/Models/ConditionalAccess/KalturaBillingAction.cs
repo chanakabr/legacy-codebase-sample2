@@ -10,7 +10,7 @@ namespace WebAPI.Models.ConditionalAccess
         unknown = 0,
         purchase = 1,
         renew_payment = 2,
-        renew_cancled_subscription = 3,
+        renew_canceled_subscription = 3,
         cancel_subscription_order = 4,
         subscription_date_changed = 5
     }
