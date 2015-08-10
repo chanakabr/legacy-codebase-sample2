@@ -122,10 +122,10 @@
     <None Include="Web References\WS_CAS\DomainServicesResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\Entitlement1.datasource">
+    <None Include="Web References\WS_CAS\EntitlementResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\EntitlementResponse1.datasource">
+    <None Include="Web References\WS_CAS\Entitlements.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_CAS\LicensedLinkResponse1.datasource">

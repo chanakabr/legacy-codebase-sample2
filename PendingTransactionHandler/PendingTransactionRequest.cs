@@ -18,8 +18,8 @@ namespace PendingTransactionHandler
             set;
         }
 
-        [JsonProperty("pending_transaction_id")]
-        public long PendingTransactionId
+        [JsonProperty("payment_gateway_pending_Id")]
+        public long PaymentGatewayPendingId
         {
             get;
             set;
@@ -40,7 +40,7 @@ namespace PendingTransactionHandler
         }
 
         [JsonProperty("payment_gateway_transaction_id")]
-        public long PaymengGatewayTransactionId
+        public long PaymentGatewayTransactionId
         {
             get;
             set;

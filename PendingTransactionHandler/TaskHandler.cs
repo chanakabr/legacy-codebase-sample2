@@ -46,7 +46,7 @@ namespace PendingTransactionHandler
                 bool success = false;
                 
                 Status status = cas.CheckPendingTransaction(username, password, 
-                    request.PendingTransactionId, request.NumberOfRetries, request.BillingGuide, request.PaymengGatewayTransactionId,
+                    request.PaymentGatewayPendingId, request.NumberOfRetries, request.BillingGuide, request.PaymentGatewayTransactionId,
                     request.SiteGuid, request.HouseholdId);
 
                 if (status != null && status.Code == 0)
@@ -57,7 +57,7 @@ namespace PendingTransactionHandler
                 if (!success)
                 {
                     throw new Exception(string.Format(
-                        "Pending charge request on {0} did not finish successfully.", request.PendingTransactionId));
+                        "Pending charge request on {0} did not finish successfully.", request.PaymentGatewayPendingId));
                 }
             }
             catch (Exception ex)
