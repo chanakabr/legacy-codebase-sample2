@@ -1423,7 +1423,7 @@
       <s:element name="SetLoginPINResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:PinCodeResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2571,7 +2571,7 @@
     <wsdl:part name="secret" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetLoginPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
+    <wsdl:part name="Body" element="tns:PinCodeResponse" />
   </wsdl:message>
   <wsdl:message name="ClearLoginPINHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
