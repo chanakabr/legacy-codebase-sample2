@@ -12217,6 +12217,7 @@ namespace ConditionalAccess
                 }
                 else
                 {
+                    //TODO: call setres.. ?
                     // not for purchase
                     switch (priceReason)
                     {
@@ -12871,7 +12872,7 @@ namespace ConditionalAccess
 
         private ApiObjects.Response.Status GrantPPV(string siteguid, long householdId, int contentId, int productId, string userIp, string deviceName, bool saveHistory)
         {
-            ApiObjects.Response.Status status = null;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, userIp {4}, deviceName {5}, saveHistory {6}",
@@ -13011,7 +13012,7 @@ namespace ConditionalAccess
 
         private ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory)
         {
-            ApiObjects.Response.Status status = null;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
@@ -13150,9 +13151,125 @@ namespace ConditionalAccess
             return status;
         }
 
-        private ApiObjects.Response.Status GrantCollection(string siteguid, long householdId, int productId, string userIp, string deviceName, bool history)
+        private ApiObjects.Response.Status GrantCollection(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // log request
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
+                householdId,                                                   // {1}                
+                productId,                                                     // {2}   
+                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {3}
+                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {4}
+                saveHistory);                                                  // {5}
+
+            try
+            {
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(userIp))
+                {
+                    // get country by user IP
+                    country = TVinciShared.WS_Utils.GetIP2CountryCode(userIp);
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                TvinciPricing.Price priceResponse = null;
+                TvinciPricing.Collection collection = null;
+                priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
+                                                              ref collection, country, string.Empty, deviceName, string.Empty);
+
+                bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
+
+                if (priceResponse != null && (priceReason == PriceReason.ForPurchase || isEntitledToPreviewModule))
+                {
+
+                    // price validated, create the Custom Data
+                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
+                                                                   userIp, country, string.Empty, deviceName, string.Empty);
+
+                    // create new GUID for billing_transaction
+                    string billingGuid = Guid.NewGuid().ToString();
+
+                    // purchase
+                    TvinciBilling.module wsBillingService = null;
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    TvinciBilling.BillingResponse billingResponse = new TvinciBilling.BillingResponse();
+                    billingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown;
+
+                    if (saveHistory)
+                    {
+                        InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
+                        billingResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+                          1, 1, string.Empty, string.Empty, string.Empty, true, false, ref wsBillingService);
+                    }
+                    else
+                    {
+                        billingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+                    }
+
+                    //status = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
+                    if (billingResponse != null && billingResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                    {
+
+                        // purchase passed, update entitlement date
+                        DateTime entitlementDate = DateTime.UtcNow;
+
+                        // grant entitlement
+                        long lBillingTransactionID = 0;
+                        long purchaseID = 0;
+                        bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                                                                                  country, deviceName, lBillingTransactionID, customData, productId,
+                                                                                  billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
+
+                        if (saveHistory && handleBillingPassed)
+                        {
+                            // entitlement passed - build notification message
+                            var dicData = new Dictionary<string, object>()
+                                {
+                                    {"CollectionCode", productId},
+                                    {"BillingTransactionID", lBillingTransactionID},
+                                    {"SiteGUID", siteguid},
+                                    {"PurchaseID", purchaseID},
+                                    {"CouponCode", string.Empty},
+                                    {"CustomData", customData}
+                                };
+
+                            // notify purchase
+                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                            {
+                                log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
+                            }
+                        }
+                        else
+                        {
+                            // purchase passed, entitlement failed
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                            log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        }
+                    }
+                    else
+                    {
+                        // purchase failed - no status error
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    }
+                }
+                else
+                {
+                    // not for purchase
+                    status = SetResponseStatus(priceReason);
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception occurred. data: " + logString, ex);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+            }
+            return status;
         }
 
     }
