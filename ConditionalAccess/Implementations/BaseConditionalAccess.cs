@@ -4920,7 +4920,7 @@ namespace ConditionalAccess
 
                 log.Error("Error - " + sb.ToString());
 
-                res = new PermittedMediaContainer[0];
+                res = null;
             }
 
             return res;
@@ -4930,7 +4930,6 @@ namespace ConditionalAccess
         /// </summary>
         public virtual PermittedMediaContainer[] GetUserPermittedItems(List<int> lUsersIDs, bool isExpired, int numOfItems)
         {
-            //PermittedMediaContainer[] ret = null;
             PermittedMediaContainer[] ret = { };
             Int32[] nMediaFilesIDs = null;
             Hashtable h = new Hashtable();
@@ -4986,7 +4985,7 @@ namespace ConditionalAccess
 
 
                         string sPPVCode = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
-
+                        
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
 
@@ -4995,9 +4994,10 @@ namespace ConditionalAccess
                             IsCancellationWindow(ref oUsageModule, sPPVCode, dCreateDate, ref bCancellationWindow, eTransactionType.PPV);
                         }
 
+                        long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
 
                         PermittedMediaContainer p = new PermittedMediaContainer();
-                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, payMet, sDeviceUDID, bCancellationWindow);
+                        p.Initialize(0, nMediaFileID, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, payMet, sDeviceUDID, sPPVCode, purchaseId, bCancellationWindow);
                         h[nMediaFileID] = p;
                         ++i;
                     }
@@ -5064,6 +5064,8 @@ namespace ConditionalAccess
                 if (allCollectionsPurchases != null)
                 {
                     Int32 nCount = allCollectionsPurchases.Rows.Count;
+                    ret = new PermittedCollectionContainer[nCount];
+
                     if (numOfItems == 0)
                     {
                         numOfItems = nCount;
@@ -5071,10 +5073,6 @@ namespace ConditionalAccess
                     else if (numOfItems != 0 && numOfItems < nCount)
                     {
                         nCount = numOfItems;
-                    }
-                    if (nCount > 0)
-                    {
-                        ret = new PermittedCollectionContainer[nCount];
                     }
                     int i = 0;
                     TvinciPricing.UsageModule oUsageModule = null;
@@ -5144,6 +5142,7 @@ namespace ConditionalAccess
                 log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
 
+                ret = null;
             }
             return ret;
         }
@@ -5193,6 +5192,8 @@ namespace ConditionalAccess
                 if (allSubscriptionsPurchases != null)
                 {
                     Int32 nCount = allSubscriptionsPurchases.Rows.Count;
+                    ret = new PermittedSubscriptionContainer[nCount];
+
                     if (numOfItems == 0)
                     {
                         numOfItems = nCount;
@@ -5200,10 +5201,6 @@ namespace ConditionalAccess
                     else if (numOfItems != 0 && numOfItems < nCount)
                     {
                         nCount = numOfItems;
-                    }
-                    if (nCount > 0)
-                    {
-                        ret = new PermittedSubscriptionContainer[nCount];
                     }
                     int i = 0;
 
@@ -5292,6 +5289,8 @@ namespace ConditionalAccess
 
                 log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
+
+                ret = null;
             }
             return ret;
         }
@@ -11962,9 +11961,9 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Subscriptions
         /// </summary>
-        public virtual Entitlement GetUserSubscriptions(string sSiteGUID)
+        public virtual Entitlements GetUserSubscriptions(string sSiteGUID)
         {
-            Entitlement response = new Entitlement();
+            Entitlements response = new Entitlements();
 
             try
             {
@@ -11972,29 +11971,115 @@ namespace ConditionalAccess
                 if (psc != null && psc.Length > 0)
                 {
                     // fill Entitlement object
-                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                    response.entitelments = new List<Entitlements>();
+                    response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                    response.entitelments = new List<Entitlement>();
                     foreach (PermittedSubscriptionContainer item in psc)
                     {
-                        Entitlements ent = new Entitlements(item);
+                        Entitlement ent = new Entitlement(item);
                         response.entitelments.Add(ent);
                     }
                 }
                 else
                 {
-                    response = new Entitlement();
-                    response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
+                    response = new Entitlements();
+                    response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "no items return");
                 }
             }
             catch (Exception ex)
             {
                 log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
-                response = new Entitlement();
-                response.resp = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                response = new Entitlements();
+                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             return response;
         }
 
+        /// <summary>
+        /// Get users' entitlements (PPV or subscriptions or collections)
+        /// </summary>
+        public virtual Entitlements GetUsersEntitlements(List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0)
+        {
+            Entitlements response = new Entitlements();
+            response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+
+            try
+            {
+
+                switch (type)
+                {
+                    case eTransactionType.PPV:
+                        {
+                            PermittedMediaContainer[] pmc = GetUserPermittedItems(userIds, false, 0);
+                            if (pmc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");                                
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedMediaContainer item in pmc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    case eTransactionType.Subscription:
+                        {
+                            PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(userIds, false, 0);
+                            if (psc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");  
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedSubscriptionContainer item in psc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    case eTransactionType.Collection:
+                        {
+                            PermittedCollectionContainer[] pcc = GetUserPermittedCollections(userIds, false, 0);
+                            if (pcc != null)
+                            {
+                                // fill Entitlement object
+                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
+                                response.entitelments = new List<Entitlement>();
+                                foreach (PermittedCollectionContainer item in pcc)
+                                {
+                                    Entitlement ent = new Entitlement(item);
+                                    response.entitelments.Add(ent);
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetUserSubscriptions - " + string.Format("failed GetUserPermittedSubscriptions ex = {0}", ex.Message), ex);
+                response = new Entitlements();
+                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type)
+        {
+            int userId;
+            int.TryParse(siteGuid, out userId);
+            return GetUsersEntitlements(new List<int>() { userId }, type);
+        }
+
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type)
+        {
+            List<int> intUsersList = GetDomainsUsers(domainId);
+            return GetUsersEntitlements(intUsersList, type);
+        }
 
         /// <summary>
         /// Purchase
@@ -12708,6 +12793,106 @@ namespace ConditionalAccess
             return response;
         }
 
+        public ApiObjects.Response.Status CheckPendingTransaction(long pendingTransactionId, int numberOfRetries, string billingGuid, 
+            long paymengGatewayTransactionId, string siteGuid, long domainId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            // log
+            log.DebugFormat("CheckPendingTransaction: pendingTransactionId {0}, numberOfRetries {1}, billingGuid {2}, paymengGatewayTransactionId {3}",
+                pendingTransactionId, numberOfRetries, billingGuid, paymengGatewayTransactionId);
+
+            try
+            {
+                #region Validate user and domain
+                
+                var validateUser = Utils.ValidateUser(this.m_nGroupID, siteGuid, ref domainId);
+
+                if (validateUser != ResponseStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateUser.ToString());
+                    return response;
+                }
+
+                var validateDomain = Utils.ValidateDomain(this.m_nGroupID, (int)domainId);
+
+                if (validateDomain != TvinciDomains.DomainStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateDomain.ToString());
+                    return response;
+                }
+
+                #endregion
+
+                // update billing
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module billingWebService = null;
+                InitializeBillingModule(ref billingWebService, ref userName, ref password);
+
+                TransactionResponse billingResponse = null;
+                    // TODO: call billing
+
+                // validate response
+                if (billingResponse == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while checking pending transaction");
+                    return response;
+                }
+
+                if (billingResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status(billingResponse.Status.Code, billingResponse.Status.Message);
+                    return response;
+                }
+
+
+                // if status pending or completed - nothing to update
+                if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
+                                billingResponse.State.Equals(eTransactionState.Pending.ToString())))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return response;
+                }
+                // update cas
+                else
+                {
+                    bool isUpdated = false;
+                    //switch (billingResponse.ProductType)
+                    //{
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.PPV:
+                    //    isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingResponse.BillingGuid, 0);
+                    //    break;
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Subscription:
+                    //    isUpdated = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingResponse.BillingGuid, 0, 0);
+                    //    break;
+                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Collection:
+                    //    isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingResponse.BillingGuid, 0);
+                    //    break;
+                    //    default:
+                    //    break;
+                    //}
+
+                    if (isUpdated)
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    else
+                    {
+                        //response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("CheckPendingTransaction  ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while cfhecking pending transaction");
+            }
+
+            return response;          
+        }
+
+
         public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
             string deviceName, bool history)
         {
@@ -12733,14 +12918,6 @@ namespace ConditionalAccess
                 return status;
             }
 
-            // validate household
-            if (householdId < 1)
-            {
-                status.Message = "Illegal household";
-                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                return status;
-            }
-
             // validate productId
             if (productId < 1)
             {
@@ -12761,6 +12938,15 @@ namespace ConditionalAccess
                     log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
+
+                // validate household
+                if (householdId < 1)
+                {
+                    status.Message = "Illegal household";
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
 
                 switch (transactionType)
                 {
