@@ -52,12 +52,5 @@ namespace PendingTransactionHandler
             get;
             set;
         }
-
-        [JsonProperty("household_id")]
-        public long HouseholdId
-        {
-            get;
-            set;
-        }
     }
 }
