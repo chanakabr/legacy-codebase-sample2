@@ -20,6 +20,7 @@ namespace ApiObjects
         private int numberOfRetries;
         private string billingGuid;
         private long paymentGatewayTransactionId;
+        private string siteGuid;
 
         #endregion
 
@@ -38,6 +39,7 @@ namespace ApiObjects
             this.ETA = paymentGatewayPending.NextRetryDate;
             this.billingGuid = paymentGatewayPending.BillingGuid;
             this.paymentGatewayTransactionId = paymentGatewayPending.PaymentGatewayTransactionId;
+            this.siteGuid = siteGuid;
 
             this.args = new List<object>()
             {
@@ -46,7 +48,8 @@ namespace ApiObjects
                 productId,
                 productType,
                 billingGuid,
-                paymentGatewayTransactionId
+                paymentGatewayTransactionId,
+                siteGuid
             };
         }
     }
