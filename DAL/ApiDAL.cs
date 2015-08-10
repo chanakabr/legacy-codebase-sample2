@@ -1339,6 +1339,38 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+
+        public static bool Update_BillingStatusAndReason_ByBillingGuid(string billingGuid, int billingStatus, string billingReason)
+        {
+            bool result = false;
+
+            try
+            {
+                long transactionId = 0;
+
+                // Get Id by billing guid
+                object id = ODBCWrapper.Utils.GetTableSingleVal("billing_transactions", "ID", "BILLING_GUID", "=", billingGuid, "MAIN_CONNECTION_STRING");
+
+                transactionId = Convert.ToInt32(id);
+
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BillingStatusAndReason");
+                storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+                storedProcedure.AddParameter("@BillingID", transactionId);
+                storedProcedure.AddParameter("@BillingStatus", billingStatus);
+                storedProcedure.AddParameter("@BillingReason", billingReason);
+                storedProcedure.AddParameter("@UpdateDate", DateTime.UtcNow);
+
+                result = storedProcedure.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed in Update_BillingStatusAndReason_ByBillingGuid. ex = {0}", ex.Message);
+                result = false;
+            }
+
+            return result;
+        }
+
         public static DateTime Get_PurchaseDateByBillingTransactionID(long lBillingTransactionID)
         {
             DateTime res = DateTime.UtcNow;
