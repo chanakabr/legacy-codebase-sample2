@@ -12058,22 +12058,7 @@ namespace ConditionalAccess
                 if (userValidStatus != ResponseStatus.OK)
                 {
                     // user validation failed
-                    switch (userValidStatus)
-                    {
-                        case ResponseStatus.UserDoesNotExist:
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
-                            break;
-                        case ResponseStatus.UserSuspended:
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
-                            break;
-                        case ResponseStatus.UserNotIndDomain:
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
-                            break;
-                        default:
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
-                            break;
-                    }
-
+                    response.Status = SetResponseStatus(userValidStatus);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
@@ -12112,14 +12097,14 @@ namespace ConditionalAccess
             return response;
         }
 
-        private TransactionResponse PurchaseCollection(string siteguid, long houseHoldId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                houseHoldId,                                                   // {1}
+                householdId,                                                   // {1}
                 price,                                                         // {2}  
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 productId,                                                     // {4}   
@@ -12161,7 +12146,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12176,7 +12161,7 @@ namespace ConditionalAccess
 
                                 // grant entitlement
                                 long purchaseID = 0;
-                                bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, houseHoldId, collection, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, householdId, collection, price, currency, coupon, userIp,
                                                                                           country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                           billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
 
@@ -12256,7 +12241,7 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchaseSubscription(string siteguid, long houseHoldId, double price, string currency, int productId,
+        private TransactionResponse PurchaseSubscription(string siteguid, long householdId, double price, string currency, int productId,
                                                       string coupon, string userIp, string deviceName, int paymentGwId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -12264,7 +12249,7 @@ namespace ConditionalAccess
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                houseHoldId,                                                   // {1}
+                householdId,                                                   // {1}
                 price,                                                         // {2}  
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 productId,                                                     // {4}   
@@ -12305,7 +12290,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId,
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId,
                                                   TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
                         if (response != null &&
                             response.Status != null)
@@ -12323,7 +12308,7 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, houseHoldId, subscription, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                       billingGuid.ToString(), entitleToPreview, false, entitlementDate, ref purchaseID);
 
@@ -12332,7 +12317,7 @@ namespace ConditionalAccess
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
-                                        UpdateDLM(houseHoldId, subscription.m_nDomainLimitationModule);
+                                        UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
                                     // build notification message
@@ -12410,7 +12395,7 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchasePPV(string siteguid, long houseHoldId, double price, string currency, int contentId, int productId, string coupon,
+        private TransactionResponse PurchasePPV(string siteguid, long householdId, double price, string currency, int contentId, int productId, string coupon,
                                                 string userIp, string deviceName, int paymentGwId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -12418,7 +12403,7 @@ namespace ConditionalAccess
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                houseHoldId,                                                   // {1}
+                householdId,                                                   // {1}
                 price,                                                         // {2}  
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 contentId,                                                     // {4}
@@ -12488,7 +12473,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, houseHoldId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12505,7 +12490,7 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, houseHoldId, relevantSub, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, householdId, relevantSub, price, currency, coupon, userIp,
                                                                                    country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
                                                                                    productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
@@ -12706,8 +12691,8 @@ namespace ConditionalAccess
                 TvinciBilling.module wsBillingService = null;
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
-                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, adapterTransactionState, externalTransactionId, 
-                    externalStatus, externalMessage, failReason,signature);
+                var billingResponse = wsBillingService.UpdatePendingTransaction(userName, password, paymentGatewayId, adapterTransactionState, externalTransactionId,
+                    externalStatus, externalMessage, failReason, signature);
 
                 // validate response
                 if (billingResponse == null)
@@ -12765,6 +12750,457 @@ namespace ConditionalAccess
             }
             return response;
         }
+
+        public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
+            string deviceName, bool history)
+        {
+            ApiObjects.Response.Status status = null;
+
+            // log request
+            string logString = string.Format("GrantEntitlements request: siteguid {0}, contentId {1}, productId {2}, productType {3}, userIp {4}, deviceName {5}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
+                contentId,                                                     // {1}
+                productId,                                                     // {2}   
+                transactionType.ToString(),                                    // {3}                
+                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {4}
+                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty // {5}
+                );
+
+            log.Debug(logString);
+
+            // validate siteguid
+            if (string.IsNullOrEmpty(siteguid))
+            {
+                status.Message = "Illegal user ID";
+                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                return status;
+            }
+
+            // validate household
+            if (householdId < 1)
+            {
+                status.Message = "Illegal household";
+                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                return status;
+            }
+
+            // validate productId
+            if (productId < 1)
+            {
+                status.Message = "Illegal product ID";
+                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                return status;
+            }
+
+            try
+            {
+                // validate user
+                ResponseStatus userValidStatus = ResponseStatus.OK;
+                userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
+
+                if (userValidStatus != ResponseStatus.OK)
+                {
+                    status = SetResponseStatus(userValidStatus);
+                    log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                switch (transactionType)
+                {
+                    case eTransactionType.PPV:
+                        status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
+                        break;
+                    case eTransactionType.Subscription:
+                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history);
+                        break;
+                    case eTransactionType.Collection:
+                        status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
+                        break;
+                    default:
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product Type");
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GrantEntitlements Error. data: {0}", logString, ex));
+            }
+
+            return status;
+        }
+
+      
+
+        private static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
+        {
+            ApiObjects.Response.Status status = null;
+            // user validation failed
+            switch (userValidStatus)
+            {
+                case ResponseStatus.UserDoesNotExist:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
+                    break;
+                case ResponseStatus.UserSuspended:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
+                    break;
+                case ResponseStatus.UserNotIndDomain:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
+                    break;
+                default:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
+                    break;
+            }
+
+            return status;
+        }
+
+
+        private ApiObjects.Response.Status GrantPPV(string siteguid, long householdId, int contentId, int productId, string userIp, string deviceName, bool history)
+        {
+            ApiObjects.Response.Status status = null;
+
+            //TODO: Fix logstring
+            // log request
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
+                householdId,                                                   // {1}
+                contentId,                                                     // {4}
+                productId,                                                     // {5}   
+                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {7}
+                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty  // {8}
+                );
+
+            try
+            {
+                // validate content ID
+                if (contentId < 1)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal content ID");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                // validate content ID related media
+                int mediaID = ConditionalAccess.Utils.GetMediaIDFromFileID(contentId, m_nGroupID);
+                if (mediaID < 1)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Content ID with a related media");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                // validate PPV 
+                TvinciPricing.PPVModule thePPVModule = null;
+                status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                // validate price
+                PriceReason ePriceReason = PriceReason.UnKnown;
+                TvinciPricing.Subscription relevantSub = null;
+                TvinciPricing.Collection relevantCol = null;
+                TvinciPricing.PrePaidModule relevantPP = null;
+                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
+                                                                                              ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
+                                                                                              string.Empty, string.Empty, deviceName);
+
+
+                if (ePriceReason == PriceReason.ForPurchase ||  (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
+                {
+
+                    string country = string.Empty;
+                    if (!string.IsNullOrEmpty(userIp))
+                    {
+                        // get country by user IP
+                        country = TVinciShared.WS_Utils.GetIP2CountryCode(userIp);
+                    }
+
+                    // create custom data
+                    string customData = GetCustomData(relevantSub, thePPVModule, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,  contentId, 
+                        mediaID, productId.ToString(), string.Empty, string.Empty,userIp, country, string.Empty, deviceName);
+
+                    // create new GUID for billing transaction
+                    string billingGuid = Guid.NewGuid().ToString();
+
+                    // purchase
+                    TvinciBilling.module wsBillingService = null;
+
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    TvinciBilling.module bm = null;
+                    InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+                    TvinciBilling.BillingResponse oResponse = new TvinciBilling.BillingResponse();
+                    oResponse.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown;
+
+                    if (history)
+                    {
+                        oResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+                            1, 1, string.Empty, string.Empty, string.Empty, true, false, ref bm);
+                    }
+                    else
+                    {
+                        oResponse.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+                    }
+
+                    if (oResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                    {
+                        long lBillingTransactionID = 0;
+                        long lPurchaseID = 0;
+
+                        HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, siteguid, Convert.ToInt32(householdId), relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
+                            string.Empty, userIp, country, string.Empty, deviceName, oResponse, customData,
+                            thePPVModule, mediaID, ref lBillingTransactionID, ref lPurchaseID, true, ref wsBillingService);
+
+                        if (history)
+                        {
+                            // Enqueue notification for PS so they know a media file was charged
+                            var dicData = new Dictionary<string, object>()
+                                            {
+                                                {"MediaFileID", mediaID},
+                                                {"BillingTransactionID", lBillingTransactionID},
+                                                {"PPVModuleCode", productId},
+                                                {"SiteGUID", siteguid},
+                                                {"CouponCode", string.Empty},
+                                                {"CustomData", customData},
+                                                {"PurchaseID", lPurchaseID}
+                                            };
+
+                            this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData);
+                        }
+                    }
+                    else
+                    {
+                        WriteToUserLog(siteguid, "While trying to purchase media file id(CC): " + mediaID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                    }
+
+                }
+                else
+                {
+                    // not for purchase
+                    switch (ePriceReason)
+                    {
+                        case PriceReason.PPVPurchased:
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.PPVPurchased, "PPV Already purchased");
+                            break;
+                        case PriceReason.Free:
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "Free media");
+                            break;
+                        case PriceReason.ForPurchaseSubscriptionOnly:
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.ForPurchaseSubscriptionOnly, "Subscription only");
+                            break;
+                        case PriceReason.SubscriptionPurchased:
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionPurchased, "Already purchased (subscription)");
+                            break;
+                        case PriceReason.NotForPurchase:
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchased");
+                            break;
+                        default:
+                            break;
+                    }
+
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                log.Error("Exception occurred. data: " + logString, ex);
+            }
+            return status;
+        }
+
+        private ApiObjects.Response.Status GrantCollection(string siteguid, long householdId, int productId, string userIp, string deviceName, bool history)
+        {
+            throw new NotImplementedException();
+        }
+
+        private ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool history)
+        {
+            throw new NotImplementedException();
+        }
+
+        //private ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool history)
+        //{
+
+        //    //TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+        //    //// log request
+        //    //string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
+        //    //    !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
+        //    //    householdId,                                                   // {1}
+        //    //    price,                                                         // {2}  
+        //    //    !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
+        //    //    productId,                                                     // {4}   
+        //    //    !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
+        //    //    !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
+        //    //    !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
+        //    //    paymentGwId);
+
+        //    try
+        //    {
+        //        string country = string.Empty;
+        //        if (!string.IsNullOrEmpty(userIp))
+        //        {
+        //            // get country by user IP
+        //            country = TVinciShared.WS_Utils.GetIP2CountryCode(userIp);
+        //        }
+
+        //        // validate price
+        //        PriceReason priceReason = PriceReason.UnKnown;
+        //        bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
+        //        TvinciPricing.Subscription subscription = null;
+        //        TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, string.Empty, deviceName);
+
+        //        if (priceReason == PriceReason.ForPurchase ||
+        //            entitleToPreview)
+        //        {
+        //            // item is for purchase
+        //            if (priceResponse != null)
+        //            {
+        //                // price is validated, create custom data
+        //                string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
+        //                                                                 string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
+        //                                                                 entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
+        //                                                                 entitleToPreview);
+
+        //                // create new GUID for billing transaction
+        //                string billingGuid = Guid.NewGuid().ToString();
+
+
+        //                // purchase
+        //                TvinciBilling.module wsBillingService = null;
+
+        //                string sWSUserName = string.Empty;
+        //                string sWSPass = string.Empty;
+        //                TvinciBilling.module bm = null;
+        //                InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
+
+        //                TvinciBilling.BillingResponse oResponse = new TvinciBilling.BillingResponse();
+        //                oResponse.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown;
+
+        //                if (history)
+        //                {
+        //                    oResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+        //                       1, 1, string.Empty, string.Empty, string.Empty, true, false, ref bm);
+        //                }
+        //                else
+        //                {
+        //                    oResponse.m_oStatus = TvinciBilling.BillingResponseStatus.Success;
+        //                }
+
+
+
+        //              /*
+
+        //                // purchase
+        //                response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId,
+        //                                          TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
+        //                if (response != null &&
+        //                    response.Status != null)
+        //                {
+        //                    // Status OK + (State OK || State Pending) = grant entitlement
+        //                    if (response.Status.Code == (int)eResponseStatus.OK &&
+        //                       (response.State.Equals(eTransactionState.OK.ToString()) ||
+        //                        response.State.Equals(eTransactionState.Pending.ToString())))
+        //                    {
+        //                        // purchase passed
+        //                        long purchaseID = 0;
+
+        //                        // update entitlement date
+        //                        DateTime entitlementDate = DateTime.UtcNow;
+        //                        response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
+        //                        // grant entitlement
+        //                        bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, price, currency, coupon, userIp,
+        //                                                                              country, deviceName, long.Parse(response.TransactionID), customData, productId,
+        //                                                                              billingGuid.ToString(), entitleToPreview, false, entitlementDate, ref purchaseID);
+
+        //                        if (handleBillingPassed)
+        //                        {
+        //                            // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+        //                            if (subscription.m_nDomainLimitationModule != 0)
+        //                            {
+        //                                UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
+        //                            }
+
+        //                            // build notification message
+        //                            var dicData = new Dictionary<string, object>()
+        //                            {
+        //                                {"SubscriptionCode", productId},
+        //                                {"BillingTransactionID", response.TransactionID},
+        //                                {"SiteGUID", siteguid},
+        //                                {"PurchaseID", purchaseID},
+        //                                {"CouponCode", coupon},
+        //                                {"CustomData", customData}
+        //                            };
+
+        //                            // notify purchase
+        //                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+        //                            {
+        //                                log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            // purchase passed, entitlement failed
+        //                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+        //                            log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+        //                        }*/
+        //                    }
+        //                    else
+        //                    {
+        //                        // purchase failed - received error status
+        //                        log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    // purchase failed - no status error
+        //                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+        //                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // incorrect price
+        //                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The price of the request is not the actual price");
+        //                log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // item not for purchase
+        //            switch (priceReason)
+        //            {
+        //                case PriceReason.Free:
+        //                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The item is free");
+        //                    break;
+        //                case PriceReason.SubscriptionPurchased:
+        //                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionPurchased, "The subscription is already purchased");
+        //                    break;
+        //                case PriceReason.CollectionPurchased:
+        //                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "The collection is already purchased");
+        //                    break;
+        //                default:
+        //                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+        //                    break;
+        //            }
+
+        //            log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Empty, ex);
+        //        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+        //    }
+        //    return response;
+        //}
     }
 
 }
