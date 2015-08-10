@@ -731,6 +731,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
+    <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
