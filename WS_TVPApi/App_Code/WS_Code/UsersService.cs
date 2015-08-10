@@ -762,13 +762,13 @@ namespace TVPApiServices
             return response;
         }
 
-        [WebMethod(EnableSession = true, Description = "ClearLoginPIN")]
+        [WebMethod(EnableSession = true, Description = "ClearLoginPINs")]
         [PrivateMethod]
-        public ClientResponseStatus DeleteUserLoginPinCodes(InitializationObject initObj)
+        public ClientResponseStatus ClearLoginPINs(InitializationObject initObj)
         {
             TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ClearUserLoginPinCodes", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "ClearLoginPINs", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {

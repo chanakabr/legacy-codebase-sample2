@@ -80,6 +80,6 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.ClientResponseStatus DeleteUserLoginPinCodes(InitializationObject initObj);
+        TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPINs(InitializationObject initObj);
     }
 }
