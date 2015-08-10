@@ -1063,26 +1063,27 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public ClientResponseStatus SetLoginPIN(string siteGuid, string PIN, string secret)
+        public TVPApiModule.Objects.Responses.PinCodeResponse SetLoginPIN(string siteGuid, string PIN, string secret)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
-            ClientResponseStatus clientResponse;
+            TVPPro.SiteManager.TvinciPlatform.Users.PinCodeResponse wsResponse = null;
+            TVPApiModule.Objects.Responses.PinCodeResponse response;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.SetLoginPIN(m_wsUserName, m_wsPassword, siteGuid, PIN, secret);
-                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                    wsResponse = m_Module.SetLoginPIN(m_wsUserName, m_wsPassword, siteGuid, PIN, secret);
+                    response = new TVPApiModule.Objects.Responses.PinCodeResponse(wsResponse);
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SetLoginPIN, Error Message: {0}, Parameters: PIN Id: {1}, secret: {2}, siteGuid : {3}", ex.Message, PIN, secret, siteGuid);
-                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
             }
 
-            return clientResponse;
+            return response;
         }
 
         public ClientResponseStatus ClearLoginPINs(string siteGuid, string pinCode)

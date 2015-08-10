@@ -702,9 +702,9 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "SetLoginPIN")]
         [PrivateMethod]
-        public ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret)
+        public TVPApiModule.Objects.Responses.PinCodeResponse SetLoginPIN(InitializationObject initObj, string PIN, string secret)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            TVPApiModule.Objects.Responses.PinCodeResponse response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -717,14 +717,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new TVPApiModule.Objects.Responses.PinCodeResponse();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

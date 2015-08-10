@@ -74,7 +74,7 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(InitializationObject initObj, string PIN, string secret);
         
         [OperationContract]
-        TVPApiModule.Objects.Responses.ClientResponseStatus SetLoginPIN(InitializationObject initObj, string PIN, string secret);
+        TVPApiModule.Objects.Responses.PinCodeResponse SetLoginPIN(InitializationObject initObj, string PIN, string secret);
         
         [OperationContract]
         TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode);
