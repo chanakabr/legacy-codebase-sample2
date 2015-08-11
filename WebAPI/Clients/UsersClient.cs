@@ -16,6 +16,8 @@ using WebAPI.Models.Users;
 using System.ServiceModel;
 using System.Net;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {
@@ -330,11 +332,12 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public bool SetLoginPin(int groupId, string userId, string pin, string secret)
+        public KalturaLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
         {
+            KalturaLoginPin pinCode = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Users.Status response = null;
+            PinCodeResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -353,12 +356,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            return true;
+            return pinCode;
         }
 
         public bool ClearLoginPIN(int groupId, string userId, string pinCode)
@@ -563,5 +566,42 @@ namespace WebAPI.Clients
             return favorites;
         }
 
+        public List<KalturaUserAssetsList> GetItemFromList(int groupId, List<string> userIds, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType assetType)
+        {
+            List<KalturaUserAssetsList> userAssetsList = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            UsersItemsListsResponse response = null;
+            ListType wsListType = UsersMappings.ConvertUserAssetsListType(listType);
+            ItemType wsAssetType = UsersMappings.ConvertUserAssetsListItemType(assetType);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetItemsFromUsersLists(group.UsersCredentials.Username, group.UsersCredentials.Password, userIds.ToArray(), wsListType, wsAssetType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null | response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            userAssetsList = Mapper.Map<List<WebAPI.Models.Users.KalturaUserAssetsList>>(response.UsersItemsLists);
+
+            return userAssetsList;
+        }
     }
 }

@@ -145,6 +145,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback GetItemFromListOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetItemsFromUsersListsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback IsItemExistsInListOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetGroupUserTypesOperationCompleted;
@@ -388,6 +390,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event GetItemFromListCompletedEventHandler GetItemFromListCompleted;
+        
+        /// <remarks/>
+        public event GetItemsFromUsersListsCompletedEventHandler GetItemsFromUsersListsCompleted;
         
         /// <remarks/>
         public event IsItemExistsInListCompletedEventHandler IsItemExistsInListCompleted;
@@ -2535,6 +2540,43 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetItemsFromUsersLists", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsersItemsListsResponse GetItemsFromUsersLists(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType) {
+            object[] results = this.Invoke("GetItemsFromUsersLists", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userIds,
+                        listType,
+                        itemType});
+            return ((UsersItemsListsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetItemsFromUsersListsAsync(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType) {
+            this.GetItemsFromUsersListsAsync(sWSUserName, sWSPassword, userIds, listType, itemType, null);
+        }
+        
+        /// <remarks/>
+        public void GetItemsFromUsersListsAsync(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType, object userState) {
+            if ((this.GetItemsFromUsersListsOperationCompleted == null)) {
+                this.GetItemsFromUsersListsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetItemsFromUsersListsOperationCompleted);
+            }
+            this.InvokeAsync("GetItemsFromUsersLists", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userIds,
+                        listType,
+                        itemType}, this.GetItemsFromUsersListsOperationCompleted, userState);
+        }
+        
+        private void OnGetItemsFromUsersListsOperationCompleted(object arg) {
+            if ((this.GetItemsFromUsersListsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetItemsFromUsersListsCompleted(this, new GetItemsFromUsersListsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/IsItemExistsInList", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public KeyValuePair[] IsItemExistsInList(string sWSUserName, string sWSPassword, UserItemList userItemList) {
             object[] results = this.Invoke("IsItemExistsInList", new object[] {
@@ -2749,14 +2791,14 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
+        public PinCodeResponse SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
             object[] results = this.Invoke("SetLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         PIN,
                         secret});
-            return ((Status)(results[0]));
+            return ((PinCodeResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3877,6 +3919,162 @@ namespace WebAPI.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class Item {
+        
+        private ItemType itemTypeField;
+        
+        private int itemIdField;
+        
+        private System.Nullable<int> orderIndexField;
+        
+        private string userIdField;
+        
+        /// <remarks/>
+        public ItemType ItemType {
+            get {
+                return this.itemTypeField;
+            }
+            set {
+                this.itemTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ItemId {
+            get {
+                return this.itemIdField;
+            }
+            set {
+                this.itemIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> OrderIndex {
+            get {
+                return this.orderIndexField;
+            }
+            set {
+                this.orderIndexField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserId {
+            get {
+                return this.userIdField;
+            }
+            set {
+                this.userIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum ItemType {
+        
+        /// <remarks/>
+        All,
+        
+        /// <remarks/>
+        Media,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserItemsList {
+        
+        private Item[] itemsListField;
+        
+        private ListType listTypeField;
+        
+        /// <remarks/>
+        public Item[] ItemsList {
+            get {
+                return this.itemsListField;
+            }
+            set {
+                this.itemsListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ListType ListType {
+            get {
+                return this.listTypeField;
+            }
+            set {
+                this.listTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum ListType {
+        
+        /// <remarks/>
+        All,
+        
+        /// <remarks/>
+        Watch,
+        
+        /// <remarks/>
+        Purchase,
+        
+        /// <remarks/>
+        Library,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UsersItemsListsResponse {
+        
+        private UserItemsList[] usersItemsListsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public UserItemsList[] UsersItemsLists {
+            get {
+                return this.usersItemsListsField;
+            }
+            set {
+                this.usersItemsListsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public partial class UserItemListsResponse {
         
         private UserItemList[] userItemListsField;
@@ -3993,38 +4191,6 @@ namespace WebAPI.Users {
                 this.orderNumField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public enum ListType {
-        
-        /// <remarks/>
-        All,
-        
-        /// <remarks/>
-        Watch,
-        
-        /// <remarks/>
-        Purchase,
-        
-        /// <remarks/>
-        Library,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public enum ItemType {
-        
-        /// <remarks/>
-        All,
-        
-        /// <remarks/>
-        Media,
     }
     
     /// <remarks/>
@@ -5946,6 +6112,32 @@ namespace WebAPI.Users {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetItemsFromUsersListsCompletedEventHandler(object sender, GetItemsFromUsersListsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetItemsFromUsersListsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetItemsFromUsersListsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsersItemsListsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsersItemsListsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
     public delegate void IsItemExistsInListCompletedEventHandler(object sender, IsItemExistsInListCompletedEventArgs e);
     
     /// <remarks/>
@@ -6118,10 +6310,10 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
-        public Status Result {
+        public PinCodeResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((PinCodeResponse)(this.results[0]));
             }
         }
     }

@@ -116,6 +116,99 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
 
+            // UserItemsList to KalturaUserAssetsList
+            Mapper.CreateMap<WebAPI.Users.UserItemsList, KalturaUserAssetsList>()
+                .ForMember(dest => dest.List, opt => opt.MapFrom(src => src.ItemsList))
+                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)));
+
+            // Item to KalturaUserAssetsListItem
+            Mapper.CreateMap<WebAPI.Users.Item, KalturaUserAssetsListItem>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ItemId))
+                .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.ItemType)))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+        }
+
+        // ListType to KalturaUserAssetsListType
+        private static KalturaUserAssetsListType ConvertUserAssetsListType(Users.ListType listType)
+        {
+            KalturaUserAssetsListType result;
+            switch (listType)
+            {
+                case WebAPI.Users.ListType.Watch:
+                    result = KalturaUserAssetsListType.watch;
+                    break;
+                case WebAPI.Users.ListType.Purchase:
+                    result = KalturaUserAssetsListType.purchase;
+                    break;
+                case WebAPI.Users.ListType.Library:
+                    result = KalturaUserAssetsListType.library;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
+                    break;
+            }
+            return result;
+        }
+
+        // KalturaUserAssetsListType to ListType
+        public static Users.ListType ConvertUserAssetsListType(KalturaUserAssetsListType listType)
+        {
+            Users.ListType result;
+            switch (listType)
+            {
+                case KalturaUserAssetsListType.all:
+                    result = Users.ListType.All;
+                    break;
+                case KalturaUserAssetsListType.watch:
+                    result = Users.ListType.Watch;
+                    break;
+                case KalturaUserAssetsListType.purchase:
+                    result = Users.ListType.Purchase;
+                    break;
+                case KalturaUserAssetsListType.library:
+                    result = Users.ListType.Library;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
+                    break;
+            }
+            return result;
+        }
+
+        public static Users.ItemType ConvertUserAssetsListItemType(KalturaUserAssetsListItemType itemType)
+        {
+            Users.ItemType result;
+
+            switch (itemType)
+            {
+                case KalturaUserAssetsListItemType.all:
+                    result = Users.ItemType.All;
+                    break;
+                case KalturaUserAssetsListItemType.media:
+                    result = Users.ItemType.Media;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
+                    break;
+            }
+            return result;
+        }
+
+        private static KalturaUserAssetsListItemType ConvertUserAssetsListItemType(Users.ItemType itemType)
+        {
+            KalturaUserAssetsListItemType result;
+
+            switch (itemType)
+            {
+                case Users.ItemType.Media:
+                    result = KalturaUserAssetsListItemType.media;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
+                    break;
+            }
+            return result;
         }
 
         private static long ConvertToLong(string src)

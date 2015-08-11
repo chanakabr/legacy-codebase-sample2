@@ -1287,6 +1287,54 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemList" nillable="true" type="tns:UserItemList" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetItemsFromUsersLists">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIds" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="listType" type="tns:ListType" />
+            <s:element minOccurs="1" maxOccurs="1" name="itemType" type="tns:ItemType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsFromUsersListsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsFromUsersListsResult" type="tns:UsersItemsListsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersItemsListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UsersItemsLists" type="tns:ArrayOfUserItemsList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemsList" nillable="true" type="tns:UserItemsList" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ItemsList" type="tns:ArrayOfItem" />
+          <s:element minOccurs="1" maxOccurs="1" name="ListType" type="tns:ListType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true" type="tns:Item" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Item">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ItemType" type="tns:ItemType" />
+          <s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="OrderIndex" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="UserId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="IsItemExistsInList">
         <s:complexType>
           <s:sequence>
@@ -1423,7 +1471,7 @@
       <s:element name="SetLoginPINResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:PinCodeResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1974,6 +2022,12 @@
   </wsdl:message>
   <wsdl:message name="GetItemFromListSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemFromListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersLists" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersListsResponse" />
   </wsdl:message>
   <wsdl:message name="IsItemExistsInListSoapIn">
     <wsdl:part name="parameters" element="tns:IsItemExistsInList" />
@@ -2571,7 +2625,7 @@
     <wsdl:part name="secret" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetLoginPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
+    <wsdl:part name="Body" element="tns:PinCodeResponse" />
   </wsdl:message>
   <wsdl:message name="ClearLoginPINHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2858,6 +2912,10 @@
     <wsdl:operation name="GetItemFromList">
       <wsdl:input message="tns:GetItemFromListSoapIn" />
       <wsdl:output message="tns:GetItemFromListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <wsdl:input message="tns:GetItemsFromUsersListsSoapIn" />
+      <wsdl:output message="tns:GetItemsFromUsersListsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <wsdl:input message="tns:IsItemExistsInListSoapIn" />
@@ -3690,6 +3748,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <soap:operation soapAction="http://users.tvinci.com/IsItemExistsInList" style="document" />
       <wsdl:input>
@@ -4352,6 +4419,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetItemFromList">
       <soap12:operation soapAction="http://users.tvinci.com/GetItemFromList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap12:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

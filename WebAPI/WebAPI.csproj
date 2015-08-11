@@ -698,6 +698,7 @@
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Controllers\TransactionController.cs" />
+    <Compile Include="Controllers\UserAssetsListController.cs" />
     <Compile Include="Controllers\UserLoginPinController.cs" />
     <Compile Include="Controllers\UserParentalPinController.cs" />
     <Compile Include="Controllers\UserParentalRuleController.cs" />
@@ -767,6 +768,8 @@
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteList.cs" />
     <Compile Include="Models\Users\KalturaKeyValue.cs" />
@@ -790,6 +793,8 @@
     <Compile Include="Models\API\KalturaPinResponse.cs" />
     <Compile Include="Models\Users\KalturaSignUp.cs" />
     <Compile Include="Models\Users\KalturaUser.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsList.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsListItem.cs" />
     <Compile Include="Models\Users\KalturaUserBasicData.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\KalturaUserData.cs" />
@@ -934,6 +939,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Users\UserItemListsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UsersItemsListsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
