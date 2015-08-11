@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -454,7 +454,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetPaymentGWSettings">
+      <s:element name="GetPaymentGatewateSettings">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -462,10 +462,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetPaymentGWSettingsResponse">
+      <s:element name="GetPaymentGatewateSettingsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetPaymentGWSettingsResult" type="tns:PaymentGatewaySettingsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetPaymentGatewateSettingsResult" type="tns:PaymentGatewaySettingsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -487,20 +487,28 @@
         </s:sequence>
       </s:complexType>
       <s:complexType name="PaymentGateway">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PaymentGatewayBase">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="TransactUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="StatusUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="RenewUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="PendingInterval" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="PendingRetries" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfPaymentGatewaySettings" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PaymentGatewayBase">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="TransactUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="StatusUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="RenewUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PendingInterval" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PendingRetries" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfPaymentGatewaySettings" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfPaymentGatewaySettings">
@@ -632,18 +640,12 @@
       <s:complexType name="PaymentGatewayResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="pgw" type="tns:ArrayOfPaymentGatewayBasic" />
+          <s:element minOccurs="0" maxOccurs="1" name="pgw" type="tns:ArrayOfPaymentGatewayBase" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ArrayOfPaymentGatewayBasic">
+      <s:complexType name="ArrayOfPaymentGatewayBase">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="PaymentGatewayBasic" nillable="true" type="tns:PaymentGatewayBasic" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="PaymentGatewayBasic">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PaymentGatewayBase" nillable="true" type="tns:PaymentGatewayBase" />
         </s:sequence>
       </s:complexType>
       <s:element name="SetHouseholdPaymentGateway">
@@ -718,7 +720,7 @@
       <s:complexType name="HouseholdPaymentGatewayResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="PaymentGateway" type="tns:PaymentGatewayBasic" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentGateway" type="tns:PaymentGatewayBase" />
           <s:element minOccurs="1" maxOccurs="1" name="SelectedBy" type="tns:eHouseholdPaymentGatewaySelectedBy" />
         </s:sequence>
       </s:complexType>
@@ -1140,11 +1142,11 @@
   <wsdl:message name="Cellular_ChargeUserSoapOut">
     <wsdl:part name="parameters" element="tns:Cellular_ChargeUserResponse" />
   </wsdl:message>
-  <wsdl:message name="GetPaymentGWSettingsSoapIn">
-    <wsdl:part name="parameters" element="tns:GetPaymentGWSettings" />
+  <wsdl:message name="GetPaymentGatewateSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewateSettings" />
   </wsdl:message>
-  <wsdl:message name="GetPaymentGWSettingsSoapOut">
-    <wsdl:part name="parameters" element="tns:GetPaymentGWSettingsResponse" />
+  <wsdl:message name="GetPaymentGatewateSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewateSettingsResponse" />
   </wsdl:message>
   <wsdl:message name="SetPaymentGatewaySoapIn">
     <wsdl:part name="parameters" element="tns:SetPaymentGateway" />
@@ -1503,11 +1505,11 @@
   <wsdl:message name="Cellular_ChargeUserHttpPostOut">
     <wsdl:part name="Body" element="tns:BillingResponse" />
   </wsdl:message>
-  <wsdl:message name="GetPaymentGWSettingsHttpPostIn">
+  <wsdl:message name="GetPaymentGatewateSettingsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetPaymentGWSettingsHttpPostOut">
+  <wsdl:message name="GetPaymentGatewateSettingsHttpPostOut">
     <wsdl:part name="Body" element="tns:PaymentGatewaySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="DeletePaymentGatewayHttpPostIn">
@@ -1726,9 +1728,9 @@
       <wsdl:input message="tns:Cellular_ChargeUserSoapIn" />
       <wsdl:output message="tns:Cellular_ChargeUserSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetPaymentGWSettings">
-      <wsdl:input message="tns:GetPaymentGWSettingsSoapIn" />
-      <wsdl:output message="tns:GetPaymentGWSettingsSoapOut" />
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <wsdl:input message="tns:GetPaymentGatewateSettingsSoapIn" />
+      <wsdl:output message="tns:GetPaymentGatewateSettingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SetPaymentGateway">
       <wsdl:input message="tns:SetPaymentGatewaySoapIn" />
@@ -1900,9 +1902,9 @@
       <wsdl:input message="tns:Cellular_ChargeUserHttpPostIn" />
       <wsdl:output message="tns:Cellular_ChargeUserHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetPaymentGWSettings">
-      <wsdl:input message="tns:GetPaymentGWSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetPaymentGWSettingsHttpPostOut" />
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <wsdl:input message="tns:GetPaymentGatewateSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewateSettingsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="DeletePaymentGateway">
       <wsdl:input message="tns:DeletePaymentGatewayHttpPostIn" />
@@ -2134,8 +2136,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetPaymentGWSettings">
-      <soap:operation soapAction="http://billing.tvinci.com/GetPaymentGWSettings" style="document" />
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <soap:operation soapAction="http://billing.tvinci.com/GetPaymentGatewateSettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2524,8 +2526,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetPaymentGWSettings">
-      <soap12:operation soapAction="http://billing.tvinci.com/GetPaymentGWSettings" style="document" />
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <soap12:operation soapAction="http://billing.tvinci.com/GetPaymentGatewateSettings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2912,8 +2914,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetPaymentGWSettings">
-      <http:operation location="/GetPaymentGWSettings" />
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <http:operation location="/GetPaymentGatewateSettings" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -3050,13 +3052,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/WS_Billing/module.asmx" />
+      <soap:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/WS_Billing/module.asmx" />
+      <soap12:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/WS_Billing/module.asmx" />
+      <http:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

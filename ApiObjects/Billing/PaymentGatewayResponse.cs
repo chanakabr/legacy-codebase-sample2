@@ -9,15 +9,15 @@ namespace ApiObjects.Billing
     public class PaymentGatewayResponse
     {
         public ApiObjects.Response.Status resp { get; set; }
-        public List<PaymentGatewayBasic> pgw { get; set; }
+        public List<PaymentGatewayBase> pgw { get; set; }
 
         public PaymentGatewayResponse()
         {
             resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
-            pgw = new List<PaymentGatewayBasic>();
+            pgw = new List<PaymentGatewayBase>();
         }
 
-        public PaymentGatewayResponse(ApiObjects.Response.Status resp, List<PaymentGatewayBasic> pgw)
+        public PaymentGatewayResponse(ApiObjects.Response.Status resp, List<PaymentGatewayBase> pgw)
         {
             this.resp = resp;
             this.pgw = pgw;

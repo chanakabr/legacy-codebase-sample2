@@ -972,7 +972,7 @@ namespace DAL
             return sRet;
         }
 
-        public static List<PaymentGateway> GetPaymentGWSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
         {
             List<PaymentGateway> res = new List<PaymentGateway>();
             try
@@ -1096,9 +1096,9 @@ namespace DAL
             }
         }
 
-        public static List<PaymentGatewayBasic> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
+        public static List<PaymentGatewayBase> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
         {
-            List<PaymentGatewayBasic> res = new List<PaymentGatewayBasic>();
+            List<PaymentGatewayBase> res = new List<PaymentGatewayBase>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayList");
@@ -1111,12 +1111,14 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGatewayBasic pgw = null;
+                        PaymentGatewayBase pgw = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGatewayBasic();
+                            pgw = new PaymentGatewayBase();
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            pgw.IsDefault = isDefault == 1 ? true : false;                            
 
                             res.Add(pgw);
                         }
@@ -1125,14 +1127,14 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<PaymentGatewayBasic>();
+                res = new List<PaymentGatewayBase>();
             }
             return res;
         }
 
-        public static List<PaymentGatewayBasic> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
+        public static List<PaymentGatewayBase> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
         {
-            List<PaymentGatewayBasic> res = new List<PaymentGatewayBasic>();
+            List<PaymentGatewayBase> res = new List<PaymentGatewayBase>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList");
@@ -1151,12 +1153,14 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGatewayBasic pgw = null;
+                        PaymentGatewayBase pgw = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGatewayBasic();
+                            pgw = new PaymentGatewayBase();
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            pgw.IsDefault = isDefault == 1 ? true : false;     
 
                             res.Add(pgw);
                         }
@@ -1165,7 +1169,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<PaymentGatewayBasic>();
+                res = new List<PaymentGatewayBase>();
             }
             return res;
         }

@@ -9,7 +9,7 @@ namespace ApiObjects.Billing
     public class HouseholdPaymentGatewayResponse
     {
         public ApiObjects.Response.Status Status { get; set; }
-        public PaymentGatewayBasic PaymentGateway { get; set; }
+        public PaymentGatewayBase PaymentGateway { get; set; }
         public eHouseholdPaymentGatewaySelectedBy SelectedBy { get; set; }
 
         public HouseholdPaymentGatewayResponse()
@@ -17,7 +17,7 @@ namespace ApiObjects.Billing
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
         }
 
-        public HouseholdPaymentGatewayResponse(ApiObjects.Response.Status status, PaymentGatewayBasic paymentGateway, eHouseholdPaymentGatewaySelectedBy selectedBy)
+        public HouseholdPaymentGatewayResponse(ApiObjects.Response.Status status, PaymentGatewayBase paymentGateway, eHouseholdPaymentGatewaySelectedBy selectedBy)
         {
             this.Status = status;
             this.PaymentGateway = paymentGateway;
