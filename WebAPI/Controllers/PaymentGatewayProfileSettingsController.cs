@@ -22,16 +22,16 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGWSettingsResponse List(string partner_id)
+        public Models.Billing.KalturaPaymentGatewaySettingsResponse List(string partner_id)
         {
-            Models.Billing.KalturaPaymentGWSettingsResponse response = null;
+            Models.Billing.KalturaPaymentGatewaySettingsResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGWSettings(groupId);
+                response = ClientsManager.BillingClient().GetPaymentGatewateSettings(groupId);
             }
             catch (ClientException ex)
             {
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGWSettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().DeletePaymentGatewaySettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGWSettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().SetPaymentGatewaySettings(groupId, payment_gateway_id, settings);
             }
             catch (ClientException ex)
             {

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "payment_gateway")]
         [JsonProperty("payment_gateway")]
         [XmlElement(ElementName = "payment_gateway")]
-        public KalturaPaymentGWBasic paymentGateway { get; set; }
+        public KalturaPaymentGatewayBaseProfile paymentGateway { get; set; }
 
         /// <summary>
         /// distinction payment gateway selected by account or household

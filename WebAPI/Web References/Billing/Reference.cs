@@ -67,7 +67,7 @@ namespace WebAPI.Billing {
         
         private System.Threading.SendOrPostCallback Cellular_ChargeUserOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetPaymentGWSettingsOperationCompleted;
+        private System.Threading.SendOrPostCallback GetPaymentGatewateSettingsOperationCompleted;
         
         private System.Threading.SendOrPostCallback SetPaymentGatewayOperationCompleted;
         
@@ -112,6 +112,8 @@ namespace WebAPI.Billing {
         private System.Threading.SendOrPostCallback SetPaymentGatewayConfigurationOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -209,7 +211,7 @@ namespace WebAPI.Billing {
         public event Cellular_ChargeUserCompletedEventHandler Cellular_ChargeUserCompleted;
         
         /// <remarks/>
-        public event GetPaymentGWSettingsCompletedEventHandler GetPaymentGWSettingsCompleted;
+        public event GetPaymentGatewateSettingsCompletedEventHandler GetPaymentGatewateSettingsCompleted;
         
         /// <remarks/>
         public event SetPaymentGatewayCompletedEventHandler SetPaymentGatewayCompleted;
@@ -276,6 +278,9 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
+        
+        /// <remarks/>
+        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1042,33 +1047,33 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGatewaySettingsResponse GetPaymentGWSettings(string sWSUserName, string sWSPassword) {
-            object[] results = this.Invoke("GetPaymentGWSettings", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewateSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGatewaySettingsResponse GetPaymentGatewateSettings(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetPaymentGatewateSettings", new object[] {
                         sWSUserName,
                         sWSPassword});
             return ((PaymentGatewaySettingsResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword) {
-            this.GetPaymentGWSettingsAsync(sWSUserName, sWSPassword, null);
+        public void GetPaymentGatewateSettingsAsync(string sWSUserName, string sWSPassword) {
+            this.GetPaymentGatewateSettingsAsync(sWSUserName, sWSPassword, null);
         }
         
         /// <remarks/>
-        public void GetPaymentGWSettingsAsync(string sWSUserName, string sWSPassword, object userState) {
-            if ((this.GetPaymentGWSettingsOperationCompleted == null)) {
-                this.GetPaymentGWSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGWSettingsOperationCompleted);
+        public void GetPaymentGatewateSettingsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetPaymentGatewateSettingsOperationCompleted == null)) {
+                this.GetPaymentGatewateSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGatewateSettingsOperationCompleted);
             }
-            this.InvokeAsync("GetPaymentGWSettings", new object[] {
+            this.InvokeAsync("GetPaymentGatewateSettings", new object[] {
                         sWSUserName,
-                        sWSPassword}, this.GetPaymentGWSettingsOperationCompleted, userState);
+                        sWSPassword}, this.GetPaymentGatewateSettingsOperationCompleted, userState);
         }
         
-        private void OnGetPaymentGWSettingsOperationCompleted(object arg) {
-            if ((this.GetPaymentGWSettingsCompleted != null)) {
+        private void OnGetPaymentGatewateSettingsOperationCompleted(object arg) {
+            if ((this.GetPaymentGatewateSettingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetPaymentGWSettingsCompleted(this, new GetPaymentGWSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.GetPaymentGatewateSettingsCompleted(this, new GetPaymentGatewateSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1815,27 +1820,27 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UpdatePendingResponse UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
+        public UpdatePendingResponse UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature});
             return ((UpdatePendingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature) {
-            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, adapterMessage, externalTransactionId, externalStatus, externalMessage, signature, null);
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
+            this.UpdatePendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature, null);
         }
         
         /// <remarks/>
-        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string adapterMessage, string externalTransactionId, string externalStatus, string externalMessage, string signature, object userState) {
+        public void UpdatePendingTransactionAsync(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature, object userState) {
             if ((this.UpdatePendingTransactionOperationCompleted == null)) {
                 this.UpdatePendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePendingTransactionOperationCompleted);
             }
@@ -1844,10 +1849,10 @@ namespace WebAPI.Billing {
                         sWSPassword,
                         paymentGatewayId,
                         adapterTransactionState,
-                        adapterMessage,
                         externalTransactionId,
                         externalStatus,
                         externalMessage,
+                        failReason,
                         signature}, this.UpdatePendingTransactionOperationCompleted, userState);
         }
         
@@ -1855,6 +1860,47 @@ namespace WebAPI.Billing {
             if ((this.UpdatePendingTransactionCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UpdatePendingTransactionCompleted(this, new UpdatePendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CheckPendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactResult CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
+            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid});
+            return ((TransactResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, object userState) {
+            if ((this.CheckPendingTransactionOperationCompleted == null)) {
+                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid}, this.CheckPendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnCheckPendingTransactionOperationCompleted(object arg) {
+            if ((this.CheckPendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2121,6 +2167,10 @@ namespace WebAPI.Billing {
         
         private int failReasonCodeField;
         
+        private string paymentDetailsField;
+        
+        private string paymentMethodField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -2180,6 +2230,26 @@ namespace WebAPI.Billing {
                 this.failReasonCodeField = value;
             }
         }
+        
+        /// <remarks/>
+        public string PaymentDetails {
+            get {
+                return this.paymentDetailsField;
+            }
+            set {
+                this.paymentDetailsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PaymentMethod {
+            get {
+                return this.paymentMethodField;
+            }
+            set {
+                this.paymentMethodField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -2225,7 +2295,7 @@ namespace WebAPI.Billing {
         
         private int idField;
         
-        private int paymentGWIdField;
+        private int paymentGatewayIDField;
         
         private string externalTransactionIdField;
         
@@ -2239,11 +2309,15 @@ namespace WebAPI.Billing {
         
         private int contentIdField;
         
-        private string adapterMessageField;
-        
         private string messageField;
         
         private int stateField;
+        
+        private int failReasonField;
+        
+        private string paymentDetailsField;
+        
+        private string paymentMethodField;
         
         /// <remarks/>
         public int ID {
@@ -2256,12 +2330,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public int PaymentGWId {
+        public int PaymentGatewayID {
             get {
-                return this.paymentGWIdField;
+                return this.paymentGatewayIDField;
             }
             set {
-                this.paymentGWIdField = value;
+                this.paymentGatewayIDField = value;
             }
         }
         
@@ -2326,16 +2400,6 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public string AdapterMessage {
-            get {
-                return this.adapterMessageField;
-            }
-            set {
-                this.adapterMessageField = value;
-            }
-        }
-        
-        /// <remarks/>
         public string Message {
             get {
                 return this.messageField;
@@ -2354,6 +2418,36 @@ namespace WebAPI.Billing {
                 this.stateField = value;
             }
         }
+        
+        /// <remarks/>
+        public int FailReason {
+            get {
+                return this.failReasonField;
+            }
+            set {
+                this.failReasonField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PaymentDetails {
+            get {
+                return this.paymentDetailsField;
+            }
+            set {
+                this.paymentDetailsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PaymentMethod {
+            get {
+                return this.paymentMethodField;
+            }
+            set {
+                this.paymentMethodField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -2366,7 +2460,7 @@ namespace WebAPI.Billing {
         
         private int idField;
         
-        private int paymentGWTransactionIdField;
+        private int paymentGatewayTransactionIdField;
         
         private System.DateTime nextRetryDateField;
         
@@ -2385,12 +2479,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public int PaymentGWTransactionId {
+        public int PaymentGatewayTransactionId {
             get {
-                return this.paymentGWTransactionIdField;
+                return this.paymentGatewayTransactionIdField;
             }
             set {
-                this.paymentGWTransactionIdField = value;
+                this.paymentGatewayTransactionIdField = value;
             }
         }
         
@@ -2435,7 +2529,7 @@ namespace WebAPI.Billing {
         
         private Status statusField;
         
-        private PaymentGatewayBasic paymentGatewayField;
+        private PaymentGatewayBase paymentGatewayField;
         
         private eHouseholdPaymentGatewaySelectedBy selectedByField;
         
@@ -2450,7 +2544,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGatewayBasic PaymentGateway {
+        public PaymentGatewayBase PaymentGateway {
             get {
                 return this.paymentGatewayField;
             }
@@ -2471,150 +2565,19 @@ namespace WebAPI.Billing {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentGateway))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGatewayBasic {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public int ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public enum eHouseholdPaymentGatewaySelectedBy {
-        
-        /// <remarks/>
-        Account,
-        
-        /// <remarks/>
-        Household,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGatewayResponse {
-        
-        private Status respField;
-        
-        private PaymentGatewayBasic[] pgwField;
-        
-        /// <remarks/>
-        public Status resp {
-            get {
-                return this.respField;
-            }
-            set {
-                this.respField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentGatewayBasic[] pgw {
-            get {
-                return this.pgwField;
-            }
-            set {
-                this.pgwField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGatewaySettings {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentGateway {
+    public partial class PaymentGatewayBase {
         
         private int idField;
         
         private string nameField;
         
         private bool isDefaultField;
-        
-        private int isActiveField;
-        
-        private string adapterUrlField;
-        
-        private string transactUrlField;
-        
-        private string statusUrlField;
-        
-        private string renewUrlField;
-        
-        private string externalIdentifierField;
-        
-        private int pendingIntervalField;
-        
-        private int pendingRetriesField;
-        
-        private string sharedSecretField;
-        
-        private PaymentGatewaySettings[] settingsField;
         
         /// <remarks/>
         public int ID {
@@ -2645,6 +2608,35 @@ namespace WebAPI.Billing {
                 this.isDefaultField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGateway : PaymentGatewayBase {
+        
+        private int isActiveField;
+        
+        private string adapterUrlField;
+        
+        private string transactUrlField;
+        
+        private string statusUrlField;
+        
+        private string renewUrlField;
+        
+        private string externalIdentifierField;
+        
+        private int pendingIntervalField;
+        
+        private int pendingRetriesField;
+        
+        private string sharedSecretField;
+        
+        private PaymentGatewaySettings[] settingsField;
         
         /// <remarks/>
         public int IsActive {
@@ -2743,6 +2735,85 @@ namespace WebAPI.Billing {
             }
             set {
                 this.settingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGatewaySettings {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum eHouseholdPaymentGatewaySelectedBy {
+        
+        /// <remarks/>
+        Account,
+        
+        /// <remarks/>
+        Household,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGatewayResponse {
+        
+        private Status respField;
+        
+        private PaymentGatewayBase[] pgwField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentGatewayBase[] pgw {
+            get {
+                return this.pgwField;
+            }
+            set {
+                this.pgwField = value;
             }
         }
     }
@@ -3714,17 +3785,17 @@ namespace WebAPI.Billing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetPaymentGWSettingsCompletedEventHandler(object sender, GetPaymentGWSettingsCompletedEventArgs e);
+    public delegate void GetPaymentGatewateSettingsCompletedEventHandler(object sender, GetPaymentGatewateSettingsCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetPaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class GetPaymentGatewateSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetPaymentGWSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal GetPaymentGatewateSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
@@ -4306,6 +4377,32 @@ namespace WebAPI.Billing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UpdatePendingResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactResult)(this.results[0]));
             }
         }
     }

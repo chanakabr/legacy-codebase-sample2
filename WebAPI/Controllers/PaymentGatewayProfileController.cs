@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGWResponse List(string partner_id)
+        public Models.Billing.KalturaPaymentGatewayResponse List(string partner_id)
         {
-            Models.Billing.KalturaPaymentGWResponse response = null;
+            Models.Billing.KalturaPaymentGatewayResponse response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGW(groupId, payment_gateway_id);
+                response = ClientsManager.BillingClient().DeletePaymentGateway(groupId, payment_gateway_id);
             }
             catch (ClientException ex)
             {
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway">Payment Gateway Object</param>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, KalturaPaymentGatewayData payment_gateway)
+        public bool Add(string partner_id, KalturaPaymentGatewayProfile payment_gateway)
         {
             bool response = false;
 
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_gateway">Payment Gateway Object</param>       
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, int payment_gateway_id, KalturaPaymentGatewayData payment_gateway)
+        public bool Update(string partner_id, int payment_gateway_id, KalturaPaymentGatewayProfile payment_gateway)
         {
             bool response = false;
 

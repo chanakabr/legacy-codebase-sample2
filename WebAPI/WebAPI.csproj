@@ -714,12 +714,11 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGatewayData.cs" />
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWBasic.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGW.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWSettingsResponse.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWResponse.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewaySettingsResponse.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayResponse.cs" />
     <Compile Include="Models\API\KalturaParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />

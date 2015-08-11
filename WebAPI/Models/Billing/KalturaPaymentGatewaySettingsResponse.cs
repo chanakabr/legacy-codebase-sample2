@@ -12,7 +12,7 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment Gateway Settings
     /// </summary>
-    public class KalturaPaymentGWSettingsResponse : KalturaOTTObject
+    public class KalturaPaymentGatewaySettingsResponse : KalturaOTTObject
     {
         /// <summary>
         /// List of payment_gateway_settings
@@ -21,6 +21,6 @@ namespace WebAPI.Models.Billing
         [JsonProperty("payment_gateway")]
         [XmlArray(ElementName = "payment_gateway")]
         [XmlArrayItem("item")]  
-        public List<KalturaPaymentGW> pgw { get; set; }      
+        public List<KalturaPaymentGatewayProfile> pgw { get; set; }      
     }
 }
