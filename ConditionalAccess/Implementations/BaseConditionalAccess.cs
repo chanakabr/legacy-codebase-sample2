@@ -12794,7 +12794,7 @@ namespace ConditionalAccess
         }
 
         public ApiObjects.Response.Status CheckPendingTransaction(long paymentGatewayPendingId, int numberOfRetries, string billingGuid, 
-            long paymentGatewayTransactionId, string siteGuid)
+            long paymentGatewayTransactionId, string siteGuid, int productId, int productType)
         {
             ApiObjects.Response.Status response = null;
 
@@ -12807,12 +12807,19 @@ namespace ConditionalAccess
                 #region Validate user and domain
 
                 long domainId = 0;
-
                 var validateUser = Utils.ValidateUser(this.m_nGroupID, siteGuid, ref domainId);
 
                 if (validateUser != ResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateUser.ToString());
+                    return response;
+                }
+
+                var validateDomain = Utils.ValidateDomain(this.m_nGroupID, (int)domainId);
+
+                if (validateDomain != TvinciDomains.DomainStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateDomain.ToString());
                     return response;
                 }
 
@@ -12852,20 +12859,20 @@ namespace ConditionalAccess
                 else
                 {
                     bool isUpdated = false;
-                    //switch (billingResponse.ProductType)
-                    //{
-                    //    case ConditionalAccess.TvinciBilling.eTransactionType.PPV:
-                    //    isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                    //    break;
-                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Subscription:
-                    //    isUpdated = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingResponse.BillingGuid, 0, 0);
-                    //    break;
-                    //    case ConditionalAccess.TvinciBilling.eTransactionType.Collection:
-                    //    isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                    //    break;
-                    //    default:
-                    //    break;
-                    //}
+                    switch ((ConditionalAccess.TvinciBilling.eTransactionType)productType)
+                    {
+                        case ConditionalAccess.TvinciBilling.eTransactionType.PPV:
+                        isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingGuid, 0);
+                        break;
+                        case ConditionalAccess.TvinciBilling.eTransactionType.Subscription:
+                        isUpdated = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingGuid, 0, 0);
+                        break;
+                        case ConditionalAccess.TvinciBilling.eTransactionType.Collection:
+                        isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingGuid, 0);
+                        break;
+                        default:
+                        break;
+                    }
 
                     if (isUpdated)
                     {
@@ -12873,7 +12880,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        //response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
                     }
                 }
             }
