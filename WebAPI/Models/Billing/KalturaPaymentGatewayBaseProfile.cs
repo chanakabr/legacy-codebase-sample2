@@ -12,7 +12,7 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// PaymentGWBasic
     /// </summary>
-    public class KalturaPaymentGWBasic : KalturaOTTObject
+    public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {
         /// <summary>
         /// payment gateway id
@@ -20,7 +20,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// payment gateway name
@@ -28,6 +28,15 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        public string name { get; set; }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Payment gateway default (true / false)
+        /// </summary>
+        [DataMember(Name = "is_default")]
+        [JsonProperty("is_default")]
+        [XmlElement(ElementName = "is_default")]
+        public bool IsDefault { get; set; }
+        
     }
 }

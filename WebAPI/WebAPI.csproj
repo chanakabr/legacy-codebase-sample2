@@ -713,14 +713,11 @@
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRulesList.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
-    <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewayResponse.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGatewayData.cs" />
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWBasic.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGW.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWSettingsResponse.cs" />
-    <Compile Include="Models\Billing\KalturaPaymentGWResponse.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRulesList.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
@@ -732,6 +729,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
+    <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />

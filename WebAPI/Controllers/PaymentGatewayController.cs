@@ -32,9 +32,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGWResponse List(string partner_id, long household_id, string user_id)
+        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(string partner_id, long household_id, string user_id)
         {
-            Models.Billing.KalturaPaymentGWResponse response = null;
+            List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -62,9 +62,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">Household Identifier</param>        
         [Route("get"), HttpPost]
-        public Models.Billing.KalturaHouseholdPaymentGatewayResponse Get(string partner_id, long household_id)
+        public Models.Billing.KalturaPaymentGateway Get(string partner_id, long household_id)
         {
-            Models.Billing.KalturaHouseholdPaymentGatewayResponse response = null;
+            Models.Billing.KalturaPaymentGateway response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
-        /// Payment Gateway Identifier is Missing = 6005
+        /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>

@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         //public KalturaEntitlementsList List(string partner_id, string user_id)
         //{
         //    List<KalturaEntitlement> response = new List<KalturaEntitlement>();
-            
+
         //    int groupId = int.Parse(partner_id);
 
         //    try
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         public bool Cancel(string partner_id, int household_id, int asset_id, KalturaTransactionType transaction_type, bool is_force = false)
         {
             bool response = false;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (asset_id == 0)
@@ -162,5 +162,42 @@ namespace WebAPI.Controllers
 
             return new KalturaEntitlementsList() { Entitlements = response };
         }
+
+        /// <summary>
+        /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="user_id">Grant entitlemtns for the user’s HH  </param>
+        /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV</param>
+        /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
+        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
+        /// <param name="history">Controls if the new entilements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+        /// <remarks>Possible status codes: 
+        /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
+        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
+        /// Partner is invalid = 500008</remarks>
+        [Route("get"), HttpPost]
+        public void Get(string partner_id, string user_id, int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        {
+
+            int groupId = int.Parse(partner_id);
+
+            // validate user id
+            if (string.IsNullOrEmpty(user_id))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+
+            try
+            {
+                // call client
+                ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id, 0, content_id, product_id, product_type, history, string.Empty);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+        }
+
     }
 }

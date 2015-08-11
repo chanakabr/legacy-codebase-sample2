@@ -12,6 +12,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -24,18 +25,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="media_ids">Media identifiers separated by ',' </param>
-        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
-        /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="media_ids">Media identifiers separated by ',' </param>        
+        /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("get"), HttpPost]
+        [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper Get(int[] media_ids, int page_index = 0, int? page_size = null,
+        public KalturaAssetInfoWrapper List(int[] media_ids, KalturaFilterPager pager = null,
             List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
@@ -47,16 +47,19 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_ids cannot be empty");
             }
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (page_size == null || page_size > 10 || page_size < 1)
+            if (pager.PageSize > 10 || pager.PageSize < 1)
             {
-                page_size = 5;
+                pager.PageSize = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, page_index,
-                    page_size, media_ids.ToList(), with);
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, pager.PageIndex,
+                    pager.PageSize, media_ids.ToList(), with);
 
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -77,10 +80,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="request">The search asset request parameter</param>
         /// <param name="language">Language Code</param>
+        /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper Search(KalturaSearchAssetsRequest request, string language = null)
+        public KalturaAssetInfoWrapper Search(KalturaSearchAssetsRequest request, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -92,16 +96,19 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
             }
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             // page size - 5 <= size <= 50
-            if (request.page_size == null || request.page_size == 0)
+            if (pager.PageSize == 0)
             {
-                request.page_size = 25;
+                pager.PageSize = 25;
             }
-            else if (request.page_size > 50)
+            else if (pager.PageSize > 50)
             {
-                request.page_size = 50;
+                pager.PageSize = 50;
             }
-            else if (request.page_size < 5)
+            else if (pager.PageSize < 5)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
@@ -110,7 +117,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
-                request.page_index, request.page_size, request.filter, request.order_by, request.filter_types, request.with);
+                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types, request.with);
             }
             catch (ClientException ex)
             {
@@ -166,9 +173,8 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <param name="media_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
-        /// If omitted – all types should be included.</param>
-        /// <param name="page_index">Page number to return. If omitted will return first page.</param>
-        /// <param name="page_size"><![CDATA[Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// If omitted – all types should be included.</param>        
+        /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
@@ -177,11 +183,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper Related(int media_id,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_types = null,
-            int page_index = 0, int? page_size = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            string language = null, string user_id = null, int household_id = 0)
+        public KalturaAssetInfoWrapper Related(int media_id, KalturaFilterPager pager = null, List<int> media_types = null,
+            List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -192,15 +195,19 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
             }
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (page_size == null || page_size > 10 || page_size < 1)
+            if (pager.PageSize > 10 || pager.PageSize < 1)
             {
-                page_size = 5;
+                pager.PageSize = 5;
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty, language, page_index, page_size, media_id, media_types, with);
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty,
+                    language, pager.PageIndex, pager.PageSize, media_id, media_types, with);
             }
             catch (ClientException ex)
             {

@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -18,20 +19,22 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_id">User Id</param>
-        /// <param name="page_number">page number</param>
-        /// <param name="page_size">page size</param>
+        /// <param name="pager">Page size and index</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaBillingTransactions List(string partner_id, string user_id, int page_number, int page_size)
+        public KalturaBillingTransactions List(string partner_id, string user_id, KalturaFilterPager pager = null)
         {
             KalturaBillingTransactions response = new KalturaBillingTransactions();
 
             int groupId = int.Parse(partner_id);
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, user_id, page_number, page_size);
+                response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, user_id, pager.PageIndex, pager.PageSize);
             }
             catch (ClientException ex)
             {
