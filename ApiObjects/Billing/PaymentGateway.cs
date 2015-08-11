@@ -3,11 +3,8 @@ using System.Xml.Serialization;
 
 namespace ApiObjects.Billing
 {
-    public class PaymentGateway
+    public class PaymentGateway : PaymentGatewayBase
     {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public bool IsDefault { get; set; }
         public int IsActive { get; set; }
         public string AdapterUrl { get; set; }
         public string TransactUrl { get; set; }

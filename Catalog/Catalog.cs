@@ -760,9 +760,10 @@ namespace Catalog
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(parentGroupID);
 
+            int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+
             if (request.filterTree != null)
             {
-
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
 
@@ -781,9 +782,11 @@ namespace Catalog
                         // If it is a leaf, just replace the field name
                         if (node.type == BooleanNodeType.Leaf)
                         {
-                            BooleanLeaf leaf = node as BooleanLeaf;
+                            #region Leaf Treatment
 
+                            BooleanLeaf leaf = node as BooleanLeaf;
                             bool isTagOrMeta;
+
                             // Add prefix (meta/tag) e.g. metas.{key}
 
                             HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
@@ -898,6 +901,20 @@ namespace Catalog
                                 #endregion
 
                             }
+
+                            #region Trim search value
+
+                            // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
+                            // Otherwise the search will not work completely 
+                            if (maxNGram > 0 && 
+                                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
+                            {
+                                leaf.value = leaf.value.ToString().Substring(0, maxNGram);
+                            }
+
+                            #endregion
+
+                            #endregion
                         }
                         else if (node.type == BooleanNodeType.Parent)
                         {

@@ -699,7 +699,7 @@ namespace ConditionalAccess
                 string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, productId, siteguid, price, currency, maxNumOfViews,
+                purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, contentId, siteguid, price, currency, maxNumOfViews,
                                                                         customData, subscriptionCode, billingTransactionId, entitlementDate, endDate,
                                                                         entitlementDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
                 if (purchaseId < 1)

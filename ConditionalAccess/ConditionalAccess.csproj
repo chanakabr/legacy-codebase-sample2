@@ -362,13 +362,16 @@
     <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciBilling\PaymentGWChargeIDResponse.datasource">
+    <None Include="Web References\TvinciBilling\HouseholdPaymentGatewayResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciBilling\PaymentGWResponse.datasource">
+    <None Include="Web References\TvinciBilling\PaymentGatewayChargeIDResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciBilling\PaymentGWSettingsResponse.datasource">
+    <None Include="Web References\TvinciBilling\PaymentGatewayResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\PaymentGatewaySettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciBilling\PurchaseAdapterResponse.datasource">
@@ -378,6 +381,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciBilling\TransactResult1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciBilling\UpdatePendingResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
@@ -489,10 +495,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/WS_Billing/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/WS_Billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

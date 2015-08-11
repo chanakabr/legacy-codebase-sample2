@@ -159,35 +159,44 @@ namespace Users
             return res;
         }
 
-        public virtual DomainResponseObject AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string sDeviceName, int nBrandID)
+        public virtual DomainResponseObject AddDeviceToDomain(int groupId, int domainId, string udid, string deviceName, int brandId)
         {
             DomainResponseObject oDomainResponseObject = new DomainResponseObject();
             oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
 
-            if (string.IsNullOrEmpty(sUDID))
-            {
+            // validate UDID is not empty
+            if (string.IsNullOrEmpty(udid))
                 return oDomainResponseObject;
-            }
 
-            Domain domain = DomainInitializer(nGroupID, nDomainID, false);
-            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            // get domain data
+            oDomainResponseObject.m_oDomain = DomainInitializer(groupId, domainId, false);
+            if (oDomainResponseObject.m_oDomain == null ||
+                oDomainResponseObject.m_oDomain.m_DomainStatus == DomainStatus.Error)
             {
-                log.Error("AddDeviceToDomain - " + string.Format("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", nGroupID, nDomainID, sUDID, sDeviceName, nBrandID));
+                // error getting domain
+                log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
                 oDomainResponseObject.m_oDomain = null;
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
-            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            else if (oDomainResponseObject.m_oDomain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
+                // domain is suspended
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
-                oDomainResponseObject.m_oDomain = domain;
             }
             else
             {
-                oDomainResponseObject.m_oDomain = domain;
-                Device device = new Device(sUDID, nBrandID, m_nGroupID, sDeviceName, nDomainID);
-                bool res = device.Initialize(sUDID, sDeviceName);
+                // create new device
+                Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
+                bool res = device.Initialize(udid, deviceName);
 
-                oDomainResponseObject.m_oDomainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, nDomainID, sUDID, sDeviceName, nBrandID, ref device);
+                // add device to domain
+                oDomainResponseObject.m_oDomainResponseStatus = oDomainResponseObject.m_oDomain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
+
+                if (oDomainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                {
+                    // update domain info (to include new device)
+                    oDomainResponseObject.m_oDomain = DomainInitializer(groupId, domainId, false);
+                }
             }
 
             return oDomainResponseObject;

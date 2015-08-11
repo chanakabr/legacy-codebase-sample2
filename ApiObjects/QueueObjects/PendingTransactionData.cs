@@ -16,14 +16,15 @@ namespace ApiObjects
 
         #region Data Members
 
-        private long pendingTransactionId;
+        private long paymentGatewayPendingId;
         private int numberOfRetries;
         private string billingGuid;
-        private long paymengGatewayTransactionId;
+        private long paymentGatewayTransactionId;
+        private string siteGuid;
 
         #endregion
 
-        public PendingTransactionData(int groupId, PaymentGatewayPending pendingTransaction, 
+        public PendingTransactionData(int groupId, PaymentGatewayPending paymentGatewayPending, 
             string siteGuid, long productId, int productType)
             : base(
                 // id = guid
@@ -33,20 +34,23 @@ namespace ApiObjects
         {
             // Basic member initialization
             this.GroupId = groupId;
-            this.pendingTransactionId = pendingTransaction.ID;
-            this.numberOfRetries = pendingTransaction.AdapterRetryCount;
-            this.ETA = pendingTransaction.NextRetryDate;
-            this.billingGuid = pendingTransaction.BillingGuid;
-            this.paymengGatewayTransactionId = pendingTransaction.PaymentGatewayTransactionId;
+            this.paymentGatewayPendingId = paymentGatewayPending.ID;
+            this.numberOfRetries = paymentGatewayPending.AdapterRetryCount;
+            this.ETA = paymentGatewayPending.NextRetryDate;
+            this.billingGuid = paymentGatewayPending.BillingGuid;
+            this.paymentGatewayTransactionId = paymentGatewayPending.PaymentGatewayTransactionId;
+            this.siteGuid = siteGuid;
 
             this.args = new List<object>()
             {
-                pendingTransactionId,
+                groupId,
+                paymentGatewayPendingId,
                 numberOfRetries,
-                productId,
-                productType,
                 billingGuid,
-                paymengGatewayTransactionId
+                paymentGatewayTransactionId,
+                siteGuid,
+                productId,
+                productType
             };
         }
     }
