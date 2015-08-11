@@ -48,7 +48,9 @@ namespace ApiObjects
                 numberOfRetries,
                 billingGuid,
                 paymentGatewayTransactionId,
-                siteGuid
+                siteGuid,
+                productId,
+                productType
             };
         }
     }
