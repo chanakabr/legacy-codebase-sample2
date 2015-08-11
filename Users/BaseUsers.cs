@@ -731,6 +731,78 @@ namespace Users
             }
         }
 
+        public virtual UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ItemType itemType)
+        {
+            UsersItemsListsResponse response = new UsersItemsListsResponse();
+
+            try
+            {
+                // check if user ids supplied
+                if (userIds == null || userIds.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No user ids supplied");
+                    return response;
+                }
+
+                // parse user ids to ints
+                List<int> ids = new List<int>();
+                int id;
+                foreach (var userId in userIds)
+                {
+                    if (int.TryParse(userId, out id))
+                    {
+                        ids.Add(id);
+                    }
+                    else
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user id must be int");
+                        return response;
+                    }
+                }
+
+                // get items lists
+                DataTable dt = UsersDal.GetItemsFromUsersLists(ids, (int)listType, (int)itemType, groupId);
+                if (dt != null && dt.DefaultView.Count > 0)
+                {
+                    // build all the lists using dictionary
+                    Dictionary<ListType, UserItemsList> listsDict = new Dictionary<ListType,UserItemsList>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        listType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"]);
+                        if (!listsDict.ContainsKey(listType))
+                        {
+                            listsDict.Add(listType, new UserItemsList() 
+                            {
+                                ListType = listType,
+                                ItemsList = new List<Item>()
+                            });
+                        }
+
+                        listsDict[listType].ItemsList.Add(new Item()
+                        {
+                            ItemType = (ItemType)ODBCWrapper.Utils.GetIntSafeVal(dr["item_type"]),
+                            ItemId = ODBCWrapper.Utils.GetIntSafeVal(dr["item_id"]),
+                            OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dr["order_num"]),
+                            UserId = ODBCWrapper.Utils.GetSafeStr(dr["user_id"])
+                        });
+                    }
+
+                    // copy the lists to the response
+                    response.UsersItemsLists = new List<UserItemsList>();
+                    foreach (var list in listsDict)
+                    {
+                        response.UsersItemsLists.Add(list.Value);
+                    }
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetItemFromList - exception =  " + ex.Message, ex);
+                return null;
+            }
+        }
+
 
         /*Return for each item true/false if it exists in the list of the user  */
         public List<ApiObjects.KeyValuePair> IsItemExistsInList(UserItemList userItemList, int nGroupID)

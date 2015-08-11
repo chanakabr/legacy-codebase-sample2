@@ -193,6 +193,7 @@
     <Compile Include="UserOfflineObject.cs" />
     <Compile Include="UserResponse.cs" />
     <Compile Include="UsersCache.cs" />
+    <Compile Include="UsersItemsListsResponse.cs" />
     <Compile Include="UsersResponse.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="UserUpdateResponse.cs" />

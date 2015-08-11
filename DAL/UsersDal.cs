@@ -1118,6 +1118,20 @@ namespace DAL
             return null;
         }
 
+        public static DataTable GetItemsFromUsersLists(List<int> userIds, int listType, int itemType, int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemsFromUsersLists");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@userIDs", userIds, "Id"); 
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            sp.AddParameter("@groupID", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static DataTable IsItemExists(List<int> lItems, int nGroupID, string siteGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsItemExists");
