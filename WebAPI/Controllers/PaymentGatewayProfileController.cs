@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGatewayResponse List(string partner_id)
+        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(string partner_id)
         {
-            Models.Billing.KalturaPaymentGatewayResponse response = null;
+            List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
             int groupId = int.Parse(partner_id);
 

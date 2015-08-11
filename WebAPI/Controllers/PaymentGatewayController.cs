@@ -32,9 +32,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <param name="user_id">User Identifier</param>
         [Route("list"), HttpPost]
-        public Models.Billing.KalturaPaymentGatewayResponse List(string partner_id, long household_id, string user_id)
+        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(string partner_id, long household_id, string user_id)
         {
-            Models.Billing.KalturaPaymentGatewayResponse response = null;
+            List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -62,9 +62,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">Household Identifier</param>        
         [Route("get"), HttpPost]
-        public Models.Billing.KalturaHouseholdPaymentGatewayResponse Get(string partner_id, long household_id)
+        public Models.Billing.KalturaPaymentGateway Get(string partner_id, long household_id)
         {
-            Models.Billing.KalturaHouseholdPaymentGatewayResponse response = null;
+            Models.Billing.KalturaPaymentGateway response = null;
 
             int groupId = int.Parse(partner_id);
 
