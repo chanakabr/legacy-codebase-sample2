@@ -2441,6 +2441,8 @@
             <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayTransactionId" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="productType" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4351,6 +4353,8 @@
     <wsdl:part name="billingGuid" type="s:string" />
     <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CheckPendingTransactionHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />

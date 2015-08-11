@@ -4267,7 +4267,7 @@ namespace PendingTransactionHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
+        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
             object[] results = this.Invoke("CheckPendingTransaction", new object[] {
                         wsUserName,
                         wsPassword,
@@ -4275,17 +4275,19 @@ namespace PendingTransactionHandler.WS_CAS {
                         numberOfRetries,
                         billingGuid,
                         paymentGatewayTransactionId,
-                        siteGuid});
+                        siteGuid,
+                        productId,
+                        productType});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
-            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, null);
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, productId, productType, null);
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, object userState) {
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType, object userState) {
             if ((this.CheckPendingTransactionOperationCompleted == null)) {
                 this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
             }
@@ -4296,7 +4298,9 @@ namespace PendingTransactionHandler.WS_CAS {
                         numberOfRetries,
                         billingGuid,
                         paymentGatewayTransactionId,
-                        siteGuid}, this.CheckPendingTransactionOperationCompleted, userState);
+                        siteGuid,
+                        productId,
+                        productType}, this.CheckPendingTransactionOperationCompleted, userState);
         }
         
         private void OnCheckPendingTransactionOperationCompleted(object arg) {

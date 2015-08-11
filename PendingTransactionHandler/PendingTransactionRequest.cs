@@ -52,5 +52,19 @@ namespace PendingTransactionHandler
             get;
             set;
         }
+
+        [JsonProperty("product_id")]
+        public int ProductId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("product_type")]
+        public int ProductType
+        {
+            get;
+            set;
+        }
     }
 }
