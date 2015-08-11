@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
-        /// Payment Gateway Identifier is Missing = 6005
+        /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// </remarks>
         /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
