@@ -51,7 +51,6 @@ namespace TVPPro.SiteManager.Services
         }
         #endregion
 
-        public string STG = "1";
 
         // we can use this for DoUserAction
         public string DoSocialAction(int mediaID, string siteGuid, TvinciPlatform.Social.eUserAction userAction, TvinciPlatform.Social.SocialPlatform socialPlatform, string actionParam)
@@ -185,7 +184,11 @@ namespace TVPPro.SiteManager.Services
             TvinciPlatform.Social.FacebookConfig res = null;
             try
             {
-                res = m_Module.FBConfig(wsUserName, wsPassword, STG);
+                var response = m_Module.FBConfig(wsUserName, wsPassword);
+                if (response != null)
+                {
+                    res = response.FacebookConfig;
+                }
             }
             catch (Exception e)
             {
@@ -202,7 +205,7 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                facebookResponse = m_Module.FBUserData(wsUserName, wsPassword, token, STG);
+                facebookResponse = m_Module.FBUserData(wsUserName, wsPassword, token);
                 if (facebookResponse != null)
                     clientResponse = facebookResponse.ResponseData;
             }
@@ -221,7 +224,7 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                facebookResponse = m_Module.FBUserRegister(wsUserName, wsPassword, token, STG, extra, sUserIP);
+                facebookResponse = m_Module.FBUserRegister(wsUserName, wsPassword, token, extra, sUserIP);
                 if (facebookResponse != null)
                     clientResponse = facebookResponse.ResponseData;
             }
