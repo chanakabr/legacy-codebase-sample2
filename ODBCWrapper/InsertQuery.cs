@@ -61,16 +61,20 @@ namespace ODBCWrapper
             }
         }
 
-        protected override bool AddParameter(string sParName, string sType, object sParVal)
+        protected override bool AddParameter(string parameterName, string type, object value)
         {
             if (sInsertStructure != "(")
                 sInsertStructure += ",";
-            sInsertStructure += sParName;
+            sInsertStructure += parameterName;
 
             if (sInsertValues != "(")
                 sInsertValues += ",";
             sInsertValues += "@P" + table_ind.ToString();
-            m_hashTable[table_ind] = sParVal;
+
+            if (value == null)
+                value = DBNull.Value;
+
+            m_hashTable[table_ind] = value;
             table_ind++;
             return true;
         }

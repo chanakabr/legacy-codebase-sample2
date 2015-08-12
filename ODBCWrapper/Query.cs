@@ -197,12 +197,16 @@ namespace ODBCWrapper
             return int_Execute();
         }
 
-        protected virtual bool AddParameter(string sParName, string sType, object sParVal)
+        protected virtual bool AddParameter(string parameterName, string type, object value)
         {
-            m_sOraStr.Append(" ").Append(sParName);
-            m_sOraStr.Append(sType);
+            m_sOraStr.Append(" ").Append(parameterName);
+            m_sOraStr.Append(type);
             m_sOraStr.Append("@P").Append(table_ind.ToString());
-            m_hashTable[table_ind] = sParVal;
+
+            if (value == null)
+                value = DBNull.Value;
+
+            m_hashTable[table_ind] = value;
             table_ind++;
             return true;
         }
