@@ -570,28 +570,26 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBConfig", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookConfig FBConfig(string sWSUserName, string sWSPassword, string stg) {
+        public FacebookConfigResponse FBConfig(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("FBConfig", new object[] {
                         sWSUserName,
-                        sWSPassword,
-                        stg});
-            return ((FacebookConfig)(results[0]));
+                        sWSPassword});
+            return ((FacebookConfigResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void FBConfigAsync(string sWSUserName, string sWSPassword, string stg) {
-            this.FBConfigAsync(sWSUserName, sWSPassword, stg, null);
+        public void FBConfigAsync(string sWSUserName, string sWSPassword) {
+            this.FBConfigAsync(sWSUserName, sWSPassword, null);
         }
         
         /// <remarks/>
-        public void FBConfigAsync(string sWSUserName, string sWSPassword, string stg, object userState) {
+        public void FBConfigAsync(string sWSUserName, string sWSPassword, object userState) {
             if ((this.FBConfigOperationCompleted == null)) {
                 this.FBConfigOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBConfigOperationCompleted);
             }
             this.InvokeAsync("FBConfig", new object[] {
                         sWSUserName,
-                        sWSPassword,
-                        stg}, this.FBConfigOperationCompleted, userState);
+                        sWSPassword}, this.FBConfigOperationCompleted, userState);
         }
         
         private void OnFBConfigOperationCompleted(object arg) {
@@ -603,30 +601,28 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserData", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponse FBUserData(string sWSUserName, string sWSPassword, string token, string stg) {
+        public FacebookResponse FBUserData(string sWSUserName, string sWSPassword, string token) {
             object[] results = this.Invoke("FBUserData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        token,
-                        stg});
+                        token});
             return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void FBUserDataAsync(string sWSUserName, string sWSPassword, string token, string stg) {
-            this.FBUserDataAsync(sWSUserName, sWSPassword, token, stg, null);
+        public void FBUserDataAsync(string sWSUserName, string sWSPassword, string token) {
+            this.FBUserDataAsync(sWSUserName, sWSPassword, token, null);
         }
         
         /// <remarks/>
-        public void FBUserDataAsync(string sWSUserName, string sWSPassword, string token, string stg, object userState) {
+        public void FBUserDataAsync(string sWSUserName, string sWSPassword, string token, object userState) {
             if ((this.FBUserDataOperationCompleted == null)) {
                 this.FBUserDataOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBUserDataOperationCompleted);
             }
             this.InvokeAsync("FBUserData", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        token,
-                        stg}, this.FBUserDataOperationCompleted, userState);
+                        token}, this.FBUserDataOperationCompleted, userState);
         }
         
         private void OnFBUserDataOperationCompleted(object arg) {
@@ -638,24 +634,23 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/FBUserRegister", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FacebookResponse FBUserRegister(string sWSUserName, string sWSPassword, string token, string stg, KeyValuePair[] extra, string sUserIP) {
+        public FacebookResponse FBUserRegister(string sWSUserName, string sWSPassword, string token, KeyValuePair[] extra, string sUserIP) {
             object[] results = this.Invoke("FBUserRegister", new object[] {
                         sWSUserName,
                         sWSPassword,
                         token,
-                        stg,
                         extra,
                         sUserIP});
             return ((FacebookResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void FBUserRegisterAsync(string sWSUserName, string sWSPassword, string token, string stg, KeyValuePair[] extra, string sUserIP) {
-            this.FBUserRegisterAsync(sWSUserName, sWSPassword, token, stg, extra, sUserIP, null);
+        public void FBUserRegisterAsync(string sWSUserName, string sWSPassword, string token, KeyValuePair[] extra, string sUserIP) {
+            this.FBUserRegisterAsync(sWSUserName, sWSPassword, token, extra, sUserIP, null);
         }
         
         /// <remarks/>
-        public void FBUserRegisterAsync(string sWSUserName, string sWSPassword, string token, string stg, KeyValuePair[] extra, string sUserIP, object userState) {
+        public void FBUserRegisterAsync(string sWSUserName, string sWSPassword, string token, KeyValuePair[] extra, string sUserIP, object userState) {
             if ((this.FBUserRegisterOperationCompleted == null)) {
                 this.FBUserRegisterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFBUserRegisterOperationCompleted);
             }
@@ -663,7 +658,6 @@ namespace WebAPI.Social {
                         sWSUserName,
                         sWSPassword,
                         token,
-                        stg,
                         extra,
                         sUserIP}, this.FBUserRegisterOperationCompleted, userState);
         }
@@ -2621,6 +2615,39 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class FacebookConfigResponse {
+        
+        private FacebookConfig facebookConfigField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public FacebookConfig FacebookConfig {
+            get {
+                return this.facebookConfigField;
+            }
+            set {
+                this.facebookConfigField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialObjectReponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DoSocialActionResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
@@ -3850,10 +3877,10 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public FacebookConfig Result {
+        public FacebookConfigResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FacebookConfig)(this.results[0]));
+                return ((FacebookConfigResponse)(this.results[0]));
             }
         }
     }

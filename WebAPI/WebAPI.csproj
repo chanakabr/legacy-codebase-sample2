@@ -168,10 +168,54 @@
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
-    <None Include="Service References\Catalog\Service1.disco" />
-    <Content Include="Service References\Catalog\WebAPI.Catalog.epgResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
+    <Content Include="Service References\Catalog\Service.disco" />
+    <Content Include="Service References\Catalog\Service.wsdl" />
+    <None Include="Service References\Catalog\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Catalog\Service1.wsdl" />
+    <None Include="Service References\Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service9.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\configuration91.svcinfo" />
     <None Include="Service References\Notifications\configuration.svcinfo" />
     <Content Include="Service References\Notifications\NotificationService1.wsdl" />
@@ -194,53 +238,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Catalog\Service14.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service141.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1410.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1411.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1412.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1413.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1414.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service142.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service143.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service144.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service145.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service146.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service147.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service148.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service149.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service2.wsdl" />
-    <None Include="Service References\Catalog\Service21.wsdl" />
     <Content Include="Service References\Notifications\NotificationService1.disco" />
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -474,12 +471,6 @@
     <Content Include="Web References\Social\eSocialPrivacy.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Social\FacebookConfig.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FacebookResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Social\FacebookTokenResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -490,6 +481,12 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Pricing\SubscriptionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FacebookResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\FacebookConfigResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Social\module.disco" />
@@ -675,7 +672,9 @@
     <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\ChannelMediaController.cs" />
+    <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
+    <Compile Include="Controllers\HouseholdLastPositionController.cs" />
     <Compile Include="Controllers\HouseholdParentalPinController.cs" />
     <Compile Include="Controllers\HouseholdParentalRuleController.cs" />
     <Compile Include="Controllers\HouseholdPurchasePinController.cs" />
@@ -715,10 +714,12 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRulesList.cs" />
+    <Compile Include="Models\Catalog\KalturaUserLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
@@ -763,6 +764,7 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
+    <Compile Include="Models\Social\KalturaFacebookConfig.cs" />
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
@@ -1014,10 +1016,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/social/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Social\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_social/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

@@ -508,5 +508,45 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        public List<KalturaUserLastPosition> GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int mediaId = 0, string npvrId = null)
+        {
+            List<KalturaUserLastPosition> result = null;
+            DomainLastPositionRequest request = new DomainLastPositionRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                m_nDomainID = domainId,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid
+                },
+                data = new MediaLastPositionRequestData()
+                {
+                    m_nMediaID = mediaId,
+                    m_sNpvrID = npvrId,
+                    m_sSiteGuid = siteGuid,
+                    m_sUDID = udid
+                }
+            };
+
+            DomainLastPositionResponse response = null;
+            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaUserLastPosition>>(response.m_lPositions);
+
+            return result;
+        }
     }
 }

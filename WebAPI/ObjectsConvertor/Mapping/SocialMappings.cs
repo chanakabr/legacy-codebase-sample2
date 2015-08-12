@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
+using WebAPI.Models.Users;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.Social;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -32,6 +36,50 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.last_name))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid));
+
+            // UserType
+            Mapper.CreateMap<Social.UserType, KalturaOTTUserType>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            // Country
+            Mapper.CreateMap<Social.Country, KalturaCountry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
+
+            // UserBasicData
+            Mapper.CreateMap<Social.UserBasicData, KalturaUserBasicData>()
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
+                .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_Country))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.m_sEmail))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_CoGuid))
+                .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_sFacebookID))
+                .ForMember(dest => dest.FacebookImage, opt => opt.MapFrom(src => src.m_bIsFacebookImagePermitted ? src.m_sFacebookImage : null))
+                .ForMember(dest => dest.FacebookToken, opt => opt.MapFrom(src => src.m_sFacebookToken))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_sFirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_sLastName))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_sPhone))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_sUserName))
+                .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_UserType))
+                .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
+
+            // User
+            Mapper.CreateMap<Social.UserResponseObject, KalturaUser>()
+                .ForMember(dest => dest.BasicData, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
+                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
+                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
+                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
+                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
+
+            // FacebookConfig to KalturaFacebookConfig
+            Mapper.CreateMap<Social.FacebookConfig, KalturaFacebookConfig>()
+                .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
+                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
         }
 
         public static WebAPI.Social.KeyValuePair[] ConvertDictionaryToKeyValue(Dictionary<string, string> dictionary)
@@ -53,6 +101,59 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return null;
+        }
+
+        public static List<KalturaKeyValue> ConvertDynamicData(Social.UserDynamicData userDynamicData)
+        {
+            List<KalturaKeyValue> result = null;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null)
+            {
+                result = new List<KalturaKeyValue>();
+                foreach (var data in userDynamicData.m_sUserData)
+                {
+                    if (!string.IsNullOrEmpty(data.m_sDataType))
+                    {
+                        result.Add(new KalturaKeyValue() { key = data.m_sDataType, value = data.m_sValue });
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Social.DomainSuspentionStatus type)
+        {
+            KalturaHouseholdSuspentionState result;
+            switch (type)
+            {
+                case WebAPI.Social.DomainSuspentionStatus.OK:
+                    result = KalturaHouseholdSuspentionState.not_suspended;
+                    break;
+                case WebAPI.Social.DomainSuspentionStatus.Suspended:
+                    result = KalturaHouseholdSuspentionState.suspended;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
+            }
+            return result;
+        }
+
+        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Social.ResponseStatus type)
+        {
+            KalturaUserState result;
+            switch (type)
+            {
+                case WebAPI.Social.ResponseStatus.OK:
+                    result = KalturaUserState.ok;
+                    break;
+                case WebAPI.Social.ResponseStatus.UserWithNoDomain:
+                    result = KalturaUserState.user_with_no_household;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user state");
+            }
+            return result;
         }
     }
 }

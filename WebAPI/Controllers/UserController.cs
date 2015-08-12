@@ -137,6 +137,50 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// login with facebook token.
+        /// </summary>        
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="token">Facebook token</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// User does not exist = 2000
+        /// </remarks>
+        [Route("FacebookLogin"), HttpPost]
+        public KalturaLoginResponse FacebookLogin(string partner_id, string token, string udid = null)
+        {
+            KalturaUser response = null;
+
+            int partnerId = int.Parse(partner_id);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.SocialClient().FBUserSignin(partnerId, token, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            string userSecret = GroupsManager.GetGroup(partnerId).UserSecret;
+            var l = new List<KeyValuePair<string, string>>();
+            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
+            string payload = KS.preparePayloadData(l);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
+
+            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
+        }
+
+        /// <summary>
         /// Sign up a new user.      
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>

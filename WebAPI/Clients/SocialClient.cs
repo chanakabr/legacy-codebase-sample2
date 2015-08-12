@@ -13,6 +13,7 @@ using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Social;
 using WebAPI.Utils;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Clients
 {
@@ -45,7 +46,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserData(group.SocialCredentials.Username, group.SocialCredentials.Password, token, "0");
+                    wsResponse = Client.FBUserData(group.SocialCredentials.Username, group.SocialCredentials.Password, token);
                 }
             }
             catch (Exception ex)
@@ -86,7 +87,7 @@ namespace WebAPI.Clients
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         // fire request
-                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, "0", extraParameters.ToArray(), ip);
+                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters.ToArray(), ip);
                     }
                 }
                 catch (Exception ex)
@@ -192,6 +193,74 @@ namespace WebAPI.Clients
             clientResponse = AutoMapper.Mapper.Map<KalturaFacebookResponse>(wsResponse.ResponseData);
 
             return clientResponse;
+        }
+
+        internal KalturaUser FBUserSignin(int groupId, string token, string udid)
+        {
+            WebAPI.Models.Users.KalturaUser user = null;
+            FBSignin response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Client.FBUserSignin(group.SocialCredentials.Username, group.SocialCredentials.Password, token, Utils.Utils.GetClientIP(), udid, group.ShouldSupportSingleLogin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.status.Code, response.status.Message);
+            }
+
+            user = AutoMapper.Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
+
+            return user;
+        }
+
+        internal KalturaFacebookConfig GetFacebookConfig(int groupId)
+        {
+            KalturaFacebookConfig config = null;
+            FacebookConfigResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Client.FBConfig(group.SocialCredentials.Username, group.SocialCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            config = AutoMapper.Mapper.Map<KalturaFacebookConfig>(response.FacebookConfig);
+
+            return config;
         }
     }
 }

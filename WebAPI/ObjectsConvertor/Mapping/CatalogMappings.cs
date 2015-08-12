@@ -7,6 +7,8 @@ using WebAPI.Catalog;
 using WebAPI.Models;
 using WebAPI.Utils;
 using WebAPI.Models.Catalog;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -121,6 +123,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ChildCategories, opt => opt.MapFrom(src => src.m_oChildCategories))
                 .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_oChannels))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
+
+            //LastPosition to KalturaUserLastPosition
+            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaUserLastPosition>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_nUserID))
+                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.m_nLocation))
+                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.m_eUserType)));
+        }
+
+        // eUserType KalturaPositionOwner 
+        public static KalturaPositionOwner ConvertPositionOwner(eUserType userType)
+        {
+            KalturaPositionOwner result;
+            switch (userType)
+            {
+                case eUserType.HOUSEHOLD:
+                    result = KalturaPositionOwner.household;
+                    break;
+                case eUserType.PERSONAL:
+                    result = KalturaPositionOwner.user;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown position owner");
+            }
+            return result;
         }
 
         private static int GetPictureWidth(string size)

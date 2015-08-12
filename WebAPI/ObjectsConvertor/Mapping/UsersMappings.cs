@@ -282,7 +282,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaKeyValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        public static List<KalturaKeyValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
         {
             List<KalturaKeyValue> result = null;
             

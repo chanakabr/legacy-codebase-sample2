@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://users.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:s1="http://users.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://social.tvinci.com/">
       <s:import namespace="http://users.tvinci.com/" />
@@ -425,17 +425,22 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="FBConfigResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBConfigResult" type="tns:FacebookConfig" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBConfigResult" type="tns:FacebookConfigResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FacebookConfigResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FacebookConfig" type="tns:FacebookConfig" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="FacebookConfig">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="sFBKey" type="s:string" />
@@ -446,13 +451,18 @@
           <s:element minOccurs="0" maxOccurs="1" name="sFBRedirect" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="FBUserData">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -521,19 +531,12 @@
           <s:element minOccurs="0" maxOccurs="1" name="created_time" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="FBUserRegister">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="extra" type="tns:ArrayOfKeyValuePair" />
             <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
           </s:sequence>
@@ -842,7 +845,7 @@
       <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
       <s:element name="ArrayOfESocialPrivacy" nillable="true" type="tns:ArrayOfESocialPrivacy" />
       <s:element name="boolean" type="s:boolean" />
-      <s:element name="FacebookConfig" nillable="true" type="tns:FacebookConfig" />
+      <s:element name="FacebookConfigResponse" nillable="true" type="tns:FacebookConfigResponse" />
       <s:element name="FacebookResponse" nillable="true" type="tns:FacebookResponse" />
       <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
       <s:element name="int" type="s:int" />
@@ -1223,16 +1226,14 @@
   <wsdl:message name="FBConfigHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="stg" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBConfigHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookConfig" />
+    <wsdl:part name="Body" element="tns:FacebookConfigResponse" />
   </wsdl:message>
   <wsdl:message name="FBUserDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="token" type="s:string" />
-    <wsdl:part name="stg" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBUserDataHttpPostOut">
     <wsdl:part name="Body" element="tns:FacebookResponse" />
@@ -2338,13 +2339,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_Social/module.asmx" />
+      <soap:address location="http://localhost/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_Social/module.asmx" />
+      <soap12:address location="http://localhost/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_Social/module.asmx" />
+      <http:address location="http://localhost/ws_social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
