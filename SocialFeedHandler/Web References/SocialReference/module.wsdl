@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:s1="http://users.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://social.tvinci.com/">
+      <s:import namespace="http://users.tvinci.com/" />
       <s:element name="GetUsersLikedMedia">
         <s:complexType>
           <s:sequence>
@@ -424,17 +425,22 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="FBConfigResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBConfigResult" type="tns:FacebookConfig" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBConfigResult" type="tns:FacebookConfigResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FacebookConfigResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FacebookConfig" type="tns:FacebookConfig" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="FacebookConfig">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="sFBKey" type="s:string" />
@@ -445,23 +451,34 @@
           <s:element minOccurs="0" maxOccurs="1" name="sFBRedirect" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="FBUserData">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
       <s:element name="FBUserDataResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FacebookResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseData" type="tns:FacebookResponseObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="FacebookResponseObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
@@ -520,7 +537,6 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="stg" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="extra" type="tns:ArrayOfKeyValuePair" />
             <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
           </s:sequence>
@@ -529,11 +545,11 @@
       <s:element name="FBUserRegisterResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserRegisterResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserRegisterResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="FBUserMerage">
+      <s:element name="FBUserMerge">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -545,10 +561,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="FBUserMerageResponse">
+      <s:element name="FBUserMergeResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserMerageResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserMergeResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -720,7 +736,7 @@
       <s:element name="FBUserUnmergeResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -746,11 +762,36 @@
           <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="FBUserSignin">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserSigninResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserSigninResult" type="tns:FBSignin" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FBSignin">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="s1:UserResponseObject" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UpdateFriendsActivityFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="dbActionId" type="s:string" />
           </s:sequence>
@@ -766,8 +807,8 @@
       <s:element name="DeleteFriendsFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -778,8 +819,8 @@
       <s:element name="DeleteUserFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -790,8 +831,8 @@
       <s:element name="MergeFriendsActivityFeed">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
           </s:sequence>
         </s:complexType>
@@ -804,12 +845,140 @@
       <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
       <s:element name="ArrayOfESocialPrivacy" nillable="true" type="tns:ArrayOfESocialPrivacy" />
       <s:element name="boolean" type="s:boolean" />
-      <s:element name="FacebookConfig" nillable="true" type="tns:FacebookConfig" />
-      <s:element name="FacebookResponseObject" nillable="true" type="tns:FacebookResponseObject" />
+      <s:element name="FacebookConfigResponse" nillable="true" type="tns:FacebookConfigResponse" />
+      <s:element name="FacebookResponse" nillable="true" type="tns:FacebookResponse" />
       <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfSocialActivityDoc" nillable="true" type="tns:ArrayOfSocialActivityDoc" />
       <s:element name="FacebookTokenResponse" nillable="true" type="tns:FacebookTokenResponse" />
+      <s:element name="FBSignin" nillable="true" type="tns:FBSignin" />
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://users.tvinci.com/">
+      <s:complexType name="UserResponseObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_RespStatus" type="s1:ResponseStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_user" type="s1:User" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_userInstanceID" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ResponseStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="UserExists" />
+          <s:enumeration value="UserDoesNotExist" />
+          <s:enumeration value="WrongPasswordOrUserName" />
+          <s:enumeration value="InsideLockTime" />
+          <s:enumeration value="NotImplementedYet" />
+          <s:enumeration value="UserNotActivated" />
+          <s:enumeration value="UserAllreadyLoggedIn" />
+          <s:enumeration value="UserDoubleLogIn" />
+          <s:enumeration value="SessionLoggedOut" />
+          <s:enumeration value="DeviceNotRegistered" />
+          <s:enumeration value="ErrorOnSendingMail" />
+          <s:enumeration value="UserEmailAlreadyExists" />
+          <s:enumeration value="ErrorOnUpdatingUserType" />
+          <s:enumeration value="UserTypeNotExist" />
+          <s:enumeration value="UserNotMasterApproved" />
+          <s:enumeration value="ErrorOnInitUser" />
+          <s:enumeration value="ErrorOnSaveUser" />
+          <s:enumeration value="UserNotIndDomain" />
+          <s:enumeration value="TokenNotFound" />
+          <s:enumeration value="UserAlreadyMasterApproved" />
+          <s:enumeration value="UserWithNoDomain" />
+          <s:enumeration value="InternalError" />
+          <s:enumeration value="LoginServerDown" />
+          <s:enumeration value="UserSuspended" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="User">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_oBasicData" type="s1:UserBasicData" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDynamicData" type="s1:UserDynamicData" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGUID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_domianID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_isDomainMaster" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eUserState" type="s1:UserState" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nSSOOperatorID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eSuspendState" type="s1:DomainSuspentionStatus" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserBasicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sLastName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sEmail" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_State" type="s1:State" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="s1:Country" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sZip" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookImage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsFacebookImagePermitted" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAffiliateCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CoGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_ExternalToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sTwitterToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sTwitterTokenSecret" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_UserType" type="s1:UserType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="State">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="s1:Country" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Country">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserType">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="s1:ArrayOfUserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="s1:UserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="UserState">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="Activated" />
+          <s:enumeration value="SingleSignIn" />
+          <s:enumeration value="DoubleSignIn" />
+          <s:enumeration value="LoggedOut" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="DomainSuspentionStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="Suspended" />
+        </s:restriction>
+      </s:simpleType>
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetUsersLikedMediaSoapIn">
@@ -890,11 +1059,11 @@
   <wsdl:message name="FBUserRegisterSoapOut">
     <wsdl:part name="parameters" element="tns:FBUserRegisterResponse" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageSoapIn">
-    <wsdl:part name="parameters" element="tns:FBUserMerage" />
+  <wsdl:message name="FBUserMergeSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserMerge" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageSoapOut">
-    <wsdl:part name="parameters" element="tns:FBUserMerageResponse" />
+  <wsdl:message name="FBUserMergeSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserMergeResponse" />
   </wsdl:message>
   <wsdl:message name="FBObjectRequestSoapIn">
     <wsdl:part name="parameters" element="tns:FBObjectRequest" />
@@ -955,6 +1124,12 @@
   </wsdl:message>
   <wsdl:message name="FBTokenValidationSoapOut">
     <wsdl:part name="parameters" element="tns:FBTokenValidationResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserSignin" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserSigninResponse" />
   </wsdl:message>
   <wsdl:message name="UpdateFriendsActivityFeedSoapIn">
     <wsdl:part name="parameters" element="tns:UpdateFriendsActivityFeed" />
@@ -1051,21 +1226,19 @@
   <wsdl:message name="FBConfigHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="stg" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBConfigHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookConfig" />
+    <wsdl:part name="Body" element="tns:FacebookConfigResponse" />
   </wsdl:message>
   <wsdl:message name="FBUserDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="token" type="s:string" />
-    <wsdl:part name="stg" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBUserDataHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageHttpPostIn">
+  <wsdl:message name="FBUserMergeHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="token" type="s:string" />
@@ -1073,8 +1246,8 @@
     <wsdl:part name="sUserName" type="s:string" />
     <wsdl:part name="sPass" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="FBUserMerageHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+  <wsdl:message name="FBUserMergeHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
   <wsdl:message name="SetUserExternalActionShareHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1159,7 +1332,7 @@
     <wsdl:part name="sPassword" type="s:string" />
   </wsdl:message>
   <wsdl:message name="FBUserUnmergeHttpPostOut">
-    <wsdl:part name="Body" element="tns:FacebookResponseObject" />
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
   </wsdl:message>
   <wsdl:message name="FBTokenValidationHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1169,9 +1342,20 @@
   <wsdl:message name="FBTokenValidationHttpPostOut">
     <wsdl:part name="Body" element="tns:FacebookTokenResponse" />
   </wsdl:message>
+  <wsdl:message name="FBUserSigninHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+    <wsdl:part name="sIP" type="s:string" />
+    <wsdl:part name="deviceID" type="s:string" />
+    <wsdl:part name="bPreventDoubleLogins" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninHttpPostOut">
+    <wsdl:part name="Body" element="tns:FBSignin" />
+  </wsdl:message>
   <wsdl:message name="UpdateFriendsActivityFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
     <wsdl:part name="dbActionId" type="s:string" />
   </wsdl:message>
@@ -1179,20 +1363,20 @@
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="DeleteFriendsFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteFriendsFeedHttpPostOut" />
   <wsdl:message name="DeleteUserFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteUserFeedHttpPostOut" />
   <wsdl:message name="MergeFriendsActivityFeedHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="MergeFriendsActivityFeedHttpPostOut" />
@@ -1249,9 +1433,9 @@
       <wsdl:input message="tns:FBUserRegisterSoapIn" />
       <wsdl:output message="tns:FBUserRegisterSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <wsdl:input message="tns:FBUserMerageSoapIn" />
-      <wsdl:output message="tns:FBUserMerageSoapOut" />
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeSoapIn" />
+      <wsdl:output message="tns:FBUserMergeSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="FBObjectRequest">
       <wsdl:input message="tns:FBObjectRequestSoapIn" />
@@ -1292,6 +1476,10 @@
     <wsdl:operation name="FBTokenValidation">
       <wsdl:input message="tns:FBTokenValidationSoapIn" />
       <wsdl:output message="tns:FBTokenValidationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <wsdl:input message="tns:FBUserSigninSoapIn" />
+      <wsdl:output message="tns:FBUserSigninSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateFriendsActivityFeed">
       <wsdl:input message="tns:UpdateFriendsActivityFeedSoapIn" />
@@ -1347,9 +1535,9 @@
       <wsdl:input message="tns:FBUserDataHttpPostIn" />
       <wsdl:output message="tns:FBUserDataHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <wsdl:input message="tns:FBUserMerageHttpPostIn" />
-      <wsdl:output message="tns:FBUserMerageHttpPostOut" />
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeHttpPostIn" />
+      <wsdl:output message="tns:FBUserMergeHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="SetUserExternalActionShare">
       <wsdl:input message="tns:SetUserExternalActionShareHttpPostIn" />
@@ -1386,6 +1574,10 @@
     <wsdl:operation name="FBTokenValidation">
       <wsdl:input message="tns:FBTokenValidationHttpPostIn" />
       <wsdl:output message="tns:FBTokenValidationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <wsdl:input message="tns:FBUserSigninHttpPostIn" />
+      <wsdl:output message="tns:FBUserSigninHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateFriendsActivityFeed">
       <wsdl:input message="tns:UpdateFriendsActivityFeedHttpPostIn" />
@@ -1523,8 +1715,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <soap:operation soapAction="http://social.tvinci.com/FBUserMerage" style="document" />
+    <wsdl:operation name="FBUserMerge">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1615,6 +1807,15 @@
     </wsdl:operation>
     <wsdl:operation name="FBTokenValidation">
       <soap:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserSignin" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1778,8 +1979,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <soap12:operation soapAction="http://social.tvinci.com/FBUserMerage" style="document" />
+    <wsdl:operation name="FBUserMerge">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -1870,6 +2071,15 @@
     </wsdl:operation>
     <wsdl:operation name="FBTokenValidation">
       <soap12:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserSignin" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -1997,8 +2207,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="FBUserMerage">
-      <http:operation location="/FBUserMerage" />
+    <wsdl:operation name="FBUserMerge">
+      <http:operation location="/FBUserMerge" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -2087,6 +2297,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <http:operation location="/FBUserSignin" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateFriendsActivityFeed">
       <http:operation location="/UpdateFriendsActivityFeed" />
       <wsdl:input>
@@ -2120,13 +2339,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_Social/module.asmx" />
+      <soap:address location="http://192.168.162.234/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_Social/module.asmx" />
+      <soap12:address location="http://192.168.162.234/ws_social/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_Social/module.asmx" />
+      <http:address location="http://192.168.162.234/ws_social/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
