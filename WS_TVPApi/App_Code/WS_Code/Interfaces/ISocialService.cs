@@ -26,13 +26,13 @@ namespace TVPApiServices
         string[] GetUserFriends(InitializationObject initObj);
 
         [OperationContract]
-        FBConnectConfig FBConfig(InitializationObject initObj, string sSTG);
+        FBConnectConfig FBConfig(InitializationObject initObj);
 
         [OperationContract]
-        FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG);
+        FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken);
 
         [OperationContract]
-        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string sSTG);
+        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter);
 
         [OperationContract]
         FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);

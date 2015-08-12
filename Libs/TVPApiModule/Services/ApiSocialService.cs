@@ -235,7 +235,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBConfig(m_wsUserName, m_wsPassword, sStg);
+                    var response = m_Module.FBConfig(m_wsUserName, m_wsPassword);
+                    if (response != null)
+                    {
+                        res = response.FacebookConfig;
+                    }
                 }
             }
             catch (Exception ex)
@@ -246,7 +250,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public FacebookResponseObject GetFBUserData(string stoken, string sSTG)
+        public FacebookResponseObject GetFBUserData(string stoken)
         {
             FacebookResponse facebookResponse = null;
             FacebookResponseObject clientResponse = null;
@@ -255,7 +259,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken, sSTG);
+                    facebookResponse = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken);
                     if (facebookResponse != null)
                         clientResponse = facebookResponse.ResponseData;
                 }
@@ -277,7 +281,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, sSTG, oExtra.ToArray(), sIP);
+                    facebookResponse = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, oExtra.ToArray(), sIP);
                     if (facebookResponse != null)
                         clientResponse = facebookResponse.ResponseData;
                 }

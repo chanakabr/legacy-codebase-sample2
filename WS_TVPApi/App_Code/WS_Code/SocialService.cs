@@ -162,7 +162,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all user's friends")]
-        public FBConnectConfig FBConfig(InitializationObject initObj, string sSTG)
+        public FBConnectConfig FBConfig(InitializationObject initObj)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBConfig", initObj.ApiUser, initObj.ApiPass,
                                                       SiteHelper.GetClientIP());
@@ -198,7 +198,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets FB user data")]
-        public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken, string sSTG)
+        public FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetFBUserData", initObj.ApiUser, initObj.ApiPass,
                                                       SiteHelper.GetClientIP());
@@ -207,7 +207,7 @@ namespace TVPApiServices
                 try
                 {
                     TVPApiModule.Services.ApiSocialService service = new TVPApiModule.Services.ApiSocialService(groupId, initObj.Platform);
-                    return service.GetFBUserData(sToken, "0");
+                    return service.GetFBUserData(sToken);
                 }
                 catch (Exception ex)
                 {
@@ -249,7 +249,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Registers FB user")]
-        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string sSTG)
+        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass,
                     SiteHelper.GetClientIP());
