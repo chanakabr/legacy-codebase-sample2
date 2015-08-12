@@ -28,19 +28,19 @@ namespace ODBCWrapper
 			return p;
 		}
 
-		protected override bool AddParameter(string sParName , string sType , object sParVal)
+		protected override bool AddParameter(string parameterName, string type , object value)
 		{
 			if (m_sOraStr.ToString().ToUpper().IndexOf("WHERE") > 0)
-				return base.AddParameter(sParName , sType , sParVal);
-			if (sType == "")
-				sType = "=";
+                return base.AddParameter(parameterName, type, value);
+			if (type == "")
+				type = "=";
 			if (table_ind > 0)
 			{
 				m_sOraStr.Append(",");
-				return base.AddParameter(sParName , sType , sParVal);
+                return base.AddParameter(parameterName, type, value);
 			}
 			else
-				return base.AddParameter(sParName , sType , sParVal);
+                return base.AddParameter(parameterName, type, value);
 		}
 	}
 }

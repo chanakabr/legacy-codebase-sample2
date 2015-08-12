@@ -22,16 +22,20 @@ namespace ODBCWrapper
 			m_sOraStr = new System.Text.StringBuilder("insert into ").Append(sTableName).Append(" ");
 		}
 
-		protected override bool AddParameter(string sParName , string sType , object sParVal)
+		protected override bool AddParameter(string parameterName , string type , object value)
 		{
 			if (m_sInsertStructure != "(")
 				m_sInsertStructure += ",";
-			m_sInsertStructure += sParName;
+			m_sInsertStructure += parameterName;
 
 			if (m_sInsertValues != "(")
 				m_sInsertValues += ",";
             m_sInsertValues += "@P" + table_ind.ToString();
-			m_hashTable[table_ind] = sParVal;
+
+            if (value == null)
+                value = DBNull.Value;
+
+			m_hashTable[table_ind] = value;
 			table_ind++;
 			return true;
 		}

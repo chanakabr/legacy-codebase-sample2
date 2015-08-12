@@ -46,9 +46,14 @@ namespace ODBCWrapper
             }
         }
 
-        public void AddParameter(string sKey, object oValue)
+        public void AddParameter(string key, object value)
         {
-            m_Parameters.Add(sKey, oValue);
+            if (value == null)
+            {
+                value = DBNull.Value;
+            }
+
+            m_Parameters.Add(key, value);
         }
 
         /// <summary>
