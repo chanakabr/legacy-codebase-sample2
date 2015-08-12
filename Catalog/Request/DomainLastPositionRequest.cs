@@ -7,6 +7,7 @@ using System.Text;
 using Catalog.Response;
 using KLogMonitor;
 using Logger;
+using ApiObjects.Response;
 
 namespace Catalog.Request
 {
@@ -37,7 +38,7 @@ namespace Catalog.Request
             try
             {
                 DomainLastPositionRequest req = null;
-                DomainLastPositionResponse res = null;
+                DomainLastPositionResponse res = new DomainLastPositionResponse();
 
                 CheckSignature(oBaseRequest);
 
@@ -48,7 +49,6 @@ namespace Catalog.Request
                 }
                 else
                 {
-                    res = new DomainLastPositionResponse();
                     res.m_sStatus = "BAD_REQUEST";
                     res.m_sDescription = "Null request";
                 }
@@ -72,11 +72,16 @@ namespace Catalog.Request
                 if (request.data == null || request.data.m_nMediaID == 0 || request.m_nDomainID == 0)
                 {
                     response.m_sStatus = "INVALID_PARAMS";
+                    return response;
                 }
                 //non-anonymous user
-                else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))
+                if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))
                 {
                     response = Catalog.GetLastDomainPosition(nSiteGuid, request.data.m_nMediaID, request.m_nDomainID, request.m_nGroupID, request.data.m_sUDID);
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.InvalidUser, "Invalid user");
                 }
 
                 return response;

@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
 using System.Web.Script.Serialization;
+using ApiObjects.Response;
 
 namespace ApiObjects
 {
@@ -303,6 +304,18 @@ namespace ApiObjects
             {
                 return string.Format("{0}|{1}", sFBKey, sFBSecret);
             }
+        }
+    }
+
+    public class FacebookConfigResponse
+    {
+        public FacebookConfig FacebookConfig { get; set; }
+
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public FacebookConfigResponse()
+        {
+            Status = new Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
         }
     }
 

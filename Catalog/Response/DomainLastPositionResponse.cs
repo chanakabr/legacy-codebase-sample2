@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -18,9 +19,13 @@ namespace Catalog.Response
         [DataMember]
         public List<LastPosition> m_lPositions;
 
+        [DataMember]
+        public Status Status;
+
 
         public DomainLastPositionResponse()
         {
+            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
         }
     }
 

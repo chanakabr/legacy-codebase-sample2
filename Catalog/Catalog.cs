@@ -3980,7 +3980,7 @@ namespace Catalog
             List<int> lUsers = null;
             bool bDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
             List<LastPosition> lUserMedia = new List<LastPosition>();
-            List<int> usersKey = new List<int>(); // list that contains all users that need to be return grom CB for the media 
+            List<int> usersKey = new List<int>(); // list that contains all users that need to be return from CB for the media 
 
             //get username + password from wsCache
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, group_id, ApiObjects.eWSModules.DOMAINS);
@@ -4005,6 +4005,10 @@ namespace Catalog
                 if (domainRes != null)
                 {
                     domainsResp = domainRes.Domain;
+                }
+                else
+                {
+                    res.Status = new Status((int)eResponseStatus.DomainNotExists, "Domain does not exist");
                 }
             }
 
@@ -4080,6 +4084,7 @@ namespace Catalog
             }
             res.m_sStatus = "OK";
             res.m_lPositions = lUserMedia;
+            res.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return res;
         }
 
