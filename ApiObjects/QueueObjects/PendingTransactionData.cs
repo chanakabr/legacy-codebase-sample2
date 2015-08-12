@@ -10,7 +10,7 @@ namespace ApiObjects
     {
         #region Consts
 
-        public const string TASK = "distributed_tasks.check_pending_transactions";
+        public const string TASK = "distributed_tasks.process_check_pending_transaction";
         
         #endregion
 
