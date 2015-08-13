@@ -26,6 +26,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
+            //KalturaPaymentGatewayProfile to PaymentGateway
+            Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayProfile, PaymentGateway>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.TransactUrl))
+               .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.StatusUrl))
+               .ForMember(dest => dest.RenewUrl, opt => opt.MapFrom(src => src.RenewUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
             Mapper.CreateMap<PaymentGatewayBase, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
