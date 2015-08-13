@@ -920,16 +920,8 @@ namespace Users
                     // invalid user - return error
                     else
                     {
-                        ApiObjects.Response.eResponseStatus resp = new ApiObjects.Response.eResponseStatus();
-                        // return the result returned from GetUserData(siteGuid);                        
-                        if (Enum.TryParse(user.m_RespStatus.ToString(), out resp))
-                        {
-                            response.resp = new ApiObjects.Response.Status((int)resp, resp.ToString());
-                        }
-                        else
-                        {
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        }
+                        // convert response status
+                        response.resp = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
                     }
                 }
                 else

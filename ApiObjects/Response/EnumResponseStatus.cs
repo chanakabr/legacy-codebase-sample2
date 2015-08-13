@@ -64,6 +64,10 @@ namespace ApiObjects.Response
         ErrorOnInitUser = 2021,
         UserNotMasterApproved = 2023,
         UserWithNoDomain = 2024,
+        UserTypeDoesNotExist = 2025,
+        ActivationTokenNotFound = 2026,
+        UserAlreadyMasterApproved = 2027,
+        LoginServerDown = 2028,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,

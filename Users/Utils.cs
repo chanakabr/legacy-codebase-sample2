@@ -13,6 +13,7 @@ using System.Security.Principal;
 using System.Security.AccessControl;
 using Users.Cache;
 using KLogMonitor;
+using ApiObjects.Response;
 
 namespace Users
 {
@@ -584,5 +585,369 @@ namespace Users
             return
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
+
+        public static eResponseStatus ConvertResponseStatus(ResponseStatus status)
+        {
+            eResponseStatus result;
+
+            switch (status)
+            {
+                case ResponseStatus.OK:
+                    result = eResponseStatus.OK;
+                    break;
+                case ResponseStatus.UserExists:
+                    result = eResponseStatus.UserExists;
+                    break;
+                case ResponseStatus.UserDoesNotExist:
+                    result = eResponseStatus.UserDoesNotExist;
+                    break;
+                case ResponseStatus.WrongPasswordOrUserName:
+                    result = eResponseStatus.WrongPasswordOrUserName;
+                    break;
+                case ResponseStatus.InsideLockTime:
+                    result = eResponseStatus.InsideLockTime;
+                    break;
+                case ResponseStatus.UserNotActivated:
+                    result = eResponseStatus.UserNotActivated;
+                    break;
+                case ResponseStatus.UserAllreadyLoggedIn:
+                    result = eResponseStatus.UserAllreadyLoggedIn;
+                    break;
+                case ResponseStatus.UserDoubleLogIn:
+                    result = eResponseStatus.UserDoubleLogIn;
+                    break;
+                case ResponseStatus.DeviceNotRegistered:
+                    result = eResponseStatus.DeviceNotRegistered;
+                    break;
+                case ResponseStatus.UserNotMasterApproved:
+                    result = eResponseStatus.UserNotMasterApproved;
+                    break;
+                case ResponseStatus.ErrorOnInitUser:
+                    result = eResponseStatus.ErrorOnInitUser;
+                    break;
+                case ResponseStatus.UserNotIndDomain:
+                    result = eResponseStatus.UserNotInDomain;
+                    break;
+                case ResponseStatus.UserWithNoDomain:
+                    result = eResponseStatus.UserWithNoDomain;
+                    break;
+                case ResponseStatus.UserSuspended:
+                    result = eResponseStatus.UserSuspended;
+                    break;
+                case ResponseStatus.UserTypeNotExist:
+                    result = eResponseStatus.UserTypeDoesNotExist;
+                    break;
+                case ResponseStatus.TokenNotFound:
+                    result = eResponseStatus.ActivationTokenNotFound;
+                    break;
+                case ResponseStatus.UserAlreadyMasterApproved:
+                    result = eResponseStatus.UserAlreadyMasterApproved;
+                    break;
+                case ResponseStatus.LoginServerDown:
+                    result = eResponseStatus.LoginServerDown;
+                    break;
+                default:
+                    result = eResponseStatus.Error;
+                    break;
+            }
+
+            return result;
+        }
+
+
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (status)
+            {
+                case ResponseStatus.OK:
+                    result.Code = (int)eResponseStatus.OK;
+                    result.Message = "OK";
+                    break;
+                case ResponseStatus.UserExists:
+                    result.Code = (int)eResponseStatus.UserExists;
+                    result.Message = "User exists";
+                    break;
+                case ResponseStatus.UserDoesNotExist:
+                    result.Code = (int)eResponseStatus.UserDoesNotExist;
+                    result.Message = "User does not exist";
+                    break;
+                case ResponseStatus.WrongPasswordOrUserName:
+                    result.Code = (int)eResponseStatus.WrongPasswordOrUserName;
+                    result.Message = "Wrong username or password";
+                    break;
+                case ResponseStatus.InsideLockTime:
+                    result.Code = (int)eResponseStatus.InsideLockTime;
+                    result.Message = "Inside lock time";
+                    break;
+                case ResponseStatus.UserNotActivated:
+                    result.Code = (int)eResponseStatus.UserNotActivated;
+                    result.Message = "User not activated";
+                    break;
+                case ResponseStatus.UserAllreadyLoggedIn:
+                    result.Code = (int)eResponseStatus.UserAllreadyLoggedIn;
+                    result.Message = "User already logged in";
+                    break;
+                case ResponseStatus.UserDoubleLogIn:
+                    result.Code = (int)eResponseStatus.UserDoubleLogIn;
+                    result.Message = "User double login";
+                    break;
+                case ResponseStatus.DeviceNotRegistered:
+                    result.Code = (int)eResponseStatus.DeviceNotRegistered;
+                    result.Message = "Device not registered";
+                    break;
+                case ResponseStatus.UserNotMasterApproved:
+                    result.Code = (int)eResponseStatus.UserNotMasterApproved;
+                    result.Message = "User not master approved";
+                    break;
+                case ResponseStatus.ErrorOnInitUser:
+                    result.Code = (int)eResponseStatus.ErrorOnInitUser;
+                    result.Message = "Error on init user";
+                    break;
+                case ResponseStatus.UserNotIndDomain:
+                    result.Code = (int)eResponseStatus.UserNotInDomain;
+                    result.Message = "User not in household";
+                    break;
+                case ResponseStatus.UserWithNoDomain:
+                    result.Code = (int)eResponseStatus.UserWithNoDomain;
+                    result.Message = "User with no household";
+                    break;
+                case ResponseStatus.UserSuspended:
+                    result.Code = (int)eResponseStatus.UserSuspended;
+                    result.Message = "User suspended";
+                    break;
+                case ResponseStatus.UserTypeNotExist:
+                    result.Code = (int)eResponseStatus.UserTypeDoesNotExist;
+                    result.Message = "User type does not exist";
+                    break;
+                case ResponseStatus.TokenNotFound:
+                    result.Code = (int)eResponseStatus.ActivationTokenNotFound;
+                    result.Message = "Activation token not found";
+                    break;
+                case ResponseStatus.UserAlreadyMasterApproved:
+                    result.Code = (int)eResponseStatus.UserAlreadyMasterApproved;
+                    result.Message = "User already master approved";
+                    break;
+                case ResponseStatus.LoginServerDown:
+                    result.Message = "Login server down";
+                    result.Code = (int)eResponseStatus.LoginServerDown;
+                    break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
+
+        public static ApiObjects.Response.Status ConvertDomainResponseStatusToResponseObject(DomainResponseStatus status)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (status)
+            {
+                case DomainResponseStatus.LimitationPeriod:
+                    result.Code = (int)eResponseStatus.LimitationPeriod;
+                    result.Message = "Limitation period";
+                    break;
+                case DomainResponseStatus.DomainAlreadyExists:
+                    result.Code = (int)eResponseStatus.DomainAlreadyExists;
+                    result.Message = "Household already exists";
+                    break;
+                case DomainResponseStatus.ExceededLimit:
+                    result.Code = (int)eResponseStatus.ExceededLimit;
+                    result.Message = "Exceeded limit";
+                    break;
+                case DomainResponseStatus.DeviceTypeNotAllowed:
+                    result.Code = (int)eResponseStatus.DeviceTypeNotAllowed;
+                    result.Message = "Device type not allowed";
+                    break;
+                case DomainResponseStatus.DeviceNotInDomain:
+                    result.Code = (int)eResponseStatus.DeviceNotInDomain;
+                    result.Message = "Device not in household";
+                    break;
+                case DomainResponseStatus.DeviceNotExists:
+                    result.Code = (int)eResponseStatus.DeviceNotExists;
+                    result.Message = "Device does not exist";
+                    break;
+                case DomainResponseStatus.DeviceAlreadyExists:
+                    result.Code = (int)eResponseStatus.DeviceAlreadyExists;
+                    result.Message = "Device already exists";
+                    break;
+                case DomainResponseStatus.UserNotExistsInDomain:
+                    result.Code = (int)eResponseStatus.UserNotExistsInDomain;
+                    result.Message = "User not in household";
+                    break;
+                case DomainResponseStatus.RequestSent:
+                case DomainResponseStatus.OK:
+                    result.Code = (int)eResponseStatus.OK;
+                    result.Message = "OK";
+                    break;
+                case DomainResponseStatus.ActionUserNotMaster:
+                    result.Code = (int)eResponseStatus.ActionUserNotMaster;
+                    result.Message = "Action user not master";
+                    break;
+                case DomainResponseStatus.UserNotAllowed:
+                    result.Code = (int)eResponseStatus.UserNotAllowed;
+                    result.Message = "User not allowed";
+                    break;
+                case DomainResponseStatus.ExceededUserLimit:
+                    result.Code = (int)eResponseStatus.ExceededUserLimit;
+                    result.Message = "Exceeded user limit";
+                    break;
+                case DomainResponseStatus.NoUsersInDomain:
+                    result.Code = (int)eResponseStatus.NoUsersInDomain;
+                    result.Message = "No users in household";
+                    break;
+                case DomainResponseStatus.UserExistsInOtherDomains:
+                    result.Code = (int)eResponseStatus.UserExistsInOtherDomains;
+                    result.Message = "User exists in other households";
+                    break;
+                case DomainResponseStatus.DomainNotExists:
+                    result.Code = (int)eResponseStatus.DomainNotExists;
+                    result.Message = "Household does not exists";
+                    break;
+                case DomainResponseStatus.HouseholdUserFailed:
+                    result.Code = (int)eResponseStatus.HouseholdUserFailed;
+                    result.Message = "Household user failed";
+                    break;
+                case DomainResponseStatus.DeviceExistsInOtherDomains:
+                    result.Code = (int)eResponseStatus.DeviceExistsInOtherDomains;
+                    result.Message = "Device exists in other households";
+                    break;
+                case DomainResponseStatus.DomainNotInitialized:
+                    result.Code = (int)eResponseStatus.DomainNotInitialized;
+                    result.Message = "Household not initialized";
+                    break;
+                case DomainResponseStatus.DeviceNotConfirmed:
+                    result.Code = (int)eResponseStatus.DeviceNotConfirmed;
+                    result.Message = "Device not confirmed";
+                    break;
+                case DomainResponseStatus.RequestFailed:
+                    result.Code = (int)eResponseStatus.RequestFailed;
+                    result.Message = "Request failed ";
+                    break;
+                case DomainResponseStatus.InvalidUser:
+                    result.Code = (int)eResponseStatus.InvalidUser;
+                    result.Message = "Invalid user";
+                    break;
+                case DomainResponseStatus.ConcurrencyLimitation:
+                    result.Code = (int)eResponseStatus.ConcurrencyLimitation;
+                    result.Message = "Concurrency limitation";
+                    break;
+                case DomainResponseStatus.MediaConcurrencyLimitation:
+                    result.Code = (int)eResponseStatus.MediaConcurrencyLimitation;
+                    result.Message = "Media concurrency limitation";
+                    break;
+                case DomainResponseStatus.DomainSuspended:
+                    result.Code = (int)eResponseStatus.DomainSuspended;
+                    result.Message = "Household suspended";
+                    break;
+                case DomainResponseStatus.UserAlreadyInDomain:
+                    result.Code = (int)eResponseStatus.UserAlreadyInDomain;
+                    result.Message = "User already in Household";
+                    break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.Response.Status ConvertDomainStatusToResponseObject(DomainStatus status)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (status)
+            {
+                case DomainStatus.NoUsersInDomain:
+                case DomainStatus.DomainSuspended:
+                case DomainStatus.DomainCreatedWithoutNPVRAccount:
+                case DomainStatus.OK:
+                    result.Code = (int)eResponseStatus.OK;
+                    result.Message = "OK";
+                    break;
+                case DomainStatus.DomainAlreadyExists:
+                    result.Code = (int)eResponseStatus.DomainAlreadyExists;
+                    result.Message = "Household already exists";
+                    break;
+                case DomainStatus.ExceededLimit:
+                    result.Code = (int)eResponseStatus.ExceededLimit;
+                    result.Message = "Exceeded limit";
+                    break;
+                case DomainStatus.DeviceTypeNotAllowed:
+                    result.Code = (int)eResponseStatus.DeviceTypeNotAllowed;
+                    result.Message = "Device type not allowed";
+                    break;
+                case DomainStatus.DeviceNotInDomin:
+                    result.Code = (int)eResponseStatus.DeviceNotInDomain;
+                    result.Message = "Device not in household";
+                    break;
+                case DomainStatus.MasterEmailAlreadyExists:
+                    result.Code = (int)eResponseStatus.MasterEmailAlreadyExists;
+                    result.Message = "Master email already exists";
+                    break;
+                case DomainStatus.UserNotInDomain:
+                    result.Code = (int)eResponseStatus.UserNotInDomain;
+                    result.Message = "User not in household";
+                    break;
+                case DomainStatus.DomainNotExists:
+                    result.Code = (int)eResponseStatus.DomainNotExists;
+                    result.Message = "Household does not exist";
+                    break;
+                case DomainStatus.HouseholdUserFailed:
+                    result.Code = (int)eResponseStatus.HouseholdUserFailed;
+                    result.Message = "Household user failed";
+                    break;
+                case DomainStatus.UserExistsInOtherDomains:
+                    result.Code = (int)eResponseStatus.UserExistsInOtherDomains;
+                    result.Message = "User exists in other households";
+                    break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.Response.Status ConvertDeviceResponseStatusToResponseObject(DeviceResponseStatus status)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (status)
+            {
+                case DeviceResponseStatus.DuplicatePin:
+                    result.Code = (int)eResponseStatus.DuplicatePin;
+                    result.Message = "Duplicate pin";
+                    break;
+                case DeviceResponseStatus.DeviceNotExists:
+                    result.Code = (int)eResponseStatus.DeviceNotExists;
+                    result.Message = "Device des not exists";
+                    break;
+                case DeviceResponseStatus.OK:
+                    result.Code = (int)eResponseStatus.OK;
+                    result.Message = "OK";
+                    break;
+                case DeviceResponseStatus.ExceededLimit:
+                    result.Code = (int)eResponseStatus.ExceededLimit;
+                    result.Message = "Exceeded limit";
+                    break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
     }
+
 }

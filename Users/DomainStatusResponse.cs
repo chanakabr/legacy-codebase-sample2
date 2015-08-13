@@ -10,6 +10,6 @@ namespace Users
         public DomainResponseObject DomainResponse { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
-            
+
     }
 }
