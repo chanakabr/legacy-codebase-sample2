@@ -368,7 +368,53 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, 
+        internal KalturaTransactionResponse VerifyPurchase(int groupId, string siteguid, long houshold, int contentId,
+                                                    int productId, KalturaTransactionType clientTransactionType, string deviceName, string purchaseToken, int paymentGwId)
+        {
+            KalturaTransactionResponse clientResponse = null;
+            TransactionResponse wsResponse = new TransactionResponse();
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                // convert local enumerator, to web service enumerator
+                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    //wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, price,
+                    //                                        currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), deviceName, paymentGwId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaTransactionResponse>(wsResponse);
+
+            return clientResponse;
+        }
+
+
+        internal void UpdatePendingTransaction(int groupId, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
             string externalMessage, int failReason, string signature)
         {
             Status wsResponse = null;
