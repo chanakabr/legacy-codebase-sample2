@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Activation;
@@ -14,9 +15,13 @@ namespace RemoteTasksService
 
         protected void Application_Start(object sender, EventArgs e)
         {
+            // set monitor and log configuration files
+            KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);
+            KLogger.Configure("log4net.config", KLogEnums.AppType.WCF);
+
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
             TCMClient.Settings.Instance.Init();
-
+            
         }
 
         protected void Session_Start(object sender, EventArgs e)
