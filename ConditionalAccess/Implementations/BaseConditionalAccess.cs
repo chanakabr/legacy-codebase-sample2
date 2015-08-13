@@ -12809,17 +12809,10 @@ namespace ConditionalAccess
                 long domainId = 0;
                 var validateUser = Utils.ValidateUser(this.m_nGroupID, siteGuid, ref domainId);
 
-                if (validateUser != ResponseStatus.OK)
+                if (validateUser != ResponseStatus.OK && validateUser != ResponseStatus.UserSuspended)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateUser.ToString());
-                    return response;
-                }
-
-                var validateDomain = Utils.ValidateDomain(this.m_nGroupID, (int)domainId);
-
-                if (validateDomain != TvinciDomains.DomainStatus.OK)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, validateDomain.ToString());
+                    // user validation failed
+                    response = SetResponseStatus(validateUser);
                     return response;
                 }
 
@@ -12929,6 +12922,14 @@ namespace ConditionalAccess
 
             try
             {
+                // validate household
+                //if (householdId < 1)
+                //{
+                //    status.Message = "Illegal household";
+                //    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                //    return status;
+                //}
+
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
@@ -12939,15 +12940,6 @@ namespace ConditionalAccess
                     log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
-
-                // validate household
-                if (householdId < 1)
-                {
-                    status.Message = "Illegal household";
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
 
                 switch (transactionType)
                 {

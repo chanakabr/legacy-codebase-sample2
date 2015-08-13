@@ -3251,30 +3251,27 @@ namespace ConditionalAccess
                 // Make sure response is OK
                 if (response != null)
                 {
-                    if (response.m_RespStatus == ResponseStatus.OK)
+                    status = response.m_RespStatus;
+
+                    if (status == ResponseStatus.OK)
                     {
-                        //check DomainStatus
+                        //check Domain and suspend
                         if (response.m_user != null)
                         {
-                            status = ResponseStatus.OK;
-
-                            if (houseHoldID == 0) // no domain id was sent
-                            {
-                                houseHoldID = response.m_user.m_domianID;
-                            }
-                            else if (houseHoldID != response.m_user.m_domianID)
+                            if (houseHoldID != 0 && houseHoldID != response.m_user.m_domianID) 
                             {
                                 status = ResponseStatus.UserNotIndDomain;
                             }
+                            else // no domain id was sent
+                            {
+                                houseHoldID = response.m_user.m_domianID;
+                            }
+                            
+                            if (response.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                            {
+                                status = ResponseStatus.UserSuspended;
+                            }
                         }
-                        else
-                        {
-                            status = response.m_RespStatus;
-                        }
-                    }
-                    else
-                    {
-                        status = response.m_RespStatus;
                     }
                 }
             }
@@ -3311,8 +3308,7 @@ namespace ConditionalAccess
             try
             {
                 DomainResponse response = domainsService.GetDomainInfo(username, password, domainId);
-                bool parseEnum = Enum.TryParse(response.Status.Message.ToString(), out status);
-                if (!parseEnum)
+                if (!Enum.TryParse(response.Status.Message.ToString(), out status))
                 {
                     status = DomainStatus.Error;
                 }
