@@ -49,6 +49,33 @@ namespace ApiObjects.Billing
             set;
         }
 
+        /// <summary>
+        /// epoch - transaction date 
+        /// </summary>
+        public long StartDateMilliseconds
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// epoch - purchase is no longer valid
+        /// </summary>
+        public long EndDateMilliseconds
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Does the subscription automatically renew or not
+        /// </summary>
+        public bool AutoRenewing
+        {
+            get;
+            set;
+        }
+
         public TransactResult()
         {
         }
