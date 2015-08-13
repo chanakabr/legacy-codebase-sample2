@@ -18,7 +18,7 @@ namespace Synchronizer
     {
         #region Delegates
 
-        public delegate bool SynchrnoizedActHandler(object parameter);
+        public delegate bool SynchrnoizedActHandler(Dictionary<string, object> parameters);
 
         #endregion
 
@@ -64,7 +64,7 @@ namespace Synchronizer
 
         #endregion
 
-        public bool DoAction(string key, object parameter = null)
+        public bool DoAction(string key, Dictionary<string, object> parameters = null)
         {
             bool result = false;
 
@@ -87,7 +87,7 @@ namespace Synchronizer
                     {
                         if (this.SynchronizedAct != null)
                         {
-                            result = this.SynchronizedAct(parameter);
+                            result = this.SynchronizedAct(parameters);
                         }
 
                         // Try to unlock
