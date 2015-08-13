@@ -5,8 +5,12 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
+    /// <summary>
+    /// Object that defines performaing a transaction vis adapters controller
+    /// </summary>
     public class TransactionRequest
     {
+        public int groupId;
         public PaymentGateway paymentGateway;
         public string chargeId;
         public double price;
