@@ -39,6 +39,10 @@ namespace WebAPI.Controllers
 
             int groupId = int.Parse(partner_id);
 
+            // validate household id
+            if (household_id < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
+
             // validate user id
             if (string.IsNullOrEmpty(user_id))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
@@ -102,7 +106,7 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="purchase_token">The token received after the purchase</param>
-        /// <param name="payment_gateway_id">The payment gateway identifier</param>
+        /// <param name="payment_gateway_type_id">The payment gateway type identifier.  Possible values: 1 - Google, 2 - Apple</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
@@ -110,11 +114,16 @@ namespace WebAPI.Controllers
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
         [Route("purchase"), HttpPost]
-        public KalturaTransactionResponse VerifyPurchase(string partner_id, string user_id, int household_id, int content_id, int product_id, KalturaTransactionType product_type, string purchase_token, int payment_gateway_id)
+        public KalturaTransactionResponse VerifyPurchase(string partner_id, string user_id, int household_id, int content_id, int product_id, KalturaTransactionType product_type,
+                                                         string purchase_token, int payment_gateway_type_id)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
             int groupId = int.Parse(partner_id);
+
+            // validate household id
+            if (household_id < 1)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
 
             // validate user id
             if (string.IsNullOrEmpty(user_id))
@@ -125,13 +134,13 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase token cannot be empty");
 
             // validate payment gateway id
-            if (payment_gateway_id < 1)
+            if (payment_gateway_type_id < 1)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal payment gateway ID");
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(groupId, user_id, household_id, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_id);
+                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(groupId, user_id, household_id, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
             }
             catch (ClientException ex)
             {
