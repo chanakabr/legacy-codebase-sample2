@@ -44,10 +44,10 @@ namespace ConditionalAccess
                     long ownerSiteGuid = 0;
                     if (!string.IsNullOrEmpty(cai.m_socialInviteInfo.m_hashCode))
                     {
-                        TvinciPricing.CouponData cd = m.GetCouponStatus(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
-                        if (cd != null)
+                        TvinciPricing.CouponDataResponse cd = m.GetCouponStatus(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
+                        if (cd != null && cd.Coupon != null)
                         {
-                            ownerSiteGuid = cd.m_ownerGUID;
+                            ownerSiteGuid = cd.Coupon.m_ownerGUID;
                         }
                     }
                     else

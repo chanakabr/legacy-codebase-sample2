@@ -1019,15 +1019,18 @@ namespace ConditionalAccess
                         m.Url = pricingUrl;
                     }
 
-                    TvinciPricing.CouponData theCouponData = null;
+                    TvinciPricing.CouponDataResponse theCouponData = null;
 
                     GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     theCouponData = m.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
 
-
                     if (oCouponsGroup != null &&
-                        theCouponData.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
-                        theCouponData.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
+                        theCouponData != null &&
+                        theCouponData.Status != null && 
+                        theCouponData.Status.Code == (int)eResponseStatus.OK &&
+                        theCouponData.Coupon != null &&
+                        theCouponData.Coupon.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
+                        theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                     {
                         //Coupon discount should take place
                         TvinciPricing.DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
@@ -1102,43 +1105,44 @@ namespace ConditionalAccess
                     if (sPricingURL.Length > 0)
                         m.Url = sPricingURL;
 
+                    TvinciPricing.CouponDataResponse theCouponData = m.GetCouponStatus(sPricingUsername, sPricingPassword, sCouponCode);
 
-                    TvinciPricing.CouponData theCouponData = null;
-
-                    theCouponData = m.GetCouponStatus(sPricingUsername, sPricingPassword, sCouponCode);
-
-                    if (oCouponsGroup != null && theCouponData.m_CouponType == TvinciPricing.CouponType.Voucher && theCouponData.m_campID > 0 && mediaID == theCouponData.m_ownerMedia)
+                    if (oCouponsGroup == null ||
+                        theCouponData == null ||
+                        theCouponData.Status == null ||
+                        theCouponData.Status.Code != (int)eResponseStatus.OK ||
+                        theCouponData.Coupon == null)
+                    {
+                        
+                    }
+                    else if (theCouponData.Coupon.m_CouponType == TvinciPricing.CouponType.Voucher &&
+                            theCouponData.Coupon.m_campID > 0 &&
+                            theCouponData.Coupon.m_ownerMedia == mediaID)
                     {
                         bool isCampaignValid = false;
-                        TvinciPricing.Campaign camp = m.GetCampaignData(sPricingUsername, sPricingPassword, theCouponData.m_campID);
+                        TvinciPricing.Campaign camp = m.GetCampaignData(sPricingUsername, sPricingPassword, theCouponData.Coupon.m_campID);
 
-                        if (camp != null && camp.m_ID == theCouponData.m_campID)
+                        if (camp != null && camp.m_ID == theCouponData.Coupon.m_campID)
                         {
                             int nViewLS = camp.m_usageModule.m_tsViewLifeCycle;
-                            long ownerGuid = theCouponData.m_ownerGUID;
-                            isCampaignValid = IsVoucherValid(nViewLS, ownerGuid, theCouponData.m_campID);
-
+                            long ownerGuid = theCouponData.Coupon.m_ownerGUID;
+                            isCampaignValid = IsVoucherValid(nViewLS, ownerGuid, theCouponData.Coupon.m_campID);
                         }
 
                         if (isCampaignValid)
                         {
-                            TvinciPricing.DiscountModule voucherDiscount = theCouponData.m_oCouponGroup.m_oDiscountCode;
+                            TvinciPricing.DiscountModule voucherDiscount = theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode;
                             p = GetPriceAfterDiscount(p, voucherDiscount, 1);
                         }
                     }
-
-
-                    else
+                    else if (theCouponData.Coupon.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
+                            theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)    
                     {
-                        if (oCouponsGroup != null &&
-                            theCouponData.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
-                            theCouponData.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
-                        {
-                            //Coupon discount should take place
-                            TvinciPricing.DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
-                            p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
-                        }
+                        //Coupon discount should take place
+                        TvinciPricing.DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
+                        p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
                     }
+                    
                 }
             } // end if coupon code is not empty
             return p;
@@ -2176,17 +2180,20 @@ namespace ConditionalAccess
                 {
                     m.Url = pricingUrl;
                 }
-                TvinciPricing.CouponData theCouponData = null;
+                TvinciPricing.CouponDataResponse theCouponData = null;
 
                 GetWSCredentials(nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 theCouponData = m.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
 
-                if (theCouponData.m_oCouponGroup != null &&
-                    theCouponData.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
-                    theCouponData.m_oCouponGroup.m_sGroupCode == theCouponData.m_oCouponGroup.m_sGroupCode)
+                if (theCouponData != null &&
+                    theCouponData.Status != null &&
+                    theCouponData.Status.Code == (int)eResponseStatus.OK &&
+                    theCouponData.Coupon != null &&
+                    theCouponData.Coupon.m_oCouponGroup != null &&
+                    theCouponData.Coupon.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid)
                 {
 
-                    TvinciPricing.DiscountModule dCouponDiscount = theCouponData.m_oCouponGroup.m_oDiscountCode;
+                    TvinciPricing.DiscountModule dCouponDiscount = theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode;
                     dCouponDiscountPercent = dCouponDiscount.m_dPercent;
                 }
             }
@@ -2831,7 +2838,7 @@ namespace ConditionalAccess
 
         static public bool IsCouponValid(int nGroupID, string sCouponCode)
         {
-            bool result = true;
+            bool result = false;
             TvinciPricing.mdoule p = null;
             try
             {
@@ -2847,10 +2854,16 @@ namespace ConditionalAccess
                     {
                         p.Url = sWSURL;
                     }
-                    TvinciPricing.CouponData couponData = p.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
-                    if (couponData != null && couponData.m_CouponStatus != TvinciPricing.CouponsStatus.Valid)
+                    
+                    TvinciPricing.CouponDataResponse couponData = p.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
+                    
+                    if (couponData != null && 
+                        couponData.Status != null &&
+                        couponData.Status.Code == (int)eResponseStatus.OK &&
+                        couponData.Coupon != null &&
+                        couponData.Coupon.m_CouponStatus == TvinciPricing.CouponsStatus.Valid)
                     {
-                        result = false;
+                        result = true;
                     }
                 }
             }

@@ -490,7 +490,7 @@ namespace ConditionalAccess
                             return ret;
                         }
 
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -5744,9 +5744,8 @@ namespace ConditionalAccess
                     else
                     {
                         bool bIsCouponValid = false;
-                        bool bIsCouponUsedAndValid = false;
                         bIsCouponValid = Utils.IsCouponValid(m_nGroupID, sCouponCode);
-                        if (!bIsCouponValid)
+                        if (!string.IsNullOrEmpty(sCouponCode) && !bIsCouponValid)
                         {
                             oResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             oResponse.m_sRecieptCode = string.Empty;
@@ -5754,9 +5753,6 @@ namespace ConditionalAccess
                             WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             return oResponse;
                         }
-
-                        bIsCouponUsedAndValid = bIsCouponValid && !string.IsNullOrEmpty(sCouponCode);
-
 
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
@@ -5819,7 +5815,7 @@ namespace ConditionalAccess
                         TvinciPricing.PrePaidModule relevantPP = null;
 
                         TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, ePriceReason, bIsCouponUsedAndValid);
+                        bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, ePriceReason, bIsCouponValid);
                         if ((ePriceReason == PriceReason.ForPurchase || (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0) || bDummy) && ePriceReason != PriceReason.NotForPurchase)
                         {
                             if (bDummy || (oPrice.m_dPrice == dPrice && oPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
@@ -6920,7 +6916,7 @@ namespace ConditionalAccess
                     else
                     {
                         dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -10175,7 +10171,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -10438,7 +10434,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
                         {
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -12152,10 +12148,10 @@ namespace ConditionalAccess
                 }
 
                 // coupon validation
-                bool isCouponValid = Utils.IsCouponValid(m_nGroupID, coupon);
-                if (!isCouponValid)
+                if (!string.IsNullOrEmpty(coupon) && !Utils.IsCouponValid(m_nGroupID, coupon))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CouponNotValid, "Coupon not valid");
+                    response.Status.Message = "Coupon Not Valid";
+                    response.Status.Code = (int)eResponseStatus.CouponNotValid;
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }

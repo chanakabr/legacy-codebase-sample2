@@ -701,7 +701,7 @@ namespace ConditionalAccess
                 #endregion
 
 
-                if (!Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                     ret.m_sRecieptCode = string.Empty;
