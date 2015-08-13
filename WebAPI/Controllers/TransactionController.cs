@@ -69,16 +69,18 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="payment_gateway_id">Payment gateway identifier</param>
-        /// <param name="adapter_transaction_state">Payment gateway adapter application state for the transaction to update</param>
+        /// <param name="adapter_transaction_state">Payment gateway adapter application state for the transaction to update. 
+        /// Possible values: 0 = OK, 1 = Pending, 2 = Failed </param>
         /// <param name="external_transaction_id">external transaction identifier</param>
         /// <param name="external_status">Payment gateway transaction status</param>
         /// <param name="external_message">Payment gateway message</param>
-        /// <param name="fail_reason">The reason the transaction failed</param>
+        /// <param name="fail_reason">The reason the transaction failed. 
+        /// Possible values: 20 = Insufficient funds, 21 = Invalid account, 22 = User unknown, 23 = Reason unknown, 24 = Unknown payment gateway response, 25 = No response from payment gateway</param>
         /// <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
         /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
         /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
         /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("update"), HttpPost]
+        [Route("updateState"), HttpPost]
         public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status,
             string external_message, int fail_reason, string signature)
         {
