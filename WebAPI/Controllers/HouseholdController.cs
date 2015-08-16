@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
                     allUserIds.AddRange(pendingUserIds);
 
                     //get users
-                    List<KalturaUser> users = null;
+                    List<KalturaOTTUser> users = null;
                     if (allUserIds.Count > 0)
                     {
                         users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);

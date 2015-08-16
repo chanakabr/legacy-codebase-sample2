@@ -10,19 +10,17 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Users
 {
     /// <summary>
-    /// Users list
+    /// OTT User filter
     /// </summary>
-    [DataContract(Name = "Users", Namespace = "")]
-    [XmlRoot("Users")]
-    public class KalturaUserArray : KalturaOTTObject
+    public class KalturaOTTUserFilter : KalturaOTTObject
     {
         /// <summary>
-        /// A list of users
+        /// User IDs to retrieve
         /// </summary>
-        [DataMember(Name = "users")]
-        [JsonProperty("users")]
-        [XmlArray(ElementName = "users")]
+        [DataMember(Name = "user_ids")]
+        [JsonProperty("user_ids")]
+        [XmlArray(ElementName = "user_ids")]
         [XmlArrayItem("item")] 
-        public List<KalturaUser> Users { get; set; }
+        public List<string> UserIDs { get; set; }
     }
 }

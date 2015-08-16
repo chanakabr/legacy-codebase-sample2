@@ -768,6 +768,7 @@
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
@@ -792,13 +793,13 @@
     <Compile Include="Models\Users\KalturaLoginPin.cs" />
     <Compile Include="Models\API\KalturaPinResponse.cs" />
     <Compile Include="Models\Users\KalturaSignUp.cs" />
-    <Compile Include="Models\Users\KalturaUser.cs" />
+    <Compile Include="Models\Users\KalturaOTTUser.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsList.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItem.cs" />
     <Compile Include="Models\Users\KalturaUserBasicData.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\KalturaUserData.cs" />
-    <Compile Include="Models\Users\KalturaUserArray.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserArray.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
     <Compile Include="Models\Users\KalturaOTTUserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />

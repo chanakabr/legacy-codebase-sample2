@@ -36,6 +36,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "user")]
         [JsonProperty("user")]
         [XmlElement(ElementName = "user")]
-        public KalturaUser User { get; set; }
+        public KalturaOTTUser User { get; set; }
     }
 }

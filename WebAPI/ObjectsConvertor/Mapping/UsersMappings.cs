@@ -53,7 +53,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User
-            Mapper.CreateMap<Users.UserResponseObject, KalturaUser>()
+            Mapper.CreateMap<Users.UserResponseObject, KalturaOTTUser>()
                 .ForMember(dest => dest.BasicData, opt => opt.MapFrom(src => src.m_user.m_oBasicData))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
@@ -63,7 +63,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // SlimUser
-            Mapper.CreateMap<KalturaUser, KalturaSlimUser>()
+            Mapper.CreateMap<KalturaOTTUser, KalturaSlimUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.BasicData.Username))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.BasicData.FirstName))
