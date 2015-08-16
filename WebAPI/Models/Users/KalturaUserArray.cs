@@ -14,7 +14,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "Users", Namespace = "")]
     [XmlRoot("Users")]
-    public class KalturaUsersList : KalturaOTTObject
+    public class KalturaUserArray : KalturaOTTObject
     {
         /// <summary>
         /// A list of users

@@ -371,7 +371,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
         [Route("get"), HttpPost]
-        public KalturaUsersList Get(string partner_id, string user_id)
+        public KalturaUserArray Get(string partner_id, string user_id)
         {
             List<KalturaUser> response = null;
 
@@ -406,7 +406,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaUsersList() { Users = response };
+            return new KalturaUserArray() { Users = response };
         }
 
         /// <summary>Edit user details.        
