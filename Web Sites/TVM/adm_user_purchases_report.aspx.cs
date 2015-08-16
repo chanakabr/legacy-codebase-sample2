@@ -148,11 +148,28 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
 
         string user = Session["user_id"].ToString();
 
-        ca_ws.BillingTransactionsResponse ret = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, 1000);
-        if (ret.m_nTransactionsCount > 1000)
-            ret = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, ret.m_nTransactionsCount);
+        ca_ws.BillingTransactions casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, 1000);
 
-        ca_ws.PermittedSubscriptionContainer[] perSubs = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, user);
+        if (casResponse == null || casResponse.resp == null || casResponse.resp.Code != 0 || casResponse.transactions == null)
+        {
+            return;
+        }
+
+        var transactionsResponse = casResponse.transactions;
+
+        if (transactionsResponse.m_nTransactionsCount > 1000)
+        {
+            casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, transactionsResponse.m_nTransactionsCount);
+
+            if (casResponse == null || casResponse.resp == null || casResponse.resp.Code != 0 || casResponse.transactions == null)
+            {
+                return;
+            }
+
+            transactionsResponse = casResponse.transactions;
+        }
+
+        ca_ws.PermittedSubscriptionContainer[] permittedSubscriptions = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, user);
 
         DataTable d = new DataTable();
         Int32 n = 0;
@@ -172,73 +189,78 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         d.Columns.Add(PageUtils.GetColumn("BasePurchasedID", n));
         d.Columns.Add(PageUtils.GetColumn("Canrenew", n));
 
-        Int32 nCount = ret.m_nTransactionsCount;
-        for (int i = 0; i < nCount; i++)
+        Int32 countTransactions = transactionsResponse.m_nTransactionsCount;
+        
+        var transactions = transactionsResponse.m_Transactions;
+
+        for (int i = 0; i < countTransactions; i++)
         {
+            var currentTransaction = transactions[i];
+
             System.Data.DataRow tmpRow = null;
             tmpRow = d.NewRow();
-            tmpRow["ID"] = int.Parse(ret.m_Transactions[i].m_sRecieptCode);
-            tmpRow["Type"] = ret.m_Transactions[i].m_eItemType.ToString();
-            tmpRow["PurchasedItemCode"] = ret.m_Transactions[i].m_sPurchasedItemCode.ToString();
-            tmpRow["BasePurchasedID"] = ret.m_Transactions[i].m_nPurchaseID;
+            tmpRow["ID"] = int.Parse(currentTransaction.m_sRecieptCode);
+            tmpRow["Type"] = transactions[i].m_eItemType.ToString();
+            tmpRow["PurchasedItemCode"] = currentTransaction.m_sPurchasedItemCode.ToString();
+            tmpRow["BasePurchasedID"] = currentTransaction.m_nPurchaseID;
 
-            tmpRow["Item Name"] = ret.m_Transactions[i].m_sPurchasedItemName + " (" + ret.m_Transactions[i].m_sPurchasedItemCode + ")";
+            tmpRow["Item Name"] = currentTransaction.m_sPurchasedItemName + " (" + currentTransaction.m_sPurchasedItemCode + ")";
             try
             {
-                tmpRow["Paid"] = String.Format("{0:0.##}", ret.m_Transactions[i].m_Price.m_dPrice) + ret.m_Transactions[i].m_Price.m_oCurrency.m_sCurrencySign + " (" + ret.m_Transactions[i].m_ePaymentMethod.ToString();
+                tmpRow["Paid"] = String.Format("{0:0.##}", currentTransaction.m_Price.m_dPrice) + transactions[i].m_Price.m_oCurrency.m_sCurrencySign + " (" + currentTransaction.m_ePaymentMethod.ToString();
             }
             catch
             {
                 tmpRow["Paid"] = "";
             }
-            if (ret.m_Transactions[i].m_sPaymentMethodExtraDetails != "")
+            if (currentTransaction.m_sPaymentMethodExtraDetails != "")
             {
                 tmpRow["Paid"] += " - ";
-                if (ret.m_Transactions[i].m_ePaymentMethod == ca_ws.PaymentMethod.CreditCard ||
-                    ret.m_Transactions[i].m_ePaymentMethod == ca_ws.PaymentMethod.DebitCard)
+                if (currentTransaction.m_ePaymentMethod == ca_ws.PaymentMethod.CreditCard ||
+                    currentTransaction.m_ePaymentMethod == ca_ws.PaymentMethod.DebitCard)
                     tmpRow["Paid"] += "****";
-                tmpRow["Paid"] += ret.m_Transactions[i].m_sPaymentMethodExtraDetails;
+                tmpRow["Paid"] += currentTransaction.m_sPaymentMethodExtraDetails;
             }
             if (tmpRow["Paid"].ToString() != "")
                 tmpRow["Paid"] += ")";
-            tmpRow["Remarks"] = ret.m_Transactions[i].m_sRemarks;
-            tmpRow["Action"] = ret.m_Transactions[i].m_eBillingAction.ToString();
-            tmpRow["Action Date"] = ret.m_Transactions[i].m_dtActionDate.ToString("MM/dd/yyyy HH:mm");
-            if (ret.m_Transactions[i].m_eItemType == ca_ws.BillingItemsType.Subscription &&
-                (ret.m_Transactions[i].m_eBillingAction == ca_ws.BillingAction.Purchase ||
-                ret.m_Transactions[i].m_eBillingAction == ca_ws.BillingAction.RenewPayment))
+            tmpRow["Remarks"] = currentTransaction.m_sRemarks;
+            tmpRow["Action"] = currentTransaction.m_eBillingAction.ToString();
+            tmpRow["Action Date"] = currentTransaction.m_dtActionDate.ToString("MM/dd/yyyy HH:mm");
+            if (currentTransaction.m_eItemType == ca_ws.BillingItemsType.Subscription &&
+                (currentTransaction.m_eBillingAction == ca_ws.BillingAction.Purchase ||
+                currentTransaction.m_eBillingAction == ca_ws.BillingAction.RenewPayment))
             {
                 tmpRow["Canstrech"] = "1";
-                tmpRow["Validity"] = ret.m_Transactions[i].m_dtStartDate.ToString("MM/dd/yyyy HH:mm") + "-" + ret.m_Transactions[i].m_dtEndDate.ToString("MM/dd/yyyy HH:mm");
+                tmpRow["Validity"] = currentTransaction.m_dtStartDate.ToString("MM/dd/yyyy HH:mm") + "-" + currentTransaction.m_dtEndDate.ToString("MM/dd/yyyy HH:mm");
             }
             else
             {
                 tmpRow["Canstrech"] = "0";
                 tmpRow["Validity"] = "";
             }
-            if (ret.m_Transactions[i].m_eItemType == ca_ws.BillingItemsType.Subscription)
+            if (currentTransaction.m_eItemType == ca_ws.BillingItemsType.Subscription)
             {
                 bool bSubExist = false;
                 bool bSubRenewable = false;
                 bool bIsRecurring = false;
-                if (perSubs != null)
+                if (permittedSubscriptions != null)
                 {
-                    for (int j = 0; j < perSubs.Length; j++)
+                    for (int j = 0; j < permittedSubscriptions.Length; j++)
                     {
-                        if (perSubs[j].m_sSubscriptionCode == ret.m_Transactions[i].m_sPurchasedItemCode)
+                        if (permittedSubscriptions[j].m_sSubscriptionCode == currentTransaction.m_sPurchasedItemCode)
                         {
                             bSubExist = true;
-                            bSubRenewable = perSubs[j].m_bRecurringStatus;
-                            bIsRecurring = perSubs[j].m_bIsSubRenewable;
+                            bSubRenewable = permittedSubscriptions[j].m_bRecurringStatus;
+                            bIsRecurring = permittedSubscriptions[j].m_bIsSubRenewable;
                         }
                     }
                 }
-                if (bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
+                if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
                     tmpRow["Cancancel"] = "1";
                 else
                     tmpRow["Cancancel"] = "0";
 
-                if (bIsRecurring == true && ret.m_Transactions[i].m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
+                if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
                     tmpRow["Canrenew"] = "1";
                 else
                     tmpRow["Canrenew"] = "0";
