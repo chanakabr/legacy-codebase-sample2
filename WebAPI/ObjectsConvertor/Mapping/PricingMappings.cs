@@ -88,7 +88,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // BundleCodeContainer to SlimChannel
-            Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.KalturaSlimChannel>()
+            Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.KalturaBaseChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
 
@@ -151,9 +151,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
 
             // CouponData to CouponDetails
-            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCouponDetails>()
+            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCoupon>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
-               .ForMember(dest => dest.CouponStatus, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
         }
 
         public static List<int> ConvertToIntList(int[] list)

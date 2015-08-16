@@ -715,7 +715,7 @@
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
-    <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaBaseChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleArray.cs" />
@@ -732,7 +732,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
-    <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
+    <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceArray.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />

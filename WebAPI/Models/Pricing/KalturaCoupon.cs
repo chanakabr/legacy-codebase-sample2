@@ -12,7 +12,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupon details container
     /// </summary>
-    public class KalturaCouponDetails : KalturaOTTObject
+    public class KalturaCoupon : KalturaOTTObject
     {
         /// <summary>
         /// Coupons group details 
@@ -25,9 +25,9 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// Coupon status 
         /// </summary>
-        [DataMember(Name = "coupon_status")]
-        [JsonProperty("coupon_status")]
-        [XmlElement(ElementName = "coupon_status")]
-        public KalturaCouponStatus CouponStatus { get; set; }
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
+        public KalturaCouponStatus Status { get; set; }
     }
 }

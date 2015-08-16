@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
-        public KalturaCouponDetails Get(string partner_id, string code)
+        public KalturaCoupon Get(string partner_id, string code)
         {
-            KalturaCouponDetails coupon = null;
+            KalturaCoupon coupon = null;
             
             int groupId = int.Parse(partner_id);
 

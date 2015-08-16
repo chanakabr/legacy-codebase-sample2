@@ -12,24 +12,8 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public class KalturaChannel : KalturaOTTObject
+    public class KalturaChannel : KalturaBaseChannel
     {
-        /// <summary>
-        /// Unique identifier for the channel
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
-
-        /// <summary>
-        /// Channel name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
         /// <summary>
         /// Cannel description
         /// </summary>

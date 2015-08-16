@@ -334,8 +334,8 @@ namespace WebAPI.Controllers
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{username}/password"), HttpPost]
-        public bool ChangeUserPassword(string partner_id, string username, string old_password, string new_password)
+        [Route("changePassword"), HttpPost]
+        public bool ChangePassword(string partner_id, string username, string old_password, string new_password)
         {
             bool response = false;
 

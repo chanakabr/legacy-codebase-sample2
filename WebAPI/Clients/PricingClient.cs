@@ -101,10 +101,10 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal KalturaCouponDetails GetCouponStatus(int groupId, string couponCode)
+        internal KalturaCoupon GetCouponStatus(int groupId, string couponCode)
         {
             WebAPI.Pricing.CouponDataResponse response = null;
-            KalturaCouponDetails coupon = new KalturaCouponDetails();
+            KalturaCoupon coupon = new KalturaCoupon();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -131,7 +131,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            coupon = AutoMapper.Mapper.Map<KalturaCouponDetails>(response.Coupon);
+            coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
 
             return coupon;
         }
