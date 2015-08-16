@@ -88,7 +88,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // BundleCodeContainer to SlimChannel
-            Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.KalturaSlimChannel>()
+            Mapper.CreateMap<Pricing.BundleCodeContainer, Models.Catalog.KalturaBaseChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
 

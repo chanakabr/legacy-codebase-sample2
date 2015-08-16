@@ -32,7 +32,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("channels")]
         [XmlArray(ElementName = "channels")]
         [XmlArrayItem("item")] 
-        public List<KalturaSlimChannel> Channels { get; set; } 
+        public List<KalturaBaseChannel> Channels { get; set; } 
 
         /// <summary>
         /// The first date the subscription is available for purchasing 
