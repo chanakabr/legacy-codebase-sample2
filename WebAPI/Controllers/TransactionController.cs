@@ -102,7 +102,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Verifies PPV/Subscription/Collection purchase and entitles the user.
         /// </summary>
-        /// <param name="household_id">Household to charge </param>
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
@@ -116,15 +115,11 @@ namespace WebAPI.Controllers
         /// Partner is invalid = 500008</remarks>
         [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction ProcessReceipt(int household_id, int content_id, int product_id, KalturaTransactionType product_type,
+        public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type,
                                                          string purchase_token, int payment_gateway_type_id)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
-
-            // validate household id
-            if (household_id < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_token))
@@ -137,7 +132,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(ks.GroupId, ks.UserId.ToString(), household_id, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
+                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
             }
             catch (ClientException ex)
             {
