@@ -198,7 +198,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback PurchaseOperationCompleted;
         
-        private System.Threading.SendOrPostCallback VerifyPurchaseOperationCompleted;
+        private System.Threading.SendOrPostCallback ProcessReceiptOperationCompleted;
         
         private System.Threading.SendOrPostCallback GrantEntitlementsOperationCompleted;
         
@@ -497,7 +497,7 @@ namespace WebAPI.ConditionalAccess {
         public event PurchaseCompletedEventHandler PurchaseCompleted;
         
         /// <remarks/>
-        public event VerifyPurchaseCompletedEventHandler VerifyPurchaseCompleted;
+        public event ProcessReceiptCompletedEventHandler ProcessReceiptCompleted;
         
         /// <remarks/>
         public event GrantEntitlementsCompletedEventHandler GrantEntitlementsCompleted;
@@ -4214,9 +4214,9 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/VerifyPurchase", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactionResponse VerifyPurchase(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, int paymentGwId) {
-            object[] results = this.Invoke("VerifyPurchase", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ProcessReceipt", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactionResponse ProcessReceipt(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType) {
+            object[] results = this.Invoke("ProcessReceipt", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
@@ -4227,21 +4227,21 @@ namespace WebAPI.ConditionalAccess {
                         userIp,
                         deviceName,
                         purchaseToken,
-                        paymentGwId});
+                        paymentGwType});
             return ((TransactionResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void VerifyPurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, int paymentGwId) {
-            this.VerifyPurchaseAsync(sWSUserName, sWSPassword, siteguid, houshold, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGwId, null);
+        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType) {
+            this.ProcessReceiptAsync(sWSUserName, sWSPassword, siteguid, houshold, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGwType, null);
         }
         
         /// <remarks/>
-        public void VerifyPurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, int paymentGwId, object userState) {
-            if ((this.VerifyPurchaseOperationCompleted == null)) {
-                this.VerifyPurchaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnVerifyPurchaseOperationCompleted);
+        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType, object userState) {
+            if ((this.ProcessReceiptOperationCompleted == null)) {
+                this.ProcessReceiptOperationCompleted = new System.Threading.SendOrPostCallback(this.OnProcessReceiptOperationCompleted);
             }
-            this.InvokeAsync("VerifyPurchase", new object[] {
+            this.InvokeAsync("ProcessReceipt", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
@@ -4252,13 +4252,13 @@ namespace WebAPI.ConditionalAccess {
                         userIp,
                         deviceName,
                         purchaseToken,
-                        paymentGwId}, this.VerifyPurchaseOperationCompleted, userState);
+                        paymentGwType}, this.ProcessReceiptOperationCompleted, userState);
         }
         
-        private void OnVerifyPurchaseOperationCompleted(object arg) {
-            if ((this.VerifyPurchaseCompleted != null)) {
+        private void OnProcessReceiptOperationCompleted(object arg) {
+            if ((this.ProcessReceiptCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.VerifyPurchaseCompleted(this, new VerifyPurchaseCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.ProcessReceiptCompleted(this, new ProcessReceiptCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -11249,17 +11249,17 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
-    public delegate void VerifyPurchaseCompletedEventHandler(object sender, VerifyPurchaseCompletedEventArgs e);
+    public delegate void ProcessReceiptCompletedEventHandler(object sender, ProcessReceiptCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class VerifyPurchaseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class ProcessReceiptCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal VerifyPurchaseCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal ProcessReceiptCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

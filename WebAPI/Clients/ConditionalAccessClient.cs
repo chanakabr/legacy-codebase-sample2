@@ -368,8 +368,8 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal KalturaTransaction VerifyPurchase(int groupId, string siteguid, long houshold, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                           string deviceName, string purchaseToken, int paymentGwId)
+        internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long houshold, int contentId, int productId, KalturaTransactionType clientTransactionType,
+                                                           string deviceName, string purchaseToken, string paymentGwType)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -385,7 +385,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.VerifyPurchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, contentId, productId, transactionType, Utils.Utils.GetClientIP(), deviceName, purchaseToken, paymentGwId);
+                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, contentId, productId, transactionType, Utils.Utils.GetClientIP(), deviceName, purchaseToken, paymentGwType);
                 }
             }
             catch (Exception ex)
