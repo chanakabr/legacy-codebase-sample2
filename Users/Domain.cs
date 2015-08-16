@@ -2096,6 +2096,17 @@ namespace Users
                 }
                 else
                 {
+                    //Check if exceeded limit for users
+                    if (userType != UserDomainType.Household)
+                    {
+                        DomainResponseStatus responseStatus = CheckUserLimit(nDomainID, nUserID);
+                        if (responseStatus == DomainResponseStatus.ExceededUserLimit || responseStatus == DomainResponseStatus.UserNotAllowed)
+                        {
+                            eDomainResponseStatus = responseStatus;
+                            return eDomainResponseStatus;
+                        }
+                    }
+
                     //in case user exists, but pending , update its status to active, return OK
                     int rowsAffected = DomainDal.SetUserStatusInDomain(nUserID, nDomainID, nGroupID, nUserDomainID);
 

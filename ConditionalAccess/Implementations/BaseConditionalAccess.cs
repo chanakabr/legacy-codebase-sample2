@@ -4812,6 +4812,9 @@ namespace ConditionalAccess
         private PaymentMethod GetBillingTransMethod(int billingTransID)
         {
             PaymentMethod retVal = PaymentMethod.Unknown;
+
+            return retVal;
+
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
@@ -12211,14 +12214,6 @@ namespace ConditionalAccess
                 return response;
             }
 
-            // validate household
-            if (household < 1)
-            {
-                response.Status.Message = "Illegal household";
-                log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
-                return response;
-            }
-
             // validate productId
             if (productId < 1)
             {
@@ -12254,6 +12249,14 @@ namespace ConditionalAccess
                     // user validation failed
                     response.Status = SetResponseStatus(userValidStatus);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                    return response;
+                }
+
+                // validate household
+                if (household < 1)
+                {
+                    response.Status.Message = "Illegal household";
+                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
 
