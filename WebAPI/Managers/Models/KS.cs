@@ -22,7 +22,7 @@ namespace WebAPI.Managers.Models
 
         private string encryptedValue;
         private int groupId;
-        private int userId;
+        private string userId;
         private eUserType userType;
         private DateTime expiration;
         private string privilege;
@@ -42,7 +42,7 @@ namespace WebAPI.Managers.Models
             get { return groupId; }
         }
 
-        public int UserId
+        public string UserId
         {
             get { return userId; }
         }
@@ -154,9 +154,7 @@ namespace WebAPI.Managers.Models
                         ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
                         break;
                     case "u":
-                        int user;
-                        int.TryParse(pair[1], out user);
-                        ks.userId = user;
+                        ks.userId = pair[1];
                         break;
                     case "d":
                         ks.data = !string.IsNullOrEmpty(pair[1]) ? HttpUtility.UrlDecode(pair[1]) : string.Empty;

@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         {
             KalturaWatchHistoryAssetWrapper response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            int userId = KS.GetFromRequest().UserId;
+            string userId = KS.GetFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();

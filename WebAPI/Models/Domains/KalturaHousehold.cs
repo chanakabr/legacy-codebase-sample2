@@ -86,7 +86,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("users")]
         [XmlArray(ElementName = "users")]
         [XmlArrayItem("item")] 
-        public List<KalturaOTTBaseUser> Users { get; set; }
+        public List<KalturaBaseOTTUser> Users { get; set; }
 
         /// <summary>
         /// List of master users identifiers 
@@ -95,7 +95,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("master_users")]
         [XmlArray(ElementName = "master_users")]
         [XmlArrayItem("item")] 
-        public List<KalturaOTTBaseUser> MasterUsers { get; set; }
+        public List<KalturaBaseOTTUser> MasterUsers { get; set; }
 
         /// <summary>
         /// List of default users identifiers 
@@ -104,7 +104,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("default_users")]
         [XmlArray(ElementName = "default_users")]
         [XmlArrayItem("item")] 
-        public List<KalturaOTTBaseUser> DefaultUsers { get; set; }
+        public List<KalturaBaseOTTUser> DefaultUsers { get; set; }
 
         /// <summary>
         /// List of pending users identifiers 
@@ -113,7 +113,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("pending_users")]
         [XmlArray(ElementName = "pending_users")]
         [XmlArrayItem("item")] 
-        public List<KalturaOTTBaseUser> PendingUsers { get; set; }
+        public List<KalturaBaseOTTUser> PendingUsers { get; set; }
 
         /// <summary>
         /// The households region identifier
