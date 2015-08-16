@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaFavoriteList List(string partner_id, string user_id, string media_type = null,
+        public KalturaFavoriteArray List(string partner_id, string user_id, string media_type = null,
             int household_id = 0, string udid = null,
             [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
             string language = null)
@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaFavoriteList() { Favorites = favoritesFinalList };
+            return new KalturaFavoriteArray() { Favorites = favoritesFinalList };
         }
     }
 }

@@ -772,7 +772,7 @@
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
-    <Compile Include="Models\Users\KalturaFavoriteList.cs" />
+    <Compile Include="Models\Users\KalturaFavoriteArray.cs" />
     <Compile Include="Models\Users\KalturaKeyValue.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
