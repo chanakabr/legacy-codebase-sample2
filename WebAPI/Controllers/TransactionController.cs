@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
 
@@ -99,8 +100,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Verifies PPV/Subscription/Collection purchase.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="user_id">User to charge </param>
         /// <param name="household_id">Household to charge </param>
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
@@ -113,21 +112,18 @@ namespace WebAPI.Controllers
         /// Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, Unknown transaction state = 6042
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
-        [Route("purchase"), HttpPost]
-        public KalturaTransactionResponse VerifyPurchase(string partner_id, string user_id, int household_id, int content_id, int product_id, KalturaTransactionType product_type,
+        [Route("VerifyPurchase"), HttpPost]
+        [ApiAuthorize]
+        public KalturaTransactionResponse VerifyPurchase(int household_id, int content_id, int product_id, KalturaTransactionType product_type,
                                                          string purchase_token, int payment_gateway_type_id)
         {
             KalturaTransactionResponse response = new KalturaTransactionResponse();
 
-            int groupId = int.Parse(partner_id);
+            KS ks = KS.GetFromRequest();
 
             // validate household id
             if (household_id < 1)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_token))
@@ -140,7 +136,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(groupId, user_id, household_id, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
+                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(ks.GroupId, ks.UserId.ToString(), household_id, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
             }
             catch (ClientException ex)
             {
