@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/user/action")]
-    public class UserController : ApiController
+    public class OTTUserController : ApiController
     {
         /// <summary>
         /// Returns tokens (KS and refresh token) for anonymous access
@@ -56,8 +56,8 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
-        [Route("login_with_pin"), HttpPost]
-        public KalturaLoginResponse LogInWithPin(string partner_id, string pin, string udid = null, string secret = null)
+        [Route("LoginWithPin"), HttpPost]
+        public KalturaLoginResponse LoginWithPin(string partner_id, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
 

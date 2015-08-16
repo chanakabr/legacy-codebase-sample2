@@ -838,7 +838,7 @@
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\OTTUserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

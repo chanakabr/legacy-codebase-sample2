@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
             int groupId = int.Parse(partner_id);
 
             // parameters validation
-            if (media_ids == null | media_ids.Count == 0)
+            if (media_ids == null || media_ids.Count == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
@@ -109,13 +109,11 @@ namespace WebAPI.Controllers
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         public KalturaFavoriteArray List(string partner_id, string user_id, string media_type = null,
-            int household_id = 0, string udid = null,
-            [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<KalturaCatalogWith>))] List<KalturaCatalogWith> with = null,
-            string language = null)
+            int household_id = 0, string udid = null, List<KalturaCatalogWith> with = null, string language = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             try
