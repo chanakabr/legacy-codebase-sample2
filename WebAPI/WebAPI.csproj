@@ -724,7 +724,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaBillingTransactions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />

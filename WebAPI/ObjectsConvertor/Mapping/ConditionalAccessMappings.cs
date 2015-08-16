@@ -57,8 +57,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
 
             // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, KalturaBillingTransactions>()
-               .ForMember(dest => dest.transactionsCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
+            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, KalturaBillingTransactionListResponse>()
+               .ForMember(dest => dest.TotalCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
                .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
 
 

@@ -13,7 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transactions
     /// </summary>
     [Serializable]
-    public class KalturaBillingTransactions : KalturaOTTObject
+    public class KalturaBillingTransactionListResponse : KalturaListResponse
     {
         /// <summary>
         ///Transactions
@@ -23,14 +23,6 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlArray(ElementName = "transactions")]
         [XmlArrayItem("item")] 
         public List<KalturaBillingTransaction> transactions { get; set; }
-
-        /// <summary>
-        ///Transactions Count
-        /// </summary>
-        [DataMember(Name = "transactions_count")]
-        [JsonProperty("transactions_count")]
-        [XmlElement(ElementName = "transactions_count")]
-        public int transactionsCount { get; set; }
     }
 
     /// <summary>

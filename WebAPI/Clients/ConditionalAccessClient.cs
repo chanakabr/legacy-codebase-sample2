@@ -134,9 +134,9 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        public Models.ConditionalAccess.KalturaBillingTransactions GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
+        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
         {
-            Models.ConditionalAccess.KalturaBillingTransactions transactions = null;
+            Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
             WebAPI.ConditionalAccess.BillingTransactions response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -163,7 +163,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactions>(response.transactions);
+            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse>(response.transactions);
 
             return transactions;
         }
