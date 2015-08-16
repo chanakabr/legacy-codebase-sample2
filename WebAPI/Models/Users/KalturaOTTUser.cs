@@ -13,7 +13,7 @@ namespace WebAPI.Models.Users
     /// User
     /// </summary>
     [DataContract(Name="user")]
-    public class KalturaUser : KalturaOTTObject
+    public class KalturaOTTUser : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

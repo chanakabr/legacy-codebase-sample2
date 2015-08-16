@@ -195,9 +195,9 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal KalturaUser FBUserSignin(int groupId, string token, string udid)
+        internal KalturaOTTUser FBUserSignin(int groupId, string token, string udid)
         {
-            WebAPI.Models.Users.KalturaUser user = null;
+            WebAPI.Models.Users.KalturaOTTUser user = null;
             FBSignin response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -224,7 +224,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.status.Code, response.status.Message);
             }
 
-            user = AutoMapper.Mapper.Map<WebAPI.Models.Users.KalturaUser>(response.user);
+            user = AutoMapper.Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
 
             return user;
         }

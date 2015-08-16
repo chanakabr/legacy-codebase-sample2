@@ -142,6 +142,10 @@ namespace WebAPI
                 if (t == typeof(KalturaOTTObject))
                     continue;
 
+                //Skip *Array object
+                if (t.Name.EndsWith("Array"))
+                    continue;
+
                 var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
                 if (classNode == null)

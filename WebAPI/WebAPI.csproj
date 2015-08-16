@@ -710,7 +710,7 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
-    <Compile Include="Models\API\KalturaGenericRulesList.cs" />
+    <Compile Include="Models\API\KalturaGenericRuleArray.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
@@ -718,7 +718,7 @@
     <Compile Include="Models\Catalog\KalturaSlimChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
-    <Compile Include="Models\API\KalturaParentalRulesList.cs" />
+    <Compile Include="Models\API\KalturaParentalRuleArray.cs" />
     <Compile Include="Models\Catalog\KalturaUserLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
@@ -734,7 +734,7 @@
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
-    <Compile Include="Models\Pricing\KalturaItemPricesList.cs" />
+    <Compile Include="Models\Pricing\KalturaItemPriceArray.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
     <Compile Include="Models\General\KalturaTranslationContainer.cs" />
     <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />
@@ -745,11 +745,11 @@
     <Compile Include="Models\Pricing\KalturaPurchaseStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPremiumService.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlan.cs" />
-    <Compile Include="Models\Pricing\KalturaSubscriptionsList.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionArray.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionPrice.cs" />
-    <Compile Include="Models\Pricing\KalturaSubscriptionsPricesList.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionsPriceArray.cs" />
     <Compile Include="Models\Pricing\KalturaUsageModule.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaEntitlementsList.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementArray.cs" />
     <Compile Include="Models\Domains\KalturaAddHouseholdRequest.cs" />
     <Compile Include="Models\Domains\KalturaDevice.cs" />
     <Compile Include="Models\Domains\KalturaDeviceFamily.cs" />
@@ -768,10 +768,11 @@
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
-    <Compile Include="Models\Users\KalturaFavoriteList.cs" />
+    <Compile Include="Models\Users\KalturaFavoriteArray.cs" />
     <Compile Include="Models\Users\KalturaKeyValue.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaSlimUser.cs" />
@@ -792,13 +793,13 @@
     <Compile Include="Models\Users\KalturaLoginPin.cs" />
     <Compile Include="Models\API\KalturaPinResponse.cs" />
     <Compile Include="Models\Users\KalturaSignUp.cs" />
-    <Compile Include="Models\Users\KalturaUser.cs" />
+    <Compile Include="Models\Users\KalturaOTTUser.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsList.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItem.cs" />
     <Compile Include="Models\Users\KalturaUserBasicData.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
     <Compile Include="Models\Users\KalturaUserData.cs" />
-    <Compile Include="Models\Users\KalturaUsersList.cs" />
+    <Compile Include="Models\Users\KalturaOTTUserArray.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
     <Compile Include="Models\Users\KalturaOTTUserType.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ApiMappings.cs" />
@@ -837,7 +838,7 @@
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\OTTUserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

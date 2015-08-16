@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaEntitlementsList List(string partner_id, KalturaEntitlementsFilter filter)
+        public KalturaEntitlementArray List(string partner_id, KalturaEntitlementsFilter filter)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementsList() { Entitlements = response };
+            return new KalturaEntitlementArray() { Entitlements = response };
         }
 
         /// <summary>

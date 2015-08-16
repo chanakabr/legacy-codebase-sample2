@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("list"), HttpPost]
-        public KalturaParentalRulesList List(string partner_id, int household_id)
+        public KalturaParentalRuleArray List(string partner_id, int household_id)
         {
             List<KalturaParentalRule> response = null;
             
@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRulesList() { ParentalRule = response };
+            return new KalturaParentalRuleArray() { ParentalRule = response };
         }
 
         /// <summary>

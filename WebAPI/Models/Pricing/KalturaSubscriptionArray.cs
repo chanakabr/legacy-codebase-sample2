@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "Subscriptions", Namespace = "")]
     [XmlRoot("Subscriptions")]
-    public class KalturaSubscriptionsList : KalturaOTTObject
+    public class KalturaSubscriptionArray : KalturaOTTObject
     {
         /// <summary>
         /// A list of subscriptions

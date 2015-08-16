@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/user/action")]
-    public class UserController : ApiController
+    public class OTTUserController : ApiController
     {
         /// <summary>
         /// Returns tokens (KS and refresh token) for anonymous access
@@ -56,10 +56,10 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
-        [Route("login_with_pin"), HttpPost]
-        public KalturaLoginResponse LogInWithPin(string partner_id, string pin, string udid = null, string secret = null)
+        [Route("LoginWithPin"), HttpPost]
+        public KalturaLoginResponse LoginWithPin(string partner_id, string pin, string udid = null, string secret = null)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
         [Route("login"), HttpPost]
         public KalturaLoginResponse Login(string partner_id, KalturaLogIn request, string udid = null)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
 
             int partnerID = int.Parse(partner_id);
 
@@ -148,7 +148,7 @@ namespace WebAPI.Controllers
         [Route("FacebookLogin"), HttpPost]
         public KalturaLoginResponse FacebookLogin(string partner_id, string token, string udid = null)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
 
             int partnerId = int.Parse(partner_id);
 
@@ -190,9 +190,9 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaUser Add(string partner_id, KalturaSignUp request)
+        public KalturaOTTUser Add(string partner_id, KalturaSignUp request)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
             
             int groupId = int.Parse(partner_id);
 
@@ -298,9 +298,9 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("token/{token}"), HttpPost]
-        public KalturaUser CheckPasswordToken(string partner_id, string token)
+        public KalturaOTTUser CheckPasswordToken(string partner_id, string token)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -370,15 +370,15 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
-        [Route("get"), HttpPost]
-        public KalturaUsersList Get(string partner_id, string user_id)
+        [Route("list"), HttpPost]
+        public KalturaOTTUserArray List(string partner_id, KalturaOTTUserFilter filter)
         {
-            List<KalturaUser> response = null;
+            List<KalturaOTTUser> response = null;
 
             List<int> usersIds;
             try
             {
-                usersIds = user_id.Split(',').Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = filter.UserIDs.Select(x => int.Parse(x)).Distinct().ToList();
             }
             catch
             {
@@ -406,7 +406,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaUsersList() { Users = response };
+            return new KalturaOTTUserArray() { Users = response };
         }
 
         /// <summary>Edit user details.        
@@ -417,9 +417,9 @@ namespace WebAPI.Controllers
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
-        public KalturaUser Update(string partner_id, string user_id, KalturaUserData user_data)
+        public KalturaOTTUser Update(string partner_id, string user_id, KalturaUserData user_data)
         {
-            KalturaUser response = null;
+            KalturaOTTUser response = null;
             
             int groupId = int.Parse(partner_id);
 
@@ -458,7 +458,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
-        public KalturaParentalRulesList GetParentalMediaRules(string partner_id, string user_id, long media_id)
+        public KalturaParentalRuleArray GetParentalMediaRules(string partner_id, string user_id, long media_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -482,7 +482,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRulesList() { ParentalRule = response };
+            return new KalturaParentalRuleArray() { ParentalRule = response };
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpPost]
-        public KalturaParentalRulesList GetParentalEPGRules(string partner_id, string user_id, long epg_id)
+        public KalturaParentalRuleArray GetParentalEPGRules(string partner_id, string user_id, long epg_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -520,7 +520,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRulesList() { ParentalRule = response };
+            return new KalturaParentalRuleArray() { ParentalRule = response };
         }
 
         /// <summary>
@@ -566,7 +566,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/media/{media_id}"), HttpPost]
-        public KalturaGenericRulesList GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        public KalturaGenericRuleArray GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
@@ -590,7 +590,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaGenericRulesList() { GenericRules = response };
+            return new KalturaGenericRuleArray() { GenericRules = response };
         }
 
         /// <summary>
@@ -605,7 +605,7 @@ namespace WebAPI.Controllers
         /// <param name="channel_media_id">Linear channel's media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpPost]
-        public KalturaGenericRulesList GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
+        public KalturaGenericRuleArray GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
@@ -629,7 +629,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaGenericRulesList() { GenericRules = response };
+            return new KalturaGenericRuleArray() { GenericRules = response };
         }
 
         #endregion
