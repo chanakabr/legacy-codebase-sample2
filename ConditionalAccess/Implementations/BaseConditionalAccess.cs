@@ -4812,6 +4812,9 @@ namespace ConditionalAccess
         private PaymentMethod GetBillingTransMethod(int billingTransID)
         {
             PaymentMethod retVal = PaymentMethod.Unknown;
+
+            return retVal;
+
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
