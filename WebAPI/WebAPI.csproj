@@ -732,7 +732,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
-    <Compile Include="Models\Pricing\KalturaCouponDetails.cs" />
+    <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceArray.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />

@@ -151,9 +151,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
 
             // CouponData to CouponDetails
-            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCouponDetails>()
+            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCoupon>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
-               .ForMember(dest => dest.CouponStatus, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
         }
 
         public static List<int> ConvertToIntList(int[] list)
