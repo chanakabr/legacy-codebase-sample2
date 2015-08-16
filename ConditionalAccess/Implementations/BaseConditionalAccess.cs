@@ -8116,6 +8116,12 @@ namespace ConditionalAccess
 
                     //if (nBILLING_METHOD >= 1)
                     PaymentMethod pm = (PaymentMethod)(nBILLING_METHOD);
+
+                    if (!Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    {
+                        pm = PaymentMethod.Unknown;
+                    }
+
                     theResp.m_Transactions[i].m_ePaymentMethod = pm;
 
 
