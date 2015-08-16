@@ -204,7 +204,7 @@ namespace WebAPI.Clients
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
-                    result.Objects = assetsInfo.Select(a => (KalturaSlimAssetInfo)a).ToList();
+                    result.Objects = assetsInfo.Select(a => (KalturaBaseAssetInfo)a).ToList();
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;

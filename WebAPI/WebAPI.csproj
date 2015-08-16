@@ -859,7 +859,7 @@
     <Compile Include="Models\Catalog\KalturaBuzzScore.cs" />
     <Compile Include="Models\Catalog\KalturaMediaFile.cs" />
     <Compile Include="Models\Catalog\KalturaMediaImage.cs" />
-    <Compile Include="Models\Catalog\KalturaSlimAssetInfo.cs" />
+    <Compile Include="Models\Catalog\KalturaBaseAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryRequest.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />

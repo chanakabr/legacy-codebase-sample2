@@ -21,13 +21,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
-        public List<KalturaSlimAssetInfo> Objects { get; set; }
+        public List<KalturaBaseAssetInfo> Objects { get; set; }
     }
 
     /// <summary>
     /// Slim asset info
     /// </summary>
-    public class KalturaSlimAssetInfo : KalturaOTTObject, KalturaIAssetable
+    public class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset
