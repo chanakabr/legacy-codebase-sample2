@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("list"), HttpPost]
-        public KalturaParentalRulesList List(string partner_id, string user_id)
+        public KalturaParentalRuleArray List(string partner_id, string user_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRulesList() { ParentalRule = response };
+            return new KalturaParentalRuleArray() { ParentalRule = response };
         }
 
         /// <summary>

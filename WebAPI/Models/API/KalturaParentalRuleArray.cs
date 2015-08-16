@@ -10,19 +10,19 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// GenericRules list
+    /// ParentalRules list
     /// </summary>
-    [DataContract(Name = "GenericRules", Namespace = "")]
-    [XmlRoot("GenericRules")]
-    public class KalturaGenericRulesList : KalturaOTTObject
+    [DataContract(Name = "ParentalRules", Namespace = "")]
+    [XmlRoot("ParentalRules")]
+    public class KalturaParentalRuleArray : KalturaOTTObject
     {
         /// <summary>
-        /// A list of generic rules
+        /// A list of parental rules
         /// </summary>
         [DataMember(Name = "rules")]
         [JsonProperty("rules")]
         [XmlArray(ElementName = "rules")]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaGenericRule> GenericRules { get; set; }
+        [XmlArrayItem(ElementName = "items")]
+        public List<KalturaParentalRule> ParentalRule { get; set; }
     }
 }
