@@ -12,7 +12,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Slim user data
     /// </summary>
-    public class KalturaSlimUser : KalturaOTTObject
+    public class KalturaOTTBaseUser : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

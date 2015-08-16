@@ -775,7 +775,7 @@
     <Compile Include="Models\Users\KalturaFavoriteArray.cs" />
     <Compile Include="Models\Users\KalturaKeyValue.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
-    <Compile Include="Models\Users\KalturaSlimUser.cs" />
+    <Compile Include="Models\Users\KalturaOTTBaseUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
     <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />

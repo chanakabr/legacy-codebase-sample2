@@ -105,10 +105,10 @@ namespace WebAPI.Controllers
 
                     if (users != null)
                     {
-                        response.Users = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => userIds.Contains((int)u.Id)));
-                        response.MasterUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
-                        response.DefaultUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
-                        response.PendingUsers = Mapper.Map<List<KalturaSlimUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
+                        response.Users = Mapper.Map<List<KalturaOTTBaseUser>>(users.Where(u => userIds.Contains((int)u.Id)));
+                        response.MasterUsers = Mapper.Map<List<KalturaOTTBaseUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
+                        response.DefaultUsers = Mapper.Map<List<KalturaOTTBaseUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
+                        response.PendingUsers = Mapper.Map<List<KalturaOTTBaseUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
                     }
                 }
             }
