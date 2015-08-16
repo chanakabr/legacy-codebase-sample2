@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Social;
 using WebAPI.Utils;
 
@@ -19,10 +20,11 @@ namespace WebAPI.Controllers
         /// <param name="partner_id"></param>
         /// <returns></returns>
         [Route("GetConfig"), HttpPost]
-        public KalturaFacebookConfig GetConfig(string partner_id)
+        [ApiAuthorize]
+        public KalturaFacebookConfig GetConfig()
         {
             KalturaFacebookConfig response = null;
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
