@@ -12184,13 +12184,13 @@ namespace ConditionalAccess
         /// <summary>
         /// Purchase
         /// </summary>
-        public virtual TransactionResponse VerifyPurchase(string siteguid, long household, int contentId, int productId, eTransactionType transactionType,
-                                                          string userIp, string deviceName, string purchaseToken, int paymentGwId)
+        public virtual TransactionResponse ProcessReceipt(string siteguid, long household, int contentId, int productId, eTransactionType transactionType,
+                                                          string userIp, string deviceName, string purchaseToken, string paymentGwType)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, productType {4}, userIp {5}, deviceName {6}, purchaseToken {7}, paymentGwId {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, productType {4}, userIp {5}, deviceName {6}, purchaseToken {7}, paymentGwType {8}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,           // {0}
                 household,                                                           // {1}
                 contentId,                                                           // {2}
@@ -12199,7 +12199,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,               // {5}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty,       // {6}
                 !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty, // {7}
-                paymentGwId);                                                        // {8}
+                !string.IsNullOrEmpty(paymentGwType) ? paymentGwType : string.Empty);// {8}
 
             log.Debug(logString);
 
@@ -12235,10 +12235,10 @@ namespace ConditionalAccess
                 return response;
             }
 
-            // validate payment gateway ID
-            if (paymentGwId < 1)
+            // validate payment gateway 
+            if (string.IsNullOrEmpty(paymentGwType))
             {
-                response.Status.Message = "Illegal payment gateway ID";
+                response.Status.Message = "Illegal payment gateway type";
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 return response;
             }
@@ -12260,13 +12260,13 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = VerifyPPVPurchase(siteguid, household, contentId, productId, userIp, deviceName, purchaseToken, paymentGwId);
+                        response = ProcessPPVReceipt(siteguid, household, contentId, productId, userIp, deviceName, purchaseToken, paymentGwType);
                         break;
                     case eTransactionType.Subscription:
-                        response = VerifySubscriptionPurchase(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwId);
+                        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwType);
                         break;
                     case eTransactionType.Collection:
-                        response = VerifyCollectionPurchase(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwId);
+                        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwType);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -12716,24 +12716,24 @@ namespace ConditionalAccess
             return response;
         }
 
-        private TransactionResponse VerifyPPVPurchase(string siteguid, long householdId, int contentId, int productId, string userIp, string deviceName, string purchaseToken, int paymentGwId)
+        private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int contentId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwType)
         {
             return null;
         }
 
-        private TransactionResponse VerifySubscriptionPurchase(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, int paymentGwId)
+        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwType)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, purchaseToken {5}, paymentGwId {6}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, purchaseToken {5}, paymentGwType {6}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,           // {0}
                 householdId,                                                         // {1}
                 productId,                                                           // {2}   
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,               // {3}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty,       // {4}
                 !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty, // {5}
-                paymentGwId);                                                        // {6}
+                !string.IsNullOrEmpty(paymentGwType) ? paymentGwType : string.Empty);// {6}
 
             try
             {
@@ -12767,8 +12767,8 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId,
-                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
+                        //response = HandlePurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId,
+                        //                          TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12856,7 +12856,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private TransactionResponse VerifyCollectionPurchase(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, int paymentGwId)
+        private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwType)
         {
             return null;
         }
