@@ -2403,7 +2403,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="CreatedAt" type="s:long" />
         </s:sequence>
       </s:complexType>
-      <s:element name="VerifyPurchase">
+      <s:element name="ProcessReceipt">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -2416,14 +2416,14 @@
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="purchaseToken" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGwId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGwType" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="VerifyPurchaseResponse">
+      <s:element name="ProcessReceiptResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="VerifyPurchaseResult" type="tns:TransactionResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="ProcessReceiptResult" type="tns:TransactionResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3297,11 +3297,11 @@
   <wsdl:message name="PurchaseSoapOut">
     <wsdl:part name="parameters" element="tns:PurchaseResponse" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseSoapIn">
-    <wsdl:part name="parameters" element="tns:VerifyPurchase" />
+  <wsdl:message name="ProcessReceiptSoapIn">
+    <wsdl:part name="parameters" element="tns:ProcessReceipt" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseSoapOut">
-    <wsdl:part name="parameters" element="tns:VerifyPurchaseResponse" />
+  <wsdl:message name="ProcessReceiptSoapOut">
+    <wsdl:part name="parameters" element="tns:ProcessReceiptResponse" />
   </wsdl:message>
   <wsdl:message name="GrantEntitlementsSoapIn">
     <wsdl:part name="parameters" element="tns:GrantEntitlements" />
@@ -4355,7 +4355,7 @@
   <wsdl:message name="PurchaseHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseHttpPostIn">
+  <wsdl:message name="ProcessReceiptHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
@@ -4366,9 +4366,9 @@
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
     <wsdl:part name="purchaseToken" type="s:string" />
-    <wsdl:part name="paymentGwId" type="s:string" />
+    <wsdl:part name="paymentGwType" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseHttpPostOut">
+  <wsdl:message name="ProcessReceiptHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
   </wsdl:message>
   <wsdl:message name="GrantEntitlementsHttpPostIn">
@@ -4751,9 +4751,9 @@
       <wsdl:input message="tns:PurchaseSoapIn" />
       <wsdl:output message="tns:PurchaseSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <wsdl:input message="tns:VerifyPurchaseSoapIn" />
-      <wsdl:output message="tns:VerifyPurchaseSoapOut" />
+    <wsdl:operation name="ProcessReceipt">
+      <wsdl:input message="tns:ProcessReceiptSoapIn" />
+      <wsdl:output message="tns:ProcessReceiptSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GrantEntitlements">
       <wsdl:input message="tns:GrantEntitlementsSoapIn" />
@@ -5081,9 +5081,9 @@
       <wsdl:input message="tns:PurchaseHttpPostIn" />
       <wsdl:output message="tns:PurchaseHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <wsdl:input message="tns:VerifyPurchaseHttpPostIn" />
-      <wsdl:output message="tns:VerifyPurchaseHttpPostOut" />
+    <wsdl:operation name="ProcessReceipt">
+      <wsdl:input message="tns:ProcessReceiptHttpPostIn" />
+      <wsdl:output message="tns:ProcessReceiptHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GrantEntitlements">
       <wsdl:input message="tns:GrantEntitlementsHttpPostIn" />
@@ -5856,8 +5856,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <soap:operation soapAction="http://ca.tvinci.com/VerifyPurchase" style="document" />
+    <wsdl:operation name="ProcessReceipt">
+      <soap:operation soapAction="http://ca.tvinci.com/ProcessReceipt" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6651,8 +6651,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <soap12:operation soapAction="http://ca.tvinci.com/VerifyPurchase" style="document" />
+    <wsdl:operation name="ProcessReceipt">
+      <soap12:operation soapAction="http://ca.tvinci.com/ProcessReceipt" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7392,8 +7392,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <http:operation location="/VerifyPurchase" />
+    <wsdl:operation name="ProcessReceipt">
+      <http:operation location="/ProcessReceipt" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

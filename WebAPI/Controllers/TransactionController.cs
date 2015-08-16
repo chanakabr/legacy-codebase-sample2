@@ -105,8 +105,8 @@ namespace WebAPI.Controllers
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
-        /// <param name="purchase_token">The token received after the purchase</param>
-        /// <param name="payment_gateway_type_id">The payment gateway type identifier.  Possible values: 1 - Google, 2 - Apple</param>
+        /// <param name="purchase_receipt">The receipt received after the purchase</param>
+        /// <param name="payment_gateway_type">The payment gateway type.  Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
@@ -116,23 +116,23 @@ namespace WebAPI.Controllers
         [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
         public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type,
-                                                         string purchase_token, int payment_gateway_type_id)
+                                                         string purchase_receipt, string payment_gateway_type)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
 
             // validate purchase token
-            if (string.IsNullOrEmpty(purchase_token))
+            if (string.IsNullOrEmpty(purchase_receipt))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase token cannot be empty");
 
             // validate payment gateway id
-            if (payment_gateway_type_id < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal payment gateway ID");
+            if (string.IsNullOrEmpty(payment_gateway_type))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment gateway type cannot be empty");
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().VerifyPurchase(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_token, payment_gateway_type_id);
+                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_type);
             }
             catch (ClientException ex)
             {
