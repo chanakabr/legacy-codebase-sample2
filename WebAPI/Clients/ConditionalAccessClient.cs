@@ -323,10 +323,10 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        internal KalturaTransactionResponse Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
+        internal KalturaTransaction Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
                                                      int productId, KalturaTransactionType clientTransactionType, string coupon, string deviceName, int paymentGwId)
         {
-            KalturaTransactionResponse clientResponse = null;
+            KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
@@ -363,15 +363,15 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            clientResponse = AutoMapper.Mapper.Map<KalturaTransactionResponse>(wsResponse);
+            clientResponse = AutoMapper.Mapper.Map<KalturaTransaction>(wsResponse);
 
             return clientResponse;
         }
 
-        internal KalturaTransactionResponse VerifyPurchase(int groupId, string siteguid, long houshold, int contentId, int productId, KalturaTransactionType clientTransactionType,
+        internal KalturaTransaction VerifyPurchase(int groupId, string siteguid, long houshold, int contentId, int productId, KalturaTransactionType clientTransactionType,
                                                            string deviceName, string purchaseToken, int paymentGwId)
         {
-            KalturaTransactionResponse clientResponse = null;
+            KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
@@ -407,7 +407,7 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            clientResponse = AutoMapper.Mapper.Map<KalturaTransactionResponse>(wsResponse);
+            clientResponse = AutoMapper.Mapper.Map<KalturaTransaction>(wsResponse);
 
             return clientResponse;
         }

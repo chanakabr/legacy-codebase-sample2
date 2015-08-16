@@ -72,9 +72,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ExternalReceiptCode, opt => opt.MapFrom(src => src.m_sExternalReceiptCode));
 
             // TransactionResponse to KalturaTransactionResponse
-            Mapper.CreateMap<ConditionalAccess.TransactionResponse, KalturaTransactionResponse>()
+            Mapper.CreateMap<ConditionalAccess.TransactionResponse, KalturaTransaction>()
                .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
-               .ForMember(dest => dest.TransactionID, opt => opt.MapFrom(src => src.TransactionID))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
                .ForMember(dest => dest.PGResponseID, opt => opt.MapFrom(src => src.PGResponseCode))
                .ForMember(dest => dest.FailReasonCode, opt => opt.MapFrom(src => src.FailReasonCode))

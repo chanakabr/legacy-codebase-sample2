@@ -33,10 +33,10 @@ namespace WebAPI.Controllers
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
         [Route("purchase"), HttpPost]
-        public KalturaTransactionResponse Purchase(string partner_id, string user_id, int household_id, double price, string currency,
+        public KalturaTransaction Purchase(string partner_id, string user_id, int household_id, double price, string currency,
                                                    int content_id, int product_id, KalturaTransactionType product_type, string coupon)
         {
-            KalturaTransactionResponse response = new KalturaTransactionResponse();
+            KalturaTransaction response = new KalturaTransaction();
 
             int groupId = int.Parse(partner_id);
 
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Verifies PPV/Subscription/Collection purchase.
+        /// Verifies PPV/Subscription/Collection purchase and entitles the user.
         /// </summary>
         /// <param name="household_id">Household to charge </param>
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
@@ -114,13 +114,12 @@ namespace WebAPI.Controllers
         /// Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, Unknown transaction state = 6042
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
-        [Route("VerifyPurchase"), HttpPost]
+        [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransactionResponse VerifyPurchase(int household_id, int content_id, int product_id, KalturaTransactionType product_type,
+        public KalturaTransaction ProcessReceipt(int household_id, int content_id, int product_id, KalturaTransactionType product_type,
                                                          string purchase_token, int payment_gateway_type_id)
         {
-            KalturaTransactionResponse response = new KalturaTransactionResponse();
-
+            KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
 
             // validate household id

@@ -9,15 +9,15 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaTransactionResponse : KalturaOTTObject
+    public class KalturaTransaction : KalturaOTTObject
     {
         /// <summary>
         /// Kaltura unique ID representing the transaction
         /// </summary>
-        [DataMember(Name = "transaction_id")]
-        [JsonProperty("transaction_id")]
-        [XmlElement(ElementName = "transaction_id")]
-        public string TransactionID { get; set; }
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public string Id { get; set; }
 
         /// <summary>
         /// Transaction reference ID received from the payment gateway. 
