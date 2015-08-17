@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -18,19 +19,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add media to user's favorite list
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="request">Request parameters</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, int household_id, string user_id, string udid, KalturaAddUserFavoriteRequest request)
+        [ApiAuthorize]
+        public bool Add(int household_id, string udid, KalturaAddUserFavoriteRequest request)
         {
             bool res = false;
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (request.MediaType.Trim().Length == 0)
@@ -51,7 +51,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().AddUserFavorite(groupId, user_id, household_id, udid, request.MediaType, request.MediaId, request.ExtraData);
+                res = ClientsManager.UsersClient().AddUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, udid, request.MediaType,
+                    request.MediaId, request.ExtraData);
             }
             catch (ClientException ex)
             {
@@ -64,17 +65,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove media from user's favorite list
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household identifier</param>
-        /// <param name="user_id">User identifier</param>        
         /// <param name="media_ids">Media identifiers</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("delete"), HttpPost]
-        public void Delete(string partner_id, int household_id, string user_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
+        [ApiAuthorize]
+        public void Delete(int household_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (media_ids == null || media_ids.Count == 0)
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().RemoveUserFavorite(groupId, user_id, household_id, media_ids.ToArray());
+                ClientsManager.UsersClient().RemoveUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, media_ids.ToArray());
             }
             catch (ClientException ex)
             {
@@ -96,9 +96,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieving users' favorites
-        /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>                
+        /// </summary>            
         /// <param name="media_type">Related media type </param>                
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">Device UDID</param>
@@ -108,24 +106,24 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaFavoriteArray List(string partner_id, string user_id, string media_type = null,
-            int household_id = 0, string udid = null, List<KalturaCatalogWith> with = null, string language = null)
+        public KalturaFavoriteArray List(string media_type = null, int household_id = 0, string udid = null, List<KalturaCatalogWith> with = null, string language = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, user_id, household_id, udid, media_type);
+                favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, KS.GetFromRequest().UserId, household_id, udid, media_type);
                 if (favorites != null && favorites.Count > 0)
                 {
 
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
-                    KalturaAssetInfoWrapper assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, udid, language, 0, 0, mediaIds, with);
+                    KalturaAssetInfoWrapper assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id,
+                        udid, language, 0, 0, mediaIds, with);
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)

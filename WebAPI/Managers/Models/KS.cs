@@ -23,14 +23,12 @@ namespace WebAPI.Managers.Models
         private string encryptedValue;
         private int groupId;
         private string userId;
-        private eUserType userType;
+        private KalturaSessionType userType;
         private DateTime expiration;
         private string privilege;
         private string data;
 
         public const string PAYLOAD_UDID = "UDID";
-
-        public enum eUserType { USER = 0, ADMIN = 2 }
 
         public bool IsValid
         {
@@ -45,9 +43,16 @@ namespace WebAPI.Managers.Models
         public string UserId
         {
             get { return userId; }
+            set
+            {
+                if (UserType == KalturaSessionType.ADMIN)
+                    userId = value;
+                else
+                    throw new Exception("Unable to set userID without Admin KS");
+            }
         }
 
-        public eUserType UserType
+        public KalturaSessionType UserType
         {
             get { return userType; }
         }
@@ -71,7 +76,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, eUserType userType, string data, string privilege)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -146,7 +151,7 @@ namespace WebAPI.Managers.Models
                 switch (pair[0])
                 {
                     case "t":
-                        ks.userType = (eUserType)Enum.Parse(typeof(eUserType), pair[1]);
+                        ks.userType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
                         break;
                     case "e":
                         long expiration;

@@ -30,13 +30,12 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper List(int[] media_ids, KalturaFilterPager pager = null,
-            List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
+        public KalturaAssetInfoWrapper List(int[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWith> with = null, string language = null,
+            int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -58,7 +57,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, user_id, household_id, string.Empty, language, pager.PageIndex,
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language, pager.PageIndex,
                     pager.PageSize, media_ids.ToList(), with);
 
                 // if no response - return not found status 
@@ -140,9 +139,8 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
-        //[ApiAuthorize]
-        public KalturaSlimAssetInfoWrapper Autocomplete(string query,
-            List<KalturaCatalogWith> with = null, List<int> filter_types = null,
+        [ApiAuthorize]
+        public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWith> with = null, List<int> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
             KalturaSlimAssetInfoWrapper response = null;
@@ -184,7 +182,7 @@ namespace WebAPI.Controllers
         [Route("related"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoWrapper Related(int media_id, KalturaFilterPager pager = null, List<int> media_types = null,
-            List<KalturaCatalogWith> with = null, string language = null, string user_id = null, int household_id = 0)
+            List<KalturaCatalogWith> with = null, string language = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -206,7 +204,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, user_id, household_id, string.Empty,
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, KS.GetFromRequest().UserId, household_id, string.Empty,
                     language, pager.PageIndex, pager.PageSize, media_id, media_types, with);
             }
             catch (ClientException ex)

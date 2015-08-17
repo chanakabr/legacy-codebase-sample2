@@ -12,6 +12,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
 
-            KS ks = new KS(userSecret, partner_id, "0", 24 * 60 * 60, KS.eUserType.USER, null, string.Empty);
+            KS ks = new KS(userSecret, partner_id, "0", 24 * 60 * 60, KalturaSessionType.USER, null, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = null };
         }
@@ -82,7 +83,7 @@ namespace WebAPI.Controllers
             var l = new List<KeyValuePair<string, string>>();
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }
@@ -131,7 +132,7 @@ namespace WebAPI.Controllers
             var l = new List<KeyValuePair<string, string>>();
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }
@@ -175,7 +176,7 @@ namespace WebAPI.Controllers
             var l = new List<KeyValuePair<string, string>>();
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KS.eUserType.USER, payload, string.Empty);
+            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
 
             return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
         }

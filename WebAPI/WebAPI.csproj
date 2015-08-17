@@ -706,7 +706,6 @@
     <Compile Include="Controllers\UserTransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
-    <Compile Include="Filters\ValidateRequest.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
@@ -733,6 +732,8 @@
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
+    <Compile Include="Models\General\KalturaSessionType.cs" />
+    <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceArray.cs" />
