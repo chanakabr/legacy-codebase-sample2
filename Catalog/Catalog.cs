@@ -909,7 +909,7 @@ namespace Catalog
                             if (maxNGram > 0 && 
                                 (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
                             {
-                                leaf.value = leaf.value.ToString().Substring(0, maxNGram);
+                                leaf.value = leaf.value.ToString().Truncate(maxNGram);
                             }
 
                             #endregion
@@ -4285,7 +4285,5 @@ namespace Catalog
 
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
-
-
     }
 }
