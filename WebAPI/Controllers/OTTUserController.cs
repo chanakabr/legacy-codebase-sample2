@@ -367,19 +367,19 @@ namespace WebAPI.Controllers
         /// Retrieving users' data
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
         [Route("list"), HttpPost]
-        public KalturaOTTUserArray List(string partner_id, KalturaOTTUserFilter filter)
+        public KalturaOTTUserListResponse List(string partner_id, KalturaOTTUserFilter filter)
         {
             List<KalturaOTTUser> response = null;
 
             List<int> usersIds;
             try
             {
-                usersIds = filter.UserIDs.Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = filter.UserIDs.Select(x => int.Parse(x.value)).Distinct().ToList();
             }
             catch
             {
@@ -407,7 +407,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaOTTUserArray() { Users = response };
+            return new KalturaOTTUserListResponse() { Users = response, TotalCount = response.Count };
         }
 
         /// <summary>Edit user details.        
@@ -459,7 +459,7 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
-        public KalturaParentalRuleArray GetParentalMediaRules(string partner_id, string user_id, long media_id)
+        public KalturaParentalRuleListResponse GetParentalMediaRules(string partner_id, string user_id, long media_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -483,7 +483,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRuleArray() { ParentalRule = response };
+            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
         }
 
         /// <summary>
@@ -496,7 +496,7 @@ namespace WebAPI.Controllers
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpPost]
-        public KalturaParentalRuleArray GetParentalEPGRules(string partner_id, string user_id, long epg_id)
+        public KalturaParentalRuleListResponse GetParentalEPGRules(string partner_id, string user_id, long epg_id)
         {
             List<KalturaParentalRule> response = null;
 
@@ -521,7 +521,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRuleArray() { ParentalRule = response };
+            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
         }
 
         /// <summary>
@@ -567,7 +567,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/media/{media_id}"), HttpPost]
-        public KalturaGenericRuleArray GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        public KalturaGenericRuleListResponse GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
@@ -591,7 +591,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaGenericRuleArray() { GenericRules = response };
+            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
         }
 
         /// <summary>
@@ -606,7 +606,7 @@ namespace WebAPI.Controllers
         /// <param name="channel_media_id">Linear channel's media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpPost]
-        public KalturaGenericRuleArray GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
+        public KalturaGenericRuleListResponse GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
@@ -630,7 +630,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaGenericRuleArray() { GenericRules = response };
+            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
         }
 
         #endregion

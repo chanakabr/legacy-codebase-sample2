@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         public KalturaAssetInfoWrapper List(int channel_id, KalturaOrder? order_by = null, KalturaFilterPager pager = null, 
-            List<KalturaCatalogWith> with = null, string language = null, int household_id = 0)
+            List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetChannelMedia(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language,
-                    pager.PageIndex, pager.PageSize, channel_id, order_by.Value, with);
+                    pager.PageIndex, pager.PageSize, channel_id, order_by.Value, with.Select(x=> x.type).ToList());
             }
             catch (ClientException ex)
             {

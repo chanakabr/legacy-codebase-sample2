@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "GenericRules", Namespace = "")]
     [XmlRoot("GenericRules")]
-    public class KalturaGenericRuleArray : KalturaOTTObject
+    public class KalturaGenericRuleListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of generic rules

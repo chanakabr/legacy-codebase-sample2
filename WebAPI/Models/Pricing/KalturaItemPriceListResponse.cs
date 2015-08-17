@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "ItemPrice", Namespace = "")]
     [XmlRoot("ItemPrice")]
-    public class KalturaItemPriceArray : KalturaOTTObject
+    public class KalturaItemPriceListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of item prices

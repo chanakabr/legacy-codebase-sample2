@@ -142,10 +142,6 @@ namespace WebAPI
                 if (t == typeof(KalturaOTTObject))
                     continue;
 
-                //Skip *Array object
-                if (t.Name.EndsWith("Array"))
-                    continue;
-
                 var classNode = x.SelectNodes(string.Format("//member[@name='T:{0}']", t.FullName));
 
                 if (classNode == null)
@@ -155,7 +151,6 @@ namespace WebAPI
                     string.Format("base='{0}'", t.BaseType.Name) : "";
 
                 bool isAbstractOrInterface = t.IsInterface || t.IsAbstract;
-
 
                 //No documentation
                 if (classNode.Count == 0 || classNode[0].ChildNodes == null)

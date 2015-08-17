@@ -34,8 +34,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper List(int[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWith> with = null, string language = null,
-            int household_id = 0)
+        public KalturaAssetInfoWrapper List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
+            string language = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language, pager.PageIndex,
-                    pager.PageSize, media_ids.ToList(), with);
+                    pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -116,7 +116,8 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
-                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types.Select(x=> x.value).ToList(), request.with);
+                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types.Select(x => x.value).ToList(),
+                request.with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -140,7 +141,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize]
-        public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWith> with = null, List<int> filter_types = null,
+        public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
             KalturaSlimAssetInfoWrapper response = null;
@@ -155,7 +156,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by, filter_types, with);
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by,
+                    filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -181,8 +183,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoWrapper Related(int media_id, KalturaFilterPager pager = null, List<int> media_types = null,
-            List<KalturaCatalogWith> with = null, string language = null, int household_id = 0)
+        public KalturaAssetInfoWrapper Related(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
+            List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
         {
             KalturaAssetInfoWrapper response = null;
 
@@ -205,7 +207,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, KS.GetFromRequest().UserId, household_id, string.Empty,
-                    language, pager.PageIndex, pager.PageSize, media_id, media_types, with);
+                    language, pager.PageIndex, pager.PageSize, media_id, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {

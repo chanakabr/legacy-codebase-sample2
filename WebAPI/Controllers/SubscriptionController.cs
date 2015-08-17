@@ -14,6 +14,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
@@ -34,7 +35,7 @@ namespace WebAPI.Controllers
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getPrices"), HttpPost]
-        public KalturaSubscriptionsPriceArray GetSubscriptionsPrices(string partner_id, string subscriptions_ids, string user_id = null,
+        public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(string partner_id, string subscriptions_ids, string user_id = null,
             string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
         {
             List<KalturaSubscriptionPrice> subscriptionPrices = null;
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaSubscriptionsPriceArray() { SubscriptionsPrices = subscriptionPrices };
+            return new KalturaSubscriptionsPriceListResponse() { SubscriptionsPrices = subscriptionPrices, TotalCount = subscriptionPrices.Count };
         }
 
         /// <summary>
@@ -70,9 +71,9 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        public KalturaSubscriptionArray Get(string partner_id, int[] subscriptions_ids, string udid = null, string language = null)
+        public KalturaSubscriptionListResponse Get(string partner_id, KalturaIntegerValue[] subscriptions_ids, string udid = null, string language = null)
         {
-            List<KalturaSubscription> subscruptions = null;
+            List<KalturaSubscription> subscriptions = null;
 
             int groupId = int.Parse(partner_id);
 
@@ -84,7 +85,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                subscruptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids.Select(x => x.ToString()).ToList(),
+                subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids.Select(x => x.value.ToString()).ToList(),
                     udid, language);
             }
             catch (ClientException ex)
@@ -92,7 +93,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaSubscriptionArray() { Subscriptions = subscruptions };
+            return new KalturaSubscriptionListResponse() { Subscriptions = subscriptions, TotalCount = subscriptions.Count };
         }
 
         /// <summary>
