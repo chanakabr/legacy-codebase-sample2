@@ -23,6 +23,6 @@ namespace WebAPI.Models.MultiRequest
         [JsonProperty("parameters")]
         [XmlArray(ElementName = "parameters")]
         [XmlArrayItem("item")] 
-        public string[] parameters { get; set; }
+        public KalturaStringValue[] parameters { get; set; }
     }
 }

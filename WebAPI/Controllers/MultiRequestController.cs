@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
-                        string[] kv = request[i].parameters[j].Split('=');
+                        string[] kv = request[i].parameters[j].value.Split('=');
                         string p = kv[1];
                         string[] tokens = null;
                         if (p != null && (tokens = p.Split(':')).Count() > 1)

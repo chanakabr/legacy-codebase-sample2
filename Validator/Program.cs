@@ -42,6 +42,13 @@ namespace Validator
                         && m.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>)
                         && m.PropertyType.GetGenericTypeDefinition().BaseType.Name != "Dictionary`2"))
                     {
+
+                        if (m.PropertyType.GetElementType() == typeof(int) || m.PropertyType.GetElementType() == typeof(string) || m.PropertyType.GetElementType() == typeof(Boolean))
+                        {
+                            Console.WriteLine(string.Format("Model {0} has a primitive Array {1}", type.Name, m.Name));
+                            found = true;
+                        }
+
                         var xaAttr = m.GetCustomAttributes<XmlArrayAttribute>();
                         var xaiAttr = m.GetCustomAttributes<XmlArrayItemAttribute>();
                         if (xaAttr.FirstOrDefault() == null || xaiAttr.FirstOrDefault() == null)
