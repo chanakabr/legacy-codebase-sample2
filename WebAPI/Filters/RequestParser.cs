@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ using WebAPI.ClientManagers;
 using WebAPI.Controllers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Filters
@@ -85,8 +87,9 @@ namespace WebAPI.Filters
                             {
                                 parseKS(actionContext, reqParams["ks"].ToObject<string>());
 
-                                if (KS.GetFromRequest().UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
-                                    KS.GetFromRequest().UserId = reqParams["user_id"].ToObject<string>();
+                                KS ks = KS.GetFromRequest();
+                                if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
+                                    ks.UserId = reqParams["user_id"].ToObject<string>();
                             }
 
                             //if (reqParams["partner_id"] != null)
@@ -111,8 +114,31 @@ namespace WebAPI.Filters
 
                                 try
                                 {
-                                    //We deserialize the object based on the method parameter type
-                                    methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                                    //XXX: Currently we hack so Array/List will fit as needed
+                                    if (p.ParameterType.IsGenericType && typeof(IList).IsAssignableFrom(p.ParameterType))
+                                    {
+                                        Type dicType = typeof(Dictionary<,>); 
+                                        Type[] typeArgs = { typeof(string), p.ParameterType.GetGenericArguments()[0] };
+                                        Type makeme = dicType.MakeGenericType(typeArgs);
+                                        IDictionary listParams = (IDictionary) reqParams[p.Name].ToObject(makeme);
+
+                                        Type listType = typeof(List<>);
+                                        Type listArgs = p.ParameterType.GetGenericArguments()[0];
+                                        Type makemeList = listType.MakeGenericType(listArgs);
+                                        IList o = (IList) Activator.CreateInstance(makemeList);
+                                        
+                                        foreach (var k in listParams.Keys)
+                                        {
+                                            o.Add(listParams[k]);
+                                        }
+
+                                        methodParams.Add(o);
+                                    }
+                                    else
+                                    {
+                                        //We deserialize the object based on the method parameter type
+                                        methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -178,7 +204,7 @@ namespace WebAPI.Filters
                         }
                     }
                     else if (p.ParameterType.IsArray)
-                    {                        
+                    {
                         if (p.IsOptional)
                         {
                             methodParams.Add(Type.Missing);
