@@ -367,7 +367,7 @@ namespace WebAPI.Controllers
         /// Retrieving users' data
         /// </summary>
         /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">Users IDs to retreive. Use ',' as a seperator between the IDs</param>
+        /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
