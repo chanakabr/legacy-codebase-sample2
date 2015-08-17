@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaFavoriteListResponse List(string media_type = null, int household_id = 0, string udid = null, List<KalturaCatalogWith> with = null, string language = null)
+        public KalturaFavoriteListResponse List(string media_type = null, int household_id = 0, string udid = null, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
                     KalturaAssetInfoWrapper assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id,
-                        udid, language, 0, 0, mediaIds, with);
+                        udid, language, 0, 0, mediaIds, with.Select(x=> x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
