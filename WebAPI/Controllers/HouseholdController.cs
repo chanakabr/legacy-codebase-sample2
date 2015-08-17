@@ -76,6 +76,9 @@ namespace WebAPI.Controllers
             if (user.First().HouseholdID != household_id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
 
+            if (with == null)
+                with = new List<KalturaHouseholdWithHolder>();
+
             try
             {
                 // call client

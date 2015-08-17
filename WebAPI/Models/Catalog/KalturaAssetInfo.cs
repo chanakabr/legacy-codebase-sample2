@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Asset info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaAssetInfoWrapper : KalturaListResponse 
+    public class KalturaAssetInfoListResponse : KalturaListResponse 
     {
         /// <summary>
         /// Assets

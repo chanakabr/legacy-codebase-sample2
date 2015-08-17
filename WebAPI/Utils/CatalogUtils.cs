@@ -289,9 +289,9 @@ namespace WebAPI.Utils
             return finalResult;
         }
 
-        public static KalturaAssetInfoWrapper GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        public static KalturaAssetInfoListResponse GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
         {
-            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // fire request
             MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();

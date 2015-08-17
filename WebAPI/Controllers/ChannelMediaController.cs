@@ -28,10 +28,10 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaAssetInfoWrapper List(int channel_id, KalturaOrder? order_by = null, KalturaFilterPager pager = null, 
+        public KalturaAssetInfoListResponse List(int channel_id, KalturaOrder? order_by = null, KalturaFilterPager pager = null, 
             List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
         {
-            KalturaAssetInfoWrapper response = null;
+            KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -48,6 +48,9 @@ namespace WebAPI.Controllers
             {
                 pager.PageSize = 5;
             }
+
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
 
             try
             {

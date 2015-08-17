@@ -60,10 +60,10 @@ namespace WebAPI.Clients
             return retVal;
         }
 
-        public KalturaAssetInfoWrapper SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
+        public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
-            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -314,9 +314,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
-            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // build request
             MediaRelatedRequest request = new MediaRelatedRequest()
@@ -348,9 +348,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
         {
-            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -405,9 +405,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoWrapper GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
-            KalturaAssetInfoWrapper result = new KalturaAssetInfoWrapper();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // build request
             MediaUpdateDateRequest request = new MediaUpdateDateRequest()
