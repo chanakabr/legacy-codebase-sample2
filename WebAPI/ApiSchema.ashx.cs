@@ -60,6 +60,7 @@ namespace WebAPI
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 
+            context.Response.ContentType = "text/xml";
             context.Response.Write(string.Format("<?xml version=\"1.0\"?>\n<xml apiVersion=\"{0}\" generatedDate=\"{1}\">\n",
                 fvi.FileVersion, Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
@@ -72,6 +73,9 @@ namespace WebAPI
                     continue;
 
                 if (tp.IsEnum)
+                    continue;
+
+                if (tp.BaseType == typeof(Attribute))
                     continue;
 
                 Field f = new Field();
@@ -124,11 +128,17 @@ namespace WebAPI
             context.Response.Write("<enums>\n");
             foreach (Type t in enums.OrderBy(c => c.Name))
             {
-                context.Response.Write(string.Format("\t<enum name='{0}' enumType='string'>\n", t.Name));
+                bool isIntEnum = t.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+                var etype = isIntEnum ? "int" : "string";
+
+                context.Response.Write(string.Format("\t<enum name='{0}' enumType='{1}'>\n", t.Name, etype));
 
                 //Print values
                 foreach (var v in Enum.GetValues(t))
-                    context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", v.ToString().ToUpper(), v));
+                {
+                    string eValue = isIntEnum ? ((int)Enum.Parse(t, v.ToString())).ToString() : v.ToString();
+                    context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", v.ToString().ToUpper(), eValue));
+                }
 
                 context.Response.Write("\t</enum>\n");
             }

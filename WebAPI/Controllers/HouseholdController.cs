@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaCatalogWithHolder> with = null)
+        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -75,6 +75,9 @@ namespace WebAPI.Controllers
 
             if (user.First().HouseholdID != household_id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
+
+            if (with == null)
+                with = new List<KalturaHouseholdWithHolder>();
 
             try
             {

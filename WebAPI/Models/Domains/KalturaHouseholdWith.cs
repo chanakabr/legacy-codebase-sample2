@@ -17,7 +17,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Holder object for Household With enum
     /// </summary>
-    public class KalturaCatalogWithHolder : KalturaOTTObject
+    public class KalturaHouseholdWithHolder : KalturaOTTObject
     {
         [DataMember(Name = "type")]
         [JsonProperty("type")]

@@ -37,7 +37,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "reciept_code")]
         [JsonProperty("reciept_code")]
         [XmlElement(ElementName = "reciept_code")]
-        public string recieptCode;
+        public string recieptCode { get; set; }
 
         /// <summary>
         ///Purchased Item Name
@@ -45,7 +45,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchased_item_name")]
         [JsonProperty("purchased_item_name")]
         [XmlElement(ElementName = "purchased_item_name")]
-        public string purchasedItemName;
+        public string purchasedItemName { get; set; }
 
         /// <summary>
         ///Purchased Item Code
@@ -53,7 +53,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchased_item_code")]
         [JsonProperty("purchased_item_code")]
         [XmlElement(ElementName = "purchased_item_code")]
-        public string purchasedItemCode;
+        public string purchasedItemCode { get; set; }
 
         /// <summary>
         ///Item Type
@@ -61,7 +61,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "item_type")]
         [JsonProperty("item_type")]
         [XmlElement(ElementName = "item_type")]
-        public KalturaBillingItemsType itemType;
+        public KalturaBillingItemsType itemType { get; set; }
 
         /// <summary>
         ///Billing Action
@@ -69,7 +69,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "billing_action")]
         [JsonProperty("billing_action")]
         [XmlElement(ElementName = "billing_action")]
-        public KalturaBillingAction billingAction;
+        public KalturaBillingAction billingAction { get; set; }
 
         /// <summary>
         ///price
@@ -77,7 +77,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price")]
-        public Pricing.KalturaPrice price;
+        public Pricing.KalturaPrice price { get; set; }
 
         /// <summary>
         ///Action Date
@@ -85,7 +85,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "action_date")]
         [JsonProperty("action_date")]
         [XmlElement(ElementName = "action_date")]
-        public long actionDate;
+        public long actionDate { get; set; }
 
         /// <summary>
         ///Start Date
@@ -93,7 +93,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long startDate;
+        public long startDate { get; set; }
 
         /// <summary>
         /// End Date
@@ -101,7 +101,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long endDate;
+        public long endDate { get; set; }
 
         /// <summary>
         ///Payment Method
@@ -109,7 +109,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "payment_method")]
         [JsonProperty("payment_method")]
         [XmlElement(ElementName = "payment_method")]
-        public KalturaPaymentMethod paymentMethod;
+        public KalturaPaymentMethod paymentMethod { get; set; }
 
         /// <summary>
         ///Payment Method Extra Details
@@ -117,7 +117,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "payment_method_extra_details")]
         [JsonProperty("payment_method_extra_details")]
         [XmlElement(ElementName = "payment_method_extra_details")]
-        public string paymentMethodExtraDetails;
+        public string paymentMethodExtraDetails { get; set; }
 
         /// <summary>
         ///Is Recurring
@@ -125,7 +125,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_recurring")]
         [JsonProperty("is_recurring")]
         [XmlElement(ElementName = "is_recurring")]
-        public bool isRecurring;
+        public bool isRecurring { get; set; }
 
         /// <summary>
         ///Billing Provider Ref
@@ -133,7 +133,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "billing_provider_ref")]
         [JsonProperty("billing_provider_ref")]
         [XmlElement(ElementName = "billing_provider_ref")]
-        public Int32 billingProviderRef;
+        public Int32 billingProviderRef { get; set; }
 
         /// <summary>
         ///Purchase ID
@@ -141,7 +141,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchase_id")]
         [JsonProperty("purchase_id")]
         [XmlElement(ElementName = "purchase_id")]
-        public Int32 purchaseID;
+        public Int32 purchaseID { get; set; }
 
         /// <summary>
         ///Remarks
@@ -149,7 +149,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "remarks")]
         [JsonProperty("remarks")]
         [XmlElement(ElementName = "remarks")]
-        public string remarks;
+        public string remarks { get; set; }
     }
-
 }

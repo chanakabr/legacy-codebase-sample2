@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long id;
+        public long id { get; set; }
 
         /// <summary>
         /// Rule display name
@@ -29,7 +29,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        public string name;
+        public string name { get; set; }
 
         /// <summary>
         /// Explanatory description
@@ -37,7 +37,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
-        public string description;
+        public string description { get; set; }
 
         /// <summary>
         /// Rule order within the full list of rules
@@ -45,7 +45,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "order")]
         [JsonProperty("order")]
         [XmlElement(ElementName = "order")]
-        public int order;
+        public int order { get; set; }
 
         /// <summary>
         /// Media asset tag ID to in which to look for corresponding trigger values
@@ -53,7 +53,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "media_tag")]
         [JsonProperty("media_tag")]
         [XmlElement(ElementName = "media_tag")]
-        public int mediaTagTypeId;
+        public int mediaTagTypeId { get; set; }
 
         /// <summary>
         /// EPG asset tag ID to in which to look for corresponding trigger values
@@ -61,7 +61,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "epg_tag")]
         [JsonProperty("epg_tag")]
         [XmlElement(ElementName = "epg_tag")]
-        public int epgTagTypeId;
+        public int epgTagTypeId { get; set; }
 
         /// <summary>
         /// Content that correspond to this rule is not available for guests
@@ -69,7 +69,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "block_anonymous_access")]
         [JsonProperty("block_anonymous_access")]
         [XmlElement(ElementName = "block_anonymous_access")]
-        public bool blockAnonymousAccess;
+        public bool blockAnonymousAccess { get; set; }
 
         /// <summary>
         /// Rule type – Movies, TV series or both
@@ -77,23 +77,25 @@ namespace WebAPI.Models.API
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
         [XmlElement(ElementName = "rule_type")]
-        public KalturaParentalRuleType ruleType;
+        public KalturaParentalRuleType ruleType { get; set; }
 
         /// <summary>
         /// Media tag values that trigger rule
         /// </summary>
         [DataMember(Name = "media_tag_values")]
         [JsonProperty("media_tag_values")]
-        [XmlElement(ElementName = "media_tag_values")]
-        public List<KalturaStringValue> mediaTagValues;
+        [XmlArray(ElementName = "media_tag_values")]
+        [XmlArrayItem("item")]
+        public List<KalturaStringValue> mediaTagValues { get; set; }
 
         /// <summary>
         /// EPG tag values that trigger rule
         /// </summary>
         [DataMember(Name = "epg_tag_values")]
         [JsonProperty("epg_tag_values")]
-        [XmlElement(ElementName = "epg_tag_values")]
-        public List<KalturaStringValue> epgTagValues;
+        [XmlArray(ElementName = "epg_tag_values")]
+        [XmlArrayItem("item")]
+        public List<KalturaStringValue> epgTagValues { get; set; }
 
         /// <summary>
         /// Is the rule the default rule of the account
@@ -101,7 +103,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
-        public bool isDefault;
+        public bool isDefault { get; set; }
 
         /// <summary>
         /// Where was this rule defined account, household or user
@@ -109,7 +111,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
         [XmlElement(ElementName = "origin")]
-        public KalturaRuleLevel origin;
+        public KalturaRuleLevel origin { get; set; }
 
     }
 

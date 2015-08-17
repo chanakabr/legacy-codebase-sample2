@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int payment_gateway_id, SerializableDictionary<KalturaStringValue, KalturaStringValue> settings)
+        public bool Delete(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
             
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, int payment_gateway_id, SerializableDictionary<KalturaStringValue, KalturaStringValue> settings)
+        public bool Add(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, int payment_gateway_id, SerializableDictionary<KalturaStringValue, KalturaStringValue> settings)
+        public bool Update(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

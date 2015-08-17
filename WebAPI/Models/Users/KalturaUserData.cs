@@ -30,6 +30,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
         [XmlElement(ElementName = "dynamic_data")]
-        public SerializableDictionary<string, string> userDynamicData { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> userDynamicData { get; set; }
     }
 }

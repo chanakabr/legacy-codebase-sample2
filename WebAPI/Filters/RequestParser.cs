@@ -82,10 +82,12 @@ namespace WebAPI.Filters
                             }
 
                             if (reqParams["ks"] != null)
+                            {
                                 parseKS(actionContext, reqParams["ks"].ToObject<string>());
 
-                            if (KS.GetFromRequest().UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)                            
-                                KS.GetFromRequest().UserId = reqParams["user_id"].ToObject<string>();                            
+                                if (KS.GetFromRequest().UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
+                                    KS.GetFromRequest().UserId = reqParams["user_id"].ToObject<string>();
+                            }
 
                             //if (reqParams["partner_id"] != null)
                             //    HttpContext.Current.Items.Add(REQUEST_PARTNER_ID, reqParams["partner_id"].ToObject(typeof(string)));

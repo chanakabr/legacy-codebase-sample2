@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Asset info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaAssetInfoWrapper : KalturaListResponse 
+    public class KalturaAssetInfoListResponse : KalturaListResponse 
     {
         /// <summary>
         /// Assets
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "metas")]
         [JsonProperty(PropertyName = "metas")]
         [XmlElement("metas")]
-        public SerializableDictionary<KalturaStringValue, KalturaStringValue> Metas { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> Metas { get; set; }
 
         /// <summary>
         /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
@@ -45,7 +45,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         [XmlElement("tags")]
-        public SerializableDictionary<KalturaStringValue, KalturaStringValue> Tags { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> Tags { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
@@ -71,6 +71,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "extra_params", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement("extra_params")]
-        public SerializableDictionary<KalturaStringValue, KalturaStringValue> ExtraParams { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> ExtraParams { get; set; }
     }
 }

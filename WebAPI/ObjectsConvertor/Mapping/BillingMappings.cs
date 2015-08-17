@@ -53,7 +53,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
 
-        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<KalturaStringValue, KalturaStringValue> settings)
+        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<string, KalturaStringValue> settings)
         {
             List<Billing.PaymentGatewaySettings> result = null;
 
@@ -61,12 +61,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new List<PaymentGatewaySettings>();
                 Billing.PaymentGatewaySettings pc;
-                foreach (KeyValuePair<KalturaStringValue, KalturaStringValue> data in settings)
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
-                    if (!string.IsNullOrEmpty(data.Key.value))
+                    if (!string.IsNullOrEmpty(data.Key))
                     {
                         pc = new Billing.PaymentGatewaySettings();
-                        pc.key = data.Key.value;
+                        pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
                     }
@@ -82,18 +82,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<KalturaStringValue, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
+        public static Dictionary<string, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
         {
-            Dictionary<KalturaStringValue, KalturaStringValue> result = null;
+            Dictionary<string, KalturaStringValue> result = null;
 
             if (settings != null && settings.Count() > 0)
             {
-                result = new Dictionary<KalturaStringValue, KalturaStringValue>();
+                result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.key))
                     {
-                        result.Add(new KalturaStringValue() { value = data.key }, new KalturaStringValue() { value = data.value });
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
                     }
                 }
             }
