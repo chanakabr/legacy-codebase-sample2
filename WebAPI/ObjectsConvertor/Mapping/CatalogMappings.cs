@@ -9,6 +9,7 @@ using WebAPI.Utils;
 using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -183,13 +184,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return 0;
         }
 
-        private static Dictionary<string, string> BuildExtraParamsDictionary(EPGChannelProgrammeObject epg)
+        private static Dictionary<string, KalturaStringValue> BuildExtraParamsDictionary(EPGChannelProgrammeObject epg)
         {
-            Dictionary<string, string>  extraParams = new Dictionary<string, string>();
-            
-            extraParams.Add("epg_channel_id ", epg.EPG_CHANNEL_ID);
-            extraParams.Add("epg_id", epg.EPG_IDENTIFIER);
-            extraParams.Add("related_media_id", epg.media_id);
+            Dictionary<string, KalturaStringValue> extraParams = new Dictionary<string, KalturaStringValue>();
+
+            extraParams.Add("epg_channel_id ", new KalturaStringValue() { value = epg.EPG_CHANNEL_ID });
+            extraParams.Add("epg_id", new KalturaStringValue() { value = epg.EPG_IDENTIFIER });
+            extraParams.Add("related_media_id", new KalturaStringValue() { value = epg.media_id });
 
             return extraParams;
         }
@@ -220,65 +221,67 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return tags;
         }
 
-        private static Dictionary<string, string> BuildMetasDictionary(List<EPGDictionary> list)
+        private static Dictionary<string, KalturaStringValue> BuildMetasDictionary(List<EPGDictionary> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, string> metas = new Dictionary<string, string>();
+            Dictionary<string, KalturaStringValue> metas = new Dictionary<string, KalturaStringValue>();
 
             foreach (var meta in list)
             {
-                metas.Add(meta.Key, meta.Value);
+                metas.Add(meta.Key, new KalturaStringValue() { value = meta.Value });
             }
 
             return metas;
         }
 
-        private static Dictionary<string, string> BuildExtraParamsDictionary(MediaObj media)
+        private static Dictionary<string, KalturaStringValue> BuildExtraParamsDictionary(MediaObj media)
         {
-            Dictionary<string, string> extraParams = new Dictionary<string, string>();
+            Dictionary<string, KalturaStringValue> extraParams = new Dictionary<string, KalturaStringValue>();
 
-            extraParams.Add("sys_start_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dStartDate).ToString());
-            extraParams.Add("sys_final_date", SerializationUtils.ConvertToUnixTimestamp(media.m_dFinalDate).ToString());
-            extraParams.Add("external_ids", media.m_ExternalIDs);
+            extraParams.Add("sys_start_date",
+                new KalturaStringValue() { value = SerializationUtils.ConvertToUnixTimestamp(media.m_dStartDate).ToString() });
+            extraParams.Add("sys_final_date",
+                new KalturaStringValue() { value = SerializationUtils.ConvertToUnixTimestamp(media.m_dFinalDate).ToString() });
+            extraParams.Add("external_ids", new KalturaStringValue() { value = media.m_ExternalIDs });
 
             return extraParams;
 
         }
 
-        private static Dictionary<string, string> BuildTagsDictionary(List<Tags> list)
+        private static Dictionary<string, KalturaStringValue> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, string> tags = new Dictionary<string, string>();
+            Dictionary<string, KalturaStringValue> tags = new Dictionary<string, KalturaStringValue>();
 
             foreach (var tag in list)
             {
                 //FIX
-                tags.Add(tag.m_oTagMeta.m_sName, string.Join(";", tag.m_lValues));
+                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValue() { value = string.Join(";", tag.m_lValues) });
             }
 
             return tags;
         }
 
-        private static Dictionary<string, string> BuildMetasDictionary(List<Metas> list)
+        private static Dictionary<string, KalturaStringValue> BuildMetasDictionary(List<Metas> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, string> metas = new Dictionary<string,string>();
+            Dictionary<string, KalturaStringValue> metas = new Dictionary<string, KalturaStringValue>();
 
             foreach (var meta in list)
             {
-                metas.Add(meta.m_oTagMeta.m_sName, meta.m_sValue);
+                metas.Add(meta.m_oTagMeta.m_sName, new KalturaStringValue() { value = meta.m_sValue });
             }
 
             return metas;

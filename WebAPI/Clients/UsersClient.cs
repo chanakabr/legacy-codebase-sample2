@@ -37,7 +37,8 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<KalturaStringValue, KalturaStringValue> extraParams)
+        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, 
+            Dictionary<string, KalturaStringValue> extraParams)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
@@ -50,7 +51,7 @@ namespace WebAPI.Clients
                     List<KeyValuePair> keyValueList = new List<KeyValuePair>();
                     if (extraParams != null)
                     {
-                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key.value, value = p.Value.value }).ToList();
+                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
                     response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
                         group.ShouldSupportSingleLogin, keyValueList.ToArray());
@@ -78,7 +79,8 @@ namespace WebAPI.Clients
         }
 
 
-        public Models.Users.KalturaOTTUser SignUp(int groupId, Models.Users.KalturaUserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data, string password, string affiliateCode)
+        public Models.Users.KalturaOTTUser SignUp(int groupId, Models.Users.KalturaUserBasicData user_basic_data, 
+            Dictionary<string, KalturaStringValue> user_dynamic_data, string password, string affiliateCode)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
@@ -430,7 +432,8 @@ namespace WebAPI.Clients
             return users;
         }
 
-        public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, Models.Users.KalturaUserBasicData user_basic_data, Dictionary<string, string> user_dynamic_data)
+        public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, Models.Users.KalturaUserBasicData user_basic_data, 
+            Dictionary<string, KalturaStringValue> user_dynamic_data)
         {
             WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
             WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
