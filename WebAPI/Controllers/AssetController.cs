@@ -148,6 +148,12 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
+            if (request.with == null)
+                request.with = new List<KalturaCatalogWithHolder>();
+
+            if (request.filter_types == null)
+                request.filter_types = new List<KalturaIntegerValue>();
+
             try
             {
                 // call client

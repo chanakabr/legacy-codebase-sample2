@@ -102,14 +102,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Verifies PPV/Subscription/Collection purchase and entitles the user.
         /// </summary>
-        /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
-        /// <param name="product_id">Identifier for the package from which this content is offered</param>        
-        /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
-        /// <param name="purchase_receipt">The receipt received after the purchase</param>
-        /// <param name="payment_gateway_type">The payment gateway type.  Possible values: Google/Apple</param>
+        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV. Verified to match the purchase details represented by the purchase_token</param>
+        /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_token</param>        
+        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_token</param>
+        /// <param name="purchase_receipt">A unique identifier that was provided by the In-App billing service to validate the purchase</param>
+        /// <param name="payment_gateway_type">The payment gateway name for the of In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-        /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
+        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
         /// Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, Unknown transaction state = 6042
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
