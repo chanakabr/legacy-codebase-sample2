@@ -164,7 +164,7 @@ namespace WebAPI.Clients
             }
 
             transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse>(response.transactions);
-
+            
             return transactions;
         }
 
