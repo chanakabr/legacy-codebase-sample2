@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class TransactionController : ApiController
     {
         /// <summary>
-        /// Performs PPV/Subscription/Collection purchase.
+        /// Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.
         /// </summary>
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="user_id">User to charge </param>
