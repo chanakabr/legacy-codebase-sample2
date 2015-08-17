@@ -15,7 +15,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
     {
         if (!LoginManager.CheckLogin())
             Response.Redirect("login.html");
-        if (!LoginManager.IsPagePermitted("adm_domain_limitation_modules"))
+        if (!LoginManager.IsPagePermitted("adm_domain_limitation_modules.aspx"))
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
