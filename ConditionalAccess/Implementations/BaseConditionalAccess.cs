@@ -12730,19 +12730,19 @@ namespace ConditionalAccess
             return null;
         }
 
-        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwType)
+        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, purchaseToken {5}, paymentGwType {6}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, purchaseToken {5}, paymentGwName {6}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,           // {0}
                 householdId,                                                         // {1}
                 productId,                                                           // {2}   
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,               // {3}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty,       // {4}
                 !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty, // {5}
-                !string.IsNullOrEmpty(paymentGwType) ? paymentGwType : string.Empty);// {6}
+                !string.IsNullOrEmpty(paymentGwName) ? paymentGwName : string.Empty);// {6}
 
             try
             {
@@ -12776,8 +12776,8 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        //response = HandlePurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId,
-                        //                          TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
+                        response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId,
+                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12876,16 +12876,16 @@ namespace ConditionalAccess
             TransactionResponse response = new TransactionResponse();
 
             string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
-                                        siteGUID,                 // {0}
-                                        houseHoldID,              // {1}
-                                        price,                    // {2}
-                                        currency,                 // {3}
-                                        userIP,                   // {4}
-                                        customData,               // {5}
-                                        productID,                // {6}
-                                        (int)transactionType,     // {7}
-                                        billingGuid.ToString(),   // {8}
-                                        paymentGWId);             // {9}
+                                       string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,               // {0}
+                                       houseHoldID,                                                            // {1}
+                                       price,                                                                  // {2}
+                                       string.IsNullOrEmpty(currency) ? currency : string.Empty,               // {3}
+                                       string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                   // {4}
+                                       string.IsNullOrEmpty(customData) ? customData : string.Empty,           // {5}
+                                       productID,                                                              // {6}
+                                       (int)transactionType,                                                   // {7}
+                                       string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,         // {8}
+                                       paymentGWId);                                                           // {9}
 
             try
             {
@@ -12924,6 +12924,63 @@ namespace ConditionalAccess
 
             return response;
         }
+
+        protected TransactionResponse VerifyPurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
+                                                 int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, string paymentGWName, int contentId, string purchaseToken)
+        {
+            TransactionResponse response = new TransactionResponse();
+
+            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, purchaseToken={10}",
+                                        string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,               // {0}
+                                        houseHoldID,                                                            // {1}
+                                        price,                                                                  // {2}
+                                        string.IsNullOrEmpty(currency) ? currency : string.Empty,               // {3}
+                                        string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                   // {4}
+                                        string.IsNullOrEmpty(customData) ? customData : string.Empty,           // {5}
+                                        productID,                                                              // {6}
+                                        (int)transactionType,                                                   // {7}
+                                        string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,         // {8}
+                                        string.IsNullOrEmpty(paymentGWName) ? paymentGWName : string.Empty,     // {9}
+                                        string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty);    // {10}
+
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+                // call new billing method for charge adapter
+                var transactionResponse = wsBillingService.VerifyReceipt(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, purchaseToken, paymentGWName, billingGuid);
+
+                if (transactionResponse != null)
+                {
+                    // convert response to purchase response
+                    response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
+                    response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
+                    response.TransactionID = transactionResponse.TransactionID.ToString();
+                    response.State = transactionResponse.State.ToString();
+                    response.FailReasonCode = transactionResponse.FailReasonCode;
+                    if (transactionResponse.Status != null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
+                    }
+                    else
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status returned from billing service");
+                        log.Error("Received error from billing service. " + logString);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(logString, ex);
+                response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
 
         private ApiObjects.Response.Status ValidatePPVModuleCode(int productID, int contentID, ref PPVModule thePPVModule)
         {

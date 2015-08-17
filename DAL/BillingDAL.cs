@@ -1034,6 +1034,68 @@ namespace DAL
             return res;
         }
 
+        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, string paymentGWName = "", int status = 1, int isActive = 1)
+        {
+            List<PaymentGateway> res = new List<PaymentGateway>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWSettingsListByName");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@paymentGWName", paymentGWName);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        PaymentGateway pgw = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            pgw = new PaymentGateway();
+                            pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            pgw.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            pgw.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval");
+                            pgw.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries");
+                            pgw.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            pgw.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
+                            pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
+                            pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            pgw.IsDefault = isDefault == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("payment_gateway_id =" + pgw.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (pgw.Settings == null)
+                                    {
+                                        pgw.Settings = new List<PaymentGatewaySettings>();
+                                    }
+                                    pgw.Settings.Add(new PaymentGatewaySettings(key, value));
+                                }
+                            }
+                            res.Add(pgw);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<PaymentGateway>();
+            }
+            return res;
+        }
+
         public static bool SetPaymentGWSettings(int groupID, int paymentGWID, List<PaymentGatewaySettings> settings)
         {
             try
@@ -1118,7 +1180,7 @@ namespace DAL
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;                            
+                            pgw.IsDefault = isDefault == 1 ? true : false;
 
                             res.Add(pgw);
                         }
@@ -1160,7 +1222,7 @@ namespace DAL
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;     
+                            pgw.IsDefault = isDefault == 1 ? true : false;
 
                             res.Add(pgw);
                         }
