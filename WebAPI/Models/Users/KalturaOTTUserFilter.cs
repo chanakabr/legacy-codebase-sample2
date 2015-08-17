@@ -21,6 +21,6 @@ namespace WebAPI.Models.Users
         [JsonProperty("user_ids")]
         [XmlArray(ElementName = "user_ids")]
         [XmlArrayItem("item")] 
-        public List<string> UserIDs { get; set; }
+        public List<KalturaStringValue> UserIDs { get; set; }
     }
 }

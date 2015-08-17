@@ -8,6 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -72,7 +73,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public void Delete(int household_id, [ModelBinder(typeof(WebAPI.Utils.SerializationUtils.ConvertCommaDelimitedList<int>))] List<int> media_ids)
+        public void Delete(int household_id, List<KalturaIntegerValue> media_ids)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -85,7 +86,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().RemoveUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, media_ids.ToArray());
+                ClientsManager.UsersClient().RemoveUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, media_ids.Select(x=> x.value).ToArray());
             }
             catch (ClientException ex)
             {
@@ -106,7 +107,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaFavoriteArray List(string media_type = null, int household_id = 0, string udid = null, List<KalturaCatalogWith> with = null, string language = null)
+        public KalturaFavoriteListResponse List(string media_type = null, int household_id = 0, string udid = null, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
@@ -123,7 +124,7 @@ namespace WebAPI.Controllers
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
                     KalturaAssetInfoWrapper assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id,
-                        udid, language, 0, 0, mediaIds, with);
+                        udid, language, 0, 0, mediaIds, with.Select(x=> x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
@@ -146,7 +147,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaFavoriteArray() { Favorites = favoritesFinalList };
+            return new KalturaFavoriteListResponse() { Favorites = favoritesFinalList, TotalCount = favoritesFinalList.Count };
         }
     }
 }

@@ -49,7 +49,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Adapter failure reason code
         /// Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
-        /// No response from payment gateway = 25, Exceeded retry limit = 26       
+        /// No response from payment gateway = 25, Exceeded retry limit = 26, PaymentGateway Internal Server Error = 27
         /// </summary>
         [DataMember(Name = "fail_reason_code")]
         [JsonProperty("fail_reason_code")]

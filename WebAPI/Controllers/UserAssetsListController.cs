@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -25,7 +26,8 @@ namespace WebAPI.Controllers
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
         [Route("get"), HttpPost]
-        public List<KalturaUserAssetsList> Get(string partner_id, List<string> user_ids, KalturaUserAssetsListType list_type, KalturaUserAssetsListItemType asset_type)
+        public List<KalturaUserAssetsList> Get(string partner_id, List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
+            KalturaUserAssetsListItemType asset_type)
         {
             List<KalturaUserAssetsList> response = null;
 
@@ -34,7 +36,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GetItemFromList(groupId, user_ids, list_type, asset_type);
+                response = ClientsManager.UsersClient().GetItemFromList(groupId, user_ids.Select(x => x.value).ToList(), list_type, asset_type);
             }
             catch (ClientException ex)
             {

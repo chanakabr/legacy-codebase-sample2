@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [DataContract(Name = "Entitlements", Namespace = "")]
     [XmlRoot("Entitlements")]
-    public class KalturaEntitlementArray : KalturaOTTObject
+    public class KalturaEntitlementListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of entitlements

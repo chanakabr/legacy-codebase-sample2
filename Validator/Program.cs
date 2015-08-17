@@ -22,7 +22,7 @@ namespace Validator
             var tt = asm.GetType("WebAPI.Models.General.KalturaOTTObject");
 
             bool found = false;
-            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")))
+            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")&& t.BaseType != typeof(Attribute)))
             {
                 if (!type.Name.StartsWith("Kaltura"))
                 {

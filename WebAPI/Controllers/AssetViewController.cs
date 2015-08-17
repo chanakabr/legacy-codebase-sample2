@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(),
                     language, pager.PageIndex, pager.PageSize, filterStatusHelper, filter.days, filter.filter_types != null ?
-                    filter.filter_types.Select(x => x.value).ToList() : null, filter.with);
+                    filter.filter_types.Select(x => x.value).ToList() : null, filter.with.Select(x=> x.type).ToList());
             }
             catch (ClientException ex)
             {
