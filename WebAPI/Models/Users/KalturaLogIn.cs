@@ -39,6 +39,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "extra_params")]
         [JsonProperty("extra_params")]
         [XmlElement(ElementName = "extra_params")]
-        public SerializableDictionary<string, string> ExtraParams { get; set; }
+        public SerializableDictionary<KalturaStringValue, KalturaStringValue> ExtraParams { get; set; }
     }
 }

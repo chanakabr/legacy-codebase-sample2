@@ -731,8 +731,11 @@
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
+    <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
+    <Compile Include="Models\General\KalturaIntegerValue.cs" />
+    <Compile Include="Models\General\KalturaStringValue.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />

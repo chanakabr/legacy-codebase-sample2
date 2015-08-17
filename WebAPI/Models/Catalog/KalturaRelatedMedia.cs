@@ -22,7 +22,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "media_types")]
         [JsonProperty(PropertyName = "media_types")]
         [XmlArray(ElementName = "media_types")]
-        [XmlArrayItem("item")] 
-        public List<int> media_types { get; set; }
+        [XmlArrayItem("item")]
+        public List<KalturaIntegerValue> media_types { get; set; }
     }
 }

@@ -56,8 +56,8 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "file_types")]
         [JsonProperty("file_types")]
         [XmlArray(ElementName = "file_types")]
-        [XmlArrayItem("item")] 
-        public List<int> FileTypes { get; set; }
+        [XmlArrayItem("item")]
+        public List<KalturaIntegerValue> FileTypes { get; set; }
         
         /// <summary>
         /// Denotes whether or not this subscription can be renewed

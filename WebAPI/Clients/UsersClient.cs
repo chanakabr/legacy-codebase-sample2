@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> extraParams)
+        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<KalturaStringValue, KalturaStringValue> extraParams)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
@@ -50,7 +50,7 @@ namespace WebAPI.Clients
                     List<KeyValuePair> keyValueList = new List<KeyValuePair>();
                     if (extraParams != null)
                     {
-                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
+                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key.value, value = p.Value.value }).ToList();
                     }
                     response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
                         group.ShouldSupportSingleLogin, keyValueList.ToArray());

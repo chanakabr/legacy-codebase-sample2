@@ -5,6 +5,7 @@ using System.Linq;
 using WebAPI.Billing;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -52,7 +53,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
 
-        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<string, string> settings)
+        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<KalturaStringValue, KalturaStringValue> settings)
         {
             List<Billing.PaymentGatewaySettings> result = null;
 
@@ -60,13 +61,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new List<PaymentGatewaySettings>();
                 Billing.PaymentGatewaySettings pc;
-                foreach (KeyValuePair<string, string> data in settings)
+                foreach (KeyValuePair<KalturaStringValue, KalturaStringValue> data in settings)
                 {
-                    if (!string.IsNullOrEmpty(data.Key))
+                    if (!string.IsNullOrEmpty(data.Key.value))
                     {
                         pc = new Billing.PaymentGatewaySettings();
-                        pc.key = data.Key;
-                        pc.value = data.Value;
+                        pc.key = data.Key.value;
+                        pc.value = data.Value.value;
                         result.Add(pc);
                     }
                 }
@@ -81,18 +82,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, string> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
+        public static Dictionary<KalturaStringValue, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
         {
-            Dictionary<string, string> result = null;
+            Dictionary<KalturaStringValue, KalturaStringValue> result = null;
 
             if (settings != null && settings.Count() > 0)
             {
-                result = new Dictionary<string, string>();
+                result = new Dictionary<KalturaStringValue, KalturaStringValue>();
                 foreach (var data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.key))
                     {
-                        result.Add(data.key, data.value);
+                        result.Add(new KalturaStringValue() { value = data.key }, new KalturaStringValue() { value = data.value });
                     }
                 }
             }

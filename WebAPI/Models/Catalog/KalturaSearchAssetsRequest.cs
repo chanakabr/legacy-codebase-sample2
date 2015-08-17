@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -21,8 +22,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
         [XmlArray(ElementName = "filter_types")]
-        [XmlArrayItem("item")] 
-        public List<int> filter_types { get; set; }
+        [XmlArrayItem("item")]
+        public List<KalturaIntegerValue> filter_types { get; set; }
 
         /// <summary>
         /// <![CDATA[

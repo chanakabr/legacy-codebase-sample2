@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
-                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types, request.with);
+                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types.Select(x=> x.value).ToList(), request.with);
             }
             catch (ClientException ex)
             {

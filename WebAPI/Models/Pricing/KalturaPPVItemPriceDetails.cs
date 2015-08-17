@@ -110,8 +110,8 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "related_media_file_ids")]
         [JsonProperty("related_media_file_ids")]
         [XmlArray(ElementName = "related_media_file_ids")]
-        [XmlArrayItem("item")] 
-        public List<int> RelatedMediaFileIds { get; set; }
+        [XmlArrayItem("item")]
+        public List<KalturaIntegerValue> RelatedMediaFileIds { get; set; }
 
         /// <summary>
         /// If the item already purchased - since when the user can start watching the item

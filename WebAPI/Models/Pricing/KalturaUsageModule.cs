@@ -93,7 +93,5 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("is_offline_playback")]
         [XmlElement(ElementName = "is_offline_playback")]
         public bool IsOfflinePlayback { get; set; }
-
-
     }
 }

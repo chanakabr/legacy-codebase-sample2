@@ -204,7 +204,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SetPaymentGatewaySettings(int groupId, int paymentGWID, Dictionary<string, string> payment_gateway_settings)
+         public bool SetPaymentGatewaySettings(int groupId, int paymentGWID, Dictionary<KalturaStringValue, KalturaStringValue> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -265,7 +265,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool DeletePaymentGatewaySettings(int groupId, int paymentGwID, Dictionary<string, string> payment_gateway_settings)
+        public bool DeletePaymentGatewaySettings(int groupId, int paymentGwID, Dictionary<KalturaStringValue, KalturaStringValue> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -359,7 +359,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool InsertPaymentGatewaySettings(int groupId, int paymentGatewayId, Dictionary<string, string> payment_gateway_settings)
+        public bool InsertPaymentGatewaySettings(int groupId, int paymentGatewayId, Dictionary<KalturaStringValue, KalturaStringValue> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);

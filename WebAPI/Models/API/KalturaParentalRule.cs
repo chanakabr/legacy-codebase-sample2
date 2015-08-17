@@ -85,7 +85,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "media_tag_values")]
         [JsonProperty("media_tag_values")]
         [XmlElement(ElementName = "media_tag_values")]
-        public List<string> mediaTagValues;
+        public List<KalturaStringValue> mediaTagValues;
 
         /// <summary>
         /// EPG tag values that trigger rule
@@ -93,7 +93,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "epg_tag_values")]
         [JsonProperty("epg_tag_values")]
         [XmlElement(ElementName = "epg_tag_values")]
-        public List<string> epgTagValues;
+        public List<KalturaStringValue> epgTagValues;
 
         /// <summary>
         /// Is the rule the default rule of the account
