@@ -1164,9 +1164,39 @@ namespace TVPApi
 
                         break;
                     }
+                case UserItemType.All:
+                    {
+                        List<Media> favorites = GetUserItems(initObj, UserItemType.Favorite, mediaType, picSize, int.MaxValue, 0, groupID);
+                        List<Media> packages = GetUserItems(initObj, UserItemType.Package, mediaType, picSize, int.MaxValue, 0, groupID);
+                        List<Media> rental = GetUserItems(initObj, UserItemType.Rental, mediaType, picSize, int.MaxValue, 0, groupID);
 
+                        List<Media> finalList = new List<Media>();
+
+                        if (favorites != null)
+                        {
+                            finalList.AddRange(favorites);
+                        }
+
+                        if (packages != null)
+                        {
+                            finalList.AddRange(packages);
+                        }
+
+                        if (rental != null)
+                        {
+                            finalList.AddRange(rental);
+                        }
+
+                        int startIndex = (pageIndex) * pageSize;
+
+                        retVal = finalList.Skip(startIndex).Take(pageSize).ToList();
+
+                        break;
+                    }
                 default:
-                    break;
+                    {
+                        break;
+                    }
             }
             //LogManager.Instance.Log(groupID, "UserItems", string.Format("Found {0} medias from loader", (mediaInfo.Item != null && mediaInfo.Item.Count > 0) ? mediaInfo.Item.Count.ToString() : "0"));
             if (mediaInfo != null && mediaInfo.Item != null && mediaInfo.Item.Count > 0)
