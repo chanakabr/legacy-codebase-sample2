@@ -14,6 +14,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        public KalturaSubscriptionListResponse Get(string partner_id, int[] subscriptions_ids, string udid = null, string language = null)
+        public KalturaSubscriptionListResponse Get(string partner_id, KalturaIntegerValue[] subscriptions_ids, string udid = null, string language = null)
         {
             List<KalturaSubscription> subscriptions = null;
 
@@ -84,7 +85,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids.Select(x => x.ToString()).ToList(),
+                subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptions_ids.Select(x => x.value.ToString()).ToList(),
                     udid, language);
             }
             catch (ClientException ex)
