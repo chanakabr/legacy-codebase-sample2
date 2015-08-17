@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWith> with = null)
+        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaCatalogWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().HouseholdID);
 
-                if (with != null && with.Contains(KalturaHouseholdWith.users_info))
+                if (with != null && with.Where(x=> x.type == KalturaHouseholdWith.users_info).Count() > 0)
                 {
                     // get users ids lists
                     var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
