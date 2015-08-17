@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [RoutePrefix("_service/user/action")]
+    [RoutePrefix("_service/OTTUser/action")]
     public class OTTUserController : ApiController
     {
         /// <summary>
@@ -36,11 +36,7 @@ namespace WebAPI.Controllers
         {
             int partnerID = int.Parse(partner_id);
 
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
-            string payload = KS.preparePayloadData(l);
-
-            return AuthorizationManager.GenerateSession("0", partnerID, false, false, payload);
+            return AuthorizationManager.GenerateSession("0", partnerID, false, false, udid);
         }
 
         /// <summary>
