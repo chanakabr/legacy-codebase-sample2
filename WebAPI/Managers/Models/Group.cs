@@ -54,6 +54,24 @@ namespace WebAPI.Managers.Models
         [JsonProperty(PropertyName = "should_support_friendly_url")]
         public bool ShouldSupportFriendlyURL { get; set; }
 
+        [JsonProperty(PropertyName = "ks_expiration_seconds")]
+        public long KSExpirationSeconds { get; set; }
+
+        [JsonProperty(PropertyName = "refresh_token_expiration_seconds")]
+        public long RefreshTokenExpirationSeconds { get; set; }
+
+        [JsonProperty("is_refresh_token_extendable")]
+        public bool IsRefreshTokenExtendable { get; set; }
+
+        [JsonProperty("refresh_expiration_for_pin_login_seconds")]
+        public long RefreshExpirationForPinLoginSeconds { get; set; }
+
+        [JsonProperty("is_switching_users_allowed")]
+        public bool IsSwitchingUsersAllowed { get; set; }
+
+        [JsonProperty("token_key_format")]
+        public string TokenKeyFormat { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
     }

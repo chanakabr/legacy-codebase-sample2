@@ -8,6 +8,7 @@ using System.Web.Routing;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
@@ -31,18 +32,15 @@ namespace WebAPI.Controllers
         /// <param name="udid">The caller device's UDID</param>
         /// <returns>KalturaLoginResponse</returns>
         [Route("anonymousLogin"), HttpPost]
-        public KalturaLoginResponse AnonymousLogin(string partner_id, string udid = null)
+        public KalturaLoginSession AnonymousLogin(string partner_id, string udid = null)
         {
             int partnerID = int.Parse(partner_id);
 
-            string userSecret = GroupsManager.GetGroup(partnerID).UserSecret;
             var l = new List<KeyValuePair<string, string>>();
             l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
             string payload = KS.preparePayloadData(l);
 
-            KS ks = new KS(userSecret, partner_id, "0", 24 * 60 * 60, KalturaSessionType.USER, null, string.Empty);
-
-            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = null };
+            return AuthorizationManager.GenerateSession("0", partnerID, false, false, payload);
         }
 
         /// <summary>
@@ -79,13 +77,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            string userSecret = GroupsManager.GetGroup(groupId).UserSecret;
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
-            string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
-
-            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), groupId, false, true, udid), User = response };
         }
 
         /// <summary>
@@ -128,13 +120,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            string userSecret = GroupsManager.GetGroup(partnerID).UserSecret;
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
-            string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
-
-            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerID, false, false, udid), User = response };
         }
 
         /// <summary>
@@ -172,13 +158,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            string userSecret = GroupsManager.GetGroup(partnerId).UserSecret;
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(KS.PAYLOAD_UDID, udid));
-            string payload = KS.preparePayloadData(l);
-            KS ks = new KS(userSecret, partner_id, response.Id.ToString(), 32982398, KalturaSessionType.USER, payload, string.Empty);
-
-            return new KalturaLoginResponse() { KS = ks.ToString(), RefreshToken = Guid.NewGuid().ToString(), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
         }
 
         /// <summary>
@@ -609,8 +589,6 @@ namespace WebAPI.Controllers
         public KalturaGenericRuleListResponse GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
-
-            
             
             int groupId = int.Parse(partner_id);
                 

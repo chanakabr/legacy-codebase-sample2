@@ -13,7 +13,7 @@ using KLogMonitor;
 
 namespace WebAPI.ClientManagers
 {
-    public enum CouchbaseBucket { Groups = 0 }
+    public enum CouchbaseBucket { Groups = 0, Tokens = 1 }
 
     public class CouchbaseManager
     {

@@ -9,27 +9,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
-    /// <summary>
-    /// Login response
-    /// </summary>
     public class KalturaLoginResponse : KalturaOTTObject
     {
-        /// <summary>
-        /// Access token in a KS format
-        /// </summary>
-        [DataMember(Name = "ks")]
-        [JsonProperty("ks")]
-        [XmlElement(ElementName = "ks")]
-        public string KS { get; set; }
-
-        /// <summary>
-        /// Refresh Token
-        /// </summary>
-        [DataMember(Name = "refresh_token")]
-        [JsonProperty("refresh_token")]
-        [XmlElement(ElementName = "refresh_token")]
-        public string RefreshToken { get; set; }
-
         /// <summary>
         /// User
         /// </summary>
@@ -37,5 +18,13 @@ namespace WebAPI.Models.Users
         [JsonProperty("user")]
         [XmlElement(ElementName = "user")]
         public KalturaOTTUser User { get; set; }
+
+        /// <summary>
+        /// Kaltura login session details
+        /// </summary>
+        [DataMember(Name = "login_session")]
+        [JsonProperty("login_session")]
+        [XmlElement(ElementName = "login_session")]
+        public KalturaLoginSession LoginSession { get; set; }
     }
 }

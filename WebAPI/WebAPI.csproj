@@ -708,6 +708,8 @@
     <Compile Include="Filters\RequestParser.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
+    <Compile Include="Managers\AuthorizationManager.cs" />
+    <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
@@ -774,13 +776,14 @@
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteListResponse.cs" />
     <Compile Include="Models\Users\KalturaKeyValue.cs" />
-    <Compile Include="Models\Users\KalturaLoginResponse.cs" />
+    <Compile Include="Models\Users\KalturaLoginSession.cs" />
     <Compile Include="Models\Users\KalturaBaseOTTUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
