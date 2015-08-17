@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class VerifyReciptRequest : TransactionRequest
+    public class VerifyReceiptRequest : TransactionRequest
     {
         public string purchaseToken;
         public string paymentGatewayType;

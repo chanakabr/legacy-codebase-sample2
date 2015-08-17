@@ -12876,15 +12876,15 @@ namespace ConditionalAccess
             TransactionResponse response = new TransactionResponse();
 
             string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
-                                       string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,               // {0}
+                                       !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                        houseHoldID,                                                            // {1}
                                        price,                                                                  // {2}
-                                       string.IsNullOrEmpty(currency) ? currency : string.Empty,               // {3}
-                                       string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                   // {4}
-                                       string.IsNullOrEmpty(customData) ? customData : string.Empty,           // {5}
+                                       !string.IsNullOrEmpty(currency) ? currency : string.Empty,              // {3}
+                                       !string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                  // {4}
+                                       !string.IsNullOrEmpty(customData) ? customData : string.Empty,          // {5}
                                        productID,                                                              // {6}
                                        (int)transactionType,                                                   // {7}
-                                       string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,         // {8}
+                                       !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
                                        paymentGWId);                                                           // {9}
 
             try
@@ -12931,17 +12931,17 @@ namespace ConditionalAccess
             TransactionResponse response = new TransactionResponse();
 
             string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, purchaseToken={10}",
-                                        string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,               // {0}
+                                        !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                         houseHoldID,                                                            // {1}
                                         price,                                                                  // {2}
-                                        string.IsNullOrEmpty(currency) ? currency : string.Empty,               // {3}
-                                        string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                   // {4}
-                                        string.IsNullOrEmpty(customData) ? customData : string.Empty,           // {5}
+                                        !string.IsNullOrEmpty(currency) ? currency : string.Empty,              // {3}
+                                        !string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                  // {4}
+                                        !string.IsNullOrEmpty(customData) ? customData : string.Empty,          // {5}
                                         productID,                                                              // {6}
                                         (int)transactionType,                                                   // {7}
-                                        string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,         // {8}
-                                        string.IsNullOrEmpty(paymentGWName) ? paymentGWName : string.Empty,     // {9}
-                                        string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty);    // {10}
+                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
+                                        !string.IsNullOrEmpty(paymentGWName) ? paymentGWName : string.Empty,    // {9}
+                                        !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty);   // {10}
 
             try
             {
