@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaBillingTransactions List(string partner_id, string user_id, KalturaFilterPager pager = null)
+        public KalturaBillingTransactionListResponse List(string partner_id, string user_id, KalturaFilterPager pager = null)
         {
-            KalturaBillingTransactions response = new KalturaBillingTransactions();
+            KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 
             int groupId = int.Parse(partner_id);
 

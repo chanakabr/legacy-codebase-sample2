@@ -29,59 +29,8 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
-    public class KalturaAssetInfo : KalturaOTTObject, KalturaIAssetable
-    {
-        /// <summary>
-        /// Unique identifier for the asset
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
-
-        /// <summary>
-        /// Identifies the asset type (EPG, Movie, TV Series, etc). 
-        /// Possible values: 0 – EPG linear programs, or any asset type ID according to the asset types IDs defined in the system.
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public int Type { get; set; }
-
-        /// <summary>
-        /// Asset name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Asset description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty(PropertyName = "description")]
-        [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
-
-        /// <summary>
-        /// Collection of images details that can be used to represent this asset
-        /// </summary>
-        [DataMember(Name = "images")]
-        [JsonProperty(PropertyName = "images")]
-        [XmlArray(ElementName = "images")]
-        [XmlArrayItem("item")] 
-        public List<KalturaMediaImage> Images { get; set; }
-
-        /// <summary>
-        /// Files
-        /// </summary>
-        [DataMember(Name = "files", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "files", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "files")]
-        [XmlArrayItem("item")] 
-        public List<KalturaMediaFile> Files { get; set; }
-
+    public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
+    {        
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
@@ -113,14 +62,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "end_date")]
         [XmlElement(ElementName = "end_date")]
         public long EndDate { get; set; }
-
-        /// <summary>
-        /// Collection of add-on statistical information for the media. See AssetStats model for more information
-        /// </summary>
-        [DataMember(Name = "stats", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "stats")]
-        public KalturaAssetStatistics Statistics { get; set; }
 
         /// <summary>
         /// A collection of additional key value pairs that are available per asset type. Possible keys: 

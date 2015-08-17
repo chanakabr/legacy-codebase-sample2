@@ -48,7 +48,7 @@ namespace WebAPI.ObjectsConvertor
                 {
                     // get files data (media only)
                     if (withList.Contains(KalturaCatalogWith.files) && item.AssetType == eAssetTypes.MEDIA)
-                        assetInfo.Files = Mapper.Map<List<KalturaMediaFile>>(((MediaObj)item).m_lFiles);
+                        assetInfo.MediaFiles = Mapper.Map<List<KalturaMediaFile>>(((MediaObj)item).m_lFiles);
 
                     // get images data
                     if (withList.Contains(KalturaCatalogWith.images))
@@ -102,7 +102,7 @@ namespace WebAPI.ObjectsConvertor
 
             foreach (var item in assetBaseList)
             {
-                var assetInfo = Mapper.Map<KalturaSlimAssetInfo>(item);
+                var assetInfo = Mapper.Map<KalturaBaseAssetInfo>(item);
 
                 if (with != null)
                 {
