@@ -3278,6 +3278,11 @@ namespace ConditionalAccess
                             else // no domain id was sent
                             {
                                 houseHoldID = response.m_user.m_domianID;
+
+                                if (houseHoldID == 0)
+                                {
+                                    status = ResponseStatus.UserNotIndDomain;
+                                }
                             }
                             
                             if (response.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
