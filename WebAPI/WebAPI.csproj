@@ -730,6 +730,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
+    <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
