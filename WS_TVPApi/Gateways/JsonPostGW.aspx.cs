@@ -13,6 +13,8 @@ using System.Xml;
 using KLogMonitor;
 using System.Reflection;
 using TVPPro.SiteManager.Helper;
+using System.Security.Cryptography;
+using System.Configuration;
 
 public partial class Gateways_JsonPostGW : BaseGateway
 {
@@ -40,6 +42,15 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
 
             JObject json = JObject.Parse(sJsonRequest);
+
+            try
+            {
+                if (json["initObj"] is JValue)
+                {
+                    json = DecryptInitObj(json);
+                }
+            }
+            catch (Exception ex) { }
 
             foreach (KeyValuePair<string, JToken> pair in json)
             {
@@ -108,5 +119,50 @@ public partial class Gateways_JsonPostGW : BaseGateway
         {
             queryServices.ProcessRequest(sJsonRequest);
         }
+    }
+
+    private JObject DecryptInitObj(JObject data)
+    {
+        if (data != null && data["initObj"] != null)
+        {
+            string initObj = data["initObj"].ToString();
+
+            string plain_initObj = DescryptAES256(Convert.FromBase64String(initObj));
+            data["initObj"] = JObject.Parse(plain_initObj);
+        }
+
+        return data;
+    }
+
+    private string DescryptAES256(byte[] cipherText)
+    {
+        string plaintext = null;
+        //var message = "this is my message"
+        var key = ConfigurationManager.AppSettings["initObj_key"];
+        var sha256 = new SHA256CryptoServiceProvider();
+        var pwBytes = Encoding.UTF8.GetBytes(key);
+        var res = sha256.ComputeHash(pwBytes);
+
+        AesManaged aes = new AesManaged();
+        aes.Mode = CipherMode.CBC;
+        aes.KeySize = 256;
+        aes.IV = new byte[16];
+        aes.Key = res;
+        ICryptoTransform crypto = aes.CreateDecryptor(aes.Key, aes.IV);
+
+        using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+        {
+            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, crypto, CryptoStreamMode.Read))
+            {
+                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                {
+
+                    // Read the decrypted bytes from the decrypting stream 
+                    // and place them in a string.
+                    plaintext = srDecrypt.ReadToEnd();
+                }
+            }
+        }
+        return plaintext;
     }
 }
