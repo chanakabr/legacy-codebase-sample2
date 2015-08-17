@@ -379,7 +379,7 @@ namespace WebAPI.Controllers
             List<int> usersIds;
             try
             {
-                usersIds = filter.UserIDs.Select(x => int.Parse(x)).Distinct().ToList();
+                usersIds = filter.UserIDs.Select(x => int.Parse(x.value)).Distinct().ToList();
             }
             catch
             {
