@@ -575,8 +575,10 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        internal void GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
+        internal bool  GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
+            WebAPI.ConditionalAccess.Status response = null;
+
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -588,7 +590,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    ConditionalAccess.GrantEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id, household_id, content_id,
+                    response = ConditionalAccess.GrantEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id, household_id, content_id,
                         product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
                 }
             }
@@ -597,6 +599,18 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
     }
 }

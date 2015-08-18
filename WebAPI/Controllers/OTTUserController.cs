@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
 
             if (request == null)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Login details are null");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "request cannot be empty");
             }
             if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
@@ -117,6 +117,42 @@ namespace WebAPI.Controllers
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerID, false, false, udid), User = response };
+        }
+
+        /// <summary>
+        /// Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="refresh_token">Refresh token</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns></returns>
+        [Route("refreshSession"), HttpPost]
+        public KalturaLoginSession RefreshSession(string partner_id, string refresh_token, string udid = null)
+        {
+            KalturaLoginSession response = null;
+
+            int partnerId = int.Parse(partner_id);
+
+            if (string.IsNullOrEmpty(refresh_token))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh_token cannot be empty");
+            }
+            try
+            {
+                // call client
+                response = AuthorizationManager.RefreshSession(refresh_token, partnerId, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
         }
 
         /// <summary>
