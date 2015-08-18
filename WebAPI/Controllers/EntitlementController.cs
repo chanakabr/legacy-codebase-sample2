@@ -176,9 +176,9 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
-        [Route("get"), HttpPost]
+        [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public void Get(int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public void Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
