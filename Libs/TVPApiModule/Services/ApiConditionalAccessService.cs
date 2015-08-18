@@ -1571,5 +1571,33 @@ namespace TVPApiModule.Services
             return response;
         }
 
+        public bool GrantEntitlements(string userId, int contentId, int productId, eTransactionType productType, bool history)
+        {
+            bool response = false;
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.GrantEntitlements(m_wsUserName, m_wsPassword, userId, 0, contentId, productId ,productType, SiteHelper.GetClientIP(), string.Empty, history);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat(@"Error calling webservice protocol : GrantEntitlements, Error Message: {0}, params: userId: {1}, contentId: {2}, productId: {3} 
+                    , productType: {4}, history: {5}",
+                    ex.Message,                                 //{0}
+                    userId != null ? userId : string.Empty,     //{1}                    
+                    contentId,                                 //{2}
+                    productId,                                 //{3}
+                    productType.ToString(),                    //{4}
+                    history.ToString()                         //{5}                    
+                    );
+            }
+
+            return response;
+        }
+
+
     }
 }

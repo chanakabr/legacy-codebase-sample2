@@ -1493,5 +1493,43 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.")]
+        [PrivateMethod]
+        public bool GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history)
+        {
+            bool response = false;
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GrantEntitlements", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return false;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GrantEntitlements(user_id, content_id, product_id, product_type, history);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = false;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = false;                
+            }
+
+            return response;
+        }
     }
 }
