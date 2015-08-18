@@ -13514,20 +13514,21 @@ namespace ConditionalAccess
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 TvinciPricing.Subscription subscription = null;
-                TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, string.Empty, deviceName);
+                TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, 
+                    ref priceReason, ref subscription, country, string.Empty, deviceName);
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
 
-                if (priceReason != PriceReason.ForPurchase || !entitleToPreview)
+                if (priceReason != PriceReason.ForPurchase &&  !entitleToPreview)
                 {
                     // item not for purchase
                     status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
                     return status;
                 }
 
                 // item is for purchase
-                if (priceResponse != null)
+                if (priceResponse == null)
                 {
                     // incorrect price
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
@@ -13658,11 +13659,11 @@ namespace ConditionalAccess
 
                 bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
 
-                if (priceReason != PriceReason.ForPurchase || !isEntitledToPreviewModule)
+                if (priceReason != PriceReason.ForPurchase &&  !isEntitledToPreviewModule)
                 {
                     // not for purchase
                     status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
                     return status;
                 }
 
@@ -13670,7 +13671,8 @@ namespace ConditionalAccess
                 {
                     // incorrect price
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
+                    
                     return status;
                 }
 

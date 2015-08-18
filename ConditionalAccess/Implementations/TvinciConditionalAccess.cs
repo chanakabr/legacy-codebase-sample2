@@ -729,41 +729,31 @@ namespace ConditionalAccess
             {
                 // update coupon uses
                 HandleCouponUses(subscription, string.Empty, siteguid, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
-                if (billingTransactionId > 0)
+
+                long previewModuleID = 0;
+                bool usageModuleExists = (subscription != null && subscription.m_oUsageModule != null);
+                if (subscription.m_oPreviewModule != null)
                 {
-                    long previewModuleID = 0;
-                    bool usageModuleExists = (subscription != null && subscription.m_oUsageModule != null);
-                    if (subscription.m_oPreviewModule != null)
-                    {
-                        previewModuleID = subscription.m_oPreviewModule.m_nID;
-                    }
-
-                    // get subscription end date
-                    DateTime subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
-
-                    // grant entitlement
-                    purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
-                                 deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                                 previewModuleID, entitlementDate, subscriptionEndDate, entitlementDate, houseHoldId, billingGuid);
-
-                    if (purchaseId == 0)
-                    {
-                        // entitlement failed
-                        log.ErrorFormat("Failed to insert subscription purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
-                                        billingTransactionId, // {0}
-                                        siteguid,             // {1}
-                                        productId);           // {2}
-                    }
+                    previewModuleID = subscription.m_oPreviewModule.m_nID;
                 }
-                else
+
+                // get subscription end date
+                DateTime subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
+
+                // grant entitlement
+                purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
+                             deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
+                             previewModuleID, entitlementDate, subscriptionEndDate, entitlementDate, houseHoldId, billingGuid);
+
+                if (purchaseId == 0)
                 {
-                    // no id in billing transactions
-                    log.ErrorFormat("No billing transactions ID. siteguid: {0}, Purchase ID: {1}, Sub Code: {2}, Coupon Code: {3}",
-                                    siteguid,   // {0}
-                                    purchaseId, // {1}
-                                    productId,  // {2}
-                                    coupon);    // {3}
+                    // entitlement failed
+                    log.ErrorFormat("Failed to insert subscription purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
+                                    billingTransactionId, // {0}
+                                    siteguid,             // {1}
+                                    productId);           // {2}
                 }
+
             }
             catch (Exception ex)
             {
@@ -781,37 +771,27 @@ namespace ConditionalAccess
             {
                 // update coupon uses
                 HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID);
-                if (billingTransactionId > 0)
+
+                bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
+
+                // get collection end date
+                DateTime collectionEndDate = CalcCollectionEndDate(collection, entitlementDate);
+
+                // grant entitlement
+                purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
+                                                                         deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
+                                                                         usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
+                                                                         entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
+
+                if (purchaseId < 1)
                 {
-                    bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
-
-                    // get collection end date
-                    DateTime collectionEndDate = CalcCollectionEndDate(collection, entitlementDate);
-
-                    // grant entitlement
-                    purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
-                                                                             deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                                                                             usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
-                                                                             entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
-
-                    if (purchaseId < 1)
-                    {
-                        // entitlement failed
-                        log.ErrorFormat("Failed to insert collection purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
-                                        billingTransactionId, // {0}
-                                        siteGUID,             // {1}
-                                        productID);           // {2}
-                    }
+                    // entitlement failed
+                    log.ErrorFormat("Failed to insert collection purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
+                                    billingTransactionId, // {0}
+                                    siteGUID,             // {1}
+                                    productID);           // {2}
                 }
-                else
-                {
-                    // no id in billing transactions
-                    log.ErrorFormat("HandleCollectionBillingSuccess - No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Col Code: {2} , Coupon Code: {3}",
-                                    siteGUID,    // {0}
-                                    purchaseId,  // {1}
-                                    productID,   // {2}
-                                    coupon);     // {3}
-                }
+
             }
             catch (Exception ex)
             {
