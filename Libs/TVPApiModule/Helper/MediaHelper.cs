@@ -1166,9 +1166,36 @@ namespace TVPApi
                     }
                 case UserItemType.All:
                     {
-                        List<Media> favorites = GetUserItems(initObj, UserItemType.Favorite, mediaType, picSize, int.MaxValue, 0, groupID);
-                        List<Media> packages = GetUserItems(initObj, UserItemType.Package, mediaType, picSize, int.MaxValue, 0, groupID);
-                        List<Media> rental = GetUserItems(initObj, UserItemType.Rental, mediaType, picSize, int.MaxValue, 0, groupID);
+                        List<Media> favorites = null;
+                        List<Media> packages = null;
+                        List<Media> rentals = null;
+
+                        try
+                        {
+                            favorites = GetUserItems(initObj, UserItemType.Favorite, mediaType, picSize, int.MaxValue, 0, groupID);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        try
+                        {
+                            packages = GetUserItems(initObj, UserItemType.Package, mediaType, picSize, int.MaxValue, 0, groupID);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        try
+                        {
+                            rentals = GetUserItems(initObj, UserItemType.Rental, mediaType, picSize, int.MaxValue, 0, groupID);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
 
                         List<Media> finalList = new List<Media>();
 
@@ -1182,9 +1209,9 @@ namespace TVPApi
                             finalList.AddRange(packages);
                         }
 
-                        if (rental != null)
+                        if (rentals != null)
                         {
-                            finalList.AddRange(rental);
+                            finalList.AddRange(rentals);
                         }
 
                         int startIndex = (pageIndex) * pageSize;
