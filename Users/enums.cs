@@ -214,4 +214,12 @@ namespace Users
         Success = 0,
         Failure = 1
     }
+
+    public enum DeviceRegistrationStatus
+    {
+        Unknown = 0,
+        NotRegistered = 1,
+        Registered = 2,
+        RegisteredToAnotherDomain = 3
+    }
 }

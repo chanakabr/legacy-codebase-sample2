@@ -120,6 +120,7 @@
     <Compile Include="Cache\DomainsCache.cs" />
     <Compile Include="ChangeDLMObj.cs" />
     <Compile Include="DeviceFamilyLimitations.cs" />
+    <Compile Include="DeviceRegistrationStatusResponse.cs" />
     <Compile Include="DeviceResponse.cs" />
     <Compile Include="DLMResponse.cs" />
     <Compile Include="DomainInfo.cs" />

@@ -1289,5 +1289,61 @@ namespace Users
             }
             return domain;
         }
+
+        public virtual DeviceRegistrationStatusResponse GetDeviceRegistrationStatus(string udid, int domainId)
+        {
+            DeviceRegistrationStatusResponse response = new DeviceRegistrationStatusResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            
+            try
+            {
+                // get device
+                int deviceID = Device.GetDeviceIDByUDID(udid, m_nGroupID);
+
+                // device not found - device not registered
+                if (deviceID == 0)
+                {
+                    response.DeviceRegistrationStatus = DeviceRegistrationStatus.NotRegistered;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                // device found
+                else
+                {
+                    // get device domains
+                    var domains = Domain.GetDeviceDomains(deviceID, m_nGroupID);
+
+                    // no domains found for device - device not registered
+                    if (domains == null || domains.Count == 0)
+                    {
+                        response.DeviceRegistrationStatus = DeviceRegistrationStatus.NotRegistered;
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    // domains found
+                    else
+                    {
+                        // look for the supplied domain
+                        var domain = domains.Where(d => d.m_nDomainID == domainId).FirstOrDefault();
+
+                        // domain found - device registered
+                        if (domain != null)
+                        {
+                            response.DeviceRegistrationStatus = DeviceRegistrationStatus.Registered;
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                        // domain not found - device registered to another domain
+                        else
+                        {
+                            response.DeviceRegistrationStatus = DeviceRegistrationStatus.RegisteredToAnotherDomain;
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetDeviceRegistrationStatus - " + string.Format("Failed ex = {0}, udid = {1}, domainId = {2}", ex.Message, udid, domainId), ex);
+            }
+            return response;
+        }
     }
 }
