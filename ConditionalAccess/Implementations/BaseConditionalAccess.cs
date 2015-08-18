@@ -12194,12 +12194,12 @@ namespace ConditionalAccess
         /// Purchase
         /// </summary>
         public virtual TransactionResponse ProcessReceipt(string siteguid, long household, int contentId, int productId, eTransactionType transactionType,
-                                                          string userIp, string deviceName, string purchaseToken, string paymentGwType)
+                                                          string userIp, string deviceName, string purchaseToken, string paymentGatewayName)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, productType {4}, userIp {5}, deviceName {6}, purchaseToken {7}, paymentGwType {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, productType {4}, userIp {5}, deviceName {6}, purchaseToken {7}, paymentGatewayName {8}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,           // {0}
                 household,                                                           // {1}
                 contentId,                                                           // {2}
@@ -12208,7 +12208,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,               // {5}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty,       // {6}
                 !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty, // {7}
-                !string.IsNullOrEmpty(paymentGwType) ? paymentGwType : string.Empty);// {8}
+                !string.IsNullOrEmpty(paymentGatewayName) ? paymentGatewayName : string.Empty);// {8}
 
             log.Debug(logString);
 
@@ -12237,7 +12237,7 @@ namespace ConditionalAccess
             }
 
             // validate payment gateway 
-            if (string.IsNullOrEmpty(paymentGwType))
+            if (string.IsNullOrEmpty(paymentGatewayName))
             {
                 response.Status.Message = "Illegal payment gateway type";
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
@@ -12269,13 +12269,13 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = ProcessPPVReceipt(siteguid, household, contentId, productId, userIp, deviceName, purchaseToken, paymentGwType);
+                        response = ProcessPPVReceipt(siteguid, household, contentId, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
                         break;
                     case eTransactionType.Subscription:
-                        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwType);
+                        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
                         break;
                     case eTransactionType.Collection:
-                        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGwType);
+                        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -12800,6 +12800,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+
+
+
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -12961,6 +12964,10 @@ namespace ConditionalAccess
                     response.TransactionID = transactionResponse.TransactionID.ToString();
                     response.State = transactionResponse.State.ToString();
                     response.FailReasonCode = transactionResponse.FailReasonCode;
+                    response.StartDateSeconds = transactionResponse.StartDateSeconds;
+                    response.EndDateSeconds = transactionResponse.EndDateSeconds;
+                    response.AutoRenewing = transactionResponse.AutoRenewing;
+
                     if (transactionResponse.Status != null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);

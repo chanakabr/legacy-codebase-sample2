@@ -27,6 +27,12 @@ namespace ApiObjects.Billing
 
         public long CreatedAt { get; set; }
 
+        public long StartDateSeconds { get; set; }
+
+        public long EndDateSeconds { get; set; }
+
+        public bool AutoRenewing { get; set; }
+
         public TransactionResponse()
         {
             Status = new ApiObjects.Response.Status();
