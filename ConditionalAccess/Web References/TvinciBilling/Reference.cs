@@ -2231,9 +2231,9 @@ namespace ConditionalAccess.TvinciBilling {
         
         private string paymentMethodField;
         
-        private long startDateMillisecondsField;
+        private long startDateSecondsField;
         
-        private long endDateMillisecondsField;
+        private long endDateSecondsField;
         
         private bool autoRenewingField;
         
@@ -2318,22 +2318,22 @@ namespace ConditionalAccess.TvinciBilling {
         }
         
         /// <remarks/>
-        public long StartDateMilliseconds {
+        public long StartDateSeconds {
             get {
-                return this.startDateMillisecondsField;
+                return this.startDateSecondsField;
             }
             set {
-                this.startDateMillisecondsField = value;
+                this.startDateSecondsField = value;
             }
         }
         
         /// <remarks/>
-        public long EndDateMilliseconds {
+        public long EndDateSeconds {
             get {
-                return this.endDateMillisecondsField;
+                return this.endDateSecondsField;
             }
             set {
-                this.endDateMillisecondsField = value;
+                this.endDateSecondsField = value;
             }
         }
         

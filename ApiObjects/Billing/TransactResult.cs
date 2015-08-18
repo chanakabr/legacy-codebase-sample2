@@ -52,7 +52,7 @@ namespace ApiObjects.Billing
         /// <summary>
         /// epoch - transaction date 
         /// </summary>
-        public long StartDateMilliseconds
+        public long StartDateSeconds
         {
             get;
             set;
@@ -61,7 +61,7 @@ namespace ApiObjects.Billing
         /// <summary>
         /// epoch - purchase is no longer valid
         /// </summary>
-        public long EndDateMilliseconds
+        public long EndDateSeconds
         {
             get;
             set;
