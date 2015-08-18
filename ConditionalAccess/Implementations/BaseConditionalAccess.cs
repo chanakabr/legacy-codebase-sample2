@@ -2911,7 +2911,7 @@ namespace ConditionalAccess
                             {"SubscriptionCode", sSubscriptionCode}
                         };
 
-                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);                        
 
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
@@ -7118,7 +7118,7 @@ namespace ConditionalAccess
             {
                 ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                    true, bIsEntitledToPreviewModule, ref bm);
+                    bDummy, bIsEntitledToPreviewModule, ref bm);
             }
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
@@ -11100,6 +11100,7 @@ namespace ConditionalAccess
             }
 
             bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
+            log.Debug(string.Format("EnqueueEventRecord - Notification:{0}, Res:{1}", oNotification.ToString(), bResult));
 
             return (bResult);
         }
@@ -13161,6 +13162,8 @@ namespace ConditionalAccess
                 if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
                                 billingResponse.State.Equals(eTransactionState.Pending.ToString())))
                 {
+                    WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
+
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
@@ -13186,6 +13189,8 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ", 
+                            billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
                     }
                     else
                     {
