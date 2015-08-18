@@ -2911,7 +2911,7 @@ namespace ConditionalAccess
                             {"SubscriptionCode", sSubscriptionCode}
                         };
 
-                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);                        
 
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
@@ -7118,7 +7118,7 @@ namespace ConditionalAccess
             {
                 ret = HandleCCChargeUser(sBillingUsername, sBillingPassword, sSiteGUID, dPrice, sCurrency, sUserIP,
                     sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
-                    true, bIsEntitledToPreviewModule, ref bm);
+                    bDummy, bIsEntitledToPreviewModule, ref bm);
             }
 
             if (ret.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
@@ -11100,6 +11100,8 @@ namespace ConditionalAccess
             }
 
             bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
+
+            Logger.Logger.Log("Enqueue", string.Format("Notification:{0}, Res:{1}", oNotification.ToString(), bResult), "EnqueueEventRecord");
 
             return (bResult);
         }
