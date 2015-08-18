@@ -13611,13 +13611,7 @@ namespace ConditionalAccess
                     {
                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }
-                }
-                else
-                {
-                    // purchase passed, entitlement failed
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                }
+                }              
 
             }
             catch (Exception ex)
