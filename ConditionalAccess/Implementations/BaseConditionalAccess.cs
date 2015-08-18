@@ -13448,7 +13448,7 @@ namespace ConditionalAccess
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    WriteToUserLog(siteguid, "While trying to purchase media file id(CC): " + mediaID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
+                    WriteToUserLog(siteguid, "While trying to purchase media file id(CC): " + contentId.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                     return status;
                 }
 
@@ -13457,14 +13457,14 @@ namespace ConditionalAccess
 
                 HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, siteguid, Convert.ToInt32(householdId), relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
                     string.Empty, userIp, country, string.Empty, deviceName, oResponse, customData,
-                    thePPVModule, mediaID, ref lBillingTransactionID, ref lPurchaseID, true, ref wsBillingService);
+                    thePPVModule, contentId, ref lBillingTransactionID, ref lPurchaseID, true, ref wsBillingService);
 
                 if (saveHistory)
                 {
                     // Enqueue notification for PS so they know a media file was charged
                     var dicData = new Dictionary<string, object>()
                                     {
-                                        {"MediaFileID", mediaID},
+                                        {"MediaFileID", contentId},
                                         {"BillingTransactionID", lBillingTransactionID},
                                         {"PPVModuleCode", productId},
                                         {"SiteGUID", siteguid},
@@ -13565,7 +13565,7 @@ namespace ConditionalAccess
                     billingResponse.m_sRecieptCode = string.Empty;
                 }
 
-                if (billingResponse == null || billingResponse.m_oStatus == null || billingResponse.m_oStatus != ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
+                if (billingResponse == null || billingResponse.m_oStatus != ConditionalAccess.TvinciBilling.BillingResponseStatus.Success)
                 {
                     // no status error
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
