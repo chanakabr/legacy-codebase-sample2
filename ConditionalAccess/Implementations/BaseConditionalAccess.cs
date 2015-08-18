@@ -13159,8 +13159,8 @@ namespace ConditionalAccess
                 }
 
                 // if status pending or completed - nothing to update
-                if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
-                                billingResponse.State.Equals(eTransactionState.Pending.ToString())))
+                if (billingResponse.State == TvinciBilling.eTransactionState.OK ||
+                    billingResponse.State == TvinciBilling.eTransactionState.Pending)
                 {
                     WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
 
