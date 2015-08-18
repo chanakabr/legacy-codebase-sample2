@@ -13155,6 +13155,8 @@ namespace ConditionalAccess
                 if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
                                 billingResponse.State.Equals(eTransactionState.Pending.ToString())))
                 {
+                    WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
+
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
@@ -13180,6 +13182,8 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ", 
+                            billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
                     }
                     else
                     {
