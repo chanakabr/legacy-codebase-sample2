@@ -183,8 +183,10 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
 
             // validate user id
-            if (KS.GetFromRequest().UserId != "0")
+            if (KS.GetFromRequest().UserId == "0")
+            {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+            }
 
             try
             {
