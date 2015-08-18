@@ -11100,8 +11100,7 @@ namespace ConditionalAccess
             }
 
             bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
-
-            Logger.Logger.Log("Enqueue", string.Format("Notification:{0}, Res:{1}", oNotification.ToString(), bResult), "EnqueueEventRecord");
+            log.Debug(string.Format("EnqueueEventRecord - Notification:{0}, Res:{1}", oNotification.ToString(), bResult));
 
             return (bResult);
         }
