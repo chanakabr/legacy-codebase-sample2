@@ -71,5 +71,41 @@ namespace WebAPI.Controllers
             }
             return device;
         }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
+        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns></returns>
+        [Route("registrationStatus"), HttpPost]
+        public KalturaDeviceRegistrationStatus RegistrationStatus(string partner_id, int household_id, string udid)
+        {
+            KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
+
+            int groupId = int.Parse(partner_id);
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+            }
+
+            if (household_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, household_id, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return status;
+        }
     }
 }

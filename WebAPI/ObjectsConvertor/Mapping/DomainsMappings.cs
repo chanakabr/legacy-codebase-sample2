@@ -129,5 +129,25 @@ namespace WebAPI.Mapping.ObjectsConvertor
             }
             return result;
         }
+
+        public static KalturaDeviceRegistrationStatus ConvertRegistrationStatus(WebAPI.Domains.DeviceRegistrationStatus status)
+        {
+            KalturaDeviceRegistrationStatus result;
+            switch (status)
+            {
+                case WebAPI.Domains.DeviceRegistrationStatus.NotRegistered:
+                    result = KalturaDeviceRegistrationStatus.not_registered;
+                    break;
+                case WebAPI.Domains.DeviceRegistrationStatus.Registered:
+                    result = KalturaDeviceRegistrationStatus.registered;
+                    break;
+                case WebAPI.Domains.DeviceRegistrationStatus.RegisteredToAnotherDomain:
+                    result = KalturaDeviceRegistrationStatus.registered_to_another_household;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown device registration status");
+            }
+            return result;
+        }
     }
 }
