@@ -178,8 +178,10 @@ namespace WebAPI.Controllers
         /// Partner is invalid = 500008</remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public void Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public bool Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
         {
+            bool response = false;
+
             int groupId = KS.GetFromRequest().GroupId;
 
             // validate user id
@@ -191,13 +193,16 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
+
 
         }
 
