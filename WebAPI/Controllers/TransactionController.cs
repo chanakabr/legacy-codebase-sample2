@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_token</param>        
         /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_token</param>
         /// <param name="purchase_receipt">A unique identifier that was provided by the In-App billing service to validate the purchase</param>
-        /// <param name="payment_gateway_type">The payment gateway name for the of In-App billing service to be used. Possible values: Google/Apple</param>
+        /// <param name="payment_gateway_name">The payment gateway name for the of In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
         [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
         public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type,
-                                                         string purchase_receipt, string payment_gateway_type)
+                                                         string purchase_receipt, string payment_gateway_name)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
@@ -126,13 +126,13 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase token cannot be empty");
 
             // validate payment gateway id
-            if (string.IsNullOrEmpty(payment_gateway_type))
+            if (string.IsNullOrEmpty(payment_gateway_name))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment gateway type cannot be empty");
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_type);
+                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
             }
             catch (ClientException ex)
             {

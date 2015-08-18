@@ -4215,29 +4215,29 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ProcessReceipt", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactionResponse ProcessReceipt(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType) {
+        public TransactionResponse ProcessReceipt(string sWSUserName, string sWSPassword, string siteguid, long household, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName) {
             object[] results = this.Invoke("ProcessReceipt", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        household,
                         contentId,
                         productId,
                         transactionType,
                         userIp,
                         deviceName,
                         purchaseToken,
-                        paymentGwType});
+                        paymentGatewayName});
             return ((TransactionResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType) {
-            this.ProcessReceiptAsync(sWSUserName, sWSPassword, siteguid, houshold, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGwType, null);
+        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long household, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName) {
+            this.ProcessReceiptAsync(sWSUserName, sWSPassword, siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName, null);
         }
         
         /// <remarks/>
-        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGwType, object userState) {
+        public void ProcessReceiptAsync(string sWSUserName, string sWSPassword, string siteguid, long household, int contentId, int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName, object userState) {
             if ((this.ProcessReceiptOperationCompleted == null)) {
                 this.ProcessReceiptOperationCompleted = new System.Threading.SendOrPostCallback(this.OnProcessReceiptOperationCompleted);
             }
@@ -4245,14 +4245,14 @@ namespace WebAPI.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        household,
                         contentId,
                         productId,
                         transactionType,
                         userIp,
                         deviceName,
                         purchaseToken,
-                        paymentGwType}, this.ProcessReceiptOperationCompleted, userState);
+                        paymentGatewayName}, this.ProcessReceiptOperationCompleted, userState);
         }
         
         private void OnProcessReceiptOperationCompleted(object arg) {
@@ -4522,6 +4522,12 @@ namespace WebAPI.ConditionalAccess {
         
         private long createdAtField;
         
+        private long startDateSecondsField;
+        
+        private long endDateSecondsField;
+        
+        private bool autoRenewingField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -4589,6 +4595,36 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.createdAtField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long StartDateSeconds {
+            get {
+                return this.startDateSecondsField;
+            }
+            set {
+                this.startDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EndDateSeconds {
+            get {
+                return this.endDateSecondsField;
+            }
+            set {
+                this.endDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool AutoRenewing {
+            get {
+                return this.autoRenewingField;
+            }
+            set {
+                this.autoRenewingField = value;
             }
         }
     }
