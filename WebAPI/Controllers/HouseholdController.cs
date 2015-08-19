@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("disableDefaultParentalRule"), HttpPost]
         [ApiAuthorize]
-        public bool DisableDefaultParentalRule( int household_id)
+        public bool DisableDefaultParentalRule(int household_id)
         {
             bool success = false;
             int groupId = KS.GetFromRequest().GroupId;

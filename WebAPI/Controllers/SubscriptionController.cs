@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaSubscriptionListResponse Get(KalturaIntegerValue[] subscriptions_ids, string udid = null, string language = null)
         {
             List<KalturaSubscription> subscriptions = null;
@@ -105,8 +105,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
         ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getSubscriptionsContainingMediaFile"), HttpPost]
-        [ApiAuthorize]
-        public List<KalturaSubscription> GetSubscriptionIDsContainingMediaFile(int media_id, int file_id, string udid = null, string language = null)
+        [ApiAuthorize(true)]
+        public List<KalturaSubscription> GetSubscriptionsContainingMediaFile(int media_id, int file_id, string udid = null, string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;

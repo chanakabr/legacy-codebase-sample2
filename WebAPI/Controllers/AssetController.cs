@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [Route("get"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
         {
             KalturaAssetInfoListResponse response = null;
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, KalturaCatalogWithHolder[] with = null,
             string language = null, int household_id = 0)
         {
@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Search(KalturaSearchAssetsRequest request, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -182,7 +182,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
@@ -226,7 +226,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("related"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Related(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
             List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
         {

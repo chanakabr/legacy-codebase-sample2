@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <returns></returns>
         [Route("GetConfig"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaFacebookConfig GetConfig()
         {
             KalturaFacebookConfig response = null;
