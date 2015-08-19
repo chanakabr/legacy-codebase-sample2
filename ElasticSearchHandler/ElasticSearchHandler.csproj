@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
     <Compile Include="ElasticSearchTaskUtils.cs" />
+    <Compile Include="IndexBuilders\AbstractIndexBuilder.cs" />
     <Compile Include="IndexBuilders\EpgIndexBuilder.cs" />
     <Compile Include="IndexBuilders\IIndexBuilder.cs" />
     <Compile Include="IndexBuilders\IndexBuilderFactory.cs" />

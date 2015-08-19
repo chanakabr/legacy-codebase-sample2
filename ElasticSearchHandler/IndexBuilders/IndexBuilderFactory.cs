@@ -7,9 +7,9 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public static class IndexBuilderFactory
     {
-        public static IIndexBuilder CreateIndexBuilder(int nGroupID, ApiObjects.eObjectType eType)
+        public static AbstractIndexBuilder CreateIndexBuilder(int nGroupID, ApiObjects.eObjectType eType)
         {
-            IIndexBuilder result = null;
+            AbstractIndexBuilder result = null;
 
             switch (eType)
             {

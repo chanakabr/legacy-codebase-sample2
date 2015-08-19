@@ -23,9 +23,11 @@ namespace ElasticSearchHandler
 
                 ElasticSearchRequest request = JsonConvert.DeserializeObject<ElasticSearchRequest>(data);
 
+                // If the request is for a rebuild:
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
-                    IndexBuilders.IIndexBuilder builder = IndexBuilders.IndexBuilderFactory.CreateIndexBuilder(request.GroupID, request.Type);
+                    #region Rebuild
+                    IndexBuilders.AbstractIndexBuilder builder = IndexBuilders.IndexBuilderFactory.CreateIndexBuilder(request.GroupID, request.Type);
 
                     if (builder != null)
                     {
@@ -50,13 +52,16 @@ namespace ElasticSearchHandler
                         }
                         else
                         {
-                            throw new Exception(string.Format("Rebuilding {0} index for group id {1} has failed.", 
+                            throw new Exception(string.Format("Rebuilding {0} index for group id {1} has failed.",
                                 request.Type.ToString(), request.GroupID));
                         }
-                    }
+                    } 
+                    #endregion
                 }
+                // Otherwise it is an update type of request (new document, changed document, deleted document)
                 else
                 {
+                    #region Update
                     Updaters.IUpdateable updater = Updaters.UpdaterFactory.CreateUpdater(request.GroupID, request.Type);
 
                     if (updater != null)
@@ -76,7 +81,8 @@ namespace ElasticSearchHandler
                                 string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.",
                                 request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs)));
                         }
-                    }
+                    } 
+                    #endregion
                 }
             }
             catch (Exception ex)

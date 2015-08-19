@@ -19,7 +19,6 @@ namespace ElasticSearchHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-
         public static string GetWSURL(string key)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(key);

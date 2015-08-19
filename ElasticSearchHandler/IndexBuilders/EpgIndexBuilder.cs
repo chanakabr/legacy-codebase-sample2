@@ -6,158 +6,207 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GroupsCacheManager;
+using System.Threading.Tasks;
+using EpgBL;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class EpgIndexBuilder : IIndexBuilder
+    public class EpgIndexBuilder : AbstractIndexBuilder
     {
-         private static readonly string EPG = "epg";
+        private static readonly string EPG = "epg";
 
-        private int m_nGroupID;
-        private ESSerializer m_oESSerializer;
-        private ElasticSearchApi m_oESApi;
-        private Group m_oGroup;
+        #region Ctor
 
-        public bool SwitchIndexAlias { get; set; }
-        public bool DeleteOldIndices { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-
-        public EpgIndexBuilder(int nGroupID)
+        public EpgIndexBuilder(int groupID)
+            : base(groupID)
         {
-            m_nGroupID = nGroupID;
-            m_oESApi = new ElasticSearchApi();
-            m_oESSerializer = new ESSerializer();
+
         }
 
-        public bool BuildIndex()
+        #endregion
+
+        #region Override Methods
+
+        public override bool BuildIndex()
         {
-            bool bSuccess = false;
-
-            Logger.Logger.Log("Info", string.Concat("Starting epg index build for group ", m_nGroupID), "ESBuildHandler");
-
-            if (m_nGroupID == 0)
-            {
-                bSuccess = true;
-                return bSuccess;
-            }
-
+            bool success = false;
             GroupManager groupManager = new GroupManager();
-            m_oGroup = groupManager.GetGroup(m_nGroupID);
+            groupManager.RemoveGroup(groupId);
+            Group group = groupManager.GetGroup(groupId);
 
+            if (group == null)
+                return success;
 
-            if (m_oGroup == null)
-            {
-                Logger.Logger.Log("Error", "Could not load group in epg index builder", "ESBuildHandler");
-                return bSuccess;
-            }
-
-            string sNewIndex;
-            bSuccess = CreateIndex(out sNewIndex);
-
-            if (!bSuccess)
-                return bSuccess;
-            
-            bSuccess = CreateMapping(ref sNewIndex);
-            if (!bSuccess)
-                return bSuccess;
-
-            IndexPrograms(ref sNewIndex);
-
-            if (SwitchIndexAlias)
-                bSuccess = SwitchIndices(ref sNewIndex);
-
-            
-            return bSuccess;
-        }
-
-        private void IndexPrograms(ref string sIndex)
-        {
             DateTime tempDate = StartDate.Value;
 
-            while (tempDate <= EndDate)
+            string groupAlias = ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId);
+            string newIndexName = ElasticSearchTaskUtils.GetNewEpgIndexStr(groupId);
+
+            List<string> analyzers;
+            List<string> filters;
+            List<string> tokenizers;
+
+            GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
+
+            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers);
+
+            #region create mapping
+            foreach (ApiObjects.LanguageObj language in group.GetLangauges())
             {
+                string indexAnalyzer, searchAnalyzer;
+                string autocompleteIndexAnalyzer = null;
+                string autocompleteSearchAnalyzer = null;
 
-                Dictionary<ulong, EpgCB> programs = ElasticsearchTasksCommon.Utils.GetEpgPrograms(m_nGroupID, tempDate, 0);
+                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
 
-                List<KeyValuePair<ulong, string>> lEpgObject = new List<KeyValuePair<ulong, string>>();
-                foreach (ulong epgID in programs.Keys)
+                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
-                    EpgCB oEpg = programs[epgID];
+                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
+                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
 
-                    if (oEpg != null)
+                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
                     {
-                        string sEpgObj = m_oESSerializer.SerializeEpgObject(oEpg);
-                        lEpgObject.Add(new KeyValuePair<ulong, string>(oEpg.EpgID, sEpgObj));
-                    }
-
-                    if (lEpgObject.Count >= 50)
-                    {
-                        m_oESApi.CreateBulkIndexRequest(sIndex, EPG, lEpgObject);
-
-                        lEpgObject = new List<KeyValuePair<ulong, string>>();
+                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
+                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
                     }
                 }
-
-                if (lEpgObject.Count > 0)
+                else
                 {
-
-                    m_oESApi.CreateBulkIndexRequest(sIndex, EPG, lEpgObject);
+                    indexAnalyzer = "whitespace";
+                    searchAnalyzer = "whitespace";
+                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
                 }
 
+                string sMapping = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
+                    autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string sType = (language.IsDefault) ? EPG : string.Concat(EPG, "_", language.Code);
+                bool bMappingRes = api.InsertMapping(newIndexName, sType, sMapping.ToString());
+
+                if (language.IsDefault && !bMappingRes)
+                    success = false;
+
+                if (!bMappingRes)
+                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type epg for language ", language.Name), "ESFeeder");
+
+            }
+            #endregion
+
+            if (!success)
+            {
+                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", newIndexName), "ESFeeder");
+                return success;
+            }
+
+            while (tempDate <= this.EndDate.Value)
+            {
+                PopulateEpgIndex(newIndexName, EPG, tempDate);
                 tempDate = tempDate.AddDays(1);
             }
+
+            bool indexExists = api.IndexExists(ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId));
+
+            if (this.SwitchIndexAlias || !indexExists)
+            {
+                List<string> lOldIndices = api.GetAliases(groupAlias);
+
+                success = api.SwitchIndex(newIndexName, groupAlias, lOldIndices, null);
+
+                if (success && lOldIndices.Count > 0)
+                {
+                    api.DeleteIndices(lOldIndices);
+                }
+            }
+
+            return success;
         }
 
-        private bool CreateIndex(out string sNewIndex)
+        #endregion
+        #region Private and protected Methods
+
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
         {
-            sNewIndex = ElasticsearchTasksCommon.Utils.GetNewEpgIndexStr(m_nGroupID);
-            bool bRes = m_oESApi.BuildIndex(sNewIndex, 0, 0, null, null);
+            lAnalyzers = new List<string>();
+            lFilters = new List<string>();
+            tokenizers = new List<string>();
 
-            if (!bRes)
+            if (lLanguages != null)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", sNewIndex), "ESBuildHandler");
-            }
+                foreach (ApiObjects.LanguageObj language in lLanguages)
+                {
+                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
+                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
+                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code));
 
-            return bRes;
+                    if (string.IsNullOrEmpty(analyzer))
+                    {
+                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESFeeder");
+                    }
+                    else
+                    {
+                        lAnalyzers.Add(analyzer);
+                    }
+
+                    if (!string.IsNullOrEmpty(filter))
+                    {
+                        lFilters.Add(filter);
+                    }
+
+                    if (!string.IsNullOrEmpty(tokenizer))
+                    {
+                        tokenizers.Add(tokenizer);
+                    }
+                }
+            }
         }
 
-        private bool CreateMapping(ref string sIndex)
+        protected void PopulateEpgIndex(string index, string type, DateTime date)
         {
-            bool bRes = false;
-            string sMapping = m_oESSerializer.CreateEpgMapping(m_oGroup.m_oEpgGroupSettings.m_lMetasName, m_oGroup.m_oEpgGroupSettings.m_lTagsName);
+            Dictionary<ulong, EpgCB> programs = GetEpgPrograms(groupId, date, 0);
 
-            if (!string.IsNullOrEmpty(sMapping))
+            List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
+            foreach (ulong epgID in programs.Keys)
             {
-                bRes = m_oESApi.InsertMapping(sIndex, EPG, sMapping.ToString());
+                EpgCB epg = programs[epgID];
+
+                if (epg != null)
+                {
+                    string serializedEpg = serializer.SerializeEpgObject(epg);
+                    epgList.Add(new KeyValuePair<ulong, string>(epg.EpgID, serializedEpg));
+                }
+
+                if (epgList.Count >= 50)
+                {
+                    api.CreateBulkIndexRequest(index, type, epgList);
+
+                    epgList = new List<KeyValuePair<ulong, string>>();
+                }
             }
 
-            if (!bRes)
+            if (epgList.Count > 0)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating EPG mapping for index:{0}; mapping:{1}", sIndex, sMapping), "ESBuildHandler");
+                api.CreateBulkIndexRequest(index, type, epgList);
             }
-
-            return bRes;
         }
 
-        private bool SwitchIndices(ref string sIndex)
+        protected Dictionary<ulong, EpgCB> GetEpgPrograms(int groupId, DateTime? dateTime, int epgID)
         {
-            string sAlias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(m_nGroupID);
-            List<string> lOldIndices = m_oESApi.GetAliases(sAlias);
+            Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();
 
-            bool bSwithcIndex = m_oESApi.SwitchIndex(sIndex, sAlias, lOldIndices);
+            //Get All programs by group_id + date from CB
+            TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
+            List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1));
 
-            if (!bSwithcIndex)
+            if (lEpgCB != null && lEpgCB.Count > 0)
             {
-                Logger.Logger.Log("Info", string.Concat("Unable to switch from old to new index. id=", sIndex), "ESBuildHandler");
-            }
-            else if (DeleteOldIndices)
-            {
-                m_oESApi.DeleteIndices(lOldIndices);
+                foreach (EpgCB epg in lEpgCB)
+                {
+                    epgs.Add(epg.EpgID, epg);
+                }
             }
 
-            return bSwithcIndex;
+            return epgs;
         }
 
+        #endregion
     }
 }

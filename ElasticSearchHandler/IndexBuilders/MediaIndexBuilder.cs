@@ -13,65 +13,55 @@ using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class MediaIndexBuilder :  IIndexBuilder
+    public class MediaIndexBuilder :  AbstractIndexBuilder
     {
         private static readonly string MEDIA = "media";
 
-        private int groupId;
-        private ESSerializer serializer;
-        private ElasticSearchApi api;
-        private Group group;
-        private GroupManager groupManager;
-
-        public bool SwitchIndexAlias { get; set; }
-        public bool DeleteOldIndices { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-
-        public MediaIndexBuilder(int nGroupID)
+        public MediaIndexBuilder(int groupID) 
+            : base (groupID)
         {
-            groupId = nGroupID;
-            api = new ElasticSearchApi();
-            serializer = new ESSerializer();
+            
         }
 
         #region Interface Methods
 
-        public bool BuildIndex()
+        public override bool BuildIndex()
         {
-            string sNewIndex = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
+            string newIndex = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
 
             #region Build new index and specify number of nodes/shards
 
-            string sNumOfShards = ElasticSearchTaskUtils.GetWSURL("ES_NUM_OF_SHARDS");
-            string sNumOfReplicas = ElasticSearchTaskUtils.GetWSURL("ES_NUM_OF_REPLICAS");
+            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
+            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
 
-            int nNumOfShards, nNumOfReplicas;
+            int numOfShards;
+            int numOfReplicas;
 
-            int.TryParse(sNumOfReplicas, out nNumOfReplicas);
-            int.TryParse(sNumOfShards, out nNumOfShards);
+            int.TryParse(numberOfReplicas, out numOfReplicas);
+            int.TryParse(numberOfShards, out numOfShards);
 
             GroupManager groupManager = new GroupManager();
-            bool bres = groupManager.RemoveGroup(groupId);
-            Group oGroup = groupManager.GetGroup(groupId);
+            groupManager.RemoveGroup(groupId);
+            Group group = groupManager.GetGroup(groupId);
 
-            if (oGroup == null)
+            if (group == null)
             {
                 Logger.Logger.Log("Error", "Could not load group in media index builder", "ESFeeder");
                 return false;
             }
 
-            List<string> lAnalyzers;
-            List<string> lFilters;
+            List<string> analyzers;
+            List<string> filters;
             List<string> tokenizers;
-            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters, out tokenizers);
 
-            bool bRes = api.BuildIndex(sNewIndex, nNumOfShards, nNumOfReplicas, lAnalyzers, lFilters, tokenizers);
+            GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
+
+            bool actionResult = api.BuildIndex(newIndex, numOfShards, numOfReplicas, analyzers, filters, tokenizers);
 
             #endregion
 
             #region create mapping
-            foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
+            foreach (ApiObjects.LanguageObj language in group.GetLangauges())
             {
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
@@ -97,50 +87,50 @@ namespace ElasticSearchHandler.IndexBuilders
                     Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
                 }
 
-                string sMapping = serializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string sMapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
-                bool bMappingRes = api.InsertMapping(sNewIndex, sType, sMapping.ToString());
+                bool bMappingRes = api.InsertMapping(newIndex, sType, sMapping.ToString());
 
                 if (language.IsDefault && !bMappingRes)
-                    bRes = false;
+                    actionResult = false;
 
                 if (!bMappingRes)
                     Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESFeeder");
 
             }
 
-            if (!bRes)
-                return bRes;
+            if (!actionResult)
+                return actionResult;
             #endregion
 
             #region insert medias
-            Dictionary<int, Dictionary<int, Media>> dGroupMedias = GetGroupMedias(groupId, 0);
+            Dictionary<int, Dictionary<int, Media>> groupMedias = GetGroupMedias(groupId, 0);
 
-            if (dGroupMedias != null)
+            if (groupMedias != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", dGroupMedias.Count), "ESFeeder");
+                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", groupMedias.Count), "ESFeeder");
                 List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
 
-                foreach (int nMediaID in dGroupMedias.Keys)
+                foreach (int mediaId in groupMedias.Keys)
                 {
-                    foreach (int nLangID in dGroupMedias[nMediaID].Keys)
+                    foreach (int languageId in groupMedias[mediaId].Keys)
                     {
-                        Media oMedia = dGroupMedias[nMediaID][nLangID];
+                        Media media = groupMedias[mediaId][languageId];
 
-                        if (oMedia != null)
+                        if (media != null)
                         {
-                            string sMediaObj;
+                            string serializedMedia;
 
-                            sMediaObj = serializer.SerializeMediaObject(oMedia);
+                            serializedMedia = serializer.SerializeMediaObject(media);
 
-                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, oGroup.GetLanguage(nLangID));
+                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 
                             lBulkObj.Add(new ESBulkRequestObj<int>()
                             {
-                                docID = oMedia.m_nMediaID,
-                                index = sNewIndex,
+                                docID = media.m_nMediaID,
+                                index = newIndex,
                                 type = sType,
-                                document = sMediaObj
+                                document = serializedMedia
                             });
                         }
                         if (lBulkObj.Count >= 50)
@@ -162,9 +152,9 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert channel queries
 
-            if (oGroup.channelIDs != null)
+            if (group.channelIDs != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.channelIDs.Count), "ESFeeder");
+                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count), "ESFeeder");
 
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
@@ -176,7 +166,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
-                    List<Channel> allChannels = groupManager.GetChannels(oGroup.channelIDs.ToList(), groupId);
+                    List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
 
                     foreach (Channel currentChannel in allChannels)
                     {
@@ -192,14 +182,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (lChannelRequests.Count > 50)
                         {
-                            api.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
+                            api.CreateBulkIndexRequest("_percolator", newIndex, lChannelRequests);
                             lChannelRequests.Clear();
                         }
                     }
 
                     if (lChannelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
+                        api.CreateBulkIndexRequest("_percolator", newIndex, lChannelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -210,19 +200,19 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #endregion
 
-            string sAlias = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
-            bool indexExists = api.IndexExists(sAlias);
+            string alias = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
+            bool indexExists = api.IndexExists(alias);
 
-            if (SwitchIndexAlias || !indexExists)
+            if (this.SwitchIndexAlias || !indexExists)
             {
-                List<string> lOldIndices = api.GetAliases(sAlias);
+                List<string> oldIndices = api.GetAliases(alias);
 
-                Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(sNewIndex, sAlias, lOldIndices));
+                Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndex, alias, oldIndices));
                 tSwitchIndex.Wait();
 
-                if (tSwitchIndex.Result && lOldIndices.Count > 0)
+                if (tSwitchIndex.Result && oldIndices.Count > 0)
                 {
-                    Task t = Task.Factory.StartNew(() => api.DeleteIndices(lOldIndices));
+                    Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
                     t.Wait();
                 }
             }
