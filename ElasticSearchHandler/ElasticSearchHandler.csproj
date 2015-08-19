@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
+    <Compile Include="ElasticSearchTaskUtils.cs" />
     <Compile Include="IndexBuilders\EpgIndexBuilder.cs" />
     <Compile Include="IndexBuilders\IIndexBuilder.cs" />
     <Compile Include="IndexBuilders\IndexBuilderFactory.cs" />
@@ -87,6 +88,10 @@
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj">
+      <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
+      <Name>EpgBL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
@@ -94,6 +99,10 @@
     <ProjectReference Include="..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
       <Name>Logger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
     </ProjectReference>
     <ProjectReference Include="..\ElasticsearchHandlerCommon\ElasticsearchTasksCommon.csproj">
       <Project>{ce5e20f3-9489-4875-8ea6-a966446a7073}</Project>
