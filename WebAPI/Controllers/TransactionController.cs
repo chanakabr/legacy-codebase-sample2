@@ -17,8 +17,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="user_id">User to charge </param>
         /// <param name="household_id">Household to charge </param>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
         /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
@@ -33,20 +31,16 @@ namespace WebAPI.Controllers
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
         [Route("purchase"), HttpPost]
-        public KalturaTransaction Purchase(string partner_id, string user_id, int household_id, double price, string currency,
-                                                   int content_id, int product_id, KalturaTransactionType product_type, string coupon)
+        [ApiAuthorize]
+        public KalturaTransaction Purchase(int household_id, double price, string currency, int content_id, int product_id, KalturaTransactionType product_type, string coupon)
         {
             KalturaTransaction response = new KalturaTransaction();
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // validate household id
             if (household_id < 1)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
-
-            // validate user id
-            if (string.IsNullOrEmpty(user_id))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
 
             // validate currency
             if (string.IsNullOrEmpty(currency))
@@ -55,7 +49,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, user_id, household_id, price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, household_id, price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
             }
             catch (ClientException ex)
             {
@@ -68,7 +62,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Updates a pending transaction state (can be called only from a payment gateway adapter application, makes validation using signature and shared secret).
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="payment_gateway_id">Payment gateway identifier</param>
         /// <param name="adapter_transaction_state">Payment gateway adapter application state for the transaction to update. 
         /// Possible values: 0 = OK, 1 = Pending, 2 = Failed </param>
@@ -82,10 +75,10 @@ namespace WebAPI.Controllers
         /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
         /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("updateState"), HttpPost]
-        public void UpdateState(string partner_id, string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status,
-            string external_message, int fail_reason, string signature)
+        [ApiAuthorize]
+        public void UpdateState(string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status, string external_message, int fail_reason, string signature)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -115,8 +108,7 @@ namespace WebAPI.Controllers
         /// Partner is invalid = 500008</remarks>
         [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type,
-                                                         string purchase_receipt, string payment_gateway_name)
+        public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();

@@ -9,6 +9,7 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
@@ -28,20 +29,19 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
         /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027 
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">Household Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         [Route("list"), HttpPost]
-        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(string partner_id, long household_id, string user_id)
+        [ApiAuthorize]
+        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(long household_id)
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, user_id, household_id);
+                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, KS.GetFromRequest().UserId, household_id);
             }
             catch (ClientException ex)
             {
@@ -59,14 +59,14 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
         /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027, Household required = 6044
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="household_id">Household Identifier</param>        
         [Route("get"), HttpPost]
-        public Models.Billing.KalturaPaymentGateway Get(string partner_id, long household_id)
+        [ApiAuthorize]
+        public Models.Billing.KalturaPaymentGateway Get(long household_id)
         {
             Models.Billing.KalturaPaymentGateway response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -90,21 +90,20 @@ namespace WebAPI.Controllers
         /// Payment Gateway ID Missing = 6005, Error Saving Payment Gateway Household = 6017, Household Already Set To Payment Gateway = 6024, Payment Gateway Selection Is Disabled = 6028,
         /// Payment gateway not valid = 6043
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="household_id">Household Identifier</param>
-        /// <param name="user_id">User Identifier</param>        
         [Route("set"), HttpPost]
-        public bool Set(string partner_id, int payment_gateway_id, long household_id, string user_id)
+        [ApiAuthorize]
+        public bool Set(int payment_gateway_id, long household_id)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetHouseHoldPaymentGateway(groupId, payment_gateway_id, user_id, household_id);
+                response = ClientsManager.BillingClient().SetHouseHoldPaymentGateway(groupId, payment_gateway_id, KS.GetFromRequest().UserId, household_id);
             }
             catch (ClientException ex)
             {
@@ -122,21 +121,20 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
         /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int payment_gateway_id, string household_id, string user_id)
+        
+        public bool Delete(int payment_gateway_id, string household_id)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, payment_gateway_id, user_id, household_id);
+                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, payment_gateway_id, KS.GetFromRequest().UserId, household_id);
             }
             catch (ClientException ex)
             {

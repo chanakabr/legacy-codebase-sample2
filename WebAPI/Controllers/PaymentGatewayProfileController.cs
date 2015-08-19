@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
 
@@ -20,13 +21,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List(string partner_id)
+        [ApiAuthorize]
+        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -48,14 +49,14 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008,  Payment gateway identifier is required = 6005, Payment gateway not exist = 6008
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int payment_gateway_id)
+        [ApiAuthorize]
+        public bool Delete(int payment_gateway_id)
         {
             bool response = false;
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -77,14 +78,14 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008, External idntifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway">Payment Gateway Object</param>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, KalturaPaymentGatewayProfile payment_gateway)
+        [ApiAuthorize]
+        public bool Add(KalturaPaymentGatewayProfile payment_gateway)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -107,15 +108,15 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
         /// External identifier must be unique = 6040            
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_gateway">Payment Gateway Object</param>       
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, int payment_gateway_id, KalturaPaymentGatewayProfile payment_gateway)
+        [ApiAuthorize]
+        public bool Update(int payment_gateway_id, KalturaPaymentGatewayProfile payment_gateway)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

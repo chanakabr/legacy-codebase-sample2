@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -16,22 +17,21 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Generates a temporarily PIN that can allow a user to log-in.
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaLoginPin Add(string partner_id, string user_id, string secret = null)
+        [ApiAuthorize]
+        public KalturaLoginPin Add(string secret = null)
         {
             KalturaLoginPin response = null;
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, user_id, secret);
+                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, KS.GetFromRequest().UserId, secret);
             }
             catch (ClientException ex)
             {
@@ -44,16 +44,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Set a temporarily PIN that can allow a user to log-in.        
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         /// <param name="pin">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
         [Route("update"), HttpPost]
-        public void Update(string partner_id, string user_id, string pin, string secret = null)
+        [ApiAuthorize]
+        public void Update(string pin, string secret = null)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -63,7 +62,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().SetLoginPin(groupId, user_id, pin, secret);
+                ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pin, secret);
             }
             catch (ClientException ex)
             {
@@ -74,18 +73,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately expires all pre set login pin codes for the user.
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("deleteAll"), HttpPost]
-        public void DeleteAll(string partner_id, string user_id)
+        [ApiAuthorize]
+        public void DeleteAll()
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id, null);
+                ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, null);
             }
             catch (ClientException ex)
             {
@@ -96,19 +94,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately expires a given pre set login pin code for the user.
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User Identifier</param>
         /// <param name="pin_code">Login pin code to expire</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("delete"), HttpPost]
-        public void Delete(string partner_id, string user_id, string pin_code)
+        [ApiAuthorize]
+        public void Delete(string pin_code)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, user_id, pin_code);
+                ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, pin_code);
             }
             catch (ClientException ex)
             {

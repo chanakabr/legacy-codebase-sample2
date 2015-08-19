@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaDevice Add(string partner_id, int household_id, string device_name, string pin)
+        public KalturaDevice Add(int household_id, string device_name, string pin)
         {
             KalturaDevice device = null;
 
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("registrationStatus"), HttpPost]
         [ApiAuthorize]
-        public KalturaDeviceRegistrationStatusHolder RegistrationStatus(string partner_id, int household_id, string udid)
+        public KalturaDeviceRegistrationStatusHolder RegistrationStatus(int household_id, string udid)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 

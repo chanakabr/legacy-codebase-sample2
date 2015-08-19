@@ -8,6 +8,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -21,15 +22,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return all of the parental rules defined for the account 
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <returns>The parental rules defined for the account</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
-        public KalturaParentalRuleListResponse List(string partner_id)
+        [ApiAuthorize]
+        public KalturaParentalRuleListResponse List()
         {
             List<KalturaParentalRule> response = null;
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Social;
 using WebAPI.Social;
 using WebAPI.Utils;
@@ -18,15 +19,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieves facebook user data
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getFBUserData"), HttpPost]
-        public KalturaFacebookResponse GetFBUserData(string partner_id, string token)
+        [ApiAuthorize]
+        public KalturaFacebookResponse GetFBUserData(string token)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
@@ -47,17 +48,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Registers new user by Facebook credentials
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbRegister"), HttpPost]
-        public KalturaFacebookResponse FBUserRegister(string partner_id, string token, bool should_create_domain, bool subscribe_newsletter)
+        [ApiAuthorize]
+        public KalturaFacebookResponse FBUserRegister(string token, bool should_create_domain, bool subscribe_newsletter)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             string ip = Utils.Utils.GetClientIP();
 
@@ -95,18 +96,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Merge a registered FB user with an existing regular user
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <param name="facebook_id">Facebook identifier</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbMerge"), HttpPost]
-        public KalturaFacebookResponse FBUserMerge(string partner_id, string token, string username, string password, string facebook_id)
+        public KalturaFacebookResponse FBUserMerge(string token, string username, string password, string facebook_id)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
@@ -127,17 +127,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes data stored in Kaltura's DB which makes Facebook actions (login, share, like, etc) on the customer site feasible. The user is still be able to see the actions he performed as these are logged as 'Kaltura actions'. However, his friends won't be able to view his actions as they are deleted from social feed
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("fbUnmerge"), HttpPost]
-        public KalturaFacebookResponse FBUserUnmerge(string partner_id, string token, string username, string password)
+        [ApiAuthorize]
+        public KalturaFacebookResponse FBUserUnmerge(string token, string username, string password)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");

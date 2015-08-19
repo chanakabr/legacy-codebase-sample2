@@ -378,13 +378,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieving users' data
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [ApiAuthorize]
         [Route("list"), HttpPost]
-        public KalturaOTTUserListResponse List(string partner_id, KalturaOTTUserFilter filter)
+        [ApiAuthorize]
+        public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
         {
             List<KalturaOTTUser> response = null;
 
@@ -401,8 +401,8 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no user id in list");
             }
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -424,17 +424,16 @@ namespace WebAPI.Controllers
 
         /// <summary>Edit user details.        
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
-        /// <param name="user_id"> User identifiers</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
-        public KalturaOTTUser Update(string partner_id, string user_id, KalturaUserData user_data)
+        [ApiAuthorize]
+        public KalturaOTTUser Update(KalturaUserData user_data)
         {
             KalturaOTTUser response = null;
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId; 
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
@@ -444,7 +443,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SetUserData(groupId, user_id, user_data.userBasicData, user_data.userDynamicData);
+                response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user_data.userBasicData, user_data.userDynamicData);
             }
             catch (ClientException ex)
             {
@@ -466,20 +465,16 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
-        public KalturaParentalRuleListResponse GetParentalMediaRules(string partner_id, string user_id, long media_id)
+        [ApiAuthorize]
+        public KalturaParentalRuleListResponse GetParentalMediaRules(long media_id)
         {
             List<KalturaParentalRule> response = null;
 
-            
-            
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId; 
                 
-
             // parameters validation
             if (media_id == 0)
             {
@@ -488,7 +483,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetUserMediaParentalRules(groupId, user_id, media_id);
+                response = ClientsManager.ApiClient().GetUserMediaParentalRules(groupId, KS.GetFromRequest().UserId, media_id);
             }
             catch (ClientException ex)
             {
@@ -503,20 +498,16 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG identifier</param>
         /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
         [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpPost]
-        public KalturaParentalRuleListResponse GetParentalEPGRules(string partner_id, string user_id, long epg_id)
+        [ApiAuthorize]
+        public KalturaParentalRuleListResponse GetParentalEPGRules(long epg_id)
         {
             List<KalturaParentalRule> response = null;
 
+            int groupId = KS.GetFromRequest().GroupId;
             
-            
-            int groupId = int.Parse(partner_id);
-                
-
             // parameters validation
             if (epg_id == 0)
             {
@@ -526,7 +517,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetUserEPGParentalRules(groupId, user_id, epg_id);
+                response = ClientsManager.ApiClient().GetUserEPGParentalRules(groupId, KS.GetFromRequest().UserId, epg_id);
             }
             catch (ClientException ex)
             {
@@ -541,23 +532,19 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <returns>Success / fail</returns>
         [Route("{user_id}/parental/rules/default"), HttpPost]
-        public bool DisableDefaultParentalRule(string partner_id, string user_id)
+        [ApiAuthorize]
+        public bool DisableDefaultParentalRule()
         {
             bool success = false;
 
-            
-            
-            int groupId = int.Parse(partner_id);
-                
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, user_id);
+                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, KS.GetFromRequest().UserId);
             }
             catch (ClientException ex)
             {
@@ -572,21 +559,17 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <param name="household_id">Media identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/media/{media_id}"), HttpPost]
-        public KalturaGenericRuleListResponse GetMediaRules(string partner_id, string user_id, long media_id, string udid = null, int household_id = 0)
+        [ApiAuthorize]
+        public KalturaGenericRuleListResponse GetMediaRules(long media_id, string udid = null, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
 
-            
-            
-            int groupId = int.Parse(partner_id);
-                
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (media_id == 0)
@@ -596,7 +579,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetMediaRules(groupId, user_id, media_id, household_id, udid);
+                response = ClientsManager.ApiClient().GetMediaRules(groupId, KS.GetFromRequest().UserId, media_id, household_id, udid);
             }
             catch (ClientException ex)
             {
@@ -611,18 +594,17 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="epg_id">EPG program identifier</param>
         /// <param name="household_id">Household identifier</param>        
         /// <param name="channel_media_id">Linear channel's media identifier</param>        
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("{user_id}/rules/epg/{epg_id}"), HttpPost]
-        public KalturaGenericRuleListResponse GetEpgRules(string partner_id, string user_id, long epg_id, long channel_media_id, int household_id = 0)
+        [ApiAuthorize]
+        public KalturaGenericRuleListResponse GetEpgRules(long epg_id, long channel_media_id, int household_id = 0)
         {
             List<KalturaGenericRule> response = null;
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId;
                 
 
             // parameters validation
@@ -633,7 +615,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetEpgRules(groupId, user_id, epg_id, household_id, channel_media_id);
+                response = ClientsManager.ApiClient().GetEpgRules(groupId, KS.GetFromRequest().UserId, epg_id, household_id, channel_media_id);
             }
             catch (ClientException ex)
             {
