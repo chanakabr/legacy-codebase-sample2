@@ -299,5 +299,18 @@ namespace WebAPI.Managers.Models
         {
             return (KS)HttpContext.Current.Items["KS"];
         }
+
+        public static KS CreateKSFromApiToken(ApiToken token)
+        {
+            KS ks = new KS()
+            {
+                groupId = token.GroupID,
+                userId = token.UserId,
+                userType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
+            };
+
+            return ks;
+        }
     }
 }

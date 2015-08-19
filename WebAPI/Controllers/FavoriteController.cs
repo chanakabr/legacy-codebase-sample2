@@ -157,7 +157,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaFavoriteListResponse() { Favorites = favoritesFinalList, TotalCount = favoritesFinalList.Count };
+            return new KalturaFavoriteListResponse() { Favorites = favoritesFinalList, TotalCount = favoritesFinalList != null ? favoritesFinalList.Count : 0 };
         }
     }
 }

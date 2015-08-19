@@ -20,11 +20,17 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using Couchbase.Extensions;
 
 namespace WebAPI.Filters
 {
     public class RequestParser : ActionFilterAttribute
     {
+        private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
+        private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
+
+        private static Couchbase.CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
+
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_PARTNER_ID = "requestPartnerID";
 
@@ -85,7 +91,7 @@ namespace WebAPI.Filters
 
                             if (reqParams["ks"] != null)
                             {
-                                parseKS(actionContext, reqParams["ks"].ToObject<string>());
+                                GetUserDataFromKS(actionContext, reqParams["ks"].ToObject<string>());
 
                                 KS ks = KS.GetFromRequest();
                                 if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
@@ -253,6 +259,44 @@ namespace WebAPI.Filters
             base.OnActionExecuting(actionContext);
         }
 
+        private void GetUserDataFromKS(HttpActionContext actionContext, string ksVal)
+        {
+            // the supplied ks is in KS forma (project phoenix's)
+            if (IsKsFormat(ksVal))
+            {
+                parseKS(actionContext, ksVal);
+            }
+            // the supplied is in access token format (TVPAPI's)
+            else
+            {
+                GetUserDataFromCB(actionContext, ksVal);
+            }
+        }
+
+        private void GetUserDataFromCB(HttpActionContext actionContext, string ksVal)
+        {
+            // get token from CB
+            string tokenKey = string.Format(accessTokenKeyFormat ,ksVal);
+            ApiToken token = couchbaseClient.GetJson<ApiToken>(tokenKey);
+
+            if (token == null)
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
+                return;
+            }
+
+            KS ks = KS.CreateKSFromApiToken(token);
+
+            if (!ks.IsValid)
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "KS Expired");
+                return;
+            }
+
+            ks.SaveOnRequest();
+            
+        }
+
         private static void createErrorResponse(HttpActionContext actionContext, int errorCode, string msg)
         {
             //We cannot use the ApiException* concept in Filters, so we manually invoke exceptions here.
@@ -305,6 +349,11 @@ namespace WebAPI.Filters
             }
 
             ks.SaveOnRequest();
+        }
+
+        private static bool IsKsFormat(string ksVal)
+        {
+            return ksVal.Length > accessTokenLength;
         }
     }
 }
