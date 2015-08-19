@@ -4285,5 +4285,38 @@ namespace Catalog
 
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
+
+        public static bool SendRebuildIndexMessage(int groupId, eObjectType type, bool switchIndexAlias, bool deleteOldIndices, 
+            DateTime? startDate = null, DateTime? endDate = null)
+        {
+            bool result = false;
+
+            try
+            {
+                GroupManager groupManager = new GroupManager();
+
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int parentGroupId = catalogCache.GetParentGroup(groupId);
+
+                Group group = groupManager.GetGroup(parentGroupId);
+
+                if (group != null)
+                {
+                    ApiObjects.CeleryIndexBuildingData data = new CeleryIndexBuildingData(group.m_nParentGroupID,
+                        type, switchIndexAlias, deleteOldIndices, startDate, endDate);
+
+                    var queue = new CatalogQueue();
+
+                    result = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Failed sending message to queue on rebuilding index: group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
+        }
     }
 }

@@ -169,6 +169,7 @@
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
+    <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
     <Compile Include="QueueObjects\IndexingData.cs" />
     <Compile Include="QueueObjects\PendingTransactionData.cs" />
