@@ -1579,6 +1579,10 @@ namespace TVPApiModule.Services
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = m_Module.GrantEntitlements(m_wsUserName, m_wsPassword, userId, 0, contentId, productId ,productType, SiteHelper.GetClientIP(), string.Empty, history);
+                    if (result.Code == 0)
+                    {
+                        response = true;
+                    }
 
                 }
             }
