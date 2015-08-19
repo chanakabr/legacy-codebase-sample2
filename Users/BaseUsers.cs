@@ -1255,5 +1255,55 @@ namespace Users
             return response;
         }
 
+        /// <summary>
+        /// Filters the list of supplied media ids and returns only the favorites for the user
+        /// </summary>
+        /// <param name="sWSUserName"></param>
+        /// <param name="sWSPassword"></param>
+        /// <param name="userId"></param>
+        /// <param name="mediaIds"></param>
+        /// <returns></returns>
+        public FavoriteResponse FilterFavoriteMediaIds(int groupId, string userId, List<int> mediaIds, string udid, string mediaType)
+        {
+            FavoriteResponse response = new FavoriteResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()); 
+
+            try
+            {
+                // check if user is valid 
+                ApiObjects.Response.Status status = null;
+                if (!IsUserValid(groupId, userId, out status))
+                {
+                    response.Status = status;
+                    return response;
+                }
+
+                // get the favorites ids
+                DataTable dt = UsersDal.Get_FavoriteMediaIds(userId, mediaIds, udid, mediaType);
+                if (dt != null)
+                {
+                    if (dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        response.Favorites = new FavoritObject[dt.Rows.Count];
+                        FavoritObject favorite;
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            favorite = new FavoritObject()
+                            {
+                                m_sItemCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ID"]),
+                                m_sExtraData = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["EXTRA_DATA"])
+                            };
+                            response.Favorites[i] = favorite;
+                        }
+                    }
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("FilterFavoriteMediaIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
+            }
+            return response;
+        }
     }
 }

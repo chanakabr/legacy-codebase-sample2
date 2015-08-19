@@ -2000,5 +2000,27 @@ namespace DAL
                 return false;
             }
         }
+
+        public static DataTable Get_FavoriteMediaIds(string userId, List<int> mediaIds, string udid, string mediaType)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_FavoriteMediaIds");
+                sp.AddParameter("@user_id", userId);
+                sp.AddParameter("@udid", !string.IsNullOrEmpty(udid) ? udid : null);
+                sp.AddParameter("@media_type", !string.IsNullOrEmpty(mediaType) ? mediaType : null);
+                sp.AddIDListParameter("@media_ids", mediaIds, "id");
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    return ds.Tables[0];
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return null;
+        }
     } 
 }
