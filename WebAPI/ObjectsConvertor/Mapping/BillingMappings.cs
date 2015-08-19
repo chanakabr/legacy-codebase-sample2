@@ -100,17 +100,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy ConvertHouseholdPaymentGatewaySelectedBy(WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy? type)
+        private static WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy ConvertHouseholdPaymentGatewaySelectedBy(WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy? type)
         {
             WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy result;
 
             switch (type)
             {
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account:
-                    result = Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.account;
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.account;
                     break;
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household:
-                    result = Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.household;
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "unknown household payment gateway selected by");

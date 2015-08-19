@@ -62,7 +62,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
 
 
-            Mapper.CreateMap<ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
+            Mapper.CreateMap<ConditionalAccess.Price, WebAPI.Models.Pricing.KalturaPrice>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
 
