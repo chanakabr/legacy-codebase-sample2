@@ -13336,6 +13336,7 @@ namespace ConditionalAccess
                     status = new ApiObjects.Response.Status((int)eResponseStatus.CollectionPurchased, "Collection already purchased");
                     break;
                 default:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "UnKnown price reason");
                     break;
             }
 
