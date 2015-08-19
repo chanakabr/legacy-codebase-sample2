@@ -34,10 +34,11 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <returns>Success / fail</returns>
         [Route("disableDefaultParentalRule"), HttpPost]
-        public bool DisableDefaultParentalRule(string partner_id, int household_id)
+        [ApiAuthorize]
+        public bool DisableDefaultParentalRule( int household_id)
         {
             bool success = false;
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -64,12 +65,13 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(string partner_id, int household_id, List<KalturaHouseholdWithHolder> with = null)
+        [ApiAuthorize]
+        public KalturaHousehold Get(int household_id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new int[] { int.Parse(ks.UserId) }.ToList<int>());
 
@@ -136,12 +138,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
-        public KalturaHousehold Add(string partner_id, KalturaAddHouseholdRequest request)
+        [ApiAuthorize]
+        public KalturaHousehold Add(KalturaAddHouseholdRequest request)
         {
             KalturaHousehold response = null;
 
-            int groupId = int.Parse(partner_id);
-
+            int groupId = KS.GetFromRequest().GroupId;
+            
             if (string.IsNullOrEmpty(request.MasterUserId))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "master_user_id cannot be empty");
@@ -180,11 +183,12 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
-        public bool SetChargeID(string partner_id, string id, int household_id, string charge_id)
+        [ApiAuthorize]
+        public bool SetChargeID(string id, int household_id, string charge_id)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;            
 
             try
             {
@@ -212,11 +216,12 @@ namespace WebAPI.Controllers
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
-        public string GetChargeID(string partner_id, string id, string household_id)
+        [ApiAuthorize]
+        public string GetChargeID(string id, string household_id)
         {
             string chargeId = string.Empty;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
