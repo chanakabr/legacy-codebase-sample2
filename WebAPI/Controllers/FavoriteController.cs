@@ -107,6 +107,7 @@ namespace WebAPI.Controllers
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
         /// User does not exist = 2000, User suspended = 2001</remarks>
         [Route("list"), HttpPost]
+        [ApiAuthorize]
         public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter, int household_id = 0, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             List<KalturaFavorite> favorites = null;
