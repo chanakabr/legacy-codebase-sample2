@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvinciCache", "..\tvmcore\T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendingTransactionHandler", "PendingTransactionHandler\PendingTransactionHandler.csproj", "{1AAE1B8A-483D-423A-97B8-1430098CEF46}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticSearchHandler", "ElasticSearchHandler\ElasticSearchHandler.csproj", "{338E6394-A9E9-4D5C-8A6A-95797F6C429F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -453,6 +455,18 @@ Global
 		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1AAE1B8A-483D-423A-97B8-1430098CEF46}.Release|x86.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Basic|x86.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Local|Any CPU.Build.0 = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Local|x86.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
