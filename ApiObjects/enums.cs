@@ -102,7 +102,7 @@ namespace ApiObjects
 
     [Serializable]
     public enum eAction
-    {
+    { 
         [EnumMember]
         Off,
         [EnumMember]
@@ -110,7 +110,9 @@ namespace ApiObjects
         [EnumMember]
         Update,
         [EnumMember]
-        Delete
+        Delete,
+        [EnumMember]
+        Rebuild
     }
 
     [Serializable]
