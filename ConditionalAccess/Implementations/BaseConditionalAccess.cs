@@ -84,7 +84,7 @@ namespace ConditionalAccess
 
         protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID);
+                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID, DateTime? subscriptionEndDate);
 
         protected abstract bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
@@ -2911,7 +2911,7 @@ namespace ConditionalAccess
                             {"SubscriptionCode", sSubscriptionCode}
                         };
 
-                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);                        
+                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
 
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
@@ -12495,7 +12495,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID);
+                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, null);
 
                                 if (handleBillingPassed)
                                 {
@@ -12794,16 +12794,17 @@ namespace ConditionalAccess
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
+                                DateTime subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                                bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
+
+
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID);
+                                                                                      billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, subscriptionEndDate);
 
                                 if (handleBillingPassed)
                                 {
-
-
-
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -13159,8 +13160,8 @@ namespace ConditionalAccess
                 }
 
                 // if status pending or completed - nothing to update
-                if ((billingResponse.State.Equals(eTransactionState.OK.ToString()) ||
-                                billingResponse.State.Equals(eTransactionState.Pending.ToString())))
+                if (billingResponse.State == TvinciBilling.eTransactionState.OK ||
+                    billingResponse.State == TvinciBilling.eTransactionState.Pending)
                 {
                     WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
 
@@ -13189,7 +13190,7 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ", 
+                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
                             billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
                     }
                     else
@@ -13336,6 +13337,7 @@ namespace ConditionalAccess
                     status = new ApiObjects.Response.Status((int)eResponseStatus.CollectionPurchased, "Collection already purchased");
                     break;
                 default:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "UnKnown price reason");
                     break;
             }
 
@@ -13455,9 +13457,14 @@ namespace ConditionalAccess
                 long lBillingTransactionID = 0;
                 long lPurchaseID = 0;
 
-                HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, siteguid, Convert.ToInt32(householdId), relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
+                var result = HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, siteguid, Convert.ToInt32(householdId), relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
                     string.Empty, userIp, country, string.Empty, deviceName, oResponse, customData,
                     thePPVModule, contentId, ref lBillingTransactionID, ref lPurchaseID, true, ref wsBillingService);
+
+                if (result)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
 
                 if (saveHistory)
                 {
@@ -13514,20 +13521,21 @@ namespace ConditionalAccess
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 TvinciPricing.Subscription subscription = null;
-                TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, string.Empty, deviceName);
+                TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty,
+                    ref priceReason, ref subscription, country, string.Empty, deviceName);
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
 
-                if (priceReason != PriceReason.ForPurchase || !entitleToPreview)
+                if (priceReason != PriceReason.ForPurchase && !entitleToPreview)
                 {
                     // item not for purchase
                     status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
                     return status;
                 }
 
                 // item is for purchase
-                if (priceResponse != null)
+                if (priceResponse == null)
                 {
                     // incorrect price
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
@@ -13582,18 +13590,23 @@ namespace ConditionalAccess
                 DateTime entitlementDate = DateTime.UtcNow;
 
                 // grant entitlement
-                HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
+                var result = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, false, entitlementDate, ref purchaseID);
+                    entitleToPreview, false, entitlementDate, ref purchaseID, null);
 
-                if (saveHistory)
+                if (result)
                 {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                     if (subscription.m_nDomainLimitationModule != 0)
                     {
                         UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                     }
+                }
 
+                if (saveHistory)
+                {
                     // build notification message
                     var dicData = new Dictionary<string, object>()
                                 {
@@ -13610,12 +13623,6 @@ namespace ConditionalAccess
                     {
                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }
-                }
-                else
-                {
-                    // purchase passed, entitlement failed
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 }
 
             }
@@ -13658,11 +13665,11 @@ namespace ConditionalAccess
 
                 bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
 
-                if (priceReason != PriceReason.ForPurchase || !isEntitledToPreviewModule)
+                if (priceReason != PriceReason.ForPurchase && !isEntitledToPreviewModule)
                 {
                     // not for purchase
                     status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
                     return status;
                 }
 
@@ -13670,7 +13677,8 @@ namespace ConditionalAccess
                 {
                     // incorrect price
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
+
                     return status;
                 }
 
@@ -13714,9 +13722,13 @@ namespace ConditionalAccess
                 // grant entitlement
                 long lBillingTransactionID = 0;
                 long purchaseID = 0;
-                HandleCollectionBillingSuccess(siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                var result = HandleCollectionBillingSuccess(siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                           country, deviceName, lBillingTransactionID, customData, productId,
                                                                           billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
+                if (result)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
 
                 if (saveHistory)
                 {

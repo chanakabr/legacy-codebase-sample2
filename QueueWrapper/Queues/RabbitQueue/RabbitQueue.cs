@@ -183,6 +183,37 @@ namespace QueueWrapper
 
                         break;
                     }
+                case ConfigType.IndexingDataConfig:
+                    {
+                        m_sRoutingKey = Utils.GetConfigValue("IndexingData.routingKey");
+                        m_sExchange = Utils.GetConfigValue("IndexingData.exchange");
+                        m_sQueue = ".";
+                        m_sVirtualHost = Utils.GetConfigValue("IndexingData.virtualHost");
+                        m_sExchangeType = Utils.GetConfigValue("IndexingData.exchangeType");
+
+                        // default values - to avoid embarrassments 
+                        if (string.IsNullOrEmpty(m_sRoutingKey))
+                        {
+                            m_sRoutingKey = "*";
+                        }
+
+                        if (string.IsNullOrEmpty(m_sVirtualHost))
+                        {
+                            m_sVirtualHost = "/";
+                        }
+
+                        if (string.IsNullOrEmpty(m_sExchangeType))
+                        {
+                            m_sExchangeType = "topic";
+                        }
+
+                        if (string.IsNullOrEmpty(m_sExchange))
+                        {
+                            m_sExchange = "scheduled_tasks";
+                        }
+
+                        break;
+                    }
                 default:
                     break;
             }
