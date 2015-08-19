@@ -30,7 +30,7 @@ namespace ElasticSearchHandler.IndexBuilders
             m_oESSerializer = new ESSerializer();
         }
 
-        public bool Build()
+        public bool BuildIndex()
         {
             bool bSuccess = false;
 

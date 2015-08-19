@@ -42,7 +42,7 @@ namespace ElasticSearchHandler
                         builder.StartDate = request.StartDate;
                         builder.EndDate = request.EndDate;
 
-                        bool result = builder.Build();
+                        bool result = builder.BuildIndex();
 
                         if (result)
                         {

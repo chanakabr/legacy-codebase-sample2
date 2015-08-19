@@ -10,14 +10,34 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using Tvinci.Core.DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchHandler
 {
     public static class ElasticSearchTaskUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+
         public static string GetWSURL(string key)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(key);
+        }
+
+        public static string GetTcmConfigValue(string sKey)
+        {
+            string result = string.Empty;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+            }
+            catch (Exception ex)
+            {
+                result = string.Empty;
+                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+            }
+            return result;
         }
 
         public static long UnixTimeStampNow()
@@ -125,7 +145,8 @@ namespace ElasticSearchHandler
             }
             catch (Exception ex)
             {
-                //TO DO ADD LOGGER
+                log.ErrorFormat("Error GettingLanguages of group {0}. Exception: {1}", nGroupID, ex);
+
                 return new List<LanguageObj>();
             }
         }

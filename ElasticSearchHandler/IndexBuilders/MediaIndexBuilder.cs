@@ -8,6 +8,8 @@ using Catalog;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -15,10 +17,10 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         private static readonly string MEDIA = "media";
 
-        private int m_nGroupID;
-        private ESSerializer m_oESSerializer;
-        private ElasticSearchApi m_oESApi;
-        private Group m_oGroup;
+        private int groupId;
+        private ESSerializer serializer;
+        private ElasticSearchApi api;
+        private Group group;
         private GroupManager groupManager;
 
         public bool SwitchIndexAlias { get; set; }
@@ -28,119 +30,95 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public MediaIndexBuilder(int nGroupID)
         {
-            m_nGroupID = nGroupID;
-            m_oESApi = new ElasticSearchApi();
-            m_oESSerializer = new ESSerializer();
+            groupId = nGroupID;
+            api = new ElasticSearchApi();
+            serializer = new ESSerializer();
         }
 
-        public bool Build()
+        #region Interface Methods
+
+        public bool BuildIndex()
         {
-            bool bSuccess = false;
-            Logger.Logger.Log("Info", string.Concat("Starting media index build for group ", m_nGroupID), "ESBuildHandler");
+            string sNewIndex = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
 
-            if (m_nGroupID == 0)
-            {
-                bSuccess = true;
-                return bSuccess;
-            }
+            #region Build new index and specify number of nodes/shards
 
-            GroupManager groupManager = new GroupManager();
-            m_oGroup = groupManager.GetGroup(m_nGroupID);
-
-            if (m_oGroup == null)
-            {
-                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESBuildHandler");
-                return bSuccess;
-            }
-
-            string sNewIndex;
-            bSuccess = CreateIndex(out sNewIndex);
-
-            if (!bSuccess)
-            {
-                Logger.Logger.Log("Error", string.Concat("Building index for group failed. group id=",m_nGroupID), "ESBuildHandler");
-                return bSuccess;
-            }
-
-
-            bSuccess = CreateMapping(sNewIndex);
-
-            if (!bSuccess)
-            {
-                Logger.Logger.Log("Error", string.Concat("Building mapping for group failed. group id=", m_nGroupID), "ESBuildHandler");
-                return bSuccess;
-            }
-
-            IndexMedias(sNewIndex);
-            IndexChannels(sNewIndex);
-
-            if (SwitchIndexAlias)
-               bSuccess = SwitchIndices(sNewIndex);
-
-
-            return bSuccess;
-        }
-
-        private bool CreateIndex(out string sNewIndex)
-        {
-            string sNumOfShards = GetTcmConfigValue("ES_NUM_OF_SHARDS");
-            string sNumOfReplicas = GetTcmConfigValue("ES_NUM_OF_REPLICAS");
+            string sNumOfShards = ElasticSearchTaskUtils.GetWSURL("ES_NUM_OF_SHARDS");
+            string sNumOfReplicas = ElasticSearchTaskUtils.GetWSURL("ES_NUM_OF_REPLICAS");
 
             int nNumOfShards, nNumOfReplicas;
 
             int.TryParse(sNumOfReplicas, out nNumOfReplicas);
             int.TryParse(sNumOfShards, out nNumOfShards);
 
+            GroupManager groupManager = new GroupManager();
+            bool bres = groupManager.RemoveGroup(groupId);
+            Group oGroup = groupManager.GetGroup(groupId);
+
+            if (oGroup == null)
+            {
+                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESFeeder");
+                return false;
+            }
+
             List<string> lAnalyzers;
             List<string> lFilters;
-            GetAnalyzers(m_oGroup.GetLangauges(), out lAnalyzers, out lFilters);
+            List<string> tokenizers;
+            GetAnalyzers(oGroup.GetLangauges(), out lAnalyzers, out lFilters, out tokenizers);
 
-            sNewIndex = ElasticsearchTasksCommon.Utils.GetNewMediaIndexStr(m_nGroupID);
-            bool bRes = m_oESApi.BuildIndex(sNewIndex, nNumOfShards, nNumOfReplicas, lAnalyzers, lFilters);
+            bool bRes = api.BuildIndex(sNewIndex, nNumOfShards, nNumOfReplicas, lAnalyzers, lFilters, tokenizers);
 
-            return bRes;
-        }
+            #endregion
 
-        private bool CreateMapping(string sIndex)
-        {
-            bool bRes = false;
-            foreach (ApiObjects.LanguageObj language in m_oGroup.GetLangauges())
+            #region create mapping
+            foreach (ApiObjects.LanguageObj language in oGroup.GetLangauges())
             {
                 string indexAnalyzer, searchAnalyzer;
+                string autocompleteIndexAnalyzer = null;
+                string autocompleteSearchAnalyzer = null;
 
-                if (ElasticSearchApi.AnalyzerExists(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code)))
+                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+
+                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
                     indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
                     searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+
+                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
+                    {
+                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
+                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    }
                 }
                 else
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ESBuildHandler");
+                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
                 }
 
-                string sMapping = m_oESSerializer.CreateMediaMapping(m_oGroup.m_oMetasValuesByGroupId, m_oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer);
+                string sMapping = serializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
-                bool bMappingRes = m_oESApi.InsertMapping(sIndex, sType, sMapping.ToString());
+                bool bMappingRes = api.InsertMapping(sNewIndex, sType, sMapping.ToString());
 
-                if (language.IsDefault && bMappingRes)
-                    bRes = true;
+                if (language.IsDefault && !bMappingRes)
+                    bRes = false;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESBuildHandler");
+                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESFeeder");
 
             }
 
-            return bRes;
-        }
+            if (!bRes)
+                return bRes;
+            #endregion
 
-        private void IndexMedias(string sIndex)
-        {
-            Dictionary<int, Dictionary<int, Media>> dGroupMedias = ElasticsearchTasksCommon.Utils.GetGroupMedias(m_nGroupID, 0);
+            #region insert medias
+            Dictionary<int, Dictionary<int, Media>> dGroupMedias = GetGroupMedias(groupId, 0);
 
             if (dGroupMedias != null)
             {
+                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", dGroupMedias.Count), "ESFeeder");
                 List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
 
                 foreach (int nMediaID in dGroupMedias.Keys)
@@ -153,15 +131,22 @@ namespace ElasticSearchHandler.IndexBuilders
                         {
                             string sMediaObj;
 
-                            sMediaObj = m_oESSerializer.SerializeMediaObject(oMedia);
+                            sMediaObj = serializer.SerializeMediaObject(oMedia);
 
-                            string sType = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, m_oGroup.GetLanguage(nLangID));
+                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, oGroup.GetLanguage(nLangID));
 
-                            lBulkObj.Add(new ESBulkRequestObj<int>() { docID = oMedia.m_nMediaID, index = sIndex, type = sType, document = sMediaObj });
+                            lBulkObj.Add(new ESBulkRequestObj<int>()
+                            {
+                                docID = oMedia.m_nMediaID,
+                                index = sNewIndex,
+                                type = sType,
+                                document = sMediaObj
+                            });
                         }
                         if (lBulkObj.Count >= 50)
                         {
-                            m_oESApi.CreateBulkIndexRequest(lBulkObj);
+                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                            t.Wait();
                             lBulkObj = new List<ESBulkRequestObj<int>>();
                         }
                     }
@@ -169,74 +154,417 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (lBulkObj.Count > 0)
                 {
-                    m_oESApi.CreateBulkIndexRequest(lBulkObj);
+                    Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                    t.Wait();
                 }
             }
-        }
+            #endregion
 
-        private void IndexChannels(string sIndex)
-        {
+            #region insert channel queries
 
-            if (m_oGroup.channelIDs != null)
+            if (oGroup.channelIDs != null)
             {
+                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.channelIDs.Count), "ESFeeder");
+
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
-                ESMediaQueryBuilder oQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
-
+                ESMediaQueryBuilder oQueryParser = new ESMediaQueryBuilder()
+                {
+                    QueryType = eQueryType.EXACT
+                };
 
                 List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
-                foreach (int channelId in m_oGroup.channelIDs)
+                try
                 {
-                    Channel oChannel = groupManager.GetChannel(channelId, ref m_oGroup);
+                    List<Channel> allChannels = groupManager.GetChannels(oGroup.channelIDs.ToList(), groupId);
 
-                    if (oChannel == null || oChannel.m_nIsActive != 1)
-                        continue;
-
-                    oQueryParser.m_nGroupID = oChannel.m_nGroupID;
-                    oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel, m_oGroup.m_nSubGroup);
-                    oQueryParser.oSearchObject = oSearchObj;
-                    sQueryStr = oQueryParser.BuildSearchQueryString(false);
-
-                    lChannelRequests.Add(new KeyValuePair<int, string>(oChannel.m_nChannelID, sQueryStr));
-
-                    if (lChannelRequests.Count > 50)
+                    foreach (Channel currentChannel in allChannels)
                     {
-                        m_oESApi.CreateBulkIndexRequest("_percolator", sIndex, lChannelRequests);
-                        lChannelRequests.Clear();
+                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
+                            continue;
+
+                        oQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                        oSearchObj = BuildBaseChannelSearchObject(currentChannel);
+                        oQueryParser.oSearchObject = oSearchObj;
+                        sQueryStr = oQueryParser.BuildSearchQueryString(false);
+
+                        lChannelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, sQueryStr));
+
+                        if (lChannelRequests.Count > 50)
+                        {
+                            api.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
+                            lChannelRequests.Clear();
+                        }
+                    }
+
+                    if (lChannelRequests.Count > 0)
+                    {
+                        api.CreateBulkIndexRequest("_percolator", sNewIndex, lChannelRequests);
                     }
                 }
-
-                if (lChannelRequests.Count > 0)
+                catch (Exception ex)
                 {
-                    m_oESApi.CreateBulkIndexRequest("_percolator", sIndex, lChannelRequests);
+                    Logger.Logger.Log("Error", string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
                 }
             }
 
+            #endregion
+
+            string sAlias = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
+            bool indexExists = api.IndexExists(sAlias);
+
+            if (SwitchIndexAlias || !indexExists)
+            {
+                List<string> lOldIndices = api.GetAliases(sAlias);
+
+                Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(sNewIndex, sAlias, lOldIndices));
+                tSwitchIndex.Wait();
+
+                if (tSwitchIndex.Result && lOldIndices.Count > 0)
+                {
+                    Task t = Task.Factory.StartNew(() => api.DeleteIndices(lOldIndices));
+                    t.Wait();
+                }
+            }
+
+            return true;
         }
 
-        private bool SwitchIndices(string sIndex)
+        #endregion
+
+        #region Public Methods
+
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int nGroupID, int nMediaID)
         {
-            string sAlias = ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(m_nGroupID);
-            List<string> lOldIndices = m_oESApi.GetAliases(sAlias);
+            //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
+            //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
+            Dictionary<int, Dictionary<int, Media>> dMediaTrans = new Dictionary<int, Dictionary<int, Media>>();
 
-            bool bSwithcIndex = m_oESApi.SwitchIndex(sIndex, sAlias, lOldIndices);
+            //temporary media dictionary
+            Dictionary<int, Media> medias = new Dictionary<int, Media>();
 
-            if (!bSwithcIndex)
+            try
             {
-                Logger.Logger.Log("Info", string.Concat("Unable to switch from old to new index. id=", sIndex), "ESBuildHandler");
+                Group oGroup = GroupsCache.Instance().GetGroup(nGroupID);
+
+                if (oGroup == null)
+                {
+                    Logger.Logger.Log("Error", "Could not load group from cache in GetGroupMedias", "ESFeeder");
+                    return dMediaTrans;
+                }
+
+                ApiObjects.LanguageObj oDefaultLangauge = oGroup.GetGroupDefaultLanguage();
+
+                if (oDefaultLangauge == null)
+                {
+                    Logger.Logger.Log("Error", "Could not get group default language from cache in GetGroupMedias", "ESFeeder");
+                    return dMediaTrans;
+                }
+
+                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
+                GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                GroupMedias.AddParameter("@GroupID", nGroupID);
+                GroupMedias.AddParameter("@MediaID", nMediaID);
+
+                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
+                tDS.Wait();
+                DataSet ds = tDS.Result;
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            Media media = new Media();
+                            if (ds.Tables[0].Columns != null && ds.Tables[0].Rows != null)
+                            {
+                                #region media info
+                                media.m_nMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                                media.m_nWPTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "watch_permission_type_id");
+                                media.m_nMediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_type_id");
+                                media.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id");
+                                media.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "is_active");
+                                media.m_nDeviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(row, "device_rule_id");
+                                media.m_nLikeCounter = ODBCWrapper.Utils.GetIntSafeVal(row, "like_counter");
+                                media.m_nViews = ODBCWrapper.Utils.GetIntSafeVal(row, "views");
+                                media.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(row["user_types"]);
+
+                                double dSum = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_sum");
+                                double dCount = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_count");
+
+                                if (dCount > 0)
+                                {
+                                    media.m_nVotes = (int)dCount;
+                                    media.m_dRating = dSum / dCount;
+                                }
+
+                                media.m_sName = ODBCWrapper.Utils.GetSafeStr(row, "name");
+                                media.m_sDescription = ODBCWrapper.Utils.GetSafeStr(row, "description");
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "create_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date");
+                                    media.m_sCreateDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
+                                    media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "start_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "start_date");
+                                    media.m_sStartDate = dt.ToString("yyyyMMddHHmmss");
+                                }
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "end_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "end_date");
+                                    media.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
+
+                                }
+
+                                if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "final_end_date")))
+                                {
+                                    DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "final_end_date");
+                                    media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
+
+                                }
+                                #endregion
+
+                                #region - get all metas by groupId
+                                Dictionary<string, string> dMetas;
+                                //Get Meta - MetaNames (e.g. will contain key/value <META1_STR, show>)
+                                if (oGroup.m_oMetasValuesByGroupId.TryGetValue(media.m_nGroupID, out dMetas))
+                                {
+                                    foreach (string sMeta in dMetas.Keys)
+                                    {
+                                        //Retreive meta name and check that it is not null or empty so that it will not form an invalid field later on
+                                        string sMetaName;
+                                        dMetas.TryGetValue(sMeta, out sMetaName);
+
+                                        if (!string.IsNullOrEmpty(sMetaName))
+                                        {
+                                            string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
+                                            media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+                                        }
+                                    }
+                                }
+                            }
+                            medias.Add(media.m_nMediaID, media);
+                                #endregion
+                        }
+
+                        #region - get all the media files types for each mediaId that have been selected.
+                        if (ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                        {
+                            foreach (DataRow row in ds.Tables[1].Rows)
+                            {
+                                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
+                                medias[mediaID].m_sMFTypes += string.Format("{0};", sMFT);
+                            }
+                        }
+                        #endregion
+
+                        #region - get regions of media
+
+                        // Regions table should be 6h on stored procedure
+                        if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
+                        {
+                            foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
+                                int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
+
+                                // Accumulate region ids in list
+                                medias[mediaId].regions.Add(regionId);
+                            }
+                        }
+
+                        // If no regions were found for this media - use 0, that indicates that the media is region-less
+                        foreach (Media media in medias.Values)
+                        {
+                            if (media.regions.Count == 0)
+                            {
+                                media.regions.Add(0);
+                            }
+                        }
+
+
+                        #endregion
+
+                        #region - get all media tags
+                        if (ds.Tables[2].Columns != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                        {
+                            foreach (DataRow row in ds.Tables[2].Rows)
+                            {
+                                int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
+                                string val = ODBCWrapper.Utils.GetSafeStr(row, "value");
+                                long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
+
+                                try
+                                {
+                                    if (oGroup.m_oGroupTags.ContainsKey(mttn))
+                                    {
+                                        string sTagName = oGroup.m_oGroupTags[mttn];
+
+                                        if (!string.IsNullOrEmpty(sTagName))
+                                        {
+                                            if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
+                                            {
+                                                medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
+                                            }
+
+                                            if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                            {
+                                                medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    Logger.Logger.Log("Error", string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", nTagMediaID, mttn, tagID, val), "ESFeeder");
+                                }
+                            }
+                        }
+                        #endregion
+
+                        #region Clone medias to all translated languages
+                        foreach (int mediaID in medias.Keys)
+                        {
+                            Media media = medias[mediaID];
+
+                            Dictionary<int, Media> tempMediaTrans = new Dictionary<int, Media>();
+                            foreach (ApiObjects.LanguageObj oLanguage in oGroup.GetLangauges())
+                            {
+                                tempMediaTrans.Add(oLanguage.ID, media.Clone());
+                            }
+
+                            dMediaTrans.Add(mediaID, tempMediaTrans);
+
+                        }
+                        #endregion
+
+                        #region get all translated metas and media info
+
+                        if (ds.Tables[3].Columns != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                        {
+                            Dictionary<string, string> dMetas;
+
+                            foreach (DataRow row in ds.Tables[3].Rows)
+                            {
+                                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID");
+                                int nLanguageID = ODBCWrapper.Utils.GetIntSafeVal(row, "LANGUAGE_ID");
+
+                                if (dMediaTrans.ContainsKey(mediaID) && dMediaTrans[mediaID].ContainsKey(nLanguageID))
+                                {
+                                    Media oMedia = dMediaTrans[mediaID][nLanguageID];
+
+                                    if (oGroup.m_oMetasValuesByGroupId.TryGetValue(oMedia.m_nGroupID, out dMetas))
+                                    {
+                                        #region get media translated name
+                                        string sTransName = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+
+                                        if (!string.IsNullOrEmpty(sTransName))
+                                            oMedia.m_sName = sTransName;
+                                        #endregion
+
+                                        #region get media translated description
+                                        string sTransDesc = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION");
+
+                                        if (!string.IsNullOrEmpty(sTransDesc))
+                                            oMedia.m_sDescription = sTransDesc;
+                                        #endregion
+
+                                        #region get media translated metas
+                                        foreach (string sMeta in dMetas.Keys)
+                                        {
+                                            //if meta is a string, then get translated value from DB, for all other metas, we keep the same values as there's no translation
+                                            if (sMeta.EndsWith("_STR"))
+                                            {
+                                                string sMetaName;
+                                                dMetas.TryGetValue(sMeta, out sMetaName);
+
+                                                if (!string.IsNullOrEmpty(sMetaName))
+                                                {
+                                                    string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row, sMeta);
+
+                                                    if (!string.IsNullOrEmpty(sMetaValue))
+                                                    {
+                                                        oMedia.m_dMeatsValues[sMetaName] = sMetaValue;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        #endregion
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+
+                        #region - get all translated media tags
+                        if (ds.Tables[4].Columns != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                        {
+                            foreach (DataRow row in ds.Tables[4].Rows)
+                            {
+                                int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
+                                string val = ODBCWrapper.Utils.GetSafeStr(row, "translated_value");
+                                int nLangID = ODBCWrapper.Utils.GetIntSafeVal(row, "language_id");
+                                long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
+
+                                if (oGroup.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
+                                {
+                                    Media oMedia;
+
+                                    if (dMediaTrans.ContainsKey(nTagMediaID) && dMediaTrans[nTagMediaID].ContainsKey(nLangID))
+                                    {
+                                        oMedia = dMediaTrans[nTagMediaID][nLangID];
+                                        string sTagTypeName = oGroup.m_oGroupTags[mttn];
+
+                                        if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
+                                        {
+                                            oMedia.m_dTagValues[sTagTypeName][tagID] = val;
+                                        }
+                                        else
+                                        {
+                                            Dictionary<long, string> dTemp = new Dictionary<long, string>();
+                                            dTemp[tagID] = val;
+                                            oMedia.m_dTagValues[sTagTypeName] = dTemp;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                }
             }
-            else if (DeleteOldIndices)
+            catch (Exception ex)
             {
-                m_oESApi.DeleteIndices(lOldIndices);
+                Logger.Logger.Log("Media Exception", ex.Message, "ESFeeder");
             }
 
-            return bSwithcIndex;
+            return dMediaTrans;
         }
 
-        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters)
+        #endregion
+
+        #region Private Methods
+
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
         {
             lAnalyzers = new List<string>();
             lFilters = new List<string>();
+            tokenizers = new List<string>();
 
             if (lLanguages != null)
             {
@@ -244,10 +572,11 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
                     string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
+                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code));
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESBuildHandler");
+                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ElasticSearch");
                     }
                     else
                     {
@@ -258,23 +587,104 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         lFilters.Add(filter);
                     }
+
+                    if (!string.IsNullOrEmpty(tokenizer))
+                    {
+                        tokenizers.Add(tokenizer);
+                    }
                 }
             }
         }
 
-        public static string GetTcmConfigValue(string sKey)
+        private static ApiObjects.SearchObjects.MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
         {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
-            }
-            return result;
+            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
+            searchObject.m_nGroupId = channel.m_nGroupID;
+            searchObject.m_bExact = true;
+            searchObject.m_eCutWith = channel.m_eCutWith;
+            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
+
+            searchObject.m_bUseStartDate = false;
+            searchObject.m_bUseFinalEndDate = false;
+
+            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+            return searchObject;
         }
+
+        private static string GetPermittedWatchRules(int nGroupId)
+        {
+            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
+            List<string> lWatchRulesIds = null;
+            if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
+            {
+                lWatchRulesIds = new List<string>();
+                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
+                {
+                    lWatchRulesIds.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow["RuleID"]));
+                }
+            }
+
+            string sRules = string.Empty;
+
+            if (lWatchRulesIds != null && lWatchRulesIds.Count > 0)
+            {
+                sRules = string.Join(" ", lWatchRulesIds);
+            }
+
+            return sRules;
+        }
+
+        private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject, 
+            ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)
+        {
+            List<ApiObjects.SearchObjects.SearchValue> m_dAnd = new List<ApiObjects.SearchObjects.SearchValue>();
+            List<ApiObjects.SearchObjects.SearchValue> m_dOr = new List<ApiObjects.SearchObjects.SearchValue>();
+
+            ApiObjects.SearchObjects.SearchValue search = new ApiObjects.SearchObjects.SearchValue();
+            if (channelSearchValues != null && channelSearchValues.Count > 0)
+            {
+                foreach (ApiObjects.SearchObjects.SearchValue searchValue in channelSearchValues)
+                {
+                    if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                    {
+                        search = new ApiObjects.SearchObjects.SearchValue();
+                        search.m_sKey = searchValue.m_sKey;
+                        search.m_lValue = searchValue.m_lValue;
+                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
+                        switch (cutWith)
+                        {
+                            case ApiObjects.SearchObjects.CutWith.OR:
+                            {
+                                m_dOr.Add(search);
+                                break;
+                            }
+                            case ApiObjects.SearchObjects.CutWith.AND:
+                            {
+                                m_dAnd.Add(search);
+                                break;
+                            }
+                            default:
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (m_dOr.Count > 0)
+            {
+                searchObject.m_dOr = m_dOr;
+            }
+
+            if (m_dAnd.Count > 0)
+            {
+                searchObject.m_dAnd = m_dAnd;
+            }
+        }
+
+        #endregion
     }
 }

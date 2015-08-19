@@ -12,6 +12,6 @@ namespace ElasticSearchHandler.IndexBuilders
         DateTime? StartDate { get; set; }
         DateTime? EndDate { get; set; }
 
-        bool Build();
+        bool BuildIndex();
     }
 }
