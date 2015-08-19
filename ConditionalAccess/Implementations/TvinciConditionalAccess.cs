@@ -722,7 +722,7 @@ namespace ConditionalAccess
 
         protected override bool HandleSubscriptionBillingSuccess(string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
                                                                  string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId)
+                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId, DateTime? subscriptionEndDate)
         {
             purchaseId = 0;
             try
@@ -738,12 +738,15 @@ namespace ConditionalAccess
                 }
 
                 // get subscription end date
-                DateTime subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
+                if (!subscriptionEndDate.HasValue)
+                {
+                    subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
+                }
 
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
                              deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                             previewModuleID, entitlementDate, subscriptionEndDate, entitlementDate, houseHoldId, billingGuid);
+                             previewModuleID, entitlementDate, subscriptionEndDate.Value, entitlementDate, houseHoldId, billingGuid);
 
                 if (purchaseId == 0)
                 {
