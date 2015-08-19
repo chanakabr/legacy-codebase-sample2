@@ -22,6 +22,7 @@ namespace WebAPI.Controllers
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("list"), HttpPost]
+        [ApiAuthorize]
         public KalturaParentalRuleListResponse List(int household_id)
         {
             List<KalturaParentalRule> response = null;
@@ -50,6 +51,7 @@ namespace WebAPI.Controllers
         /// <param name="rule_id">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
+        [ApiAuthorize]
         public bool Enable(int household_id, long rule_id)
         {
             bool success = false;
@@ -78,13 +80,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         [Route("disable"), HttpPost]
+        [ApiAuthorize]
         public bool Disable(int household_id, long rule_id)
         {
             bool success = false;
 
             int groupId = KS.GetFromRequest().GroupId;           
            
-
             try
             {
                 // call client

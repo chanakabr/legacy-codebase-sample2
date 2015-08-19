@@ -22,6 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("get"), HttpPost]
+        [ApiAuthorize]
         public KalturaPinResponse Get(int household_id)
         {
             KalturaPinResponse pinResponse = null;
@@ -50,7 +51,8 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
-        public bool Update( int household_id, string pin)
+        [ApiAuthorize]
+        public bool Update(int household_id, string pin)
         {
             bool success = false;
 
