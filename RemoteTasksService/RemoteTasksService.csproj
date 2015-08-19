@@ -114,6 +114,10 @@
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
+      <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
+      <Name>ElasticSearchHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EPG_XDTVTransform\EPG_XDTVTransform.csproj">
       <Project>{4f57cbcf-abec-4645-a01a-3001f6be5c15}</Project>
       <Name>EPG_XDTVTransform</Name>
