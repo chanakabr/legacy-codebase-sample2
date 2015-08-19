@@ -154,6 +154,6 @@ namespace TVPApiServices
             eTransactionType product_type, string coupon);
 
         [OperationContract]
-        bool GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history);
+        ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history);
     }
 }

@@ -1496,10 +1496,9 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.")]
         [PrivateMethod]
-        public bool GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history)
+        public ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history)
         {
-            bool response = false;
-
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GrantEntitlements", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1509,7 +1508,7 @@ namespace TVPApiServices
                 if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
-                    return false;
+                    return null;
                 }
 
                 try
@@ -1520,13 +1519,15 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = false;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = false;                
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();            
             }
 
             return response;

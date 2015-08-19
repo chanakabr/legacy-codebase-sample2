@@ -1571,19 +1571,16 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public bool GrantEntitlements(string userId, int contentId, int productId, eTransactionType productType, bool history)
+        public ClientResponseStatus GrantEntitlements(string userId, int contentId, int productId, eTransactionType productType, bool history)
         {
-            bool response = false;
+            ClientResponseStatus clientResponse;
+            
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = m_Module.GrantEntitlements(m_wsUserName, m_wsPassword, userId, 0, contentId, productId ,productType, SiteHelper.GetClientIP(), string.Empty, history);
-                    if (result.Code == 0)
-                    {
-                        response = true;
-                    }
-
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
             catch (Exception ex)
@@ -1597,9 +1594,11 @@ namespace TVPApiModule.Services
                     productType.ToString(),                    //{4}
                     history.ToString()                         //{5}                    
                     );
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+
             }
 
-            return response;
+            return clientResponse;
         }
 
 
