@@ -30,7 +30,6 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006
         /// </remarks>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <returns>Success / fail</returns>
         [Route("disableDefaultParentalRule"), HttpPost]
@@ -58,7 +57,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the household model       
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
@@ -133,7 +131,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Creates a household for the user      
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="request">Request parameters</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
@@ -178,7 +175,6 @@ namespace WebAPI.Controllers
         /// Domain not exists = 1006, Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
@@ -212,7 +208,6 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, 
         /// Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
