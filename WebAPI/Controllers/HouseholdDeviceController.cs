@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("registrationStatus"), HttpPost]
-        public KalturaDeviceRegistrationStatus RegistrationStatus(string partner_id, int household_id, string udid)
+        public KalturaDeviceRegistrationStatusHolder RegistrationStatus(string partner_id, int household_id, string udid)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            return status;
+            return new KalturaDeviceRegistrationStatusHolder() { Status = status };
         }
     }
 }
