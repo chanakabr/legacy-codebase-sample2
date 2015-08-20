@@ -22,6 +22,15 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        /// <summary>
+        /// Returns media by ID
+        /// </summary>
+        /// <param name="media_id">requested media ID</param>               
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="household_id">Household identifier</param>
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
