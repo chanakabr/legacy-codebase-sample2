@@ -40,7 +40,7 @@ namespace WebAPI.Managers
             if (tokenRes == null || tokenRes.Success != true || tokenRes.HasValue != true || tokenRes.Value == null)
             {
                 log.ErrorFormat("RefreshSession: refreshToken expired.");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "refresh token not found"); 
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ExpiredRefreshToken, "not recognized refresh toke"); 
             }
 
             ApiToken token = tokenRes.Value;
@@ -54,7 +54,7 @@ namespace WebAPI.Managers
              token = new ApiToken(token, groupConfig, udid);
 
             // Store new access + refresh tokens pair
-            if (!couchbaseClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, tokenKey, token, tokenRes.Cas, new TimeSpan(0, 0, (int)groupConfig.RefreshExpirationForPinLoginSeconds)))
+            if (!couchbaseClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, tokenKey, token, tokenRes.Cas, new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token"); 
@@ -80,7 +80,8 @@ namespace WebAPI.Managers
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
 
             // try store in CB, will return false if the same token already exists
-            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, tokenKey, token, new TimeSpan(0, 0, (int)groupConfig.RefreshExpirationForPinLoginSeconds)))
+            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, tokenKey, token, 
+                new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save session");

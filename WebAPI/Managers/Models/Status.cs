@@ -79,6 +79,7 @@ namespace WebAPI.Managers.Models
         InvalidActionParameters = 500013,
         InvalidJSONRequest = 500014,
         InvalidKS = 500015,
-        ExpiredKS = 500016
+        ExpiredKS = 500016,
+        InvalidRefreshToken = 500017
     }
 }

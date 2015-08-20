@@ -269,7 +269,7 @@ namespace WebAPI.Filters
 
             if (token == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.ExpiredKS, "KS Expired");
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
                 return;
             }
 
@@ -277,7 +277,7 @@ namespace WebAPI.Filters
 
             if (!ks.IsValid)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.ExpiredKS, "KS Expired");
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
                 return;
             }
 
@@ -332,7 +332,7 @@ namespace WebAPI.Filters
 
             if (!ks.IsValid)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "KS Expired");
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.ExpiredKS, "KS Expired");
                 return;
             }
 
