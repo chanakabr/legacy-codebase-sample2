@@ -4813,8 +4813,6 @@ namespace ConditionalAccess
         {
             PaymentMethod retVal = PaymentMethod.Unknown;
 
-            return retVal;
-
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
@@ -4832,7 +4830,8 @@ namespace ConditionalAccess
                             int billingInt = int.Parse(selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"].ToString());
                             if (billingInt > 0)
                             {
-                                retVal = (PaymentMethod)billingInt;
+                                if (Enum.IsDefined(typeof(PaymentMethod), ((PaymentMethod)billingInt).ToString()))
+                                    retVal = (PaymentMethod)billingInt;
                             }
                         }
                     }
