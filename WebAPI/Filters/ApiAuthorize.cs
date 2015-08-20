@@ -38,14 +38,10 @@ namespace WebAPI.Controllers
 
             KS ks = KS.GetFromRequest();
 
-            if (ks == null)
-            {
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-            }
-            else if (!ks.IsValid && !silent)
-            {
-                throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Invalid KS - Expired");
-            }
+            if (ks == null)            
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");            
+            else if (!ks.IsValid && !silent)            
+                throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Expired KS");            
 
             return true;
         }

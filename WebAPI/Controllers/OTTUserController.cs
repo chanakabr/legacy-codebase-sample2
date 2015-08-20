@@ -126,7 +126,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
-        [ApiAuthorize(false,true)]
+        [ApiAuthorize(false, true)]
         public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
@@ -204,7 +204,7 @@ namespace WebAPI.Controllers
         public KalturaOTTUser Add(string partner_id, KalturaSignUp request)
         {
             KalturaOTTUser response = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (request == null || request.userBasicData == null)
@@ -431,7 +431,7 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUser response = null;
 
-            int groupId = KS.GetFromRequest().GroupId; 
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
@@ -471,8 +471,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId; 
-                
+            int groupId = KS.GetFromRequest().GroupId;
+
             // parameters validation
             if (media_id == 0)
             {
@@ -505,7 +505,7 @@ namespace WebAPI.Controllers
             List<KalturaParentalRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             // parameters validation
             if (epg_id == 0)
             {
@@ -603,7 +603,7 @@ namespace WebAPI.Controllers
             List<KalturaGenericRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-                
+
 
             // parameters validation
             if (epg_id == 0)

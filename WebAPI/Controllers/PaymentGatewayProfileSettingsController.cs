@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
+        /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         /// Not found = 500007, Partner is invalid = 500008, Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings </param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public bool Add(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
