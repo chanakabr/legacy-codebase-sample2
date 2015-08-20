@@ -734,9 +734,9 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
+    <Compile Include="Models\General\KalturaDoubleValue.cs" />
     <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
@@ -861,7 +861,7 @@
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="ObjectsConvertor\Models\KalturaAssetType.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
     <Compile Include="Models\General\KalturaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />

@@ -8,7 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
-using WebAPI.ObjectsConvertor.Models;
+using WebAPI.ObjectsConvertor.Utils;
 
 namespace WebAPI.ObjectsConvertor
 {

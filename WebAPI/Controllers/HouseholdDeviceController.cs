@@ -20,13 +20,12 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021</remarks>
+        /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(int household_id, string udid)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            
 
             try
             {

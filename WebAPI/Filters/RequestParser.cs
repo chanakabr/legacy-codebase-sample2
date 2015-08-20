@@ -44,20 +44,31 @@ namespace WebAPI.Filters
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
 
-        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
+        private bool createMethodInvoker(HttpActionContext actionContext, string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
+            Assembly asm = Assembly.GetExecutingAssembly();        
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
 
+            classInstance = null;
+            methodInfo = null;
+
             if (controller == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");                
+                return false;
+            }
 
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
             if (methodInfo == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
+                return false;
+            }
 
             classInstance = Activator.CreateInstance(controller, null);
+
+            return true;
         }
 
         public async override void OnActionExecuting(HttpActionContext actionContext)
@@ -69,7 +80,8 @@ namespace WebAPI.Filters
             MethodInfo methodInfo = null;
             object classInstance = null;
 
-            createMethodInvoker(currentController, currentAction, out methodInfo, out classInstance);
+            if (!createMethodInvoker(actionContext, currentController, currentAction, out methodInfo, out classInstance))
+                return;
 
             if (actionContext.Request.Method == HttpMethod.Post)
             {
@@ -123,16 +135,16 @@ namespace WebAPI.Filters
                                     //XXX: Currently we hack so Array/List will fit as needed
                                     if (p.ParameterType.IsGenericType && typeof(IList).IsAssignableFrom(p.ParameterType))
                                     {
-                                        Type dicType = typeof(Dictionary<,>); 
+                                        Type dicType = typeof(Dictionary<,>);
                                         Type[] typeArgs = { typeof(string), p.ParameterType.GetGenericArguments()[0] };
                                         Type makeme = dicType.MakeGenericType(typeArgs);
-                                        IDictionary listParams = (IDictionary) reqParams[p.Name].ToObject(makeme);
+                                        IDictionary listParams = (IDictionary)reqParams[p.Name].ToObject(makeme);
 
                                         Type listType = typeof(List<>);
                                         Type listArgs = p.ParameterType.GetGenericArguments()[0];
                                         Type makemeList = listType.MakeGenericType(listArgs);
-                                        IList o = (IList) Activator.CreateInstance(makemeList);
-                                        
+                                        IList o = (IList)Activator.CreateInstance(makemeList);
+
                                         foreach (var k in listParams.Keys)
                                         {
                                             o.Add(listParams[k]);
@@ -276,7 +288,7 @@ namespace WebAPI.Filters
         private void GetUserDataFromCB(HttpActionContext actionContext, string ksVal)
         {
             // get token from CB
-            string tokenKey = string.Format(accessTokenKeyFormat ,ksVal);
+            string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
             ApiToken token = couchbaseClient.GetJson<ApiToken>(tokenKey);
 
             if (token == null)
@@ -294,7 +306,7 @@ namespace WebAPI.Filters
             }
 
             ks.SaveOnRequest();
-            
+
         }
 
         private static void createErrorResponse(HttpActionContext actionContext, int errorCode, string msg)
