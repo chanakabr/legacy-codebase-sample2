@@ -11,6 +11,10 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A representation to return an array of values
     /// </summary>
+    [XmlInclude(typeof(KalturaStringValue))]
+    [XmlInclude(typeof(KalturaIntegerValue))]
+    [XmlInclude(typeof(KalturaBooleanValue))]
+    [XmlInclude(typeof(KalturaDoubleValue))]
     public abstract class KalturaValue : KalturaOTTObject
     {
         [DataMember(Name = "description")]
