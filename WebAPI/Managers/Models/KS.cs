@@ -108,13 +108,16 @@ namespace WebAPI.Managers.Models
             encryptedValue = encodedKs.ToString();
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal)
         {
             KS ks = new KS();
+            ks.encryptedValue = ksVal;
             ks.groupId = groupId;
 
-            // decrypt fields
+            // get string
             string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+
+            // decrypt fields
             int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
             byte[] fieldsWithHashBytes = aesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
 

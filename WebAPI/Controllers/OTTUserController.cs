@@ -122,16 +122,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="refresh_token">Refresh token</param>
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
-        public KalturaLoginSession RefreshSession(string partner_id, string refresh_token, string udid = null)
+        [ApiAuthorize(false,true)]
+        public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
-
-            int partnerId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(refresh_token))
             {
@@ -140,7 +138,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = AuthorizationManager.RefreshSession(refresh_token, partnerId, udid);
+                response = AuthorizationManager.RefreshSession(refresh_token, udid);
             }
             catch (ClientException ex)
             {

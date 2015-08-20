@@ -328,13 +328,13 @@ namespace WebAPI.Filters
             string adminSecret = group.UserSecret;
 
             // build KS
-            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret);
+            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ksVal);
 
-            if (!ks.IsValid)
-            {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.ExpiredKS, "KS Expired");
-                return;
-            }
+            //if (!ks.IsValid)
+            //{
+            //    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.ExpiredKS, "KS Expired");
+            //    return;
+            //}
 
             ks.SaveOnRequest();
         }

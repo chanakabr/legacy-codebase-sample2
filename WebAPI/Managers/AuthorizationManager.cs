@@ -22,8 +22,11 @@ namespace WebAPI.Managers
 
         private static CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
 
-        public static KalturaLoginSession RefreshSession(string refreshToken, int groupId, string udid = null)
+        public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+
             // validate request parameters
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -39,12 +42,21 @@ namespace WebAPI.Managers
             IGetOperationResult<ApiToken> tokenRes = couchbaseClient.ExecuteGetJson<ApiToken>(tokenKey);
             if (tokenRes == null || tokenRes.Success != true || tokenRes.HasValue != true || tokenRes.Value == null)
             {
-                log.ErrorFormat("RefreshSession: refreshToken expired.");
+                log.ErrorFormat("RefreshSession: refreshToken expired");
                 throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token"); 
             }
             
             ApiToken token = tokenRes.Value;
+
+            // validate expired ks
+            if (ks.ToString() != token.KS)
+            {
+                log.ErrorFormat("RefreshSession: invalid ks");
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "invalid ks"); 
+            }
+
             string userId = token.UserId;
+
 
             // get user
             ValidateUser(groupId, userId);

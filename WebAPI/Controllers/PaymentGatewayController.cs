@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetHouseHoldPaymentGateway(groupId, payment_gateway_id, KS.GetFromRequest().UserId, household_id);
+                response = ClientsManager.BillingClient().SetHouseholdPaymentGateway(groupId, payment_gateway_id, KS.GetFromRequest().UserId, household_id);
             }
             catch (ClientException ex)
             {

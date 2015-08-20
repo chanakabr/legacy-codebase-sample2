@@ -22,11 +22,13 @@ namespace WebAPI.Controllers
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
         private bool allowAnonymous;
+        private bool silent;
 
-        public ApiAuthorizeAttribute(bool AllowAnonymous = false)
+        public ApiAuthorizeAttribute(bool AllowAnonymous = false, bool Silent = false)
             : base()
         {
             allowAnonymous = AllowAnonymous;
+            silent = Silent;
         }
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
@@ -40,7 +42,7 @@ namespace WebAPI.Controllers
             {
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             }
-            else if (!ks.IsValid)
+            else if (!ks.IsValid && !silent)
             {
                 throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Invalid KS - Expired");
             }
