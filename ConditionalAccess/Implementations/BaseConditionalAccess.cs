@@ -13337,7 +13337,7 @@ namespace ConditionalAccess
                     status = new ApiObjects.Response.Status((int)eResponseStatus.CollectionPurchased, "Collection already purchased");
                     break;
                 default:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "UnKnown price reason");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
                     break;
             }
 
@@ -13524,6 +13524,13 @@ namespace ConditionalAccess
                 TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty,
                     ref priceReason, ref subscription, country, string.Empty, deviceName);
 
+                if (priceReason == PriceReason.UnKnown)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "The subscription is unknown");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
 
                 if (priceReason != PriceReason.ForPurchase && !entitleToPreview)
@@ -13662,6 +13669,13 @@ namespace ConditionalAccess
                 TvinciPricing.Collection collection = null;
                 priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
                                                               ref collection, country, string.Empty, deviceName, string.Empty);
+
+                if (priceReason == PriceReason.UnKnown)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "The collection is unknown");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
 
                 bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
 
