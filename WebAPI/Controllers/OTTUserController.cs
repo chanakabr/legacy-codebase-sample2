@@ -342,17 +342,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Given a user name and existing password, change to a new password.        
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("changePassword"), HttpPost]
-        public bool ChangePassword(string partner_id, string username, string old_password, string new_password)
+        [ApiAuthorize]
+        public bool ChangePassword(string username, string old_password, string new_password)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
@@ -360,6 +360,7 @@ namespace WebAPI.Controllers
             }
             try
             {
+                //TODO: get username by user id
                 // call client
                 response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, old_password, new_password);
             }
@@ -380,8 +381,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [ApiAuthorize]
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
