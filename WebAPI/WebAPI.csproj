@@ -675,7 +675,6 @@
     <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\ChannelMediaController.cs" />
-    <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
     <Compile Include="Controllers\HouseholdLastPositionController.cs" />
     <Compile Include="Controllers\HouseholdParentalPinController.cs" />

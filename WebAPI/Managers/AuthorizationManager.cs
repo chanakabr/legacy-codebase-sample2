@@ -40,9 +40,9 @@ namespace WebAPI.Managers
             if (tokenRes == null || tokenRes.Success != true || tokenRes.HasValue != true || tokenRes.Value == null)
             {
                 log.ErrorFormat("RefreshSession: refreshToken expired.");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ExpiredRefreshToken, "not recognized refresh toke"); 
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token"); 
             }
-
+            
             ApiToken token = tokenRes.Value;
             string userId = token.UserId;
 

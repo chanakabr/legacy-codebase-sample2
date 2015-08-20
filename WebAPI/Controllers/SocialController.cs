@@ -154,5 +154,29 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Returns the facebook application configuration for the partner
+        /// </summary>        
+        /// <returns></returns>
+        [Route("FBConfig"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaFacebookConfig FBConfig()
+        {
+            KalturaFacebookConfig response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.SocialClient().GetFacebookConfig(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
