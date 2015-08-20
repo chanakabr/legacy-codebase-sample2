@@ -132,31 +132,7 @@ namespace WebAPI.Filters
 
                                 try
                                 {
-                                    //XXX: Currently we hack so Array/List will fit as needed
-                                    if (p.ParameterType.IsGenericType && typeof(IList).IsAssignableFrom(p.ParameterType))
-                                    {
-                                        Type dicType = typeof(Dictionary<,>);
-                                        Type[] typeArgs = { typeof(string), p.ParameterType.GetGenericArguments()[0] };
-                                        Type makeme = dicType.MakeGenericType(typeArgs);
-                                        IDictionary listParams = (IDictionary)reqParams[p.Name].ToObject(makeme);
-
-                                        Type listType = typeof(List<>);
-                                        Type listArgs = p.ParameterType.GetGenericArguments()[0];
-                                        Type makemeList = listType.MakeGenericType(listArgs);
-                                        IList o = (IList)Activator.CreateInstance(makemeList);
-
-                                        foreach (var k in listParams.Keys)
-                                        {
-                                            o.Add(listParams[k]);
-                                        }
-
-                                        methodParams.Add(o);
-                                    }
-                                    else
-                                    {
-                                        //We deserialize the object based on the method parameter type
-                                        methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
-                                    }
+                                    methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
                                 }
                                 catch (Exception ex)
                                 {
