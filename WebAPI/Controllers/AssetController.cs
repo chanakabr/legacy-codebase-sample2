@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, KalturaCatalogWithHolder[] with = null,
+        public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
             string language = null, int household_id = 0)
         {
             KalturaAssetInfoListResponse response = null;
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
             }
 
             if (with == null)
-                with = new List<KalturaCatalogWithHolder>().ToArray();
+                with = new List<KalturaCatalogWithHolder>();
 
             try
             {
