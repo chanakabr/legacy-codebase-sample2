@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
@@ -30,11 +31,11 @@ namespace WebAPI.Controllers
         /// <param name="ppv_id">PPV module identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
+        [ApiAuthorize]
         public KalturaBillingResponse ChargeUserForMediaFile(string partner_id, string ppv_id, KalturaChargePPV request, [FromUri]string udid = null)
         {
             KalturaBillingResponse response = null;
-
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

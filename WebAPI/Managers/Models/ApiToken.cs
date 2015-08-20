@@ -33,6 +33,10 @@ namespace WebAPI.Managers.Models
         [JsonProperty("is_long_refresh_expiration")]
         public bool IsLongRefreshExpiration { get; set; }
 
+        public ApiToken()
+        {
+        }
+
         public ApiToken(string siteGuid, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
             string payload = PrepareUdidPayload(udid);

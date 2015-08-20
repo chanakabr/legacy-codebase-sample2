@@ -2401,6 +2401,9 @@
           <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CreatedAt" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="StartDateSeconds" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EndDateSeconds" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="AutoRenewing" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="ProcessReceipt">
@@ -2409,14 +2412,14 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houshold" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="household" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="purchaseToken" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="paymentGwType" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayName" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4359,14 +4362,14 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
-    <wsdl:part name="houshold" type="s:string" />
+    <wsdl:part name="household" type="s:string" />
     <wsdl:part name="contentId" type="s:string" />
     <wsdl:part name="productId" type="s:string" />
     <wsdl:part name="transactionType" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
     <wsdl:part name="purchaseToken" type="s:string" />
-    <wsdl:part name="paymentGwType" type="s:string" />
+    <wsdl:part name="paymentGatewayName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ProcessReceiptHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />

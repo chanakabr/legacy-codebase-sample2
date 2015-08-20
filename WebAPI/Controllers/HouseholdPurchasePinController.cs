@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -20,15 +21,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// 5001 = No PIN defined, Household does not exist = 1006
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <returns>The PIN that applies for the household</returns>
         [Route("get"), HttpPost]
-        public KalturaPinResponse Get(string partner_id, int household_id)
+        [ApiAuthorize]
+        public KalturaPinResponse Get(int household_id)
         {
             KalturaPinResponse pinResponse = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;           
 
             try
             {
@@ -50,16 +51,16 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006
         /// </remarks>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, int household_id, string pin)
+        [ApiAuthorize]
+        public bool Update(int household_id, string pin)
         {
             bool success = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;                     
 
             try
             {

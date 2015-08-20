@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
 
@@ -16,15 +17,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a device from household
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021</remarks>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int household_id, string udid)
+        [ApiAuthorize]
+        public bool Delete(int household_id, string udid)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
+            
 
             try
             {
@@ -42,18 +44,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Registers a device to a household using pin code    
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="device_name">Device name</param>
         /// <param name="pin">Pin code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("add"), HttpPost]
-        public KalturaDevice Add(string partner_id, int household_id, string device_name, string pin)
+        [ApiAuthorize]
+        public KalturaDevice Add(int household_id, string device_name, string pin)
         {
             KalturaDevice device = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -70,6 +72,42 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
             return device;
+        }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
+        /// <param name="household_id">Household identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns></returns>
+        [Route("registrationStatus"), HttpPost]
+        [ApiAuthorize]
+        public KalturaDeviceRegistrationStatusHolder RegistrationStatus(int household_id, string udid)
+        {
+            KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
+
+            int groupId = KS.GetFromRequest().GroupId;            
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+            }
+
+            if (household_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_id cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, household_id, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return new KalturaDeviceRegistrationStatusHolder() { Status = status };
         }
     }
 }

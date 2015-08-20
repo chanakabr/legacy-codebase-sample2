@@ -179,6 +179,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback SetUserOperationCompleted;
         
+        private System.Threading.SendOrPostCallback FilterFavoriteMediaIdsOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -441,6 +443,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event SetUserCompletedEventHandler SetUserCompleted;
+        
+        /// <remarks/>
+        public event FilterFavoriteMediaIdsCompletedEventHandler FilterFavoriteMediaIdsCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3152,6 +3157,41 @@ namespace WebAPI.Users {
             if ((this.SetUserCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SetUserCompleted(this, new SetUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/FilterFavoriteMediaIds", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FavoriteResponse FilterFavoriteMediaIds(string sWSUserName, string sWSPassword, string userId, int[] mediaIds) {
+            object[] results = this.Invoke("FilterFavoriteMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        mediaIds});
+            return ((FavoriteResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds) {
+            this.FilterFavoriteMediaIdsAsync(sWSUserName, sWSPassword, userId, mediaIds, null);
+        }
+        
+        /// <remarks/>
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, object userState) {
+            if ((this.FilterFavoriteMediaIdsOperationCompleted == null)) {
+                this.FilterFavoriteMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFilterFavoriteMediaIdsOperationCompleted);
+            }
+            this.InvokeAsync("FilterFavoriteMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        mediaIds}, this.FilterFavoriteMediaIdsOperationCompleted, userState);
+        }
+        
+        private void OnFilterFavoriteMediaIdsOperationCompleted(object arg) {
+            if ((this.FilterFavoriteMediaIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.FilterFavoriteMediaIdsCompleted(this, new FilterFavoriteMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6548,6 +6588,32 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UserResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void FilterFavoriteMediaIdsCompletedEventHandler(object sender, FilterFavoriteMediaIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class FilterFavoriteMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal FilterFavoriteMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public FavoriteResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((FavoriteResponse)(this.results[0]));
             }
         }
     }

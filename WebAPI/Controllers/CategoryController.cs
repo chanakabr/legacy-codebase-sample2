@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaOTTCategory Get(int category_id, string language = null, int household_id = 0)
         {
             KalturaOTTCategory response = null;

@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaCoupon Get(string code)
         {
             KalturaCoupon coupon = null;

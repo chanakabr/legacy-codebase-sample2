@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -18,16 +19,16 @@ namespace WebAPI.Controllers
         /// Can include rules that have been associated in account or household.
         /// </summary>
         /// <param name="household_id">Household Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
         /// <returns>List of parental rules applied to the household</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Household does not exist = 1006</remarks>
         [Route("list"), HttpPost]
-        public KalturaParentalRuleListResponse List(string partner_id, int household_id)
+        [ApiAuthorize]
+        public KalturaParentalRuleListResponse List(int household_id)
         {
             List<KalturaParentalRule> response = null;
-            
-            int groupId = int.Parse(partner_id);
 
+            int groupId = KS.GetFromRequest().GroupId;            
+            
             try
             {
                 // call client
@@ -48,14 +49,14 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
-        public bool Enable(string partner_id, int household_id, long rule_id)
+        [ApiAuthorize]
+        public bool Enable(int household_id, long rule_id)
         {
             bool success = false;
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId;                        
 
             try
             {
@@ -75,17 +76,17 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="household_id">Household Identifier</param>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="partner_id">Partner identifier</param>
         /// <returns>Success or failure and reason</returns>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 
         /// Household does not exist = 1006, Invalid rule = 5003</remarks>
         [Route("disable"), HttpPost]
-        public bool Disable(string partner_id, int household_id, long rule_id)
+        [ApiAuthorize]
+        public bool Disable(int household_id, long rule_id)
         {
             bool success = false;
 
-            int groupId = int.Parse(partner_id);
-
+            int groupId = KS.GetFromRequest().GroupId;           
+           
             try
             {
                 // call client

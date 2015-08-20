@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -16,21 +17,19 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the price details and purchase details for each file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="files_ids">Media files identifiers (separated by ',')</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="coupon_code">Discount coupon code</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of an item should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        public KalturaItemPriceListResponse Get(string partner_id, string files_ids, string user_id = null,
-            string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
+        [ApiAuthorize]
+        public KalturaItemPriceListResponse Get(string files_ids, string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
         {
             List<KalturaItemPrice> ppvPrices = null;
-            
-            int groupId = int.Parse(partner_id);
+
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(files_ids))
             {
@@ -50,7 +49,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filesIds, user_id, coupon_code, udid, language, should_get_only_lowest);
+                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filesIds, KS.GetFromRequest().UserId, coupon_code, udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)
             {

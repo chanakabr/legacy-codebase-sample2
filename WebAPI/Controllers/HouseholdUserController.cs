@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -15,16 +16,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household   
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int household_id, string user_id)
+        [ApiAuthorize]        
+        public bool Delete(int household_id, string user_id)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;                                   
 
             try
             {
@@ -42,7 +43,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Adds a user to household       
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="household_id">Household identifier</param>
         /// <param name="user_id">User identifier</param>
         /// <param name="master_user_id">Identifier of household master</param>
@@ -51,9 +51,10 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, int household_id, string user_id, string master_user_id, bool is_master = false)
+        [ApiAuthorize]
+        public bool Add(int household_id, string user_id, string master_user_id, bool is_master = false)
         {
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;                                   
 
             try
             {

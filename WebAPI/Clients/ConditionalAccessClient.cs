@@ -368,8 +368,8 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long houshold, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                           string deviceName, string purchaseToken, string paymentGwType)
+        internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long household, int contentId, int productId, KalturaTransactionType clientTransactionType,
+                                                           string deviceName, string purchaseToken, string paymentGatewayName)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -385,7 +385,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, contentId, productId, transactionType, Utils.Utils.GetClientIP(), deviceName, purchaseToken, paymentGwType);
+                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), deviceName, purchaseToken, paymentGatewayName);
                 }
             }
             catch (Exception ex)
@@ -575,8 +575,10 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        internal void GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
+        internal bool  GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
+            WebAPI.ConditionalAccess.Status response = null;
+
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -588,7 +590,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    ConditionalAccess.GrantEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id, household_id, content_id,
+                    response = ConditionalAccess.GrantEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id, household_id, content_id,
                         product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
                 }
             }
@@ -597,6 +599,18 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
     }
 }

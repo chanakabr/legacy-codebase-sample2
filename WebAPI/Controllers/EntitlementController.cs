@@ -14,32 +14,6 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/entitlement/action")]
     public class EntitlementController : ApiController
     {
-        ///// <summary>
-        ///// Gets list of Entitlement (subscriptions) by a given user.    
-        ///// </summary>        
-        ///// <param name="partner_id">Partner Identifier</param>
-        ///// <param name="user_id">User Id</param>
-        ///// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        //[Route("list"), HttpPost]
-        //public KalturaEntitlementsList List(string partner_id, string user_id)
-        //{
-        //    List<KalturaEntitlement> response = new List<KalturaEntitlement>();
-
-        //    int groupId = int.Parse(partner_id);
-
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ConditionalAccessClient().GetUserSubscriptions(groupId, user_id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
-
-        //    return new KalturaEntitlementsList() { Entitlements = response };
-        //}
-
         /// <summary>
         /// Immediately cancel a household subscription or PPV or collection 
         /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.        
@@ -176,26 +150,33 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
         /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
         /// Partner is invalid = 500008</remarks>
-        [Route("get"), HttpPost]
+        [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public void Get(int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public bool Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
         {
+            bool response = false;
+
             int groupId = KS.GetFromRequest().GroupId;
 
             // validate user id
-            if (KS.GetFromRequest().UserId != "0")
+            if (KS.GetFromRequest().UserId == "0")
+            {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
+            }
 
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
+
 
         }
 

@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -21,13 +22,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>       
         [Route("list"), HttpPost]
-        public List<Models.Billing.KalturaPaymentGatewayProfile> List(string partner_id)
+        [ApiAuthorize]
+        public List<Models.Billing.KalturaPaymentGatewayProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -49,15 +50,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="settings">Dictionary (string,string) for partner specific settings</param>
         [Route("delete"), HttpPost]
-        public bool Delete(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        [ApiAuthorize]
+        public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -79,15 +80,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008, Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("add"), HttpPost]
-        public bool Add(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        [ApiAuthorize]
+        public bool Add(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -109,15 +110,15 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
         /// Not found = 500007, Partner is invalid = 500008
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>    
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        [ApiAuthorize]
+        public bool Update(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

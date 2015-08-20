@@ -26,21 +26,20 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a price and a purchase status for each subscription, for a given user (if passed) and with the consideration of a coupon code (if passed). 
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="subscriptions_ids">Subscription identifiers (separated by ',')</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="coupon_code">Discount coupon code</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getPrices"), HttpPost]
-        public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(string partner_id, string subscriptions_ids, string user_id = null,
-            string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
+        [ApiAuthorize]
+        public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(string subscriptions_ids, string coupon_code = null, string udid = null, string language = null, 
+            bool should_get_only_lowest = false)
         {
             List<KalturaSubscriptionPrice> subscriptionPrices = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(subscriptions_ids))
             {
@@ -52,7 +51,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptionsIds, user_id, coupon_code, udid, language, should_get_only_lowest);
+                subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptionsIds, KS.GetFromRequest().UserId, coupon_code, udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)
             {
@@ -65,17 +64,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a list of subscriptions data.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="subscriptions_ids">Subscription identifiers</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
-        public KalturaSubscriptionListResponse Get(string partner_id, KalturaIntegerValue[] subscriptions_ids, string udid = null, string language = null)
+        [ApiAuthorize(true)]
+        public KalturaSubscriptionListResponse Get(KalturaIntegerValue[] subscriptions_ids, string udid = null, string language = null)
         {
             List<KalturaSubscription> subscriptions = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (subscriptions_ids.Count() == 0)
             {
@@ -99,7 +98,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a list of subscriptions that contain the supplied file
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="media_id">Media identifier</param>
         /// <param name="file_id">Media file identifier</param>
         /// <param name="udid">Device UDID</param>
@@ -107,12 +105,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
         ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("getSubscriptionsContainingMediaFile"), HttpPost]
-        public List<KalturaSubscription> GetSubscriptionIDsContainingMediaFile(string partner_id, int media_id, int file_id, string udid = null, string language = null)
+        [ApiAuthorize(true)]
+        public List<KalturaSubscription> GetSubscriptionsContainingMediaFile(int media_id, int file_id, string udid = null, string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (media_id == 0)
             {
@@ -148,17 +147,17 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="sub_id">Subscription identifier</param>
         /// <param name="request">Charge request parameters</param>
         [Route("buy"), HttpPost]
         [Obsolete]
-        public KalturaBillingResponse Buy(string partner_id, string sub_id, KalturaCharge request, [FromUri]string udid = null)
+        [ApiAuthorize]
+        public KalturaBillingResponse Buy(string sub_id, KalturaCharge request, [FromUri]string udid = null)
         {
             KalturaBillingResponse response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

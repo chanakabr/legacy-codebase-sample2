@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -18,20 +19,19 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
-        public KalturaPurchaseSettingsResponse Get(string partner_id, string user_id)
+        [ApiAuthorize]
+        public KalturaPurchaseSettingsResponse Get()
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, user_id);
+                purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, KS.GetFromRequest().UserId);
             }
             catch (ClientException ex)
             {
@@ -46,21 +46,20 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, string user_id, int setting)
+        [ApiAuthorize]
+        public bool Update(int setting)
         {
             bool success = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, user_id, setting);
+                success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, KS.GetFromRequest().UserId, setting);
             }
             catch (ClientException ex)
             {

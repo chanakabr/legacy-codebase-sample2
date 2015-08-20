@@ -430,6 +430,9 @@
     <Content Include="Web References\ConditionalAccess\PermittedMediaContainerResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Domains\DeviceRegistrationStatusResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -732,6 +735,8 @@
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionState.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
     <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
@@ -776,6 +781,7 @@
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
     <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
+    <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
@@ -855,7 +861,7 @@
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetType.cs" />
+    <Compile Include="ObjectsConvertor\Models\KalturaAssetType.cs" />
     <Compile Include="Models\General\KalturaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
@@ -1004,10 +1010,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/domains/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Domains\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

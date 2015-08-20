@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://domains.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://domains.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://domains.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://domains.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://domains.tvinci.com/">
       <s:element name="AddDomain">
@@ -964,6 +964,37 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetDeviceRegistrationStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceRegistrationStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeviceRegistrationStatusResult" type="tns:DeviceRegistrationStatusResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeviceRegistrationStatusResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="DeviceRegistrationStatus" type="tns:DeviceRegistrationStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="DeviceRegistrationStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="NotRegistered" />
+          <s:enumeration value="Registered" />
+          <s:enumeration value="RegisteredToAnotherDomain" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
       <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
@@ -983,6 +1014,7 @@
       <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
       <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
       <s:element name="Domain" nillable="true" type="tns:Domain" />
+      <s:element name="DeviceRegistrationStatusResponse" nillable="true" type="tns:DeviceRegistrationStatusResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1218,6 +1250,12 @@
   </wsdl:message>
   <wsdl:message name="GetDomainByUserSoapOut">
     <wsdl:part name="parameters" element="tns:GetDomainByUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeviceRegistrationStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeviceRegistrationStatusResponse" />
   </wsdl:message>
   <wsdl:message name="AddDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1588,6 +1626,15 @@
   <wsdl:message name="GetDomainByUserHttpPostOut">
     <wsdl:part name="Body" element="tns:Domain" />
   </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceRegistrationStatusResponse" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -1744,6 +1791,10 @@
     <wsdl:operation name="GetDomainByUser">
       <wsdl:input message="tns:GetDomainByUserSoapIn" />
       <wsdl:output message="tns:GetDomainByUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <wsdl:input message="tns:GetDeviceRegistrationStatusSoapIn" />
+      <wsdl:output message="tns:GetDeviceRegistrationStatusSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -1902,6 +1953,10 @@
     <wsdl:operation name="GetDomainByUser">
       <wsdl:input message="tns:GetDomainByUserHttpPostIn" />
       <wsdl:output message="tns:GetDomainByUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <wsdl:input message="tns:GetDeviceRegistrationStatusHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceRegistrationStatusHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2250,6 +2305,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainByUser">
       <soap:operation soapAction="http://domains.tvinci.com/GetDomainByUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <soap:operation soapAction="http://domains.tvinci.com/GetDeviceRegistrationStatus" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2611,6 +2675,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <soap12:operation soapAction="http://domains.tvinci.com/GetDeviceRegistrationStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2965,16 +3038,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <http:operation location="/GetDeviceRegistrationStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap:address location="http://localhost/ws_domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap12:address location="http://localhost/ws_domains/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <http:address location="http://localhost/ws_domains/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

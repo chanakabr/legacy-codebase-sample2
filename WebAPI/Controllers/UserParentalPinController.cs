@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -18,20 +19,19 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
-        public KalturaPinResponse Get(string partner_id, string user_id)
+        [ApiAuthorize]
+        public KalturaPinResponse Get()
         {
             KalturaPinResponse pinResponse = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, user_id);
+                pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, KS.GetFromRequest().UserId);
             }
             catch (ClientException ex)
             {
@@ -46,21 +46,20 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
-        public bool Update(string partner_id, string user_id, string pin)
+        [ApiAuthorize]
+        public bool Update(string pin)
         {
             bool success = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, user_id, pin);
+                success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, KS.GetFromRequest().UserId, pin);
             }
             catch (ClientException ex)
             {
@@ -75,16 +74,15 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="partner_id">Partner Identifier</param>
-        /// <param name="user_id">User identifier</param>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("validate"), HttpPost]
-        public bool Validate(string partner_id, string user_id, string pin)
+        [ApiAuthorize]
+        public bool Validate(string pin)
         {
             bool success = false;
             
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (string.IsNullOrEmpty(pin))
@@ -95,7 +93,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, user_id, pin);
+                success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, KS.GetFromRequest().UserId, pin);
             }
             catch (ClientException ex)
             {

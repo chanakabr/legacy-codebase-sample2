@@ -16,11 +16,10 @@ namespace WebAPI.Controllers
     {
         /// <summary>
         /// Returns the facebook application configuration for the partner
-        /// </summary>
-        /// <param name="partner_id"></param>
+        /// </summary>        
         /// <returns></returns>
         [Route("GetConfig"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize(true)]
         public KalturaFacebookConfig GetConfig()
         {
             KalturaFacebookConfig response = null;

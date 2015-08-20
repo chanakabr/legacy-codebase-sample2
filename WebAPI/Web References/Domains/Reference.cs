@@ -107,6 +107,8 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback GetDomainByUserOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetDeviceRegistrationStatusOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -261,6 +263,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event GetDomainByUserCompletedEventHandler GetDomainByUserCompleted;
+        
+        /// <remarks/>
+        public event GetDeviceRegistrationStatusCompletedEventHandler GetDeviceRegistrationStatusCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1664,6 +1669,41 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDeviceRegistrationStatus", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceRegistrationStatusResponse GetDeviceRegistrationStatus(string sWSUserName, string sWSPassword, string udid, int domainId) {
+            object[] results = this.Invoke("GetDeviceRegistrationStatus", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        udid,
+                        domainId});
+            return ((DeviceRegistrationStatusResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDeviceRegistrationStatusAsync(string sWSUserName, string sWSPassword, string udid, int domainId) {
+            this.GetDeviceRegistrationStatusAsync(sWSUserName, sWSPassword, udid, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetDeviceRegistrationStatusAsync(string sWSUserName, string sWSPassword, string udid, int domainId, object userState) {
+            if ((this.GetDeviceRegistrationStatusOperationCompleted == null)) {
+                this.GetDeviceRegistrationStatusOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDeviceRegistrationStatusOperationCompleted);
+            }
+            this.InvokeAsync("GetDeviceRegistrationStatus", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        udid,
+                        domainId}, this.GetDeviceRegistrationStatusOperationCompleted, userState);
+        }
+        
+        private void OnGetDeviceRegistrationStatusOperationCompleted(object arg) {
+            if ((this.GetDeviceRegistrationStatusCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDeviceRegistrationStatusCompleted(this, new GetDeviceRegistrationStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2310,6 +2350,91 @@ namespace WebAPI.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DeviceRegistrationStatusResponse {
+        
+        private DeviceRegistrationStatus deviceRegistrationStatusField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public DeviceRegistrationStatus DeviceRegistrationStatus {
+            get {
+                return this.deviceRegistrationStatusField;
+            }
+            set {
+                this.deviceRegistrationStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public enum DeviceRegistrationStatus {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        NotRegistered,
+        
+        /// <remarks/>
+        Registered,
+        
+        /// <remarks/>
+        RegisteredToAnotherDomain,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class DeviceFamilyLimitations {
         
         private int deviceFamilyField;
@@ -2555,39 +2680,6 @@ namespace WebAPI.Domains {
             }
             set {
                 this.dlmField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
             }
         }
     }
@@ -4112,6 +4204,32 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Domain)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetDeviceRegistrationStatusCompletedEventHandler(object sender, GetDeviceRegistrationStatusCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDeviceRegistrationStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDeviceRegistrationStatusCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceRegistrationStatusResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceRegistrationStatusResponse)(this.results[0]));
             }
         }
     }

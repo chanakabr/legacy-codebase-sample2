@@ -606,5 +606,37 @@ namespace WebAPI.Clients
 
             return userAssetsList;
         }
+
+        internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds)
+        {
+            FavoriteResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null | response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<List<WebAPI.Models.Users.KalturaFavorite>>(response.Favorites);
+        }
     }
 }

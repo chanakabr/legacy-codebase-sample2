@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -18,7 +19,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all the items added to a list.
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="user_ids">Users identifiers</param>
         /// <param name="list_type">The requested list type</param>
         /// <param name="asset_type">The requested asset type</param>
@@ -26,12 +26,13 @@ namespace WebAPI.Controllers
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
         [Route("get"), HttpPost]
-        public List<KalturaUserAssetsList> Get(string partner_id, List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
+        [ApiAuthorize]
+        public List<KalturaUserAssetsList> Get(List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
             KalturaUserAssetsListItemType asset_type)
         {
             List<KalturaUserAssetsList> response = null;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
