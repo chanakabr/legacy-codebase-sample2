@@ -13028,7 +13028,7 @@ namespace ConditionalAccess
 
                 if (thePPVModule == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "The ppv module is unknown");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
                     return response;
                 }
 
