@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetRuleController/action")]
+    [RoutePrefix("_service/UserAssetRule/action")]
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
