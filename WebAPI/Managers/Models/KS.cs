@@ -210,7 +210,7 @@ namespace WebAPI.Managers.Models
             // Decrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
+                aesAlg.Key = keyBytes;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;
@@ -263,7 +263,7 @@ namespace WebAPI.Managers.Models
             // Encrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
+                aesAlg.Key = keyBytes;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;
