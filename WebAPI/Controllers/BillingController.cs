@@ -30,6 +30,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="ppv_id">PPV module identifier</param>
         /// <param name="request">Charge request parameters</param>
+        //TODO: change name and route or remove
         [Route("ppvs/{ppv_id}/buy"), HttpPost]
         [ApiAuthorize]
         public KalturaBillingResponse ChargeUserForMediaFile(string partner_id, string ppv_id, KalturaChargePPV request, [FromUri]string udid = null)

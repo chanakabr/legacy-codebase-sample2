@@ -122,16 +122,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
         /// <param name="refresh_token">Refresh token</param>
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
-        public KalturaLoginSession RefreshSession(string partner_id, string refresh_token, string udid = null)
+        [ApiAuthorize(false, true)]
+        public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
-
-            int partnerId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(refresh_token))
             {
@@ -140,7 +138,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = AuthorizationManager.RefreshSession(refresh_token, partnerId, udid);
+                response = AuthorizationManager.RefreshSession(refresh_token, udid);
             }
             catch (ClientException ex)
             {
@@ -206,7 +204,7 @@ namespace WebAPI.Controllers
         public KalturaOTTUser Add(string partner_id, KalturaSignUp request)
         {
             KalturaOTTUser response = null;
-            
+
             int groupId = int.Parse(partner_id);
 
             if (request == null || request.userBasicData == null)
@@ -342,17 +340,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Given a user name and existing password, change to a new password.        
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("changePassword"), HttpPost]
-        public bool ChangePassword(string partner_id, string username, string old_password, string new_password)
+        [ApiAuthorize]
+        public bool ChangePassword(string username, string old_password, string new_password)
         {
             bool response = false;
 
-            int groupId = int.Parse(partner_id);
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
             {
@@ -360,6 +358,7 @@ namespace WebAPI.Controllers
             }
             try
             {
+                //TODO: get username by user id
                 // call client
                 response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, old_password, new_password);
             }
@@ -380,8 +379,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [ApiAuthorize]
+        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
@@ -433,7 +431,7 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUser response = null;
 
-            int groupId = KS.GetFromRequest().GroupId; 
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
             {
@@ -473,8 +471,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId; 
-                
+            int groupId = KS.GetFromRequest().GroupId;
+
             // parameters validation
             if (media_id == 0)
             {
@@ -507,7 +505,7 @@ namespace WebAPI.Controllers
             List<KalturaParentalRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             // parameters validation
             if (epg_id == 0)
             {
@@ -605,7 +603,7 @@ namespace WebAPI.Controllers
             List<KalturaGenericRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-                
+
 
             // parameters validation
             if (epg_id == 0)

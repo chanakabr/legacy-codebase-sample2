@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Web;
+using System.Xml;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
@@ -17,6 +20,7 @@ public class SerializableDictionary<TKey, TValue>
 
     public void ReadXml(System.Xml.XmlReader reader)
     {
+        //TODO: implement
         XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
         XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
 
@@ -52,21 +56,25 @@ public class SerializableDictionary<TKey, TValue>
         XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
 
         foreach (TKey key in this.Keys)
-        {
+        {            
             writer.WriteStartElement("item");
 
             writer.WriteStartElement("itemKey");
             writer.WriteString(key.ToString());
             writer.WriteEndElement();
 
-            //if (this[key].GetType() == typeof(string))
-            //{
-            //    valueSerializer.Serialize(writer,
-            //        new KalturaString() { value = (string)Convert.ChangeType(this[key], typeof(string)) });
-            //}
-            //else
-                valueSerializer.Serialize(writer, this[key]);
+            //XXX: ugly hack we need to solve sometime
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(TValue));
 
+            using (StringWriter textWriter = new StringWriter())
+            {                
+                xmlSerializer.Serialize(textWriter, this[key]);
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(textWriter.ToString());
+
+                writer.WriteRaw(doc.GetElementsByTagName(typeof(TValue).Name)[0].InnerXml);
+            }
+            
             writer.WriteEndElement();
         }
     }

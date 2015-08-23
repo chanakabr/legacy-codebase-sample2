@@ -51,7 +51,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetPaymentGWSettings.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while GetPaymentGatewateSettings. groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -86,7 +86,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetPaymentGW.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while GetPaymentGateway. groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -138,6 +138,7 @@ namespace WebAPI.Clients
 
             return paymentGW;
         }
+
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;
@@ -172,7 +173,7 @@ namespace WebAPI.Clients
             return KalturaPaymentGatewayBaseProfileList;
         }
 
-         internal bool SetPaymentGateway(int groupId, int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
+        internal bool SetPaymentGateway(int groupId, int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -187,7 +188,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SetPaymentGateway.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while SetPaymentGateway. groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -204,7 +205,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-         public bool SetPaymentGatewaySettings(int groupId, int paymentGWID, Dictionary<string, KalturaStringValue> payment_gateway_settings)
+        public bool SetPaymentGatewaySettings(int groupId, int paymentGWID, Dictionary<string, KalturaStringValue> payment_gateway_settings)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -218,7 +219,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SetPaymentGWParams.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGWID, ex);
+                log.ErrorFormat("Error while SetPaymentGatewaySettings. groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGWID, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -248,7 +249,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeletePaymentGW.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGwID, ex);
+                log.ErrorFormat("Error while DeletePaymentGateway.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, paymentGwID, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -342,7 +343,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertPaymentGW.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while InsertPaymentGateway.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -374,7 +375,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertPaymentGWParams.  groupID: {0}, paymentGwID: {1} ,exception: {2}", groupId, paymentGatewayId, ex);
+                log.ErrorFormat("Error while InsertPaymentGatewaySettings. groupID: {0}, paymentGwID: {1} ,exception: {2}", groupId, paymentGatewayId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -391,7 +392,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SetHouseHoldPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID)
+        public bool SetHouseholdPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -405,7 +406,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertPaymentGWHouseHold.  groupID: {0}, paymentGwID: {1} ,siteGuid: {2}, exception: {3}", groupId, paymentGwID, siteGuid, ex);
+                log.ErrorFormat("Error while SetHouseholdPaymentGateway.  groupID: {0}, paymentGwID: {1} ,siteGuid: {2}, exception: {3}", groupId, paymentGwID, siteGuid, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

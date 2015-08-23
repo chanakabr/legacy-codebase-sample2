@@ -108,13 +108,16 @@ namespace WebAPI.Managers.Models
             encryptedValue = encodedKs.ToString();
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal)
         {
             KS ks = new KS();
+            ks.encryptedValue = ksVal;
             ks.groupId = groupId;
 
-            // decrypt fields
+            // get string
             string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+
+            // decrypt fields
             int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
             byte[] fieldsWithHashBytes = aesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
 
@@ -133,7 +136,7 @@ namespace WebAPI.Managers.Models
             //parse fields
             string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            if (fields == null || fields.Length != 4)
+            if (fields == null || fields.Length < 3)
             {
                 throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
             }
@@ -207,7 +210,7 @@ namespace WebAPI.Managers.Models
             // Decrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
+                aesAlg.Key = keyBytes;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;
@@ -260,7 +263,7 @@ namespace WebAPI.Managers.Models
             // Encrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
+                aesAlg.Key = keyBytes;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;

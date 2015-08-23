@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -12,15 +13,13 @@ namespace WebAPI.Models.Catalog
     public enum KalturaCatalogWith
     {
         images,
-
         files,
-
         stats
     }
 
     /// <summary>
     /// Holder object for Catalog With enum
-    /// </summary>
+    /// </summary>    
     public class KalturaCatalogWithHolder : KalturaOTTObject
     {
         [DataMember(Name="type")]

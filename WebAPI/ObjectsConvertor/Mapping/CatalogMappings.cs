@@ -10,7 +10,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Models;
+using WebAPI.ObjectsConvertor.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -253,36 +253,54 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Dictionary<string, KalturaStringValue> BuildTagsDictionary(List<Tags> list)
+        private static Dictionary<string, KalturaValue> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, KalturaStringValue> tags = new Dictionary<string, KalturaStringValue>();
+            Dictionary<string, KalturaValue> tags = new Dictionary<string, KalturaValue>();
 
             foreach (var tag in list)
             {
-                //FIX
+                //TODO: FIX
                 tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValue() { value = string.Join(";", tag.m_lValues) });
             }
 
             return tags;
         }
 
-        private static Dictionary<string, KalturaStringValue> BuildMetasDictionary(List<Metas> list)
+        private static Dictionary<string, KalturaValue> BuildMetasDictionary(List<Metas> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, KalturaStringValue> metas = new Dictionary<string, KalturaStringValue>();
+            Dictionary<string, KalturaValue> metas = new Dictionary<string, KalturaValue>();
 
+            KalturaValue value = null;
             foreach (var meta in list)
             {
-                metas.Add(meta.m_oTagMeta.m_sName, new KalturaStringValue() { value = meta.m_sValue });
+                if (meta.m_oTagMeta.m_sType == typeof(bool).ToString())
+                {
+                    value = new KalturaBooleanValue() { value = meta.m_sValue == "1" ? true : false };
+                }
+                else if (meta.m_oTagMeta.m_sType == typeof(string).ToString())
+                {
+                    value = new KalturaStringValue() { value = meta.m_sValue };
+                }
+                else if (meta.m_oTagMeta.m_sType == typeof(double).ToString())
+                {
+                    value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue) };
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, "Unknown meta type");
+                }
+
+                metas.Add(meta.m_oTagMeta.m_sName, value);
             }
 
             return metas;

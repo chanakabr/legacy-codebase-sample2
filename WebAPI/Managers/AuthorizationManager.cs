@@ -22,8 +22,11 @@ namespace WebAPI.Managers
 
         private static CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
 
-        public static KalturaLoginSession RefreshSession(string refreshToken, int groupId, string udid = null)
+        public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+
             // validate request parameters
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -39,12 +42,21 @@ namespace WebAPI.Managers
             IGetOperationResult<ApiToken> tokenRes = couchbaseClient.ExecuteGetJson<ApiToken>(tokenKey);
             if (tokenRes == null || tokenRes.Success != true || tokenRes.HasValue != true || tokenRes.Value == null)
             {
-                log.ErrorFormat("RefreshSession: refreshToken expired.");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "refresh token not found"); 
+                log.ErrorFormat("RefreshSession: refreshToken expired");
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token"); 
+            }
+            
+            ApiToken token = tokenRes.Value;
+
+            // validate expired ks
+            if (ks.ToString() != token.KS)
+            {
+                log.ErrorFormat("RefreshSession: invalid ks");
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "invalid ks"); 
             }
 
-            ApiToken token = tokenRes.Value;
             string userId = token.UserId;
+
 
             // get user
             ValidateUser(groupId, userId);
@@ -54,7 +66,7 @@ namespace WebAPI.Managers
              token = new ApiToken(token, groupConfig, udid);
 
             // Store new access + refresh tokens pair
-            if (!couchbaseClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, tokenKey, token, tokenRes.Cas, new TimeSpan(0, 0, (int)groupConfig.RefreshExpirationForPinLoginSeconds)))
+            if (!couchbaseClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, tokenKey, token, tokenRes.Cas, new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token"); 
@@ -80,7 +92,8 @@ namespace WebAPI.Managers
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
 
             // try store in CB, will return false if the same token already exists
-            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, tokenKey, token, new TimeSpan(0, 0, (int)groupConfig.RefreshExpirationForPinLoginSeconds)))
+            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, tokenKey, token, 
+                new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save session");

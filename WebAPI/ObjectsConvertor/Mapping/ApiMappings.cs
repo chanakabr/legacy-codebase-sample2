@@ -9,7 +9,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Models;
+using WebAPI.ObjectsConvertor.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

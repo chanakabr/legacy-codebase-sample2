@@ -32,8 +32,8 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <param name="should_get_only_lowest">A flag that indicates if only the lowest price of a subscription should return</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("getPrices"), HttpPost]
-        [ApiAuthorize]
+        [Route("GetSubscriptionsPrices"), HttpPost]
+        [ApiAuthorize(true)]
         public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(string subscriptions_ids, string coupon_code = null, string udid = null, string language = null, 
             bool should_get_only_lowest = false)
         {
