@@ -92,6 +92,10 @@ namespace WebAPI.Clients
                 {
                     WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
                     WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
+
+                    if (userDynamicData == null)
+                        userDynamicData = new UserDynamicData();
+
                     response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, affiliateCode);
                 }
             }
