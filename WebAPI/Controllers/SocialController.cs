@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("fbRegister"), HttpPost]
+        [Route("FBUserRegister"), HttpPost]
         [ApiAuthorize]
         public KalturaFacebookResponse FBUserRegister(string token, bool should_create_domain, bool subscribe_newsletter)
         {
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         /// <param name="password">Password</param>
         /// <param name="facebook_id">Facebook identifier</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("fbMerge"), HttpPost]
+        [Route("FBUserMerge"), HttpPost]
         public KalturaFacebookResponse FBUserMerge(string token, string username, string password, string facebook_id)
         {
             KalturaFacebookResponse response = new KalturaFacebookResponse();
@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
-        [Route("fbUnmerge"), HttpPost]
+        [Route("FBUserUnmerge"), HttpPost]
         [ApiAuthorize]
         public KalturaFacebookResponse FBUserUnmerge(string token, string username, string password)
         {

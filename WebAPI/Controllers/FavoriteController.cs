@@ -22,24 +22,26 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">Device UDID</param>
-        /// <param name="request">Request parameters</param>
+        /// <param name="media_type">Media Type ID (according to media type IDs defined dynamically in the system).</param>
+        /// <param name="media_id">Media id</param>
+        /// <param name="extra_data">Extra data</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
         /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int household_id, string udid, KalturaAddUserFavoriteRequest request)
+        public bool Add(int household_id, string udid, string media_type, string media_id, string extra_data)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
-            if (request.MediaType.Trim().Length == 0)
+            if (media_type.Trim().Length == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
             }
 
-            if (request.MediaType.Trim().Length == 0)
+            if (media_type.Trim().Length == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_type cannot be empty");
             }
@@ -52,8 +54,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().AddUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, udid, request.MediaType,
-                    request.MediaId, request.ExtraData);
+                res = ClientsManager.UsersClient().AddUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, udid, media_type,
+                    media_id, extra_data);
             }
             catch (ClientException ex)
             {
@@ -86,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().RemoveUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, media_ids.Select(x=> x.value).ToArray());
+                ClientsManager.UsersClient().RemoveUserFavorite(groupId, KS.GetFromRequest().UserId, household_id, media_ids.Select(x => x.value).ToArray());
             }
             catch (ClientException ex)
             {

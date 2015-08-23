@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, 
+        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId,
             Dictionary<string, KalturaStringValue> extraParams)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;

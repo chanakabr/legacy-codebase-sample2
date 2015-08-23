@@ -1,9 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Web;
+using System.Web.Http;
+using WebAPI.Controllers;
 
 namespace WebAPI
 {
@@ -12,7 +16,6 @@ namespace WebAPI
     /// </summary>
     public class Swagger : IHttpHandler
     {
-
         public async void ProcessRequest(HttpContext context)
         {
             using (var client = new HttpClient())
@@ -26,7 +29,30 @@ namespace WebAPI
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    json = json.Replace("_service/", "api/service/");//.Replace("\"query\"", "\"body\"");
+                    dynamic d = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+
+                    Assembly asm = Assembly.GetExecutingAssembly();
+
+                    var a = d.paths;
+
+                    foreach (var k in a)
+                    {
+                        var key = k.Name.Split('/');
+
+                        Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", key[2].ToString()), true, true);
+
+                        var method = controller.GetMethods().Where(x=> x.Name.ToLower() == key[4].ToString().ToLower()).FirstOrDefault();
+
+                        if (method == null)
+                            continue;
+
+                        if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
+                        {
+                            k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
+                        }
+                    }
+
+                    json = Newtonsoft.Json.JsonConvert.SerializeObject(d).Replace("_service/", "api/service/");                     
 
                     context.Response.ContentType = "application/json";
                     context.Response.Write(json);
