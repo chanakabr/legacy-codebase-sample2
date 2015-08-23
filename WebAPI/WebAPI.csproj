@@ -728,8 +728,6 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaCharge.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaChargePPV.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
@@ -762,7 +760,6 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionsPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaUsageModule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementListResponse.cs" />
-    <Compile Include="Models\Domains\KalturaAddHouseholdRequest.cs" />
     <Compile Include="Models\Domains\KalturaDevice.cs" />
     <Compile Include="Models\Domains\KalturaDeviceFamily.cs" />
     <Compile Include="Models\Domains\KalturaDeviceState.cs" />
@@ -779,7 +776,6 @@
     <Compile Include="Models\Social\KalturaFacebookConfig.cs" />
     <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
     <Compile Include="Models\Social\KalturaFacebookUser.cs" />
-    <Compile Include="Models\Users\KalturaAddUserFavoriteRequest.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
@@ -792,11 +788,8 @@
     <Compile Include="Models\Users\KalturaBaseOTTUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettingsResponse.cs" />
-    <Compile Include="Models\Catalog\KalturaBaseAssetsRequest.cs" />
     <Compile Include="Models\Catalog\KalturaCategory.cs" />
     <Compile Include="Models\Catalog\KalturaChannel.cs" />
-    <Compile Include="Models\Catalog\KalturaChannelMedia.cs" />
-    <Compile Include="Models\Catalog\KalturaRelatedMedia.cs" />
     <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Models\API\KalturaParentalRule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlement.cs" />
@@ -862,7 +855,6 @@
     <Compile Include="Models\General\KalturaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
-    <Compile Include="Models\Catalog\KalturaSearchAssetsRequest.cs" />
     <Compile Include="Managers\Models\Language.cs" />
     <Compile Include="Managers\Models\KS.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfo.cs" />
@@ -872,7 +864,6 @@
     <Compile Include="Models\Catalog\KalturaMediaImage.cs" />
     <Compile Include="Models\Catalog\KalturaBaseAssetInfo.cs" />
     <Compile Include="Managers\Models\Status.cs" />
-    <Compile Include="Models\Catalog\KalturaWatchHistoryRequest.cs" />
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogWith.cs" />

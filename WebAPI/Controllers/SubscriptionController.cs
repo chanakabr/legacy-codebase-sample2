@@ -149,11 +149,17 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="udid">Device UDID</param>
         /// <param name="sub_id">Subscription identifier</param>
-        /// <param name="request">Charge request parameters</param>
+        /// <param name="user_id">User identifier</param>
+        /// <param name="price">Price</param>
+        /// <param name="currency">Currency</param>
+        /// <param name="coupon_code">Coupon code</param>
+        /// <param name="extra_params">Custom extra parameters (changes between different billing providers)</param>
+        /// <param name="encrypted_cvv">Encrypted credit card CVV</param>
         [Route("buy"), HttpPost]
         [Obsolete]
         [ApiAuthorize]
-        public KalturaBillingResponse Buy(string sub_id, KalturaCharge request, [FromUri]string udid = null)
+        public KalturaBillingResponse Buy(string sub_id, string user_id, double price, string currency, string coupon_code, string extra_params, 
+            string encrypted_cvv, [FromUri]string udid = null)
         {
             KalturaBillingResponse response = null;
 
@@ -162,8 +168,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, request.UserId, request.Price, request.Currency, sub_id, request.CouponCode,
-                    request.ExtraParams, udid, request.EncryptedCvv);
+                response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, user_id, price, currency, sub_id, coupon_code,
+                    extra_params, udid, encrypted_cvv);
             }
             catch (ClientException ex)
             {
