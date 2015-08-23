@@ -62,8 +62,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
-        [Route("get"), HttpPost]
-        [ApiAuthorize]
+        [Route("get"), HttpPost]        
         public KalturaHousehold Get(int household_id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
