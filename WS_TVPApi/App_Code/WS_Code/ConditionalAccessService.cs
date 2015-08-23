@@ -1493,5 +1493,44 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.")]
+        [PrivateMethod]
+        public ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GrantEntitlements", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GrantEntitlements(user_id, content_id, product_id, product_type, history);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();            
+            }
+
+            return response;
+        }
     }
 }
