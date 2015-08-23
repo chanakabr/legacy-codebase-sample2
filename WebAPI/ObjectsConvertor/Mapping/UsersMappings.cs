@@ -119,7 +119,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Dictionary<string, KalturaStringValue>, Users.UserDynamicData>()
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
 
-
             // MediaId to AssetInfo
             Mapper.CreateMap<string, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => ConvertToLong(src)))
@@ -268,46 +267,37 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Users.UserDynamicData ConvertDynamicData(Dictionary<string, KalturaStringValue> userDynamicData)
+        private static List<Users.UserDynamicDataContainer> ConvertDynamicData(Dictionary<string, KalturaStringValue> userDynamicData)
         {
-            Users.UserDynamicData result = null;
+            List<Users.UserDynamicDataContainer> result = null;
 
             if (userDynamicData != null && userDynamicData.Count > 0)
             {
-                result = new Users.UserDynamicData();
-                List<Users.UserDynamicDataContainer> udc = new List<Users.UserDynamicDataContainer>();
-                Users.UserDynamicDataContainer ud;
+                result = new List<Users.UserDynamicDataContainer>();
                 foreach (KeyValuePair<string, KalturaStringValue> data in userDynamicData)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        ud = new Users.UserDynamicDataContainer();
-                        ud.m_sDataType = data.Key;
-                        ud.m_sValue = data.Value.value;
-                        udc.Add(ud);
+                        result.Add(new Users.UserDynamicDataContainer() { m_sDataType = data.Key, m_sValue = data.Value.value });
                     }
-                }
-                if (udc != null && udc.Count > 0)
-                {
-                    result.m_sUserData = udc.ToArray();
                 }
             }
 
             return result;
         }
 
-        public static List<KalturaKeyValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        public static Dictionary<string, KalturaStringValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
         {
-            List<KalturaKeyValue> result = null;
-            
+            Dictionary<string, KalturaStringValue> result = null;
+
             if (userDynamicData != null && userDynamicData.m_sUserData != null)
             {
-                result = new List<KalturaKeyValue>();
+                result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in userDynamicData.m_sUserData)
                 {
                     if (!string.IsNullOrEmpty(data.m_sDataType))
                     {
-                        result.Add(new KalturaKeyValue() { key = data.m_sDataType, value = data.m_sValue });
+                        result.Add(data.m_sDataType, new KalturaStringValue() { value = data.m_sValue });
                     }
                 }
             }
