@@ -4809,17 +4809,29 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Billing Trans Method
         /// </summary>
-        private PaymentMethod GetBillingTransMethod(int billingTransID)
+        private PaymentMethod GetBillingTransMethod(int billingTransID, string billingGuid)
         {
             PaymentMethod retVal = PaymentMethod.Unknown;
+
+            if (billingTransID <= 0 && string.IsNullOrEmpty(billingGuid))
+            {
+                return retVal;
+            }
 
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                selectQuery += " select BILLING_METHOD from billing_transactions with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
+                selectQuery += " select BILLING_METHOD from billing_transactions with (nolock) where status=1 and";
+                if (billingTransID > 0)
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
+                }
+                else
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
+                }
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int count = selectQuery.Table("query").DefaultView.Count;
@@ -4979,7 +4991,8 @@ namespace ConditionalAccess
                         if (dataRow["CREATE_DATE"] != null && dataRow["CREATE_DATE"] != DBNull.Value)
                             dCreateDate = (DateTime)(dataRow["CREATE_DATE"]);
 
-                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+                        string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
 
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
@@ -5101,7 +5114,9 @@ namespace ConditionalAccess
                         }
 
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+                        string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
+                        
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
                         bool bCancellationWindow = false;
@@ -5247,9 +5262,10 @@ namespace ConditionalAccess
                             bIsSubRenewable = true;
 
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                        PaymentMethod payMet = GetBillingTransMethod(billingTransID);
+                        string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
+                        
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
-
 
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
