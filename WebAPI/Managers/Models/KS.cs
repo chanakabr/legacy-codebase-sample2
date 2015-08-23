@@ -136,7 +136,7 @@ namespace WebAPI.Managers.Models
             //parse fields
             string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            if (fields == null || fields.Length != 4)
+            if (fields == null || fields.Length < 3)
             {
                 throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
             }

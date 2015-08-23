@@ -116,7 +116,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            Mapper.CreateMap<Dictionary<string, string>, Users.UserDynamicData>()
+            Mapper.CreateMap<Dictionary<string, KalturaStringValue>, Users.UserDynamicData>()
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
 
 
@@ -268,7 +268,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Users.UserDynamicData ConvertDynamicData(Dictionary<string, string> userDynamicData)
+        private static Users.UserDynamicData ConvertDynamicData(Dictionary<string, KalturaStringValue> userDynamicData)
         {
             Users.UserDynamicData result = null;
 
@@ -277,13 +277,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = new Users.UserDynamicData();
                 List<Users.UserDynamicDataContainer> udc = new List<Users.UserDynamicDataContainer>();
                 Users.UserDynamicDataContainer ud;
-                foreach (KeyValuePair<string, string> data in userDynamicData)
+                foreach (KeyValuePair<string, KalturaStringValue> data in userDynamicData)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
                         ud = new Users.UserDynamicDataContainer();
                         ud.m_sDataType = data.Key;
-                        ud.m_sValue = data.Value;
+                        ud.m_sValue = data.Value.value;
                         udc.Add(ud);
                     }
                 }
