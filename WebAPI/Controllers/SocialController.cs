@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <param name="facebook_id">Facebook identifier</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("FBUserMerge"), HttpPost]
         public KalturaFacebookResponse FBUserMerge(string token, string username, string password, string facebook_id)
         {
@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
         /// <param name="token">Facebook token</param>
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("FBUserUnmerge"), HttpPost]
         [ApiAuthorize]
         public KalturaFacebookResponse FBUserUnmerge(string token, string username, string password)
