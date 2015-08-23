@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            var user = ClientsManager.UsersClient().GetUsersData(groupId, new int[] { int.Parse(ks.UserId) }.ToList<int>());
+            var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
 
             if (user.First().HouseholdID != household_id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
@@ -87,13 +87,13 @@ namespace WebAPI.Controllers
                 if (with != null && with.Where(x=> x.type == KalturaHouseholdWith.users_info).Count() > 0)
                 {
                     // get users ids lists
-                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
-                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<int>();
-                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<int>();
-                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<int>();
+                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<string>();
+                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<string>();
+                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<string>();
+                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<string>();
 
                     // merge all user ids to one list
-                    List<int> allUserIds = new List<int>();
+                    List<string> allUserIds = new List<string>();
                     allUserIds.AddRange(userIds);
                     allUserIds.AddRange(masterUserIds);
                     allUserIds.AddRange(defaultUserIds);
@@ -108,10 +108,10 @@ namespace WebAPI.Controllers
 
                     if (users != null)
                     {
-                        response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains((int)u.Id)));
-                        response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
-                        response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
-                        response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
+                        response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
+                        response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
+                        response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
+                        response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
                     }
                 }
             }

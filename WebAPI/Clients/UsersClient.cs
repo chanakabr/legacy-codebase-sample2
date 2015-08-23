@@ -401,7 +401,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<int> usersIds)
+        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds)
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;

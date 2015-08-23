@@ -20,7 +20,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Username

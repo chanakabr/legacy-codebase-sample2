@@ -1637,12 +1637,12 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainByUser", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Domain GetDomainByUser(string sWSUserName, string sWSPassword, string siteGuid) {
+        public DomainResponse GetDomainByUser(string sWSUserName, string sWSPassword, string siteGuid) {
             object[] results = this.Invoke("GetDomainByUser", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid});
-            return ((Domain)(results[0]));
+            return ((DomainResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4200,10 +4200,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public Domain Result {
+        public DomainResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Domain)(this.results[0]));
+                return ((DomainResponse)(this.results[0]));
             }
         }
     }

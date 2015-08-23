@@ -672,6 +672,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\BillingController.cs" />
     <Compile Include="Controllers\ChannelMediaController.cs" />
