@@ -37,7 +37,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public ApiToken(string siteGuid, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
+        public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
             string payload = PrepareUdidPayload(udid);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
@@ -46,15 +46,19 @@ namespace WebAPI.Managers.Models
                 Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
                 Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
-            UserId = siteGuid;
+            UserId = userId;
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
             
             // calculate ks expiration (must be shorter then refresh)
             int refreshExpiration = (int)(RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow));
-            KS ks = new KS(groupConfig.UserSecret, groupId.ToString(), siteGuid,
+            KS ks = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
+                groupId.ToString(), 
+                userId,
                 (int)groupConfig.KSExpirationSeconds <= refreshExpiration ? (int)groupConfig.KSExpirationSeconds : refreshExpiration,
-                isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, payload, string.Empty);
+                isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
+                payload, 
+                string.Empty);
 
             KS = ks.ToString();
 
@@ -86,9 +90,13 @@ namespace WebAPI.Managers.Models
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
 
             int refreshExpiration = (int)(RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow));
-            KS ks = new KS(groupConfig.UserSecret, token.GroupID.ToString(), token.UserId, 
-                (int)groupConfig.KSExpirationSeconds <= refreshExpiration ? (int)groupConfig.KSExpirationSeconds : refreshExpiration, 
-                KalturaSessionType.USER, null, string.Empty);
+            KS ks = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
+                token.GroupID.ToString(), 
+                token.UserId, 
+                (int)groupConfig.KSExpirationSeconds <= refreshExpiration ? (int)groupConfig.KSExpirationSeconds : refreshExpiration,
+                token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
+                payload, 
+                string.Empty);
             KS = ks.ToString();
         }
     }

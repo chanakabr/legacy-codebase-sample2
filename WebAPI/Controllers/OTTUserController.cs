@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// login with user name and password.
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="user_name">user name</param>
+        /// <param name="username">user name</param>
         /// <param name="password">password</param>
         /// <param name="extra_params">extra params</param>
         /// <param name="udid">Device UDID</param>
@@ -85,18 +85,18 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(int partner_id, string user_name, string password, SerializableDictionary<string, KalturaStringValue> extra_params, string udid = null)
+        public KalturaLoginResponse Login(int partner_id, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params, string udid = null)
         {
             KalturaOTTUser response = null;
 
-            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(partner_id, user_name, password, udid, extra_params);
+                response = ClientsManager.UsersClient().Login(partner_id, username, password, udid, extra_params);
             }
             catch (ClientException ex)
             {
