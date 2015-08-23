@@ -80,31 +80,29 @@ namespace WebAPI.Controllers
         /// login with user name and password.
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="request">User details parameters</param>
+        /// <param name="user_name">user name</param>
+        /// <param name="password">password</param>
+        /// <param name="extra_params">extra params</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(string partner_id, KalturaLogIn request, string udid = null)
+        public KalturaLoginResponse Login(string partner_id, string user_name, string password, SerializableDictionary<string, KalturaStringValue> extra_params, string udid = null)
         {
             KalturaOTTUser response = null;
 
             int partnerID = int.Parse(partner_id);
-
-            if (request == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "request cannot be empty");
-            }
-            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+           
+            if (string.IsNullOrEmpty(user_name) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(partnerID, request.Username, request.Password, udid, request.ExtraParams);
+                response = ClientsManager.UsersClient().Login(partnerID, user_name, password, udid, extra_params);
             }
             catch (ClientException ex)
             {
@@ -194,31 +192,35 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Sign up a new user.      
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="request">SignUp Object</param>
+        /// <param name="partner_id">Partner identifier</param>        
+        /// <param name="user_basic_data">user basic data</param>
+        /// <param name="user_dynamic_data">user dynamic data</param>
+        /// <param name="password">password</param>
+        /// <param name="affiliate_code">affiliate code</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaOTTUser Add(string partner_id, KalturaSignUp request)
+        public KalturaOTTUser Add(string partner_id, KalturaUserBasicData user_basic_data, SerializableDictionary<string, KalturaStringValue> user_dynamic_data,
+            string password, string affiliate_code)
         {
             KalturaOTTUser response = null;
 
             int groupId = int.Parse(partner_id);
 
-            if (request == null || request.userBasicData == null)
+            if (user_basic_data == null)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "SignUp or UserBasicData is null");
             }
-            if (string.IsNullOrEmpty(request.userBasicData.Username) || string.IsNullOrEmpty(request.password))
+            if (string.IsNullOrEmpty(user_basic_data.Username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SignUp(groupId, request.userBasicData, request.userDynamicData, request.password, request.affiliateCode);
+                response = ClientsManager.UsersClient().SignUp(groupId, user_basic_data, user_dynamic_data, password, affiliate_code);
             }
             catch (ClientException ex)
             {
