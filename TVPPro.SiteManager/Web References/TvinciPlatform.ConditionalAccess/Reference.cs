@@ -1245,14 +1245,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainsBillingHistory", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(string sWSUserName, string sWSPassword, int[] domainIDs, System.DateTime dStartDate, System.DateTime dEndDate) {
+        public DomainsBillingTransactionsResponse GetDomainsBillingHistory(string sWSUserName, string sWSPassword, int[] domainIDs, System.DateTime dStartDate, System.DateTime dEndDate) {
             object[] results = this.Invoke("GetDomainsBillingHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainIDs,
                         dStartDate,
                         dEndDate});
-            return ((DomainBillingTransactionsResponse[])(results[0]));
+            return ((DomainsBillingTransactionsResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -8055,6 +8055,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainsBillingTransactionsResponse {
+        
+        private Status statusField;
+        
+        private DomainBillingTransactionsResponse[] billingTransactionsField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DomainBillingTransactionsResponse[] billingTransactions {
+            get {
+                return this.billingTransactionsField;
+            }
+            set {
+                this.billingTransactionsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PermittedCollectionContainer {
         
         private string m_sCollectionCodeField;
@@ -9637,10 +9670,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public DomainBillingTransactionsResponse[] Result {
+        public DomainsBillingTransactionsResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainBillingTransactionsResponse[])(this.results[0]));
+                return ((DomainsBillingTransactionsResponse)(this.results[0]));
             }
         }
     }
