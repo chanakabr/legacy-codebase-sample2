@@ -66,7 +66,7 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaID, int mediaFileID)
+        internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
             WebAPI.Pricing.IdsResponse response = null;
             List<int> subscriptions = new List<int>();
@@ -77,7 +77,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetSubscriptionIDsContainingMediaFile(group.PricingCredentials.Username, group.PricingCredentials.Password, mediaID, mediaFileID);
+                    response = Pricing.GetSubscriptionIDsContainingMediaFile(group.PricingCredentials.Username, group.PricingCredentials.Password, 0, mediaFileID);
                 }
             }
             catch (Exception ex)

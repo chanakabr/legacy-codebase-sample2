@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
                 if (filter.By == KalturaSubscriptionsFilterBy.media_file_id)
                 {
                     // call client
-                    subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, 0, filter.Ids[0].value);
+                    subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, filter.Ids[0].value);
 
                     // get subscriptions
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
