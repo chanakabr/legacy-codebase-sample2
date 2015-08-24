@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaItemPriceListResponse Get(int[] files_ids, string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
+        public KalturaItemPriceListResponse Get(KalturaIntegerValue[] files_ids, string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
         {
             List<KalturaItemPrice> ppvPrices = null;
 
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, files_ids.ToList(), KS.GetFromRequest().UserId, coupon_code,
+                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, files_ids.Select(x=> x.value).ToList(), KS.GetFromRequest().UserId, coupon_code,
                     udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)

@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("GetSubscriptionsPrices"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(int[] subscriptions_ids, string coupon_code = null, string udid = null, string language = null, 
+        public KalturaSubscriptionsPriceListResponse GetSubscriptionsPrices(KalturaIntegerValue[] subscriptions_ids, string coupon_code = null, string udid = null, string language = null, 
             bool should_get_only_lowest = false)
         {
             List<KalturaSubscriptionPrice> subscriptionPrices = null;
@@ -49,8 +49,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptions_ids, KS.GetFromRequest().UserId, 
-                    coupon_code, udid, language, should_get_only_lowest);
+                subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, subscriptions_ids.Select(x=> x.value),
+                    KS.GetFromRequest().UserId, coupon_code, udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)
             {

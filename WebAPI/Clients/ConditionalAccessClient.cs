@@ -251,7 +251,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, int[] subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, IEnumerable<int> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
             WebAPI.ConditionalAccess.SubscriptionsPricesResponse response = null;
             List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
