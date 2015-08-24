@@ -41,12 +41,12 @@ namespace WebAPI.Controllers
             {
                 switch (filter.By)
                 {
-                    case KalturaReferenceType.user:
+                    case KalturaEntityReferenceBy.user:
                     {
                         response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, KS.GetFromRequest().UserId, filter.PageIndex, filter.PageSize);
                         break;
                     }
-                    case KalturaReferenceType.household:
+                    case KalturaEntityReferenceBy.household:
                     {
                         DateTime startDate = new DateTime(1753, 1, 1);
                         DateTime endDate = DateTime.MaxValue;
