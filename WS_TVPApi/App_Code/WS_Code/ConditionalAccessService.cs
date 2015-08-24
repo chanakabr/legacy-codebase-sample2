@@ -391,7 +391,7 @@ namespace TVPApiServices
             return res;
         }
 
-        [WebMethod(EnableSession = true, Description = "Get domain's billing history")]
+        [WebMethod(EnableSession = true, Description = "Get domains' billing history")]
         [PrivateMethod]
         public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(InitializationObject initObj, int[] domainIDs, DateTime startDate, DateTime endDate)
         {
@@ -407,7 +407,12 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainsBillingHistory(domainIDs, startDate, endDate);
+                    var temporaryResult = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainsBillingHistory(domainIDs, startDate, endDate);
+
+                    if (temporaryResult != null)
+                    {
+                        res = temporaryResult.billingTransactions;
+                    }
                 }
                 catch (Exception ex)
                 {
