@@ -17,7 +17,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a device from household
         /// </summary>        
-        /// <param name="household_id">Household identifier</param>
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
@@ -32,7 +31,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid);
+                return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
             }
             catch (ClientException ex)
             {
@@ -67,7 +66,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.getHouseholdIDByKS(groupId), device_name, pin);
+                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, pin);
             }
             catch (ClientException ex)
             {
@@ -97,7 +96,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid);
+                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
             }
             catch (ClientException ex)
             {

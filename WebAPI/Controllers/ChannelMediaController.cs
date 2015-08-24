@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language,
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
                     pager.PageIndex, pager.PageSize, channel_id, order_by.Value, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)

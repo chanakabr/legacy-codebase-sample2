@@ -19,7 +19,6 @@ namespace WebAPI.Controllers
         /// Gets user or household transaction history.        
         /// </summary>        
         /// <param name="filter">Page size and index, filter by household or user</param>        
-        /// <param name="household_id">If getting transactions of household - household id</param>        
         /// <param name="start_date">Filter transactions later than specific date</param>        
         /// <param name="end_date">Filter transactions earlier than specific date</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
@@ -64,7 +63,7 @@ namespace WebAPI.Controllers
                         }
 
                         response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                            groupId, (int)HouseholdUtils.getHouseholdIDByKS(groupId), startDate, endDate, filter.PageIndex, filter.PageSize);
+                            groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.PageIndex, filter.PageSize);
                         break;
                     }
                     default:

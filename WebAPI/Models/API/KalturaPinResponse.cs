@@ -38,5 +38,17 @@ namespace WebAPI.Models.API
             get;
             set;
         }
+
+        /// <summary>
+        /// PIN type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaPinType Type
+        {
+            get;
+            set;
+        }
     }
 }

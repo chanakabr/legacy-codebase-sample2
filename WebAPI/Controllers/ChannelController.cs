@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), language, channel_id);
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), language, channel_id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

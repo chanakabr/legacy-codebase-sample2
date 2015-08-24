@@ -17,8 +17,6 @@ namespace WebAPI.Controllers
        /// <summary>
         /// Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
        /// </summary>
-       /// <param name="user_id">User identifier</param>
-       /// <param name="household_id">Household identifier</param>
        /// <param name="udid">Device UDID</param>
        /// <param name="media_id">media identifier</param>
        /// <param name="npvr_id">nPVR identifier</param>
@@ -41,7 +39,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid, media_id, npvr_id);
+                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, media_id, npvr_id);
             }
             catch (ClientException ex)
             {

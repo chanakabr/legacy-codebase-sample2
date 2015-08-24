@@ -677,10 +677,7 @@
     <Compile Include="Controllers\ChannelMediaController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
     <Compile Include="Controllers\HouseholdLastPositionController.cs" />
-    <Compile Include="Controllers\HouseholdParentalPinController.cs" />
-    <Compile Include="Controllers\HouseholdParentalRuleController.cs" />
-    <Compile Include="Controllers\HouseholdPurchasePinController.cs" />
-    <Compile Include="Controllers\HouseholdPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\PurchaseSettingsController.cs" />
     <Compile Include="Controllers\HouseholdUserController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
@@ -701,10 +698,8 @@
     <Compile Include="Controllers\TransactionController.cs" />
     <Compile Include="Controllers\UserAssetsListController.cs" />
     <Compile Include="Controllers\UserLoginPinController.cs" />
-    <Compile Include="Controllers\UserParentalPinController.cs" />
-    <Compile Include="Controllers\UserParentalRuleController.cs" />
-    <Compile Include="Controllers\UserPurchasePinController.cs" />
-    <Compile Include="Controllers\UserPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\PinController.cs" />
+    <Compile Include="Controllers\ParentalRuleController.cs" />
     <Compile Include="Controllers\TransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
@@ -714,6 +709,7 @@
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
@@ -737,6 +733,7 @@
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
     <Compile Include="Models\General\KalturaDoubleValue.cs" />
+    <Compile Include="Models\General\KalturaEntityReferenceByFilter.cs" />
     <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />

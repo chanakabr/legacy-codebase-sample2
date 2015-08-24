@@ -99,32 +99,17 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
             }
 
-            if (string.IsNullOrEmpty(filter.Id))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
-            }
-
             try
             {
                 // call client
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, filter.Id, filter.EntitlementType);
+                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
                         break;
                     case KalturaEntityReferenceBy.household:
-                        {
-                            int householdId;
-                            if (int.TryParse(filter.Id, out householdId))
-                            {
-                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, householdId, filter.EntitlementType);
-                            }
-                            else
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household id must be int");
-                            }
-                            break;
-                        }
+                        response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");                        
                 }

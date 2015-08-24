@@ -50,12 +50,12 @@ namespace WebAPI.Controllers
                 if ((AssetType)asset_type == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.getHouseholdIDByKS(groupId), channel_media_id);
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), channel_media_id);
                 }
                 else if ((AssetType)asset_type == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, asset_id, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 }
             }
             catch (ClientException ex)

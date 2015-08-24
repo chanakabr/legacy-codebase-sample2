@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                res = ClientsManager.UsersClient().AddUserFavorite(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid, media_type,
+                res = ClientsManager.UsersClient().AddUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, media_type,
                     media_id, extra_data);
             }
             catch (ClientException ex)
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());
+                ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());
             }
             catch (ClientException ex)
             {
@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
                 // no media ids to filter from - use the regular favorites function
                 if (filter.MediaIds == null || filter.MediaIds.Count == 0)
                 {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), filter.UDID, filter.MediaType);
+                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID, filter.MediaType);
                 }
                 else
                 {
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
                     KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, 
-                        (int)HouseholdUtils.getHouseholdIDByKS(groupId), filter.UDID, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
+                        (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)

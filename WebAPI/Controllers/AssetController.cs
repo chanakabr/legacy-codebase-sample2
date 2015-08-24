@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
 
                 string userID = KS.GetFromRequest().UserId;            
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language, 0,
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0,
                     1, mid, with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
             {                
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language,
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
                     pager.PageIndex,pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
@@ -279,7 +279,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty,
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty,
                     language, pager.PageIndex, pager.PageSize, media_id, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)

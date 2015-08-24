@@ -13,44 +13,19 @@ namespace WebAPI.Models.API
     /// Purchase settings and PIN
     /// </summary>
     [Serializable]
-    public class KalturaPurchaseSettingsResponse : KalturaOTTObject
+    public class KalturaPurchaseSettingsResponse : KalturaPinResponse
     {
         /// <summary>
         /// Purchase settings type - block, ask or allow
         /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "type")]
-        public KalturaPurchaseSettingsType type
+        [DataMember(Name = "purchase_settings_type")]
+        [JsonProperty(PropertyName = "purchase_settings_type", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "purchase_settings_type")]
+        public KalturaPurchaseSettingsType PurchaseSettingsType
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// PIN applied on user or household
-        /// </summary>
-        [DataMember(Name = "pin")]
-        [JsonProperty(PropertyName = "pin", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "pin")]
-        public string pin
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Where were these settings defined - account, household or user
-        /// </summary>
-        [DataMember(Name = "origin")]
-        [JsonProperty(PropertyName = "origin")]
-        [XmlElement(ElementName = "origin")]
-        public KalturaRuleLevel origin
-        {
-            get;
-            set;
-        }
-        
     }
 
     /// <summary>

@@ -7,6 +7,7 @@ using WebAPI.Api;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Utils;
@@ -63,13 +64,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // PinResponse
             Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin));
+                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.pin, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.type, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)));
+                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()

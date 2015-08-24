@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), language, category_id);
+                response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), language, category_id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)
