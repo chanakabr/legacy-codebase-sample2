@@ -33,10 +33,10 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaFacebookResponse FBUserData(int groupId, string token)
+        internal KalturaSocialResponse FBUserData(int groupId, string token)
         {
             FacebookResponse wsResponse = null;
-            KalturaFacebookResponse clientResponse = new KalturaFacebookResponse();
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -68,16 +68,16 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            clientResponse = AutoMapper.Mapper.Map<KalturaFacebookResponse>(wsResponse.ResponseData);
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
 
             return clientResponse;
         }
 
-        internal KalturaFacebookResponse FBUserRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
+        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
         {
             {
                 FacebookResponse wsResponse = null;
-                KalturaFacebookResponse clientResponse = new KalturaFacebookResponse();
+                KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
                 // get group ID
                 Group group = GroupsManager.GetGroup(groupId);
@@ -109,16 +109,16 @@ namespace WebAPI.Clients
                 }
 
                 // convert response
-                clientResponse = AutoMapper.Mapper.Map<KalturaFacebookResponse>(wsResponse.ResponseData);
+                clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
 
                 return clientResponse;
             }
         }
 
-        internal KalturaFacebookResponse FBUserMerge(int groupId, string token, string username, string password, string facebookId)
+        internal KalturaSocialResponse FBUserMerge(int groupId, string token, string username, string password, string facebookId)
         {
             FacebookResponse wsResponse = null;
-            KalturaFacebookResponse clientResponse = new KalturaFacebookResponse();
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -150,15 +150,15 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            clientResponse = AutoMapper.Mapper.Map<KalturaFacebookResponse>(wsResponse.ResponseData);
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
 
             return clientResponse;
         }
 
-        internal KalturaFacebookResponse FBUserUnmerge(int groupId, string token, string username, string password)
+        internal KalturaSocialResponse FBUserUnmerge(int groupId, string token, string username, string password)
         {
             FacebookResponse wsResponse = null;
-            KalturaFacebookResponse clientResponse = new KalturaFacebookResponse();
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -190,7 +190,7 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            clientResponse = AutoMapper.Mapper.Map<KalturaFacebookResponse>(wsResponse.ResponseData);
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
 
             return clientResponse;
         }
@@ -229,9 +229,9 @@ namespace WebAPI.Clients
             return user;
         }
 
-        internal KalturaFacebookConfig GetFacebookConfig(int groupId)
+        internal KalturaSocialConfig GetFacebookConfig(int groupId)
         {
-            KalturaFacebookConfig config = null;
+            KalturaSocialConfig config = null;
             FacebookConfigResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -258,7 +258,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            config = AutoMapper.Mapper.Map<KalturaFacebookConfig>(response.FacebookConfig);
+            config = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.FacebookConfig);
 
             return config;
         }

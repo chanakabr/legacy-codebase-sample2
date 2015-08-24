@@ -773,9 +773,10 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
-    <Compile Include="Models\Social\KalturaFacebookConfig.cs" />
-    <Compile Include="Models\Social\KalturaFacebookResponse.cs" />
-    <Compile Include="Models\Social\KalturaFacebookUser.cs" />
+    <Compile Include="Models\Social\KalturaSocialConfig.cs" />
+    <Compile Include="Models\Social\KalturaSocialResponse.cs" />
+    <Compile Include="Models\Social\KalturaSocialUser.cs" />
+    <Compile Include="Models\Social\KalturaSocialNetwork.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
