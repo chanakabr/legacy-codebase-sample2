@@ -612,5 +612,88 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, 
+            int pageIndex, int pageSize)
+        {
+            KalturaBillingTransactionListResponse clientResponse = new KalturaBillingTransactionListResponse();
+            DomainsBillingTransactionsResponse wsResponse = null;
+
+            // get group by ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                int[] domainIds = new int[1]
+                {
+                    domainId
+                };
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    wsResponse = ConditionalAccess.GetDomainsBillingHistory(
+                        group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        domainIds, startDate, endDate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
+            }
+
+            // Conversion and paging
+
+            // If received valid response
+            if (wsResponse.billingTransactions != null && wsResponse.billingTransactions.Length > 0 &&
+                wsResponse.billingTransactions[0].m_BillingTransactionResponses != null)
+            {
+                var usersTransactions = wsResponse.billingTransactions[0].m_BillingTransactionResponses;
+                List<KalturaBillingTransaction> allTransactions = new List<KalturaBillingTransaction>();
+
+                foreach (var userTransactions in usersTransactions)
+                {
+                    // Convert current user's list of transactions to List of Kaltura objects
+                    List<KalturaUserBillingTransaction> billingTransactions =
+                        AutoMapper.Mapper.Map<List<KalturaUserBillingTransaction>>(userTransactions.m_BillingTransactionResponse.m_Transactions);
+
+                    if (billingTransactions != null)
+                    {
+                        // Set site guid for each of the Kaltura objects
+                        billingTransactions.ForEach(current => current.SiteGuid = userTransactions.m_sSiteGUID);
+
+                        // Add new billing transactions to client response
+                        allTransactions.AddRange(billingTransactions);
+                    }
+                }
+
+                // Set total count
+                clientResponse.TotalCount = allTransactions.Count;
+
+                // Set paging if page size exists
+                List<KalturaBillingTransaction> pageTransactions = allTransactions;
+
+                if (pageSize != 0)
+                {
+                    pageTransactions = allTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                }
+                
+                clientResponse.transactions = pageTransactions;
+            }
+
+            return clientResponse;
+        }
     }
 }

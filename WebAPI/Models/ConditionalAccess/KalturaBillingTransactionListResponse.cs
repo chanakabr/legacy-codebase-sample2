@@ -151,4 +151,20 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "remarks")]
         public string remarks { get; set; }
     }
+
+    /// <summary>
+    /// Billing transactions of single user
+    /// </summary>
+    [Serializable]
+    public class KalturaUserBillingTransaction : KalturaBillingTransaction
+    {
+        [DataMember(Name = "user_id")]
+        [JsonProperty("user_id")]
+        [XmlElement(ElementName = "user_id")]
+        public string SiteGuid
+        {
+            get;
+            set;
+        }
+    }
 }
