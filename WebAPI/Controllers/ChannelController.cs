@@ -18,13 +18,12 @@ namespace WebAPI.Controllers
         /// Returns channel info        
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="partner_id">Partner Identifier</param>
         /// <param name="language">Language Code</param>
         /// <param name="household_id">Household Identifier</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaChannel Get(string partner_id, int channel_id, string language = null, int household_id = 0)
+        public KalturaChannel Get(int channel_id, string language = null, int household_id = 0)
         {
             KalturaChannel response = null;
 

@@ -15,10 +15,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             // FacebookResponse to ClientFacebookResponse
-            Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaFacebookResponse>()
+            Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaSocialResponse>()
                 .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.data))
-                .ForMember(dest => dest.FacebookName, opt => opt.MapFrom(src => src.facebookName))
-                .ForMember(dest => dest.FacebookUser, opt => opt.MapFrom(src => src.fbUser))
+                .ForMember(dest => dest.SocialNetworkUsername, opt => opt.MapFrom(src => src.facebookName))
+                .ForMember(dest => dest.SocialUser, opt => opt.MapFrom(src => src.fbUser))
                 .ForMember(dest => dest.KalturaName, opt => opt.MapFrom(src => src.tvinciName))
                 .ForMember(dest => dest.MinFriends, opt => opt.MapFrom(src => src.minFriends))
                 .ForMember(dest => dest.Pic, opt => opt.MapFrom(src => src.pic))
@@ -27,10 +27,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
 
             // FBUser to FacebookUser
-            Mapper.CreateMap<WebAPI.Social.FBUser, WebAPI.Models.Social.KalturaFacebookUser>()
+            Mapper.CreateMap<WebAPI.Social.FBUser, WebAPI.Models.Social.KalturaSocialUser>()
                 .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.email))
-                .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.id))
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.first_name))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.gender))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.last_name))
@@ -91,7 +91,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // FacebookConfig to KalturaFacebookConfig
-            Mapper.CreateMap<Social.FacebookConfig, KalturaFacebookConfig>()
+            Mapper.CreateMap<Social.FacebookConfig, KalturaSocialConfig>()
                 .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
         }

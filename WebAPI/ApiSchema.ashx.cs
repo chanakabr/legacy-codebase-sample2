@@ -231,21 +231,24 @@ namespace WebAPI
                         var classNode = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]", controller.FullName, method.Name));
 
                         string desc = "";
+                        string remarks = "";
                         //No documentation
                         if (classNode.Count > 0 && classNode[0].ChildNodes != null)
                         {
                             for (int i = 0; i < classNode[0].ChildNodes.Count; i++)
                             {
-                                if (classNode[0].ChildNodes[i].Name == "summary")
-                                {
-                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
-                                    break;
-                                }
+                                if (classNode[0].ChildNodes[i].Name == "summary")                                
+                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();                                                                    
+
+                                if (classNode[0].ChildNodes[i].Name == "remarks")
+                                    remarks = classNode[0].ChildNodes[i].InnerText.Trim();
                             }
                         }
 
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
+                        else
+                            desc += string.Format(". {0}", remarks);
 
                         string deprecatedAttr = "";
                         if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
@@ -267,8 +270,8 @@ namespace WebAPI
                             if (string.IsNullOrEmpty(pdesc))
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
-                            context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
-                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc)));
+                            context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}' optional='{3}'/>\n", par.Name,
+                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc), par.IsOptional ? "1" : "0"));
                         }
 
                         if (method.ReturnType != typeof(void))
@@ -304,13 +307,11 @@ namespace WebAPI
         }
 
         private string getTypeAndArray(Type type)
-        {
-            bool isNullable = false;
+        {            
             //Handling nullables
             if (Nullable.GetUnderlyingType(type) != null)
             {
-                type = type.GetGenericArguments()[0];
-                isNullable = true;
+                type = type.GetGenericArguments()[0];               
             }
 
             //Handling Enums
@@ -349,7 +350,7 @@ namespace WebAPI
                     }
                     else if (type.GetGenericArguments().Count() == 2)
                     {
-
+                        throw new Exception("Dont know how to handle");
                     }
                     else
                         throw new Exception("Generic type unknown");
@@ -358,7 +359,7 @@ namespace WebAPI
                 return string.Format("type='{0}' arrayType='{1}'", name, arrayType);
             }
 
-            return string.Format("type='{0}'{1}default='{2}'", getTypeFriendlyName(type), isNullable ? " optional='1' " : " ", getDefaultForType(type));
+            return string.Format("type='{0}' default='{1}'", getTypeFriendlyName(type), getDefaultForType(type));
         }
 
         private string getDefaultForType(Type type)
@@ -389,7 +390,7 @@ namespace WebAPI
 
                     var descs = x.SelectNodes(string.Format("//member[@name='P:{0}.{1}']//summary",
                                 className, pi.Name));
-
+                    
                     string pdesc = "";
                     if (descs.Count > 0)
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');

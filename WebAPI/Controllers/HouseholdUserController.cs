@@ -26,9 +26,22 @@ namespace WebAPI.Controllers
         public bool Delete(int household_id, string user_id)
         {
             int groupId = KS.GetFromRequest().GroupId;                                   
+            string masterUserId = KS.GetFromRequest().UserId;
 
             try
             {
+                // get domain
+                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, masterUserId);
+                if (domain != null)
+                {
+                    // check if the user performing the action is domain master
+                    if (domain.Id != household_id || domain.MasterUsers.Where(u => u.Id == masterUserId).FirstOrDefault() == null)
+                    {
+                        throw new ForbiddenException();
+                    }
+                }
+
+
                 // call client
                 return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, user_id);
             }
@@ -44,22 +57,21 @@ namespace WebAPI.Controllers
         /// Adds a user to household       
         /// </summary>        
         /// <param name="household_id">Household identifier</param>
-        /// <param name="user_id">User identifier</param>
-        /// <param name="master_user_id">Identifier of household master</param>
-        /// <param name="is_master">True if the new user should be set to be master</param>
+        /// <param name="user_id">The identifier of the user to add</param>
+        /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int household_id, string user_id, string master_user_id, bool is_master = false)
+        public bool Add(int household_id, string user_id, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;                                   
 
             try
             {
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, master_user_id, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, KS.GetFromRequest().UserId, is_master);
             }
             catch (ClientException ex)
             {

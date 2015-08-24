@@ -63,7 +63,6 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        [ApiAuthorize]
         public KalturaHousehold Get(int household_id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
@@ -71,7 +70,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            var user = ClientsManager.UsersClient().GetUsersData(groupId, new int[] { int.Parse(ks.UserId) }.ToList<int>());
+            var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
 
             if (user.First().HouseholdID != household_id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
@@ -84,16 +83,16 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().HouseholdID);
 
-                if (with != null && with.Where(x=> x.type == KalturaHouseholdWith.users_info).Count() > 0)
+                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_info).Count() > 0)
                 {
                     // get users ids lists
-                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<int>();
-                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<int>();
-                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<int>();
-                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<int>();
+                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<string>();
+                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<string>();
+                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<string>();
+                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<string>();
 
                     // merge all user ids to one list
-                    List<int> allUserIds = new List<int>();
+                    List<string> allUserIds = new List<string>();
                     allUserIds.AddRange(userIds);
                     allUserIds.AddRange(masterUserIds);
                     allUserIds.AddRange(defaultUserIds);
@@ -108,10 +107,10 @@ namespace WebAPI.Controllers
 
                     if (users != null)
                     {
-                        response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains((int)u.Id)));
-                        response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains((int)u.Id)));
-                        response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains((int)u.Id)));
-                        response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains((int)u.Id)));
+                        response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
+                        response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
+                        response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
+                        response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
                     }
                 }
             }
@@ -131,25 +130,27 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Creates a household for the user      
         /// </summary>        
-        /// <param name="request">Request parameters</param>
+        /// <param name="name">Name for the household</param>
+        /// <param name="description">Description for the household</param>
+        /// <param name="master_user_id">Identifier of the user that will become the master of the created household</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
         /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(KalturaAddHouseholdRequest request)
+        public KalturaHousehold Add(string name, string description, string master_user_id)
         {
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
-            if (string.IsNullOrEmpty(request.MasterUserId))
+
+            if (string.IsNullOrEmpty(master_user_id))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "master_user_id cannot be empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, request.Name, request.Description, request.MasterUserId);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, master_user_id);
             }
             catch (ClientException ex)
             {
@@ -184,7 +185,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -232,5 +233,7 @@ namespace WebAPI.Controllers
         }
 
         #endregion
+
+
     }
 }

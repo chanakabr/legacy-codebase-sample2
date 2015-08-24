@@ -9,15 +9,15 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaFacebookUser : KalturaOTTObject
+    public class KalturaSocialUser : KalturaOTTObject
     {
         /// <summary>
         /// Facebook identifier
         /// </summary>
-        [DataMember(Name = "facebook_id")]
-        [JsonProperty("facebook_id")]
-        [XmlElement(ElementName = "facebook_id")]
-        public string FacebookId { get; set; }
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public string ID { get; set; }
 
         /// <summary>
         /// Full name

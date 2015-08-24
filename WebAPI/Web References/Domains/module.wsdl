@@ -960,7 +960,7 @@
       <s:element name="GetDomainByUserResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByUserResult" type="tns:Domain" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByUserResult" type="tns:DomainResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1013,7 +1013,6 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
       <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
-      <s:element name="Domain" nillable="true" type="tns:Domain" />
       <s:element name="DeviceRegistrationStatusResponse" nillable="true" type="tns:DeviceRegistrationStatusResponse" />
     </s:schema>
   </wsdl:types>
@@ -1624,7 +1623,7 @@
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainByUserHttpPostOut">
-    <wsdl:part name="Body" element="tns:Domain" />
+    <wsdl:part name="Body" element="tns:DomainResponse" />
   </wsdl:message>
   <wsdl:message name="GetDeviceRegistrationStatusHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

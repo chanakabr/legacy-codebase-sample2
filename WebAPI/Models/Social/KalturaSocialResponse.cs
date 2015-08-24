@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaFacebookResponse : KalturaOTTObject
+    public class KalturaSocialResponse : KalturaOTTObject
     {
         /// <summary>
         /// User model status
@@ -39,10 +39,10 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Facebook username
         /// </summary>
-        [DataMember(Name = "facebook_username")]
-        [JsonProperty("facebook_username")]
-        [XmlElement(ElementName = "facebook_username")]
-        public string FacebookName { get; set; }
+        [DataMember(Name = "social_username")]
+        [JsonProperty("social_username")]
+        [XmlElement(ElementName = "social_username")]
+        public string SocialNetworkUsername { get; set; }
 
         /// <summary>
         /// Facebook profile picture
@@ -79,9 +79,9 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Facebook user object
         /// </summary>
-        [DataMember(Name = "facebook_user")]
-        [JsonProperty("facebook_user")]
-        [XmlElement(ElementName = "facebook_user")]
-        public KalturaFacebookUser FacebookUser { get; set; }
+        [DataMember(Name = "social_user")]
+        [JsonProperty("social_user")]
+        [XmlElement(ElementName = "social_user")]
+        public KalturaSocialUser SocialUser { get; set; }
     }
 }

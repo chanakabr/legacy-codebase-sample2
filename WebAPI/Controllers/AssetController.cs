@@ -12,6 +12,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -67,7 +68,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="media_ids">Media identifiers separated by ',' </param>        
+        /// <param name="media_ids">Media identifiers</param>        
         /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
@@ -122,20 +123,32 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
         /// </summary>
-        /// <param name="request">The search asset request parameter</param>
+        /// <param name="filter_types">List of asset types to search within. 
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>
+        /// <param name="filter"> <![CDATA[
+        /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or.
+        /// (maximum length of 1024 characters)]]></param>
+        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
+        /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
+        /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language Code</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Search(KalturaSearchAssetsRequest request, string language = null, KalturaFilterPager pager = null)
+        public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by, 
+            List<KalturaCatalogWithHolder> with, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
-            if (!string.IsNullOrEmpty(request.filter) && request.filter.Length > 1024)
+            if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
             }
@@ -157,18 +170,18 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
             }
 
-            if (request.with == null)
-                request.with = new List<KalturaCatalogWithHolder>();
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
 
-            if (request.filter_types == null)
-                request.filter_types = new List<KalturaIntegerValue>();
+            if (filter_types == null)
+                filter_types = new List<KalturaIntegerValue>();
 
             try
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
-                pager.PageIndex, pager.PageSize, request.filter, request.order_by, request.filter_types.Select(x => x.value).ToList(),
-                request.with.Select(x => x.type).ToList());
+                pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
+                with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -271,6 +284,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
+        }     
     }
 }

@@ -120,7 +120,7 @@ namespace WebAPI.Managers
             List<KalturaOTTUser> usersResponse = null;
             try
             {
-                usersResponse = ClientsManager.UsersClient().GetUsersData(groupId, new List<int> { int.Parse(userId) });
+                usersResponse = ClientsManager.UsersClient().GetUsersData(groupId, new List<string> { userId });
             }
             catch (ClientException ex)
             {

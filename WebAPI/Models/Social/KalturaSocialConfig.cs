@@ -10,9 +10,9 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Social
 {
     /// <summary>
-    /// Returns facebook configuration for the partner 
+    /// Returns social configuration for the partner 
     /// </summary>
-    public class KalturaFacebookConfig : KalturaOTTObject
+    public class KalturaSocialConfig : KalturaOTTObject
     {
         /// <summary>
         ///The application identifier
@@ -23,7 +23,7 @@ namespace WebAPI.Models.Social
         public string AppId { get; set; }
 
         /// <summary>
-        /// List of facebook application permissions
+        /// List of application permissions
         /// </summary>
         [DataMember(Name = "permissions")]
         [JsonProperty("permissions")]

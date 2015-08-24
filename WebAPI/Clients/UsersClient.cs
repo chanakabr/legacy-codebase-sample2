@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             }
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, 
+        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId,
             Dictionary<string, KalturaStringValue> extraParams)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
@@ -401,7 +401,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<int> usersIds)
+        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds)
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;

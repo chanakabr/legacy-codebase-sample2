@@ -32,11 +32,9 @@ namespace WebAPI.Controllers
         /// <param name="udid">The caller device's UDID</param>
         /// <returns>KalturaLoginResponse</returns>
         [Route("anonymousLogin"), HttpPost]
-        public KalturaLoginSession AnonymousLogin(string partner_id, string udid = null)
+        public KalturaLoginSession AnonymousLogin(int partner_id, string udid = null)
         {
-            int partnerID = int.Parse(partner_id);
-
-            return AuthorizationManager.GenerateSession("0", partnerID, false, false, udid);
+            return AuthorizationManager.GenerateSession("0", partner_id, false, false, udid);
         }
 
         /// <summary>
@@ -52,11 +50,9 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("LoginWithPin"), HttpPost]
-        public KalturaLoginResponse LoginWithPin(string partner_id, string pin, string udid = null, string secret = null)
+        public KalturaLoginResponse LoginWithPin(int partner_id, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
-
-            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -66,45 +62,41 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().LoginWithPin(groupId, udid, pin, secret);
+                response = ClientsManager.UsersClient().LoginWithPin(partner_id, udid, pin, secret);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), groupId, false, true, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, true, udid), User = response };
         }
 
         /// <summary>
         /// login with user name and password.
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>
-        /// <param name="request">User details parameters</param>
+        /// <param name="username">user name</param>
+        /// <param name="password">password</param>
+        /// <param name="extra_params">extra params</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(string partner_id, KalturaLogIn request, string udid = null)
+        public KalturaLoginResponse Login(int partner_id, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params, string udid = null)
         {
             KalturaOTTUser response = null;
 
-            int partnerID = int.Parse(partner_id);
-
-            if (request == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "request cannot be empty");
-            }
-            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(partnerID, request.Username, request.Password, udid, request.ExtraParams);
+                response = ClientsManager.UsersClient().Login(partner_id, username, password, udid, extra_params);
             }
             catch (ClientException ex)
             {
@@ -116,7 +108,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerID, false, false, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, false, udid), User = response };
         }
 
         /// <summary>
@@ -163,11 +155,9 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("FacebookLogin"), HttpPost]
-        public KalturaLoginResponse FacebookLogin(string partner_id, string token, string udid = null)
+        public KalturaLoginResponse FacebookLogin(int partner_id, string token, string udid = null)
         {
             KalturaOTTUser response = null;
-
-            int partnerId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -176,7 +166,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.SocialClient().FBUserSignin(partnerId, token, udid);
+                response = ClientsManager.SocialClient().FBUserSignin(partner_id, token, udid);
             }
             catch (ClientException ex)
             {
@@ -188,37 +178,38 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, false, udid), User = response };
         }
 
         /// <summary>
         /// Sign up a new user.      
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
-        /// <param name="request">SignUp Object</param>
+        /// <param name="partner_id">Partner identifier</param>        
+        /// <param name="user_basic_data">user basic data</param>
+        /// <param name="user_dynamic_data">user dynamic data</param>
+        /// <param name="password">password</param>
+        /// <param name="affiliate_code">affiliate code</param>
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaOTTUser Add(string partner_id, KalturaSignUp request)
+        public KalturaOTTUser Add(int partner_id, KalturaUserBasicData user_basic_data, SerializableDictionary<string, KalturaStringValue> user_dynamic_data,
+            string password, string affiliate_code)
         {
             KalturaOTTUser response = null;
 
-            int groupId = int.Parse(partner_id);
-
-            if (request == null || request.userBasicData == null)
+            if (user_basic_data == null)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "SignUp or UserBasicData is null");
             }
-            if (string.IsNullOrEmpty(request.userBasicData.Username) || string.IsNullOrEmpty(request.password))
+            if (string.IsNullOrEmpty(user_basic_data.Username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
             }
             try
             {
-                // call client
-                response = ClientsManager.UsersClient().SignUp(groupId, request.userBasicData, request.userDynamicData, request.password, request.affiliateCode);
+                response = ClientsManager.UsersClient().SignUp(partner_id, user_basic_data, user_dynamic_data, password, affiliate_code);
             }
             catch (ClientException ex)
             {
@@ -238,12 +229,10 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("{username}/password/send"), HttpPost]
-        public bool SendNewPassword(string partner_id, string username)
+        [Route("sendPassword"), HttpPost]
+        public bool sendPassword(int partner_id, string username)
         {
             bool response = false;
-
-            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(username))
             {
@@ -252,7 +241,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SendNewPassword(groupId, username);
+                response = ClientsManager.UsersClient().SendNewPassword(partner_id, username);
             }
             catch (ClientException ex)
             {
@@ -274,12 +263,10 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User does not exist = 2000, Wrong username or password = 1011</remarks>
-        [Route("{username}/password/reset"), HttpPost]
-        public bool RenewPassword(string partner_id, string username, string password)
+        [Route("resetPassword"), HttpPost]
+        public bool resetPassword(int partner_id, string username, string password)
         {
             bool response = false;
-
-            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -288,7 +275,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().RenewPassword(groupId, username, password);
+                response = ClientsManager.UsersClient().RenewPassword(partner_id, username, password);
             }
             catch (ClientException ex)
             {
@@ -303,17 +290,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the user name associated with a temporary reset token.        
+        /// Returns the user associated with a temporary reset token.        
         /// </summary>        
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("token/{token}"), HttpPost]
-        public KalturaOTTUser CheckPasswordToken(string partner_id, string token)
+        [Route("validateToken"), HttpPost]
+        public KalturaOTTUser validateToken(int partner_id, string token)
         {
             KalturaOTTUser response = null;
-
-            int groupId = int.Parse(partner_id);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -322,7 +307,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().CheckPasswordToken(groupId, token);
+                response = ClientsManager.UsersClient().CheckPasswordToken(partner_id, token);
             }
             catch (ClientException ex)
             {
@@ -386,10 +371,10 @@ namespace WebAPI.Controllers
         {
             List<KalturaOTTUser> response = null;
 
-            List<int> usersIds;
+            List<string> usersIds;
             try
             {
-                usersIds = filter.UserIDs.Select(x => int.Parse(x.value)).Distinct().ToList();
+                usersIds = filter.UserIDs.Select(x => x.value).Distinct().ToList();
             }
             catch
             {
@@ -455,174 +440,5 @@ namespace WebAPI.Controllers
             return response;
 
         }
-
-        #region Parental Rules
-
-        /// <summary>
-        /// Retrieve all the parental rules that applies for a specific media and a specific user according to the user parental settings.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="media_id">Media identifier</param>
-        /// <returns>All the parental rules that applies for a specific media and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental/rules/media/{media_id}"), HttpPost]
-        [ApiAuthorize]
-        public KalturaParentalRuleListResponse GetParentalMediaRules(long media_id)
-        {
-            List<KalturaParentalRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            // parameters validation
-            if (media_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
-            }
-            try
-            {
-                // call client
-                response = ClientsManager.ApiClient().GetUserMediaParentalRules(groupId, KS.GetFromRequest().UserId, media_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
-        }
-
-        /// <summary>
-        /// Retrieve all the parental rules that applies for a specific EPG and a specific user according to the user parental settings.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <param name="epg_id">EPG identifier</param>
-        /// <returns>All the parental rules that applies for a specific EPG and a specific user according to the user parental settings.</returns>
-        [Route("{user_id}/parental/rules/epg/{epg_id}"), HttpPost]
-        [ApiAuthorize]
-        public KalturaParentalRuleListResponse GetParentalEPGRules(long epg_id)
-        {
-            List<KalturaParentalRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            // parameters validation
-            if (epg_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epg_id cannot be empty");
-            }
-
-            try
-            {
-                // call client
-                response = ClientsManager.ApiClient().GetUserEPGParentalRules(groupId, KS.GetFromRequest().UserId, epg_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
-        }
-
-        /// <summary>
-        /// Disables the partner's default rule for this user        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <returns>Success / fail</returns>
-        [Route("{user_id}/parental/rules/default"), HttpPost]
-        [ApiAuthorize]
-        public bool DisableDefaultParentalRule()
-        {
-            bool success = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, KS.GetFromRequest().UserId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media.        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="media_id">Media identifier</param>
-        /// <param name="household_id">Media identifier</param>
-        /// <param name="udid">Device UDID</param>
-        /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
-        [Route("{user_id}/rules/media/{media_id}"), HttpPost]
-        [ApiAuthorize]
-        public KalturaGenericRuleListResponse GetMediaRules(long media_id, string udid = null, int household_id = 0)
-        {
-            List<KalturaGenericRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            // parameters validation
-            if (media_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
-            }
-            try
-            {
-                // call client
-                response = ClientsManager.ApiClient().GetMediaRules(groupId, KS.GetFromRequest().UserId, media_id, household_id, udid);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
-        }
-
-        /// <summary>
-        /// Retrieve all the rules (parental) that applies for this EPG program      
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="epg_id">EPG program identifier</param>
-        /// <param name="household_id">Household identifier</param>        
-        /// <param name="channel_media_id">Linear channel's media identifier</param>        
-        /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
-        [Route("{user_id}/rules/epg/{epg_id}"), HttpPost]
-        [ApiAuthorize]
-        public KalturaGenericRuleListResponse GetEpgRules(long epg_id, long channel_media_id, int household_id = 0)
-        {
-            List<KalturaGenericRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-
-            // parameters validation
-            if (epg_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epg_id cannot be empty");
-            }
-            try
-            {
-                // call client
-                response = ClientsManager.ApiClient().GetEpgRules(groupId, KS.GetFromRequest().UserId, epg_id, household_id, channel_media_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
-        }
-
-        #endregion
     }
 }
