@@ -94,7 +94,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             // BundleCodeContainer to SlimChannel
             Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, Models.Pricing.KalturaSubscriptionPrice>()
-               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice));
 
@@ -146,7 +146,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             // ItemPriceContainer to PPVItemPriceDetails
             Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, Models.Pricing.KalturaItemPrice>()
-               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
 

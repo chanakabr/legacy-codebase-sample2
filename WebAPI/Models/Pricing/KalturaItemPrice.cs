@@ -12,7 +12,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV price details
     /// </summary>
-    public class KalturaItemPrice : KalturaOTTObject
+    public class KalturaItemPrice : KalturaProductPrice
     {
         /// <summary>
         /// Media file identifier  
@@ -30,13 +30,5 @@ namespace WebAPI.Models.Pricing
         [XmlArray(ElementName = "ppv_price_details")]
         [XmlArrayItem("item")] 
         public List<KalturaPPVItemPriceDetails> PPVPriceDetails { get; set; }
-
-        /// <summary>
-        /// Product code for the file
-        /// </summary>
-        [DataMember(Name = "product_code")]
-        [JsonProperty("product_code")]
-        [XmlElement(ElementName = "product_code")]
-        public string ProductCode { get; set; }
     }
 }

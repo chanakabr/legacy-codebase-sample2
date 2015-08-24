@@ -109,10 +109,10 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.By)
                 {
-                    case KalturaReferenceType.user:
+                    case KalturaEntityReferenceBy.user:
                         response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, filter.Id, filter.EntitlementType);
                         break;
-                    case KalturaReferenceType.household:
+                    case KalturaEntityReferenceBy.household:
                         {
                             int householdId;
                             if (int.TryParse(filter.Id, out householdId))

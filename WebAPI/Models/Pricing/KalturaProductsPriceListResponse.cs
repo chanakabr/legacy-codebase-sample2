@@ -14,15 +14,15 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "SubscriptionsPrices", Namespace = "")]
     [XmlRoot("SubscriptionsPrices")]
-    public class KalturaSubscriptionsPriceListResponse : KalturaListResponse
+    public class KalturaProductsPriceListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of subscriptions prices
         /// </summary>
-        [DataMember(Name = "subscriptions_prices")]
-        [JsonProperty("subscriptions_prices")]
-        [XmlArray(ElementName = "subscriptions_prices")]
+        [DataMember(Name = "products_prices")]
+        [JsonProperty("products_prices")]
+        [XmlArray(ElementName = "products_prices")]
         [XmlArrayItem("item")] 
-        public List<KalturaSubscriptionPrice> SubscriptionsPrices { get; set; }
+        public List<KalturaProductPrice> ProductsPrices { get; set; }
     }
 }

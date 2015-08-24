@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "by")]
         [JsonProperty("by")]
         [XmlElement(ElementName = "by")]
-        public KalturaReferenceType By { get; set; }
+        public KalturaEntityReferenceBy By { get; set; }
 
         /// <summary>
         ///Identifier to filter by (user identifier or household identifier)

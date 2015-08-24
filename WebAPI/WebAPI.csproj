@@ -729,7 +729,9 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaReferenceType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntityReferenceBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionsFilter.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
@@ -753,12 +755,14 @@
     <Compile Include="Models\Pricing\KalturaItemPrice.cs" />
     <Compile Include="Models\Pricing\KalturaPreviewModule.cs" />
     <Compile Include="Models\Pricing\KalturaPriceDetails.cs" />
+    <Compile Include="Models\Pricing\KalturaProductPrice.cs" />
     <Compile Include="Models\Pricing\KalturaPurchaseStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPremiumService.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlan.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionPrice.cs" />
-    <Compile Include="Models\Pricing\KalturaSubscriptionsPriceListResponse.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionsFilter.cs" />
+    <Compile Include="Models\Pricing\KalturaProductsPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaUsageModule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementListResponse.cs" />
     <Compile Include="Models\Domains\KalturaDevice.cs" />

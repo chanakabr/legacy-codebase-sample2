@@ -5,9 +5,9 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public enum KalturaReferenceType
+    public enum KalturaSubscriptionsFilterBy
     {
-        user,
-        household
+        subscriptions_ids,
+        media_file_id
     }
 }
