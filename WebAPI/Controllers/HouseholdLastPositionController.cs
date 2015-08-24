@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
        /// <returns></returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaUserLastPosition> Get(string user_id, int household_id, string udid = null, int media_id = 0, string npvr_id = null)
+        public List<KalturaUserLastPosition> Get(string udid = null, int media_id = 0, string npvr_id = null)
         {
             List<KalturaUserLastPosition> response = null;
 
@@ -38,8 +38,10 @@ namespace WebAPI.Controllers
 
             try
             {
+                string userID = KS.GetFromRequest().UserId;
+
                 // call client
-                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, user_id, household_id, udid, media_id, npvr_id);
+                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid, media_id, npvr_id);
             }
             catch (ClientException ex)
             {

@@ -213,7 +213,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
-        public string GetChargeID(string id, string household_id)
+        public string GetChargeID(string id, int household_id)
         {
             string chargeId = string.Empty;
 

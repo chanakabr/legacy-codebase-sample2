@@ -34,11 +34,6 @@ namespace WebAPI.Filters
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_PARTNER_ID = "requestPartnerID";
 
-        //public static string PartnerID
-        //{
-        //    get { return (string)HttpContext.Current.Items[REQUEST_PARTNER_ID]; }
-        //}
-
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
@@ -105,13 +100,10 @@ namespace WebAPI.Filters
                             {
                                 GetUserDataFromKS(actionContext, reqParams["ks"].ToObject<string>());
 
-                                KS ks = KS.GetFromRequest();
-                                if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
-                                    ks.UserId = reqParams["user_id"].ToObject<string>();
+                                //KS ks = KS.GetFromRequest();
+                                //if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
+                                //    ks.UserId = reqParams["user_id"].ToObject<string>();
                             }
-
-                            //if (reqParams["partner_id"] != null)
-                            //    HttpContext.Current.Items.Add(REQUEST_PARTNER_ID, reqParams["partner_id"].ToObject(typeof(string)));
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
