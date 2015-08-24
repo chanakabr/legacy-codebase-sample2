@@ -11,7 +11,8 @@ namespace WebAPI.Models.Domains
 {
     public enum KalturaHouseholdWith
     {
-        users_info
+        users_base_info,
+        users_full_info
     }
 
     /// <summary>
