@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_name">The payment gateway name for the of In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-        /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001ת Payment gateway does not exist = 6008, No configuration found = 6011,
+        /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042, Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("ProcessReceipt"), HttpPost]
