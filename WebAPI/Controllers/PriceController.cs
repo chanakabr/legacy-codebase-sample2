@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the price details and purchase details for each file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
         /// </summary>
-        /// <param name="files_ids">Media files identifiers (separated by ',')</param>
+        /// <param name="files_ids">Media files identifiers</param>
         /// <param name="coupon_code">Discount coupon code</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
@@ -25,31 +25,22 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaItemPriceListResponse Get(string files_ids, string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
+        public KalturaItemPriceListResponse Get(int[] files_ids, string coupon_code = null, string udid = null, string language = null, bool should_get_only_lowest = false)
         {
             List<KalturaItemPrice> ppvPrices = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(files_ids))
+            if (files_ids == null || files_ids.Count() == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "files_ids cannot be empty");
-            }
-
-            List<int> filesIds;
-            try
-            {
-                filesIds = files_ids.Split(',').Distinct().Select(f => int.Parse(f)).ToList();
-            }
-            catch (Exception)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "each file id must be integer");
             }
 
             try
             {
                 // call client
-                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filesIds, KS.GetFromRequest().UserId, coupon_code, udid, language, should_get_only_lowest);
+                ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, files_ids.ToList(), KS.GetFromRequest().UserId, coupon_code,
+                    udid, language, should_get_only_lowest);
             }
             catch (ClientException ex)
             {
