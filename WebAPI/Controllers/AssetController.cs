@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifiers        
         /// </summary>
-        /// <param name="media_ids">Media identifiers separated by ',' </param>        
+        /// <param name="media_ids">Media identifiers</param>        
         /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>

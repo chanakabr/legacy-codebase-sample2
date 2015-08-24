@@ -23,8 +23,6 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        
-
         /// <summary>
         /// Returns a list of subscriptions data.
         /// </summary>

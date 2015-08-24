@@ -251,7 +251,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, List<string> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, int[] subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
             WebAPI.ConditionalAccess.SubscriptionsPricesResponse response = null;
             List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
@@ -263,7 +263,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        subscriptionsIds.ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                        subscriptionsIds.Select(x=> x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
