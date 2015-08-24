@@ -22,4 +22,15 @@ namespace ConditionalAccess
         public DomainBillingTransactionsResponse() { }
     }
 
+    public class DomainsBillingTransactionsResponse
+    {
+        public ApiObjects.Response.Status status;
+
+        public DomainBillingTransactionsResponse[] billingTransactions;
+
+        public DomainsBillingTransactionsResponse()
+        {
+
+        }
+    }
 }

@@ -7852,13 +7852,26 @@ namespace ConditionalAccess
         /// 
         /// (for Eutelsat Project)
         /// </summary>
-        public virtual DomainBillingTransactionsResponse[] GetDomainsBillingHistory(int[] domainIDs, DateTime dStartDate, DateTime dEndDate)
+        public virtual DomainsBillingTransactionsResponse GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
         {
-            List<DomainBillingTransactionsResponse> lDomainBillingTransactions = new List<DomainBillingTransactionsResponse>();
+            DomainsBillingTransactionsResponse response = new DomainsBillingTransactionsResponse()
+            {
+                status = new ApiObjects.Response.Status()
+                {
 
+                    Code = (int)eResponseStatus.OK,
+                    Message = string.Empty
+                }
+            };
+
+            List<DomainBillingTransactionsResponse> domainsBillingTransactions = new List<DomainBillingTransactionsResponse>();
+            List<int> invalidDomains = new List<int>();
+
+            // if not domains were sent - return an "empty" response object
             if (domainIDs == null || domainIDs.Length == 0)
             {
-                return lDomainBillingTransactions.ToArray();
+                response.billingTransactions = domainsBillingTransactions.ToArray();
+                return response;
             }
 
             for (int i = 0; i < domainIDs.Length; i++)
@@ -7871,28 +7884,41 @@ namespace ConditionalAccess
                     string[] sUserGuids = DomainDal.GetUsersInDomain(domainIDs[i], m_nGroupID, 1, 1).Select(ut => ut.Key.ToString()).ToArray();
                     //string[] sUserGuids = userIDs.Select(u => u.ToString()).ToArray();
 
-                    domainBillingTransactions.m_BillingTransactionResponses = GetUsersBillingHistory(sUserGuids, dStartDate, dEndDate);
+                    domainBillingTransactions.m_BillingTransactionResponses = GetUsersBillingHistory(sUserGuids, startDate, endDate);
 
-                    lDomainBillingTransactions.Add(domainBillingTransactions);
+                    domainsBillingTransactions.Add(domainBillingTransactions);
                 }
                 catch (Exception ex)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Exception at GetDomainsBillingHistory. ");
                     sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                    sb.Append(String.Concat(" Start Date: ", dStartDate));
-                    sb.Append(String.Concat(" End Date: ", dEndDate));
+                    sb.Append(String.Concat(" Start Date: ", startDate));
+                    sb.Append(String.Concat(" End Date: ", endDate));
                     sb.Append(String.Concat(" Domain ID: ", domainIDs[i]));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
                     log.Error("Exception - " + sb.ToString(), ex);
+
+                    invalidDomains.Add(domainIDs[i]);
                     #endregion
 
                 }
             }
 
-            return lDomainBillingTransactions.ToArray();
+            // Set failure message
+            if (invalidDomains.Count > 0)
+            {
+                response.status.Code = (int)eResponseStatus.Error;
+                response.status.Message = string.Concat(
+                    "Failed getting billing history of domains: ", string.Join<int>(",", invalidDomains));
+
+            }
+
+            response.billingTransactions = domainsBillingTransactions.ToArray();
+
+            return response;
         }
 
         /// <summary>
