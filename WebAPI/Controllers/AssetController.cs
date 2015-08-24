@@ -10,6 +10,7 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -29,12 +30,11 @@ namespace WebAPI.Controllers
         /// <param name="media_id">requested media ID</param>               
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>
-        /// <param name="household_id">Household identifier</param>
+        /// <param name="language">Language code</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
-        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
+        [ApiAuthorize(true)]        
+        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -48,7 +48,9 @@ namespace WebAPI.Controllers
                 List<int> mid = new List<int>();
                 mid.Add(media_id);
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language, 0,
+                string userID = KS.GetFromRequest().UserId;            
+
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language, 0,
                     1, mid, with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
@@ -72,13 +74,12 @@ namespace WebAPI.Controllers
         /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>
-        /// <param name="household_id">Household identifier</param>
+        /// <param name="language">Language code</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
-            string language = null, int household_id = 0)
+            string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -102,9 +103,11 @@ namespace WebAPI.Controllers
                 with = new List<KalturaCatalogWithHolder>();
 
             try
-            {
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language, pager.PageIndex,
-                    pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+            {                
+                string userID = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language,
+                    pager.PageIndex,pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -244,13 +247,12 @@ namespace WebAPI.Controllers
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>
-        /// <param name="household_id">Household identifier</param>
+        /// <param name="language">Language code</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Related(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
-            List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
+            List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -275,7 +277,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, KS.GetFromRequest().UserId, household_id, string.Empty,
+                string userID = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty,
                     language, pager.PageIndex, pager.PageSize, media_id, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)

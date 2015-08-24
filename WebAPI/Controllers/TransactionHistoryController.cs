@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, int household_id = 0, 
+        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, 
             DateTime? start_date = null, DateTime? end_date = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
@@ -39,11 +39,13 @@ namespace WebAPI.Controllers
 
             try
             {
+                string userID = KS.GetFromRequest().UserId;
+
                 switch (filter.By)
                 {
                     case KalturaReferenceType.user:
                     {
-                        response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, KS.GetFromRequest().UserId, filter.PageIndex, filter.PageSize);
+                        response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.PageIndex, filter.PageSize);
                         break;
                     }
                     case KalturaReferenceType.household:
@@ -62,7 +64,7 @@ namespace WebAPI.Controllers
                         }
 
                         response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                            groupId, household_id, startDate, endDate, filter.PageIndex, filter.PageSize);
+                            groupId, (int)HouseholdUtils.getHouseholdIDByKS(groupId), startDate, endDate, filter.PageIndex, filter.PageSize);
                         break;
                     }
                     default:

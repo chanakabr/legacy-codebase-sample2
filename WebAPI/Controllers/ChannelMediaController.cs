@@ -24,13 +24,12 @@ namespace WebAPI.Controllers
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>        
-        /// <param name="household_id">Household identifier</param>
+        /// <param name="language">Language code</param>                
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse List(int channel_id, KalturaOrder? order_by = null, KalturaFilterPager pager = null, 
-            List<KalturaCatalogWithHolder> with = null, string language = null, int household_id = 0)
+        public KalturaAssetInfoListResponse List(int channel_id, KalturaOrder? order_by = null, KalturaFilterPager pager = null,
+            List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -55,8 +54,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, KS.GetFromRequest().UserId, household_id, string.Empty, language,
-                    pager.PageIndex, pager.PageSize, channel_id, order_by.Value, with.Select(x=> x.type).ToList());
+                string userID = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language,
+                    pager.PageIndex, pager.PageSize, channel_id, order_by.Value, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {

@@ -18,12 +18,11 @@ namespace WebAPI.Controllers
         /// Returns channel info        
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <param name="household_id">Household Identifier</param>
+        /// <param name="language">Language Code</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaChannel Get(int channel_id, string language = null, int household_id = 0)
+        public KalturaChannel Get(int channel_id, string language = null)
         {
             KalturaChannel response = null;
 
@@ -36,7 +35,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, KS.GetFromRequest().UserId, household_id, language, channel_id);
+                string userID = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), language, channel_id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

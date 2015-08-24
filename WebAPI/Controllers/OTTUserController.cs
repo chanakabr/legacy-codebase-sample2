@@ -85,7 +85,8 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(int partner_id, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params, string udid = null)
+        public KalturaLoginResponse Login(int partner_id, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params = null,
+            string udid = null)
         {
             KalturaOTTUser response = null;
 
