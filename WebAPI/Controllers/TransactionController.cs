@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_receipt))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase token cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase receipt cannot be empty");
 
             // validate payment gateway id
             if (string.IsNullOrEmpty(payment_gateway_name))
