@@ -100,9 +100,9 @@ namespace WebAPI.Filters
                             {
                                 GetUserDataFromKS(actionContext, reqParams["ks"].ToObject<string>());
 
-                                KS ks = KS.GetFromRequest();
-                                if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
-                                    ks.UserId = reqParams["user_id"].ToObject<string>();
+                                //KS ks = KS.GetFromRequest();
+                                //if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
+                                //    ks.UserId = reqParams["user_id"].ToObject<string>();
                             }
 
                             //Running on the expected method parameters
