@@ -1286,6 +1286,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("GetDomainByUser - " + string.Format("failed to GetDomainByUser siteGuid = {0}, ex = {1}", siteGuid, ex.Message), ex);
+                return null;
             }
             return domain;
         }
