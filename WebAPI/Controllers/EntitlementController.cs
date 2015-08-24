@@ -126,8 +126,7 @@ namespace WebAPI.Controllers
                             break;
                         }
                     default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
-                        break;
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");                        
                 }
             }
             catch (ClientException ex)
@@ -179,7 +178,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Charges a user for subscription or PPV      
+        /// (Obsolete) Charges a user for subscription or PPV      
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,

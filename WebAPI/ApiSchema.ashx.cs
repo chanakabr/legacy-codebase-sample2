@@ -267,8 +267,8 @@ namespace WebAPI
                             if (string.IsNullOrEmpty(pdesc))
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
-                            context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}'/>\n", par.Name,
-                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc)));
+                            context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}' optional='{3}'/>\n", par.Name,
+                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc), par.IsOptional ? "1" : "0"));
                         }
 
                         if (method.ReturnType != typeof(void))
@@ -304,13 +304,11 @@ namespace WebAPI
         }
 
         private string getTypeAndArray(Type type)
-        {
-            bool isNullable = false;
+        {            
             //Handling nullables
             if (Nullable.GetUnderlyingType(type) != null)
             {
-                type = type.GetGenericArguments()[0];
-                isNullable = true;
+                type = type.GetGenericArguments()[0];               
             }
 
             //Handling Enums
@@ -349,7 +347,7 @@ namespace WebAPI
                     }
                     else if (type.GetGenericArguments().Count() == 2)
                     {
-
+                        throw new Exception("Dont know how to handle");
                     }
                     else
                         throw new Exception("Generic type unknown");
@@ -358,7 +356,7 @@ namespace WebAPI
                 return string.Format("type='{0}' arrayType='{1}'", name, arrayType);
             }
 
-            return string.Format("type='{0}'{1}default='{2}'", getTypeFriendlyName(type), isNullable ? " optional='1' " : " ", getDefaultForType(type));
+            return string.Format("type='{0}' default='{1}'", getTypeFriendlyName(type), getDefaultForType(type));
         }
 
         private string getDefaultForType(Type type)
