@@ -79,7 +79,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // SlimUser
             Mapper.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UserType))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName));
 
