@@ -635,10 +635,16 @@
       <s:element name="GetDomainsBillingHistoryResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainsBillingHistoryResult" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainsBillingHistoryResult" type="tns:DomainsBillingTransactionsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DomainsBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="billingTransactions" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfDomainBillingTransactionsResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="DomainBillingTransactionsResponse" nillable="true" type="tns:DomainBillingTransactionsResponse" />
@@ -2507,7 +2513,7 @@
       <s:element name="ArrayOfPermittedCollectionContainer" nillable="true" type="tns:ArrayOfPermittedCollectionContainer" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
-      <s:element name="ArrayOfDomainBillingTransactionsResponse" nillable="true" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+      <s:element name="DomainsBillingTransactionsResponse" nillable="true" type="tns:DomainsBillingTransactionsResponse" />
       <s:element name="BillingTransactions" nillable="true" type="tns:BillingTransactions" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
@@ -3501,7 +3507,7 @@
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainsBillingHistoryHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfDomainBillingTransactionsResponse" />
+    <wsdl:part name="Body" element="tns:DomainsBillingTransactionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -7434,13 +7440,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <soap:address location="http://localhost:82/ws_cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <soap12:address location="http://localhost:82/ws_cas/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <http:address location="http://localhost:82/ws_cas/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -272,9 +272,6 @@
     <Content Include="Web References\ConditionalAccess\CollectionsPricesContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\DomainBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\ConditionalAccess\DomainServicesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -388,6 +385,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\Entitlements.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\DomainsBillingTransactionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -705,7 +705,7 @@
     <Compile Include="Controllers\UserParentalRuleController.cs" />
     <Compile Include="Controllers\UserPurchasePinController.cs" />
     <Compile Include="Controllers\UserPurchaseSettingsController.cs" />
-    <Compile Include="Controllers\UserTransactionHistoryController.cs" />
+    <Compile Include="Controllers\TransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -733,6 +733,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntityReferenceBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaTransactionsFilter.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
     <Compile Include="Models\General\KalturaDoubleValue.cs" />
