@@ -851,9 +851,9 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public DomainBillingTransactionsResponse[] GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
+        public DomainsBillingTransactionsResponse GetDomainsBillingHistory(int[] domainIDs, DateTime startDate, DateTime endDate)
         {
-            DomainBillingTransactionsResponse[] retVal = null;
+            DomainsBillingTransactionsResponse retVal = null;
 
             try
             {

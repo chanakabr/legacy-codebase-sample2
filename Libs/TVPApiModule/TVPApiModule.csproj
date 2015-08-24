@@ -204,6 +204,7 @@
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
     <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
+    <Compile Include="Objects\Responses\ConditionalAccess\DomainsBillingTransactionsResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResponse.cs">
       <SubType>Code</SubType>
     </Compile>
