@@ -231,21 +231,24 @@ namespace WebAPI
                         var classNode = x.SelectNodes(string.Format("//member[starts-with(@name,'M:{0}.{1}')]", controller.FullName, method.Name));
 
                         string desc = "";
+                        string remarks = "";
                         //No documentation
                         if (classNode.Count > 0 && classNode[0].ChildNodes != null)
                         {
                             for (int i = 0; i < classNode[0].ChildNodes.Count; i++)
                             {
-                                if (classNode[0].ChildNodes[i].Name == "summary")
-                                {
-                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
-                                    break;
-                                }
+                                if (classNode[0].ChildNodes[i].Name == "summary")                                
+                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();                                                                    
+
+                                if (classNode[0].ChildNodes[i].Name == "remarks")
+                                    remarks = classNode[0].ChildNodes[i].InnerText.Trim();
                             }
                         }
 
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
+                        else
+                            desc += string.Format(". {0}", remarks);
 
                         string deprecatedAttr = "";
                         if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
@@ -387,7 +390,7 @@ namespace WebAPI
 
                     var descs = x.SelectNodes(string.Format("//member[@name='P:{0}.{1}']//summary",
                                 className, pi.Name));
-
+                    
                     string pdesc = "";
                     if (descs.Count > 0)
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
