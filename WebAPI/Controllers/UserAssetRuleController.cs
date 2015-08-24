@@ -72,9 +72,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <returns>Success / fail</returns>
-        [Route("disableDefaultParentalRule"), HttpPost]
+        [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        public bool DisableDefaultParentalRule()
+        public bool DisableDefault()
         {
             bool success = false;
 

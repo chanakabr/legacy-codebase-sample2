@@ -12,16 +12,8 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription price details
     /// </summary>
-    public class KalturaSubscriptionPrice : KalturaOTTObject
+    public class KalturaSubscriptionPrice : KalturaProductPrice
     {
-        /// <summary>
-        /// Subscription
-        /// </summary>
-        [DataMember(Name = "subscription")]
-        [JsonProperty("subscription")]
-        [XmlElement(ElementName = "subscription")]
-        public string SubscriptionId { get; set; }
-
         /// <summary>
         /// Subscription purchase status  
         /// </summary>
