@@ -454,7 +454,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal string GetHouseholdChargeID(int groupId, string externalIdentifier, string householdId)
+        internal string GetHouseholdChargeID(int groupId, string externalIdentifier, int householdId)
         {
             WebAPI.Billing.PaymentGatewayChargeIDResponse response = null;
 
@@ -464,8 +464,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int hhID = int.Parse(householdId);
-                    response = Billing.GetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, hhID);
+                    response = Billing.GetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId);
                 }
             }
             catch (Exception ex)
