@@ -125,6 +125,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
 
+             // KalturaPricePlan
+            Mapper.CreateMap<WebAPI.Pricing.UsageModule, Models.Pricing.KalturaPricePlan>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_pricing_id))
+               .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
+               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
+               .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_is_renew))
+               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_subscription_only))
+               .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
+               .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
+               .ForMember(dest => dest.price_id, opt => opt.MapFrom(src => src.m_pricing_id))
+               .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_num_of_rec_periods))
+               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_tsViewLifeCycle))
+               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod));
+
             // ItemPriceContainer to PPVItemPriceDetails
             Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, Models.Pricing.KalturaPPVItemPriceDetails>()
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))

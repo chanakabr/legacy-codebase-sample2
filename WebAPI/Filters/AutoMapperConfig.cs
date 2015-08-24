@@ -7,6 +7,7 @@ namespace WebAPI.Filters
     {
         public static void RegisterMappings()
         {
+            GeneralMeppings.RegisterMappings();
             UsersMappings.RegisterMappings();
             CatalogMappings.RegisterMappings();
             ApiMappings.RegisterMappings();            

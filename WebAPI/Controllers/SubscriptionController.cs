@@ -26,8 +26,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a list of subscriptions that contain the supplied file
         /// </summary>
-        /// <param name="media_id">Media identifier</param>
-        /// <param name="file_id">Media file identifier</param>
+        /// <param name="filter">Filter request</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 

@@ -824,6 +824,7 @@
     <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\GeneralMeppings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PricingMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\SocialMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />
