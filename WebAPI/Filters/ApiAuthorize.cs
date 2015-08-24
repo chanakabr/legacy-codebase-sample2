@@ -33,15 +33,15 @@ namespace WebAPI.Controllers
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
-            if (allowAnonymous)
-                return true;
-
             KS ks = KS.GetFromRequest();
 
             if (ks == null)
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             else if (!ks.IsValid && !silent)
                 throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Expired KS");
+
+            if (!allowAnonymous && ks.UserId == "0")
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
 
             return true;
         }
