@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaUserAssetsList> Get(List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
+        public List<KalturaUserAssetsList> List(List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
             KalturaUserAssetsListItemType asset_type)
         {
             List<KalturaUserAssetsList> response = null;

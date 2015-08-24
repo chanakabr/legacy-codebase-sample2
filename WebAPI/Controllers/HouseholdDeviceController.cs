@@ -79,9 +79,9 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
-        [Route("registrationStatus"), HttpPost]
+        [Route("getStatus"), HttpPost]
         [ApiAuthorize]
-        public KalturaDeviceRegistrationStatusHolder RegistrationStatus(int household_id, string udid)
+        public KalturaDeviceRegistrationStatusHolder GetStatus(int household_id, string udid)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 
