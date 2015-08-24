@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("ProcessReceipt"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction ProcessReceipt(int content_id, int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name)
+        public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
