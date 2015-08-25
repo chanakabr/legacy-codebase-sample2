@@ -1027,7 +1027,7 @@ namespace Catalog
             // Get geo block rules that the user is allowed to watch
             if (request.personalFilters != null && request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
             {
-                definitions.geoBlockRules = SetGeoBlockRules(request.m_sUserIP);
+                definitions.geoBlockRules = SetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
             }
 
             definitions.pageIndex = request.m_nPageIndex;
@@ -1036,9 +1036,9 @@ namespace Catalog
             return definitions;
         }
 
-        private static List<int> SetGeoBlockRules(string ip)
+        private static List<int> SetGeoBlockRules(int groupId, string ip)
         {
-            List<int> result = ApiDAL.Get_Permitted_GeoBlockRules(ip);
+            List<int> result = ApiDAL.Get_Permitted_GeoBlockRules(groupId, ip);
 
             // Make sure DAL didn't return empty result
             if (result == null)

@@ -1959,13 +1959,24 @@ namespace DAL
             return rules;
         }
 
-        public static List<int> Get_Permitted_GeoBlockRules(string ip)
+        public static List<int> Get_Permitted_GeoBlockRules(int groupId, string ip)
         {
             List<int> result = new List<int>();
 
+            // default = -1
+            long ipValue = -1;
+
+            if (!string.IsNullOrEmpty(ip) && ip != "127.0.0.1")
+            {
+                string[] splitted = ip.Split('.');
+
+                ipValue = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+            }
+
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@IP", ip);
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@IPValue", ipValue);
 
             return result;
         }
