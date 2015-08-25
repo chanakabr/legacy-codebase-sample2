@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
-        [ApiAuthorize(false, true)]
+        [ApiAuthorize(true, true)]
         public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
