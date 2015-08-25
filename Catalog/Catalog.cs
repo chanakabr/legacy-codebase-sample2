@@ -368,7 +368,7 @@ namespace Catalog
                             {
                                 if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
                                 {
-                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
+                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(string).ToString());
                                     oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
                                     lMetas.Add(oMeta);
                                 }
