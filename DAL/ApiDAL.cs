@@ -49,7 +49,6 @@ namespace DAL
 
         }
 
-
         public static DataTable Get_GroupMediaRules(int nMediaID, string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spGroupMediaRules = new ODBCWrapper.StoredProcedure("Get_GroupMediaRules");
@@ -1959,5 +1958,17 @@ namespace DAL
 
             return rules;
         }
+
+        public static List<int> Get_Permitted_GeoBlockRules(string ip)
+        {
+            List<int> result = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@IP", ip);
+
+            return result;
+        }
+
     }
 }

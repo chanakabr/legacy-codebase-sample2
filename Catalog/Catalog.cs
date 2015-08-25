@@ -1024,10 +1024,32 @@ namespace Catalog
                 out definitions.parentMediaTypes, out definitions.associationTags,
                 definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
 
+            // Get geo block rules that the user is allowed to watch
+            if (request.personalFilters != null && request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
+            {
+                definitions.geoBlockRules = SetGeoBlockRules(request.m_sUserIP);
+            }
+
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        private static List<int> SetGeoBlockRules(string ip)
+        {
+            List<int> result = ApiDAL.Get_Permitted_GeoBlockRules(ip);
+
+            // Make sure DAL didn't return empty result
+            if (result == null)
+            {
+                result = new List<int>();
+            }
+
+            // Always add 0, for media without rules at all
+            result.Add(0);
+
+            return result;
         }
 
         /// <summary>
