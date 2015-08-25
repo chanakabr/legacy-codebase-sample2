@@ -391,6 +391,22 @@ namespace ElasticSearch.Searcher
 
                 #endregion
 
+                #region Geo Block Rules
+
+                // region term 
+                if (SearchDefinitions.geoBlockRules != null && SearchDefinitions.geoBlockRules.Count > 0)
+                {
+                    ESTerms geoBlockTerms = new ESTerms(true)
+                    {
+                        Key = "geo_block_rule_id"
+                    };
+
+                    geoBlockTerms.Value.AddRange(SearchDefinitions.geoBlockRules.Select(rule => rule.ToString()));
+
+                    mediaFilter.AddChild(geoBlockTerms);
+                }
+
+                #endregion
             }
 
             QueryFilter filterPart = new QueryFilter();

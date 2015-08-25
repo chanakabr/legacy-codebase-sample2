@@ -113,6 +113,11 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public Dictionary<int, string> associationTags;
 
+        /// <summary>
+        /// List of Ids of geo block rules that the media belong to
+        /// </summary>
+        public List<int> geoBlockRules;
+
         #endregion
 
         #region Ctor
@@ -139,6 +144,7 @@ namespace ApiObjects.SearchObjects
             extraReturnFields = new List<string>();
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
+            geoBlockRules = new List<int>();
         }
 
         #endregion
