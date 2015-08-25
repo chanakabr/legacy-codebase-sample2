@@ -22,7 +22,7 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("api/service")]
+    [RoutePrefix("api")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
@@ -53,14 +53,21 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{service_name}/action/{action_name}"), HttpGet]
+        [Route(""), HttpGet]
+        public async Task<object> __Action([FromUri]string service, [FromUri]string action)
+        {
+            return await Action(service, action);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action(string service_name, string action_name)
         {
             return await Action(service_name, action_name);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{service_name}/action/{action_name}"), HttpPost]
+        [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
             MethodInfo methodInfo = null;

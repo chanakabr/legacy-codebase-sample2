@@ -26,6 +26,7 @@ namespace WebAPI.Filters
 {
     public class RequestParser : ActionFilterAttribute
     {
+        private const char PARAMS_PREFIX = ':';
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
@@ -41,7 +42,7 @@ namespace WebAPI.Filters
 
         private bool createMethodInvoker(HttpActionContext actionContext, string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();        
+            Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
 
             classInstance = null;
@@ -49,7 +50,7 @@ namespace WebAPI.Filters
 
             if (controller == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");                
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
                 return false;
             }
 
@@ -68,9 +69,24 @@ namespace WebAPI.Filters
 
         public async override void OnActionExecuting(HttpActionContext actionContext)
         {
-            var rd = actionContext.ControllerContext.RouteData;
-            string currentAction = rd.Values["action_name"].ToString();
-            string currentController = rd.Values["service_name"].ToString();
+            string currentAction;
+            string currentController;
+            if (actionContext.Request.Method == HttpMethod.Post)
+            {
+                var rd = actionContext.ControllerContext.RouteData;
+                currentAction = rd.Values["action_name"].ToString();
+                currentController = rd.Values["service_name"].ToString();
+            }
+            else if (actionContext.Request.Method == HttpMethod.Get)
+            {
+                currentAction = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "action").FirstOrDefault().Value;
+                currentController = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "service").FirstOrDefault().Value;
+            }
+            else
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
+                return;
+            }
 
             MethodInfo methodInfo = null;
             object classInstance = null;
@@ -162,81 +178,233 @@ namespace WebAPI.Filters
 
                 //Running on the expected method parameters
                 ParameterInfo[] parameters = methodInfo.GetParameters();
+                var groupedParams = groupParams(tokens);
 
-                List<Object> methodParams = new List<object>();
-                foreach (ParameterInfo p in parameters)
-                {
-                    if (p.ParameterType.IsPrimitive || p.ParameterType == typeof(string))
-                    {
-                        if (tokens.ContainsKey(p.Name))
-                        {
-                            //TODO: throw exception
-                            var obj = Convert.ChangeType(tokens[p.Name], p.ParameterType);
-                            methodParams.Add(obj);
-                        }
-                        else if (p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                        }
-                        else
-                            throw new Exception("TODO");
-                    }
-                    else if (p.ParameterType.IsEnum)
-                    {
-                        //TODO
-                        if (p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                        }
-                    }
-                    else if (p.ParameterType.IsArray)
-                    {
-                        if (p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                        }
-                    }
-                    else if (p.ParameterType.IsClass)
-                    {
-                        if (p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                        }
-                    }
-                    else
-                    {
-                        if (p.IsOptional)
-                        {
-                            methodParams.Add(Type.Missing);
-                        }
-                    }
-                    //if (reqParams[p.Name] == null && p.IsOptional)
-                    //{
-                    //    methodParams.Add(Type.Missing);
-                    //    continue;
-                    //}
-                    //else if (reqParams[p.Name] == null)
-                    //{
-                    //    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
-                    //    return;
-                    //}
-
-                    //try
-                    //{
-                    //    //We deserialize the object based on the method parameter type
-                    //    methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
-                    //    return;
-                    //}
-                }
+                List<Object> methodParams = buildActionArguments(parameters, groupedParams, actionContext);
 
                 HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
             }
 
             base.OnActionExecuting(actionContext);
+        }
+
+        private Dictionary<string, object> groupParams(Dictionary<string, string> tokens)
+        {
+            Dictionary<string, object> paramsDic = new Dictionary<string, object>();
+
+            // group the params by prefix
+            foreach (var kv in tokens)
+            {
+                string[] path = kv.Key.Split(PARAMS_PREFIX);
+                setElementByPath(paramsDic, path.ToList(), kv.Value);
+            }
+
+            return paramsDic;
+        }
+
+        public List<object> buildActionArguments(ParameterInfo[] actionParams, Dictionary<string, object> paramsGrouped, HttpActionContext actionContext)
+        {
+            List<object> serviceArguments = new List<object>();
+            foreach (var actionParam in actionParams)
+            {
+                var type = actionParam.ParameterType;
+                var name = actionParam.Name;
+
+                //$this->disableRelativeTime = $actionParam->getDisableRelativeTime();
+
+                if (type.IsPrimitive || type == typeof(string))
+                {
+                    if (paramsGrouped.ContainsKey(name))
+                    {
+                        var obj = Convert.ChangeType(paramsGrouped[name], type);
+                        serviceArguments.Add(obj);
+
+                        continue;
+                    }
+
+                    if (actionParam.IsOptional)
+                    {
+                        serviceArguments.Add(Type.Missing);
+                        continue;
+                    }
+                }
+
+                if (actionParam.ParameterType.IsEnum) // enum
+                {
+                    if (paramsGrouped.ContainsKey(name))
+                    {
+                        //XXX: We support only string enums here...
+
+                        var eValue = Enum.Parse(actionParam.ParameterType, paramsGrouped[name].ToString());
+                        serviceArguments.Add(eValue);
+                        continue;
+                    }
+
+                    if (actionParam.IsOptional)
+                    {
+                        serviceArguments.Add(Type.Missing);
+                        continue;
+                    }
+                }
+
+                if (actionParam.ParameterType.IsArray || actionParam.ParameterType.IsGenericType) // array or list
+                {
+                    if (paramsGrouped.ContainsKey(name))
+                    {
+                        Type dictType = typeof(SerializableDictionary<,>);
+                        object res = null;
+
+                        //if list
+                        if (type.GetGenericArguments().Count() == 1)
+                        {
+                            res = buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                        }
+                        //if Dictionary
+                        else if (type.GetGenericArguments().Count() == 2 &&
+                            dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
+                            dictType.MakeGenericType(type.GetGenericArguments()) == type)
+                        {
+                            res = buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                        }
+
+                        serviceArguments.Add(res);
+                        continue;
+                    }
+
+                    if (actionParam.IsOptional)
+                    {
+                        serviceArguments.Add(Type.Missing);
+                        continue;
+                    }
+
+                    continue;
+                }
+
+                if (paramsGrouped.ContainsKey(name)) // object 
+                {
+                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                    serviceArguments.Add(res);
+                    continue;
+                }
+
+                if (actionParam.IsOptional)
+                {
+                    serviceArguments.Add(Type.Missing);
+                    continue;
+                }
+
+                //createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Missing required parameter");
+            }
+
+            return serviceArguments;
+        }
+
+        private object buildObject(Type type, Dictionary<string, object> parameters, string name, HttpActionContext actionContext)
+        {
+            // if objectType was specified, we will use it only if the anotation type is it's base type
+            if (parameters.ContainsKey("objectType"))
+            {
+                var possibleType = Type.GetType(parameters["objectType"].ToString());
+                if (possibleType.Name.ToLower() != type.Name.ToLower()) // reflect only if type is different
+                {
+                    if (possibleType.IsSubclassOf(type)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
+                    {
+                        type = possibleType;
+                    }
+                }
+            }
+
+            if (type.IsAbstract)
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.AbstractParameter, "Parameter is abstract");
+                return null;
+            }
+
+            var classProperties = type.GetProperties();
+            object instance = Activator.CreateInstance(type);
+            foreach (var kv in parameters)
+            {
+                var property = classProperties.Where(x => x.Name == kv.Key).FirstOrDefault();
+                if (property == null)
+                {
+                    continue;
+                }
+
+                PropertyInfo prop = instance.GetType().GetProperty(kv.Key, BindingFlags.Public | BindingFlags.Instance);
+                if (prop == null || !prop.CanWrite)
+                {
+                    //XXX: See if we want to throw something here
+                    continue;
+                }
+
+                if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(string))
+                {
+                    prop.SetValue(instance, Convert.ChangeType(kv.Value, property.PropertyType), null);
+                    continue;
+                }
+
+                if (property.PropertyType.IsEnum)
+                {
+                    var eValue = Enum.Parse(property.PropertyType, kv.Value.ToString());
+                    prop.SetValue(instance, eValue, null);
+                    continue;
+                }
+
+                if (property.PropertyType.IsArray || property.PropertyType.IsGenericType) // array or list
+                {
+                    Type dictType = typeof(SerializableDictionary<,>);
+                    object res = null;
+
+                    //if list
+                    if (property.PropertyType.GetGenericArguments().Count() == 1)
+                    {
+                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext);
+
+                    }
+                    //if Dictionary
+                    else if (property.PropertyType.GetGenericArguments().Count() == 2 &&
+                        dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
+                        dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
+                    {
+                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext);
+                    }
+
+                    prop.SetValue(instance, res, null);
+                    continue;
+                }
+
+                //If object
+                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)kv.Value, name, actionContext);
+                prop.SetValue(instance, classRes, null);
+                continue;
+
+            }
+
+            return instance;
+        }
+
+        private void setElementByPath(Dictionary<string, object> array, List<string> path, object value)
+        {
+            Dictionary<string, object> tmpArr = array;
+
+            string key;
+            while (path.Count > 0 && (key = path.ElementAt(0)) != null)
+            {
+                path.Remove(key);
+
+                if (key == "-" && path.Count == 0)
+                    break;
+
+                if (!tmpArr.ContainsKey(key) || !(tmpArr[key] is Dictionary<string, object>))
+                    tmpArr[key] = new Dictionary<string, object>();
+
+                if (path.Count == 0)
+                    tmpArr[key] = value;
+                else
+                    tmpArr = (Dictionary<string, object>)tmpArr[key];
+            }
+
+            array = tmpArr;
         }
 
         private void GetUserDataFromKS(HttpActionContext actionContext, string ksVal)
