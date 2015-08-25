@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             if (controller == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
 
-            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
             createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
-            {
+            {                
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
