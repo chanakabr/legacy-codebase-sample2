@@ -974,7 +974,7 @@ namespace WebAPI.Clients
             return rules;
         }
 
-        internal List<Models.API.KalturaGenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId, long channelMediaId)
+        internal List<Models.API.KalturaGenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId)
         {
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
@@ -985,7 +985,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, channelMediaId, domainId, Utils.Utils.GetClientIP());
+                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, domainId, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)

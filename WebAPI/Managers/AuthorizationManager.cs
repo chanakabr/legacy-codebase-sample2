@@ -117,6 +117,10 @@ namespace WebAPI.Managers
 
         private static void ValidateUser(int groupId, string userId)
         {
+            // if anonymous user
+            if (userId == "0")
+                return;
+
             List<KalturaOTTUser> usersResponse = null;
             try
             {

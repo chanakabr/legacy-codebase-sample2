@@ -22,12 +22,11 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="asset_id">Asset identifier</param>
         /// <param name="asset_type">Asset type</param>        
-        /// <param name="channel_media_id">Linear channel's media identifier</param>  
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("List"), HttpPost]
         [ApiAuthorize]
-        public KalturaGenericRuleListResponse List(long asset_id, int asset_type, long channel_media_id = 0, string udid = null)
+        public KalturaGenericRuleListResponse List(long asset_id, int asset_type, string udid = null)
         {
             List<KalturaGenericRule> response = null;
 
@@ -50,7 +49,7 @@ namespace WebAPI.Controllers
                 if ((AssetType)asset_type == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), channel_media_id);
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
                 else if ((AssetType)asset_type == AssetType.media)
                 {
@@ -65,33 +64,5 @@ namespace WebAPI.Controllers
 
             return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
         }
-
-        /// <summary>
-        /// Disables the partner's default rule for this user        
-        /// </summary>
-        /// <remarks>Possible status codes: 
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <returns>Success / fail</returns>
-        [Route("disableDefault"), HttpPost]
-        [ApiAuthorize]
-        public bool DisableDefault()
-        {
-            bool success = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, KS.GetFromRequest().UserId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
     }
 }
