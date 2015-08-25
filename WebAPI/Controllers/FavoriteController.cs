@@ -121,18 +121,15 @@ namespace WebAPI.Controllers
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (filter == null)
+                filter = new KalturaFavoriteFilter();
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                //no filter
-                if (filter == null)
-                {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), null, null);
-                }
-
                 // no media ids to filter from - use the regular favorites function
-                else if (filter.MediaIds == null || filter.MediaIds.Count == 0)
+                if (filter.MediaIds == null || filter.MediaIds.Count == 0)
                 {
                     favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID, filter.MediaType.ToString());
                 }
@@ -140,6 +137,8 @@ namespace WebAPI.Controllers
                 {
                     favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, filter.MediaIds.Select(id => id.value).ToList());
                 }
+
+                // get assets
                 if (favorites != null && favorites.Count > 0)
                 {
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();

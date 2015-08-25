@@ -33,14 +33,14 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>        
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]        
+        [ApiAuthorize(true)]
         public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (with == null)            
+            if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
             try
@@ -48,9 +48,9 @@ namespace WebAPI.Controllers
                 List<int> mid = new List<int>();
                 mid.Add(media_id);
 
-                string userID = KS.GetFromRequest().UserId;            
+                string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0,
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0,
                     1, mid, with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         /// Returns media by media identifiers        
         /// </summary>
         /// <param name="media_ids">Media identifiers</param>        
-        /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="pager">Paging filter</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
@@ -93,21 +93,15 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (pager.PageSize > 10 || pager.PageSize < 1)
-            {
-                pager.PageSize = 5;
-            }
-
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
             try
-            {                
+            {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                    pager.PageIndex,pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                    pager.PageIndex, pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -139,11 +133,11 @@ namespace WebAPI.Controllers
         /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language Code</param>
-        /// <param name="pager">Page size and index</param>
+        /// <param name="pager">Paging filter</param>
         /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by, 
+        public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by,
             List<KalturaCatalogWithHolder> with, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -158,20 +152,6 @@ namespace WebAPI.Controllers
 
             if (pager == null)
                 pager = new KalturaFilterPager();
-
-            // page size - 5 <= size <= 50
-            if (pager.PageSize == 0)
-            {
-                pager.PageSize = 25;
-            }
-            else if (pager.PageSize > 50)
-            {
-                pager.PageSize = 50;
-            }
-            else if (pager.PageSize < 5)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -244,7 +224,7 @@ namespace WebAPI.Controllers
         /// <param name="media_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>        
-        /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="pager">Paging filter</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
@@ -266,12 +246,6 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (pager.PageSize > 10 || pager.PageSize < 1)
-            {
-                pager.PageSize = 5;
-            }
-
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
@@ -288,6 +262,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }     
+        }
     }
 }
