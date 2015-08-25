@@ -20,7 +20,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "media_type")]
         [JsonProperty(PropertyName = "media_type")]
         [XmlElement(ElementName = "media_type")]
-        public string MediaType { get; set; }
+        public int MediaType { get; set; }
 
         /// <summary>
         /// Device UDID to filter by the favorite assets

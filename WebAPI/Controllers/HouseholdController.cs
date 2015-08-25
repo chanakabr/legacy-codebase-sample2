@@ -21,6 +21,39 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/household/action")]
     public class HouseholdController : ApiController
     {
+        #region Parental and Purchase rules
+
+        /// <summary>
+        /// Disables the partner's default rule for this household        
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// Household does not exist = 1006
+        /// </remarks>
+        /// <param name="household_id">Household identifier</param>
+        /// <returns>Success / fail</returns>
+        [Route("disableDefaultParentalRule"), HttpPost]
+        [ApiAuthorize]
+        public bool DisableDefaultParentalRule(int household_id)
+        {
+            bool success = false;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, household_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return success;
+        }
+
+        #endregion
+
         /// <summary>
         /// Returns the household model       
         /// </summary>        
