@@ -1978,6 +1978,19 @@ namespace DAL
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@IPValue", ipValue);
 
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
             return result;
         }
 
