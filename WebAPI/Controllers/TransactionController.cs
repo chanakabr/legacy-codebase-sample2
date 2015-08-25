@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Verifies PPV/Subscription/Collection purchase and entitles the user.
+        /// Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.
         /// </summary>
         /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV. Verified to match the purchase details represented by the purchase_token</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_token</param>        
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042, Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
         /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("ProcessReceipt"), HttpPost]
+        [Route("processReceipt"), HttpPost]
         [ApiAuthorize]
         public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)
         {

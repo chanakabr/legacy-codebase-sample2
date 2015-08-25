@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
-        [Route("LoginWithPin"), HttpPost]
+        [Route("loginWithPin"), HttpPost]
         public KalturaLoginResponse LoginWithPin(int partner_id, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
         /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// User does not exist = 2000
         /// </remarks>
-        [Route("FacebookLogin"), HttpPost]
+        [Route("facebookLogin"), HttpPost]
         public KalturaLoginResponse FacebookLogin(int partner_id, string token, string udid = null)
         {
             KalturaOTTUser response = null;
