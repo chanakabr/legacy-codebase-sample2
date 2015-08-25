@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="channel_id">Channel Identifier</param>
         /// <param name="language">Language Code</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaChannel Get(int channel_id, string language = null)

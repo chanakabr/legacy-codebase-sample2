@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>List of parental rules applied to the user</returns>
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// Enabled a parental rule for a specific user or household    
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="rule_id">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
         /// Disables a parental rule for a specific user or household     
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="rule_id">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>

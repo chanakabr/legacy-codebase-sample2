@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         /// Removes a device from household
         /// </summary>        
         /// <param name="udid">device UDID</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="device_name">Device name</param>
         /// <param name="pin">Pin code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]

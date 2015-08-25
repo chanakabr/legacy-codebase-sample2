@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// /// <param name="by">Reference type to filter by</param>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>The purchase settings that apply for the user</returns>
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Set the purchase settings that applies for the household.        
         /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="setting">New settings to apply</param>
         /// <param name="by">Reference type to filter by</param>

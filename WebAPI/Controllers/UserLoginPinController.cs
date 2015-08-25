@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         /// Generates a temporarily PIN that can allow a user to log-in.
         /// </summary>        
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User doesn't exist = 2000, User suspended = 2001
+        /// <remarks>Possible status codes: User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="pin">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
+        /// <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately expires all pre set login pin codes for the user.
         /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("deleteAll"), HttpPost]
         [ApiAuthorize]
         public void DeleteAll()
@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
         /// Immediately expires a given pre set login pin code for the user.
         /// </summary>
         /// <param name="pin_code">Login pin code to expire</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public void Delete(string pin_code)

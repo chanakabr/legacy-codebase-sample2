@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <param name="language">Language code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
+        /// <remarks>Possible status codes: 
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]

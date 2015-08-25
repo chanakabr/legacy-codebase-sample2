@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// Removes a user from household   
         /// </summary>                
         /// <param name="user_id">User identifier</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household identifier</param>
         /// <param name="user_id">The identifier of the user to add</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]

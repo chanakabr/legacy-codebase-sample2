@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Page size and index, filter by household or user</param>        
         /// <param name="start_date">Filter transactions later than specific date</param>        
         /// <param name="end_date">Filter transactions earlier than specific date</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, 

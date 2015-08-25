@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="user_ids">Users identifiers</param>
         /// <param name="list_type">The requested list type</param>
         /// <param name="asset_type">The requested asset type</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
         [Route("list"), HttpPost]

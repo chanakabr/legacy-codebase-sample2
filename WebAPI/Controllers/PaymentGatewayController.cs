@@ -25,8 +25,8 @@ namespace WebAPI.Controllers
         /// Returns payment gateway for household
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
+        /// Possible status codes:       
+        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
         /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027 
         /// </remarks>
         /// <param name="household_id">Household Identifier</param>
@@ -55,8 +55,8 @@ namespace WebAPI.Controllers
         /// Returns selected payment gateway for household
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
+        /// Possible status codes:       
+        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
         /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027, Household required = 6044
         /// </remarks>
         /// <param name="household_id">Household Identifier</param>        
@@ -85,8 +85,8 @@ namespace WebAPI.Controllers
         /// Insert new payment gateway for household
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006, 
+        /// Possible status codes:       
+        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006, 
         /// Payment Gateway ID Missing = 6005, Error Saving Payment Gateway Household = 6017, Household Already Set To Payment Gateway = 6024, Payment Gateway Selection Is Disabled = 6028,
         /// Payment gateway not valid = 6043
         /// </remarks>
@@ -117,8 +117,8 @@ namespace WebAPI.Controllers
         /// Delete payment gateway from household
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
+        /// Possible status codes:       
+        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
         /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>

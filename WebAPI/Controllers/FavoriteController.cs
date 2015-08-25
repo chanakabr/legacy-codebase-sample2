@@ -24,8 +24,8 @@ namespace WebAPI.Controllers
         /// <param name="media_type">Media Type ID (according to media type IDs defined dynamically in the system).</param>
         /// <param name="media_id">Media id</param>
         /// <param name="extra_data">Extra data</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes:    
+        ///      
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -70,8 +70,8 @@ namespace WebAPI.Controllers
         /// Remove media from user's favorite list
         /// </summary>        
         /// <param name="media_ids">Media identifiers</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, 
-        /// Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes:    
+        ///      
         /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
@@ -106,8 +106,8 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <param name="language">Language Code</param>                
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
-        /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008
+        /// <remarks>Possible status codes:     
+        ///    
         /// User does not exist = 2000, User suspended = 2001</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]

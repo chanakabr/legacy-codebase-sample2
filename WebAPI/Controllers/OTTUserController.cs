@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <param name="password">password</param>
         /// <param name="extra_params">extra params</param>
         /// <param name="udid">Device UDID</param>
-        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>        
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <param name="udid">Device UDID</param>
-        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>        
         /// User does not exist = 2000
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
@@ -190,7 +190,7 @@ namespace WebAPI.Controllers
         /// <param name="user_dynamic_data">user dynamic data</param>
         /// <param name="password">password</param>
         /// <param name="affiliate_code">affiliate code</param>
-        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>        
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
@@ -229,7 +229,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("sendPassword"), HttpPost]
         public bool sendPassword(int partner_id, string username)
         {
@@ -263,7 +263,7 @@ namespace WebAPI.Controllers
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User does not exist = 2000, Wrong username or password = 1011</remarks>
+        /// <remarks>Possible status codes: User does not exist = 2000, Wrong username or password = 1011</remarks>
         [Route("resetPassword"), HttpPost]
         public bool resetPassword(int partner_id, string username, string password)
         {
@@ -295,7 +295,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="partner_id">Partner Identifier</param>
         /// <param name="token">token</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("validateToken"), HttpPost]
         public KalturaOTTUser validateToken(int partner_id, string token)
         {
@@ -329,7 +329,7 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("changePassword"), HttpPost]
         [ApiAuthorize]
         public bool ChangePassword(string username, string old_password, string new_password)
@@ -365,7 +365,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>        
+        /// <remarks></remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
@@ -409,7 +409,7 @@ namespace WebAPI.Controllers
         /// <summary>Edit user details.        
         /// </summary>
         /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
-        /// <remarks>Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, User suspended = 2001, User does not exist = 2000
+        /// <remarks>         User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]

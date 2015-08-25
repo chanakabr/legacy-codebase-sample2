@@ -28,8 +28,8 @@ namespace WebAPI.Controllers
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
         /// Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, Unknown transaction state = 6042
-        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
-        /// Partner is invalid = 500008</remarks>
+        /// Credentials = 500000,       
+        /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
         public KalturaTransaction Purchase(int household_id, double price, string currency, int content_id, int product_id, KalturaTransactionType product_type, string coupon)
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
         /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
         /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
-        /// credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// credentials = 500000,         </remarks>
         [Route("updateState"), HttpPost]
         [ApiAuthorize]
         public void UpdateState(string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status, string external_message, int fail_reason, string signature)
@@ -103,8 +103,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
-        /// Signature mismatch = 6013, Unknown transaction state = 6042, Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, 
-        /// Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// Signature mismatch = 6013, Unknown transaction state = 6042, Credentials = 500000,     
+        ///    </remarks>
         [Route("processReceipt"), HttpPost]
         [ApiAuthorize]
         public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)

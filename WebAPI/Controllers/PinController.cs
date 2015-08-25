@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001,  </remarks>
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
         /// Validate that a given parental or purchase PIN for a user is valid.        
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>

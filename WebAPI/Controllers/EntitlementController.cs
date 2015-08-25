@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="asset_id">Asset identifier to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="household_id">Household identifier</param>
         /// <param name="sub_id">Subscription Code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         /// Gets all the entitled media items for a household
         /// </summary>        
         /// <param name="filter">Request filter</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter)
@@ -132,8 +132,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
-        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
-        /// Partner is invalid = 500008</remarks>
+        /// Credentials = 500000,       
+        /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
         public bool Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
@@ -166,7 +166,7 @@ namespace WebAPI.Controllers
         /// (Obsolete - use Transaction.purchase) Charges a user for subscription or PPV      
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// Possible status codes: 
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="udid">Device UDID</param>
