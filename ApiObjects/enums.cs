@@ -355,4 +355,12 @@ namespace ApiObjects
         [EnumMember]
         Household
     }
+
+    [Serializable]
+    public enum ePersonalFilter
+    {
+        ParentalRules,
+        GeoBlockRules,
+        EntitledAssets
+    }
 }
