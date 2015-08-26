@@ -204,6 +204,9 @@ namespace WebAPI.Controllers
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (filter_types == null)
+                filter_types = new List<KalturaIntegerValue>();
+
             try
             {
                 response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by,
