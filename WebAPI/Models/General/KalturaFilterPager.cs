@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Models.General
 {
@@ -13,7 +14,10 @@ namespace WebAPI.Models.General
     /// </summary>
     public class KalturaFilterPager : KalturaOTTObject
     {
+        private static int maxPageSize;
+        private const int DEFAULT_MAX_PAGE_SIZE = 50;
         private int pageSize;
+        private int pageIndex;
 
         /// <summary>
         /// <![CDATA[The number of objects to retrieve. Possible range 1 ≤ value ≤ 50. If omitted or value < 1 - will be set to 25. If a value > 50 provided – will be set to 50]]>
@@ -26,19 +30,24 @@ namespace WebAPI.Models.General
         {
             get 
             {
-                if (pageSize > 50)
-                {
-                    return 50;
-                }
-                else if (pageSize < 1)
-                {
-                    return 25;
-                }
                 return pageSize;
             }
 
-            set 
-            { pageSize = value; }
+            set
+            {
+                if (value > KalturaFilterPager.maxPageSize)
+                {
+                    pageSize = KalturaFilterPager.maxPageSize;
+                }
+                else if (value < 1)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page size cannot be < 1"); 
+                }
+                else
+                {
+                    pageSize = value;
+                }
+            }
         }
         
         /// <summary>
@@ -47,6 +56,32 @@ namespace WebAPI.Models.General
         [DataMember(Name = "pageIndex")]
         [JsonProperty(PropertyName = "pageIndex")]
         [XmlElement(ElementName = "pageIndex")]
-        public int PageIndex { get; set; }
+        public int PageIndex
+        {
+            get
+            {
+                return pageIndex;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page index cannot be < 0");
+                }
+                pageIndex = value;
+            }
+        }
+
+        public KalturaFilterPager()
+        {            
+            if (KalturaFilterPager.maxPageSize == 0)
+            {
+                KalturaFilterPager.maxPageSize = TCMClient.Settings.Instance.GetValue<int>("max_page_size");
+
+                if (KalturaFilterPager.maxPageSize == 0)
+                    KalturaFilterPager.maxPageSize = DEFAULT_MAX_PAGE_SIZE;
+            }
+        }
     }
 }
