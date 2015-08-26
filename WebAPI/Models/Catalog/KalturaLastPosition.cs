@@ -16,9 +16,9 @@ namespace WebAPI.Models.Catalog
     [XmlRoot("LastPosition")]
     public class KalturaLastPositionListResponse : KalturaListResponse
     {
-        [DataMember(Name = "last_positions")]
-        [JsonProperty("last_positions")]
-        [XmlArray(ElementName = "last_positions")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaLastPosition> LastPositions { get; set; }
     }

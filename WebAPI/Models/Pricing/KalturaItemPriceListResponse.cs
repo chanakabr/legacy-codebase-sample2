@@ -19,9 +19,9 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// A list of item prices
         /// </summary>
-        [DataMember(Name = "item_prices")]
-        [JsonProperty("item_prices")]
-        [XmlArray(ElementName = "item_prices")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
         public List<KalturaItemPrice> ItemPrice { get; set; }
     }

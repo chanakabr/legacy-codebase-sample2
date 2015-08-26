@@ -85,30 +85,25 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media by media identifiers        
+        /// Returns media by media identifier       
         /// </summary>
-        /// <param name="media_ids">Media identifiers</param>        
-        /// <param name="pager">Paging filter</param>
+        /// <param name="media_id">Media identifier</param>                
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
-            string language = null)
+        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
-            KalturaAssetInfoListResponse response = null;
+            KalturaAssetInfo response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (media_ids.Count() == 0)
+            if (media_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_ids cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
             }
-
-            if (pager == null)
-                pager = new KalturaFilterPager();
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -117,14 +112,16 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                    pager.PageIndex, pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                    0, 1, new int[] { media_id }.ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
+                if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
                 {
                     throw new NotFoundException();
                 }
+
+                response = mediaRes.Objects.First();
             }
             catch (ClientException ex)
             {

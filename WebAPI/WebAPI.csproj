@@ -674,7 +674,6 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
-    <Compile Include="Controllers\ChannelMediaController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\PurchaseSettingsController.cs" />
