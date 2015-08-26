@@ -78,12 +78,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // LanguageContainer to TranslationContainer
-            Mapper.CreateMap<Pricing.LanguageContainer, Models.General.KalturaTranslationContainer>()
+            Mapper.CreateMap<Pricing.LanguageContainer, Models.General.KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // LanguageContainer to TranslationContainer
-            Mapper.CreateMap<ConditionalAccess.LanguageContainer, Models.General.KalturaTranslationContainer>()
+            Mapper.CreateMap<ConditionalAccess.LanguageContainer, Models.General.KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 

@@ -114,7 +114,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("names")]
         [XmlArray(ElementName = "names")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> Names { get; set; } // TODO: change to object
+        public List<KalturaTranslationToken> Names { get; set; } // TODO: change to object
 
         /// <summary>
         /// A list of the descriptions of the subscriptions on different languages (language code and translation)
@@ -123,7 +123,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> Descriptions { get; set; } // TODO: change to object
+        public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
         /// Identifier of the media associated with the subscription

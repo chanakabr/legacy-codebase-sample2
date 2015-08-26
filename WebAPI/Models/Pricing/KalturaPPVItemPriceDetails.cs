@@ -86,7 +86,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("ppv_descriptions")]
         [XmlArray(ElementName = "ppv_descriptions")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> PPVDescriptions { get; set; }
+        public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
         /// If the item already purchased - the identifier of the user (in the household) who purchased this item 
