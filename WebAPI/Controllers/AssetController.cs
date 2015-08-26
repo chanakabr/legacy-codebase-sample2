@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                switch (filter.By)
+                switch (filter.ReferenceType)
                 {
                     case KalturaCatalogReferenceBy.media:
 

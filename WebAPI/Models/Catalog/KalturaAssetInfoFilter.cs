@@ -26,11 +26,11 @@ namespace WebAPI.Models.Catalog
         public List<KalturaIntegerValue> IDs { get; set; }
 
         /// <summary>
-        /// Reference type to filter by
+        /// Reference type of the given IDs
         /// </summary>
-        [DataMember(Name = "by")]
-        [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
-        public KalturaCatalogReferenceBy By { get; set; }
+        [DataMember(Name = "reference_type")]
+        [JsonProperty("reference_type")]
+        [XmlElement(ElementName = "reference_type")]
+        public KalturaCatalogReferenceBy ReferenceType { get; set; }
     }
 }
