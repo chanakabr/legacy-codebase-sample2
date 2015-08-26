@@ -248,7 +248,7 @@ namespace WebAPI
                         if (string.IsNullOrEmpty(desc))
                             log.Error("Empty description in method - " + method.Name);
                         else
-                            desc += string.Format(". {0}", remarks);
+                            desc += string.Format("{0} {1}", !desc.EndsWith(".") ? "." : "", remarks);
 
                         string deprecatedAttr = "";
                         if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
