@@ -196,26 +196,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return extraParams;
         }
 
-        private static Dictionary<string, List<string>> BuildTagsDictionary(List<EPGDictionary> list)
+        private static Dictionary<string, List<KalturaStringValue>> BuildTagsDictionary(List<EPGDictionary> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
-            List<string> tagsList;
+            Dictionary<string, List<KalturaStringValue>> tags = new Dictionary<string, List<KalturaStringValue>>();
+            List<KalturaStringValue> tagsList;
 
             foreach (var tag in list)
             {
                 if (tags.ContainsKey(tag.Key))
                 {
-                    tags[tag.Key].Add(tag.Value);
+                    tags[tag.Key].Add(new KalturaStringValue() { value = tag.Value });
                 }
                 else
                 {
-                    tagsList = new List<string>();
-                    tagsList.Add(tag.Value);
+                    tagsList = new List<KalturaStringValue>();
+                    tagsList.Add(new KalturaStringValue() { value = tag.Value });
                     tags.Add(tag.Key, tagsList);
                 }
             }
@@ -253,19 +253,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Dictionary<string, KalturaValue> BuildTagsDictionary(List<Tags> list)
+        private static Dictionary<string, List<KalturaStringValue>> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, KalturaValue> tags = new Dictionary<string, KalturaValue>();
+            Dictionary<string, List<KalturaStringValue>> tags = new Dictionary<string, List<KalturaStringValue>>();
 
             foreach (var tag in list)
             {
-                //TODO: FIX
-                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValue() { value = string.Join(";", tag.m_lValues) });
+                tags.Add(tag.m_oTagMeta.m_sName, new List<KalturaStringValue>(tag.m_lValues.Select(v => new KalturaStringValue(){value = v})));
             }
 
             return tags;
