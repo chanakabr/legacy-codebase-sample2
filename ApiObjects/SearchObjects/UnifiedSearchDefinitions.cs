@@ -118,6 +118,16 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public List<int> geoBlockRules;
 
+        /// <summary>
+        /// List of tags and their values that the user needs to enter parental PIN to watch
+        /// </summary>
+        public Dictionary<string, List<string>> mediaParentalRulesTags;
+
+        /// <summary>
+        /// List of tags and their values that the user needs to enter parental PIN to watch
+        /// </summary>
+        public Dictionary<string, List<string>> epgParentalRulesTags;
+
         #endregion
 
         #region Ctor
@@ -145,6 +155,9 @@ namespace ApiObjects.SearchObjects
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
             geoBlockRules = new List<int>();
+
+            mediaParentalRulesTags = new Dictionary<string, List<string>>();
+            epgParentalRulesTags = new Dictionary<string, List<string>>();
         }
 
         #endregion
