@@ -238,8 +238,12 @@ namespace ElasticSearch.Searcher
                         ESTerms currentTag = new ESTerms(false);
                         
                         currentTag.isNot = true;
-                        currentTag.Key = tagValues.Key;
-                        currentTag.Value.AddRange(tagValues.Value);
+                        currentTag.Key = string.Concat("tags.", tagValues.Key.ToLower());
+
+                        foreach (var value in tagValues.Value)
+                        {
+                            currentTag.Value.Add(value.ToLower());
+                        }
 
                         // Connect each terms with "AND"
                         epgParentalRulesTagsComposite.AddChild(currentTag);
@@ -448,8 +452,13 @@ namespace ElasticSearch.Searcher
                         ESTerms currentTag = new ESTerms(false);
 
                         currentTag.isNot = true;
-                        currentTag.Key = tagValues.Key;
-                        currentTag.Value.AddRange(tagValues.Value);
+                        currentTag.Key = string.Concat("tags.", tagValues.Key.ToLower());
+
+                        foreach (var value in tagValues.Value)
+                        {
+                            currentTag.Value.Add(value.ToLower());
+                        }
+
 
                         // Connect each terms with "AND"
                         mediaParentalRulesTagsComposite.AddChild(currentTag);
