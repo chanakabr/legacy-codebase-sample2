@@ -159,10 +159,7 @@ namespace WebAPI.Controllers
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
-            int groupId = KS.GetFromRequest().GroupId;
-
-            if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+            int groupId = KS.GetFromRequest().GroupId;            
 
             try
             {
