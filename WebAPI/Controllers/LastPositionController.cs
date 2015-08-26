@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
 
                 switch (filter.By)
                 {
-                    case Models.ConditionalAccess.KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.household:
                         response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
                             filter.UDID, filter.MediaID, filter.NPVRID);
                         break;
