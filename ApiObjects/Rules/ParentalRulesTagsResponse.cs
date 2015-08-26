@@ -9,14 +9,14 @@ namespace ApiObjects
     public class ParentalRulesTagsResponse
     {
         public Status status;
-        public List<KeyValuePair<string, List<string>>> mediaTags;
-        public List<KeyValuePair<string, List<string>>> epgTags;
+        public List<TagPair> mediaTags;
+        public List<TagPair> epgTags;
 
         public ParentalRulesTagsResponse()
         {
             status = new Status();
-            mediaTags = new List<KeyValuePair<string, List<string>>>();
-            epgTags = new List<KeyValuePair<string, List<string>>>();
+            mediaTags = new List<TagPair>();
+            epgTags = new List<TagPair>();
         }
     }
 }

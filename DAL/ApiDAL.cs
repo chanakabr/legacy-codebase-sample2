@@ -1996,13 +1996,10 @@ namespace DAL
         }
 
         public static void Get_User_ParentalRules_Tags(int groupId, string siteGuid,
-            out List<KeyValuePair<string, List<string>>> mediaTags, out List<KeyValuePair<string, List<string>>> epgTags)
+            out List<TagPair> mediaTags, out List<TagPair> epgTags)
         {
-            mediaTags = new List<KeyValuePair<string, List<string>>>();
-            epgTags = new List<KeyValuePair<string, List<string>>>();
-
-            Dictionary<string, List<string>> mediaDictionary = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> epgDictionary = new Dictionary<string, List<string>>();
+            mediaTags = new List<TagPair>();
+            epgTags = new List<TagPair>();
 
             // Perform stored procedure
 
@@ -2027,23 +2024,21 @@ namespace DAL
                     {
                         case eAssetTypes.EPG:
                         {
-                            if (!epgDictionary.ContainsKey(name))
+                            epgTags.Add(new TagPair()
                             {
-                                epgDictionary[name] = new List<string>();
-                            }
-
-                            epgDictionary[name].Add(value);
+                                key = name,
+                                value = value
+                            });
 
                             break;
                         }
                         case eAssetTypes.MEDIA:
                         {
-                            if (!mediaDictionary.ContainsKey(name))
+                            mediaTags.Add(new TagPair()
                             {
-                                mediaDictionary[name] = new List<string>();
-                            }
-
-                            mediaDictionary[name].Add(value);
+                                key = name,
+                                value = value
+                            });
                             break;
                         }
                         default:
@@ -2053,9 +2048,6 @@ namespace DAL
                     }
                 }
             }
-
-            mediaTags = mediaDictionary.ToList();
-            epgTags = epgDictionary.ToList();
         }
     }
 }
