@@ -676,7 +676,7 @@
     <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\ChannelMediaController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
-    <Compile Include="Controllers\HouseholdLastPositionController.cs" />
+    <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\PurchaseSettingsController.cs" />
     <Compile Include="Controllers\HouseholdUserController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
@@ -714,12 +714,13 @@
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
     <Compile Include="Models\Catalog\KalturaBaseChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
-    <Compile Include="Models\Catalog\KalturaUserLastPosition.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />

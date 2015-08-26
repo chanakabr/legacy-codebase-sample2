@@ -509,9 +509,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public List<KalturaUserLastPosition> GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int mediaId = 0, string npvrId = null)
+        public KalturaLastPositionListResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
         {
-            List<KalturaUserLastPosition> result = null;
+            List<KalturaLastPosition> result = null;
             DomainLastPositionRequest request = new DomainLastPositionRequest()
             {
                 m_sSignature = Signature,
@@ -527,7 +527,7 @@ namespace WebAPI.Clients
                 },
                 data = new MediaLastPositionRequestData()
                 {
-                    m_nMediaID = mediaId,
+                    m_nMediaID = mediaId.HasValue ? mediaId.Value : 0,
                     m_sNpvrID = npvrId,
                     m_sSiteGuid = siteGuid,
                     m_sUDID = udid
@@ -544,9 +544,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaUserLastPosition>>(response.m_lPositions);
+            result = Mapper.Map<List<KalturaLastPosition>>(response.m_lPositions);
 
-            return result;
+            return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
         }
     }
 }

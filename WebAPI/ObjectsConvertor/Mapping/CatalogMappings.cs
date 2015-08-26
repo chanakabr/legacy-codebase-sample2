@@ -127,7 +127,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
 
             //LastPosition to KalturaUserLastPosition
-            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaUserLastPosition>()
+            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaLastPosition>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_nUserID))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.m_nLocation))
                 .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.m_eUserType)));
