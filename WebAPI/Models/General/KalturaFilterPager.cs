@@ -37,7 +37,8 @@ namespace WebAPI.Models.General
                 return pageSize;
             }
 
-            set { pageSize = value; }
+            set 
+            { pageSize = value; }
         }
         
         /// <summary>

@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    public class KalturaEntitlementsFilter : KalturaEntityReferenceByFilter
+    public class KalturaEntitlementsFilter : KalturaOTTObject
     {
         /// <summary>
         ///The type of the entitlements to return
@@ -21,5 +21,13 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("entitlement_type")]
         [XmlElement(ElementName = "entitlement_type")]
         public KalturaTransactionType EntitlementType { get; set; }
+
+        /// <summary>
+        ///Reference type to filter by
+        /// </summary>
+        [DataMember(Name = "by")]
+        [JsonProperty("by")]
+        [XmlElement(ElementName = "by")]
+        public KalturaEntityReferenceBy By { get; set; }
     }
 }

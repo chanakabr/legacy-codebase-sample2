@@ -13,6 +13,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using Couchbase;
+using WebAPI.Models.Domains;
 
 namespace WebAPI.Managers
 {
@@ -144,6 +145,21 @@ namespace WebAPI.Managers
             {
                 log.ErrorFormat("RefreshAccessToken: user not valid. userId= {0}", userId);
                 throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "user not valid");
+            }
+        }
+
+        internal static void ChackAdditionalUserId(string household_user_id, int groupId)
+        {
+            KalturaHousehold household = null;
+            household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KS.GetFromRequest().UserId);
+
+            if (household == null ||
+                (household.Users != null ? household.Users.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true && 
+                household.Users != null ? household.PendingUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true &&
+                household.Users != null ? household.MasterUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true &&
+                household.Users != null ? household.DefaultUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true))
+            {
+                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "household_user_id is not in household");
             }
         }
     }
