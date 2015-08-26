@@ -41,27 +41,43 @@ namespace WebAPI.Managers.Models
         {
             string payload = PrepareUdidPayload(udid);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            AccessTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
-            RefreshTokenExpiration = isLongRefreshExpiration ?
-                Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
-                Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
             UserId = userId;
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
+
+            if (isLongRefreshExpiration)
+            {
+                RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds));
+            }
+            else
+            {
+                RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            }
             
-            // calculate ks expiration (must be shorter then refresh)
-            int refreshExpiration = (int)(RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow));
+            // set access expiration time - no longer than refresh expiration (not relative)
+            // check if user is anonymous
+            long accessExpiration;
+            if (UserId == "0")
+            {
+                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+            }
+            else
+            {
+                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+            }
+
+            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+           
             KS ks = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
                 groupId.ToString(), 
                 userId,
-                (int)groupConfig.KSExpirationSeconds <= refreshExpiration ? (int)groupConfig.KSExpirationSeconds : refreshExpiration,
+                (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
                 isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
                 payload, 
-                string.Empty);
+                string.Empty, Models.KS.KSType.V2);
 
             KS = ks.ToString();
-
         }
 
         private static string PrepareUdidPayload(string udid)
@@ -76,27 +92,44 @@ namespace WebAPI.Managers.Models
         {
             string payload = PrepareUdidPayload(udid);
             RefreshToken = token.RefreshToken;
-            RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
-                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
-                token.RefreshTokenExpiration;
-
-            // set access expiration time - no longer than refresh expiration
-            long accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
-            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
-            
             GroupID = token.GroupID;
             UserId = token.UserId;
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
 
-            int refreshExpiration = (int)(RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow));
+            // set refresh token expiration
+            if (groupConfig.IsRefreshTokenExtendable)
+            {
+                RefreshTokenExpiration = token.IsLongRefreshExpiration ? 
+                    token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : 
+                    token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds;
+            }
+            else
+            {
+                RefreshTokenExpiration = token.RefreshTokenExpiration;
+            }
+
+            // set access expiration time - no longer than refresh expiration
+            // check if user is anonymous
+            long accessExpiration;
+            if (UserId == "0")
+            {
+                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+            }
+            else
+            {
+                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+            }
+
+            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            
             KS ks = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
                 token.GroupID.ToString(), 
-                token.UserId, 
-                (int)groupConfig.KSExpirationSeconds <= refreshExpiration ? (int)groupConfig.KSExpirationSeconds : refreshExpiration,
+                token.UserId,
+                (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
                 token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
-                payload, 
-                string.Empty);
+                payload,
+                string.Empty, Models.KS.KSType.V2);
             KS = ks.ToString();
         }
     }
