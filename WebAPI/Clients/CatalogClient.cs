@@ -348,7 +348,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with, List<KeyValue> filterTags,
+            WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -373,6 +375,8 @@ namespace WebAPI.Clients
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
+                m_lFilterTags = filterTags,
+                m_eFilterCutWith = CatalogConvertor.ConvertCutWith(cutWith),
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,

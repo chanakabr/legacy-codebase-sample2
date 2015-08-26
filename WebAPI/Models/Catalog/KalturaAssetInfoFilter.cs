@@ -17,6 +17,15 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetInfoFilter : KalturaOTTObject
     {
         /// <summary>
+        /// Filtering condition
+        /// </summary>
+        public enum KalturaCutWith
+        {
+            or = 0,
+            and = 1
+        }
+
+        /// <summary>
         /// Entities IDs
         /// </summary>
         [DataMember(Name = "ids")]
@@ -32,5 +41,21 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("reference_type")]
         [XmlElement(ElementName = "reference_type")]
         public KalturaCatalogReferenceBy ReferenceType { get; set; }
+
+        /// <summary>
+        /// Filter by Tags when filtering by channel ID
+        /// </summary>
+        [DataMember(Name = "filter_tags")]
+        [JsonProperty(PropertyName = "filter_tags")]
+        [XmlElement("filter_tags")]
+        public SerializableDictionary<string, KalturaStringValue> FilterTags { get; set; }
+
+        /// <summary>
+        /// Condition between filter_tags
+        /// </summary>
+        [DataMember(Name = "cut_with")]
+        [JsonProperty(PropertyName = "cut_with")]
+        [XmlElement("cut_with")]
+        public KalturaCutWith cutWith { get; set; }
     }
 }

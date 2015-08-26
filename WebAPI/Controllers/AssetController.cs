@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -69,7 +70,8 @@ namespace WebAPI.Controllers
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
 
                         response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList());
+                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(), 
+                            filter.FilterTags.Select(x=> new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
 
                         break;
                     default:
