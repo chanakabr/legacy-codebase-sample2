@@ -22,7 +22,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "rules")]
         [JsonProperty("rules")]
         [XmlArray(ElementName = "rules")]
-        [XmlArrayItem(ElementName = "items")]
+        [XmlArrayItem(ElementName = "item")]
         public List<KalturaParentalRule> ParentalRule { get; set; }
     }
 }

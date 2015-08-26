@@ -27,14 +27,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by ID
         /// </summary>
-        /// <param name="media_id">requested media ID</param>               
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="order_by">Ordering the channel</param>
+        /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
+        public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+            KalturaFilterPager pager = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -45,18 +48,32 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<int> mid = new List<int>();
-                mid.Add(media_id);
-
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0,
-                    1, mid, with.Select(x => x.type).ToList());
-
-                // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
+                switch (filter.By)
                 {
-                    throw new NotFoundException();
+                    case KalturaCatalogReferenceBy.media:
+
+                        response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            0, 1, filter.IDs.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+
+                        // if no response - return not found status 
+                        if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            throw new NotFoundException();
+
+                        break;
+                    case KalturaCatalogReferenceBy.channel:
+
+                        int channelID = filter.IDs.First().value;
+                        if (channelID == 0)
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
+
+                        response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList());
+
+                        break;
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
             }
             catch (ClientException ex)
@@ -64,7 +81,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response.Objects.First();
+            return response;
         }
 
         /// <summary>
