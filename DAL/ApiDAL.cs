@@ -1991,8 +1991,71 @@ namespace DAL
                     result.Add(id);
                 }
             }
+
             return result;
         }
 
+        public static void Get_User_ParentalRules_Tags(int groupId, string siteGuid,
+            out List<KeyValuePair<string, List<string>>> mediaTags, out List<KeyValuePair<string, List<string>>> epgTags)
+        {
+            mediaTags = new List<KeyValuePair<string, List<string>>>();
+            epgTags = new List<KeyValuePair<string, List<string>>>();
+
+            Dictionary<string, List<string>> mediaDictionary = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> epgDictionary = new Dictionary<string, List<string>>();
+
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Tags");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    string name = ODBCWrapper.Utils.ExtractString(row, "NAME");
+                    string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                    // Asset type in database should match the enum!
+                    eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+
+                    // According to asset, update the relevant list
+                    switch (assetType)
+                    {
+                        case eAssetTypes.EPG:
+                        {
+                            if (!epgDictionary.ContainsKey(name))
+                            {
+                                epgDictionary[name] = new List<string>();
+                            }
+
+                            epgDictionary[name].Add(value);
+
+                            break;
+                        }
+                        case eAssetTypes.MEDIA:
+                        {
+                            if (!mediaDictionary.ContainsKey(name))
+                            {
+                                mediaDictionary[name] = new List<string>();
+                            }
+
+                            mediaDictionary[name].Add(value);
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            mediaTags = mediaDictionary.ToList();
+            epgTags = epgDictionary.ToList();
+        }
     }
 }
