@@ -16,9 +16,9 @@ namespace WebAPI.Models.Users
         /// <summary> 
         /// A list of favorites
         /// </summary>
-        [DataMember(Name = "favorites")]
-        [JsonProperty("favorites")]
-        [XmlArray(ElementName = "favorites")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
         public List<KalturaFavorite> Favorites { get; set; }
     }

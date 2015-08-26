@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -27,7 +28,68 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by ID
         /// </summary>
-        /// <param name="media_id">requested media ID</param>               
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="order_by">Ordering the channel</param>
+        /// <param name="pager">Paging the request</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>        
+        /// <remarks></remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+            KalturaFilterPager pager = null, string language = null)
+        {
+            KalturaAssetInfoListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                switch (filter.ReferenceType)
+                {
+                    case KalturaCatalogReferenceBy.media:
+
+                        response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            0, 1, filter.IDs.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+
+                        // if no response - return not found status 
+                        if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            throw new NotFoundException();
+
+                        break;
+                    case KalturaCatalogReferenceBy.channel:
+
+                        int channelID = filter.IDs.First().value;
+                        if (channelID == 0)
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
+
+                        response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(), 
+                            filter.FilterTags.Select(x=> new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+
+                        break;
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns media by media identifier       
+        /// </summary>
+        /// <param name="media_id">Media identifier</param>                
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
@@ -36,62 +98,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize(true)]
         public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
-            KalturaAssetInfoListResponse response = null;
+            KalturaAssetInfo response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (with == null)
-                with = new List<KalturaCatalogWithHolder>();
-
-            try
+            if (media_id == 0)
             {
-                List<int> mid = new List<int>();
-                mid.Add(media_id);
-
-                string userID = KS.GetFromRequest().UserId;
-
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0,
-                    1, mid, with.Select(x => x.type).ToList());
-
-                // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
-                {
-                    throw new NotFoundException();
-                }
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
             }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response.Objects.First();
-        }
-
-        /// <summary>
-        /// Returns media by media identifiers        
-        /// </summary>
-        /// <param name="media_ids">Media identifiers</param>        
-        /// <param name="pager">Paging filter</param>
-        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="language">Language code</param>        
-        /// <remarks></remarks>
-        [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
-            string language = null)
-        {
-            KalturaAssetInfoListResponse response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            if (media_ids.Count() == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_ids cannot be empty");
-            }
-
-            if (pager == null)
-                pager = new KalturaFilterPager();
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -100,14 +114,16 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                    pager.PageIndex, pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                    0, 1, new int[] { media_id }.ToList(), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
+                if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
                 {
                     throw new NotFoundException();
                 }
+
+                response = mediaRes.Objects.First();
             }
             catch (ClientException ex)
             {

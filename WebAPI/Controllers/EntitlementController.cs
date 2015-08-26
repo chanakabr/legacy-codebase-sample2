@@ -126,6 +126,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
         /// </summary>
+        /// <param name="user_id">The user id to entitle</param>
         /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
         /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
@@ -137,22 +138,22 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public bool Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public bool Grant(int user_id, int content_id, int product_id, KalturaTransactionType product_type, bool history)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // validate user id
-            if (KS.GetFromRequest().UserId == "0")
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-            }
+            long domainID = 0;
+            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, user_id.ToString());
+
+            if (domain != null)
+                domainID = domain.Id;
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domain.Id, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
@@ -173,8 +174,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="item_id">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
         /// <param name="file_id">File identifier</param>
-        /// <param name="isSubscrption">True for buying subscription, false for buying ppv</param>
-        /// <param name="user_id">User identifier</param>
+        /// <param name="is_subscription">True for buying subscription, false for buying ppv</param>        
         /// <param name="price">Price</param>
         /// <param name="currency">Currency</param>
         /// <param name="coupon_code">Coupon code</param>
@@ -183,25 +183,26 @@ namespace WebAPI.Controllers
         [Route("buy"), HttpPost]
         [Obsolete]
         [ApiAuthorize]
-        public KalturaBillingResponse Buy(string item_id, bool isSubscrption, string user_id, double price, string currency, string coupon_code, string extra_params,
+        public KalturaBillingResponse Buy(string item_id, bool is_subscription, double price, string currency, string coupon_code, string extra_params,
             string encrypted_cvv, int file_id = 0, string udid = null)
         {
             KalturaBillingResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
-                if (isSubscrption)
+                if (is_subscription)
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, user_id, price, currency, item_id, coupon_code,
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, userId, price, currency, item_id, coupon_code,
                         extra_params, udid, encrypted_cvv);
                 }
                 else
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, user_id, price, currency, file_id, item_id, coupon_code,
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, userId, price, currency, file_id, item_id, coupon_code,
                         extra_params, udid, encrypted_cvv);
                 }
             }

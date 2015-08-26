@@ -135,6 +135,19 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
+        public static CutWith ConvertCutWith(WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
+        {
+            switch (cutWith)
+            {
+                case KalturaAssetInfoFilter.KalturaCutWith.and:
+                    return CutWith.AND;
+                case KalturaAssetInfoFilter.KalturaCutWith.or:
+                    return CutWith.OR;
+                default:
+                    throw new ArgumentException("Unknown cut type");
+            }
+        }
+
         public static OrderObj ConvertOrderToOrderObj(KalturaOrder order)
         {
             OrderObj result = new OrderObj();

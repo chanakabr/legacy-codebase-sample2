@@ -19,9 +19,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// A list of generic rules
         /// </summary>
-        [DataMember(Name = "rules")]
-        [JsonProperty("rules")]
-        [XmlArray(ElementName = "rules")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaGenericRule> GenericRules { get; set; }
     }
