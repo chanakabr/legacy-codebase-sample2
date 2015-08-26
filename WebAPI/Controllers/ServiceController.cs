@@ -88,8 +88,12 @@ namespace WebAPI.Controllers
                     throw ex.InnerException;
                 }
 
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error,
-                "Unable to perform action");
+                if (ex is TargetParameterCountException)
+                {
+                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in parameters");
+                }
+
+                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "Unable to perform action");
             }
 
             return response;

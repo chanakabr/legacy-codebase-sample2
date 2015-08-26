@@ -132,6 +132,11 @@ namespace WebAPI.Filters
                                     methodParams.Add(Type.Missing);
                                     continue;
                                 }
+                                else if (reqParams[p.Name] == null && p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    methodParams.Add(null);
+                                    continue;
+                                }
                                 else if (reqParams[p.Name] == null)
                                 {
                                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
@@ -175,6 +180,9 @@ namespace WebAPI.Filters
             {
                 var tokens = actionContext.Request.GetQueryNameValuePairs().ToDictionary((keyItem) => keyItem.Key,
                     (valueItem) => valueItem.Value);
+
+                if (tokens["ks"] != null)
+                    GetUserDataFromKS(actionContext, tokens["ks"]);
 
                 //Running on the expected method parameters
                 ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -257,14 +265,23 @@ namespace WebAPI.Filters
                         //if list
                         if (type.GetGenericArguments().Count() == 1)
                         {
-                            res = buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                            var d1 = typeof(List<>);
+                            Type[] typeArgs = { type.GetGenericArguments()[0] };
+                            var makeme = d1.MakeGenericType(typeArgs);
+                            res = Activator.CreateInstance(makeme);
+
+                            foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
+                            {
+                                ((IList)res).Add(buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
+                            }
                         }
                         //if Dictionary
                         else if (type.GetGenericArguments().Count() == 2 &&
                             dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                             dictType.MakeGenericType(type.GetGenericArguments()) == type)
                         {
-                            res = buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                            throw new NotImplementedException("dictionary not implemenetd");
+                            // buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
                         }
 
                         serviceArguments.Add(res);
@@ -274,6 +291,12 @@ namespace WebAPI.Filters
                     if (actionParam.IsOptional)
                     {
                         serviceArguments.Add(Type.Missing);
+                        continue;
+                    }
+
+                    if (actionParam.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        serviceArguments.Add(null);
                         continue;
                     }
 

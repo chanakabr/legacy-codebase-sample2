@@ -138,7 +138,7 @@ namespace WebAPI.Controllers
         [Route("search"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by,
-            List<KalturaCatalogWithHolder> with, string language = null, KalturaFilterPager pager = null)
+            List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
 
