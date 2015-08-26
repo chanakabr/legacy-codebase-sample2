@@ -274,8 +274,14 @@ namespace WebAPI.Filters
                             dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                             dictType.MakeGenericType(type.GetGenericArguments()) == type)
                         {
-                            throw new NotImplementedException("dictionary not implemenetd");
-                            // buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                            var d1 = typeof(Dictionary<,>);
+                            Type[] typeArgs = { typeof(string), type.GetGenericArguments()[0] };
+                            var makeme = d1.MakeGenericType(typeArgs);
+                            res = Activator.CreateInstance(makeme);
+                            foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
+                            {
+                                ((IDictionary)res).Add(name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
+                            }
                         }
 
                         serviceArguments.Add(res);
