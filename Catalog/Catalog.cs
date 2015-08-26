@@ -1024,10 +1024,20 @@ namespace Catalog
                 out definitions.parentMediaTypes, out definitions.associationTags,
                 definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
 
-            // Get geo block rules that the user is allowed to watch
-            if (request.personalFilters != null && request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
+            if (request.personalFilters != null)
             {
-                definitions.geoBlockRules = SetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                // Get geo block rules that the user is allowed to watch
+                if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
+                {
+                    definitions.geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                }
+
+                // Get parental rules tags that user is NOT allowed to see
+                if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
+                {
+                    Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+                        out definitions.mediaParentalRulesTags, out definitions.epgParentalRulesTags);
+                }
             }
 
             definitions.pageIndex = request.m_nPageIndex;
@@ -1036,7 +1046,96 @@ namespace Catalog
             return definitions;
         }
 
-        private static List<int> SetGeoBlockRules(int groupId, string ip)
+        private static void GetParentalRulesTags(int groupId, string siteGuid, 
+            out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
+        {
+            mediaTags = new Dictionary<string, List<string>>();
+            epgTags = new Dictionary<string, List<string>>();
+
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.API);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            // validate user name and password length
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_API login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            // Initialize web service
+            using (ws_api.API apiWebService = new ws_api.API())
+            {
+                string url = Utils.GetWSURL("ws_api");
+                apiWebService.Url = url;
+
+                // Call webservice method
+                var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
+
+                // Validate webservice response
+                if (serviceResponse != null && serviceResponse.status != null && serviceResponse.status.Code == 0)
+                {
+                    // Media: Convert TagPair array to our dictionary
+                    if (serviceResponse.mediaTags != null)
+                    {
+                        foreach (var tag in serviceResponse.mediaTags)
+                        {
+                            if (!mediaTags.ContainsKey(tag.key))
+                            {
+                                mediaTags[tag.key] = new List<string>();
+                            }
+
+                            if (tag.value != null)
+                            {
+                                mediaTags[tag.key].Add(tag.value);
+                            }
+                        }
+                    }
+
+                    // EPG: Convert TagPair array to our dictionary
+                    if (serviceResponse.epgTags != null)
+                    {
+                        foreach (var tag in serviceResponse.epgTags)
+                        {
+                            if (!epgTags.ContainsKey(tag.key))
+                            {
+                                epgTags[tag.key] = new List<string>();
+                            }
+
+
+                            if (tag.value != null)
+                            {
+                                epgTags[tag.key].Add(tag.value);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception(string.Format(
+                        "Error when getting user parental rule tags from WS_API. user_id = {0}, group_id = {1}",
+                        siteGuid, groupId));
+                }
+            }
+        }
+
+        /// <summary>
+        /// For a given IP, gets all the rules that don't block this specific IP
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="ip"></param>
+        /// <returns></returns>
+        private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
             List<int> result = ApiDAL.Get_Permitted_GeoBlockRules(groupId, ip);
 
