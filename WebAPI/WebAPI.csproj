@@ -728,14 +728,14 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaEntityReferenceBy.cs" />
+    <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionsFilter.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
     <Compile Include="Models\General\KalturaDoubleValue.cs" />
-    <Compile Include="Models\General\KalturaEntityReferenceByFilter.cs" />
+    <Compile Include="Models\API\KalturaRuleFilter.cs" />
     <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
