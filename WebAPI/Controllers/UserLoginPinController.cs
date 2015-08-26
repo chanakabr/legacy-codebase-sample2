@@ -50,8 +50,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public void Update(string pin, string secret = null)
+        public KalturaLoginPin Update(string pin, string secret = null)
         {
+            KalturaLoginPin res = null;
             int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pin))
@@ -62,12 +63,14 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pin, secret);
+                res = ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pin, secret);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return res;
         }
 
         /// <summary>
@@ -76,19 +79,22 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("deleteAll"), HttpPost]
         [ApiAuthorize]
-        public void DeleteAll()
+        public bool DeleteAll()
         {
+            bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, null);
+                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, null);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return res;
         }
 
         /// <summary>
@@ -98,19 +104,22 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public void Delete(string pin_code)
+        public bool Delete(string pin_code)
         {
+            bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, pin_code);
+                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, pin_code);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return res;
         }
     }
 }

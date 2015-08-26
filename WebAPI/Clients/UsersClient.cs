@@ -506,7 +506,7 @@ namespace WebAPI.Clients
             return res;
         }
 
-        public void RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
+        public bool RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -533,6 +533,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+
+            return response.Code == (int)StatusCode.OK;
         }
 
         public List<Models.Users.KalturaFavorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType)

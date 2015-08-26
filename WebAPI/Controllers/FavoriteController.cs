@@ -24,9 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="media_type">Media Type ID (according to media type IDs defined dynamically in the system).</param>
         /// <param name="media_id">Media id</param>
         /// <param name="extra_data">Extra data</param>        
-        /// <remarks>Possible status codes:    
-        ///      
-        /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
+        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public bool Add(string udid, string media_type, string media_id, string extra_data)
@@ -70,13 +68,12 @@ namespace WebAPI.Controllers
         /// Remove media from user's favorite list
         /// </summary>        
         /// <param name="media_ids">Media identifiers</param>
-        /// <remarks>Possible status codes:    
-        ///      
-        /// User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
+        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public void Delete(List<KalturaIntegerValue> media_ids)
+        public bool Delete(List<KalturaIntegerValue> media_ids)
         {
+            bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
@@ -90,13 +87,14 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());
+                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
+            return res;
         }
 
         /// <summary>
@@ -106,9 +104,7 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <param name="language">Language Code</param>                
-        /// <remarks>Possible status codes:     
-        ///    
-        /// User does not exist = 2000, User suspended = 2001</remarks>
+        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null, List<KalturaCatalogWithHolder> with = null, string language = null, string udid = null)
@@ -143,7 +139,7 @@ namespace WebAPI.Controllers
                 {
                     List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
 
-                    KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId, 
+                    KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId,
                         (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
