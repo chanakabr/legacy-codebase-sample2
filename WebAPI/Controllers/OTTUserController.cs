@@ -186,31 +186,29 @@ namespace WebAPI.Controllers
         /// Sign up a new user.      
         /// </summary>        
         /// <param name="partner_id">Partner identifier</param>        
-        /// <param name="user_basic_data">user basic data</param>
-        /// <param name="user_dynamic_data">user dynamic data</param>
         /// <param name="password">password</param>
-        /// <param name="affiliate_code">affiliate code</param>
+        /// <param name="user">The user model to add</param>
         /// <remarks>        
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaOTTUser Add(int partner_id, KalturaUserBasicData user_basic_data, SerializableDictionary<string, KalturaStringValue> user_dynamic_data,
-            string password, string affiliate_code)
+        public KalturaOTTUser Add(int partner_id, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
 
-            if (user_basic_data == null)
+            if (user == null)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "SignUp or UserBasicData is null");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_date cannot be null");
             }
-            if (string.IsNullOrEmpty(user_basic_data.Username) || string.IsNullOrEmpty(password))
+
+            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username and password cannot be empty");
             }
             try
             {
-                response = ClientsManager.UsersClient().SignUp(partner_id, user_basic_data, user_dynamic_data, password, affiliate_code);
+                response = ClientsManager.UsersClient().SignUp(partner_id, user, password);
             }
             catch (ClientException ex)
             {
@@ -408,26 +406,26 @@ namespace WebAPI.Controllers
 
         /// <summary>Edit user details.        
         /// </summary>
-        /// <param name="user_data"> UserData Object (include basic and dynamic data)</param>
+        /// <param name="user"> UserData Object (include basic and dynamic data)</param>
         /// <remarks>         User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaOTTUser Update(KalturaUserData user_data)
+        public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (user_data == null || (user_data.userBasicData == null && (user_data.userDynamicData == null || user_data.userDynamicData.Count == 0)))
+            if (user == null)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no data to set");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user cannot be empty");
             }
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user_data.userBasicData, user_data.userDynamicData);
+                response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user);
             }
             catch (ClientException ex)
             {

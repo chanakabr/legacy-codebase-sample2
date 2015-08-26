@@ -252,6 +252,9 @@ namespace WebAPI.Controllers
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (media_types == null)
+                media_types = new List<KalturaIntegerValue>();
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;

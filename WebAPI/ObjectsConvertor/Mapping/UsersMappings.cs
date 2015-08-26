@@ -88,7 +88,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
 
             // Rest UserBasicData ==> WS_Users UserBasicData
-            Mapper.CreateMap<KalturaUserBasicData, Users.UserBasicData>()
+            Mapper.CreateMap<KalturaOTTUser, Users.UserBasicData>()
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
