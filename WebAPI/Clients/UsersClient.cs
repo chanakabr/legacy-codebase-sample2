@@ -79,8 +79,7 @@ namespace WebAPI.Clients
         }
 
 
-        public Models.Users.KalturaOTTUser SignUp(int groupId, Models.Users.KalturaUserBasicData user_basic_data, 
-            Dictionary<string, KalturaStringValue> user_dynamic_data, string password, string affiliateCode)
+        public Models.Users.KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
@@ -90,13 +89,13 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
-                    WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
+                    WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(userData);
+                    WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(userData.DynamicData);
 
                     if (userDynamicData == null)
                         userDynamicData = new UserDynamicData();
 
-                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, affiliateCode);
+                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, userData.AffiliateCode);
                 }
             }
             catch (Exception ex)
@@ -436,13 +435,12 @@ namespace WebAPI.Clients
             return users;
         }
 
-        public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, Models.Users.KalturaUserBasicData user_basic_data, 
-            Dictionary<string, KalturaStringValue> user_dynamic_data)
+        public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
         {
-            WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user_basic_data);
-            WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user_dynamic_data);
+            WebAPI.Users.UserBasicData userBasicData = Mapper.Map<WebAPI.Users.UserBasicData>(user);
+            WebAPI.Users.UserDynamicData userDynamicData = Mapper.Map<WebAPI.Users.UserDynamicData>(user.DynamicData);
 
-            WebAPI.Models.Users.KalturaOTTUser user = null;
+            WebAPI.Models.Users.KalturaOTTUser responseUser = null;
             UserResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -469,9 +467,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+            responseUser = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
 
-            return user;
+            return responseUser;
         }
 
         public bool AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
