@@ -19,16 +19,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all the items added to a list.
         /// </summary>
-        /// <param name="user_ids">Users identifiers</param>
-        /// <param name="list_type">The requested list type</param>
-        /// <param name="asset_type">The requested asset type</param>
         /// <remarks>Possible status codes: 
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaUserAssetsList> List(List<KalturaStringValue> user_ids, KalturaUserAssetsListType list_type,
-            KalturaUserAssetsListItemType asset_type)
+        public List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
         {
             List<KalturaUserAssetsList> response = null;
 
@@ -37,7 +33,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GetItemFromList(groupId, user_ids.Select(x => x.value).ToList(), list_type, asset_type);
+                response = ClientsManager.UsersClient().GetItemFromList(groupId, filter.usersIDs.Select(x => x.value).ToList(), 
+                    filter.ListType, filter.AssetType);
             }
             catch (ClientException ex)
             {

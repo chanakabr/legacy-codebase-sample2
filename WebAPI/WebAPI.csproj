@@ -784,11 +784,12 @@
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsListFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteListResponse.cs" />
-    <Compile Include="Models\Users\KalturaKeyValue.cs" />
+    <Compile Include="Models\General\KalturaKeyValue.cs" />
     <Compile Include="Models\Users\KalturaLoginSession.cs" />
     <Compile Include="Models\Users\KalturaBaseOTTUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
@@ -806,9 +807,7 @@
     <Compile Include="Models\Users\KalturaOTTUser.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsList.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItem.cs" />
-    <Compile Include="Models\Users\KalturaUserBasicData.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
-    <Compile Include="Models\Users\KalturaUserData.cs" />
     <Compile Include="Models\Users\KalturaOTTUserListResponse.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
     <Compile Include="Models\Users\KalturaOTTUserType.cs" />

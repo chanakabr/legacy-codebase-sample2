@@ -7,6 +7,7 @@ using WebAPI.Models.Users;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Social;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
