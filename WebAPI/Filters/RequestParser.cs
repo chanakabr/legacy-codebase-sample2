@@ -112,14 +112,8 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
-                            if (reqParams["ks"] != null)
-                            {
-                                GetUserDataFromKS(actionContext, reqParams["ks"].ToObject<string>());
-
-                                //KS ks = KS.GetFromRequest();
-                                //if (ks != null && ks.UserType == KalturaSessionType.ADMIN && reqParams["user_id"] != null)
-                                //    ks.UserId = reqParams["user_id"].ToObject<string>();
-                            }
+                            if (reqParams["ks"] != null)                          
+                                InitKS(actionContext, reqParams["ks"].ToObject<string>());                            
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -182,7 +176,7 @@ namespace WebAPI.Filters
                     (valueItem) => valueItem.Value);
 
                 if (tokens["ks"] != null)
-                    GetUserDataFromKS(actionContext, tokens["ks"]);
+                    InitKS(actionContext, tokens["ks"]);
 
                 //Running on the expected method parameters
                 ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -430,7 +424,7 @@ namespace WebAPI.Filters
             array = tmpArr;
         }
 
-        private void GetUserDataFromKS(HttpActionContext actionContext, string ksVal)
+        private void InitKS(HttpActionContext actionContext, string ksVal)
         {
             // the supplied ks is in KS forma (project phoenix's)
             if (IsKsFormat(ksVal))
