@@ -30,6 +30,14 @@ namespace WebAPI.Managers.Models
 
         public const string PAYLOAD_UDID = "UDID";
 
+        public enum KSType
+        {
+            TVPAPI = 0,
+            V2 = 1
+        }
+
+        public KSType ksType { get; private set; }
+
         public bool IsValid
         {
             get { return expiration > DateTime.UtcNow; }
@@ -76,7 +84,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSType ksType)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -106,9 +114,11 @@ namespace WebAPI.Managers.Models
             encodedKs = encodedKs.Replace("\r", "");
 
             encryptedValue = encodedKs.ToString();
+
+            this.ksType = ksType;
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSType ksType)
         {
             KS ks = new KS();
             ks.encryptedValue = ksVal;
