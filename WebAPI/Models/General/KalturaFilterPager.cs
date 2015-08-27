@@ -30,7 +30,7 @@ namespace WebAPI.Models.General
         {
             get 
             {
-                return pageSize;
+                return pageSize > 0 ? pageSize : maxPageSize;
             }
 
             set
