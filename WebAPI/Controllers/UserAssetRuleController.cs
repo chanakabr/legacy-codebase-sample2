@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
-using WebAPI.ObjectsConvertor.Utils;
+using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), asset_type))
+            if (!Enum.IsDefined(typeof(KalturaAssetType), asset_type))
             {
                  throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }
@@ -46,12 +46,12 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                if ((AssetType)asset_type == AssetType.epg)
+                if ((KalturaAssetType)asset_type == KalturaAssetType.epg)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if ((AssetType)asset_type == AssetType.media)
+                else if ((KalturaAssetType)asset_type == KalturaAssetType.media)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
