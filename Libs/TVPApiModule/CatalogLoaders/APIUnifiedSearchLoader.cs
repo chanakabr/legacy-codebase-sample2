@@ -29,9 +29,14 @@ namespace TVPApiModule.CatalogLoaders
         public string Filter { get; set; }
         public string Query { get; set; }
         public List<string> With { get; set; }
+        public List<ePersonalFilter> PersonalFilters
+        {
+            get;
+            set;
+        }
 
         public APIUnifiedSearchLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
-            List<int> assetTypes, string filter, List<string> with)
+            List<int> assetTypes, string filter, List<string> with, List<ePersonalFilter> personalFilters)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             //DomainId = domainId
@@ -39,6 +44,7 @@ namespace TVPApiModule.CatalogLoaders
             AssetTypes = assetTypes;
             Filter = filter;
             With = with;
+            PersonalFilters = personalFilters;
 
         }
 
@@ -49,7 +55,8 @@ namespace TVPApiModule.CatalogLoaders
                 assetTypes = AssetTypes,
                 filterQuery = Filter,
                 order = Order,
-                nameAndDescription = Query
+                nameAndDescription = Query,
+                personalFilters = PersonalFilters
             };
         }
 
