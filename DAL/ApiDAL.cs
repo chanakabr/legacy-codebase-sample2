@@ -1572,19 +1572,19 @@ namespace DAL
                                 switch (assetType)
                                 {
                                     case eAssetTypes.EPG:
-                                        {
-                                            currentRule.epgTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
                                     case eAssetTypes.MEDIA:
-                                        {
-                                            currentRule.mediaTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
                                     default:
-                                        {
-                                            break;
-                                        }
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1922,19 +1922,19 @@ namespace DAL
                             switch (assetType)
                             {
                                 case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
                                 case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
                                 default:
-                                    {
-                                        break;
-                                    }
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -2048,6 +2048,23 @@ namespace DAL
                     }
                 }
             }
+        }
+
+        public static long GetLinearMediaIdByEpgId(long epgId)
+        {
+            long mediaId = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_LinearMediaIdByEpgId");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@epg_id", epgId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
+                mediaId = ODBCWrapper.Utils.GetLongSafeVal(dataSet.Tables[0].Rows[0]["ID"]);
+            }
+
+            return mediaId;
         }
     }
 }
