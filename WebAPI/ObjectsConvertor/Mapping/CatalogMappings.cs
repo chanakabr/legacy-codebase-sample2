@@ -196,26 +196,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return extraParams;
         }
 
-        private static Dictionary<string, List<KalturaStringValue>> BuildTagsDictionary(List<EPGDictionary> list)
+        private static Dictionary<string, KalturaStringValueArray> BuildTagsDictionary(List<EPGDictionary> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, List<KalturaStringValue>> tags = new Dictionary<string, List<KalturaStringValue>>();
-            List<KalturaStringValue> tagsList;
+            Dictionary<string, KalturaStringValueArray> tags = new Dictionary<string, KalturaStringValueArray>();
+            KalturaStringValueArray tagsList;
 
             foreach (var tag in list)
             {
                 if (tags.ContainsKey(tag.Key))
                 {
-                    tags[tag.Key].Add(new KalturaStringValue() { value = tag.Value });
+                    tags[tag.Key].Objects.Add(new KalturaStringValue() { value = tag.Value });
                 }
                 else
                 {
-                    tagsList = new List<KalturaStringValue>();
-                    tagsList.Add(new KalturaStringValue() { value = tag.Value });
+                    tagsList = new KalturaStringValueArray();
+                    tagsList.Objects.Add(new KalturaStringValue() { value = tag.Value });
                     tags.Add(tag.Key, tagsList);
                 }
             }
@@ -253,18 +253,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Dictionary<string, List<KalturaStringValue>> BuildTagsDictionary(List<Tags> list)
+        private static SerializableDictionary<string, KalturaStringValueArray> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, List<KalturaStringValue>> tags = new Dictionary<string, List<KalturaStringValue>>();
+            SerializableDictionary<string, KalturaStringValueArray> tags = new SerializableDictionary<string, KalturaStringValueArray>();
 
             foreach (var tag in list)
             {
-                tags.Add(tag.m_oTagMeta.m_sName, new List<KalturaStringValue>(tag.m_lValues.Select(v => new KalturaStringValue(){value = v})));
+                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValueArray()
+                {
+                    Objects = tag.m_lValues.Select(v => new KalturaStringValue() { value = v }).ToList()
+                });
             }
 
             return tags;
@@ -280,7 +283,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Dictionary<string, KalturaValue> metas = new Dictionary<string, KalturaValue>();
 
             KalturaValue value = null;
-            foreach (var meta in list)
+            foreach (var meta in list) 
             {
                 if (meta.m_oTagMeta.m_sType == typeof(bool).ToString())
                 {

@@ -743,6 +743,7 @@
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />
+    <Compile Include="Models\General\KalturaStringValueArray.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
