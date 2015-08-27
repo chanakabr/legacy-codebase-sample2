@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(string udid, string media_type, string media_id, string extra_data)
+        public bool Add(string media_id, string media_type = null, string extra_data = null, string udid = null)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -42,11 +42,6 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_type cannot be empty");
             }
-
-            //if (udid.Trim().Length == 0)
-            //{
-            //    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UDID cannot be empty");
-            //}
 
             try
             {

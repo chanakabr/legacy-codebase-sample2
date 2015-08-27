@@ -58,23 +58,23 @@ namespace WebAPI.Controllers
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
         /// <param name="household_id">Household identifier</param>
-        /// <param name="sub_id">Subscription Code</param>
+        /// <param name="subscription_id">Subscription Code</param>
         /// <remarks>Possible status codes: 
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
-        public void CancelRenewal(int household_id, string sub_id)
+        public void CancelRenewal(int household_id, string subscription_id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(sub_id))
+            if (string.IsNullOrEmpty(subscription_id))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, sub_id);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, subscription_id);
             }
             catch (ClientException ex)
             {
