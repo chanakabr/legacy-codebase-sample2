@@ -511,7 +511,7 @@ namespace WebAPI.Filters
             string adminSecret = group.UserSecret;
 
             // build KS
-            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ksVal, KS.KSType.V2);
+            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ksVal, KS.KSVersion.V2);
 
             ks.SaveOnRequest();
         }

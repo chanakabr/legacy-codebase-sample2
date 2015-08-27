@@ -23,20 +23,20 @@ namespace WebAPI.Managers.Models
         private string encryptedValue;
         private int groupId;
         private string userId;
-        private KalturaSessionType userType;
+        private KalturaSessionType sessionType;
         private DateTime expiration;
         private string privilege;
         private string data;
 
         public const string PAYLOAD_UDID = "UDID";
 
-        public enum KSType
+        public enum KSVersion
         {
             TVPAPI = 0,
             V2 = 1
         }
 
-        public KSType ksType { get; private set; }
+        public KSVersion ksVersion { get; private set; }
 
         public bool IsValid
         {
@@ -53,16 +53,16 @@ namespace WebAPI.Managers.Models
             get { return userId; }
             set
             {
-                if (UserType == KalturaSessionType.ADMIN)
+                if (SessionType == KalturaSessionType.ADMIN)
                     userId = value;
                 else
                     throw new Exception("Unable to set userID without Admin KS");
             }
         }
 
-        public KalturaSessionType UserType
+        public KalturaSessionType SessionType
         {
-            get { return userType; }
+            get { return sessionType; }
         }
 
         public string Privilege
@@ -84,7 +84,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSType ksType)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSVersion ksType)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -115,10 +115,10 @@ namespace WebAPI.Managers.Models
 
             encryptedValue = encodedKs.ToString();
 
-            this.ksType = ksType;
+            this.ksVersion = ksType;
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSType ksType)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType)
         {
             KS ks = new KS();
             ks.encryptedValue = ksVal;
@@ -164,7 +164,7 @@ namespace WebAPI.Managers.Models
                 switch (pair[0])
                 {
                     case "t":
-                        ks.userType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
+                        ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
                         break;
                     case "e":
                         long expiration;
@@ -319,7 +319,7 @@ namespace WebAPI.Managers.Models
             {
                 groupId = token.GroupID,
                 userId = token.UserId,
-                userType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
             };
 

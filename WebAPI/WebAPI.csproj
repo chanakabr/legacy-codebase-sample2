@@ -672,6 +672,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
@@ -785,6 +786,7 @@
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
+    <Compile Include="Models\Users\KalturaSessionInfo.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
