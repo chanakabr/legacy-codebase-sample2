@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendingTransactionHandler",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticSearchHandler", "ElasticSearchHandler\ElasticSearchHandler.csproj", "{338E6394-A9E9-4D5C-8A6A-95797F6C429F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionRenewHandler", "SubscriptionRenewHandler\SubscriptionRenewHandler.csproj", "{98C65129-0998-4385-B7FE-BF95E74E3F40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -467,6 +469,18 @@ Global
 		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{338E6394-A9E9-4D5C-8A6A-95797F6C429F}.Release|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
