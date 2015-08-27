@@ -23,9 +23,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// The identifier of the household user for whom to filter the rule (if filtering by user)
         /// </summary>
-        [DataMember(Name = "household_id")]
-        [JsonProperty("household_id")]
-        [XmlElement(ElementName = "household_id")]
+        [DataMember(Name = "household_user_id")]
+        [JsonProperty("household_user_id")]
+        [XmlElement(ElementName = "household_user_id")]
         public string HouseholdUserId { get; set; }
     }
 }
