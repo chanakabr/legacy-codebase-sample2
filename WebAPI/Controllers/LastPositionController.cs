@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         {
             KalturaLastPositionListResponse response = null;
 
-            if (string.IsNullOrEmpty(filter.AssetID))
+            if (filter.Ids == null || filter.Ids.Count == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids cannot be empty");
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -37,19 +37,36 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                switch (filter.AssetType)
+                switch (filter.Type)
                 {
                     case KalturaAssetType.media:
                         {
                             if (filter.By == KalturaEntityReferenceBy.household)
                             {
-                                int mediaId;
-                                if (!int.TryParse(filter.AssetID, out mediaId))
+                                List<int> mediaIds;
+                                try
                                 {
-                                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for type media");
+                                    mediaIds = filter.Ids.Select(id => int.Parse(id.value)).ToList();
                                 }
-                                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                                    filter.UDID, mediaId, null);
+                                catch (Exception ex)
+                                {
+                                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is media");
+                                }
+
+                                response = new KalturaLastPositionListResponse()
+                                {
+                                    LastPositions = new List<KalturaLastPosition>()
+                                };
+
+                                foreach (var id in mediaIds)
+                                {
+                                    var res = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                                    filter.UDID, id, null);
+
+                                    response.LastPositions.AddRange(res.LastPositions);
+                                    response.TotalCount += res.TotalCount;
+                                }
+                                
                             }
                             else
                             {
@@ -62,8 +79,7 @@ namespace WebAPI.Controllers
                         {
                             if (filter.By == KalturaEntityReferenceBy.household)
                             {
-                                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                                    filter.UDID, null, filter.AssetID);
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");                                
                             }
                             else
                             {

@@ -25,20 +25,21 @@ namespace WebAPI.Models.Catalog
         public string UDID { get; set; }
 
         /// <summary>
-        /// Asset identifier
+        /// Assets identifier
         /// </summary>
-        [DataMember(Name = "asset_id")]
-        [JsonProperty(PropertyName = "asset_id")]
-        [XmlElement(ElementName = "asset_id")]
-        public string AssetID { get; set; }
+        [DataMember(Name = "ids")]
+        [JsonProperty(PropertyName = "ids")]
+        [XmlArray(ElementName = "objects")]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaStringValue> Ids { get; set; }
 
         /// <summary>
-        /// Asset type
+        /// Assets type
         /// </summary>
-        [DataMember(Name = "asset_type")]
-        [JsonProperty(PropertyName = "asset_type")]
-        [XmlElement(ElementName = "asset_type")]
-        public KalturaAssetType AssetType { get; set; }
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaAssetType Type { get; set; }
 
         /// <summary>
         /// Reference type to filter by
