@@ -144,14 +144,22 @@ namespace WebAPI.Managers.Models
             }
 
             //parse fields
-            string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string fieldsString = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
+            string[] fields = fieldsString.Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length < 3)
             {
                 throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
             }
 
-            ks.privilege = fields[0];
+            if (!fieldsString.StartsWith("&_"))
+            {
+                ks.privilege = fields[0];
+            }
+            else
+            {
+                ks.privilege = string.Empty;
+            }
 
             for (int i = 1; i < fields.Length; i++)
             {

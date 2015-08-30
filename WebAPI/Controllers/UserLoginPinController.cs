@@ -44,18 +44,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Set a temporarily PIN that can allow a user to log-in.        
         /// </summary>
-        /// <param name="pin">Device Identifier</param>
+        /// <param name="pin_code">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaLoginPin Update(string pin, string secret = null)
+        public KalturaLoginPin Update(string pin_code, string secret = null)
         {
             KalturaLoginPin res = null;
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(pin))
+            if (string.IsNullOrEmpty(pin_code))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
             }
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pin, secret);
+                res = ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pin_code, secret);
             }
             catch (ClientException ex)
             {
