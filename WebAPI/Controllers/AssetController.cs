@@ -89,20 +89,21 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media by media identifier       
         /// </summary>
-        /// <param name="media_id">Media identifier</param>                
+        /// <param name="asset_id">Asset identifier</param>                
+        /// <param name="asset_id">Asset type</param>                
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
+        public KalturaAssetInfo Get(int asset_id, KalturaAssetType asset_type, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfo response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (media_id == 0)
+            if (asset_id == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
             }
@@ -114,16 +115,34 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                    0, 1, new int[] { media_id }.ToList(), with.Select(x => x.type).ToList());
-
-                // if no response - return not found status 
-                if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
+                if (asset_type == KalturaAssetType.media)
                 {
-                    throw new NotFoundException();
+
+                    var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                        0, 1, new int[] { asset_id }.ToList(), with.Select(x => x.type).ToList());
+
+                    // if no response - return not found status 
+                    if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
+                    {
+                        throw new NotFoundException();
+                    }
+
+                    response = mediaRes.Objects.First();
                 }
 
-                response = mediaRes.Objects.First();
+                else if (asset_type == KalturaAssetType.epg)
+                {
+                    var epgRes = ClientsManager.CatalogClient().GetEPGByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                      0, 1, new int[] { asset_id }.ToList(), with.Select(x => x.type).ToList());
+
+                    // if no response - return not found status 
+                    if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                    {
+                        throw new NotFoundException();
+                    }
+
+                    response = epgRes.Objects.First();
+                }
             }
             catch (ClientException ex)
             {

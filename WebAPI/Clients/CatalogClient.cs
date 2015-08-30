@@ -449,6 +449,49 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetInfoListResponse GetEPGByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, List<KalturaCatalogWith> with)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // build request
+            EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_lProgramsIds = epgIds,
+            };
+
+            EpgProgramResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+
+                var list = CatalogConvertor.ConvertBaseObjectsToAssetsInfo(groupId, epgProgramResponse.m_lObj, with);
+
+                // build AssetInfoWrapper response
+                if (list != null)
+                {
+                    result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
 
         public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
         {
