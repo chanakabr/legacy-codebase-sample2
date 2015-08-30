@@ -32,8 +32,7 @@ namespace WebAPI.Filters
 
         private static Couchbase.CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
 
-        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
-        public const string REQUEST_PARTNER_ID = "requestPartnerID";
+        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";        
 
         public static object GetRequestPayload()
         {

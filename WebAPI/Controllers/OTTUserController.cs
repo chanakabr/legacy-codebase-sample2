@@ -28,19 +28,19 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns tokens (KS and refresh token) for anonymous access
         /// </summary>
-        /// <param name="partner_id">The partner ID</param>
+        /// <param name="partnerId">The partner ID</param>
         /// <param name="udid">The caller device's UDID</param>
         /// <returns>KalturaLoginResponse</returns>
         [Route("anonymousLogin"), HttpPost]
-        public KalturaLoginSession AnonymousLogin(int partner_id, string udid = null)
+        public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
-            return AuthorizationManager.GenerateSession("0", partner_id, false, false, udid);
+            return AuthorizationManager.GenerateSession("0", partnerId, false, false, udid);
         }
 
         /// <summary>
         /// User sign-in via a time-expired sign-in PIN.        
         /// </summary>
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partnerId">Partner Identifier</param>
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
-        public KalturaLoginResponse LoginWithPin(int partner_id, string pin, string udid = null, string secret = null)
+        public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
 
@@ -62,20 +62,20 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().LoginWithPin(partner_id, udid, pin, secret);
+                response = ClientsManager.UsersClient().LoginWithPin(partnerId, udid, pin, secret);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, true, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid), User = response };
         }
 
         /// <summary>
         /// login with user name and password.
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">password</param>
         /// <param name="extra_params">extra params</param>
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(int partner_id, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params = null,
+        public KalturaLoginResponse Login(int partnerId, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params = null,
             string udid = null)
         {
             KalturaOTTUser response = null;
@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(partner_id, username, password, udid, extra_params);
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extra_params);
             }
             catch (ClientException ex)
             {
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, false, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
         }
 
         /// <summary>
@@ -149,14 +149,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// login with facebook token.
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Facebook token</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>        
         /// User does not exist = 2000
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
-        public KalturaLoginResponse FacebookLogin(int partner_id, string token, string udid = null)
+        public KalturaLoginResponse FacebookLogin(int partnerId, string token, string udid = null)
         {
             KalturaOTTUser response = null;
 
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.SocialClient().FBUserSignin(partner_id, token, udid);
+                response = ClientsManager.SocialClient().FBUserSignin(partnerId, token, udid);
             }
             catch (ClientException ex)
             {
@@ -179,13 +179,13 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partner_id, false, false, udid), User = response };
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
         }
 
         /// <summary>
         /// Sign up a new user.      
         /// </summary>        
-        /// <param name="partner_id">Partner identifier</param>        
+        /// <param name="partnerId">Partner identifier</param>        
         /// <param name="password">password</param>
         /// <param name="user">The user model to add</param>
         /// <remarks>        
@@ -193,7 +193,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("add"), HttpPost]
-        public KalturaOTTUser Add(int partner_id, KalturaOTTUser user, string password)
+        public KalturaOTTUser Add(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
 
@@ -208,7 +208,7 @@ namespace WebAPI.Controllers
             }
             try
             {
-                response = ClientsManager.UsersClient().SignUp(partner_id, user, password);
+                response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
             }
             catch (ClientException ex)
             {
@@ -225,11 +225,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Send a new password by user name.        
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <remarks></remarks>
         [Route("sendPassword"), HttpPost]
-        public bool sendPassword(int partner_id, string username)
+        public bool sendPassword(int partnerId, string username)
         {
             bool response = false;
 
@@ -240,7 +240,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SendNewPassword(partner_id, username);
+                response = ClientsManager.UsersClient().SendNewPassword(partnerId, username);
             }
             catch (ClientException ex)
             {
@@ -258,12 +258,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Renew the user's password without validating the existing password.
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: User does not exist = 2000, Wrong username or password = 1011</remarks>
         [Route("resetPassword"), HttpPost]
-        public bool resetPassword(int partner_id, string username, string password)
+        public bool resetPassword(int partnerId, string username, string password)
         {
             bool response = false;
 
@@ -274,7 +274,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().RenewPassword(partner_id, username, password);
+                response = ClientsManager.UsersClient().RenewPassword(partnerId, username, password);
             }
             catch (ClientException ex)
             {
@@ -291,11 +291,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the user associated with a temporary reset token.        
         /// </summary>        
-        /// <param name="partner_id">Partner Identifier</param>
+        /// <param name="partnerId">Partner Identifier</param>
         /// <param name="token">token</param>
         /// <remarks></remarks>
         [Route("validateToken"), HttpPost]
-        public KalturaOTTUser validateToken(int partner_id, string token)
+        public KalturaOTTUser validateToken(int partnerId, string token)
         {
             KalturaOTTUser response = null;
 
@@ -306,7 +306,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().CheckPasswordToken(partner_id, token);
+                response = ClientsManager.UsersClient().CheckPasswordToken(partnerId, token);
             }
             catch (ClientException ex)
             {
