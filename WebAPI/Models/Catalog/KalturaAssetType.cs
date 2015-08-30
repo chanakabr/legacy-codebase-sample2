@@ -7,7 +7,8 @@ namespace WebAPI.Models.Catalog
 {
     public enum KalturaAssetType
     {
-         media,
-        epg
+        media,
+        epg,
+        recording 
     }
 }
