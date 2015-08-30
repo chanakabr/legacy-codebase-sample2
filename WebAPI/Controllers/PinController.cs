@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     if (type == KalturaPinType.parental)
                     {
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     if (type == KalturaPinType.parental)
                     {

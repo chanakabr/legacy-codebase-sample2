@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(filter.HouseholdUserId, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(filter.HouseholdUserId, groupId);
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, filter.HouseholdUserId);
@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, household_user_id, rule_id, 1);
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, household_user_id, rule_id, 0);
@@ -193,7 +193,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
                     success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, household_user_id);
