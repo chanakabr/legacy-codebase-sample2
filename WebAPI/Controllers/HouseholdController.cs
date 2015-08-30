@@ -152,12 +152,12 @@ namespace WebAPI.Controllers
         /// Domain not exists = 1006, Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
-        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
-        public bool SetChargeID(string id, int household_id, string charge_id)
+        public bool SetChargeID(string pg_id, int household_id, string charge_id)
         {
             bool response = false;
 
@@ -166,7 +166,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, id, household_id, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, household_id, charge_id);
             }
             catch (ClientException ex)
             {
@@ -183,11 +183,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
-        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
-        public string GetChargeID(string id, int household_id)
+        public string GetChargeID(string pg_id, int household_id)
         {
             string chargeId = string.Empty;
 
@@ -196,7 +196,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, household_id);
             }
             catch (ClientException ex)
             {
