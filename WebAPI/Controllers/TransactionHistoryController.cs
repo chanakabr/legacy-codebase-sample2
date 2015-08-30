@@ -24,8 +24,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, 
-            DateTime? start_date = null, DateTime? end_date = null)
+        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, DateTime? start_date = null, DateTime? end_date = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 

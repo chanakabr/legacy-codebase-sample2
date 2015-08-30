@@ -129,7 +129,8 @@ namespace WebAPI.Managers.Models
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
                 token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
                 payload,
-                string.Empty, Models.KS.KSVersion.V2);
+                string.Empty, 
+                Models.KS.KSVersion.V2);
             KS = ks.ToString();
         }
     }
