@@ -95,9 +95,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.
         /// </summary>
-        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV. Verified to match the purchase details represented by the purchase_token</param>
-        /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_token</param>        
-        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_token</param>
+        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV. Verified to match the purchase details represented by the purchase_receipt</param>
+        /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_receipt</param>        
+        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_receipt</param>
         /// <param name="purchase_receipt">A unique identifier that was provided by the In-App billing service to validate the purchase</param>
         /// <param name="payment_gateway_name">The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
