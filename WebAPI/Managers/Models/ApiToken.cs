@@ -39,7 +39,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
-            string payload = PrepareUdidPayload(udid);
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             GroupID = groupId;
             UserId = userId;
@@ -54,7 +54,7 @@ namespace WebAPI.Managers.Models
             {
                 RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             }
-            
+
             // set access expiration time - no longer than refresh expiration (not relative)
             // check if user is anonymous
             long accessExpiration;
@@ -68,29 +68,21 @@ namespace WebAPI.Managers.Models
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
-           
-            KS ks = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
-                groupId.ToString(), 
+
+            KS ks = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+                groupId.ToString(),
                 userId,
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
-                isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
-                payload, 
+                isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                payload,
                 string.Empty, Models.KS.KSVersion.V2);
 
             KS = ks.ToString();
         }
 
-        private static string PrepareUdidPayload(string udid)
-        {
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(WebAPI.Managers.Models.KS.PAYLOAD_UDID, udid));
-            string payload = WebAPI.Managers.Models.KS.preparePayloadData(l);
-            return payload;
-        }
-
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            string payload = PrepareUdidPayload(udid);
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
             RefreshToken = token.RefreshToken;
             GroupID = token.GroupID;
             UserId = token.UserId;
@@ -100,8 +92,8 @@ namespace WebAPI.Managers.Models
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
             {
-                RefreshTokenExpiration = token.IsLongRefreshExpiration ? 
-                    token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : 
+                RefreshTokenExpiration = token.IsLongRefreshExpiration ?
+                    token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds :
                     token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds;
             }
             else
@@ -122,12 +114,12 @@ namespace WebAPI.Managers.Models
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
-            
-            KS ks = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret, 
-                token.GroupID.ToString(), 
+
+            KS ks = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+                token.GroupID.ToString(),
                 token.UserId,
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
-                token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER, 
+                token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
                 string.Empty, Models.KS.KSVersion.V2);
             KS = ks.ToString();

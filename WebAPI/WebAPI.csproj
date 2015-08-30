@@ -707,6 +707,7 @@
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
+    <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />

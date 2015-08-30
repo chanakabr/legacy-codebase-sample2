@@ -28,12 +28,15 @@ namespace WebAPI.Managers.Models
         private string privilege;
         private string data;
 
-        public const string PAYLOAD_UDID = "UDID";
-
         public enum KSVersion
         {
             TVPAPI = 0,
             V2 = 1
+        }
+
+        public class KSData
+        {
+            public string UDID { get; set; }
         }
 
         public KSVersion ksVersion { get; private set; }
@@ -301,6 +304,18 @@ namespace WebAPI.Managers.Models
         public static string preparePayloadData(List<KeyValuePair<string, string>> pairs)
         {
             return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
+        }
+
+        public static List<KeyValuePair<string, string>> ExtractPayloadData(string payload)
+        {
+            List<KeyValuePair<string, string>> pairs = new List<KeyValuePair<string, string>>();
+            foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var t = token.Split('=');
+                pairs.Add(new KeyValuePair<string, string>(t[0], t[1]));
+            }
+
+            return pairs;
         }
 
         internal void SaveOnRequest()
