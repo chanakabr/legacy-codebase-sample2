@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         /// <param name="description">Description for the household</param>
         /// <param name="master_user_id">Identifier of the user that will become the master of the created household</param>
         /// <remarks>Possible status codes: 
-        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
+        /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaHousehold Add(string name, string description, string master_user_id)
