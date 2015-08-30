@@ -63,7 +63,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 return;
             }
             //if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.PUBLISH) == false)
-                //LoginManager.LogoutFromSite("login.html");
+            //LoginManager.LogoutFromSite("login.html");
 
             if (m_sDB == "couchbase")
             {
@@ -78,7 +78,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         EpgBL.TvinciEpgBL oEpgBL = new EpgBL.TvinciEpgBL(nGroupID);
                         EpgCB epgCB = oEpgBL.GetEpgCB(uID);
                         if (epgCB != null)
-                        {   
+                        {
                             if (epgCB.Status == 4)
                             {
                                 if (LoginManager.IsActionPermittedOnPage(m_sBasePageURL, LoginManager.PAGE_PERMISION_TYPE.REMOVE) == false)
@@ -120,7 +120,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 else
                     Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
 
-               
+
             }
             else
             {
@@ -283,6 +283,30 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                     catch (Exception ex)
                     {
                         Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), "RemoveDLM");
+                    }
+                    break;
+                case "payment_gateway_config":
+                    // set adapter configuration
+                    object oPaymentGatewayId = ODBCWrapper.Utils.GetTableSingleVal("payment_gateway_config", "payment_gateway_id", m_nID, "billing_connection");
+
+                    int paymentGatewayId = 0;
+                    if (oPaymentGatewayId != null && oPaymentGatewayId != DBNull.Value)
+                    {
+                        paymentGatewayId = int.Parse(oPaymentGatewayId.ToString());
+                        Billing.module billing = new Billing.module();
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
+                        sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("billing_ws");
+                        if (!string.IsNullOrEmpty(sWSURL))
+                            billing.Url = sWSURL;
+                        try
+                        {
+                            Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, paymentGatewayId);
+                            Logger.Logger.Log("delete PG configuration", string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code), "SetPaymentGatewayConfiguration");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                        }
                     }
                     break;
                 default:

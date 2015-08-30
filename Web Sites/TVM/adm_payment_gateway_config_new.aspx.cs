@@ -34,7 +34,7 @@ public partial class adm_payment_gateway_config_new : System.Web.UI.Page
                 DBManipulator.DoTheWork("billing_connection");
                 int paymentGatewayId = 0;
 
-                if (Session["paymentGW_id"] != null && string.IsNullOrEmpty(Session["paymentGW_id"].ToString()) && int.TryParse(Session["paymentGW_id"].ToString(), out paymentGatewayId))
+                if (Session["paymentGW_id"] != null && !string.IsNullOrEmpty(Session["paymentGW_id"].ToString()) && int.TryParse(Session["paymentGW_id"].ToString(), out paymentGatewayId))
                 {
                     // set adapter configuration
                     Billing.module billing = new Billing.module();
