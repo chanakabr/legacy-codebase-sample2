@@ -713,6 +713,7 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
@@ -859,7 +860,6 @@
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
     <Compile Include="Models\General\KalturaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
@@ -966,6 +966,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="ObjectsConvertor\Mapping\Utils\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

@@ -153,7 +153,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by,
+        public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
             List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -201,7 +201,7 @@ namespace WebAPI.Controllers
         /// <param name="order_by"> Required sort option to apply for the identified assets. If omitted – will use newest.</param>
         /// <param name="size"><![CDATA[Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5]]></param>
         /// <param name="language">Language Code</param>
-        /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003</remarks>
+        /// <remarks>Possible status codes: Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,

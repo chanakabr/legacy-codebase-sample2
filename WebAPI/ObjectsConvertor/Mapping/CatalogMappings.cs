@@ -10,7 +10,6 @@ using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -102,7 +101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.epg));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)KalturaAssetType.epg));
 
             //channelObj to Channel
             Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
