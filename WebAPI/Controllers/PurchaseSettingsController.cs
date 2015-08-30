@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
                     purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id);
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
                     }
 
                     // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.ChackAdditionalUserId(household_user_id, groupId);
+                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, household_user_id, setting);

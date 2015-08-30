@@ -148,7 +148,7 @@ namespace WebAPI.Managers
             }
         }
 
-        internal static void ChackAdditionalUserId(string household_user_id, int groupId)
+        internal static void CheckAdditionalUserId(string household_user_id, int groupId)
         {
             KalturaHousehold household = null;
             household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KS.GetFromRequest().UserId);
