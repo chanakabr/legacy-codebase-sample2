@@ -1035,7 +1035,7 @@ namespace NPVR
                             }
                             else
                             {
-                                Logger.Logger.Log("NPVRPics", string.Format("picGroupTree[{0}]: not exists", groupID), "NPVRPics");
+                                log.Debug("NPVRPics - " + string.Format("picGroupTree[{0}]: not exists", groupID));
                             }
                         }
 
@@ -1060,7 +1060,7 @@ namespace NPVR
         {
             if (pictures == null || pictures.Count == 0)
             {
-                Logger.Logger.Log("SetEpgPictures", string.Format("pictures is null or empty"), "NPVRPics");
+                log.Debug("SetEpgPictures - " + string.Format("pictures is null or empty"));
                 return;
             }
 
