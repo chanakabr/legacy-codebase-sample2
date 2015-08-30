@@ -17,27 +17,27 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns category by category identifier        
         /// </summary>
-        /// <param name="category_id">Category Identifier</param>
+        /// <param name="id">Category Identifier</param>
         /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaOTTCategory Get(int category_id, string language = null)
+        public KalturaOTTCategory Get(int id, string language = null)
         {
             KalturaOTTCategory response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (category_id == 0)
+            if (id <= 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "category_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Category ID is illegal");
             }
 
             try
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), language, category_id);
+                response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), language, id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

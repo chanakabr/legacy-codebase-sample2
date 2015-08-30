@@ -24,13 +24,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the household model       
         /// </summary>        
-        /// <param name="household_id">Household identifier</param>
+        /// <param name="id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(int household_id, List<KalturaHouseholdWithHolder> with = null)
+        public KalturaHousehold Get(int id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
 
-            if (user.First().HouseholdID != household_id)
+            if (user.First().HouseholdID != id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
 
             if (with == null)
