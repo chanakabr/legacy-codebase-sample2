@@ -301,22 +301,31 @@ namespace TvinciRenewer
                                     eBillingProvider == ConditionalAccess.eBillingProvider.M1 ||
                                     eBillingProvider == ConditionalAccess.eBillingProvider.Offline))
                                 {
+                                    try
+                                    {
+                                        Logger.Logger.Log("MPP Renewal : DoTheJobTest ", "purchase_id:" + nPurchaseID, "TvinciRenewer");
 
-                                    ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
-                                    nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
+                                        ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                            nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
 
-                                    StringBuilder strLog = new StringBuilder();
-                                    strLog.Append(string.Format("SiteGUID : {0}", sSiteGUID));
-                                    strLog.Append(string.Format(" | price: {0}{1}", dPrice.ToString(), sCurrency));
-                                    strLog.Append(string.Format(" | Subscription Code : {0}", sSubscriptionCode));
-                                    strLog.Append(string.Format(" | Extra params : {0}", sExtraParams));
-                                    strLog.Append(string.Format(" | Prchase ID : {0}", nPurchaseID));
-                                    strLog.Append(string.Format(" | Payment number : {0}", nPaymentNumber));
-                                    strLog.Append(string.Format(" | Billing response status: {0}", oBillingResponse.m_oStatus.ToString()));
-                                    strLog.Append(string.Format(" | Billing response description : {0}", oBillingResponse.m_sStatusDescription));
-                                    strLog.Append(string.Format(" | Billing response reciept: {0}.", oBillingResponse.m_sRecieptCode));
+                                        StringBuilder strLog = new StringBuilder();
+                                        strLog.Append(string.Format("SiteGUID : {0}", sSiteGUID));
+                                        strLog.Append(string.Format(" | price: {0}{1}", dPrice.ToString(), sCurrency));
+                                        strLog.Append(string.Format(" | Subscription Code : {0}", sSubscriptionCode));
+                                        strLog.Append(string.Format(" | Extra params : {0}", sExtraParams));
+                                        strLog.Append(string.Format(" | Prchase ID : {0}", nPurchaseID));
+                                        strLog.Append(string.Format(" | Payment number : {0}", nPaymentNumber));
+                                        strLog.Append(string.Format(" | Billing response status: {0}", oBillingResponse.m_oStatus.ToString()));
+                                        strLog.Append(string.Format(" | Billing response description : {0}", oBillingResponse.m_sStatusDescription));
+                                        strLog.Append(string.Format(" | Billing response reciept: {0}.", oBillingResponse.m_sRecieptCode));
 
-                                    Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJobTest ", strLog.ToString(), "TvinciRenewer");
+                                        Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJobTest ", strLog.ToString(), "TvinciRenewer");
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Logger.Log("Error (CA)", string.Format("u:{0}, s:{1}, pid:{2}, ex:{3}, st:{4}", sSiteGUID, sSubscriptionCode, nPurchaseID, ex.Message, ex.StackTrace), "TvinciRenewer");
+                                    }
                                 }
                             }
                             #endregion
