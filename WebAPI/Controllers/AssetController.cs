@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG channel identifier.
+        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
         /// <param name="order_by">Ordering the channel</param>
@@ -47,43 +47,88 @@ namespace WebAPI.Controllers
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (filter.IDs == null || filter.IDs.Count == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
+            }
+            
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                List<int> ids = null;
 
                 switch (filter.ReferenceType)
                 {
                     case KalturaCatalogReferenceBy.media:
+                        {
+                            try
+                            {
+                                ids = filter.IDs.Select(x => int.Parse(x.value)).ToList();
+                            }
+                            catch (Exception)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is media");
+                            }
 
-                        response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                            0, 1, filter.IDs.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                0, 1, ids, with.Select(x => x.type).ToList());
 
-                        // if no response - return not found status 
-                        if (response == null || response.Objects == null || response.Objects.Count == 0)
-                            throw new NotFoundException();
-
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                                throw new NotFoundException();
+                        }
                         break;
                     case KalturaCatalogReferenceBy.channel:
+                        {
+                            int channelID;
+                            if (!int.TryParse(filter.IDs.First().value, out channelID))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is channel");
+                            }
 
-                        int channelID = filter.IDs.First().value;
-                        if (channelID == 0)
-                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
-
-                        response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
-                            filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
-
+                            response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
+                                filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+                        }
                         break;
-                    case KalturaCatalogReferenceBy.epg_channel:
-                        //TODO:Anat, Irena
+                    case KalturaCatalogReferenceBy.epg_internal:
+                        {
+                            try
+                            {
+                                ids = filter.IDs.Select(x => int.Parse(x.value)).ToList();
+                            }
+                            catch (Exception)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is epg_internal");
+                            }
 
-                      //  response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                      //0, 1, new List<int>(filter.IDs.Select(x => x.value).ToList()), filter.StartTime, filter.EndTime, with.Select(x => x.type).ToList());
+                            response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                               0, 1, ids, with.Select(x => x.type).ToList());
 
-                      //  // if no response - return not found status 
-                      //  if (response == null || response.Objects == null || response.Objects.Count == 0)
-                      //      throw new NotFoundException();
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
 
+                        }
+                        break;
+                    case KalturaCatalogReferenceBy.epg_external:
+                        {
+                            response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                  0, 1, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+                        }
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
@@ -98,7 +143,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media or EPG asset by media / EPG identifier
+        /// Returns media or EPG asset by media / EPG internal or external identifier
         /// </summary>
         /// <param name="id">Asset identifier</param>                
         /// <param name="type">Asset type</param>                
@@ -108,15 +153,15 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfo Get(int id, KalturaAssetType type, List<KalturaCatalogWithHolder> with = null, string language = null)
+        public KalturaAssetInfo Get(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfo response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (id <= 0)
+            if (string.IsNullOrEmpty(id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
             }
 
             if (with == null)
@@ -126,35 +171,63 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                if (type == KalturaAssetType.media)
+                switch (type)
                 {
-                    var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                        0, 1, new int[] { id }.ToList(), with.Select(x => x.type).ToList());
+                    case KalturaAssetReferenceType.media:
+                        {
+                            int mediaId;
+                            if (!int.TryParse(id, out mediaId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is media");
+                            }
+                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
-                    // if no response - return not found status 
-                    if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                    {
-                        throw new NotFoundException();
-                    }
+                            // if no response - return not found status 
+                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
 
-                    response = mediaRes.Objects.First();
-                }
-                else if (type == KalturaAssetType.epg)
-                {
-                    var epgRes = ClientsManager.CatalogClient().GetEPGByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                      0, 1, new int[] { id }.ToList(), with.Select(x => x.type).ToList());
+                            response = mediaRes.Objects.First();
+                        }
+                        break;
+                    case KalturaAssetReferenceType.epg_internal:
+                        {
+                            int epgId;
+                            if (!int.TryParse(id, out epgId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is epg_internal");
+                            }
 
-                    // if no response - return not found status 
-                    if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
-                    {
-                        throw new NotFoundException();
-                    }
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                               0, 1, new List<int> { epgId }, with.Select(x => x.type).ToList());
 
-                    response = epgRes.Objects.First();
-                }
-                else if (type == KalturaAssetType.recording)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
+                            // if no response - return not found status 
+                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                            response = epgRes.Objects.First();
+                        }
+                        break;
+                    case KalturaAssetReferenceType.epg_external:
+                        {
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                              0, 1, new List<string> { id }, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                            response = epgRes.Objects.First();
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (ClientException ex)

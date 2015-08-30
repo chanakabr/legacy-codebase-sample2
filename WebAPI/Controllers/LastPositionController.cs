@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
 
                 switch (filter.Type)
                 {
-                    case KalturaAssetType.media:
+                    case KalturaLastPositionAssetType.media:
                         {
                             if (filter.By == KalturaEntityReferenceBy.household)
                             {
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
 
                         }
                         break;
-                    case KalturaAssetType.recording:
+                    case KalturaLastPositionAssetType.recording:
                         {
                             if (filter.By == KalturaEntityReferenceBy.household)
                             {

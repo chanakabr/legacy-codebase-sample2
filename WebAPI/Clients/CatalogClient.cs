@@ -449,7 +449,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetEPGByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -493,9 +493,55 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaEPGChannelAssets GetEPGByChannelIds(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, DateTime startTime, DateTime endTime, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds, List<KalturaCatalogWith> with)
         {
-            KalturaEPGChannelAssets result = new KalturaEPGChannelAssets();
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // build request
+            EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                pids = epgIds,
+                eLang = Catalog.Language.English,
+                duration = 0
+            };
+
+            EpgProgramsResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+
+                var list = CatalogConvertor.ConvertEPGChannelProgrammeObjectToAssetsInfo(groupId, epgProgramResponse.lEpgList, with);
+
+                // build AssetInfoWrapper response
+                if (list != null)
+                {
+                    result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        internal List<KalturaEPGChannelAssets> GetEPGByChannelIds(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, DateTime startTime, DateTime endTime, List<KalturaCatalogWith> with)
+        {
+            List<KalturaEPGChannelAssets> result = new List<KalturaEPGChannelAssets>();
 
             // build request
             EpgRequest request = new EpgRequest()
@@ -520,23 +566,16 @@ namespace WebAPI.Clients
 
             EpgResponse epgProgramResponse = null;
 
-            //TODo: ANat, Irena
-            //var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
-            //if (isBaseResponse && epgProgramResponse != null)
-            //{
+            var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
+            if (isBaseResponse && epgProgramResponse != null)
+            {
+                var list = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
 
-            //    var list = CatalogConvertor.ConvertBaseObjectsToAssetsInfo(groupId, epgProgramResponse.programsPerChannel[0].m_lEpgProgram, with);
-
-            //    // build AssetInfoWrapper response
-            //    if (list != null)
-            //    {
-            //        result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
-            //    }
-            //    else
-            //    {
-            //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            //    }
-            //}
+                if (list == null)
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
 
             return result;
 

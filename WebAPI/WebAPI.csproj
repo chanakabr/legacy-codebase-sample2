@@ -715,12 +715,14 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetType.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetReferenceType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
     <Compile Include="Models\Catalog\KalturaBaseChannel.cs" />
@@ -879,6 +881,7 @@
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogWith.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -970,7 +973,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="ObjectsConvertor\Mapping\Utils\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

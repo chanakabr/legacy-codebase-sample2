@@ -10,6 +10,7 @@ using WebAPI.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -26,15 +27,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<KalturaAssetType, WebAPI.Catalog.StatsType>().ConstructUsing((KalturaAssetType type) =>
+            Mapper.CreateMap<AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
             {
                 WebAPI.Catalog.StatsType result;
                 switch (type)
                 {
-                    case KalturaAssetType.media:
+                    case AssetType.media:
                         result = WebAPI.Catalog.StatsType.MEDIA;
                         break;
-                    case KalturaAssetType.epg:
+                    case AssetType.epg:
                         result = WebAPI.Catalog.StatsType.EPG;
                         break;
                     default:

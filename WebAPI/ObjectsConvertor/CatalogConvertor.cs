@@ -8,6 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor
 {
@@ -32,12 +33,12 @@ namespace WebAPI.ObjectsConvertor
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
                     if (mediaBaseListIds != null && mediaBaseListIds.Count > 0)
-                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.media));
+                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(AssetType.media));
 
                     // get EPG IDs for assets statistics
                     List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
                     if (epgBaseListIds != null && epgBaseListIds.Count > 0)
-                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.epg));
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.epg));
                 }
             }
             foreach (var item in assetBaseList)
@@ -74,6 +75,50 @@ namespace WebAPI.ObjectsConvertor
             return finalResults;
         }
 
+        public static List<KalturaAssetInfo> ConvertEPGChannelProgrammeObjectToAssetsInfo(int groupId, List<EPGChannelProgrammeObject> epgPrograms, List<KalturaCatalogWith> withList)
+        {
+            List<KalturaAssetInfo> finalResults = new List<KalturaAssetInfo>();
+
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
+
+            if (withList != null)
+            {
+                if (withList.Contains(KalturaCatalogWith.stats))
+                {
+                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
+                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+
+                    // get EPG IDs for assets statistics
+                    List<int> epgBaseListIds = epgPrograms.Select(e => (int)e.EPG_ID).ToList();
+                    if (epgBaseListIds != null && epgBaseListIds.Count > 0)
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.epg));
+                }
+            }
+            foreach (var item in epgPrograms)
+            {
+                var assetInfo = Mapper.Map<KalturaAssetInfo>(item);
+
+                if (withList != null)
+                {
+                    // get images data
+                    if (withList.Contains(KalturaCatalogWith.images))
+                    {
+                        assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(item.EPG_PICTURES);
+                    }
+
+                    // get statistics data
+                    if (withList.Contains(KalturaCatalogWith.stats))
+                    {
+                        assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                    }
+                }
+                finalResults.Add(assetInfo);
+            }
+
+            return finalResults;
+        }
+
         public static List<KalturaIAssetable> ConvertBaseObjectsToSlimAssetsInfo(int groupId, List<BaseObject> assetBaseList, List<KalturaCatalogWith> with)
         {
             List<KalturaIAssetable> result = new List<KalturaIAssetable>();
@@ -91,12 +136,12 @@ namespace WebAPI.ObjectsConvertor
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
                     if (mediaBaseListIds != null && mediaBaseListIds.Count > 0)
-                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.media));
+                        mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, Mapper.Map<StatsType>(AssetType.media));
 
                     // get EPG IDs for assets statistics
                     List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
                     if (epgBaseListIds != null && epgBaseListIds.Count > 0)
-                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(KalturaAssetType.epg));
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.epg));
                 }
             }
 
@@ -192,13 +237,10 @@ namespace WebAPI.ObjectsConvertor
 
             foreach (var epgResult in epgResultsList)
             {
-
                 channel = new KalturaEPGChannelAssets();
                 channel.TotalCount = epgResult.m_nTotalItems;
                 channel.ChannelID = epgResult.m_nChannelID;
-                //TODO: Anat, Irena
-                //channel.Assets = ConvertBaseObjectsToAssetsInfo(groupId, epgResult.m_lEpgProgram, withList);
-
+                channel.Assets = ConvertEPGChannelProgrammeObjectToAssetsInfo(groupId, epgResult.m_lEpgProgram, withList);
 
                 finalResults.Add(channel);
             }

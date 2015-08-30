@@ -32,7 +32,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "ids")]
         [XmlArray(ElementName = "ids")]
         [XmlArrayItem(ElementName = "item")]        
-        public List<KalturaIntegerValue> IDs { get; set; }
+        public List<KalturaStringValue> IDs { get; set; }
 
         /// <summary>
         /// Reference type of the given IDs
@@ -57,22 +57,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "cut_with")]
         [XmlElement("cut_with")]
         public KalturaCutWith cutWith { get; set; }
-
-
-        /// <summary>
-        /// Start Time
-        /// </summary>
-        [DataMember(Name = "start_time")]
-        [JsonProperty(PropertyName = "start_time")]
-        [XmlElement("start_time")]
-        public DateTime StartTime { get; set; }
-
-        /// <summary>
-        /// End Time
-        /// </summary>
-        [DataMember(Name = "end_time")]
-        [JsonProperty(PropertyName = "end_time")]
-        [XmlElement("end_time")]
-        public DateTime EndTime { get; set; }
     }
 }

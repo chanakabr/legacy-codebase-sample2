@@ -14,8 +14,8 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Assets
         /// </summary>
-        [DataMember(Name = "assets")]
-        [JsonProperty(PropertyName = "assets")]
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")]
         public List<KalturaAssetInfo> Assets { get; set; }

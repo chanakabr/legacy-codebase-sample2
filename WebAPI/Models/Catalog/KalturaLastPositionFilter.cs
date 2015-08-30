@@ -39,7 +39,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public KalturaAssetType Type { get; set; }
+        public KalturaLastPositionAssetType Type { get; set; }
 
         /// <summary>
         /// Reference type to filter by

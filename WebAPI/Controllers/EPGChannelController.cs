@@ -21,46 +21,48 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media by ID
+        /// Returns EPG channel programs filtered by channel identifiers and dates
         /// </summary>
         /// <param name="filter">Filtering the epg channel request</param>        
         /// <param name="order_by">Ordering the channel</param>
-        /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaEPGChannelAssets List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+        public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
              string language = null)
         {
-            KalturaEPGChannelAssets response = null;
+            List<KalturaEPGChannelAssets> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-              0, 1, new List<int>(filter.IDs.Select(x => x.value).ToList()), filter.StartTime, filter.EndTime, with.Select(x => x.type).ToList());
+                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0, 0, 
+                    new List<int>(filter.IDs.Select(x => x.value).ToList()), filter.StartTime, filter.EndTime, with.Select(x => x.type).ToList());
 
-                //// if no response - return not found status 
-                //if (response == null || response.Objects == null || response.Objects.Count == 0)
-                //    throw new NotFoundException();
-
-
+                // if no response - return not found status 
+                if (response == null || response.Count == 0)
+                    throw new NotFoundException();
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return new KalturaEPGChannelAssetsListResponse() { Channels = response, TotalCount = response.Count };
         }
     }
 }

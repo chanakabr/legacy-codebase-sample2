@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.ObjectsConvertor.Mapping.Utils
 {
-    public enum KalturaAssetType
+    public enum AssetType
     {
         media,
         epg,
-        recording 
     }
 }
