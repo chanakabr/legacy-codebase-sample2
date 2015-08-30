@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the details and status of the received coupon code
         /// </summary>
-        /// <remarks>Possible status codes:      
+        /// <remarks>Possible status codes: Coupon not valid = 3020
         ///    </remarks>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]

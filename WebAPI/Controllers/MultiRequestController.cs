@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
         /// </summary>
         ///
         /// <remarks>Example:<br />
-        ///<![CDATA[ [{"service": "Users", "action": "GetUsersData", "parameters": ["partner_id=215", "user_id=425421"] }, {"service": "Households", "action": "GetHousehold", "parameters": ["partner_id=215", "household_id=0:household_id"] }, {"service": "Households", "action": "GetParentalPIN", "parameters": ["partner_id=215", "household_id=1:id"] } ] ]]>
+        ///<![CDATA[ [{"service": "Users", "action": "GetUsersData", "parameters": ["partnerId=215", "user_id=425421"] }, {"service": "Households", "action": "GetHousehold", "parameters": ["partnerId=215", "household_id=0:household_id"] }, {"service": "Households", "action": "GetParentalPIN", "parameters": ["partnerId=215", "household_id=1:id"] } ] ]]>
         ///</remarks>
         /// <param name="request">Sequential API calls' definitions</param>
         /// <returns></returns>

@@ -19,12 +19,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieves social user data
         /// </summary>
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
         [Route("getByToken"), HttpPost]
-        public KalturaSocialResponse GetByToken(int partner_id, string token, KalturaSocialNetwork type)
+        public KalturaSocialResponse GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();            
 
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
                 switch (type)
                 {
                     case KalturaSocialNetwork.facebook:
-                        response = ClientsManager.SocialClient().FBUserData(partner_id, token);
+                        response = ClientsManager.SocialClient().FBUserData(partnerId, token);
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
@@ -55,13 +55,13 @@ namespace WebAPI.Controllers
         /// Registers new user by social credentials
         /// </summary>
         /// <param name="token">social token</param>
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <param name="type">Social network type</param>
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
         [Route("register"), HttpPost]        
-        public KalturaSocialResponse Register(int partner_id, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
+        public KalturaSocialResponse Register(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
                 switch (type)
                 {
                     case KalturaSocialNetwork.facebook:
-                        response = ClientsManager.SocialClient().FBUserRegister(partner_id, token, extraParameters, ip);
+                        response = ClientsManager.SocialClient().FBUserRegister(partnerId, token, extraParameters, ip);
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
@@ -113,10 +113,10 @@ namespace WebAPI.Controllers
         /// <param name="password">Password</param>
         /// <param name="social_id">external social identifier</param>
         /// <param name="type">Social network type</param>
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
         [Route("merge"), HttpPost]        
-        public KalturaSocialResponse Merge(int partner_id, string token, string username, string password, string social_id, KalturaSocialNetwork type)
+        public KalturaSocialResponse Merge(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
                 switch (type)
                 {
                     case KalturaSocialNetwork.facebook:
-                        response = ClientsManager.SocialClient().FBUserMerge(partner_id, token, username, password, social_id);
+                        response = ClientsManager.SocialClient().FBUserMerge(partnerId, token, username, password, social_id);
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
@@ -185,10 +185,10 @@ namespace WebAPI.Controllers
         /// Returns the social application configuration for the partner
         /// </summary>        
         /// <param name="type">Social network type</param>
-        /// <param name="partner_id">Partner identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         [Route("config"), HttpPost]
-        public KalturaSocialConfig Config(int partner_id, KalturaSocialNetwork type)
+        public KalturaSocialConfig Config(int partnerId, KalturaSocialNetwork type)
         {
             KalturaSocialConfig response = null;            
 
@@ -198,7 +198,7 @@ namespace WebAPI.Controllers
                 switch (type)
                 {
                     case KalturaSocialNetwork.facebook:
-                        response = ClientsManager.SocialClient().GetFacebookConfig(partner_id);
+                        response = ClientsManager.SocialClient().GetFacebookConfig(partnerId);
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
