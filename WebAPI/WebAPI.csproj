@@ -672,6 +672,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\EPGChannelController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
@@ -714,6 +715,8 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
+    <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />

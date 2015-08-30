@@ -11,6 +11,7 @@ namespace WebAPI.Models.Catalog
     public enum KalturaCatalogReferenceBy
     {
         media = 0,
-        channel = 1
+        channel = 1,        
+        epg_channel = 2
     }
 }

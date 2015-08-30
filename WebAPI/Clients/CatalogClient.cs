@@ -493,6 +493,56 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaEPGChannelAssets GetEPGByChannelIds(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, DateTime startTime, DateTime endTime, List<KalturaCatalogWith> with)
+        {
+            KalturaEPGChannelAssets result = new KalturaEPGChannelAssets();
+
+            // build request
+            EpgRequest request = new EpgRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userID,
+                domainId = domainId,
+                m_nChannelIDs = epgIds,
+                m_dStartDate = startTime,
+                m_dEndDate = endTime
+            };
+
+            EpgResponse epgProgramResponse = null;
+
+            //TODo: ANat, Irena
+            //var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
+            //if (isBaseResponse && epgProgramResponse != null)
+            //{
+
+            //    var list = CatalogConvertor.ConvertBaseObjectsToAssetsInfo(groupId, epgProgramResponse.programsPerChannel[0].m_lEpgProgram, with);
+
+            //    // build AssetInfoWrapper response
+            //    if (list != null)
+            //    {
+            //        result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+            //    }
+            //    else
+            //    {
+            //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            //    }
+            //}
+
+            return result;
+
+        }
+
+
         public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
         {
             WebAPI.Models.Catalog.KalturaChannel result = null;
@@ -595,5 +645,7 @@ namespace WebAPI.Clients
 
             return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
         }
+
+
     }
 }

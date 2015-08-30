@@ -184,5 +184,27 @@ namespace WebAPI.ObjectsConvertor
             }
             return result;
         }
+
+        public static List<KalturaEPGChannelAssets> ConvertEPGChannelAssets(int groupId, List<EpgResultsObj> epgResultsList, List<KalturaCatalogWith> withList)
+        {
+            List<KalturaEPGChannelAssets> finalResults = new List<KalturaEPGChannelAssets>();
+            KalturaEPGChannelAssets channel = null;
+
+            foreach (var epgResult in epgResultsList)
+            {
+
+                channel = new KalturaEPGChannelAssets();
+                channel.TotalCount = epgResult.m_nTotalItems;
+                channel.ChannelID = epgResult.m_nChannelID;
+                //TODO: Anat, Irena
+                //channel.Assets = ConvertBaseObjectsToAssetsInfo(groupId, epgResult.m_lEpgProgram, withList);
+
+
+                finalResults.Add(channel);
+            }
+
+            return finalResults;
+        }
+
     }
 }

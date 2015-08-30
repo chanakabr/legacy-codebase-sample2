@@ -70,8 +70,19 @@ namespace WebAPI.Controllers
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "channel_id cannot be 0");
 
                         response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(), 
-                            filter.FilterTags.Select(x=> new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+                            pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
+                            filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+
+                        break;
+                    case KalturaCatalogReferenceBy.epg_channel:
+                        //TODO:Anat, Irena
+
+                      //  response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                      //0, 1, new List<int>(filter.IDs.Select(x => x.value).ToList()), filter.StartTime, filter.EndTime, with.Select(x => x.type).ToList());
+
+                      //  // if no response - return not found status 
+                      //  if (response == null || response.Objects == null || response.Objects.Count == 0)
+                      //      throw new NotFoundException();
 
                         break;
                     default:
