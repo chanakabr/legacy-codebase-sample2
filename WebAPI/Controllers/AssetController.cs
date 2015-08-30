@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media by ID
+        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG channel identifier.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
         /// <param name="order_by">Ordering the channel</param>
@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media by media identifier       
+        /// Returns media or EPG asset by media / EPG identifier
         /// </summary>
         /// <param name="id">Asset identifier</param>                
         /// <param name="type">Asset type</param>                
@@ -140,6 +140,10 @@ namespace WebAPI.Controllers
                     }
 
                     response = epgRes.Objects.First();
+                }
+                else if (type == KalturaAssetType.recording)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
                 }
             }
             catch (ClientException ex)

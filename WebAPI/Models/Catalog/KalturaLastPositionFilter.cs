@@ -25,20 +25,20 @@ namespace WebAPI.Models.Catalog
         public string UDID { get; set; }
 
         /// <summary>
-        /// media identifier
+        /// Asset identifier
         /// </summary>
-        [DataMember(Name = "media_id")]
-        [JsonProperty(PropertyName = "media_id")]
-        [XmlElement(ElementName = "media_id")]
-        public int? MediaID { get; set; }
+        [DataMember(Name = "asset_id")]
+        [JsonProperty(PropertyName = "asset_id")]
+        [XmlElement(ElementName = "asset_id")]
+        public string AssetID { get; set; }
 
         /// <summary>
-        /// nPVR identifier
+        /// Asset type
         /// </summary>
-        [DataMember(Name = "npvr_id")]
-        [JsonProperty(PropertyName = "npvr_id")]
-        [XmlElement(ElementName = "npvr_id")]
-        public string NPVRID { get; set; }
+        [DataMember(Name = "asset_type")]
+        [JsonProperty(PropertyName = "asset_type")]
+        [XmlElement(ElementName = "asset_type")]
+        public KalturaAssetType AssetType { get; set; }
 
         /// <summary>
         /// Reference type to filter by

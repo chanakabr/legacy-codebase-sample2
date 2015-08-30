@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// Returns the household model       
         /// </summary>        
         /// <param name="id">Household identifier</param>
-        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         /// <param name="description">Description for the household</param>
         /// <param name="master_user_id">Identifier of the user that will become the master of the created household</param>
         /// <remarks>Possible status codes: 
-        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
+        /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaHousehold Add(string name, string description, string master_user_id)

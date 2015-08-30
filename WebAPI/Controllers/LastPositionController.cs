@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         {
             KalturaLastPositionListResponse response = null;
 
-            if (filter.MediaID == null && string.IsNullOrEmpty(filter.NPVRID))
+            if (string.IsNullOrEmpty(filter.AssetID))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "at least one of media_id and npvr_id must not be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -37,15 +37,45 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                switch (filter.By)
+                switch (filter.AssetType)
                 {
-                    case KalturaEntityReferenceBy.household:
-                        response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                            filter.UDID, filter.MediaID, filter.NPVRID);
+                    case KalturaAssetType.media:
+                        {
+                            if (filter.By == KalturaEntityReferenceBy.household)
+                            {
+                                int mediaId;
+                                if (!int.TryParse(filter.AssetID, out mediaId))
+                                {
+                                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for type media");
+                                }
+                                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                                    filter.UDID, mediaId, null);
+                            }
+                            else
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
+                            }
+
+                        }
+                        break;
+                    case KalturaAssetType.recording:
+                        {
+                            if (filter.By == KalturaEntityReferenceBy.household)
+                            {
+                                response = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                                    filter.UDID, null, filter.AssetID);
+                            }
+                            else
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
+                            }
+                        }
                         break;
                     default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
+                        break;
                 }
+                
             }
             catch (ClientException ex)
             {
