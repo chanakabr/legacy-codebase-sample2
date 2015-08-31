@@ -1010,18 +1010,16 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal Dictionary<string,int> GetErrorCodesDictionary(int groupId, string userId, long epgId, int domainId)
+        internal Dictionary<string,int> GetErrorCodesDictionary()
         {
             StatusErrorCodesResponse response = null;
             Dictionary<string, int> codes = new Dictionary<string, int>();
-
-            Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetErrorCodesDictionary(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Api.GetErrorCodesDictionary("api_1", "11111");
                 }
             }
             catch (Exception ex)
