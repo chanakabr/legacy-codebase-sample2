@@ -10,6 +10,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Models.General;
 
 namespace WebAPI
@@ -142,6 +143,15 @@ namespace WebAPI
 
                 context.Response.Write("\t</enum>\n");
             }
+
+            //Hardcoding the status codes
+            var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
+            context.Response.Write("\t<enum name='KalturaStatusCodes' enumType='int'>\n");
+            foreach (var kv in statusCodes)            
+                context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", kv.Key, kv.Value));
+            
+            context.Response.Write("\t</enum>\n");
+
             context.Response.Write("</enums>\n");
 
             //Running on classes
@@ -237,8 +247,8 @@ namespace WebAPI
                         {
                             for (int i = 0; i < classNode[0].ChildNodes.Count; i++)
                             {
-                                if (classNode[0].ChildNodes[i].Name == "summary")                                
-                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();                                                                    
+                                if (classNode[0].ChildNodes[i].Name == "summary")
+                                    desc = classNode[0].ChildNodes[i].InnerText.Trim();
 
                                 if (classNode[0].ChildNodes[i].Name == "remarks")
                                     remarks = classNode[0].ChildNodes[i].InnerText.Trim();
@@ -307,11 +317,11 @@ namespace WebAPI
         }
 
         private string getTypeAndArray(Type type)
-        {            
+        {
             //Handling nullables
             if (Nullable.GetUnderlyingType(type) != null)
             {
-                type = type.GetGenericArguments()[0];               
+                type = type.GetGenericArguments()[0];
             }
 
             //Handling Enums
@@ -390,7 +400,7 @@ namespace WebAPI
 
                     var descs = x.SelectNodes(string.Format("//member[@name='P:{0}.{1}']//summary",
                                 className, pi.Name));
-                    
+
                     string pdesc = "";
                     if (descs.Count > 0)
                         pdesc = descs[0].InnerText.Trim().Replace('\'', '"');
