@@ -194,6 +194,7 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="Response\IdsResponse.cs" />
+    <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
     <Compile Include="Rules\GenericRuleResponse.cs" />
     <Compile Include="Rules\PinResponse.cs" />
