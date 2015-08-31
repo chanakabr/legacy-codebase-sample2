@@ -74,6 +74,16 @@
                     _.each(swashbuckleConfig.customScripts, function (script) {
                         $.getScript(script);
                     });
+
+                    var statusURL = swashbuckleConfig.rootUrl + "/swagger.ashx?statuses=1";
+                    jQuery.get(statusURL, function (data) {
+                        for (var key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                var value = data[key];
+                                $("#statuses").append("<tr><td>" + key + "</td><td>" + value + "</td></tr>");
+                            }
+                        }
+                    });
                 },
                 onFailure: function (data) {
                     log("Unable to Load SwaggerUI");
@@ -112,16 +122,6 @@
                     console.log.apply(console, arguments);
                 }
             }
-
-            var statusURL = swashbuckleConfig.rootUrl + "/swagger.ashx?statuses=1";
-            jQuery.get(statusURL, function (data) {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        var value = data[key];
-                        $("#statuses").append("<tr><td>" + key + "</td><td>" + value + "</td></tr>");
-                    }
-                }
-            });
         });
     </script>
 </head>
