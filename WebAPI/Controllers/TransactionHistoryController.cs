@@ -18,13 +18,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Gets user or household transaction history.        
         /// </summary>        
-        /// <param name="filter">Page size and index, filter by household or user</param>        
-        /// <param name="start_date">Filter transactions later than specific date</param>        
-        /// <param name="end_date">Filter transactions earlier than specific date</param>        
+        /// <param name="filter">Page size and index, filter by household or user</param>   
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null, DateTime? start_date = null, DateTime? end_date = null)
+        public KalturaBillingTransactionListResponse List(KalturaTransactionsFilter filter = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 
@@ -51,14 +49,14 @@ namespace WebAPI.Controllers
                         DateTime startDate = new DateTime(1753, 1, 1);
                         DateTime endDate = DateTime.MaxValue;
 
-                        if (start_date.HasValue)
+                        if (filter.StartDate.HasValue)
                         {
-                            startDate = start_date.Value;
+                            startDate = filter.StartDate.Value;
                         }
 
-                        if (end_date.HasValue)
+                        if (filter.EndDate.HasValue)
                         {
-                            endDate = end_date.Value;
+                            endDate = filter.EndDate.Value;
                         }
 
                         response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
