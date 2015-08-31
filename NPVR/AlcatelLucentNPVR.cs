@@ -1025,16 +1025,21 @@ namespace NPVR
                     {
                         if (!entry.Thumbnail.ToLower().StartsWith("http://"))
                         {
-                            SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[groupID]);
-                            if (obj.EPG_PICTURES.Count > 0)
+                            if (picGroupTree.ContainsKey(groupID))
                             {
-                                obj.PIC_URL = obj.EPG_PICTURES[0].Url;
+                                SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[groupID]);
+                                if (obj.EPG_PICTURES.Count > 0)
+                                {
+                                    obj.PIC_URL = obj.EPG_PICTURES[0].Url;
+                                }
+                            }
+                            else
+                            {
+                                log.Debug("NPVRPics - " + string.Format("picGroupTree[{0}]: not exists", groupID));
                             }
                         }
 
                     }
-
-
 
                     obj.GROUP_ID = groupID.ToString();
                     obj.IS_ACTIVE = "true";
@@ -1053,10 +1058,15 @@ namespace NPVR
 
         private void SetEpgPictures(Dictionary<int, KeyValuePair<string, string>> ratioDic, RecordedEPGChannelProgrammeObject obj, List<EpgPicture> pictures)
         {
+            if (pictures == null || pictures.Count == 0)
+            {
+                log.Debug("SetEpgPictures - " + string.Format("pictures is null or empty"));
+                return;
+            }
+
             int rationId = 0;
             string picName = string.Empty;
             string suffix = string.Empty;
-            StringBuilder urlStr = new StringBuilder();
 
             foreach (KeyValuePair<int, KeyValuePair<string, string>> pair in ratioDic)
             {
@@ -1068,12 +1078,14 @@ namespace NPVR
                 {
                     if (pic.RatioId == rationId)
                     {
+                        StringBuilder urlStr = new StringBuilder();
                         urlStr.Append(pic.Url);
                         urlStr.Append(picName);
                         urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
                         urlStr.Append(suffix);
-                        pic.Url = urlStr.ToString();
-                        obj.EPG_PICTURES.Add(pic);
+
+                        obj.EPG_PICTURES.Add(new EpgPicture() { PicHeight = pic.PicHeight, PicID = pic.PicID, PicWidth = pic.PicWidth, 
+                            Ratio = pic.Ratio, RatioId = pic.RatioId, Url = urlStr.ToString() });
                     }
                 }
             }
