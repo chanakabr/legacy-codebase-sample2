@@ -248,7 +248,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     result = Models.Pricing.KalturaCouponStatus.expired;
                     break;
                 case WebAPI.Pricing.CouponsStatus.NotActive:
-                    result = Models.Pricing.KalturaCouponStatus.not_active;
+                    result = Models.Pricing.KalturaCouponStatus.inactive;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown coupon status");

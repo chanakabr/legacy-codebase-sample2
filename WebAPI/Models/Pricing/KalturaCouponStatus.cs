@@ -11,6 +11,6 @@ namespace WebAPI.Models.Pricing
         not_exists,
         already_used,
         expired,
-        not_active
+        inactive
     }
 }
