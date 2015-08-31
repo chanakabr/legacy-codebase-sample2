@@ -48,9 +48,9 @@ namespace WebAPI.Controllers
         /// <param name="pin">Pin code</param>
         /// <remarks>Possible status codes: 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
-        [Route("registerByPin"), HttpPost]
+        [Route("addByPin"), HttpPost]
         [ApiAuthorize]
-        public KalturaDevice RegisterByPin(string device_name, string pin)
+        public KalturaDevice AddByPin(string device_name, string pin)
         {
             KalturaDevice device = null;
 
