@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Controllers;
+using WebAPI.Managers.Models;
 
 namespace WebAPI
 {
@@ -22,6 +23,15 @@ namespace WebAPI
             if (HttpContext.Current.Request["statuses"] != null)
             {
                 var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
+
+                foreach (var ee in Enum.GetValues(typeof(StatusCode)))
+                {
+                    int eVal = (int)Enum.Parse(typeof(StatusCode), ee.ToString());
+                    //Prevents duplicates
+                    if (statusCodes.Where(xx => xx.Value == eVal).Count() == 0)
+                        statusCodes.Add(ee.ToString(), eVal);                        
+                }
+
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(statusCodes);
                 context.Response.ContentType = "application/json";
                 context.Response.Write(json);

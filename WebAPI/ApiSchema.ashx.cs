@@ -11,6 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
 namespace WebAPI
@@ -147,9 +148,16 @@ namespace WebAPI
             //Hardcoding the status codes
             var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
             context.Response.Write("\t<enum name='KalturaStatusCodes' enumType='int'>\n");
-            foreach (var kv in statusCodes)            
+            foreach (var kv in statusCodes)
                 context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", kv.Key, kv.Value));
-            
+            foreach (var ee in Enum.GetValues(typeof(StatusCode)))
+            {
+                int eVal = (int)Enum.Parse(typeof(StatusCode), ee.ToString());
+                //Prevents duplicates
+                if (statusCodes.Where(xx => xx.Value == eVal).Count() == 0)
+                    context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", ee.ToString(), eVal));
+            }
+
             context.Response.Write("\t</enum>\n");
 
             context.Response.Write("</enums>\n");
