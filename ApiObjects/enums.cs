@@ -83,6 +83,8 @@ namespace ApiObjects
     public enum eObjectType
     {
         [EnumMember]
+        Unknown = -1,
+        [EnumMember]
         Media,
         [EnumMember]
         Channel,
