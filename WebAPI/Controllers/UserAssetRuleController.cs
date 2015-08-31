@@ -21,25 +21,29 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="asset_id">Asset identifier</param>
-        /// <param name="asset_type">Asset type</param>        
+        /// <param name="filter">Filter</param>
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("List"), HttpPost]
         [ApiAuthorize]
-        public KalturaGenericRuleListResponse List(long asset_id, int asset_type, string udid = null)
+        public KalturaGenericRuleListResponse List(KalturaGenericRuleFilter filter, string udid = null)
         {
             List<KalturaGenericRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
-            if (asset_id == 0)
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (filter.AssetId == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), asset_type))
+            if (!Enum.IsDefined(typeof(AssetType), filter.AssetType))
             {
                  throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }
@@ -47,15 +51,15 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                if ((AssetType)asset_type == AssetType.epg)
+                if ((AssetType)filter.AssetType == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if ((AssetType)asset_type == AssetType.media)
+                else if ((AssetType)filter.AssetType == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, asset_id, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 }
             }
             catch (ClientException ex)

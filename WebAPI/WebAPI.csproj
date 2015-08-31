@@ -713,6 +713,7 @@
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
+    <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
