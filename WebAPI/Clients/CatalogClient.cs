@@ -569,9 +569,9 @@ namespace WebAPI.Clients
             var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
             if (isBaseResponse && epgProgramResponse != null)
             {
-                var list = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
+                result = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
 
-                if (list == null)
+                if (result == null)
                 {
                     throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
                 }
