@@ -64,6 +64,8 @@ namespace WebAPI.Controllers
                     allUserIds.AddRange(masterUserIds);
                     allUserIds.AddRange(defaultUserIds);
                     allUserIds.AddRange(pendingUserIds);
+                    allUserIds = allUserIds.Distinct().ToList();
+
 
                     //get users
                     List<KalturaOTTUser> users = null;

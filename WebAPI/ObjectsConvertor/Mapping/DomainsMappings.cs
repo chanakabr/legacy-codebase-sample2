@@ -43,10 +43,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
             //Domain
             Mapper.CreateMap<WebAPI.Domains.Domain, KalturaHousehold>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nDomainID))
+                .ForMember(dest => dest.DefaultUsers, opt => opt.MapFrom(src => src.m_DefaultUsersIDs))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_nConcurrentLimit))
-                .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_DefaultUsersIDs))
                 .ForMember(dest => dest.DevicesLimit, opt => opt.MapFrom(src => src.m_nDeviceLimit))
                 .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nLimit))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGuid))
