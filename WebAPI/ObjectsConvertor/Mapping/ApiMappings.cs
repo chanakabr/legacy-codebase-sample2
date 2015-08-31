@@ -177,5 +177,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
+        internal static Dictionary<string, int> ConvertErrorsDictionary(KeyValuePair[] errors)
+        {
+            Dictionary<string, int> result = new Dictionary<string, int>();
+
+            foreach (var item in errors)
+            {
+                result.Add(item.key, int.Parse(item.value));
+            }
+
+            return result;
+        }
     }
 }

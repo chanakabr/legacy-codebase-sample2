@@ -985,7 +985,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, domainId, Utils.Utils.GetClientIP());
+                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -1010,5 +1010,39 @@ namespace WebAPI.Clients
         }
         #endregion
 
+        internal Dictionary<string,int> GetErrorCodesDictionary(int groupId, string userId, long epgId, int domainId)
+        {
+            StatusErrorCodesResponse response = null;
+            Dictionary<string, int> codes = new Dictionary<string, int>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetErrorCodesDictionary(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            codes = WebAPI.ObjectsConvertor.Mapping.ApiMappings.ConvertErrorsDictionary(response.ErrorsDictionary);
+
+            return codes;
+        }
     }
 }

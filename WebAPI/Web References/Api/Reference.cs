@@ -212,6 +212,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetEpgRulesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetErrorCodesDictionaryOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -522,6 +524,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event GetEpgRulesCompletedEventHandler GetEpgRulesCompleted;
+        
+        /// <remarks/>
+        public event GetErrorCodesDictionaryCompletedEventHandler GetErrorCodesDictionaryCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3773,24 +3778,25 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetEpgRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public GenericRuleResponse GetEpgRules(string userName, string webServicePassword, string siteGuid, long epgId, long domainId, string ip) {
+        public GenericRuleResponse GetEpgRules(string userName, string webServicePassword, string siteGuid, long epgId, long channelMediaId, long domainId, string ip) {
             object[] results = this.Invoke("GetEpgRules", new object[] {
                         userName,
                         webServicePassword,
                         siteGuid,
                         epgId,
+                        channelMediaId,
                         domainId,
                         ip});
             return ((GenericRuleResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long domainId, string ip) {
-            this.GetEpgRulesAsync(userName, webServicePassword, siteGuid, epgId, domainId, ip, null);
+        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long channelMediaId, long domainId, string ip) {
+            this.GetEpgRulesAsync(userName, webServicePassword, siteGuid, epgId, channelMediaId, domainId, ip, null);
         }
         
         /// <remarks/>
-        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long domainId, string ip, object userState) {
+        public void GetEpgRulesAsync(string userName, string webServicePassword, string siteGuid, long epgId, long channelMediaId, long domainId, string ip, object userState) {
             if ((this.GetEpgRulesOperationCompleted == null)) {
                 this.GetEpgRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetEpgRulesOperationCompleted);
             }
@@ -3799,6 +3805,7 @@ namespace WebAPI.Api {
                         webServicePassword,
                         siteGuid,
                         epgId,
+                        channelMediaId,
                         domainId,
                         ip}, this.GetEpgRulesOperationCompleted, userState);
         }
@@ -3807,6 +3814,37 @@ namespace WebAPI.Api {
             if ((this.GetEpgRulesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetEpgRulesCompleted(this, new GetEpgRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetErrorCodesDictionary", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public StatusErrorCodesResponse GetErrorCodesDictionary(string userName, string webServicePassword) {
+            object[] results = this.Invoke("GetErrorCodesDictionary", new object[] {
+                        userName,
+                        webServicePassword});
+            return ((StatusErrorCodesResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetErrorCodesDictionaryAsync(string userName, string webServicePassword) {
+            this.GetErrorCodesDictionaryAsync(userName, webServicePassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetErrorCodesDictionaryAsync(string userName, string webServicePassword, object userState) {
+            if ((this.GetErrorCodesDictionaryOperationCompleted == null)) {
+                this.GetErrorCodesDictionaryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetErrorCodesDictionaryOperationCompleted);
+            }
+            this.InvokeAsync("GetErrorCodesDictionary", new object[] {
+                        userName,
+                        webServicePassword}, this.GetErrorCodesDictionaryOperationCompleted, userState);
+        }
+        
+        private void OnGetErrorCodesDictionaryOperationCompleted(object arg) {
+            if ((this.GetErrorCodesDictionaryCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetErrorCodesDictionaryCompleted(this, new GetErrorCodesDictionaryCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4054,6 +4092,105 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class StatusErrorCodesResponse {
+        
+        private KeyValuePair[] errorsDictionaryField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public KeyValuePair[] ErrorsDictionary {
+            get {
+                return this.errorsDictionaryField;
+            }
+            set {
+                this.errorsDictionaryField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class GenericRule {
         
         private long idField;
@@ -4153,39 +4290,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.rulesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
             }
         }
     }
@@ -4675,39 +4779,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.groupIdField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
             }
         }
     }
@@ -6010,9 +6081,9 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
@@ -6208,13 +6279,9 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
+    public partial class ChangePasswordMailRequest : MailRequestObj {
         
         private string m_sTokenField;
-        
-        private string m_sIPField;
-        
-        private string m_sDurationField;
         
         /// <remarks/>
         public string m_sToken {
@@ -6223,26 +6290,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sIP {
-            get {
-                return this.m_sIPField;
-            }
-            set {
-                this.m_sIPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDuration {
-            get {
-                return this.m_sDurationField;
-            }
-            set {
-                this.m_sDurationField = value;
             }
         }
     }
@@ -6394,9 +6441,13 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
+    public partial class SendAdminTokenRequest : MailRequestObj {
         
         private string m_sTokenField;
+        
+        private string m_sIPField;
+        
+        private string m_sDurationField;
         
         /// <remarks/>
         public string m_sToken {
@@ -6405,6 +6456,26 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sIP {
+            get {
+                return this.m_sIPField;
+            }
+            set {
+                this.m_sIPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDuration {
+            get {
+                return this.m_sDurationField;
+            }
+            set {
+                this.m_sDurationField = value;
             }
         }
     }
@@ -12046,6 +12117,32 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((GenericRuleResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetErrorCodesDictionaryCompletedEventHandler(object sender, GetErrorCodesDictionaryCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetErrorCodesDictionaryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetErrorCodesDictionaryCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public StatusErrorCodesResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((StatusErrorCodesResponse)(this.results[0]));
             }
         }
     }
