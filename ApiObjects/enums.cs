@@ -365,4 +365,10 @@ namespace ApiObjects
         GeoBlockRules,
         EntitledAssets
     }
+
+    [Serializable]
+    public enum eRemoteTasksMission
+    {
+        BuildIPToCountry
+    }
 }
