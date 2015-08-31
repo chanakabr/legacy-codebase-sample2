@@ -161,7 +161,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "user_id")]
         [JsonProperty("user_id")]
         [XmlElement(ElementName = "user_id")]
-        public string SiteGuid
+        public string UserID
         {
             get;
             set;

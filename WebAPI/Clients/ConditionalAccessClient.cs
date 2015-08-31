@@ -672,7 +672,7 @@ namespace WebAPI.Clients
                     if (billingTransactions != null)
                     {
                         // Set site guid for each of the Kaltura objects
-                        billingTransactions.ForEach(current => current.SiteGuid = userTransactions.m_sSiteGUID);
+                        billingTransactions.ForEach(current => current.UserID = userTransactions.m_sSiteGUID);
 
                         // Add new billing transactions to client response
                         allTransactions.AddRange(billingTransactions);
