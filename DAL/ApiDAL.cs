@@ -2077,5 +2077,10 @@ namespace DAL
 
             return mediaId;
         }
+
+        public static DataTable Get_IPToCountryTable()
+        {
+            return ODBCWrapper.Utils.GetCompleteTable("ip_to_country");
+        }
     }
 }
