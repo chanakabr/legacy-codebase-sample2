@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
-        /// Credentials = 500000,       
+        ///,       
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
