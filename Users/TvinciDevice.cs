@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Users.Cache;
 
 namespace Users
 {
@@ -27,7 +28,31 @@ namespace Users
         {
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            return device.SetDeviceInfo(sDeviceName);
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName);
+
+            // in case set device Succeeded
+            // domain should be remove from the cache 
+            if (isSetSucceeded)
+            {
+                Users.BaseDomain baseDomain = null;
+                Utils.GetBaseDomainsImpl(ref baseDomain, nGroupID);
+
+                if (baseDomain != null)
+                {
+                    List<Domain> domains = baseDomain.GetDeviceDomains(sDeviceUDID);
+                    if (domains != null && domains.Count > 0)
+                    {
+                        DomainsCache oDomainCache = DomainsCache.Instance();
+                        foreach (var domain in domains)
+                        {
+                            oDomainCache.RemoveDomain(domain.m_nDomainID);
+
+                        }
+                    }
+                }
+            }
+
+            return isSetSucceeded;
         }
 
         public override DeviceResponseObject  GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
