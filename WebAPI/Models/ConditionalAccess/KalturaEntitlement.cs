@@ -45,7 +45,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public DateTime EndDate { get; set; }
+        public long EndDate { get; set; }
 
         /// <summary>
         ///Current date
@@ -53,7 +53,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "current_date")]
         [JsonProperty("current_date")]
         [XmlElement(ElementName = "current_date")]
-        public DateTime CurrentDate { get; set; }
+        public long CurrentDate { get; set; }
 
         /// <summary>
         ///The last date the item was viewed
@@ -61,7 +61,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "last_view_date")]
         [JsonProperty("last_view_date")]
         [XmlElement(ElementName = "last_view_date")]
-        public DateTime LastViewDate { get; set; }
+        public long LastViewDate { get; set; }
 
         /// <summary>
         ///Purchase date
@@ -69,7 +69,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchase_date")]
         [JsonProperty("purchase_date")]
         [XmlElement(ElementName = "purchase_date")]
-        public DateTime PurchaseDate { get; set; }
+        public long PurchaseDate { get; set; }
 
         /// <summary>
         ///Purchase identifier (for subscriptions and collections only)
@@ -125,7 +125,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "next_renewal_date")]
         [JsonProperty("next_renewal_date")]
         [XmlElement(ElementName = "next_renewal_date")]
-        public DateTime NextRenewalDate { get; set; }
+        public long NextRenewalDate { get; set; }
 
         /// <summary>
         ///Indicates whether the subscription is renewable in this purchase (only for subscription)

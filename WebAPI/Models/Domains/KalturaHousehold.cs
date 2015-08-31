@@ -53,7 +53,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "dlm_id")]
         [JsonProperty("dlm_id")]
         [XmlElement(ElementName = "dlm_id")]
-        public int DlmId { get; set; }
+        public int DLMID { get; set; }
 
         /// <summary>
         /// The max number of the devices that can be added to the household
@@ -145,7 +145,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency_next_device_action")]
         [JsonProperty("frequency_next_device_action")]
         [XmlElement(ElementName = "frequency_next_device_action")]
-        public DateTime FrequencyNextDeviceAction { get; set; }
+        public long FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
         /// The next time a user is allowed to be removed from the household (epoch)
@@ -153,7 +153,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency_next_user_action")]
         [JsonProperty("frequency_next_user_action")]
         [XmlElement(ElementName = "frequency_next_user_action")]
-        public DateTime FrequencyNextUserAction { get; set; }
+        public long FrequencyNextUserAction { get; set; }
 
         /// <summary>
         /// Household restriction

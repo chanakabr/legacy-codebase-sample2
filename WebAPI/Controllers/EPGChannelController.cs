@@ -51,7 +51,9 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0, 0, 
-                    new List<int>(filter.IDs.Select(x => x.value).ToList()), filter.StartTime, filter.EndTime, with.Select(x => x.type).ToList());
+                    new List<int>(filter.IDs.Select(x => x.value).ToList()), 
+                    SerializationUtils.ConvertFromUnixTimestamp(filter.StartTime),
+                    SerializationUtils.ConvertFromUnixTimestamp(filter.EndTime), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Count == 0)

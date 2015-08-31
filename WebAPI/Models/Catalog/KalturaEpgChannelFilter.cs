@@ -31,7 +31,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "start_time")]
         [JsonProperty(PropertyName = "start_time")]
         [XmlElement("start_time")]
-        public DateTime StartTime { get; set; }
+        public long StartTime { get; set; }
 
         /// <summary>
         /// End Time
@@ -39,6 +39,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "end_time")]
         [JsonProperty(PropertyName = "end_time")]
         [XmlElement("end_time")]
-        public DateTime EndTime { get; set; }
+        public long EndTime { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base class
     /// </summary>
-    public class KalturaOTTObject
+    public class KalturaOTTObject 
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]

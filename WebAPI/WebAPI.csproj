@@ -757,7 +757,7 @@
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
-    <Compile Include="Models\General\KalturaTranslationContainer.cs" />
+    <Compile Include="Models\General\KalturaTranslationToken.cs" />
     <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />
     <Compile Include="Models\Pricing\KalturaDiscountModule.cs" />
     <Compile Include="Models\Pricing\KalturaItemPrice.cs" />

@@ -78,6 +78,12 @@ namespace Validator
                             found = true;
                         }
                     }
+
+                    if (m.PropertyType == typeof(DateTime))
+                    {
+                        Console.WriteLine(string.Format("Model {0} is Datetime! use long", type.Name));
+                        found = true;
+                    }
                 }
             }
 

@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "update_date")]
         [JsonProperty(PropertyName = "update_date")]
         [XmlElement(ElementName = "update_date")]
-        public DateTime UpdateDate { get; set; }
+        public long UpdateDate { get; set; }
 
         /// <summary>
         /// Average score
