@@ -146,7 +146,7 @@ namespace WebAPI
 
             //Hardcoding the status codes
             var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
-            context.Response.Write("\t<enum name='KalturaErrorCodes' enumType='int'>\n");
+            context.Response.Write("\t<enum name='KalturaStatusCodes' enumType='int'>\n");
             foreach (var kv in statusCodes)            
                 context.Response.Write(string.Format("\t\t<const name='{0}' value='{1}' />\n", kv.Key, kv.Value));
             
