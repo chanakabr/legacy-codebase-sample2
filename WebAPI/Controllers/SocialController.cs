@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("getByToken"), HttpPost]
         public KalturaSocialResponse GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("register"), HttpPost]        
         public KalturaSocialResponse Register(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
         {
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         /// <param name="social_id">external social identifier</param>
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("merge"), HttpPost]        
         public KalturaSocialResponse Merge(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
         {
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001, credentials = 500000,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("unmerge"), HttpPost]
         [ApiAuthorize]
         public KalturaSocialResponse Unmerge(string token, string username, string password, KalturaSocialNetwork type)
