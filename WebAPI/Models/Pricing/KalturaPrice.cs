@@ -30,5 +30,13 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("currency")]
         [XmlElement(ElementName = "currency")]
         public string Currency { get; set; }
+
+        /// <summary>
+        ///Currency Sign
+        /// </summary>
+        [DataMember(Name = "currency_sign")]
+        [JsonProperty("currency_sign")]
+        [XmlElement(ElementName = "currency_sign")]
+        public string CurrencySign { get; set; }
     }
 }

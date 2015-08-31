@@ -15,11 +15,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
     {
         public static void RegisterMappings()
         {
-            //WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
-            Mapper.CreateMap<WebAPI.ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
-               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
-
             // CouponsGroup
             Mapper.CreateMap<WebAPI.Pricing.CouponsGroup, Models.Pricing.KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
@@ -33,7 +28,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
             // Price
             Mapper.CreateMap<WebAPI.Pricing.Price, Models.Pricing.KalturaPrice>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
+               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
+               .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign)); ;
 
             // PriceCode
             Mapper.CreateMap<WebAPI.Pricing.PriceCode, Models.Pricing.KalturaPriceDetails>()
