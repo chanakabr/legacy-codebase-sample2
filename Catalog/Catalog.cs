@@ -1137,7 +1137,7 @@ namespace Catalog
         /// <returns></returns>
         private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
-            List<int> result = ApiDAL.Get_Permitted_GeoBlockRules(groupId, ip);
+            List<int> result = ApiDAL.GetPermittedGeoBlockRules(groupId, ip);
 
             // Make sure DAL didn't return empty result
             if (result == null)
@@ -2276,7 +2276,7 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, eAssetType.MEDIA, action, DateTime.Now);
+                        ids, eObjectType.Media, action, DateTime.Now);
 
                     var queue = new CatalogQueue();
 
@@ -2309,7 +2309,7 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, eAssetType.PROGRAM, action, DateTime.Now);
+                        ids, eObjectType.EPG, action, DateTime.Now);
 
                     var queue = new CatalogQueue();
 

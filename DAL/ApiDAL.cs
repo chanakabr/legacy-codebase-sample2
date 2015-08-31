@@ -1959,19 +1959,30 @@ namespace DAL
             return rules;
         }
 
-        public static List<int> Get_Permitted_GeoBlockRules(int groupId, string ip)
+        public static List<int> GetPermittedGeoBlockRules(int groupId, string ip)
         {
             List<int> result = new List<int>();
+
+            Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.CACHE);
 
             // default = -1
             long ipValue = -1;
 
-            if (!string.IsNullOrEmpty(ip) && ip != "127.0.0.1")
+            if (string.IsNullOrEmpty(ip))
+            {
+                return result;
+            }
+            
+            if (ip != "127.0.0.1")
             {
                 string[] splitted = ip.Split('.');
 
                 ipValue = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
             }
+
+            var view = client.GetView<int>("IP", "IPValueToCountry").StartKey(ipValue).Limit(1);
+
+            int country = view.First();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
