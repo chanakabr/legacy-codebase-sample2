@@ -41,7 +41,7 @@ namespace GroupsCacheManager
         private string keyCachePrefix = string.Empty;
         private ICachingService groupCacheService = null;
         private ICachingService channelsCache = null;
-
+        private ICachingService rulesCache = null;
         private static GroupsCache instance = null;
 
         private string version;
@@ -61,6 +61,7 @@ namespace GroupsCacheManager
                     {
                         groupCacheService = CouchBaseCache<Group>.GetInstance("CACHE");
                         channelsCache = CouchBaseCache<Channel>.GetInstance("CACHE");
+                        rulesCache = CouchBaseCache<List<int>>.GetInstance("CACHE");
                         this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
                         dCacheTT = GetDocTTLSettings();     //set ttl time for document 
                         break;
@@ -78,6 +79,7 @@ namespace GroupsCacheManager
                         string cacheName = GetCacheName();
                         groupCacheService = HybridCache<Group>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
                         channelsCache = HybridCache<Channel>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                        rulesCache = HybridCache<List<int>>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
 
                         break;
                     }
@@ -106,6 +108,8 @@ namespace GroupsCacheManager
 
         #endregion
 
+        #region Initialization
+
         private string GetCacheName()
         {
             string res = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
@@ -127,7 +131,12 @@ namespace GroupsCacheManager
         {
             this.groupCacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
             this.channelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.rulesCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
         }
+
+        #endregion
+
+        #region Groups Cache
 
         private static double GetDocTTLSettings()
         {
@@ -785,5 +794,82 @@ namespace GroupsCacheManager
 
             return (mediaTypes);
         }
+
+	    #endregion
+
+        #region Country To Rule cache
+
+        public List<int> GetGeoBlockRulesByCountry(int groupId, int countryId)
+        {
+            List<int> rules = new List<int>();
+
+            BaseModuleCache baseModule = null;
+            try
+            {
+                string cacheKey = string.Format("country_to_rules_{0}_{1}", groupId, countryId);
+
+                baseModule = this.rulesCache.Get(cacheKey);
+
+                if (baseModule != null && baseModule.result != null)
+                {
+                    rules = baseModule.result as List<int>;
+                }
+                else
+                {
+                    bool inserted = false;
+                    bool createdNew = false;
+                    var mutexSecurity = Utils.CreateMutex();
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", groupId), out createdNew, mutexSecurity))
+                    {
+                        try
+                        {
+                            mutex.WaitOne(-1);
+
+                            VersionModuleCache versionModule = (VersionModuleCache)this.rulesCache.GetWithVersion<Group>(cacheKey);
+
+                            if (versionModule != null && versionModule.result != null)
+                            {
+                                rules = baseModule.result as List<int>;
+                            }
+
+                            else
+                            {
+                                List<int> tempRules = ApiDAL.GetPermittedGeoBlockRulesByCountry(groupId, countryId);
+
+                                for (int i = 0; i < 3 && !inserted; i++)
+                                {
+                                    //try insert to Cache
+                                    versionModule.result = tempRules;
+                                    inserted = this.rulesCache.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+
+                                    if (inserted)
+                                    {
+                                        rules = tempRules;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("GetGeoBlockRulesByCountry - " + string.Format("Couldn't get geo block rules for group {0} and country {1}, ex = {2}",
+                                groupId, countryId, ex.Message), ex);
+                        }
+                        finally
+                        {
+                            mutex.ReleaseMutex();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetGeoBlockRulesByCountry - " + string.Format("Couldn't get geo block rules for group {0} and country {1}, ex = {2}",
+                    groupId, countryId, ex.Message), ex);
+            }
+
+            return rules;
+        }
+
+        #endregion
     }
 }
