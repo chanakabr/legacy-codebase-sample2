@@ -1963,7 +1963,6 @@ namespace DAL
         {
             List<int> result = new List<int>();
 
-            Couchbase.CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.CACHE);
 
             // default = -1
             long ipValue = -1;
@@ -1980,14 +1979,36 @@ namespace DAL
                 ipValue = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
             }
 
-            var view = client.GetView<int>("IP", "IPValueToCountry").StartKey(ipValue).Limit(1);
-
-            int country = view.First();
-
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@IPValue", ipValue);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<int> GetPermittedGeoBlockRulesByCountry(int groupId, int country)
+        {
+            List<int> result = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules_ByCountry");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@Country", country);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
