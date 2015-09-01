@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticSearchHandler", "Ela
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetupTaskHandler", "SetupTaskHandler\SetupTaskHandler.csproj", "{350B7F6F-A920-4764-BC90-FC08B0316CA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCacheHandler", "UpdateCacheHandler\UpdateCacheHandler.csproj", "{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -481,6 +483,18 @@ Global
 		{350B7F6F-A920-4764-BC90-FC08B0316CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{350B7F6F-A920-4764-BC90-FC08B0316CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{350B7F6F-A920-4764-BC90-FC08B0316CA9}.Release|x86.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Basic|x86.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Local|Any CPU.Build.0 = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Local|x86.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
