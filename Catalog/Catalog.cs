@@ -1137,7 +1137,10 @@ namespace Catalog
         /// <returns></returns>
         private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
-            List<int> result = ApiDAL.GetPermittedGeoBlockRules(groupId, ip);
+            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+
+            //GroupsCache.Instance().
+            List<int> result = ApiDAL.GetPermittedGeoBlockRulesByCountry(groupId, countryId);
 
             // Make sure DAL didn't return empty result
             if (result == null)
