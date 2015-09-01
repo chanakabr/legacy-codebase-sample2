@@ -819,7 +819,7 @@ namespace GroupsCacheManager
                     bool inserted = false;
                     bool createdNew = false;
                     var mutexSecurity = Utils.CreateMutex();
-                    using (Mutex mutex = new Mutex(false, string.Concat("Group GID_", groupId), out createdNew, mutexSecurity))
+                    using (Mutex mutex = new Mutex(false, string.Concat("Group GeoBlockRules GID_", groupId), out createdNew, mutexSecurity))
                     {
                         try
                         {
@@ -868,6 +868,52 @@ namespace GroupsCacheManager
             }
 
             return rules;
+        }
+
+        public bool RemoveGeoBlockRulesOfcountry(int groupId, int countryId)
+        {
+            bool isRemoveSucceeded = false;
+            VersionModuleCache versionModule = null;
+
+            try
+            {
+                string cacheKey = string.Format("country_to_rules_{0}_{1}", groupId, countryId);
+
+                for (int i = 0; i < 3 && !isRemoveSucceeded; i++)
+                {
+                    versionModule = (VersionModuleCache)rulesCache.GetWithVersion<List<int>>(cacheKey);
+
+                    if (versionModule != null && versionModule.result != null)
+                    {
+                        List<int> rules = versionModule.result as List<int>;
+
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+
+                        using (Mutex mutex = new Mutex(false, string.Concat("Cache Delete GeoBlockRules_", groupId), out createdNew, mutexSecurity))
+                        {
+                            mutex.WaitOne(-1);
+
+                            //try update to CB
+                            BaseModuleCache bModule = rulesCache.Remove(cacheKey);
+
+                            if (bModule != null && bModule.result != null)
+                            {
+                                isRemoveSucceeded = true;
+                            }
+
+                            mutex.ReleaseMutex();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("RemoveGeoBlockRulesOfcountry - " + 
+                    string.Format("failed to Remove geo block rules from cache GroupID={0}, country= {1}, ex={2}", groupId, countryId, ex.Message), ex);
+            }
+
+            return isRemoveSucceeded;
         }
 
         #endregion
