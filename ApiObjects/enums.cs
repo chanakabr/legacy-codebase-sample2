@@ -366,6 +366,9 @@ namespace ApiObjects
         EntitledAssets
     }
 
+    /// <summary>
+    /// enum for Remote tasks: setup tasks are one-time tasks that we call when setting an environment
+    /// </summary>
     [Serializable]
     public enum eSetupTask
     {
