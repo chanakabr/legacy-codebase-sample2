@@ -367,7 +367,7 @@ namespace ApiObjects
     }
 
     [Serializable]
-    public enum eRemoteTasksMission
+    public enum eSetupTask
     {
         BuildIPToCountry
     }

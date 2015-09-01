@@ -24,7 +24,7 @@ namespace ApiObjects
         /// <summary>
         /// The action that is being notified
         /// </summary>
-        private eRemoteTasksMission mission;
+        private eSetupTask mission;
 
         /// <summary>
         /// Json object that holds the data
@@ -38,7 +38,7 @@ namespace ApiObjects
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="mission"></param>
-        public CeleryMissionData(int groupId, eRemoteTasksMission mission, Dictionary<string, object> dynamicData)
+        public CeleryMissionData(int groupId, eSetupTask mission, Dictionary<string, object> dynamicData)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
