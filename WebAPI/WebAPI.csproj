@@ -154,6 +154,7 @@
     </Content>
     <Content Include="ApiSchema.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
+    <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
