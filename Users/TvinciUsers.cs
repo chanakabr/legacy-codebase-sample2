@@ -562,7 +562,7 @@ namespace Users
             }
             else
             {
-                TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sUserName, oBasicData.m_sFacebookID);
+                TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
 
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
             }
