@@ -4162,12 +4162,12 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Purchase", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId) {
             object[] results = this.Invoke("Purchase", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        householdId,
                         price,
                         currency,
                         contentId,
@@ -4176,17 +4176,17 @@ namespace WebAPI.ConditionalAccess {
                         coupon,
                         userIp,
                         deviceName,
-                        paymentGwId});
+                        paymentGatewayId});
             return ((TransactionResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
-            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, houshold, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGwId, null);
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId) {
+            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId, null);
         }
         
         /// <remarks/>
-        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, object userState) {
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId, object userState) {
             if ((this.PurchaseOperationCompleted == null)) {
                 this.PurchaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnPurchaseOperationCompleted);
             }
@@ -4194,7 +4194,7 @@ namespace WebAPI.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        householdId,
                         price,
                         currency,
                         contentId,
@@ -4203,7 +4203,7 @@ namespace WebAPI.ConditionalAccess {
                         coupon,
                         userIp,
                         deviceName,
-                        paymentGwId}, this.PurchaseOperationCompleted, userState);
+                        paymentGatewayId}, this.PurchaseOperationCompleted, userState);
         }
         
         private void OnPurchaseOperationCompleted(object arg) {
