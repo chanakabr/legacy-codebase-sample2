@@ -18,9 +18,8 @@ namespace TVPApiModule.CatalogLoaders
         #region Ctor
 
         public APIAutocompleteLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
-            List<int> assetTypes, string filter, List<string> with)
-            // TODO: Check if autocomplete needs personal filters too
-            : base(groupID, platform, domainId, userIP, pageSize, pageIndex, assetTypes, filter, with, null)
+            List<int> assetTypes, string filter, List<string> with, List<ePersonalFilter> personalFilters)
+            : base(groupID, platform, domainId, userIP, pageSize, pageIndex, assetTypes, filter, with, personalFilters)
         {
         }
 
