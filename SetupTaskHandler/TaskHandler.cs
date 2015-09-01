@@ -44,7 +44,7 @@ namespace SetupTaskHandler
                 if (!success)
                 {
                     throw new Exception(string.Format(
-                        "Mission setup task. on {0} did not finish successfully.", request.Mission.ToString()));
+                        "Setup task on {0} did not finish successfully.", request.Mission.ToString()));
                 }
                 else
                 {
