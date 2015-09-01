@@ -6,9 +6,9 @@ using System.Text;
 
 namespace QueueWrapper
 {
-    public class MissionQueue : BaseQueue
+    public class SetupTasksQueue : BaseQueue
     {
-        public MissionQueue()
+        public SetupTasksQueue()
         {
             this.Implementation = new RabbitQueue(Enums.ConfigType.DefaultConfig, true);
         }

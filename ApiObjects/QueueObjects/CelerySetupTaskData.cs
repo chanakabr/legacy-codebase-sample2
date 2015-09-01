@@ -6,11 +6,11 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class CeleryMissionData : BaseCeleryData
+    public class CelerySetupTaskData : BaseCeleryData
     {
         #region Consts
 
-        public const string TASK = "distributed_tasks.process_mission";
+        public const string TASK = "distributed_tasks.process_setup_task";
         
         #endregion
 
@@ -38,7 +38,7 @@ namespace ApiObjects
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="mission"></param>
-        public CeleryMissionData(int groupId, eSetupTask mission, Dictionary<string, object> dynamicData)
+        public CelerySetupTaskData(int groupId, eSetupTask mission, Dictionary<string, object> dynamicData)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
@@ -62,6 +62,7 @@ namespace ApiObjects
                 }
             }
 
+            this.args.Add(this.GroupId);
             this.args.Add(this.mission.ToString());
             this.args.Add(jsonArgument);
         }
