@@ -30,6 +30,7 @@ using QueueWrapper;
 using StatisticsBL;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using CachingHelpers;
 
 namespace Catalog
 {
@@ -1140,7 +1141,7 @@ namespace Catalog
             int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
 
             //GroupsCache.Instance().
-            List<int> result = GroupsCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
+            List<int> result = GeoBlockRules.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
 
             // Make sure DAL didn't return empty result
             if (result == null)
