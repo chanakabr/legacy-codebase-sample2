@@ -1,0 +1,115 @@
+﻿using ElasticSearch.Common;
+using ElasticSearchHandler;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SetupTaskHandler
+{
+    public class IPToCountryIndexBuilder
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
+        protected ESSerializer serializer;
+        protected ElasticSearchApi api;
+
+        public IPToCountryIndexBuilder()
+        {
+            serializer = new ESSerializer();
+            api = new ElasticSearchApi();
+        }
+
+        public bool BuildIndex()
+        {
+            bool result = false;
+
+            string newIndex = "utils";
+            string type = "iptocountry";
+
+            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
+            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
+
+            int numOfShards;
+            int numOfReplicas;
+
+            int.TryParse(numberOfReplicas, out numOfReplicas);
+            int.TryParse(numberOfShards, out numOfShards);
+
+            try
+            {
+                bool indexExists = api.IndexExists(newIndex);
+
+                if (!indexExists)
+                {
+                    indexExists = api.BuildIndex(newIndex, numOfShards, numOfReplicas, new List<string>(), new List<string>());
+                }
+
+                DataTable mappingTable = DAL.ApiDAL.Get_IPToCountryTable();
+
+                if (mappingTable != null)
+                {
+                    List<ESBulkRequestObj<int>> bulkObjects = new List<ESBulkRequestObj<int>>();
+
+                    foreach (DataRow row in mappingTable.Rows)
+                    {
+
+                        string serializedMapping = SerializeMapping(row);
+                        int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                        bulkObjects.Add(new ESBulkRequestObj<int>()
+                        {
+                            docID = id,
+                            index = newIndex,
+                            type = type,
+                            document = serializedMapping
+                        });
+
+                        if (bulkObjects.Count >= 5000)
+                        {
+                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                            t.Wait();
+                            bulkObjects = new List<ESBulkRequestObj<int>>();
+                        }
+                    }
+
+                    if (bulkObjects.Count > 0)
+                    {
+                        Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                        t.Wait();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed building ip to country index. reason = {0}", ex);
+
+                result = false;
+            }
+
+            result = true;
+
+            return result;
+        }
+
+        private string SerializeMapping(DataRow row)
+        {
+            string result = string.Empty;
+
+            long ipFrom = ODBCWrapper.Utils.ExtractValue<long>(row, "IP_FROM");
+            long ipTo = ODBCWrapper.Utils.ExtractValue<long>(row, "IP_TO");
+            int country = ODBCWrapper.Utils.ExtractInteger(row, "COUNTRY_ID");
+
+            result = string.Concat("{",
+                string.Format("\"ip_from\": {0}, \"ip_to\": {1}, \"country_id\": {2}", ipFrom, ipTo, country),
+                "}");
+
+            return result;
+        }
+    }
+}

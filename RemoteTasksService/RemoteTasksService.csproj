@@ -146,6 +146,10 @@
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
       <Name>RemoteTasksCommon</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SetupTaskHandler\SetupTaskHandler.csproj">
+      <Project>{350b7f6f-a920-4764-bc90-fc08b0316ca9}</Project>
+      <Name>SetupTaskHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SocialFeedHandler\SocialFeedHandler.csproj">
       <Project>{6a3171f6-bfc9-4407-97ee-8e20e36ad783}</Project>
       <Name>SocialFeedHandler</Name>
