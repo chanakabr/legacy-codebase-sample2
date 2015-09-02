@@ -10,7 +10,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Utils;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -41,7 +41,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //BuzzScore
             Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
-                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
                  .ForMember(dest => dest.NormalizedAvgScore, opt => opt.MapFrom(src => src.NormalizedWeightedAverageScore))
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
@@ -127,7 +127,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
 
             //LastPosition to KalturaUserLastPosition
-            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaUserLastPosition>()
+            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaLastPosition>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_nUserID))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.m_nLocation))
                 .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.m_eUserType)));
@@ -196,26 +196,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return extraParams;
         }
 
-        private static Dictionary<string, List<string>> BuildTagsDictionary(List<EPGDictionary> list)
+        private static Dictionary<string, KalturaStringValueArray> BuildTagsDictionary(List<EPGDictionary> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
-            List<string> tagsList;
+            Dictionary<string, KalturaStringValueArray> tags = new Dictionary<string, KalturaStringValueArray>();
+            KalturaStringValueArray tagsList;
 
             foreach (var tag in list)
             {
                 if (tags.ContainsKey(tag.Key))
                 {
-                    tags[tag.Key].Add(tag.Value);
+                    tags[tag.Key].Objects.Add(new KalturaStringValue() { value = tag.Value });
                 }
                 else
                 {
-                    tagsList = new List<string>();
-                    tagsList.Add(tag.Value);
+                    tagsList = new KalturaStringValueArray();
+                    tagsList.Objects.Add(new KalturaStringValue() { value = tag.Value });
                     tags.Add(tag.Key, tagsList);
                 }
             }
@@ -253,19 +253,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Dictionary<string, KalturaValue> BuildTagsDictionary(List<Tags> list)
+        private static SerializableDictionary<string, KalturaStringValueArray> BuildTagsDictionary(List<Tags> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            Dictionary<string, KalturaValue> tags = new Dictionary<string, KalturaValue>();
+            SerializableDictionary<string, KalturaStringValueArray> tags = new SerializableDictionary<string, KalturaStringValueArray>();
 
             foreach (var tag in list)
             {
-                //TODO: FIX
-                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValue() { value = string.Join(";", tag.m_lValues) });
+                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValueArray()
+                {
+                    Objects = tag.m_lValues.Select(v => new KalturaStringValue() { value = v }).ToList()
+                });
             }
 
             return tags;
@@ -281,7 +283,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Dictionary<string, KalturaValue> metas = new Dictionary<string, KalturaValue>();
 
             KalturaValue value = null;
-            foreach (var meta in list)
+            foreach (var meta in list) 
             {
                 if (meta.m_oTagMeta.m_sType == typeof(bool).ToString())
                 {

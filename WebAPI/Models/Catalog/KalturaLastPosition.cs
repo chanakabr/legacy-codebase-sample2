@@ -10,10 +10,24 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
+    /// List of last positions
+    /// </summary>
+    [DataContract(Name = "LastPosition", Namespace = "")]
+    [XmlRoot("LastPosition")]
+    public class KalturaLastPositionListResponse : KalturaListResponse
+    {
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaLastPosition> LastPositions { get; set; }
+    }
+
+    /// <summary>
     /// Representing the last position in a media or nPVR asset until which a user watched   
     /// </summary>
     [Serializable]
-    public class KalturaUserLastPosition : KalturaOTTObject
+    public class KalturaLastPosition : KalturaOTTObject
     {
         /// <summary>
         ///User identifier

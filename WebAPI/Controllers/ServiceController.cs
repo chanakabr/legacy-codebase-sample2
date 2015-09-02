@@ -22,7 +22,7 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("api/service")]
+    [RoutePrefix("api")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             if (controller == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
 
-            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
@@ -53,14 +53,21 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{service_name}/action/{action_name}"), HttpGet]
+        [Route(""), HttpGet]
+        public async Task<object> __Action([FromUri]string service, [FromUri]string action)
+        {
+            return await Action(service, action);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action(string service_name, string action_name)
         {
             return await Action(service_name, action_name);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("{service_name}/action/{action_name}"), HttpPost]
+        [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
             MethodInfo methodInfo = null;
@@ -70,7 +77,7 @@ namespace WebAPI.Controllers
             createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
-            {
+            {                
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
@@ -81,8 +88,12 @@ namespace WebAPI.Controllers
                     throw ex.InnerException;
                 }
 
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error,
-                "Unable to perform action");
+                if (ex is TargetParameterCountException)
+                {
+                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in parameters");
+                }
+
+                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "Unable to perform action");
             }
 
             return response;

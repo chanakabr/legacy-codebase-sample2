@@ -20,20 +20,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ConditionalAccess.Entitlement, KalturaEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
                .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
-               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => src.currentDate))
-               .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => src.lastViewDate))
-               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.purchaseDate))
+               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
+               .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.purchaseDate)))
                .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
                .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
                .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
                .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
-               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => src.nextRenewalDate))
+               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
                .ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
                .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => src.mediaFileID))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.endDate))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
             #endregion
@@ -69,9 +69,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Price
-            Mapper.CreateMap<ConditionalAccess.Price, WebAPI.Models.Pricing.KalturaPrice>()
-               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
-               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3));
+            Mapper.CreateMap<WebAPI.ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
+              .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
+              .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign));
             #endregion
 
             // BillingResponse

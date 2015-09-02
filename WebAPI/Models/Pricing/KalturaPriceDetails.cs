@@ -45,6 +45,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> Descriptions { get; set; }
+        public List<KalturaTranslationToken> Descriptions { get; set; }
     }
 }

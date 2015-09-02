@@ -19,10 +19,10 @@ namespace WebAPI.Models.API
         /// <summary>
         /// A list of parental rules
         /// </summary>
-        [DataMember(Name = "rules")]
-        [JsonProperty("rules")]
-        [XmlArray(ElementName = "rules")]
-        [XmlArrayItem(ElementName = "items")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
+        [XmlArrayItem(ElementName = "item")]
         public List<KalturaParentalRule> ParentalRule { get; set; }
     }
 }

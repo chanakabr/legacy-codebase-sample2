@@ -63,7 +63,7 @@ namespace WebAPI.Managers.Models
         Error = 1,
 
         // 500000 - 599999 - TVPAPI Statuses
-        BadCredentials = 500000,
+        NotImplemented = 500000,
         InternalConnectionIssue = 500001,
         Timeout = 500002,
         BadRequest = 500003,
@@ -80,6 +80,8 @@ namespace WebAPI.Managers.Models
         InvalidJSONRequest = 500014,
         InvalidKS = 500015,
         ExpiredKS = 500016,
-        InvalidRefreshToken = 500017
+        InvalidRefreshToken = 500017,
+        AbstractParameter = 500018,
+        InvalidPaging = 500019         
     }
 }

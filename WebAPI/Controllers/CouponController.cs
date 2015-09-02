@@ -18,8 +18,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the details and status of the received coupon code
         /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
-        /// Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes: Coupon not valid = 3020
+        ///    </remarks>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
         [ApiAuthorize(true)]

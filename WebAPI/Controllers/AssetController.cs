@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -25,38 +26,112 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media by ID
+        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier.
         /// </summary>
-        /// <param name="media_id">requested media ID</param>               
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="order_by">Ordering the channel</param>
+        /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("get"), HttpPost]
-        [ApiAuthorize(true)]        
-        public KalturaAssetInfo Get(int media_id, List<KalturaCatalogWithHolder> with = null, string language = null)
+        /// <remarks></remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+            KalturaFilterPager pager = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (with == null)            
+            if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (filter.IDs == null || filter.IDs.Count == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
+            }
+            
             try
             {
-                List<int> mid = new List<int>();
-                mid.Add(media_id);
+                string userID = KS.GetFromRequest().UserId;
+                List<int> ids = null;
 
-                string userID = KS.GetFromRequest().UserId;            
-
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language, 0,
-                    1, mid, with.Select(x => x.type).ToList());
-
-                // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
+                switch (filter.ReferenceType)
                 {
-                    throw new NotFoundException();
+                    case KalturaCatalogReferenceBy.media:
+                        {
+                            try
+                            {
+                                ids = filter.IDs.Select(x => int.Parse(x.value)).ToList();
+                            }
+                            catch (Exception)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is media");
+                            }
+
+                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                0, 1, ids, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                                throw new NotFoundException();
+                        }
+                        break;
+                    case KalturaCatalogReferenceBy.channel:
+                        {
+                            int channelID;
+                            if (!int.TryParse(filter.IDs.First().value, out channelID))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is channel");
+                            }
+
+                            response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
+                                filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+                        }
+                        break;
+                    case KalturaCatalogReferenceBy.epg_internal:
+                        {
+                            try
+                            {
+                                ids = filter.IDs.Select(x => int.Parse(x.value)).ToList();
+                            }
+                            catch (Exception)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is epg_internal");
+                            }
+
+                            response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                               0, 1, ids, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                        }
+                        break;
+                    case KalturaCatalogReferenceBy.epg_external:
+                        {
+                            response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                  0, 1, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (response == null || response.Objects == null || response.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+                        }
+                        break;
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
             }
             catch (ClientException ex)
@@ -64,55 +139,95 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response.Objects.First();
+            return response;
         }
 
         /// <summary>
-        /// Returns media by media identifiers        
+        /// Returns media or EPG asset by media / EPG internal or external identifier
         /// </summary>
-        /// <param name="media_ids">Media identifiers</param>        
-        /// <param name="pager"><![CDATA[Page size and page index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="id">Asset identifier</param>                
+        /// <param name="type">Asset type</param>                
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
-        [Route("list"), HttpPost]
+        /// <remarks></remarks>
+        [Route("get"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse List(KalturaIntegerValue[] media_ids, KalturaFilterPager pager = null, List<KalturaCatalogWithHolder> with = null,
-            string language = null)
+        public KalturaAssetInfo Get(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
-            KalturaAssetInfoListResponse response = null;
+            KalturaAssetInfo response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (media_ids.Count() == 0)
+            if (string.IsNullOrEmpty(id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_ids cannot be empty");
-            }
-
-            if (pager == null)
-                pager = new KalturaFilterPager();
-
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (pager.PageSize > 10 || pager.PageSize < 1)
-            {
-                pager.PageSize = 5;
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
             }
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
             try
-            {                
+            {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int) HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty, language,
-                    pager.PageIndex,pager.PageSize, media_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
-
-                // if no response - return not found status 
-                if (response == null || response.Objects == null || response.Objects.Count == 0)
+                switch (type)
                 {
-                    throw new NotFoundException();
+                    case KalturaAssetReferenceType.media:
+                        {
+                            int mediaId;
+                            if (!int.TryParse(id, out mediaId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is media");
+                            }
+                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                            response = mediaRes.Objects.First();
+                        }
+                        break;
+                    case KalturaAssetReferenceType.epg_internal:
+                        {
+                            int epgId;
+                            if (!int.TryParse(id, out epgId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is epg_internal");
+                            }
+
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                               0, 1, new List<int> { epgId }, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                            response = epgRes.Objects.First();
+                        }
+                        break;
+                    case KalturaAssetReferenceType.epg_external:
+                        {
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                              0, 1, new List<string> { id }, with.Select(x => x.type).ToList());
+
+                            // if no response - return not found status 
+                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException();
+                            }
+
+                            response = epgRes.Objects.First();
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (ClientException ex)
@@ -140,11 +255,11 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language Code</param>
         /// <param name="pager">Page size and index</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
+        /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Search(List<KalturaIntegerValue> filter_types, string filter, KalturaOrder? order_by, 
-            List<KalturaCatalogWithHolder> with, string language = null, KalturaFilterPager pager = null)
+        public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
+            List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -158,20 +273,6 @@ namespace WebAPI.Controllers
 
             if (pager == null)
                 pager = new KalturaFilterPager();
-
-            // page size - 5 <= size <= 50
-            if (pager.PageSize == 0)
-            {
-                pager.PageSize = 25;
-            }
-            else if (pager.PageSize > 50)
-            {
-                pager.PageSize = 50;
-            }
-            else if (pager.PageSize < 5)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
-            }
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -205,7 +306,7 @@ namespace WebAPI.Controllers
         /// <param name="order_by"> Required sort option to apply for the identified assets. If omitted – will use newest.</param>
         /// <param name="size"><![CDATA[Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5]]></param>
         /// <param name="language">Language Code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, Bad search request = 4002, Missing index = 4003</remarks>
+        /// <remarks>Possible status codes: Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
@@ -223,6 +324,9 @@ namespace WebAPI.Controllers
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
+
+            if (filter_types == null)
+                filter_types = new List<KalturaIntegerValue>();
 
             try
             {
@@ -244,11 +348,11 @@ namespace WebAPI.Controllers
         /// <param name="media_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>        
-        /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="pager">Paging filter</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Related(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
@@ -266,20 +370,17 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
-            // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
-            if (pager.PageSize > 10 || pager.PageSize < 1)
-            {
-                pager.PageSize = 5;
-            }
-
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
+
+            if (media_types == null)
+                media_types = new List<KalturaIntegerValue>();
 
             try
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.getHouseholdIDByKS(groupId), string.Empty,
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty,
                     language, pager.PageIndex, pager.PageSize, media_id, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
@@ -288,6 +389,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }     
+        }
     }
 }

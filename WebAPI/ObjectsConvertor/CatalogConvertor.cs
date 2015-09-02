@@ -8,7 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
-using WebAPI.ObjectsConvertor.Utils;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor
 {
@@ -67,6 +67,50 @@ namespace WebAPI.ObjectsConvertor
                             assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
                         else
                             assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                    }
+                }
+                finalResults.Add(assetInfo);
+            }
+
+            return finalResults;
+        }
+
+        public static List<KalturaAssetInfo> ConvertEPGChannelProgrammeObjectToAssetsInfo(int groupId, List<EPGChannelProgrammeObject> epgPrograms, List<KalturaCatalogWith> withList)
+        {
+            List<KalturaAssetInfo> finalResults = new List<KalturaAssetInfo>();
+
+            List<KalturaAssetStatistics> mediaAssetsStats = new List<KalturaAssetStatistics>();
+            List<KalturaAssetStatistics> epgAssetsStats = new List<KalturaAssetStatistics>();
+
+            if (withList != null)
+            {
+                if (withList.Contains(KalturaCatalogWith.stats))
+                {
+                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
+                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+
+                    // get EPG IDs for assets statistics
+                    List<int> epgBaseListIds = epgPrograms.Select(e => (int)e.EPG_ID).ToList();
+                    if (epgBaseListIds != null && epgBaseListIds.Count > 0)
+                        epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, Mapper.Map<StatsType>(AssetType.epg));
+                }
+            }
+            foreach (var item in epgPrograms)
+            {
+                var assetInfo = Mapper.Map<KalturaAssetInfo>(item);
+
+                if (withList != null)
+                {
+                    // get images data
+                    if (withList.Contains(KalturaCatalogWith.images))
+                    {
+                        assetInfo.Images = Mapper.Map<List<KalturaMediaImage>>(item.EPG_PICTURES);
+                    }
+
+                    // get statistics data
+                    if (withList.Contains(KalturaCatalogWith.stats))
+                    {
+                        assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
                     }
                 }
                 finalResults.Add(assetInfo);
@@ -135,6 +179,19 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
+        public static CutWith ConvertCutWith(WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
+        {
+            switch (cutWith)
+            {
+                case KalturaAssetInfoFilter.KalturaCutWith.and:
+                    return CutWith.AND;
+                case KalturaAssetInfoFilter.KalturaCutWith.or:
+                    return CutWith.OR;
+                default:
+                    throw new ArgumentException("Unknown cut type");
+            }
+        }
+
         public static OrderObj ConvertOrderToOrderObj(KalturaOrder order)
         {
             OrderObj result = new OrderObj();
@@ -172,5 +229,24 @@ namespace WebAPI.ObjectsConvertor
             }
             return result;
         }
+
+        public static List<KalturaEPGChannelAssets> ConvertEPGChannelAssets(int groupId, List<EpgResultsObj> epgResultsList, List<KalturaCatalogWith> withList)
+        {
+            List<KalturaEPGChannelAssets> finalResults = new List<KalturaEPGChannelAssets>();
+            KalturaEPGChannelAssets channel = null;
+
+            foreach (var epgResult in epgResultsList)
+            {
+                channel = new KalturaEPGChannelAssets();
+                channel.TotalCount = epgResult.m_nTotalItems;
+                channel.ChannelID = epgResult.m_nChannelID;
+                channel.Assets = ConvertEPGChannelProgrammeObjectToAssetsInfo(groupId, epgResult.m_lEpgProgram, withList);
+
+                finalResults.Add(channel);
+            }
+
+            return finalResults;
+        }
+
     }
 }

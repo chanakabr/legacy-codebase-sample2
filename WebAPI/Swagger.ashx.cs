@@ -7,7 +7,9 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Controllers;
+using WebAPI.Managers.Models;
 
 namespace WebAPI
 {
@@ -18,44 +20,63 @@ namespace WebAPI
     {
         public async void ProcessRequest(HttpContext context)
         {
-            using (var client = new HttpClient())
+            if (HttpContext.Current.Request["statuses"] != null)
             {
-                client.BaseAddress = new Uri(context.Request.Url.AbsoluteUri.Replace("swagger.ashx", "docs/v1/swagger"));
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
 
-                // New code:
-                HttpResponseMessage response = await client.GetAsync("");
-                if (response.IsSuccessStatusCode)
+                foreach (var ee in Enum.GetValues(typeof(StatusCode)))
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    dynamic d = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
+                    int eVal = (int)Enum.Parse(typeof(StatusCode), ee.ToString());
+                    //Prevents duplicates
+                    if (statusCodes.Where(xx => xx.Value == eVal).Count() == 0)
+                        statusCodes.Add(ee.ToString(), eVal);                        
+                }
 
-                    Assembly asm = Assembly.GetExecutingAssembly();
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(statusCodes);
+                context.Response.ContentType = "application/json";
+                context.Response.Write(json);
+            }
+            else
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(context.Request.Url.AbsoluteUri.Replace("swagger.ashx", "docs/v1/swagger"));
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    var a = d.paths;
-
-                    foreach (var k in a)
+                    // New code:
+                    HttpResponseMessage response = await client.GetAsync("");
+                    if (response.IsSuccessStatusCode)
                     {
-                        var key = k.Name.Split('/');
+                        var json = await response.Content.ReadAsStringAsync();
+                        dynamic d = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(json);
 
-                        Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", key[2].ToString()), true, true);
+                        Assembly asm = Assembly.GetExecutingAssembly();
 
-                        var method = controller.GetMethods().Where(x=> x.Name.ToLower() == key[4].ToString().ToLower()).FirstOrDefault();
+                        var a = d.paths;
 
-                        if (method == null)
-                            continue;
-
-                        if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
+                        foreach (var k in a)
                         {
-                            k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
+                            var key = k.Name.Split('/');
+
+                            Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", key[2].ToString()), true, true);
+
+                            var method = controller.GetMethods().Where(x => x.Name.ToLower() == key[4].ToString().ToLower()).FirstOrDefault();
+
+                            if (method == null)
+                                continue;
+
+                            if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
+                            {
+                                k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
+                            }
                         }
+
+                        json = Newtonsoft.Json.JsonConvert.SerializeObject(d).Replace("_service/", "api/service/");
+
+                        context.Response.ContentType = "application/json";
+                        context.Response.Write(json);
                     }
-
-                    json = Newtonsoft.Json.JsonConvert.SerializeObject(d).Replace("_service/", "api/service/");                     
-
-                    context.Response.ContentType = "application/json";
-                    context.Response.Write(json);
                 }
             }
         }

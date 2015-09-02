@@ -18,9 +18,9 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         ///Transactions
         /// </summary>
-        [DataMember(Name = "transactions")]
-        [JsonProperty("transactions")]
-        [XmlArray(ElementName = "transactions")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects")]
         [XmlArrayItem("item")] 
         public List<KalturaBillingTransaction> transactions { get; set; }
     }
@@ -161,7 +161,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "user_id")]
         [JsonProperty("user_id")]
         [XmlElement(ElementName = "user_id")]
-        public string SiteGuid
+        public string UserID
         {
             get;
             set;

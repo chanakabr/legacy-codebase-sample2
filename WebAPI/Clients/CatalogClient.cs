@@ -348,7 +348,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with, List<KeyValue> filterTags,
+            WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -373,6 +375,8 @@ namespace WebAPI.Clients
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
+                m_lFilterTags = filterTags,
+                m_eFilterCutWith = CatalogConvertor.ConvertCutWith(cutWith),
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
@@ -445,6 +449,138 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetInfoListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, List<KalturaCatalogWith> with)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // build request
+            EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_lProgramsIds = epgIds,
+            };
+
+            EpgProgramResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+
+                var list = CatalogConvertor.ConvertBaseObjectsToAssetsInfo(groupId, epgProgramResponse.m_lObj, with);
+
+                // build AssetInfoWrapper response
+                if (list != null)
+                {
+                    result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds, List<KalturaCatalogWith> with)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // build request
+            EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                pids = epgIds,
+                eLang = Catalog.Language.English,
+                duration = 0
+            };
+
+            EpgProgramsResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+
+                var list = CatalogConvertor.ConvertEPGChannelProgrammeObjectToAssetsInfo(groupId, epgProgramResponse.lEpgList, with);
+
+                // build AssetInfoWrapper response
+                if (list != null)
+                {
+                    result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        internal List<KalturaEPGChannelAssets> GetEPGByChannelIds(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, DateTime startTime, DateTime endTime, List<KalturaCatalogWith> with)
+        {
+            List<KalturaEPGChannelAssets> result = new List<KalturaEPGChannelAssets>();
+
+            // build request
+            EpgRequest request = new EpgRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userID,
+                domainId = domainId,
+                m_nChannelIDs = epgIds,
+                m_dStartDate = startTime,
+                m_dEndDate = endTime
+            };
+
+            EpgResponse epgProgramResponse = null;
+
+            var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
+            if (isBaseResponse && epgProgramResponse != null)
+            {
+                result = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
+
+                if (result == null)
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+
+        }
+
 
         public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
         {
@@ -509,9 +645,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public List<KalturaUserLastPosition> GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int mediaId = 0, string npvrId = null)
+        public KalturaLastPositionListResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
         {
-            List<KalturaUserLastPosition> result = null;
+            List<KalturaLastPosition> result = null;
             DomainLastPositionRequest request = new DomainLastPositionRequest()
             {
                 m_sSignature = Signature,
@@ -527,7 +663,7 @@ namespace WebAPI.Clients
                 },
                 data = new MediaLastPositionRequestData()
                 {
-                    m_nMediaID = mediaId,
+                    m_nMediaID = mediaId.HasValue ? mediaId.Value : 0,
                     m_sNpvrID = npvrId,
                     m_sSiteGuid = siteGuid,
                     m_sUDID = udid
@@ -544,9 +680,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaUserLastPosition>>(response.m_lPositions);
+            result = Mapper.Map<List<KalturaLastPosition>>(response.m_lPositions);
 
-            return result;
+            return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
         }
+
+
     }
 }

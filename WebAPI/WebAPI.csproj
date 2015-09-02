@@ -154,6 +154,7 @@
     </Content>
     <Content Include="ApiSchema.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
+    <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -257,6 +258,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\HouseholdPaymentGatewayResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Billing\module.disco" />
@@ -672,15 +676,13 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\EPGChannelController.cs" />
+    <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
-    <Compile Include="Controllers\ChannelMediaController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
-    <Compile Include="Controllers\HouseholdLastPositionController.cs" />
-    <Compile Include="Controllers\HouseholdParentalPinController.cs" />
-    <Compile Include="Controllers\HouseholdParentalRuleController.cs" />
-    <Compile Include="Controllers\HouseholdPurchasePinController.cs" />
-    <Compile Include="Controllers\HouseholdPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\LastPositionController.cs" />
+    <Compile Include="Controllers\PurchaseSettingsController.cs" />
     <Compile Include="Controllers\HouseholdUserController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
@@ -701,10 +703,8 @@
     <Compile Include="Controllers\TransactionController.cs" />
     <Compile Include="Controllers\UserAssetsListController.cs" />
     <Compile Include="Controllers\UserLoginPinController.cs" />
-    <Compile Include="Controllers\UserParentalPinController.cs" />
-    <Compile Include="Controllers\UserParentalRuleController.cs" />
-    <Compile Include="Controllers\UserPurchasePinController.cs" />
-    <Compile Include="Controllers\UserPurchaseSettingsController.cs" />
+    <Compile Include="Controllers\PinController.cs" />
+    <Compile Include="Controllers\ParentalRuleController.cs" />
     <Compile Include="Controllers\TransactionHistoryController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
@@ -712,31 +712,43 @@
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
+    <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
+    <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
+    <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetReferenceType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
     <Compile Include="Models\Catalog\KalturaBaseChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
-    <Compile Include="Models\Catalog\KalturaUserLastPosition.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaEntityReferenceBy.cs" />
+    <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionsFilter.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceRegistrationStatusHolder.cs" />
     <Compile Include="Models\General\KalturaDoubleValue.cs" />
+    <Compile Include="Models\API\KalturaRuleFilter.cs" />
     <Compile Include="Models\General\KalturaIntEnum.cs" />
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
@@ -744,12 +756,13 @@
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />
+    <Compile Include="Models\General\KalturaStringValueArray.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
-    <Compile Include="Models\General\KalturaTranslationContainer.cs" />
+    <Compile Include="Models\General\KalturaTranslationToken.cs" />
     <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />
     <Compile Include="Models\Pricing\KalturaDiscountModule.cs" />
     <Compile Include="Models\Pricing\KalturaItemPrice.cs" />
@@ -774,7 +787,6 @@
     <Compile Include="Models\Domains\KalturaHomeNetwork.cs" />
     <Compile Include="Models\General\KalturaSerializeableDictionary.cs" />
     <Compile Include="Models\MultiRequest\KalturaMultiRequest.cs" />
-    <Compile Include="Models\Pricing\KalturaCurrency.cs" />
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
@@ -785,11 +797,13 @@
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
+    <Compile Include="Models\Users\KalturaSessionInfo.cs" />
+    <Compile Include="Models\Users\KalturaUserAssetsListFilter.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItemType.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListType.cs" />
     <Compile Include="Models\Users\KalturaFavorite.cs" />
     <Compile Include="Models\Users\KalturaFavoriteListResponse.cs" />
-    <Compile Include="Models\Users\KalturaKeyValue.cs" />
+    <Compile Include="Models\General\KalturaKeyValue.cs" />
     <Compile Include="Models\Users\KalturaLoginSession.cs" />
     <Compile Include="Models\Users\KalturaBaseOTTUser.cs" />
     <Compile Include="Controllers\ParentalRuleProfileController.cs" />
@@ -807,9 +821,7 @@
     <Compile Include="Models\Users\KalturaOTTUser.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsList.cs" />
     <Compile Include="Models\Users\KalturaUserAssetsListItem.cs" />
-    <Compile Include="Models\Users\KalturaUserBasicData.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspentionState.cs" />
-    <Compile Include="Models\Users\KalturaUserData.cs" />
     <Compile Include="Models\Users\KalturaOTTUserListResponse.cs" />
     <Compile Include="Models\Users\KalturaUserState.cs" />
     <Compile Include="Models\Users\KalturaOTTUserType.cs" />
@@ -858,7 +870,6 @@
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
-    <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
     <Compile Include="Models\General\KalturaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaIAssetable.cs" />
     <Compile Include="Models\Catalog\KalturaOrder.cs" />
@@ -874,6 +885,7 @@
     <Compile Include="Models\Catalog\KalturaWatchHistoryAsset.cs" />
     <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogWith.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

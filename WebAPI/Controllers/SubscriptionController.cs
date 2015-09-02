@@ -29,8 +29,8 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter request</param>
         /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, 
-        ///Configuration error = 500006, Not found = 500007, Partner is invalid = 500008 </remarks>
+        /// <remarks>Possible status codes:      
+        ///   </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public List<KalturaSubscription> List(KalturaSubscriptionsFilter filter, string udid = null, string language = null)

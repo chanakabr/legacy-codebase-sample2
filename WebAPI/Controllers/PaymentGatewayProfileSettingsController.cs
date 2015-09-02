@@ -19,8 +19,8 @@ namespace WebAPI.Controllers
         /// Returns all payment gateway settings for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Possible status codes:       
+        ///  
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -47,8 +47,8 @@ namespace WebAPI.Controllers
         /// Delete payment gateway specific settings by settings keys 
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Possible status codes:       
+        ///  
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings</param>
@@ -77,8 +77,8 @@ namespace WebAPI.Controllers
         /// Insert new settings for payment gateway for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, Payment gateway id required = 6005, Payment gateway params required = 6006
+        /// Possible status codes:       
+        ///   Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings </param>
@@ -107,8 +107,8 @@ namespace WebAPI.Controllers
         /// Update settings for payment gateway 
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008
+        /// Possible status codes:       
+        ///  
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,string) for partner specific settings </param>

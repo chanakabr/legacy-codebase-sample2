@@ -7,7 +7,8 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
-using WebAPI.ObjectsConvertor.Utils;
+using WebAPI.Models.Catalog;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -18,28 +19,31 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media.        
         /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
-        /// <param name="asset_id">Asset identifier</param>
-        /// <param name="asset_type">Asset type</param>        
-        /// <param name="channel_media_id">Linear channel's media identifier</param>  
+        /// <param name="filter">Filter</param>
         /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("List"), HttpPost]
         [ApiAuthorize]
-        public KalturaGenericRuleListResponse List(long asset_id, int asset_type, long channel_media_id = 0, string udid = null)
+        public KalturaGenericRuleListResponse List(KalturaGenericRuleFilter filter, string udid = null)
         {
             List<KalturaGenericRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
-            if (asset_id == 0)
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (filter.AssetId == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), asset_type))
+            if (!Enum.IsDefined(typeof(AssetType), filter.AssetType))
             {
                  throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }
@@ -47,15 +51,15 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                if ((AssetType)asset_type == AssetType.epg)
+                if ((AssetType)filter.AssetType == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, asset_id, (int)HouseholdUtils.getHouseholdIDByKS(groupId), channel_media_id);
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if ((AssetType)asset_type == AssetType.media)
+                else if ((AssetType)filter.AssetType == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, asset_id, (int)HouseholdUtils.getHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 }
             }
             catch (ClientException ex)
@@ -65,33 +69,5 @@ namespace WebAPI.Controllers
 
             return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
         }
-
-        /// <summary>
-        /// Disables the partner's default rule for this user        
-        /// </summary>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
-        /// <returns>Success / fail</returns>
-        [Route("disableDefault"), HttpPost]
-        [ApiAuthorize]
-        public bool DisableDefault()
-        {
-            bool success = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, KS.GetFromRequest().UserId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
     }
 }

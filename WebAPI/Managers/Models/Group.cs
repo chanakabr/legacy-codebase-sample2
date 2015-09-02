@@ -60,6 +60,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty(PropertyName = "ks_expiration_seconds")]
         public long KSExpirationSeconds { get; set; }
 
+        [JsonProperty(PropertyName = "anonymous_ks_expiration_seconds")]
+        public long AnonymousKSExpirationSeconds { get; set; }
+
         [JsonProperty(PropertyName = "refresh_token_expiration_seconds")]
         public long RefreshTokenExpirationSeconds { get; set; }
 

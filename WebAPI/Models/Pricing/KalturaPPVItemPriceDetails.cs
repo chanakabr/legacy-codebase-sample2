@@ -86,7 +86,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("ppv_descriptions")]
         [XmlArray(ElementName = "ppv_descriptions")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> PPVDescriptions { get; set; }
+        public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
         /// If the item already purchased - the identifier of the user (in the household) who purchased this item 
@@ -119,7 +119,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public DateTime StartDate { get; set; }
+        public long StartDate { get; set; }
 
         /// <summary>
         /// If the item already purchased - until when the user can watch the item
@@ -127,7 +127,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public DateTime EndDate { get; set; }
+        public long EndDate { get; set; }
 
         /// <summary>
         /// If the item already purchased and played - the name of the device on which it was first played 

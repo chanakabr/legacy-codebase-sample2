@@ -23,12 +23,23 @@ namespace WebAPI.Managers.Models
         private string encryptedValue;
         private int groupId;
         private string userId;
-        private KalturaSessionType userType;
+        private KalturaSessionType sessionType;
         private DateTime expiration;
         private string privilege;
         private string data;
 
-        public const string PAYLOAD_UDID = "UDID";
+        public enum KSVersion
+        {
+            TVPAPI = 0,
+            V2 = 1
+        }
+
+        public class KSData
+        {
+            public string UDID { get; set; }
+        }
+
+        public KSVersion ksVersion { get; private set; }
 
         public bool IsValid
         {
@@ -45,16 +56,16 @@ namespace WebAPI.Managers.Models
             get { return userId; }
             set
             {
-                if (UserType == KalturaSessionType.ADMIN)
+                if (SessionType == KalturaSessionType.ADMIN)
                     userId = value;
                 else
                     throw new Exception("Unable to set userID without Admin KS");
             }
         }
 
-        public KalturaSessionType UserType
+        public KalturaSessionType SessionType
         {
-            get { return userType; }
+            get { return sessionType; }
         }
 
         public string Privilege
@@ -76,7 +87,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSVersion ksType)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -106,9 +117,11 @@ namespace WebAPI.Managers.Models
             encodedKs = encodedKs.Replace("\r", "");
 
             encryptedValue = encodedKs.ToString();
+
+            this.ksVersion = ksType;
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType)
         {
             KS ks = new KS();
             ks.encryptedValue = ksVal;
@@ -134,14 +147,22 @@ namespace WebAPI.Managers.Models
             }
 
             //parse fields
-            string[] fields = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray()).Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string fieldsString = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
+            string[] fields = fieldsString.Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length < 3)
             {
                 throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
             }
 
-            ks.privilege = fields[0];
+            if (!fieldsString.StartsWith("&_"))
+            {
+                ks.privilege = fields[0];
+            }
+            else
+            {
+                ks.privilege = string.Empty;
+            }
 
             for (int i = 1; i < fields.Length; i++)
             {
@@ -154,7 +175,7 @@ namespace WebAPI.Managers.Models
                 switch (pair[0])
                 {
                     case "t":
-                        ks.userType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
+                        ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
                         break;
                     case "e":
                         long expiration;
@@ -293,6 +314,18 @@ namespace WebAPI.Managers.Models
             return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
         }
 
+        public static List<KeyValuePair<string, string>> ExtractPayloadData(string payload)
+        {
+            List<KeyValuePair<string, string>> pairs = new List<KeyValuePair<string, string>>();
+            foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var t = token.Split('=');
+                pairs.Add(new KeyValuePair<string, string>(t[0], t[1]));
+            }
+
+            return pairs;
+        }
+
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items.Add("KS", this);
@@ -309,7 +342,7 @@ namespace WebAPI.Managers.Models
             {
                 groupId = token.GroupID,
                 userId = token.UserId,
-                userType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
             };
 

@@ -25,5 +25,21 @@ namespace WebAPI.Models.ConditionalAccess
             get;
             set;
         }
+
+        /// <summary>
+        ///Filter transactions later than specific date
+        /// </summary>
+        [DataMember(Name = "start_date")]
+        [JsonProperty("start_date")]
+        [XmlElement(ElementName = "start_date")]
+        public DateTime? StartDate { get; set; }
+
+        /// <summary>
+        ///Filter transactions earlier than specific date
+        /// </summary>
+        [DataMember(Name = "end_date")]
+        [JsonProperty("end_date")]
+        [XmlElement(ElementName = "end_date")]
+        public DateTime? EndDate { get; set; }
     }
 }

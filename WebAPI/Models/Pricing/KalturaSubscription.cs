@@ -40,7 +40,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public DateTime StartDate { get; set; }
+        public long StartDate { get; set; }
 
         /// <summary>
         /// The last date the subscription is available for purchasing
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public DateTime EndDate { get; set; }
+        public long EndDate { get; set; }
 
         /// <summary>
         /// A list of file types identifiers that are supported in this subscription
@@ -114,7 +114,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("names")]
         [XmlArray(ElementName = "names")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> Names { get; set; } // TODO: change to object
+        public List<KalturaTranslationToken> Names { get; set; } // TODO: change to object
 
         /// <summary>
         /// A list of the descriptions of the subscriptions on different languages (language code and translation)
@@ -123,7 +123,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions")]
         [XmlArrayItem("item")] 
-        public List<KalturaTranslationContainer> Descriptions { get; set; } // TODO: change to object
+        public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
         /// Identifier of the media associated with the subscription

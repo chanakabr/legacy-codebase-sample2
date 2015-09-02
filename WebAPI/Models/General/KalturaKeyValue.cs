@@ -7,7 +7,7 @@ using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Users
+namespace WebAPI.Models.General
 {
     public class KalturaKeyValue : KalturaOTTObject
     {

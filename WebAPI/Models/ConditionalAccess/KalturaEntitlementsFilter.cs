@@ -15,27 +15,19 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaEntitlementsFilter : KalturaOTTObject
     {
         /// <summary>
-        ///Reference type to filter by
-        /// </summary>
-        [DataMember(Name = "by")]
-        [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
-        public KalturaEntityReferenceBy By { get; set; }
-
-        /// <summary>
-        ///Identifier to filter by (user identifier or household identifier)
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
         ///The type of the entitlements to return
         /// </summary>
         [DataMember(Name = "entitlement_type")]
         [JsonProperty("entitlement_type")]
         [XmlElement(ElementName = "entitlement_type")]
         public KalturaTransactionType EntitlementType { get; set; }
+
+        /// <summary>
+        ///Reference type to filter by
+        /// </summary>
+        [DataMember(Name = "by")]
+        [JsonProperty("by")]
+        [XmlElement(ElementName = "by")]
+        public KalturaEntityReferenceBy By { get; set; }
     }
 }

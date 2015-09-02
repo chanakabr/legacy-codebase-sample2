@@ -21,49 +21,16 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/household/action")]
     public class HouseholdController : ApiController
     {
-        #region Parental and Purchase rules
-
-        /// <summary>
-        /// Disables the partner's default rule for this household        
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// Household does not exist = 1006
-        /// </remarks>
-        /// <param name="household_id">Household identifier</param>
-        /// <returns>Success / fail</returns>
-        [Route("disableDefaultParentalRule"), HttpPost]
-        [ApiAuthorize]
-        public bool DisableDefaultParentalRule(int household_id)
-        {
-            bool success = false;
-            int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                // call client
-                success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, household_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return success;
-        }
-
-        #endregion
-
         /// <summary>
         /// Returns the household model       
         /// </summary>        
-        /// <param name="household_id">Household identifier</param>
-        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_info"</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
+        /// <param name="id">Household identifier</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(int household_id, List<KalturaHouseholdWithHolder> with = null)
+        public KalturaHousehold Get(int id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -72,7 +39,7 @@ namespace WebAPI.Controllers
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
 
-            if (user.First().HouseholdID != household_id)
+            if (user.First().HouseholdID != id)
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
 
             if (with == null)
@@ -83,7 +50,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().HouseholdID);
 
-                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_info).Count() > 0)
+                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
                 {
                     // get users ids lists
                     var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<string>();
@@ -97,6 +64,8 @@ namespace WebAPI.Controllers
                     allUserIds.AddRange(masterUserIds);
                     allUserIds.AddRange(defaultUserIds);
                     allUserIds.AddRange(pendingUserIds);
+                    allUserIds = allUserIds.Distinct().ToList();
+
 
                     //get users
                     List<KalturaOTTUser> users = null;
@@ -107,10 +76,20 @@ namespace WebAPI.Controllers
 
                     if (users != null)
                     {
-                        response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
-                        response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
-                        response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
-                        response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
+                        if (with.Where(x => x.type == KalturaHouseholdWith.users_base_info).FirstOrDefault() != null)
+                        {
+                            response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
+                            response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
+                            response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
+                            response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
+                        }
+                        if (with.Where(x => x.type == KalturaHouseholdWith.users_full_info).FirstOrDefault() != null)
+                        {
+                            response.Users = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => userIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                            response.MasterUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                            response.DefaultUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                            response.PendingUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                        }
                     }
                 }
             }
@@ -133,8 +112,8 @@ namespace WebAPI.Controllers
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
         /// <param name="master_user_id">Identifier of the user that will become the master of the created household</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008, 
-        /// User exists in other household = 1018, Household already exists = 1000, Household user failed = 1007</remarks>
+        /// <remarks>Possible status codes: 
+        /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaHousehold Add(string name, string description, string master_user_id)
@@ -171,17 +150,16 @@ namespace WebAPI.Controllers
         /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, 
+        /// Possible status codes:         
         /// Domain not exists = 1006, Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
-        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
-        public bool SetChargeID(string id, int household_id, string charge_id)
+        public bool SetChargeID(string pg_id, int household_id, string charge_id)
         {
             bool response = false;
 
@@ -190,7 +168,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, id, household_id, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, household_id, charge_id);
             }
             catch (ClientException ex)
             {
@@ -205,15 +183,13 @@ namespace WebAPI.Controllers
         /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, 
-        /// Not found = 500007, Partner is invalid = 500008, 
-        /// Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
+        /// Possible status codes: Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
-        /// <param name="id">External identifier for the payment gateway  </param>
+        /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
-        public string GetChargeID(string id, int household_id)
+        public string GetChargeID(string pg_id, int household_id)
         {
             string chargeId = string.Empty;
 
@@ -222,7 +198,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, id, household_id);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, household_id);
             }
             catch (ClientException ex)
             {

@@ -10,7 +10,7 @@ namespace WebAPI.Utils
 {
     public class HouseholdUtils
     {
-        public static long getHouseholdIDByKS(int groupID)
+        public static long GetHouseholdIDByKS(int groupID)
         {
             var ks = KS.GetFromRequest();
 

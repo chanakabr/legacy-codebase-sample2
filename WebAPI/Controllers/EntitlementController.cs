@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -22,7 +23,7 @@ namespace WebAPI.Controllers
         /// <param name="asset_id">Asset identifier to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
@@ -57,23 +58,23 @@ namespace WebAPI.Controllers
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
         /// <param name="household_id">Household identifier</param>
-        /// <param name="sub_id">Subscription Code</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// <param name="subscription_id">Subscription Code</param>
+        /// <remarks>Possible status codes: 
         ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
-        public void CancelRenewal(int household_id, string sub_id)
+        public void CancelRenewal(int household_id, string subscription_id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(sub_id))
+            if (string.IsNullOrEmpty(subscription_id))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
             }
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, sub_id);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, subscription_id);
             }
             catch (ClientException ex)
             {
@@ -85,7 +86,7 @@ namespace WebAPI.Controllers
         /// Gets all the entitled media items for a household
         /// </summary>        
         /// <param name="filter">Request filter</param>
-        /// <remarks>Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008</remarks>
+        /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter)
@@ -99,32 +100,17 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
             }
 
-            if (string.IsNullOrEmpty(filter.Id))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
-            }
-
             try
             {
                 // call client
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, filter.Id, filter.EntitlementType);
+                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
                         break;
                     case KalturaEntityReferenceBy.household:
-                        {
-                            int householdId;
-                            if (int.TryParse(filter.Id, out householdId))
-                            {
-                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, householdId, filter.EntitlementType);
-                            }
-                            else
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household id must be int");
-                            }
-                            break;
-                        }
+                        response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");                        
                 }
@@ -140,6 +126,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
         /// </summary>
+        /// <param name="user_id">The user id to entitle</param>
         /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
         /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
@@ -147,26 +134,26 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
-        /// Credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007,
-        /// Partner is invalid = 500008</remarks>
+        ///,       
+        /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public bool Grant(int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public bool Grant(int user_id, int content_id, int product_id, KalturaTransactionType product_type, bool history)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // validate user id
-            if (KS.GetFromRequest().UserId == "0")
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_id cannot be empty");
-            }
+            long domainID = 0;
+            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, user_id.ToString());
+
+            if (domain != null)
+                domainID = domain.Id;
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, KS.GetFromRequest().UserId, 0, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domain.Id, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
@@ -178,17 +165,16 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// (Obsolete) Charges a user for subscription or PPV      
+        /// (Obsolete - use Transaction.purchase) Charges a user for subscription or PPV      
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Bad credentials = 500000, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
+        /// Possible status codes: 
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="udid">Device UDID</param>
         /// <param name="item_id">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
         /// <param name="file_id">File identifier</param>
-        /// <param name="isSubscrption">True for buying subscription, false for buying ppv</param>
-        /// <param name="user_id">User identifier</param>
+        /// <param name="is_subscription">True for buying subscription, false for buying ppv</param>        
         /// <param name="price">Price</param>
         /// <param name="currency">Currency</param>
         /// <param name="coupon_code">Coupon code</param>
@@ -197,25 +183,26 @@ namespace WebAPI.Controllers
         [Route("buy"), HttpPost]
         [Obsolete]
         [ApiAuthorize]
-        public KalturaBillingResponse Buy(string item_id, bool isSubscrption, string user_id, double price, string currency, string coupon_code, string extra_params,
+        public KalturaBillingResponse Buy(string item_id, bool is_subscription, double price, string currency, string coupon_code, string extra_params,
             string encrypted_cvv, int file_id = 0, string udid = null)
         {
             KalturaBillingResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
-                if (isSubscrption)
+                if (is_subscription)
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, user_id, price, currency, item_id, coupon_code,
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, userId, price, currency, item_id, coupon_code,
                         extra_params, udid, encrypted_cvv);
                 }
                 else
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, user_id, price, currency, file_id, item_id, coupon_code,
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, userId, price, currency, file_id, item_id, coupon_code,
                         extra_params, udid, encrypted_cvv);
                 }
             }
