@@ -194,6 +194,7 @@
     <Compile Include="NotifiedActions.cs" />
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
+    <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
