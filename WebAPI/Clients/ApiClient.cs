@@ -12,6 +12,7 @@ using WebAPI.Utils;
 using KLogMonitor;
 using System.Reflection;
 using WebAPI.Managers.Models;
+using WebAPI.ObjectsConvertor.Mapping;
 
 
 namespace WebAPI.Clients
@@ -1041,6 +1042,162 @@ namespace WebAPI.Clients
             codes = WebAPI.ObjectsConvertor.Mapping.ApiMappings.ConvertErrorsDictionary(response.ErrorsDictionary);
 
             return codes;
+        }
+
+        internal bool AddBulkExportTask(int groupId, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            WebAPI.Api.eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
+            WebAPI.Api.eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            WebAPI.Api.eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
+            WebAPI.Api.eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal bool DeleteBulkExportTask(int groupId, long id, string externalKey)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DeleteBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal List<Models.API.KalturaBulkExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys)
+        {
+            List<Models.API.KalturaBulkExportTask> tasks = new List<Models.API.KalturaBulkExportTask>();
+            BulkExportTasksResponse response = null;
+
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetBulkExportTasks(group.ApiCredentials.Username, group.ApiCredentials.Password, ids, externalKeys);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            tasks = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaBulkExportTask>>(response.Tasks);
+
+            return tasks;
         }
     }
 }

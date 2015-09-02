@@ -214,6 +214,14 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetErrorCodesDictionaryOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddBulkExportTaskOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateBulkExportTaskOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteBulkExportTaskOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetBulkExportTasksOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -527,6 +535,18 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event GetErrorCodesDictionaryCompletedEventHandler GetErrorCodesDictionaryCompleted;
+        
+        /// <remarks/>
+        public event AddBulkExportTaskCompletedEventHandler AddBulkExportTaskCompleted;
+        
+        /// <remarks/>
+        public event UpdateBulkExportTaskCompletedEventHandler UpdateBulkExportTaskCompleted;
+        
+        /// <remarks/>
+        public event DeleteBulkExportTaskCompletedEventHandler DeleteBulkExportTaskCompleted;
+        
+        /// <remarks/>
+        public event GetBulkExportTasksCompletedEventHandler GetBulkExportTasksCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3849,6 +3869,164 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status AddBulkExportTask(string userName, string webServicePassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+            object[] results = this.Invoke("AddBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddBulkExportTaskAsync(string userName, string webServicePassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+            this.AddBulkExportTaskAsync(userName, webServicePassword, externalKey, name, dataType, filter, exportType, frequency, null);
+        }
+        
+        /// <remarks/>
+        public void AddBulkExportTaskAsync(string userName, string webServicePassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, object userState) {
+            if ((this.AddBulkExportTaskOperationCompleted == null)) {
+                this.AddBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddBulkExportTaskOperationCompleted);
+            }
+            this.InvokeAsync("AddBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency}, this.AddBulkExportTaskOperationCompleted, userState);
+        }
+        
+        private void OnAddBulkExportTaskOperationCompleted(object arg) {
+            if ((this.AddBulkExportTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddBulkExportTaskCompleted(this, new AddBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status UpdateBulkExportTask(string userName, string webServicePassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+            object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        id,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateBulkExportTaskAsync(string userName, string webServicePassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+            this.UpdateBulkExportTaskAsync(userName, webServicePassword, id, externalKey, name, dataType, filter, exportType, frequency, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateBulkExportTaskAsync(string userName, string webServicePassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, object userState) {
+            if ((this.UpdateBulkExportTaskOperationCompleted == null)) {
+                this.UpdateBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateBulkExportTaskOperationCompleted);
+            }
+            this.InvokeAsync("UpdateBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        id,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency}, this.UpdateBulkExportTaskOperationCompleted, userState);
+        }
+        
+        private void OnUpdateBulkExportTaskOperationCompleted(object arg) {
+            if ((this.UpdateBulkExportTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateBulkExportTaskCompleted(this, new UpdateBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DeleteBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeleteBulkExportTask(string userName, string webServicePassword, long id, string externalKey) {
+            object[] results = this.Invoke("DeleteBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        id,
+                        externalKey});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeleteBulkExportTaskAsync(string userName, string webServicePassword, long id, string externalKey) {
+            this.DeleteBulkExportTaskAsync(userName, webServicePassword, id, externalKey, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteBulkExportTaskAsync(string userName, string webServicePassword, long id, string externalKey, object userState) {
+            if ((this.DeleteBulkExportTaskOperationCompleted == null)) {
+                this.DeleteBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteBulkExportTaskOperationCompleted);
+            }
+            this.InvokeAsync("DeleteBulkExportTask", new object[] {
+                        userName,
+                        webServicePassword,
+                        id,
+                        externalKey}, this.DeleteBulkExportTaskOperationCompleted, userState);
+        }
+        
+        private void OnDeleteBulkExportTaskOperationCompleted(object arg) {
+            if ((this.DeleteBulkExportTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteBulkExportTaskCompleted(this, new DeleteBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetBulkExportTasks", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public BulkExportTasksResponse GetBulkExportTasks(string userName, string webServicePassword, long[] ids, string[] externalKeys) {
+            object[] results = this.Invoke("GetBulkExportTasks", new object[] {
+                        userName,
+                        webServicePassword,
+                        ids,
+                        externalKeys});
+            return ((BulkExportTasksResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetBulkExportTasksAsync(string userName, string webServicePassword, long[] ids, string[] externalKeys) {
+            this.GetBulkExportTasksAsync(userName, webServicePassword, ids, externalKeys, null);
+        }
+        
+        /// <remarks/>
+        public void GetBulkExportTasksAsync(string userName, string webServicePassword, long[] ids, string[] externalKeys, object userState) {
+            if ((this.GetBulkExportTasksOperationCompleted == null)) {
+                this.GetBulkExportTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetBulkExportTasksOperationCompleted);
+            }
+            this.InvokeAsync("GetBulkExportTasks", new object[] {
+                        userName,
+                        webServicePassword,
+                        ids,
+                        externalKeys}, this.GetBulkExportTasksOperationCompleted, userState);
+        }
+        
+        private void OnGetBulkExportTasksOperationCompleted(object arg) {
+            if ((this.GetBulkExportTasksCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetBulkExportTasksCompleted(this, new GetBulkExportTasksCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4092,6 +4270,194 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class BulkExportTask {
+        
+        private long idField;
+        
+        private string externalKeyField;
+        
+        private string nameField;
+        
+        private eBulkExportDataType dataTypeField;
+        
+        private string filterField;
+        
+        private eBulkExportExportType exportTypeField;
+        
+        private long frequencyField;
+        
+        /// <remarks/>
+        public long Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalKey {
+            get {
+                return this.externalKeyField;
+            }
+            set {
+                this.externalKeyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eBulkExportDataType DataType {
+            get {
+                return this.dataTypeField;
+            }
+            set {
+                this.dataTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Filter {
+            get {
+                return this.filterField;
+            }
+            set {
+                this.filterField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eBulkExportExportType ExportType {
+            get {
+                return this.exportTypeField;
+            }
+            set {
+                this.exportTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long Frequency {
+            get {
+                return this.frequencyField;
+            }
+            set {
+                this.frequencyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBulkExportDataType {
+        
+        /// <remarks/>
+        VOD,
+        
+        /// <remarks/>
+        EPG,
+        
+        /// <remarks/>
+        Users,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBulkExportExportType {
+        
+        /// <remarks/>
+        Full,
+        
+        /// <remarks/>
+        Incremental,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class BulkExportTasksResponse {
+        
+        private BulkExportTask[] tasksField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public BulkExportTask[] Tasks {
+            get {
+                return this.tasksField;
+            }
+            set {
+                this.tasksField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class StatusErrorCodesResponse {
         
         private KeyValuePair[] errorsDictionaryField;
@@ -4148,39 +4514,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
             }
         }
     }
@@ -6081,14 +6414,14 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
@@ -6274,24 +6607,198 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
+    public partial class PurchaseMailRequest : MailRequestObj {
         
-        private string m_sTokenField;
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sTransactionNumberField;
+        
+        private string m_sPaymentMethodField;
+        
+        private string m_sTaxValField;
+        
+        private string m_sTaxSubtotalField;
+        
+        private string m_sTaxAmountField;
+        
+        private string m_sInvoiceNumField;
+        
+        private string m_sExternalTransationNumField;
+        
+        private string m_sAddressField;
+        
+        private string m_sUserEmailField;
         
         /// <remarks/>
-        public string m_sToken {
+        public string m_sPurchaseDate {
             get {
-                return this.m_sTokenField;
+                return this.m_sPurchaseDateField;
             }
             set {
-                this.m_sTokenField = value;
+                this.m_sPurchaseDateField = value;
             }
         }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTransactionNumber {
+            get {
+                return this.m_sTransactionNumberField;
+            }
+            set {
+                this.m_sTransactionNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethod {
+            get {
+                return this.m_sPaymentMethodField;
+            }
+            set {
+                this.m_sPaymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxVal {
+            get {
+                return this.m_sTaxValField;
+            }
+            set {
+                this.m_sTaxValField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxSubtotal {
+            get {
+                return this.m_sTaxSubtotalField;
+            }
+            set {
+                this.m_sTaxSubtotalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxAmount {
+            get {
+                return this.m_sTaxAmountField;
+            }
+            set {
+                this.m_sTaxAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sInvoiceNum {
+            get {
+                return this.m_sInvoiceNumField;
+            }
+            set {
+                this.m_sInvoiceNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sExternalTransationNum {
+            get {
+                return this.m_sExternalTransationNumField;
+            }
+            set {
+                this.m_sExternalTransationNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sAddress {
+            get {
+                return this.m_sAddressField;
+            }
+            set {
+                this.m_sAddressField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUserEmail {
+            get {
+                return this.m_sUserEmailField;
+            }
+            set {
+                this.m_sUserEmailField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+        
+        private string m_sPreviewModuleEndDateField;
+        
+        /// <remarks/>
+        public string m_sPreviewModuleEndDate {
+            get {
+                return this.m_sPreviewModuleEndDateField;
+            }
+            set {
+                this.m_sPreviewModuleEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -6486,6 +6993,27 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class AddDeviceMailRequest : MailRequestObj {
         
         private string m_sTokenField;
@@ -6535,201 +7063,6 @@ namespace WebAPI.Api {
                 this.m_sNewDeviceNameField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        private string m_sUserEmailField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTransactionNumber {
-            get {
-                return this.m_sTransactionNumberField;
-            }
-            set {
-                this.m_sTransactionNumberField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUserEmail {
-            get {
-                return this.m_sUserEmailField;
-            }
-            set {
-                this.m_sUserEmailField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
-        
-        private string m_sPreviewModuleEndDateField;
-        
-        /// <remarks/>
-        public string m_sPreviewModuleEndDate {
-            get {
-                return this.m_sPreviewModuleEndDateField;
-            }
-            set {
-                this.m_sPreviewModuleEndDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -12143,6 +12476,110 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((StatusErrorCodesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void AddBulkExportTaskCompletedEventHandler(object sender, AddBulkExportTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void UpdateBulkExportTaskCompletedEventHandler(object sender, UpdateBulkExportTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void DeleteBulkExportTaskCompletedEventHandler(object sender, DeleteBulkExportTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeleteBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeleteBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetBulkExportTasksCompletedEventHandler(object sender, GetBulkExportTasksCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetBulkExportTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetBulkExportTasksCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public BulkExportTasksResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((BulkExportTasksResponse)(this.results[0]));
             }
         }
     }

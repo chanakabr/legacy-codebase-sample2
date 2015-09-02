@@ -263,6 +263,9 @@
     <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\BulkExportTasksResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -676,6 +679,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\BulkExportTaskController.cs" />
     <Compile Include="Controllers\EPGChannelController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
@@ -713,6 +717,10 @@
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
+    <Compile Include="Models\API\KalturaBulkExportReferenceBy.cs" />
+    <Compile Include="Models\API\KalturaBulkExportTask.cs" />
+    <Compile Include="Models\API\KalturaExportDataType.cs" />
+    <Compile Include="Models\API\KalturaExportType.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />

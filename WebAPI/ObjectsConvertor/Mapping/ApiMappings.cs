@@ -83,6 +83,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            //Bulk export task 
+            Mapper.CreateMap<BulkExportTask, KalturaBulkExportTask>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.ExternalKey, opt => opt.MapFrom(src => src.ExternalKey))
+                .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertExportDataType(src.DataType)))
+                .ForMember(dest => dest.ExportType, opt => opt.MapFrom(src => ConvertExportType(src.ExportType)))
+                .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.Filter))
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency));
+
         }
 
         private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
@@ -185,6 +195,88 @@ namespace WebAPI.ObjectsConvertor.Mapping
             foreach (var item in errors)
             {
                 result.Add(item.key, int.Parse(item.value));
+            }
+
+            return result;
+        }
+
+        private static WebAPI.Models.API.KalturaExportDataType ConvertExportDataType(WebAPI.Api.eBulkExportDataType type)
+        {
+            WebAPI.Models.API.KalturaExportDataType result;
+
+            switch (type)
+            {
+                case eBulkExportDataType.EPG:
+                    result = WebAPI.Models.API.KalturaExportDataType.epg;
+                    break;
+                case eBulkExportDataType.Users:
+                    result = WebAPI.Models.API.KalturaExportDataType.users;
+                    break;
+                case eBulkExportDataType.VOD:
+                    result = WebAPI.Models.API.KalturaExportDataType.vod;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown bulk export data type");
+            }
+
+            return result;
+        }
+
+        private static WebAPI.Models.API.KalturaExportType ConvertExportType(WebAPI.Api.eBulkExportExportType type)
+        {
+            WebAPI.Models.API.KalturaExportType result;
+
+            switch (type)
+            {
+                case eBulkExportExportType.Full:
+                    result = WebAPI.Models.API.KalturaExportType.full;
+                    break;
+                case eBulkExportExportType.Incremental:
+                    result = WebAPI.Models.API.KalturaExportType.incremental;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown bulk export export type");
+            }
+
+            return result;
+        }
+
+        public static eBulkExportDataType ConvertExportDataType(KalturaExportDataType type)
+        {
+            eBulkExportDataType result;
+
+            switch (type)
+            {
+                case KalturaExportDataType.epg:
+                    result = eBulkExportDataType.EPG;
+                    break;
+                case KalturaExportDataType.users:
+                    result = eBulkExportDataType.Users;
+                    break;
+                case KalturaExportDataType.vod:
+                    result = eBulkExportDataType.VOD;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown bulk export data type");
+            }
+
+            return result;
+        }
+
+        public static eBulkExportExportType ConvertExportType(KalturaExportType type)
+        {
+            eBulkExportExportType result;
+
+            switch (type)
+            {
+                case KalturaExportType.full:
+                    result = eBulkExportExportType.Full;
+                    break;
+                case KalturaExportType.incremental:
+                    result = eBulkExportExportType.Incremental;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown bulk export export type");
             }
 
             return result;
