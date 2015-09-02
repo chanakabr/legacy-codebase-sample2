@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using System.Collections.Generic;
 
 public partial class adm_block_rules_new : System.Web.UI.Page
 {
@@ -25,7 +26,31 @@ public partial class adm_block_rules_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+                int id = DBManipulator.DoTheWork();
+
+                if (id > 0)
+                {
+                    string ip = "1.1.1.1";
+                    string userName = "";
+                    string password = "";
+
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "Channel", "api", ip, ref userName, ref password);
+                    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                    if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        apiWS.API client = new apiWS.API();
+                        client.Url = url;
+
+                        client.UpdateGeoBlockRulesCache(parentGroupId);
+                    }
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
