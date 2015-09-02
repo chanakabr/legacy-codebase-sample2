@@ -115,12 +115,11 @@ namespace WebAPI.App_Start
 
         public static string HandleError(string errorMsg, string stack)
         {
-            string message = "";
-            string errMsg = string.Concat(errorMsg, stack);
+            string message = errorMsg;
 #if DEBUG
-            message = errMsg;
+            message = string.Concat(message, stack);
 #endif
-            log.ErrorFormat("{0}", errMsg);
+            log.ErrorFormat("{0}", message);
 
             return message;
         }
