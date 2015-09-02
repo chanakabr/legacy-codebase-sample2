@@ -189,8 +189,7 @@ namespace WebAPI.Controllers
         /// <param name="password">password</param>
         /// <param name="user">The user model to add</param>
         /// <remarks>        
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
+        /// Wrong username or password = 1011, User exists = 2014
         /// </remarks>
         [Route("add"), HttpPost]
         public KalturaOTTUser Add(int partnerId, KalturaOTTUser user, string password)
