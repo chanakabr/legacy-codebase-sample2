@@ -189,8 +189,7 @@ namespace WebAPI.Controllers
         /// <param name="password">password</param>
         /// <param name="user">The user model to add</param>
         /// <remarks>        
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
+        /// Wrong username or password = 1011, User exists = 2014
         /// </remarks>
         [Route("add"), HttpPost]
         public KalturaOTTUser Add(int partnerId, KalturaOTTUser user, string password)
@@ -327,7 +326,7 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Route("changePassword"), HttpPost]
         [ApiAuthorize]
         public bool ChangePassword(string username, string old_password, string new_password)
