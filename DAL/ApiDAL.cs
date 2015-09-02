@@ -2103,5 +2103,20 @@ namespace DAL
         {
             return ODBCWrapper.Utils.GetCompleteTable("ip_to_country");
         }
+
+        public static List<int> GetAllCountries()
+        {
+            List<int> countries = new List<int>();
+
+            DataTable table = ODBCWrapper.Utils.GetCompleteTable("countries");
+
+            if (table != null)
+            {
+                // Convert table to list of IDs
+                countries = table.Rows.Cast<DataRow>().Select(row => ODBCWrapper.Utils.ExtractInteger(row, "ID")).ToList();
+            }
+
+            return countries;
+        }
     }
 }
