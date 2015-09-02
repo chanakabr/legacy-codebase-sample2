@@ -182,9 +182,21 @@ namespace TVPApiModule.Manager
             // try get api token from CB
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
             CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
-            if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
+            if (casRes == null)
             {
-                logger.ErrorFormat("RefreshAccessToken: refreshToken expired.");
+                logger.ErrorFormat("RefreshAccessToken: No response from CB.");
+                returnError(401);
+                return null;
+            }
+            if (casRes.OperationResult != eOperationResult.NoError)
+            {
+                logger.ErrorFormat("RefreshAccessToken: Error response from CB: OperationResult = {0}", casRes.OperationResult);
+                returnError(401);
+                return null;
+            }
+            if (casRes.Value == null)
+            {
+                logger.ErrorFormat("RefreshAccessToken: Token doc not found in CB - refreshToken expired.");
                 returnError(401);
                 return null;
             }
