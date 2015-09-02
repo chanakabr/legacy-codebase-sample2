@@ -5,6 +5,7 @@
 
 <script RunAt="server">
     private static readonly KLogMonitor.KLogger logger = new KLogMonitor.KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    private static log4net.ILog performanceLogger = log4net.LogManager.GetLogger("GlobalASCX");
 
     void Application_Start(object sender, EventArgs e)
     {
@@ -21,6 +22,9 @@
         //Patch for .net v4.0+
         if (HttpContext.Current.Items.Count > 0)
             HttpContext.Current.Items.Clear();
+
+        // get start time for the logs
+        HttpContext.Current.Items.Add("RequestStartTime", DateTime.UtcNow);
 
         // Save site data (groupid, platform, wsuser, wspass) on session for further processes
         TVPApi.ConnectionHelper.InitServiceConfigs();
@@ -106,8 +110,11 @@
 
     void Application_EndRequest(Object Sender, EventArgs e)
     {
+        // Get response time in milliseconds
+        int timeTaken = (DateTime.UtcNow - (DateTime)HttpContext.Current.Items["RequestStartTime"]).Milliseconds;
+
         // Get the request Url
-        string sURL = Request.Url.AbsoluteUri;
+        string requestUrl = Request.Url.AbsoluteUri;
 
         // Get the request message body 
         System.IO.StreamReader reader = new System.IO.StreamReader(Request.InputStream);
@@ -152,6 +159,17 @@
             }
         }
 
+        // Write log
+        if (!string.IsNullOrEmpty(sError))
+        {
+            performanceLogger.ErrorFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds), Error = {4} ", requestUrl, clienIP, requestBody, timeTaken, error is Exception ? (error as Exception).Message : sError);
+        }
+        else
+        {
+            performanceLogger.DebugFormat("Application_EndRequest: URL = {0}, ClientIP = {1}, RequestBody = {2}, TimeTaken = {3} (Milliseconds)", requestUrl, clienIP, requestBody, timeTaken);
+        }
+
+
         // Check for Status code
         if (HttpContext.Current.Items.Contains("StatusCode"))
         {
@@ -165,7 +183,7 @@
         }
 
         // Append to IIS log the full Url
-        Response.AppendToLog(string.Format("|{0}", sURL));
+        Response.AppendToLog(string.Format("|{0}", requestBody));
     }
        
 </script>
