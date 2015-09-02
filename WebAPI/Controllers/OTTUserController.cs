@@ -327,7 +327,7 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Route("changePassword"), HttpPost]
         [ApiAuthorize]
         public bool ChangePassword(string username, string old_password, string new_password)
