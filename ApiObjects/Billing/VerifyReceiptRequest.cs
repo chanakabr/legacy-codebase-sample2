@@ -9,5 +9,6 @@ namespace ApiObjects.Billing
     {
         public string purchaseToken;
         public string paymentGatewayType;
+        public string productCode;
     }
 }
