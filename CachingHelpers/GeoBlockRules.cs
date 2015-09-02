@@ -14,31 +14,6 @@ namespace CachingHelpers
 {
     public class GeoBlockRules : BaseCacheHelper<List<int>>
     {
-        #region Consts
-
-        /// <summary>
-        /// 24 hours
-        /// </summary>
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 1440d;
-        private static readonly string DEFAULT_CACHE_NAME = "GroupsCache";
-
-        #endregion
-
-        #region Statis members
-
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static object locker = new object();
-
-        #endregion
-
-        #region Private Members
-
-        private ICachingService rulesCache = null;
-        private readonly double cacheTime;
-        private string cacheGroupConfiguration;
-
-        #endregion
-
         #region Singleton
 
         private static GeoBlockRules instance;
