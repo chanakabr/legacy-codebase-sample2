@@ -81,7 +81,7 @@ namespace CachingHelpers
             string result = DEFAULT_CACHE_NAME;
 
             string tcm = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
-            
+
             if (tcm.Length > 0)
             {
                 result = tcm;
@@ -119,9 +119,33 @@ namespace CachingHelpers
 
         #endregion
 
-        #region Abstract Methods
+        #region Abstract and virtual Methods
 
-        protected abstract T BuildValue(params object[] parameters);
+        protected virtual T BuildValue(params object[] parameters)
+        {
+            return default(T);
+        }
+
+        protected virtual List<T> MultiBuildValue(List<int> indexes, params object[] parameters)
+        {
+            return null;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected List<T2> BuildPartialList<T2>(List<T2> fullList, List<int> indexes)
+        {
+            List<T2> partial = new List<T2>();
+
+            for (int i = 0; i < indexes.Count; i++)
+            {
+                partial.Add(fullList[indexes[i]]);
+            }
+
+            return partial;
+        }
 
         #endregion
 
@@ -192,6 +216,104 @@ namespace CachingHelpers
             }
 
             return value;
+        }
+
+        public List<T> MultiGet(List<string> cacheKeys, string mutexName, params object[] parameters)
+        {
+            T[] values = new T[cacheKeys.Count];
+
+            try
+            {
+                List<int> uncachedIndexes = new List<int>();
+
+                for (int i = 0; i < cacheKeys.Count; i++)
+                {
+                    string cacheKey = cacheKeys[i];
+
+                    T value = default(T);
+
+                    BaseModuleCache baseModule = this.cacheService.Get(cacheKey);
+
+                    // If we found - put in values array
+                    if (baseModule != null && baseModule.result != null)
+                    {
+                        value = (T)baseModule.result;
+                        values[i] = value;
+                    }
+                    else
+                    {
+                        bool createdNew = false;
+                        var mutexSecurity = Utils.CreateMutex();
+                        using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
+                        {
+                            try
+                            {
+                                mutex.WaitOne(-1);
+
+                                VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cacheKey);
+
+                                // If we found - put in values array
+                                if (versionModule != null && versionModule.result != null)
+                                {
+                                    value = (T)baseModule.result;
+                                    values[i] = value;
+                                }
+                                else
+                                {
+                                    // If we DIDN't find - remember the INDEX of the key
+                                    uncachedIndexes.Add(i);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
+                                    cacheKey, ex.Message), ex);
+                            }
+                            finally
+                            {
+                                mutex.ReleaseMutex();
+                            }
+                        }
+                    }
+                }
+
+                // If some of the keys didn't return in cache - build them and save in cache
+                if (uncachedIndexes.Count > 0)
+                {
+                    // Ask the inhertied class to build the values to put in cache
+                    List<T> newValues = this.MultiBuildValue(uncachedIndexes, parameters);
+
+                    for (int i = 0; i < uncachedIndexes.Count; i++)
+                    {
+                        // Order should be identical!
+                        T tempValue = newValues[i];
+                        int originalIndex = uncachedIndexes[i];
+
+                        string cachedKey = cacheKeys[originalIndex];
+
+                        VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cachedKey);
+                        bool inserted = false;
+                        
+                        //try insert to Cache
+                        for (int tryNumber = 0; tryNumber < 3 && !inserted; tryNumber++)
+                        {
+                            versionModule.result = tempValue;
+                            inserted = this.cacheService.SetWithVersion<T>(cachedKey, versionModule, cacheTime);
+
+                            if (inserted)
+                            {
+                                values[originalIndex] = tempValue;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Get - " + string.Format("Couldn't multi get. ex = {0}", ex.Message), ex);
+            }
+
+            return values.ToList();
         }
 
         public virtual bool Remove(string cacheKey, string mutexName)

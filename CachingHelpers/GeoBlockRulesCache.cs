@@ -12,13 +12,15 @@ using System.Threading;
 
 namespace CachingHelpers
 {
-    public class GeoBlockRules : BaseCacheHelper<List<int>>
+    public class GeoBlockRulesCache : BaseCacheHelper<List<int>>
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Singleton
 
-        private static GeoBlockRules instance;
+        private static GeoBlockRulesCache instance;
 
-        public static GeoBlockRules Instance()
+        public static GeoBlockRulesCache Instance()
         {
             if (instance == null)
             {
@@ -26,7 +28,7 @@ namespace CachingHelpers
                 {
                     if (instance == null)
                     {
-                        instance = new GeoBlockRules();
+                        instance = new GeoBlockRulesCache();
                     }
                 }
             }
@@ -38,7 +40,7 @@ namespace CachingHelpers
 
         #region Ctor and initialization
 
-        private GeoBlockRules()
+        private GeoBlockRulesCache()
             : base()
         {
         }
