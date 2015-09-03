@@ -117,7 +117,7 @@ namespace GroupsCacheManager
             try
             {
                 EpgGroupSettings egs = new EpgGroupSettings();
-                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_GroupsTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup, 0/*return not only searchable*/);
+                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_Group_EPGTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup, 0/*return not only searchable*/);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
                 {
@@ -126,10 +126,13 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[0].Rows)
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
+                            long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                            string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+
+                            if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lMetasName.Add(filed);
+                                egs.m_lMetasName.Add(name);
+                                egs.metas[id] = name;
                             }
                         }
                     }
@@ -139,10 +142,13 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[1].Rows)
                         {
-                            string filed = ODBCWrapper.Utils.GetSafeStr(row["name"]);
-                            if (!string.IsNullOrEmpty(filed))
+                            long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                            string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+
+                            if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lTagsName.Add(filed);
+                                egs.m_lTagsName.Add(name);
+                                egs.tags[id] = name;
                             }
                         }
                     }

@@ -573,5 +573,17 @@ namespace Tvinci.Core.DAL
             bool retVal = sp.ExecuteReturnValue<bool>();
             return retVal;
         }
+
+        public static DataSet Get_Group_EPGTagsAndMetas(int groupId, List<int> subGroupTree, int isSearchable = 1)
+        {
+            StoredProcedure storedProcedured = new StoredProcedure("Get_Group_EPGTagsAndMetas");
+            storedProcedured.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedured.AddParameter("@GroupID", groupId);
+            storedProcedured.AddIDListParameter<int>("@SubGroupTree", subGroupTree, "Id");
+            storedProcedured.AddParameter("@IsSearchable", isSearchable);
+
+            DataSet dataSet = storedProcedured.ExecuteDataSet();
+            return dataSet;
+        }
     }
 }
