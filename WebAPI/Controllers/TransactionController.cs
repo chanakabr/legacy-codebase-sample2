@@ -17,7 +17,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.
         /// </summary>
-        /// <param name="household_id">Household to charge </param>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
         /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
