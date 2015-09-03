@@ -506,8 +506,18 @@ namespace WebAPI.Filters
                 return;
             }
 
-            // get group secret
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = null;
+            try
+            {
+                // get group secret
+                group = GroupsManager.GetGroup(groupId);
+            }
+            catch (ApiException ex)
+            {
+                createErrorResponse(actionContext, (int)ex.Code, ex.Message);
+                return;
+            }
+
             string adminSecret = group.UserSecret;
 
             // build KS
