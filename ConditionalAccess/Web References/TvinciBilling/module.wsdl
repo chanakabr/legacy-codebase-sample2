@@ -1029,6 +1029,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="customData" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="productID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="productCode" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="productType" type="tns:eTransactionType" />
             <s:element minOccurs="1" maxOccurs="1" name="contentID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="purchaseToken" type="s:string" />
@@ -1697,6 +1698,7 @@
     <wsdl:part name="userIP" type="s:string" />
     <wsdl:part name="customData" type="s:string" />
     <wsdl:part name="productID" type="s:string" />
+    <wsdl:part name="productCode" type="s:string" />
     <wsdl:part name="productType" type="s:string" />
     <wsdl:part name="contentID" type="s:string" />
     <wsdl:part name="purchaseToken" type="s:string" />
@@ -3142,13 +3144,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/billing/module.asmx" />
+      <soap:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/billing/module.asmx" />
+      <soap12:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/billing/module.asmx" />
+      <http:address location="http://localhost/WS_Billing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
