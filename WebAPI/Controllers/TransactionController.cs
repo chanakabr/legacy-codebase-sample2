@@ -38,10 +38,6 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // validate currency
-            if (string.IsNullOrEmpty(currency))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
-
             try
             {
                 // call client
