@@ -56,7 +56,7 @@ namespace ODBCWrapper
         {
             //if (Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT") != string.Empty)
             //    return int.Parse(Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT"));
-            return 1000;
+            return -1; //1000;
         }
 
         static public Int32 GetLongTimeQuery()
