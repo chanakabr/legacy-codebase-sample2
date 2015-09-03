@@ -497,6 +497,7 @@ namespace WebAPI.Filters
             catch (Exception ex)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                return;
             }
 
             if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
