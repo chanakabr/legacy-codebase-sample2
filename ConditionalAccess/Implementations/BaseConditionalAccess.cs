@@ -12405,6 +12405,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("Collection Purchase, ProductID:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                        productId, purchaseID, response.TransactionID));
+
                                     // entitlement passed - build notification message
                                     var dicData = new Dictionary<string, object>()
                                 {
@@ -12540,6 +12543,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                        productId, purchaseID, response.TransactionID));
+
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -12707,6 +12713,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
+                                        productId, contentId, purchaseId, response.TransactionID));
+
                                     // entitlement passed - build notification message
                                     var dicData = new Dictionary<string, object>()
                                     {
