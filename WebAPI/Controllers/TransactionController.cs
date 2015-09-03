@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
-        /// Signature mismatch = 6013, Unknown transaction state = 6042,,     
+        /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
         [Route("processReceipt"), HttpPost]
         [ApiAuthorize]
