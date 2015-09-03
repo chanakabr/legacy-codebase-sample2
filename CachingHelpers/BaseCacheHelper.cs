@@ -35,6 +35,7 @@ namespace CachingHelpers
         protected ICachingService cacheService = null;
         protected readonly double cacheTime;
         protected string cacheGroupConfiguration;
+        protected string version;
 
         #endregion
 
@@ -49,6 +50,7 @@ namespace CachingHelpers
                 case "CouchBase":
                 {
                     cacheService = CouchBaseCache<T>.GetInstance("CACHE");
+                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
 
                     //set ttl time for document 
                     cacheTime = GetDocTTLSettings();
@@ -65,6 +67,7 @@ namespace CachingHelpers
                     cacheTime = GetDefaultCacheTimeInMinutes();
                     string cacheName = GetCacheName();
                     cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
 
                     break;
                 }

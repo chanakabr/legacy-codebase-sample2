@@ -65,7 +65,7 @@ namespace CachingHelpers
         {
             List<int> rules = new List<int>();
 
-            string cacheKey = string.Format("country_to_rules_{0}_{1}", groupId, countryId);
+            string cacheKey = string.Format("{0}_country_to_rules_{1}_{2}", version, groupId, countryId);
             string mutexName = string.Concat("Group GeoBlockRules GID_", groupId);
 
             rules = base.Get(cacheKey, mutexName, groupId, countryId);
@@ -76,7 +76,7 @@ namespace CachingHelpers
         public bool Remove(int groupId, int countryId)
         {
             bool isRemoveSucceeded = false;
-            string cacheKey = string.Format("country_to_rules_{0}_{1}", groupId, countryId);
+            string cacheKey = string.Format("{0}_country_to_rules_{1}_{2}", version, groupId, countryId);
             string mutexName = string.Concat("Cache Delete GeoBlockRules_", groupId);
 
             isRemoveSucceeded = base.Remove(cacheKey, mutexName);

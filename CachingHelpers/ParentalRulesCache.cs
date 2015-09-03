@@ -63,7 +63,7 @@ namespace CachingHelpers
         {
             List<ParentalRule> rules = new List<ParentalRule>();
 
-            List<string> keys = ids.Select(id => string.Format("parental_rule_{0}", id)).ToList();
+            List<string> keys = ids.Select(id => string.Format("{0}_parental_rule_{1}", version, id)).ToList();
             string mutexName = string.Concat("ParntalRules GID_", groupId);
 
             rules = base.MultiGet(keys, mutexName, groupId, ids);
