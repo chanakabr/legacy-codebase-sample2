@@ -32,15 +32,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction Purchase(int household_id, double price, string currency, int content_id, int product_id, KalturaTransactionType product_type, string coupon = null)
+        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null)
         {
             KalturaTransaction response = new KalturaTransaction();
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            // validate household id
-            if (household_id < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
 
             // validate currency
             if (string.IsNullOrEmpty(currency))
@@ -49,7 +45,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, household_id, price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
             }
             catch (ClientException ex)
             {
