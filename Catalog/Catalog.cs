@@ -1141,7 +1141,7 @@ namespace Catalog
             int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
 
             //GroupsCache.Instance().
-            List<int> result = GeoBlockRules.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
+            List<int> result = GeoBlockRulesCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
 
             // Make sure DAL didn't return empty result
             if (result == null)
