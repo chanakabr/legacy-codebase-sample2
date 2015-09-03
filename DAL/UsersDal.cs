@@ -1796,7 +1796,7 @@ namespace DAL
                 sp.AddParameter("@siteGuid", siteGuid);
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@expired_date", expired_date);
-                sp.AddParameter("@secret", secret);
+                sp.AddParameter("@secret", secret != null ? secret : string.Empty);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
