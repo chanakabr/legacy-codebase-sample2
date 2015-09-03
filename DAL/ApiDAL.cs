@@ -2118,5 +2118,65 @@ namespace DAL
 
             return countries;
         }
+
+        public static Dictionary<long, ParentalRule> Get_Group_ParentalRules_ByID(int groupId, List<long> ids)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Group_ParentalRules_ByID");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddIDListParameter("@IDs", ids, "ID");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            Dictionary<long, ParentalRule> dictionary = new Dictionary<long, ParentalRule>();
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                dictionary.Add(ids[i], null);
+            }
+
+            foreach (ParentalRule rule in rules)
+            {
+                dictionary[rule.id] = rule;
+            }
+
+            return dictionary;
+        }
+
+        public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
+        {
+            List<long> ruleIds = new List<long>();
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRulesIDs");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+
+                        if (id > 0)
+                        {
+                            ruleIds.Add(id);
+                        }
+                    }
+                }
+            }
+
+            return ruleIds;       
+        }
     }
 }
