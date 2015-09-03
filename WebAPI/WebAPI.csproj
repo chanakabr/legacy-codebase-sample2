@@ -159,22 +159,15 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Catalog\configuration91.svcinfo" />
-    <None Include="Service References\Catalog\configuration.svcinfo" />
-    <None Include="Service References\Catalog\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <EmbeddedResource Include="Resource\index.html" />
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
-    <Content Include="Service References\Catalog\Service.disco" />
-    <Content Include="Service References\Catalog\Service.wsdl" />
+    <None Include="Service References\Catalog\Service.wsdl" />
     <None Include="Service References\Catalog\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Catalog\Service1.wsdl" />
+    <None Include="Service References\Catalog\Service1.wsdl" />
     <None Include="Service References\Catalog\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -217,8 +210,27 @@
     <None Include="Service References\Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Service References\Notifications\configuration91.svcinfo" />
     <None Include="Service References\Notifications\configuration.svcinfo" />
+    <None Include="Service References\Catalog\Service.disco" />
+    <None Include="Service References\Catalog\configuration91.svcinfo" />
+    <None Include="Service References\Catalog\configuration.svcinfo" />
+    <None Include="Service References\Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="Service References\Notifications\NotificationService1.wsdl" />
     <None Include="Service References\Notifications\NotificationService5.xsd">
       <SubType>Designer</SubType>
@@ -245,25 +257,25 @@
     </Content>
     <Content Include="Swagger.ashx" />
     <None Include="Web References\Api\api.disco" />
+    <Content Include="Web References\Api\GenericRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\InAppBillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GenericRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Billing\HouseholdPaymentGatewayResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
+    <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <None Include="Web References\Billing\module.disco" />
+    <Content Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -361,37 +373,33 @@
     <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainerResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\PaymentGWResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGWSettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGWChargeIDResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\TransactResult1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewaySettingsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\ConditionalAccess\Entitlements.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\DomainsBillingTransactionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\module.wsdl" />
+    <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGatewayResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentGatewaySettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </Content>
+    <Content Include="Web References\Billing\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\TransactResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -503,18 +511,6 @@
     <Content Include="Web References\Users\KeyValuePair.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
     <None Include="Web References\Domains\module.wsdl" />
     <Content Include="Web References\Domains\NetworkResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -540,11 +536,6 @@
     <Content Include="Web References\Social\SocialObjectReponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <None Include="Web References\Billing\module.wsdl" />
-    <None Include="Web References\Billing\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <None Include="Web References\ConditionalAccess\module.wsdl" />
     <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -985,6 +976,17 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/billing/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Billing\</RelPath>
+      <UpdateFromURL>http://192.168.192.146/webservices/billing/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Api\</RelPath>
@@ -996,21 +998,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_billing/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Billing\</RelPath>
-      <UpdateFromURL>http://localhost/ws_billing/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
