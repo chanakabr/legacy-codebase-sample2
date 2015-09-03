@@ -364,6 +364,9 @@
     <None Include="Web References\ws_api\Status1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\ws_api\StatusErrorCodesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\ws_api\TagResponseObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

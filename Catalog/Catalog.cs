@@ -1086,19 +1086,23 @@ namespace Catalog
                 // Validate webservice response
                 if (serviceResponse != null && serviceResponse.status != null && serviceResponse.status.Code == 0)
                 {
+                    Group group = new GroupManager().GetGroup(groupId);
+
                     // Media: Convert TagPair array to our dictionary
                     if (serviceResponse.mediaTags != null)
                     {
                         foreach (var tag in serviceResponse.mediaTags)
                         {
-                            if (!mediaTags.ContainsKey(tag.key))
+                            string tagName = group.m_oGroupTags[tag.id];
+
+                            if (!mediaTags.ContainsKey(tagName))
                             {
-                                mediaTags[tag.key] = new List<string>();
+                                mediaTags[tagName] = new List<string>();
                             }
 
                             if (tag.value != null)
                             {
-                                mediaTags[tag.key].Add(tag.value);
+                                mediaTags[tagName].Add(tag.value);
                             }
                         }
                     }
@@ -1108,15 +1112,16 @@ namespace Catalog
                     {
                         foreach (var tag in serviceResponse.epgTags)
                         {
-                            if (!epgTags.ContainsKey(tag.key))
-                            {
-                                epgTags[tag.key] = new List<string>();
-                            }
+                            string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
 
+                            if (!epgTags.ContainsKey(tagName))
+                            {
+                                epgTags[tagName] = new List<string>();
+                            }
 
                             if (tag.value != null)
                             {
-                                epgTags[tag.key].Add(tag.value);
+                                epgTags[tagName].Add(tag.value);
                             }
                         }
                     }
