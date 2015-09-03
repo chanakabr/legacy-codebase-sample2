@@ -11928,7 +11928,7 @@ namespace ConditionalAccess
             {
                 long lastDomainDLM = ConditionalAccessDAL.Get_LastDomainDLM(m_nGroupID, domainID);
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
-                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
+                if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to last DLM");
@@ -11943,7 +11943,7 @@ namespace ConditionalAccess
             else
             {
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
-                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
+                if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to new DLM");
