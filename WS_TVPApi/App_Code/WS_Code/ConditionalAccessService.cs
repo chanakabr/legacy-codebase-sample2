@@ -1549,7 +1549,7 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                // Tokenization: validate domain and udid
+                // Tokenization: validate domain and UDID
                 if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
                 {
@@ -1559,7 +1559,6 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).ProcessReceipt(initObj.SiteGuid, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
-
                 }
                 catch (Exception ex)
                 {
