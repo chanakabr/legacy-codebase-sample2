@@ -168,6 +168,9 @@
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
+    <Compile Include="OSSAdapter.cs" />
+    <Compile Include="OSSAdapterBase.cs" />
+    <Compile Include="OSSAdapterSettings.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />

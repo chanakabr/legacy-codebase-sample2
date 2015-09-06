@@ -1975,5 +1975,20 @@ namespace DAL
             
             return mediaId;
         }
+
+        #region OSSAdapter
+        
+        public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion 
+    
+       
     }
 }

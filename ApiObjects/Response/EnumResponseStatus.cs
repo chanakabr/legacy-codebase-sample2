@@ -146,6 +146,10 @@ namespace ApiObjects.Response
         PaymentGatewayNotValid = 6043,
         HouseholdRequired = 6044,
         PaymentGatewayAdapterFailReasonUnknown = 6045,
+        NoOSSAdapterToInsert = 6046,
+        NameRequired = 6047,
+        SharedSecretRequired = 6048,        
+
 
         // social 7000 - 7999
         Conflict = 7000,

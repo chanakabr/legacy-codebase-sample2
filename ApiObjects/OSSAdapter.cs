@@ -1,0 +1,29 @@
+﻿using System.Collections.Generic;
+
+namespace ApiObjects
+{
+    public class OSSAdapter : OSSAdapterBase
+    {
+        public int IsActive { get; set; }
+        public string AdapterUrl { get; set; }
+        public string ExternalIdentifier { get; set; }
+        public string SharedSecret { get; set; }
+
+        public List<OSSAdapterSettings> Settings { get; set; }
+
+        public OSSAdapter()
+        {
+        }
+
+        public OSSAdapter(OSSAdapter ossAdapter)
+        {
+            this.ID = ossAdapter.ID;
+            this.Name = ossAdapter.Name;
+            this.IsActive = ossAdapter.IsActive;
+            this.AdapterUrl = ossAdapter.AdapterUrl;
+            this.ExternalIdentifier = ossAdapter.ExternalIdentifier;
+            this.SharedSecret = ossAdapter.SharedSecret;
+            this.Settings = ossAdapter.Settings;
+        }
+    }
+}
