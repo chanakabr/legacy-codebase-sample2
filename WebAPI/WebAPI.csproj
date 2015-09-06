@@ -667,6 +667,8 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
+    <Compile Include="Controllers\OSSAdapterProfileController.cs" />
     <Compile Include="Controllers\EPGChannelController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
@@ -707,6 +709,8 @@
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterBaseProfile.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />

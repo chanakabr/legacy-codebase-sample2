@@ -12,6 +12,7 @@ using WebAPI.Utils;
 using KLogMonitor;
 using System.Reflection;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 
 
 namespace WebAPI.Clients
@@ -1041,6 +1042,46 @@ namespace WebAPI.Clients
             codes = WebAPI.ObjectsConvertor.Mapping.ApiMappings.ConvertErrorsDictionary(response.ErrorsDictionary);
 
             return codes;
+        }
+
+        internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteOSSAdapter(int groupId, int oss_adapter_id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile oss_adapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool SetOSSAdapter(int groupId, int oss_adapter_id, KalturaOSSAdapterProfile oss_adapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal List<KalturaOSSAdapterProfile> GetOSSAdapterSettings(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteOSSAdapterSettings(int groupId, int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool InsertOSSAdapterSettings(int groupId, int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool SetOSSAdapterSettings(int groupId, int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
         }
     }
 }

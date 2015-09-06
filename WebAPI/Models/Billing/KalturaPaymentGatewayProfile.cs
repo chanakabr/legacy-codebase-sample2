@@ -59,9 +59,9 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// Payment gateway extra parameters
         /// </summary>
-        [DataMember(Name = "payment_gatewaye_settings")]
-        [JsonProperty("payment_gatewaye_settings")]
-        [XmlElement(ElementName = "payment_gatewaye_settings")]
+        [DataMember(Name = "payment_gateway_settings")]
+        [JsonProperty("payment_gateway_settings")]
+        [XmlElement(ElementName = "payment_gateway_settings")]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
