@@ -332,7 +332,9 @@ namespace DAL
         }
 
 
-        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, 
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, 
+            ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification");
@@ -361,6 +363,55 @@ namespace DAL
                     bIsPurchasedWithPreviewModule = lPreviewModuleID > 0;
                     res = true;
 
+                }
+            }
+
+            return res;
+        }
+
+        public static bool Get_DataForAdyenNotification_And_HandleMail(string sPSPReference, ref long lIDInAdyenTransactions,
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType,
+            ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule, ref bool shouldSendMail)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification_And_HandleMail");
+            spGetDataForAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spGetDataForAdyenNotification.AddParameter("@PSPReference", sPSPReference);
+            DataSet ds = spGetDataForAdyenNotification.ExecuteDataSet();
+            if (ds != null)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    short siIsCreatedByCallback = 0;
+                    long lPreviewModuleID = 0;
+                    if (dt.Rows[0]["ID_In_Adyen_Transactions"] != DBNull.Value && dt.Rows[0]["ID_In_Adyen_Transactions"] != null)
+                        Int64.TryParse(dt.Rows[0]["ID_In_Adyen_Transactions"].ToString(), out lIDInAdyenTransactions);
+                    if (dt.Rows[0]["ID_In_Billing_Transactions"] != DBNull.Value && dt.Rows[0]["ID_In_Billing_Transactions"] != null)
+                        Int64.TryParse(dt.Rows[0]["ID_In_Billing_Transactions"].ToString(), out lIDInBillingTransactions);
+                    if (dt.Rows[0]["is_created_by_callback"] != DBNull.Value && dt.Rows[0]["is_created_by_callback"] != null && Int16.TryParse(dt.Rows[0]["is_created_by_callback"].ToString(), out siIsCreatedByCallback))
+                        bIsCreatedByAdyenCallback = siIsCreatedByCallback > 0;
+                    if (dt.Rows[0]["Purchase_Type"] != DBNull.Value && dt.Rows[0]["Purchase_Type"] != null)
+                        Int32.TryParse(dt.Rows[0]["Purchase_Type"].ToString(), out nPurchaseType);
+                    if (dt.Rows[0]["Purchase_ID"] != DBNull.Value && dt.Rows[0]["Purchase_ID"] != null)
+                        Int64.TryParse(dt.Rows[0]["Purchase_ID"].ToString(), out lIDInRelevantCATable);
+                    if (dt.Rows[0]["Preview_Module_ID"] != DBNull.Value && dt.Rows[0]["Preview_Module_ID"] != null)
+                        Int64.TryParse(dt.Rows[0]["Preview_Module_ID"].ToString(), out lPreviewModuleID);
+                    bIsPurchasedWithPreviewModule = lPreviewModuleID > 0;
+                    res = true;
+
+                }
+
+                if (ds.Tables.Count > 1)
+                {
+                    DataTable secondTable = ds.Tables[1];
+
+                    if (secondTable != null && secondTable.Rows != null && secondTable.Rows.Count > 0)
+                    {
+                        bool wasMailSend = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(secondTable.Rows[0], "IS_MAIL_SENT"));
+
+                        shouldSendMail = bIsCreatedByAdyenCallback && !wasMailSend;
+                    }
                 }
             }
 
