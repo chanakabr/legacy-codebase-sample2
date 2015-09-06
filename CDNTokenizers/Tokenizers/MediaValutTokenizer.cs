@@ -17,13 +17,8 @@ namespace CDNTokenizers.Tokenizers
             string resultURL = string.Empty;
             try
             {
-                Uri u = new Uri(GetUrl(dParams));
-                string sUrl = u.PathAndQuery;
-                long unixNow = Utils.GetEpochUTCTimeNow();
-
                 MediaVaultOptions options = InitMediaValutOptions(dParams);
-                resultURL = options.VideoUri.Scheme + "://" + options.VideoUri.Host + Compute(options);
-
+                resultURL = Compute(options);
             }
             catch { }
 
