@@ -76,6 +76,36 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Add device to household
+        /// </summary>                
+        /// <param name="device_name">Device name</param>
+        /// <param name="deviceBrandId">Device brand identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold Add(string device_name, int deviceBrandId, string udid)
+        {
+            KalturaHousehold household = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // call client
+                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, deviceBrandId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return household;
+        }
+
+        /// <summary>
         /// Returns device registration status to the supplied household
         /// </summary>
         /// <param name="udid">Device UDID</param>

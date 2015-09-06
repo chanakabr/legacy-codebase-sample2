@@ -331,5 +331,46 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaHousehold AddDeviceToDomain(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
+        {
+            KalturaHousehold result;
+            WebAPI.Domains.DomainStatusResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.AddDeviceToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid, deviceName, deviceBrandId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }
+
     }
 }

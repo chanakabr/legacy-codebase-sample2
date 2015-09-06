@@ -332,7 +332,7 @@
       <s:element name="AddDeviceToDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddDeviceToDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddDeviceToDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1341,7 +1341,7 @@
     <wsdl:part name="deviceBrandID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddDeviceToDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="RemoveDeviceFromDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
