@@ -717,6 +717,7 @@
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
+    <Compile Include="Models\API\KalturaBulkExportFilter.cs" />
     <Compile Include="Models\API\KalturaBulkExportReferenceBy.cs" />
     <Compile Include="Models\API\KalturaBulkExportTask.cs" />
     <Compile Include="Models\API\KalturaExportDataType.cs" />
