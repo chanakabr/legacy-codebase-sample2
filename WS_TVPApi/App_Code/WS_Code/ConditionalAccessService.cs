@@ -1532,7 +1532,47 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
                 response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
-                response.Status = ResponseUtils.ReturnBadCredentialsStatus();            
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.")]
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse ProcessReceipt(InitializationObject initObj, int product_id, eTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "Purchase", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).ProcessReceipt(initObj.SiteGuid, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
             return response;

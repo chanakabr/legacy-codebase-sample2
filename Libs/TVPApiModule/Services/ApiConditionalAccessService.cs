@@ -1555,17 +1555,45 @@ namespace TVPApiModule.Services
             {
                 logger.ErrorFormat(@"Error calling webservice protocol : Purchase, Error Message: {0}, params: userId: {1}, price: {2}, currency: {3}, contentId: {4}, productId: {5} 
                     , productType: {6}, coupon: {7}, deviceName: {8}, pgwId: {9}",
-                    ex.Message,                                 //{0}
-                    userId != null ? userId : string.Empty,   //{1}                    
-                    price,         //{2}
-                    currency != null ? currency : string.Empty,           //{3}
-                    contentId,         //{4}
-                    productId,         //{5}
-                    productType.ToString(),         //{6}
-                    coupon != null ? coupon : string.Empty,         //{7}
-                    deviceName != null ? deviceName : string.Empty,       //{8}
-                    pgwId         //{9}                    
+                    ex.Message,                                     // {0}
+                    userId != null ? userId : string.Empty,         // {1}                    
+                    price,                                          // {2}
+                    currency != null ? currency : string.Empty,     // {3}
+                    contentId,                                      // {4}
+                    productId,                                      // {5}
+                    productType.ToString(),                         // {6}
+                    coupon != null ? coupon : string.Empty,         // {7}
+                    deviceName != null ? deviceName : string.Empty, // {8}
+                    pgwId                                           // {9}                    
                     );
+            }
+
+            return response;
+        }
+
+        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse ProcessReceipt(string userId, int contentId, int productId, eTransactionType transactionType, string deviceName, string purchaseToken, string paymentGatewayName)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    var result = m_Module.ProcessReceipt(m_wsUserName, m_wsPassword, userId, 0, contentId, productId, transactionType, SiteHelper.GetClientIP(), deviceName, purchaseToken, paymentGatewayName);
+                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat(@"Error calling web-service protocol : Purchase, Error Message: {0}, parameters: userId: {1}, contentId: {2}, productId: {3},
+                                     transactionType: {4}, deviceName: {5}, purchaseToken: {6}, paymentGatewayName: {7}",
+                    ex.Message,                                                         // {0}
+                    userId != null ? userId : string.Empty,                             // {1}                    
+                    contentId,                                                          // {2}
+                    productId,                                                          // {3}
+                    transactionType.ToString(),                                         // {4}
+                    deviceName != null ? deviceName : string.Empty,                     // {5}
+                    purchaseToken != null ? purchaseToken : string.Empty,               // {6}
+                    paymentGatewayName != null ? paymentGatewayName : string.Empty);    // {7}                    
             }
 
             return response;
@@ -1574,12 +1602,12 @@ namespace TVPApiModule.Services
         public ClientResponseStatus GrantEntitlements(string userId, int contentId, int productId, eTransactionType productType, bool history)
         {
             ClientResponseStatus clientResponse;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.GrantEntitlements(m_wsUserName, m_wsPassword, userId, 0, contentId, productId ,productType, SiteHelper.GetClientIP(), string.Empty, history);
+                    var result = m_Module.GrantEntitlements(m_wsUserName, m_wsPassword, userId, 0, contentId, productId, productType, SiteHelper.GetClientIP(), string.Empty, history);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
