@@ -210,7 +210,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndex, alias, oldIndices));
                 tSwitchIndex.Wait();
 
-                if (tSwitchIndex.Result && oldIndices.Count > 0)
+                if (this.DeleteOldIndices && tSwitchIndex.Result && oldIndices.Count > 0)
                 {
                     Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
                     t.Wait();

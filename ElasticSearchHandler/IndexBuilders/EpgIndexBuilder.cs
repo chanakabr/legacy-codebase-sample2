@@ -111,7 +111,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 success = api.SwitchIndex(newIndexName, groupAlias, lOldIndices, null);
 
-                if (success && lOldIndices.Count > 0)
+                if (this.DeleteOldIndices && success && lOldIndices.Count > 0)
                 {
                     api.DeleteIndices(lOldIndices);
                 }
@@ -121,6 +121,7 @@ namespace ElasticSearchHandler.IndexBuilders
         }
 
         #endregion
+
         #region Private and protected Methods
 
         private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
