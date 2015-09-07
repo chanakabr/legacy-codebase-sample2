@@ -611,7 +611,7 @@ namespace WebAPI.Clients
             return userAssetsList;
         }
 
-        internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds)
+        internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds, string udid, string mediaType)
         {
             FavoriteResponse response = null;
 
@@ -621,7 +621,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds.ToArray());
+                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds.ToArray(), udid, mediaType);
                 }
             }
             catch (Exception ex)
