@@ -1164,9 +1164,9 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.KalturaBulkExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys)
+        internal List<Models.API.KalturaExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys)
         {
-            List<Models.API.KalturaBulkExportTask> tasks = new List<Models.API.KalturaBulkExportTask>();
+            List<Models.API.KalturaExportTask> tasks = new List<Models.API.KalturaExportTask>();
             BulkExportTasksResponse response = null;
 
 
@@ -1195,7 +1195,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            tasks = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaBulkExportTask>>(response.Tasks);
+            tasks = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaExportTask>>(response.Tasks);
 
             return tasks;
         }

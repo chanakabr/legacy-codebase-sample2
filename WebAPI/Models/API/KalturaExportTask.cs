@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export task
     /// </summary>
-    public class KalturaBulkExportTask : KalturaOTTObject
+    public class KalturaExportTask : KalturaOTTObject
     {
         /// <summary>
         /// Task identifier
@@ -44,7 +44,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "data_type")]
         [JsonProperty("data_type")]
         [XmlElement(ElementName = "data_type")]
-        public KalturaExportType DataType { get; set; }
+        public KalturaExportDataType DataType { get; set; }
 
         /// <summary>
         /// Filter to apply on the export, utilize KSQL.
@@ -62,7 +62,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "export_type")]
         [JsonProperty("export_type")]
         [XmlElement(ElementName = "export_type")]
-        public KalturaExportDataType ExportType { get; set; }
+        public KalturaExportType ExportType { get; set; }
 
         /// <summary>
         /// How often the export should occur, reasonable minimum threshold should apply, configurable in minutes

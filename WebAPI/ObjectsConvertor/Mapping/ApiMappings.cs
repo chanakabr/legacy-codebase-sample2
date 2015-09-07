@@ -84,7 +84,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             //Bulk export task 
-            Mapper.CreateMap<BulkExportTask, KalturaBulkExportTask>()
+            Mapper.CreateMap<BulkExportTask, KalturaExportTask>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.ExternalKey, opt => opt.MapFrom(src => src.ExternalKey))

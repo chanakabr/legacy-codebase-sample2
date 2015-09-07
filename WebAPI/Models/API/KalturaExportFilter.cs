@@ -12,23 +12,16 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export tasks filter
     /// </summary>
-    public class KalturaBulkExportFilter : KalturaOTTObject
+    public class KalturaExportFilter : KalturaOTTObject
     {
-        /// <summary>
-        /// Defines whether to filter the tasks by identifier or external key
-        /// </summary>
-        [DataMember(Name = "by")]
-        [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
-        public KalturaBulkExportReferenceBy By { get; set; }
 
         /// <summary>
         /// The tasks identifiers or external keys - depends on "by" parameter
         /// </summary>
-        [DataMember(Name = "tasks")]
-        [JsonProperty("tasks")]
+        [DataMember(Name = "external_keys")]
+        [JsonProperty("external_keys")]
         [XmlArray(ElementName = "objects")]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> Tasks{ get; set; }
+        public List<KalturaStringValue> ExternalKeys{ get; set; }
     }
 }
