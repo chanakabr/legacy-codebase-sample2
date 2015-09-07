@@ -366,6 +366,8 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
+            pinCode = Mapper.Map<WebAPI.Models.Users.KalturaLoginPin>(response);
+
             return pinCode;
         }
 
