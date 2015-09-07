@@ -33,12 +33,20 @@ namespace ElasticSearchHandler.IndexBuilders
 
             string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
             string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-
+            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
+            
             int numOfShards;
             int numOfReplicas;
+            int sizeOfBulk;
 
             int.TryParse(numberOfReplicas, out numOfReplicas);
             int.TryParse(numberOfShards, out numOfShards);
+            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 50;
+            }
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
@@ -133,7 +141,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                 document = serializedMedia
                             });
                         }
-                        if (lBulkObj.Count >= 50)
+                        if (lBulkObj.Count >= sizeOfBulk)
                         {
                             Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
                             t.Wait();
