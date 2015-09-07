@@ -31,6 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase, Version=1.3.10.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Master\tvincicommon\External\Couchbase.dll</HintPath>
+    </Reference>
+    <Reference Include="CouchbaseWrapper, Version=3.4.0.13400, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Master\tvincicommon\External\CouchbaseWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor">
       <HintPath>..\..\tvincicommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>
@@ -106,6 +114,10 @@
     <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Synchronizer\Synchronizer.csproj">
+      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
+      <Name>Synchronizer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>

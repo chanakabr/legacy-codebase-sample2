@@ -27,35 +27,26 @@ namespace ElasticSearchHandler
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
                     #region Rebuild
-                    IndexBuilders.AbstractIndexBuilder builder = IndexBuilders.IndexBuilderFactory.CreateIndexBuilder(request.GroupID, request.Type);
 
-                    if (builder != null)
+                    Synchronizer.CouchbaseSynchronizer synchronizer = new Synchronizer.CouchbaseSynchronizer(0);
+                    synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
+
+                    Dictionary<string, object> parameters = new Dictionary<string, object>();
+                    parameters.Add("request", request);
+
+                    bool result = synchronizer.SingleDoAction(
+                        string.Format("rebuild_index_{0}_{1}", request.GroupID, request.Type.ToString().ToLower()),
+                        parameters);
+                    
+                    if (result)
                     {
-                        if (request.SwitchIndexAlias.HasValue)
-                        {
-                            builder.SwitchIndexAlias = request.SwitchIndexAlias.Value;
-                        }
-
-                        if (request.DeleteOldIndices.HasValue)
-                        {
-                            builder.DeleteOldIndices = request.DeleteOldIndices.Value;
-                        }
-
-                        builder.StartDate = request.StartDate;
-                        builder.EndDate = request.EndDate;
-
-                        bool result = builder.BuildIndex();
-
-                        if (result)
-                        {
-                            res = "success";
-                        }
-                        else
-                        {
-                            throw new Exception(string.Format("Rebuilding {0} index for group id {1} has failed.",
-                                request.Type.ToString(), request.GroupID));
-                        }
-                    } 
+                        res = "success";
+                    }
+                    else
+                    {
+                        throw new Exception(string.Format("Rebuilding {0} index for group id {1} has failed.",
+                            request.Type.ToString(), request.GroupID));
+                    }
                     #endregion
                 }
                 // Otherwise it is an update type of request (new document, changed document, deleted document)
@@ -91,6 +82,34 @@ namespace ElasticSearchHandler
             }
             
             return res;
+        }
+
+        bool synchronizer_SynchronizedAct(Dictionary<string, object> parameters)
+        {
+            bool result = false;
+
+            ElasticSearchRequest request = parameters["request"] as ElasticSearchRequest;
+            IndexBuilders.AbstractIndexBuilder builder = IndexBuilders.IndexBuilderFactory.CreateIndexBuilder(request.GroupID, request.Type);
+
+            if (builder != null)
+            {
+                if (request.SwitchIndexAlias.HasValue)
+                {
+                    builder.SwitchIndexAlias = request.SwitchIndexAlias.Value;
+                }
+
+                if (request.DeleteOldIndices.HasValue)
+                {
+                    builder.DeleteOldIndices = request.DeleteOldIndices.Value;
+                }
+
+                builder.StartDate = request.StartDate;
+                builder.EndDate = request.EndDate;
+
+                result = builder.BuildIndex();
+            }
+
+            return result;
         }
     }
 }
