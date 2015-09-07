@@ -143,9 +143,10 @@ namespace Synchronizer
         /// <param name="key"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public bool SingleDoAction(string key, Dictionary<string, object> parameters = null)
+        public bool SingleDoAction(string key, out bool actionResult, Dictionary<string, object> parameters = null)
         {
             bool result = false;
+            actionResult = false;
 
             // Check if this key is already locked
             var getResult = couchbaseClient.GetWithCas<int>(key);
@@ -166,8 +167,7 @@ namespace Synchronizer
                     {
                         if (this.SynchronizedAct != null)
                         {
-                            this.SynchronizedAct(parameters);
-
+                            actionResult = this.SynchronizedAct(parameters);
                             result = true;
                         }
 
