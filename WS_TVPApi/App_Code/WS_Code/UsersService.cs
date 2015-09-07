@@ -735,12 +735,18 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = new ClientResponseStatus(); ;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
+                if (string.IsNullOrEmpty(pinCode))
+                {
+                    response.Status = new TVPApiModule.Objects.Responses.Status((int)TVPApiModule.Objects.Responses.eStatus.BadRequest, "pinCode cannot be empty");
+                    return response;
+                }
+
                 try
                 {
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ClearLoginPINs(initObj.SiteGuid, pinCode);
