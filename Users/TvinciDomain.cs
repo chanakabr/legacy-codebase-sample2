@@ -85,9 +85,9 @@ namespace Users
                     switch (domain.m_DomainStatus)
                     {
                         case DomainStatus.OK: // add domain to Cache
+                        case DomainStatus.DomainCreatedWithoutNPVRAccount:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                            DomainsCache oDomainCache = DomainsCache.Instance();
-                            bool bInsertDomain = oDomainCache.InsertDomain(domain);
+                            DomainsCache.Instance().InsertDomain(domain);
                             break;
                         case DomainStatus.UserExistsInOtherDomains:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);
