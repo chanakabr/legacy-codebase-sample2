@@ -241,19 +241,24 @@ namespace TVPPro.SiteManager.Services
         public DomainResponseObject AddDeviceToDomain(string udid, string deviceName)
         {
             int domainId = 0;
-            DomainResponseObject device = null;
+            DomainResponseObject domain = null;
 
             try
             {
                 domainId = UsersService.Instance.GetDomainID();
-                device = m_Module.AddDeviceToDomain(wsUserName, wsPassword, domainId, udid, deviceName, 22);
+                var res = m_Module.AddDeviceToDomain(wsUserName, wsPassword, domainId, udid, deviceName, 22);
+                if (res != null)
+                {
+                    domain = res.DomainResponse;
+                }
+
             }
             catch (Exception e)
             {
                 logger.ErrorFormat("Error occured in SetDeviceInfo, Error : {0} Parameters : Device UDID: {1}, Device Name {2}", e.Message, udid, deviceName);
             }
 
-            return device;
+            return domain;
         }
 
     }
