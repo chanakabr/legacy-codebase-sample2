@@ -5116,7 +5116,7 @@ namespace ConditionalAccess
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
                         PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
-                        
+
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
                         bool bCancellationWindow = false;
@@ -5264,7 +5264,7 @@ namespace ConditionalAccess
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
                         PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
-                        
+
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
                         bool bCancellationWindow = false;
@@ -11928,7 +11928,7 @@ namespace ConditionalAccess
             {
                 long lastDomainDLM = ConditionalAccessDAL.Get_LastDomainDLM(m_nGroupID, domainID);
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
-                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
+                if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to last DLM");
@@ -11943,7 +11943,7 @@ namespace ConditionalAccess
             else
             {
                 ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
-                if (changeDlmObj.resp != null && changeDlmObj.resp.Code == (int)eResponseStatus.OK)
+                if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to change domain DLM to new DLM");
@@ -12405,6 +12405,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("Collection Purchase, ProductID:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                        productId, purchaseID, response.TransactionID));
+
                                     // entitlement passed - build notification message
                                     var dicData = new Dictionary<string, object>()
                                 {
@@ -12540,6 +12543,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                        productId, purchaseID, response.TransactionID));
+
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -12707,6 +12713,9 @@ namespace ConditionalAccess
 
                                 if (handleBillingPassed)
                                 {
+                                    WriteToUserLog(siteguid, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
+                                        productId, contentId, purchaseId, response.TransactionID));
+
                                     // entitlement passed - build notification message
                                     var dicData = new Dictionary<string, object>()
                                     {
@@ -12818,8 +12827,8 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId,
-                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
+                        response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+                                                  productId, subscription.m_ProductCode, TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12972,11 +12981,11 @@ namespace ConditionalAccess
         }
 
         protected TransactionResponse VerifyPurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                 int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, string paymentGWName, int contentId, string purchaseToken)
+                                                 int productID, string productCode, TvinciBilling.eTransactionType transactionType, string billingGuid, string paymentGWName, int contentId, string purchaseToken)
         {
             TransactionResponse response = new TransactionResponse();
 
-            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, purchaseToken={10}",
+            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, productCode={7}, (int)transactionType={8}, billingGuid={9}, paymentGWId={10}, purchaseToken={11}",
                                         !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                         houseHoldID,                                                            // {1}
                                         price,                                                                  // {2}
@@ -12984,10 +12993,11 @@ namespace ConditionalAccess
                                         !string.IsNullOrEmpty(userIP) ? userIP : string.Empty,                  // {4}
                                         !string.IsNullOrEmpty(customData) ? customData : string.Empty,          // {5}
                                         productID,                                                              // {6}
-                                        (int)transactionType,                                                   // {7}
-                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
-                                        !string.IsNullOrEmpty(paymentGWName) ? paymentGWName : string.Empty,    // {9}
-                                        !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty);   // {10}
+                                        productCode,                                                            // {7}
+                                        (int)transactionType,                                                   // {8}
+                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {9}
+                                        !string.IsNullOrEmpty(paymentGWName) ? paymentGWName : string.Empty,    // {10}
+                                        !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty);   // {11}
 
             try
             {
@@ -12997,7 +13007,8 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.VerifyReceipt(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, purchaseToken, paymentGWName, billingGuid);
+                var transactionResponse = wsBillingService.VerifyReceipt(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode, transactionType,
+                                                                         contentId, purchaseToken, paymentGWName, billingGuid);
 
                 if (transactionResponse != null)
                 {
