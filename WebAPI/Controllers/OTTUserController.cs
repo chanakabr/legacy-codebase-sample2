@@ -288,11 +288,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the user associated with a temporary reset token.        
+        /// Returns the user associated with a temporary reset token.
         /// </summary>        
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="token">token</param>
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: 2000 = User does not exist</remarks>
         [Route("validateToken"), HttpPost]
         public KalturaOTTUser validateToken(int partnerId, string token)
         {

@@ -497,6 +497,7 @@ namespace WebAPI.Filters
             catch (Exception ex)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                return;
             }
 
             if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
@@ -505,8 +506,18 @@ namespace WebAPI.Filters
                 return;
             }
 
-            // get group secret
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = null;
+            try
+            {
+                // get group secret
+                group = GroupsManager.GetGroup(groupId);
+            }
+            catch (ApiException ex)
+            {
+                createErrorResponse(actionContext, (int)ex.Code, ex.Message);
+                return;
+            }
+
             string adminSecret = group.UserSecret;
 
             // build KS

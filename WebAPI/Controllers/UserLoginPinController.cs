@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately expires all pre set login pin codes for the user.
+        /// Immediately deletes all pre set login pin codes for the user.
         /// </summary>
         /// <remarks></remarks>
         [Route("deleteAll"), HttpPost]
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately expires a given pre set login pin code for the user.
+        /// Immediately deletes a given pre set login pin code for the user.
         /// </summary>
         /// <param name="pin_code">Login pin code to expire</param>
         /// <remarks></remarks>

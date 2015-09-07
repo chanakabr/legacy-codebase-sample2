@@ -51,13 +51,16 @@ namespace WebAPI.Controllers
         ///  
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings</param>
+        /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+        /// "settings": { "key3": {"value": "value3"},
+        ///"key1": {"value": "value2"}}
+        ///</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
-            
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -81,7 +84,10 @@ namespace WebAPI.Controllers
         ///   Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="settings">Dictionary (string, KalturaStringValue) for partner specific settings </param>
+        /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+        /// "settings": { "key3": {"value": "value3"},
+        ///"key1": {"value": "value2"}}
+        ///</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public bool Add(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
@@ -111,7 +117,10 @@ namespace WebAPI.Controllers
         ///  
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="settings">Dictionary (string,string) for partner specific settings </param>
+        /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+        /// "settings": { "key3": {"value": "value3"},
+        ///"key1": {"value": "value2"}}
+        ///</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)

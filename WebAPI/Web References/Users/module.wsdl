@@ -1648,6 +1648,8 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="mediaIds" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaType" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>

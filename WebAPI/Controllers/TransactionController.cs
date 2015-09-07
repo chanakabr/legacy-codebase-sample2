@@ -17,7 +17,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.
         /// </summary>
-        /// <param name="household_id">Household to charge </param>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
         /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
         /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
@@ -32,24 +31,16 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction Purchase(int household_id, double price, string currency, int content_id, int product_id, KalturaTransactionType product_type, string coupon = null)
+        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null)
         {
             KalturaTransaction response = new KalturaTransaction();
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // validate household id
-            if (household_id < 1)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal household id");
-
-            // validate currency
-            if (string.IsNullOrEmpty(currency))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
-
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, household_id, price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
             }
             catch (ClientException ex)
             {
@@ -103,7 +94,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
-        /// Signature mismatch = 6013, Unknown transaction state = 6042,,     
+        /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
         [Route("processReceipt"), HttpPost]
         [ApiAuthorize]

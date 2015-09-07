@@ -118,18 +118,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return null;
         }
 
-        public static List<KalturaKeyValue> ConvertDynamicData(Social.UserDynamicData userDynamicData)
+        public static SerializableDictionary<string, KalturaStringValue> ConvertDynamicData(Social.UserDynamicData userDynamicData)
         {
-            List<KalturaKeyValue> result = null;
+            SerializableDictionary<string, KalturaStringValue> result = null;
 
             if (userDynamicData != null && userDynamicData.m_sUserData != null)
             {
-                result = new List<KalturaKeyValue>();
+                result = new SerializableDictionary<string, KalturaStringValue>();
                 foreach (var data in userDynamicData.m_sUserData)
                 {
                     if (!string.IsNullOrEmpty(data.m_sDataType))
                     {
-                        result.Add(new KalturaKeyValue() { key = data.m_sDataType, value = data.m_sValue });
+                        result.Add(data.m_sDataType, new KalturaStringValue(){ value = data.m_sValue });
                     }
                 }
             }
