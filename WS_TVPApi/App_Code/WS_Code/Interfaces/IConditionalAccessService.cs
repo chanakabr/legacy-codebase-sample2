@@ -151,9 +151,9 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, double price, string currency, int content_id, int product_id,
-            eTransactionType product_type, string coupon);
+            string product_type, string coupon);
 
         [OperationContract]
-        ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history);
+        ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, string product_type, bool history);
     }
 }
