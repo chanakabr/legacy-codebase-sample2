@@ -153,7 +153,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domain.Id, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domainID, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
