@@ -79,13 +79,13 @@ namespace WebAPI.Controllers
         /// Add device to household
         /// </summary>                
         /// <param name="device_name">Device name</param>
-        /// <param name="deviceBrandId">Device brand identifier</param>
+        /// <param name="device_brand_id">Device brand identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Possible status codes: 
-        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
+        /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string device_name, int deviceBrandId, string udid)
+        public KalturaHousehold Add(string device_name, int device_brand_id, string udid)
         {
             KalturaHousehold household = null;
 
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, deviceBrandId);
+                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, device_brand_id);
             }
             catch (ClientException ex)
             {
