@@ -34,11 +34,18 @@ namespace ElasticSearchHandler
                     Dictionary<string, object> parameters = new Dictionary<string, object>();
                     parameters.Add("request", request);
 
-                    bool result = synchronizer.SingleDoAction(
+                    bool wasPerformed = false;
+                    bool rebuildResult = false;
+                    wasPerformed = synchronizer.SingleDoAction(
                         string.Format("rebuild_index_{0}_{1}", request.GroupID, request.Type.ToString().ToLower()),
+                        out rebuildResult,
                         parameters);
-                    
-                    if (result)
+
+                    if (!wasPerformed)
+                    {
+                        res = "Rebuild is already in process!";
+                    }
+                    else if (rebuildResult)
                     {
                         res = "success";
                     }
@@ -47,6 +54,7 @@ namespace ElasticSearchHandler
                         throw new Exception(string.Format("Rebuilding {0} index for group id {1} has failed.",
                             request.Type.ToString(), request.GroupID));
                     }
+
                     #endregion
                 }
                 // Otherwise it is an update type of request (new document, changed document, deleted document)
