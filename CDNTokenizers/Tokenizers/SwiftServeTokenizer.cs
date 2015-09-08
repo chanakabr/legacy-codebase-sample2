@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace CDNTokenizers.Tokenizers
 {
     public class SwiftServeTokenizer : BaseCDNTokenizer
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected byte[] m_sSaltBytes;
 
         public SwiftServeTokenizer(int nGroupID, int nStreamingCompanyID)
@@ -34,7 +37,7 @@ namespace CDNTokenizers.Tokenizers
                 string startTime = GetStartTime();
                 string endTime = GetEndTime();
 
-                string queryParams = string.Format("stime={0}&etime={1}&ip={2}", startTime, endTime,ip);
+                string queryParams = string.Format("stime={0}&etime={1}&ip={2}", startTime, endTime, ip);
                 Utils.AddQueryStringParams(ref uriBuilder, queryParams);
 
                 string hashStr = SignString(uriBuilder.Uri.PathAndQuery);
@@ -42,9 +45,9 @@ namespace CDNTokenizers.Tokenizers
 
                 resultURL = uriBuilder.Uri.ToString();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("SwiftServeTokenizer - caught exception while generating token. ex={0}; stack={1}", ex.Message, ex.StackTrace), CDN_TOKENIZER_LOG);
+                log.Error("Error - " + string.Format("SwiftServeTokenizer - caught exception while generating token. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return resultURL;

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using KLogMonitor;
 
 namespace CDNTokenizers.Tokenizers
 {
     public class ConcurrentCDNTokenizer : BaseCDNTokenizer
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected static readonly string ALPHA_NUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         protected static readonly Random RANDOM_GEN = new Random();
@@ -17,14 +20,14 @@ namespace CDNTokenizers.Tokenizers
         public ConcurrentCDNTokenizer(int nGroupID, int nStreamingCompanyID)
             : base(nGroupID, nStreamingCompanyID)
         {
-            
+
         }
 
         internal override void Init()
         {
             base.Init();
             m_sSaltBytes = System.Text.Encoding.ASCII.GetBytes(m_sSalt);
-            
+
         }
 
         public override string GenerateToken(Dictionary<string, string> dParams)
@@ -54,7 +57,7 @@ namespace CDNTokenizers.Tokenizers
                 #region build uri with query
                 UriBuilder baseUri = new UriBuilder(url);
                 Utils.AddQueryStringParams(ref baseUri, queryStr);
-                
+
                 var splitUrl = baseUri.Uri.ToString().Split('?');
 
                 if (splitUrl.Length > 1)
@@ -71,7 +74,7 @@ namespace CDNTokenizers.Tokenizers
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Concurrent CDN - caught exception when generating token. ex={0}; stack={1}", ex.Message, ex.StackTrace), CDN_TOKENIZER_LOG);
+                log.Error("Error - " + string.Format("Concurrent CDN - caught exception when generating token. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
 

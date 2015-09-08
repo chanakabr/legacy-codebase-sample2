@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CDNTokenizers.Tokenizers.AkamaiTokenizers;
+using KLogMonitor;
+using System.Reflection;
 
 namespace CDNTokenizers
 {
     public static class CDNTokenizerFactory
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static object tokenImplLocker = new object();
         private static Dictionary<int, ICDNTokenizer> dCDNTokenizerImpl = new Dictionary<int, ICDNTokenizer>();
@@ -69,6 +72,7 @@ namespace CDNTokenizers
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 tokenizer = null;
             }
 
