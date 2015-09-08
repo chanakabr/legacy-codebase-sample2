@@ -2020,23 +2020,23 @@ namespace ConditionalAccess
         /// Tells whether the users purchased this subscription or not.
         /// Also gets the user permitted subscriptions' purchases
         /// </summary>
-        /// <param name="p_sSubscriptionCode"></param>
-        /// <param name="p_arrUsers"></param>
+        /// <param name="subscriptionCode"></param>
+        /// <param name="arrUsers"></param>
         /// <returns></returns>
-        private bool IsSubscriptionPermittedForUsers(string p_sSubscriptionCode, int[] p_arrUsers, out DataTable p_dtUserPurchases)
+        private bool IsSubscriptionPermittedForUsers(string subscriptionCode, int[] arrUsers, out DataTable dataTableUserPurchases)
         {
             bool bResult = false;
 
-            p_dtUserPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(p_arrUsers.ToList(), false);
+            dataTableUserPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(arrUsers.ToList(), false);
 
             // If there is at least one valid subscription
-            if (p_dtUserPurchases != null && p_dtUserPurchases.Rows != null && p_dtUserPurchases.Rows.Count > 0)
+            if (dataTableUserPurchases != null && dataTableUserPurchases.Rows != null && dataTableUserPurchases.Rows.Count > 0)
             {
                 // Run on all purchases until a match is found
-                foreach (DataRow drUserPurchase in p_dtUserPurchases.Rows)
+                foreach (DataRow drUserPurchase in dataTableUserPurchases.Rows)
                 {
                     // If this it the subscription we are looking for
-                    if (p_sSubscriptionCode == ODBCWrapper.Utils.ExtractString(drUserPurchase, "SUBSCRIPTION_CODE"))
+                    if (subscriptionCode == ODBCWrapper.Utils.ExtractString(drUserPurchase, "SUBSCRIPTION_CODE"))
                     {
                         object oCancellationDate = drUserPurchase["CANCELLATION_DATE"];
 
@@ -5199,12 +5199,12 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Permitted Subscriptions
         /// </summary>
-        public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(List<int> lUsersIDs, bool isExpired, int numOfItems)
+        public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(List<int> usersIdList, bool isExpired, int numOfItems)
         {
             PermittedSubscriptionContainer[] ret = null;
             try
             {
-                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(lUsersIDs, isExpired);
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(usersIdList, isExpired);
 
                 if (allSubscriptionsPurchases != null)
                 {
@@ -5231,39 +5231,49 @@ namespace ConditionalAccess
                             break;
                         }
                         DateTime dNextRenewalDate = DateTime.MaxValue;
-                        bool bRecurringStatus = false;
-                        bool bIsSubRenewable = false;
-                        int nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
-                        string sSubscriptionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["SUBSCRIPTION_CODE"]);
+                        bool isRecurringStatus = false;
+                        bool isSubRenewable = false;
+                        int purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
+                        string subscriptionCode = ODBCWrapper.Utils.GetSafeStr(dataRow["SUBSCRIPTION_CODE"]);
 
-                        Int32 nMaxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
-                        Int32 nCurrentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
-                        int billingTransID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
+                        Int32 maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+                        Int32 currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+                        int billingTransId = ODBCWrapper.Utils.GetIntSafeVal(dataRow["billing_transaction_id"]);
 
-                        DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
+                        DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
                         DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
-                        DateTime dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
-                        DateTime dLastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                        DateTime lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+                        int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
+
+                        // check whether subscription is in its grace period
+                        bool isInGracePeriod = false;
+                        if (!isExpired && endDate < DateTime.UtcNow)
+                        {
+                            endDate = endDate.AddMinutes(gracePeriodMinutes);
+                            isInGracePeriod = true;
+                        }
+
 
                         Int32 nIsRecurringStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING_STATUS"]);
                         if (nIsRecurringStatus == 1)
                         {
-                            bRecurringStatus = true;
-                            dNextRenewalDate = dEnd;
+                            isRecurringStatus = true;
+                            dNextRenewalDate = endDate;
                         }
 
-                        if (isExpired && nMaxUses != 0 && nCurrentUses >= nMaxUses)
+                        if (isExpired && maxUses != 0 && currentUses >= maxUses)
                         {
-                            dEnd = dLastViewDate;
+                            endDate = lastViewDate;
                         }
 
                         Int32 nIsSubRenewable = ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]);
                         if (nIsSubRenewable == 1)
-                            bIsSubRenewable = true;
+                            isSubRenewable = true;
 
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dataRow["ID"]);
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
-                        PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
+                        PaymentMethod payMet = GetBillingTransMethod(billingTransId, billingGuid);
 
                         string sDeviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow["device_name"]);
 
@@ -5271,12 +5281,13 @@ namespace ConditionalAccess
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
                         if (nWaiver == 0) // user didn't waiver yet
                         {
-                            IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);
+                            IsCancellationWindow(ref oUsageModule, subscriptionCode, createDate, ref bCancellationWindow, eTransactionType.Subscription);
                         }
 
 
                         PermittedSubscriptionContainer p = new PermittedSubscriptionContainer();
-                        p.Initialize(sSubscriptionCode, nMaxUses, nCurrentUses, dEnd, dCurrent, dLastViewDate, dCreateDate, dNextRenewalDate, bRecurringStatus, bIsSubRenewable, nID, payMet, sDeviceUDID, bCancellationWindow);
+                        p.Initialize(subscriptionCode, maxUses, currentUses, endDate, dCurrent, lastViewDate, createDate, dNextRenewalDate, isRecurringStatus, isSubRenewable,
+                            nID, payMet, sDeviceUDID, bCancellationWindow, isInGracePeriod);
                         ret[i] = p;
                         ++i;
                     }
@@ -5287,12 +5298,12 @@ namespace ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetUserPermittedSubscriptions. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                if (lUsersIDs != null && lUsersIDs.Count > 0)
+                if (usersIdList != null && usersIdList.Count > 0)
                 {
                     sb.Append(" User IDs: ");
-                    for (int i = 0; i < lUsersIDs.Count; i++)
+                    for (int i = 0; i < usersIdList.Count; i++)
                     {
-                        sb.Append(String.Concat(" ", lUsersIDs[i], " "));
+                        sb.Append(String.Concat(" ", usersIdList[i], " "));
                     }
                 }
                 else
