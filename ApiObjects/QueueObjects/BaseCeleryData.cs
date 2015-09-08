@@ -9,6 +9,10 @@ namespace ApiObjects
     [Serializable]
     public class BaseCeleryData : QueueObject
     {
+        #region Consts
+
+        public const string CELERY_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ss.ffffffZ";
+        #endregion
         #region Properties
 
         public string id;
@@ -22,7 +26,7 @@ namespace ApiObjects
         {
             set
             {
-                this.eta = value.ToString("o");
+                this.eta = value.ToString(CELERY_DATE_FORMAT);
             }
         }
 
@@ -30,7 +34,7 @@ namespace ApiObjects
         {
             set
             {
-                this.expires = value.ToString("o");
+                this.expires = value.ToString(CELERY_DATE_FORMAT);
             }
         }
 
@@ -51,12 +55,12 @@ namespace ApiObjects
 
             if (eta != null && eta.HasValue)
             {
-                this.eta = eta.Value.ToString("o");
+                this.eta = eta.Value.ToString(CELERY_DATE_FORMAT);
             }
 
             if (expires != null && expires.HasValue)
             {
-                this.expires = expires.Value.ToString("o");
+                this.expires = expires.Value.ToString(CELERY_DATE_FORMAT);
             }
         }
 

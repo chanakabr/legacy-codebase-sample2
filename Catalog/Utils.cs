@@ -304,7 +304,8 @@ namespace Catalog
                     Dictionary<int, SearchResult> dictRes = new Dictionary<int, SearchResult>();
                     foreach (int mediaID in lMediaIDs)
                     {
-                        dictRes.Add(mediaID, new SearchResult());
+                        if (!dictRes.ContainsKey(mediaID))
+                            dictRes.Add(mediaID, new SearchResult());
                     }
                     Parallel.ForEach<int>(lMediaIDs, mediaID =>
                     {
@@ -317,8 +318,12 @@ namespace Catalog
                     }
                         );
 
-                    lMediaRes = dictRes.Values.ToList();
+                    //lMediaRes = dictRes.Values.ToList();
 
+                    foreach (var item in lMediaIDs)
+                    {
+                        lMediaRes.Add(dictRes[item]);
+                    }
                 }
             }
 

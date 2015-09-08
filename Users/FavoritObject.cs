@@ -314,7 +314,7 @@ namespace Users
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ITEM_CODE", "=", m_sItemCode);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
-            if (string.IsNullOrEmpty(m_sDeviceUDID))
+            if (!string.IsNullOrEmpty(m_sDeviceUDID))
             {
 
                 selectQuery += " and ";
