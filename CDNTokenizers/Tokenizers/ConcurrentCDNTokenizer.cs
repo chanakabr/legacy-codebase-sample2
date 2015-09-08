@@ -15,6 +15,7 @@ namespace CDNTokenizers.Tokenizers
         protected static readonly string ALPHA_NUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         protected static readonly Random RANDOM_GEN = new Random();
         protected static readonly string CONCURRENT_EXPIRATION_FORMAT = Utils.GetConfigValue("concurrent_expiration_format");
+        protected static readonly string CDNTOKEN_GROUPS_WITH_IPS = Utils.GetConfigValue("CdnTokenGroupsWithIps");
         protected byte[] m_sSaltBytes;
 
         public ConcurrentCDNTokenizer(int nGroupID, int nStreamingCompanyID)
@@ -38,9 +39,21 @@ namespace CDNTokenizers.Tokenizers
                 #region get query params
                 string url = GetUrl(dParams);
                 string assetname = GetAssetName(url);
-                string ip = GetIP(dParams);
                 DateTime expiration = GetExpirationTime();
                 string sessionID = GenerateSessionID();
+
+                // Check if group exists in the CdnTokenGroupsWithIps tcm configuration
+                bool groupWithIp = false;
+                if (!string.IsNullOrEmpty(CDNTOKEN_GROUPS_WITH_IPS))
+                {
+                    groupWithIp = CDNTOKEN_GROUPS_WITH_IPS.Split(';').Any(p => p.Trim() == m_nGroupID.ToString());
+                }
+
+                string ip = string.Empty;
+                if (groupWithIp)
+                {
+                    ip = GetIP(dParams);
+                }
 
                 string format = string.IsNullOrEmpty(CONCURRENT_EXPIRATION_FORMAT) ? "yyyy-MM-ddTHH:mm:ssZ" : CONCURRENT_EXPIRATION_FORMAT;
                 string expirationStr = expiration.ToString(format).ToLower();
