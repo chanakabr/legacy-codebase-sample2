@@ -41,6 +41,37 @@ public partial class adm_parental_rules_values : System.Web.UI.Page
                     updateQuery += " AND ASSET_TYPE IS NULL";
                     updateQuery.Execute();
                     updateQuery.Finish();
+
+                    string ip = "1.1.1.1";
+                    string userName = "";
+                    string password = "";
+
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "Channel", "api", ip, ref userName, ref password);
+                    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+
+                    if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        object ruleId = null;
+
+                        if (Session["rule_id"] != null && Session["rule_id"].ToString() != "" && int.Parse(Session["rule_id"].ToString()) != 0)
+                        {
+                            ruleId = Session["rule_id"];
+                        }
+
+                        List<string> keys = new List<string>();
+                        keys.Add(string.Format("{0}_parental_rule_{1}", version, ruleId));
+
+                        apiWS.API client = new apiWS.API();
+                        client.Url = url;
+
+                        client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+                    }
                 }
 
                 return;
