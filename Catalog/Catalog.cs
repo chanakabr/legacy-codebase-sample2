@@ -1024,6 +1024,8 @@ namespace Catalog
             Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
                 out definitions.parentMediaTypes, out definitions.associationTags,
                 definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
+            
+            #region Personal Filters
 
             if (request.personalFilters != null)
             {
@@ -1040,6 +1042,8 @@ namespace Catalog
                         out definitions.mediaParentalRulesTags, out definitions.epgParentalRulesTags);
                 }
             }
+
+            #endregion
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
