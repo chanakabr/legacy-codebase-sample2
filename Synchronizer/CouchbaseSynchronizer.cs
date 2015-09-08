@@ -64,11 +64,20 @@ namespace Synchronizer
 
         #endregion
 
+        #region Public Methods
+        
+        /// <summary>
+        /// Do an action with a queue-like order. First thread/machine will lock and start action, 
+        /// second/others one will start action only after the previous finish
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public bool DoAction(string key, Dictionary<string, object> parameters = null)
         {
             bool result = false;
 
-            // Check if this adapter is already locked
+            // Check if this key is already locked
             var getResult = couchbaseClient.GetWithCas<int>(key);
 
             // If get was succesful
@@ -127,5 +136,52 @@ namespace Synchronizer
 
             return result;
         }
+
+        /// <summary>
+        /// Performs an action ONLY ONCE. Other machines/threads will be denied of the action!
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public bool SingleDoAction(string key, out bool actionResult, Dictionary<string, object> parameters = null)
+        {
+            bool result = false;
+            actionResult = false;
+
+            // Check if this key is already locked
+            var getResult = couchbaseClient.GetWithCas<int>(key);
+
+            // If get was succesful
+            if (getResult.StatusCode == 0)
+            {
+                int isLocked = getResult.Result;
+
+                // If not locked
+                if (isLocked == 0)
+                {
+                    // Try to lock
+                    CasResult<bool> setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, getResult.Cas);
+
+                    // If succesfully locked
+                    if (setResult.StatusCode == 0 && setResult.Result)
+                    {
+                        if (this.SynchronizedAct != null)
+                        {
+                            actionResult = this.SynchronizedAct(parameters);
+                            result = true;
+                        }
+
+                        // Try to unlock
+                        CasResult<bool> secondSetResult = couchbaseClient.Cas(StoreMode.Set, key, 0, setResult.Cas);
+
+                        isLocked = 0;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }
