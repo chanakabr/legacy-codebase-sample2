@@ -187,10 +187,10 @@ namespace TVPPro.SiteManager.DataLoaders
             m_tvmUser = TVMUser;
             m_tvmPass = TVMPass;
 
-            if (string.IsNullOrEmpty(picSize))
-            {
-                throw new Exception("Picture size is null or empty");
-            }
+            //if (string.IsNullOrEmpty(picSize))
+            //{
+            //    throw new Exception("Picture size is null or empty");
+            //}
 
             PicSize = picSize;
             ChannelID = channelID;

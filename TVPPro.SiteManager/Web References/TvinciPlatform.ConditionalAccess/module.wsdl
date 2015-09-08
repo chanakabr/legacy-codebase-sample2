@@ -2378,7 +2378,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houshold" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="price" type="s:double" />
             <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
@@ -2387,7 +2387,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="coupon" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGwId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4350,7 +4350,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
-    <wsdl:part name="houshold" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
     <wsdl:part name="price" type="s:string" />
     <wsdl:part name="currency" type="s:string" />
     <wsdl:part name="contentId" type="s:string" />
@@ -4359,7 +4359,7 @@
     <wsdl:part name="coupon" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
-    <wsdl:part name="paymentGwId" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="PurchaseHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
@@ -7440,13 +7440,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/WS_CAS/module.asmx" />
+      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/WS_CAS/module.asmx" />
+      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/WS_CAS/module.asmx" />
+      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
