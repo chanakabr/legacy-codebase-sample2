@@ -1460,9 +1460,18 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.")]
         [PrivateMethod]
         public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, double price, string currency,
-            int content_id, int product_id, eTransactionType product_type, string coupon)
+            int content_id, int product_id, string product_type, string coupon)
         {
             TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
+
+            if (string.IsNullOrEmpty(product_type) || !Enum.IsDefined(typeof(eTransactionType), product_type))
+            {
+                response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
+                response.Status = ResponseUtils.ReturnBadRequestStatus("Invalid parameter format product_type");
+                return response;
+            }
+
+            eTransactionType productType = (eTransactionType)Enum.Parse(typeof(eTransactionType), product_type);
 
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "Purchase", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -1479,7 +1488,7 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).Purchase(user_id, price, currency,
-                        content_id, product_id, product_type, coupon, string.Empty, 0);
+                        content_id, product_id, productType, coupon, string.Empty, 0);
 
                 }
                 catch (Exception ex)
@@ -1501,9 +1510,18 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.")]
         [PrivateMethod]
-        public ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, eTransactionType product_type, bool history)
+        public ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, string product_type, bool history)
         {
             TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            if (string.IsNullOrEmpty(product_type) || !Enum.IsDefined(typeof(eTransactionType), product_type))
+            {
+                response = new ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadRequestStatus("Invalid parameter format product_type");
+                return response;
+            }
+
+            eTransactionType productType = (eTransactionType)Enum.Parse(typeof(eTransactionType), product_type);
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GrantEntitlements", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1518,7 +1536,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GrantEntitlements(user_id, content_id, product_id, product_type, history);
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).GrantEntitlements(user_id, content_id, product_id, productType, history);
 
                 }
                 catch (Exception ex)
@@ -1532,7 +1550,46 @@ namespace TVPApiServices
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
                 response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
-                response.Status = ResponseUtils.ReturnBadCredentialsStatus();            
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.")]
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse ProcessReceipt(InitializationObject initObj, int product_id, eTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "Purchase", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and UDID
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).ProcessReceipt(initObj.SiteGuid, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
             return response;
