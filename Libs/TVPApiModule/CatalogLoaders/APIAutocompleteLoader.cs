@@ -18,8 +18,8 @@ namespace TVPApiModule.CatalogLoaders
         #region Ctor
 
         public APIAutocompleteLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
-            List<int> assetTypes, string filter, List<string> with)
-            : base(groupID, platform, domainId, userIP, pageSize, pageIndex, assetTypes, filter, with)
+            List<int> assetTypes, string filter, List<string> with, string localeLanguage)
+            : base(groupID, platform, domainId, userIP, pageSize, pageIndex, assetTypes, filter, with, localeLanguage)
         {
         }
 
