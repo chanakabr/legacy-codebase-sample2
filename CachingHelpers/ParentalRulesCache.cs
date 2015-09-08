@@ -39,19 +39,12 @@ namespace CachingHelpers
         }
 
         #endregion
-
-        protected override ParentalRule BuildValue(params object[] parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override List<ParentalRule> MultiBuildValue(List<int> indexes, params object[] parameters)
+        
+        protected override List<ParentalRule> MultiBuildValue(List<long> ids, List<int> indexes, params object[] parameters)
         {
             List<ParentalRule> rules = new List<ParentalRule>();
 
             int groupId = (int)parameters[0];
-            List<long> fullIds = (List<long>)parameters[1];
-            List<long> ids = BuildPartialList(fullIds, indexes);
 
             var dictionary = DAL.ApiDAL.Get_Group_ParentalRules_ByID(groupId, ids);
             rules = dictionary.Values.ToList();
@@ -66,7 +59,7 @@ namespace CachingHelpers
             List<string> keys = ids.Select(id => string.Format("{0}_parental_rule_{1}", version, id)).ToList();
             string mutexName = string.Concat("ParntalRules GID_", groupId);
 
-            rules = base.MultiGet(keys, mutexName, groupId, ids);
+            rules = base.MultiGet(ids, keys, mutexName, groupId);
 
             return rules;
         }

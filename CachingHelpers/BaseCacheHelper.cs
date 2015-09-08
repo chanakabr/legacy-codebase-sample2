@@ -129,7 +129,7 @@ namespace CachingHelpers
             return default(T);
         }
 
-        protected virtual List<T> MultiBuildValue(List<int> indexes, params object[] parameters)
+        protected virtual List<T> MultiBuildValue(List<long> fullIds, List<int> indexes, params object[] parameters)
         {
             return null;
         }
@@ -221,7 +221,7 @@ namespace CachingHelpers
             return value;
         }
 
-        public List<T> MultiGet(List<string> cacheKeys, string mutexName, params object[] parameters)
+        public List<T> MultiGet(List<long> ids, List<string> cacheKeys, string mutexName, params object[] parameters)
         {
             T[] values = new T[cacheKeys.Count];
 
@@ -283,8 +283,10 @@ namespace CachingHelpers
                 // If some of the keys didn't return in cache - build them and save in cache
                 if (uncachedIndexes.Count > 0)
                 {
+                    List<long> partialIds = BuildPartialList(ids, uncachedIndexes);
+
                     // Ask the inhertied class to build the values to put in cache
-                    List<T> newValues = this.MultiBuildValue(uncachedIndexes, parameters);
+                    List<T> newValues = this.MultiBuildValue(partialIds, uncachedIndexes, parameters);
 
                     for (int i = 0; i < uncachedIndexes.Count; i++)
                     {
