@@ -335,7 +335,7 @@ namespace WebAPI
             //Handling Enums
             if (type.IsEnum)
             {
-                return string.Format("type='string' enumType='{0}'", getTypeFriendlyName(type));
+                return string.Format("type='string' enumType='{0}' default='{1}'", getTypeFriendlyName(type), getDefaultForType(type));
             }
             //Handling arrays
             else if (type.IsArray || type.IsGenericType)
