@@ -24,15 +24,13 @@ namespace WebAPI.Controllers
         /// Returns EPG channel programs filtered by channel identifiers and dates
         /// </summary>
         /// <param name="filter">Filtering the epg channel request</param>        
-        /// <param name="order_by">Ordering the channel</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-             string language = null)
+        public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             List<KalturaEPGChannelAssets> response = null;
 

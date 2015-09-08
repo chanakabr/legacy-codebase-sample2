@@ -41,11 +41,6 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            if (response == null)
-            {
-                throw new InternalServerErrorException();
-            }
-
             return response;
         }
     }

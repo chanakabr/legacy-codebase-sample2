@@ -3162,22 +3162,24 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/FilterFavoriteMediaIds", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FavoriteResponse FilterFavoriteMediaIds(string sWSUserName, string sWSPassword, string userId, int[] mediaIds) {
+        public FavoriteResponse FilterFavoriteMediaIds(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType) {
             object[] results = this.Invoke("FilterFavoriteMediaIds", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId,
-                        mediaIds});
+                        mediaIds,
+                        udid,
+                        mediaType});
             return ((FavoriteResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds) {
-            this.FilterFavoriteMediaIdsAsync(sWSUserName, sWSPassword, userId, mediaIds, null);
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType) {
+            this.FilterFavoriteMediaIdsAsync(sWSUserName, sWSPassword, userId, mediaIds, udid, mediaType, null);
         }
         
         /// <remarks/>
-        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, object userState) {
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType, object userState) {
             if ((this.FilterFavoriteMediaIdsOperationCompleted == null)) {
                 this.FilterFavoriteMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFilterFavoriteMediaIdsOperationCompleted);
             }
@@ -3185,7 +3187,9 @@ namespace WebAPI.Users {
                         sWSUserName,
                         sWSPassword,
                         userId,
-                        mediaIds}, this.FilterFavoriteMediaIdsOperationCompleted, userState);
+                        mediaIds,
+                        udid,
+                        mediaType}, this.FilterFavoriteMediaIdsOperationCompleted, userState);
         }
         
         private void OnFilterFavoriteMediaIdsOperationCompleted(object arg) {

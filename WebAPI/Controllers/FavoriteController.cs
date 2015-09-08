@@ -122,17 +122,18 @@ namespace WebAPI.Controllers
                 // no media ids to filter from - use the regular favorites function
                 if (filter.MediaIds == null || filter.MediaIds.Count == 0)
                 {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID, filter.MediaType.ToString());
+                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID,
+                        filter.MediaType != 0 ? filter.MediaType.ToString() : string.Empty);
                 }
                 else
                 {
-                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, filter.MediaIds.Select(id => id.value).ToList());
+                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, filter.MediaIds.Select(id => id.value).ToList(), udid, filter.MediaType != 0 ? filter.MediaType.ToString() : null);
                 }
 
                 // get assets
                 if (favorites != null && favorites.Count > 0)
                 {
-                    List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).ToList();
+                    List<int> mediaIds = favorites.Where(m => (m.Asset.Id != 0) == true).Select(x => Convert.ToInt32(x.Asset.Id)).Distinct().ToList();
 
                     KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId,
                         (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());

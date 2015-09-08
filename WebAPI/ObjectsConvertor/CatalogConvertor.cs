@@ -219,7 +219,7 @@ namespace WebAPI.ObjectsConvertor
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
                 case KalturaOrder.newest:
-                    result.m_eOrderBy = OrderBy.CREATE_DATE;
+                    result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
                 case KalturaOrder.relevancy:

@@ -138,7 +138,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public bool Grant(int user_id, int content_id, int product_id, KalturaTransactionType product_type, bool history)
+        public bool Grant(int user_id, int product_id, KalturaTransactionType product_type, bool history, int content_id = 0)
         {
             bool response = false;
 
@@ -153,7 +153,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domain.Id, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domainID, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
