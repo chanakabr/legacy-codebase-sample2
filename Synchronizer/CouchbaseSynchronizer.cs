@@ -165,14 +165,24 @@ namespace Synchronizer
                     // If succesfully locked
                     if (setResult.StatusCode == 0 && setResult.Result)
                     {
-                        if (this.SynchronizedAct != null)
+                        try
                         {
-                            actionResult = this.SynchronizedAct(parameters);
-                            result = true;
+                            if (this.SynchronizedAct != null)
+                            {
+                                actionResult = this.SynchronizedAct(parameters);
+                                result = true;
+                            }
                         }
-
-                        // Try to unlock
-                        CasResult<bool> secondSetResult = couchbaseClient.Cas(StoreMode.Set, key, 0, setResult.Cas);
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                        // Always unlock, even if exception is thrown - to avoid infinite lock
+                        finally
+                        {
+                            // Try to unlock
+                            CasResult<bool> secondSetResult = couchbaseClient.Cas(StoreMode.Set, key, 0, setResult.Cas);
+                        }
 
                         isLocked = 0;
                     }
