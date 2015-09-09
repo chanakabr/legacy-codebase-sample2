@@ -175,6 +175,14 @@ namespace WebAPI.Models.Pricing
         public int DlmId { get; set; }
 
         /// <summary>
+        /// The subscription grace period in minutes
+        /// </summary>
+        [DataMember(Name = "grace_period_minutes")]
+        [JsonProperty("grace_period_minutes")]
+        [XmlElement(ElementName = "grace_period_minutes")]
+        public int GracePeriodMinutes { get; set; }
+
+        /// <summary>
         /// List of premium services included in the subscription
         /// </summary>
         [DataMember(Name = "premium_services")]
