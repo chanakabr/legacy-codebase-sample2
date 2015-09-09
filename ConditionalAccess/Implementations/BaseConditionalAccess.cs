@@ -5004,7 +5004,7 @@ namespace ConditionalAccess
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
 
-                        if (nWaiver == 0) // user didn't waiver yet
+                        if (nWaiver == 0 && dLastViewDate < dCreateDate) // user didn't waiver yet and didn't use the PPV yet
                         {
                             IsCancellationWindow(ref oUsageModule, sPPVCode, dCreateDate, ref bCancellationWindow, eTransactionType.PPV);
                         }
@@ -5121,7 +5121,7 @@ namespace ConditionalAccess
 
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
-                        if (nWaiver == 0) // user didn't waiver yet
+                        if (nWaiver == 0 && dLastViewDate < dCreateDate) // user didn't waiver yet and didn't use the collection yet
                         {
                             IsCancellationWindow(ref oUsageModule, sCollectionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Collection);
                         }
@@ -5269,7 +5269,7 @@ namespace ConditionalAccess
 
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
-                        if (nWaiver == 0) // user didn't waiver yet
+                        if (nWaiver == 0 && dLastViewDate < dCreateDate) // user didn't waiver yet and didn't use the sub yet
                         {
                             IsCancellationWindow(ref oUsageModule, sSubscriptionCode, dCreateDate, ref bCancellationWindow, eTransactionType.Subscription);
                         }
@@ -13371,22 +13371,22 @@ namespace ConditionalAccess
             switch (priceReason)
             {
                 case PriceReason.PPVPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.PPVPurchased, "PPV already purchased");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchasePPVPurchased, "PPV already purchased");
                     break;
                 case PriceReason.Free:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Free, "Free");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseFree, "Free");
                     break;
                 case PriceReason.ForPurchaseSubscriptionOnly:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.ForPurchaseSubscriptionOnly, "Subscription only");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly, "Subscription only");
                     break;
                 case PriceReason.SubscriptionPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionPurchased, "Already purchased (subscription)");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Already purchased (subscription)");
                     break;
                 case PriceReason.NotForPurchase:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchased");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchase");
                     break;
                 case PriceReason.CollectionPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.CollectionPurchased, "Collection already purchased");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
                     break;
                 default:
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
