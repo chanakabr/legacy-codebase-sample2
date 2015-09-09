@@ -3357,7 +3357,7 @@ namespace TVPApiServices
                     }
 
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                        filter_types, filter, with)
+                        filter_types, filter, with, initObj.Locale.LocaleLanguage)
                         {
                             Order = order,
                             SiteGuid = initObj.SiteGuid,
@@ -3495,7 +3495,7 @@ namespace TVPApiServices
                     string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
 
                     object executedRespone = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
-                        filter_types, filter, with)
+                        filter_types, filter, with, initObj.Locale.LocaleLanguage)
                     {
                         Order = order,
                         SiteGuid = initObj.SiteGuid,
