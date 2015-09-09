@@ -1005,7 +1005,7 @@ namespace ConditionalAccess
         internal static TvinciPricing.Price CalculateCouponDiscount(ref TvinciPricing.Price pModule, TvinciPricing.CouponsGroup oCouponsGroup, string sCouponCode, int nGroupID)
         {
             TvinciPricing.Price p = CopyPrice(pModule);
-            if (sCouponCode.Length > 0)
+            if (!string.IsNullOrEmpty(sCouponCode) && sCouponCode.Length > 0)
             {
 
                 string sWSUserName = string.Empty;
