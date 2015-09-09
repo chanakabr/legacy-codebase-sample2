@@ -37,6 +37,19 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            // validate purchase token
+            if (string.IsNullOrEmpty(currency))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
+
+            //// validate price
+            if (price <= 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "price is illegal");
+
+            //// validate product_id
+            if (product_id <= 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "product_id is illegal");
+
+
             try
             {
                 // call client
