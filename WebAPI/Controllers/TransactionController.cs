@@ -49,6 +49,10 @@ namespace WebAPI.Controllers
             if (product_id <= 0)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "product_id is illegal");
 
+            if (coupon == null)
+            {
+                coupon = string.Empty;
+            }
 
             try
             {
