@@ -35,6 +35,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
+               .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
             #endregion
 
