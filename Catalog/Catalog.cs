@@ -2293,7 +2293,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
 
                     // backward compatibility
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
@@ -2326,7 +2326,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
                     // Backward compatibility
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
@@ -4441,7 +4441,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    result = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                    result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
                 }
             }
             catch (Exception ex)
