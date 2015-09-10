@@ -316,7 +316,9 @@ namespace ApiObjects
         LessThanOrEqual,
         LessThan,
         WordStartsWith,
-        In
+        In,
+        NotIn,
+        Prefix
     }
 
     [Serializable]

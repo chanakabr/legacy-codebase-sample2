@@ -844,11 +844,29 @@ namespace ElasticSearch.Searcher
                         Value = value
                     };
                 }
+                else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+                {
+                    term = new ESPrefix()
+                    {
+                        Key = leaf.field,
+                        Value = value
+                    };
+                }
                 else if (leaf.operand == ApiObjects.ComparisonOperator.In)
                 {
                     term = new ESTerms(false)
                     {
                         Key = leaf.field
+                    };
+
+                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                }
+                else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+                {
+                    term = new ESTerms(false)
+                    {
+                        Key = leaf.field,
+                        isNot = true
                     };
 
                     (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
@@ -978,11 +996,29 @@ namespace ElasticSearch.Searcher
                     isNot = true
                 };
             }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+            {
+                term = new ESPrefix()
+                {
+                    Key = leaf.field,
+                    Value = value
+                };
+            }
             else if (leaf.operand == ApiObjects.ComparisonOperator.In)
             {
                 term = new ESTerms(false)
                 {
                     Key = leaf.field
+                };
+
+                (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+            {
+                term = new ESTerms(false)
+                {
+                    Key = leaf.field,
+                    isNot = true
                 };
 
                 (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
