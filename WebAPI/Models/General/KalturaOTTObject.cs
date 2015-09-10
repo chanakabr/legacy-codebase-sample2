@@ -11,11 +11,27 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base class
     /// </summary>
-    public class KalturaOTTObject 
+    public class KalturaOTTObject
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]
         [XmlElement(ElementName = "objectType")]
         public string objectType { get { return this.GetType().Name; } set { } }
+
+        [DataMember(Name = "relatedObjects")]
+        [JsonProperty(PropertyName = "relatedObjects")]
+        [XmlElement(ElementName = "relatedObjects")]
+        public string relatedObjects
+        {
+            get
+            {
+                return string.Empty;
+            }
+
+            set
+            {
+
+            }
+        }
     }
 }

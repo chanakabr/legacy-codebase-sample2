@@ -82,7 +82,7 @@ namespace WebAPI.App_Start
                     Result = wrapper.Result,
                     ExecutionTime = wrapper.ExecutionTime
                 };
-
+                
                 XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
                 var resnode = doc.GetElementsByTagName("result")[0];
 
