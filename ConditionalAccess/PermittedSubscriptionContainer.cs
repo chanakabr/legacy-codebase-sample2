@@ -24,7 +24,7 @@ namespace ConditionalAccess
         public string m_sDeviceName;
         public bool m_bCancelWindow;
 
-        public bool isInGracePeriod;
+        public bool m_bIsInGracePeriod;
 
 
         public PermittedSubscriptionContainer()
@@ -42,7 +42,7 @@ namespace ConditionalAccess
             m_sDeviceName = string.Empty;
 
             m_bCancelWindow = false;
-            isInGracePeriod = false;
+            m_bIsInGracePeriod = false;
         }
 
         public void Initialize(string sSubscriptionCode, Int32 nMaxUses, Int32 nCurrentUses,
@@ -63,7 +63,7 @@ namespace ConditionalAccess
             m_bIsSubRenewable = bIsSubRenewable;
             m_paymentMethod = payMethod;
             m_bCancelWindow = bCancelWindow;
-            this.isInGracePeriod = isInGracePeriod;
+            this.m_bIsInGracePeriod = isInGracePeriod;
 
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
