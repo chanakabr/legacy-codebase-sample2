@@ -1663,7 +1663,6 @@ namespace DAL
                     chargeID = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id");
                     isPaymentGWHouseholdExist = true;
                 }
-
             }
             catch (Exception ex)
             {
