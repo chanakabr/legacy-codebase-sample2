@@ -20,7 +20,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
-        [XmlElement(ElementName = "asset")]
+        [XmlElement(ElementName = "asset", IsNullable = true)]
         public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>

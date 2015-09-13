@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
         public KalturaTransactionType Type { get; set; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "payment_method")]
         [JsonProperty("payment_method")]
-        [XmlElement(ElementName = "payment_method")]
+        [XmlElement(ElementName = "payment_method", IsNullable = true)]
         public KalturaPaymentMethod PaymentMethod { get; set; }
 
         /// <summary>

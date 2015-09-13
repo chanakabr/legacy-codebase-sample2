@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "udid")]
         [JsonProperty(PropertyName = "udid")]
-        [XmlElement(ElementName = "udid")]        
+        [XmlElement(ElementName = "udid")]
         public string UDID { get; set; }
 
         /// <summary>

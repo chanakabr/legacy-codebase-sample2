@@ -19,7 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "coupons_group")]
         [JsonProperty("coupons_group")]
-        [XmlElement(ElementName = "coupons_group")]
+        [XmlElement(ElementName = "coupons_group", IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>

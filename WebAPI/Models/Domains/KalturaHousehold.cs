@@ -128,7 +128,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "state")]
         [JsonProperty("state")]
-        [XmlElement(ElementName = "state")]
+        [XmlElement(ElementName = "state", IsNullable = true)]
         public KalturaHouseholdState State { get; set; }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "restriction")]
         [JsonProperty("restriction")]
-        [XmlElement(ElementName = "restriction")]
+        [XmlElement(ElementName = "restriction", IsNullable = true)]
         public KalturaHouseholdRestriction Restriction { get; set; }
 
         /// <summary>

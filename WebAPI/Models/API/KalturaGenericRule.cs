@@ -27,7 +27,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
-        [XmlElement(ElementName = "rule_type")]
+        [XmlElement(ElementName = "rule_type", IsNullable = true)]
         public KalturaRuleType RuleType { get; set; }
 
         /// <summary>

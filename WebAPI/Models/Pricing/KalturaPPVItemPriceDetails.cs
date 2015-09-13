@@ -36,7 +36,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
-        [XmlElement(ElementName = "price")]
+        [XmlElement(ElementName = "price", IsNullable = true)]
         public KalturaPrice Price { get; set; }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "full_price")]
         [JsonProperty("full_price")]
-        [XmlElement(ElementName = "full_price")]
+        [XmlElement(ElementName = "full_price", IsNullable = true)]
         public KalturaPrice FullPrice { get; set; }
 
         /// <summary>

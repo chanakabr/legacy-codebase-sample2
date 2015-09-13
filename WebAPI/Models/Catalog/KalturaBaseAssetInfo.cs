@@ -85,7 +85,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement(ElementName = "stats")]
+        [XmlElement(ElementName = "stats", IsNullable = true)]
         public KalturaAssetStatistics Statistics { get; set; }
       
     }
