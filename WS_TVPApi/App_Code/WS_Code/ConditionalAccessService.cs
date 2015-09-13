@@ -1467,12 +1467,16 @@ namespace TVPApiServices
             if (string.IsNullOrEmpty(product_type) || !Enum.IsDefined(typeof(eTransactionType), product_type))
             {
                 response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse();
-                response.Status = ResponseUtils.ReturnBadRequestStatus("Invalid parameter format product_type");
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Invalid parameter format product_type");
                 return response;
             }
 
             eTransactionType productType = (eTransactionType)Enum.Parse(typeof(eTransactionType), product_type);
 
+            if (coupon == null)
+            {
+                coupon = string.Empty;
+            }
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "Purchase", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1517,7 +1521,7 @@ namespace TVPApiServices
             if (string.IsNullOrEmpty(product_type) || !Enum.IsDefined(typeof(eTransactionType), product_type))
             {
                 response = new ClientResponseStatus();
-                response.Status = ResponseUtils.ReturnBadRequestStatus("Invalid parameter format product_type");
+                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Invalid parameter format product_type");
                 return response;
             }
 
