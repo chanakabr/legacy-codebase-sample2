@@ -337,8 +337,8 @@ namespace DAL
         }
 
 
-        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, 
-            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, 
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions,
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType,
             ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
         {
             bool res = false;
@@ -1318,6 +1318,24 @@ namespace DAL
             return paymentGateway;
         }
 
+        public static DataSet GetLatestPaymentGatewayTransaction(int groupId, long householdId, string billingGuid)
+        {
+            DataSet dateset = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestPaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@domain_id", householdId);
+                sp.AddParameter("@billing_guid", billingGuid);
+                DataSet ds = sp.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return dateset;
+        }
 
         public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, int? selected, string chargeID = null, int status = 1)
         {
