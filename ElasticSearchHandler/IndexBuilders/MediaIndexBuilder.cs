@@ -33,12 +33,20 @@ namespace ElasticSearchHandler.IndexBuilders
 
             string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
             string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-
+            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
+            
             int numOfShards;
             int numOfReplicas;
+            int sizeOfBulk;
 
             int.TryParse(numberOfReplicas, out numOfReplicas);
             int.TryParse(numberOfShards, out numOfShards);
+            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 50;
+            }
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
@@ -133,7 +141,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                 document = serializedMedia
                             });
                         }
-                        if (lBulkObj.Count >= 50)
+                        if (lBulkObj.Count >= sizeOfBulk)
                         {
                             Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
                             t.Wait();
@@ -210,7 +218,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndex, alias, oldIndices));
                 tSwitchIndex.Wait();
 
-                if (tSwitchIndex.Result && oldIndices.Count > 0)
+                if (this.DeleteOldIndices && tSwitchIndex.Result && oldIndices.Count > 0)
                 {
                     Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
                     t.Wait();
@@ -322,6 +330,9 @@ namespace ElasticSearchHandler.IndexBuilders
                                     media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
 
                                 }
+
+                                media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
+
                                 #endregion
 
                                 #region - get all metas by groupId

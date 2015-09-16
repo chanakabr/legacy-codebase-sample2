@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{338E6394-A9E9-4D5C-8A6A-95797F6C429F}</ProjectGuid>
+    <ProjectGuid>{350B7F6F-A920-4764-BC90-FC08B0316CA9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ElasticSearchHandler</RootNamespace>
-    <AssemblyName>ElasticSearchHandler</AssemblyName>
+    <RootNamespace>SetupTaskHandler</RootNamespace>
+    <AssemblyName>SetupTaskHandler</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,11 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KLogMonitor">
-      <HintPath>..\..\tvincicommon\External\3.5\KLogMonitor.dll</HintPath>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="KlogMonitorHelper">
+      <HintPath>..\..\tvmcore\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvmcore\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -45,43 +45,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvmcore\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ElasticSearchRequest.cs" />
-    <Compile Include="ElasticSearchTaskUtils.cs" />
-    <Compile Include="IndexBuilders\AbstractIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\EpgIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\IIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\IndexBuilderFactory.cs" />
-    <Compile Include="IndexBuilders\MediaIndexBuilder.cs" />
+    <Compile Include="IPToCountryIndexBuilder.cs" />
+    <Compile Include="SetupTaskRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskHandler.cs" />
-    <Compile Include="Updaters\ChannelUpdater.cs" />
-    <Compile Include="Updaters\EpgUpdater.cs" />
-    <Compile Include="Updaters\IUpdateable.cs" />
-    <Compile Include="Updaters\MediaUpdater.cs" />
-    <Compile Include="Updaters\UpdaterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\CachingManager\CachingManager.csproj">
-      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
-      <Name>CachingManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\Catalog\Catalog.csproj">
-      <Project>{1c524197-e2b6-437e-80de-7f307a9b36f1}</Project>
-      <Name>Catalog</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -91,25 +65,17 @@
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj">
-      <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
-      <Name>EpgBL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
-      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
-      <Name>GroupsCacheManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
+      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Synchronizer\Synchronizer.csproj">
-      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
-      <Name>Synchronizer</Name>
+    <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
@@ -118,6 +84,10 @@
     <ProjectReference Include="..\ElasticsearchHandlerCommon\ElasticsearchTasksCommon.csproj">
       <Project>{ce5e20f3-9489-4875-8ea6-a966446a7073}</Project>
       <Name>ElasticsearchTasksCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
+      <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
+      <Name>ElasticSearchHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
