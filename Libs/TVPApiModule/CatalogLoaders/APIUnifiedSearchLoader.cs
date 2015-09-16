@@ -11,6 +11,7 @@ using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -36,7 +37,7 @@ namespace TVPApiModule.CatalogLoaders
         }
 
         public APIUnifiedSearchLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
-            List<int> assetTypes, string filter, List<string> with, List<ePersonalFilter> personalFilters)
+            List<int> assetTypes, string filter, List<string> with, List<ePersonalFilter> personalFilters, string localeLanguage)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             //DomainId = domainId
@@ -46,6 +47,7 @@ namespace TVPApiModule.CatalogLoaders
             With = with;
             PersonalFilters = personalFilters;
 
+            Language = TextLocalizationManager.Instance.GetTextLocalization(GroupID, (PlatformType)Enum.Parse(typeof(PlatformType), Platform, true)).GetLanguageDBID(localeLanguage);
         }
 
         protected override void BuildSpecificRequest()
