@@ -76,7 +76,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
-        [XmlElement(ElementName = "rule_type")]
+        [XmlElement(ElementName = "rule_type", IsNullable = true)]
         public KalturaParentalRuleType ruleType { get; set; }
 
         /// <summary>
@@ -110,8 +110,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
-        [XmlElement(ElementName = "origin")]
-        public KalturaRuleLevel origin { get; set; }
+        [XmlElement(ElementName = "origin", IsNullable = true)]
+        public KalturaRuleLevel Origin { get; set; }
 
     }
 

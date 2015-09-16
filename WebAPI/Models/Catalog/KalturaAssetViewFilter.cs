@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_status")]
         [JsonProperty(PropertyName = "filter_status")]
-        [XmlElement(ElementName = "filter_status")]
+        [XmlElement(ElementName = "filter_status", IsNullable = true)]
         public KalturaWatchStatus? filter_status { get; set; }
 
         /// <summary>

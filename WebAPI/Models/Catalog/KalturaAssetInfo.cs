@@ -8,12 +8,12 @@ using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
-{    
+{
     /// <summary>
     /// Asset info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaAssetInfoListResponse : KalturaListResponse 
+    public class KalturaAssetInfoListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets
@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects")]
-        [XmlArrayItem("item")] 
+        [XmlArrayItem("item")]
         public List<KalturaAssetInfo> Objects { get; set; }
     }
 
@@ -30,13 +30,13 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
-    {        
+    {
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
         [DataMember(Name = "metas")]
         [JsonProperty(PropertyName = "metas")]
-        [XmlElement("metas")]
+        [XmlElement("metas", IsNullable = true)]
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
-        [XmlElement("tags")]
+        [XmlElement("tags", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValueArray> Tags { get; set; }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "extra_params", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement("extra_params")]
+        [XmlElement("extra_params", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> ExtraParams { get; set; }
     }
 }

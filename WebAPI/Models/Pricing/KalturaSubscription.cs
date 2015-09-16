@@ -88,7 +88,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
-        [XmlElement(ElementName = "price")]
+        [XmlElement(ElementName = "price", IsNullable = true)]
         public KalturaPriceDetails Price { get; set; }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "discount_module")]
         [JsonProperty("discount_module")]
-        [XmlElement(ElementName = "discount_module")]
+        [XmlElement(ElementName = "discount_module", IsNullable = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "coupons_group")]
         [JsonProperty("coupons_group")]
-        [XmlElement(ElementName = "coupons_group")]
+        [XmlElement(ElementName = "coupons_group", IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "preview_module")]
         [JsonProperty("preview_module")]
-        [XmlElement(ElementName = "preview_module")]
+        [XmlElement(ElementName = "preview_module", IsNullable = true)]
         public KalturaPreviewModule PreviewModule { get; set; }
 
         /// <summary>

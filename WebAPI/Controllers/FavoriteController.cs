@@ -127,7 +127,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, filter.MediaIds.Select(id => id.value).ToList());
+                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, filter.MediaIds.Select(id => id.value).ToList(), udid, filter.MediaType != 0 ? filter.MediaType.ToString() : null);
                 }
 
                 // get assets

@@ -557,7 +557,7 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDeviceToDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject AddDeviceToDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid, string deviceName, int deviceBrandID) {
+        public DomainStatusResponse AddDeviceToDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid, string deviceName, int deviceBrandID) {
             object[] results = this.Invoke("AddDeviceToDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -565,7 +565,7 @@ namespace WebAPI.Domains {
                         udid,
                         deviceName,
                         deviceBrandID});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3420,10 +3420,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }

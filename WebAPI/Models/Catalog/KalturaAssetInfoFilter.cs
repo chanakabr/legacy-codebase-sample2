@@ -47,7 +47,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_tags")]
         [JsonProperty(PropertyName = "filter_tags")]
-        [XmlElement("filter_tags")]
+        [XmlElement("filter_tags", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> FilterTags { get; set; }
 
         /// <summary>

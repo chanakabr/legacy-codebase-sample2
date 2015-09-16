@@ -50,7 +50,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "position_owner")]
         [JsonProperty("position_owner")]
-        [XmlElement(ElementName = "position_owner")]
+        [XmlElement(ElementName = "position_owner", IsNullable = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
     }
 }

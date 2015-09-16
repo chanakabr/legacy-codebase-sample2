@@ -289,11 +289,11 @@ namespace WebAPI
                                 log.Error("Empty description in method " + method + " parameter - " + par.Name);
 
                             context.Response.Write(string.Format("\t\t\t<param name='{0}' {1} description='{2}' optional='{3}'/>\n", par.Name,
-                                getTypeAndArray(par.ParameterType), HttpUtility.HtmlEncode(pdesc), par.IsOptional ? "1" : "0"));
+                                getTypeAndArray(par.ParameterType, par.IsOptional), HttpUtility.HtmlEncode(pdesc), par.IsOptional ? "1" : "0"));
                         }
 
                         if (method.ReturnType != typeof(void))
-                            context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType)));
+                            context.Response.Write(string.Format("\t\t\t<result {0}/>\n", getTypeAndArray(method.ReturnType, false)));
                         else
                             context.Response.Write("\t\t\t<result />\n");
 
@@ -324,7 +324,7 @@ namespace WebAPI
             return !type.IsPrimitive && type != typeof(object) && type != typeof(string) && !type.IsEnum && type != typeof(DateTime);
         }
 
-        private string getTypeAndArray(Type type)
+        private string getTypeAndArray(Type type, bool isOptional)
         {
             //Handling nullables
             if (Nullable.GetUnderlyingType(type) != null)
@@ -335,7 +335,10 @@ namespace WebAPI
             //Handling Enums
             if (type.IsEnum)
             {
-                return string.Format("type='string' enumType='{0}'", getTypeFriendlyName(type));
+                bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+                var etype = isIntEnum ? "int" : "string";
+
+                return string.Format("type='{0}' enumType='{1}' {2}", etype, getTypeFriendlyName(type), isOptional ? string.Format("default='{0}'", getDefaultForType(type)) : "");
             }
             //Handling arrays
             else if (type.IsArray || type.IsGenericType)
@@ -374,10 +377,10 @@ namespace WebAPI
                         throw new Exception("Generic type unknown");
                 }
 
-                return string.Format("type='{0}' arrayType='{1}'", name, arrayType);
+                return string.Format("type='{0}' arrayType='{1}' {2}", name, arrayType, isOptional ? string.Format("default='{0}'", getDefaultForType(type)) : "");
             }
 
-            return string.Format("type='{0}' default='{1}'", getTypeFriendlyName(type), getDefaultForType(type));
+            return string.Format("type='{0}' {1}", getTypeFriendlyName(type), isOptional ? string.Format("default='{0}'", getDefaultForType(type)) : "");
         }
 
         private string getDefaultForType(Type type)
@@ -422,7 +425,7 @@ namespace WebAPI
                     var attr = dataMemberAttr.Name;
 
                     context.Response.Write(string.Format("\t\t<property name='{0}' {1} description='{2}' readOnly='0' insertOnly='0' />\n", attr,
-                           getTypeAndArray(pi.PropertyType), HttpUtility.HtmlEncode(pdesc)));
+                           getTypeAndArray(pi.PropertyType, false), HttpUtility.HtmlEncode(pdesc)));
                 }
                 else
                 {

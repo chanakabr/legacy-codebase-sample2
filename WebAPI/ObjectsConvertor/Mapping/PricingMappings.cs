@@ -7,6 +7,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using WebAPI.Utils;
+using WebAPI.Models.ConditionalAccess;
 
 
 namespace WebAPI.Mapping.ObjectsConvertor
@@ -93,7 +94,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
             Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, Models.Pricing.KalturaSubscriptionPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
-               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice));
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription));
+
 
             // Subscription
             Mapper.CreateMap<WebAPI.Pricing.Subscription, Models.Pricing.KalturaSubscription>()

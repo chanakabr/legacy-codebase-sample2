@@ -22,7 +22,7 @@ namespace Validator
             var tt = asm.GetType("WebAPI.Models.General.KalturaOTTObject");
 
             bool found = false;
-            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models")&& t.BaseType != typeof(Attribute)))
+            foreach (Type type in asm.GetTypes().Where(t => t.Namespace != null && t.Namespace.StartsWith("WebAPI.Models") && t.BaseType != typeof(Attribute)))
             {
                 if (!type.Name.StartsWith("Kaltura"))
                 {
@@ -37,6 +37,19 @@ namespace Validator
 
                 foreach (PropertyInfo m in type.GetProperties())
                 {
+                    if (m.PropertyType != typeof(String) && m.PropertyType != typeof(DateTime) && m.PropertyType != typeof(long) && 
+                        m.PropertyType != typeof(Int64) && m.PropertyType != typeof(Int32) &&
+                        m.PropertyType != typeof(double) && m.PropertyType != typeof(float) && m.PropertyType != typeof(bool))
+                    {
+                        var xe = m.GetCustomAttributes<XmlElementAttribute>();
+
+                        if (xe.Count() > 0 && !xe.First().IsNullable && m.PropertyType.BaseType.Name != "Enum")
+                        {                            
+                            Console.WriteLine(string.Format("Model {0} has a member {1} with missing isnullable=true", type.Name, m.Name));
+                            found = true;
+                        }
+                    }
+
                     if (m.PropertyType.IsArray || (m.PropertyType.IsGenericType &&
                         m.PropertyType.GetGenericTypeDefinition() != typeof(Dictionary<,>)
                         && m.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>)

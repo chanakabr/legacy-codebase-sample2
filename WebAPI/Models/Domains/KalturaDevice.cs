@@ -59,7 +59,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "state")]
         [JsonProperty("state")]
-        [XmlElement(ElementName = "state")]
+        [XmlElement(ElementName = "state", IsNullable = true)]
         public KalturaDeviceState State { get; set; }
     }
 }
