@@ -1317,35 +1317,22 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="ChangedPinMailRequest">
+      <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="SendPasswordMailRequest">
+      <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1362,11 +1349,86 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="EmailNotificationRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfTagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ForgotPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1413,7 +1475,7 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
@@ -1427,71 +1489,9 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+      <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="EmailNotificationRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ArrayOfTagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="TagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
@@ -2757,6 +2757,188 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="InsertOSSAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ossAdapter" type="tns:OSSAdapter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OSSAdapter">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:OSSAdapterBase">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfOSSAdapterSettings" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="OSSAdapterBase">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfOSSAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapterSettings" nillable="true" type="tns:OSSAdapterSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OSSAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="InsertOSSAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertOSSAdapterResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteOSSAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteOSSAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteOSSAdapterResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetOSSAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="ossAdapter" type="tns:OSSAdapter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetOSSAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetOSSAdapterResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetOSSAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetOSSAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetOSSAdapterResult" type="tns:OSSAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OSSAdapterResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapterBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfOSSAdapterBase">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapterBase" nillable="true" type="tns:OSSAdapterBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="InsertOSSAdapterSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:ArrayOfOSSAdapterSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertOSSAdapterSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertOSSAdapterSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetOSSAdapterSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:ArrayOfOSSAdapterSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetOSSAdapterSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetOSSAdapterSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteOSSAdapterSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:ArrayOfOSSAdapterSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteOSSAdapterSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteOSSAdapterSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetOSSAdapterSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetOSSAdapterSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetOSSAdapterSettingsResult" type="tns:OSSAdapterSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OSSAdapterSettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapter" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfOSSAdapter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapter" nillable="true" type="tns:OSSAdapter" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2782,6 +2964,8 @@
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
       <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
       <s:element name="StatusErrorCodesResponse" nillable="true" type="tns:StatusErrorCodesResponse" />
+      <s:element name="OSSAdapterResponse" nillable="true" type="tns:OSSAdapterResponse" />
+      <s:element name="OSSAdapterSettingsResponse" nillable="true" type="tns:OSSAdapterSettingsResponse" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -3347,6 +3531,54 @@
   </wsdl:message>
   <wsdl:message name="GetErrorCodesDictionarySoapOut">
     <wsdl:part name="parameters" element="tns:GetErrorCodesDictionaryResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertOSSAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertOSSAdapter" />
+  </wsdl:message>
+  <wsdl:message name="InsertOSSAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertOSSAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteOSSAdapter" />
+  </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteOSSAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapter" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapter" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertOSSAdapterSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertOSSAdapterSettings" />
+  </wsdl:message>
+  <wsdl:message name="InsertOSSAdapterSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertOSSAdapterSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapterSettings" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapterSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteOSSAdapterSettings" />
+  </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteOSSAdapterSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapterSettings" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapterSettingsResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3977,6 +4209,28 @@
   <wsdl:message name="GetErrorCodesDictionaryHttpPostOut">
     <wsdl:part name="Body" element="tns:StatusErrorCodesResponse" />
   </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="ossAdapterID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteOSSAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:OSSAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:OSSAdapterSettingsResponse" />
+  </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -4346,6 +4600,38 @@
       <wsdl:input message="tns:GetErrorCodesDictionarySoapIn" />
       <wsdl:output message="tns:GetErrorCodesDictionarySoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapter">
+      <wsdl:input message="tns:InsertOSSAdapterSoapIn" />
+      <wsdl:output message="tns:InsertOSSAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapter">
+      <wsdl:input message="tns:DeleteOSSAdapterSoapIn" />
+      <wsdl:output message="tns:DeleteOSSAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapter">
+      <wsdl:input message="tns:SetOSSAdapterSoapIn" />
+      <wsdl:output message="tns:SetOSSAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapter">
+      <wsdl:input message="tns:GetOSSAdapterSoapIn" />
+      <wsdl:output message="tns:GetOSSAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapterSettings">
+      <wsdl:input message="tns:InsertOSSAdapterSettingsSoapIn" />
+      <wsdl:output message="tns:InsertOSSAdapterSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterSettings">
+      <wsdl:input message="tns:SetOSSAdapterSettingsSoapIn" />
+      <wsdl:output message="tns:SetOSSAdapterSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapterSettings">
+      <wsdl:input message="tns:DeleteOSSAdapterSettingsSoapIn" />
+      <wsdl:output message="tns:DeleteOSSAdapterSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterSettings">
+      <wsdl:input message="tns:GetOSSAdapterSettingsSoapIn" />
+      <wsdl:output message="tns:GetOSSAdapterSettingsSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
     <wsdl:operation name="InsertEPGSchedule">
@@ -4615,6 +4901,18 @@
     <wsdl:operation name="GetErrorCodesDictionary">
       <wsdl:input message="tns:GetErrorCodesDictionaryHttpPostIn" />
       <wsdl:output message="tns:GetErrorCodesDictionaryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapter">
+      <wsdl:input message="tns:DeleteOSSAdapterHttpPostIn" />
+      <wsdl:output message="tns:DeleteOSSAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapter">
+      <wsdl:input message="tns:GetOSSAdapterHttpPostIn" />
+      <wsdl:output message="tns:GetOSSAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterSettings">
+      <wsdl:input message="tns:GetOSSAdapterSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetOSSAdapterSettingsHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -5440,6 +5738,78 @@
     </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <soap:operation soapAction="http://api.tvinci.com/GetErrorCodesDictionary" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/InsertOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/DeleteOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/SetOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/GetOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapterSettings">
+      <soap:operation soapAction="http://api.tvinci.com/InsertOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterSettings">
+      <soap:operation soapAction="http://api.tvinci.com/SetOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapterSettings">
+      <soap:operation soapAction="http://api.tvinci.com/DeleteOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterSettings">
+      <soap:operation soapAction="http://api.tvinci.com/GetOSSAdapterSettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6278,6 +6648,78 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/InsertOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/DeleteOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/SetOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetOSSAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertOSSAdapterSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/InsertOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/SetOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapterSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/DeleteOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/GetOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
@@ -6877,6 +7319,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <http:operation location="/GetErrorCodesDictionary" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOSSAdapter">
+      <http:operation location="/DeleteOSSAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapter">
+      <http:operation location="/GetOSSAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterSettings">
+      <http:operation location="/GetOSSAdapterSettings" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

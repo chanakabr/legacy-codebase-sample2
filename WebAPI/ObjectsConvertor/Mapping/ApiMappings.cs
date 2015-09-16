@@ -83,6 +83,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region OSS Adapter
+
+            
+            Mapper.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))               
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<OSSAdapter, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+               ;
+
+          
+            #endregion
+
+
         }
 
         private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
@@ -187,6 +217,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result.Add(item.key, int.Parse(item.value));
             }
 
+            return result;
+        }
+
+        internal static OSSAdapterSettings[] ConvertOSSAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<Api.OSSAdapterSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<OSSAdapterSettings>();
+                Api.OSSAdapterSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Api.OSSAdapterSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, KalturaStringValue> ConvertOSSAdapterSettings(Api.OSSAdapterSettings[] settings)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (settings != null && settings.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
             return result;
         }
     }
