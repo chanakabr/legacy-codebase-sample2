@@ -15,6 +15,12 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         private static readonly string EPG = "epg";
 
+        #region Data Members
+
+        int sizeOfBulk;
+
+        #endregion
+
         #region Ctor
 
         public EpgIndexBuilder(int groupID)
@@ -47,6 +53,15 @@ namespace ElasticSearchHandler.IndexBuilders
             List<string> tokenizers;
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
+
+            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
+
+            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 50;
+            }
 
             success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers);
 
@@ -111,7 +126,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 success = api.SwitchIndex(newIndexName, groupAlias, lOldIndices, null);
 
-                if (success && lOldIndices.Count > 0)
+                if (this.DeleteOldIndices && success && lOldIndices.Count > 0)
                 {
                     api.DeleteIndices(lOldIndices);
                 }
@@ -121,6 +136,7 @@ namespace ElasticSearchHandler.IndexBuilders
         }
 
         #endregion
+
         #region Private and protected Methods
 
         private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
@@ -174,7 +190,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     epgList.Add(new KeyValuePair<ulong, string>(epg.EpgID, serializedEpg));
                 }
 
-                if (epgList.Count >= 50)
+                if (epgList.Count >= sizeOfBulk)
                 {
                     api.CreateBulkIndexRequest(index, type, epgList);
 
