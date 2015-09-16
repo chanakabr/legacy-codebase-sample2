@@ -330,6 +330,9 @@ namespace ElasticSearchHandler.IndexBuilders
                                     media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
 
                                 }
+
+                                media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
+
                                 #endregion
 
                                 #region - get all metas by groupId
