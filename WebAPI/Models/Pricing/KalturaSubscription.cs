@@ -30,9 +30,9 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty("channels")]
-        [XmlArray(ElementName = "channels")]
-        [XmlArrayItem("item")] 
-        public List<KalturaBaseChannel> Channels { get; set; } 
+        [XmlArray(ElementName = "channels", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaBaseChannel> Channels { get; set; }
 
         /// <summary>
         /// The first date the subscription is available for purchasing 
@@ -55,10 +55,10 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "file_types")]
         [JsonProperty("file_types")]
-        [XmlArray(ElementName = "file_types")]
+        [XmlArray(ElementName = "file_types", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> FileTypes { get; set; }
-        
+
         /// <summary>
         /// Denotes whether or not this subscription can be renewed
         /// </summary>
@@ -112,8 +112,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
-        [XmlArray(ElementName = "names")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "names", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaTranslationToken> Names { get; set; } // TODO: change to object
 
         /// <summary>
@@ -121,8 +121,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        [XmlArray(ElementName = "descriptions")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "descriptions", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
@@ -154,8 +154,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price_plans")]
         [JsonProperty("price_plans")]
-        [XmlArray(ElementName = "price_plans")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "price_plans", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaPricePlan> PricePlans { get; set; }
 
         /// <summary>
@@ -179,8 +179,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "premium_services")]
         [JsonProperty("premium_services")]
-        [XmlArray(ElementName = "premium_services")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "premium_services", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaPremiumService> PremiumServices { get; set; }
 
         #region Usage Module
@@ -222,8 +222,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "user_types")]
         [JsonProperty("user_types")]
-        [XmlArray(ElementName = "user_types")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "user_types", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaOTTUserType> UserTypes { get; set; }
 
         #endregion

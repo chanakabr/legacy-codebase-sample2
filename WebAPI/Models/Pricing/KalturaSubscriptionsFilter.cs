@@ -17,7 +17,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ids")]
         [JsonProperty("ids")]
-        [XmlArray(ElementName = "ids")]
+        [XmlArray(ElementName = "ids", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaIntegerValue> Ids { get; set; }
 

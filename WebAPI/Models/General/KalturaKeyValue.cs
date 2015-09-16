@@ -13,12 +13,12 @@ namespace WebAPI.Models.General
     {
         [DataMember(Name = "key")]
         [JsonProperty("key")]
-        [XmlElement(ElementName = "key")]
+        [XmlElement(ElementName = "key", IsNullable = true)]
         public string key { get; set; }
 
         [DataMember(Name = "value")]
         [JsonProperty("value")]
-        [XmlElement(ElementName = "value")]
+        [XmlElement(ElementName = "value", IsNullable = true)]
         public string value { get; set; }
     }
 }

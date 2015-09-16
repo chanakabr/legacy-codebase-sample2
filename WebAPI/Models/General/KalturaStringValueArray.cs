@@ -15,7 +15,7 @@ namespace WebAPI.Models.General
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaStringValue> Objects { get; set; }
 

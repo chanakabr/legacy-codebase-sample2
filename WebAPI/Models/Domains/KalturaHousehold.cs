@@ -84,8 +84,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "users")]
         [JsonProperty("users")]
-        [XmlArray(ElementName = "users")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "users", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> Users { get; set; }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "master_users")]
         [JsonProperty("master_users")]
-        [XmlArray(ElementName = "master_users")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "master_users", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> MasterUsers { get; set; }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "default_users")]
         [JsonProperty("default_users")]
-        [XmlArray(ElementName = "default_users")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "default_users", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> DefaultUsers { get; set; }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "pending_users")]
         [JsonProperty("pending_users")]
-        [XmlArray(ElementName = "pending_users")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "pending_users", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> PendingUsers { get; set; }
 
         /// <summary>
@@ -168,17 +168,17 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "home_networks")]
         [JsonProperty("home_networks")]
-        [XmlArray(ElementName = "home_networks")]
-        [XmlArrayItem("item")] 
-        public List<KalturaHomeNetwork> HomeNetworks{ get; set; }
-        
+        [XmlArray(ElementName = "home_networks", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaHomeNetwork> HomeNetworks { get; set; }
+
         /// <summary>
         /// Household device families
         /// </summary>
         [DataMember(Name = "device_families")]
         [JsonProperty("device_families")]
-        [XmlArray(ElementName = "device_families")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "device_families", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
     }
 }

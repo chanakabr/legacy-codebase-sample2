@@ -19,8 +19,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBaseAssetInfo> Objects { get; set; }
     }
 
@@ -67,8 +67,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "images")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "images", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "media_files", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "media_files", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "media_files")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "media_files", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaMediaFile> MediaFiles { get; set; }
 
         /// <summary>
@@ -87,6 +87,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "stats", IsNullable = true)]
         public KalturaAssetStatistics Statistics { get; set; }
-      
+
     }
 }

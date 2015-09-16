@@ -21,8 +21,8 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaOTTUser> Users { get; set; }
     }
 }

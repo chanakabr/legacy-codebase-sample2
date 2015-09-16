@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaAssetInfo> Objects { get; set; }
     }
