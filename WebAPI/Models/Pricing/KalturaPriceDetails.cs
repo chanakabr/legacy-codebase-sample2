@@ -43,8 +43,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "descriptions")]
         [JsonProperty("descriptions")]
-        [XmlArray(ElementName = "descriptions")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "descriptions", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaTranslationToken> Descriptions { get; set; }
     }
 }

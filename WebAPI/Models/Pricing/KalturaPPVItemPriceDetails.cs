@@ -84,8 +84,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ppv_descriptions")]
         [JsonProperty("ppv_descriptions")]
-        [XmlArray(ElementName = "ppv_descriptions")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "ppv_descriptions", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "related_media_file_ids")]
         [JsonProperty("related_media_file_ids")]
-        [XmlArray(ElementName = "related_media_file_ids")]
+        [XmlArray(ElementName = "related_media_file_ids", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> RelatedMediaFileIds { get; set; }
 

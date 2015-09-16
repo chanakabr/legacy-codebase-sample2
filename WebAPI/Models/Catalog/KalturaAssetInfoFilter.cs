@@ -30,8 +30,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "ids")]
         [JsonProperty(PropertyName = "ids")]
-        [XmlArray(ElementName = "ids")]
-        [XmlArrayItem(ElementName = "item")]        
+        [XmlArray(ElementName = "ids", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
         public List<KalturaStringValue> IDs { get; set; }
 
         /// <summary>

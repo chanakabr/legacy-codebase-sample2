@@ -18,7 +18,7 @@ namespace WebAPI.Models.Catalog
     {
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaLastPosition> LastPositions { get; set; }
     }

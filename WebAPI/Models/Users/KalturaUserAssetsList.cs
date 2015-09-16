@@ -20,8 +20,8 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "list")]
         [JsonProperty("list")]
-        [XmlArray(ElementName = "list")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "list", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaUserAssetsListItem> List { get; set; }
 
         /// <summary>

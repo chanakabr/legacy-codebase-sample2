@@ -42,9 +42,16 @@ namespace Validator
                         m.PropertyType != typeof(double) && m.PropertyType != typeof(float) && m.PropertyType != typeof(bool))
                     {
                         var xe = m.GetCustomAttributes<XmlElementAttribute>();
+                        var xaa = m.GetCustomAttributes<XmlArrayAttribute>();
 
                         if (xe.Count() > 0 && !xe.First().IsNullable && m.PropertyType.BaseType.Name != "Enum")
                         {                            
+                            Console.WriteLine(string.Format("Model {0} has a member {1} with missing isnullable=true", type.Name, m.Name));
+                            found = true;
+                        }
+
+                        if (xaa.Count() > 0 && !xaa.First().IsNullable && m.PropertyType.BaseType.Name != "Enum")
+                        {
                             Console.WriteLine(string.Format("Model {0} has a member {1} with missing isnullable=true", type.Name, m.Name));
                             found = true;
                         }
