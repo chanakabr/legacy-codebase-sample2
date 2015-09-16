@@ -13833,5 +13833,78 @@ namespace ConditionalAccess
             }
             return status;
         }
+
+        public bool Rewnew(string siteguid, int groupId, string purchaseId)
+        {
+            bool renewPassed = false;
+
+            // log request
+            string logString = string.Format("Purchase request: siteguid {0}, groupId {1}, purchaseId {2}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,      // {0}
+                groupId,                                                        // {1}
+                !string.IsNullOrEmpty(purchaseId) ? purchaseId : string.Empty); // {2}
+
+            log.DebugFormat("Starting renewal process. data: {0}", logString);
+
+            // validate siteguid
+            if (string.IsNullOrEmpty(siteguid))
+            {
+                log.ErrorFormat("empty siteguid. data: {0}", logString);
+                return renewPassed;
+            }
+
+            // validate purchaseId
+            if (string.IsNullOrEmpty(purchaseId))
+            {
+                log.ErrorFormat("empty purchaseId. data: {0}", logString);
+                return renewPassed;
+            }
+
+            try
+            {
+                //// validate user
+                //ResponseStatus userValidStatus = ResponseStatus.OK;
+                //userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref household);
+
+                //if (userValidStatus != ResponseStatus.OK)
+                //{
+                //    // user validation failed
+                //    response.Status = SetResponseStatus(userValidStatus);
+                //    log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                //    return response;
+                //}
+
+                //// validate household
+                //if (household < 1)
+                //{
+                //    response.Status.Message = "Illegal household";
+                //    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                //    return response;
+                //}
+
+                //switch (transactionType)
+                //{
+                //    case eTransactionType.PPV:
+                //        response = ProcessPPVReceipt(siteguid, household, contentId, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
+                //        break;
+                //    case eTransactionType.Subscription:
+                //        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
+                //        break;
+                //    case eTransactionType.Collection:
+                //        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
+                //        break;
+                //    default:
+                //        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
+                //        log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                //        break;
+                //}
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Purchase Error. data: {0}", logString, ex));
+            }
+
+            return renewPassed;
+        }
     }
 }
