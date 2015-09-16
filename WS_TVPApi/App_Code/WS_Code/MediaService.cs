@@ -3286,7 +3286,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by,
-            List<string> with, int page_index, int? page_size, List<string> personal_filters)
+            List<string> with, int page_index, int? page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
@@ -3358,34 +3358,34 @@ namespace TVPApiServices
 
                     List<ePersonalFilter> personalFilters = null;
 
-                    if (personal_filters != null)
-                    {
-                        personalFilters = new List<ePersonalFilter>();
+                    //if (personal_filters != null)
+                    //{
+                    //    personalFilters = new List<ePersonalFilter>();
 
-                        // Converts strings to enum
-                        foreach (var currentFilter in personal_filters)
-                        {
-                            if (currentFilter.ToLower() == "entitled_assets")
-                            {
-                                personalFilters.Add(ePersonalFilter.EntitledAssets);
-                            }
-                            else if (currentFilter.ToLower() == "geo_block")
-                            {
-                                personalFilters.Add(ePersonalFilter.GeoBlockRules);
-                            }
-                            else if (currentFilter.ToLower() == "parental")
-                            {
-                                personalFilters.Add(ePersonalFilter.ParentalRules);
-                            }
-                            // If it is not one of these three, return a bad request status
-                            else
-                            {
-                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
-                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid personal filter value: {0}", currentFilter));
-                                return response;
-                            }
-                        }
-                    }
+                    //    // Converts strings to enum
+                    //    foreach (var currentFilter in personal_filters)
+                    //    {
+                    //        if (currentFilter.ToLower() == "entitled_assets")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.EntitledAssets);
+                    //        }
+                    //        else if (currentFilter.ToLower() == "geo_block")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.GeoBlockRules);
+                    //        }
+                    //        else if (currentFilter.ToLower() == "parental")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.ParentalRules);
+                    //        }
+                    //        // If it is not one of these three, return a bad request status
+                    //        else
+                    //        {
+                    //            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    //            response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid personal filter value: {0}", currentFilter));
+                    //            return response;
+                    //        }
+                    //    }
+                    //}
 
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         filter_types, filter, with, personalFilters, initObj.Locale.LocaleLanguage)
@@ -3467,7 +3467,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Autocomplete search Media and EPG")]
         public TVPApiModule.Objects.Responses.AutocompleteResponse Autocomplete(InitializationObject initObj, List<int> filter_types,
-            string query, string order_by, List<string> with, int? page_size, List<string> personal_filters)
+            string query, string order_by, List<string> with, int? page_size)
         {
             TVPApiModule.Objects.Responses.AutocompleteResponse response = null;
 
@@ -3525,36 +3525,36 @@ namespace TVPApiServices
 
                     List<ePersonalFilter> personalFilters = null;
 
-                    if (personal_filters != null)
-                    {
-                        personalFilters = new List<ePersonalFilter>();
+                    //if (personal_filters != null)
+                    //{
+                    //    personalFilters = new List<ePersonalFilter>();
 
-                        // Converts strings to enum
-                        foreach (var currentFilter in personal_filters)
-                        {
-                            if (currentFilter.ToLower() == "entitled_assets")
-                            {
-                                personalFilters.Add(ePersonalFilter.EntitledAssets);
-                            }
-                            else if (currentFilter.ToLower() == "geo_block")
-                            {
-                                personalFilters.Add(ePersonalFilter.GeoBlockRules);
-                            }
-                            else if (currentFilter.ToLower() == "parental")
-                            {
-                                personalFilters.Add(ePersonalFilter.ParentalRules);
-                            }
-                            // If it is not one of these three, return a bad request status
-                            else
-                            {
-                                response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
-                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid personal filter value: {0}", currentFilter));
-                                return response;
-                            }
-                        }
-                    }
+                    //    // Converts strings to enum
+                    //    foreach (var currentFilter in personal_filters)
+                    //    {
+                    //        if (currentFilter.ToLower() == "entitled_assets")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.EntitledAssets);
+                    //        }
+                    //        else if (currentFilter.ToLower() == "geo_block")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.GeoBlockRules);
+                    //        }
+                    //        else if (currentFilter.ToLower() == "parental")
+                    //        {
+                    //            personalFilters.Add(ePersonalFilter.ParentalRules);
+                    //        }
+                    //        // If it is not one of these three, return a bad request status
+                    //        else
+                    //        {
+                    //            response = new TVPApiModule.Objects.Responses.AutocompleteResponse();
+                    //            response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid personal filter value: {0}", currentFilter));
+                    //            return response;
+                    //        }
+                    //    }
+                    //}
 
-                    // Create our own filter - only search in title
+                    //// Create our own filter - only search in title
                     string filter = string.Format("(and name^'{0}')", query.Replace("'", "%27"));
 
                     object executedRespone = new APIAutocompleteLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, 0,
