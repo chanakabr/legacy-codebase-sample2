@@ -45,9 +45,8 @@ namespace SubscriptionRenewHandler
 
                 if (!success)
                 {
-                    // TODO: write format
                     throw new Exception(string.Format(
-                        "Renew subscription request on {0} did not finish successfully.", request));
+                        "Renew subscription request on purchase id = {0} and site guid = {1} did not finish successfully.", request.PurchaseId, request.SiteGuid));
                 }
             }
             catch (Exception ex)
