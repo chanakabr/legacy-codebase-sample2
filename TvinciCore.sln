@@ -89,6 +89,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlogMonitorHelper", "KlogMo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronizer", "Synchronizer\Synchronizer.csproj", "{9B1D6676-614F-4F0D-9BFB-66422F8A5031}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingHelpers", "CachingHelpers\CachingHelpers.csproj", "{C94F4AFF-E892-4055-9D20-07586BE88F3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -501,6 +503,15 @@ Global
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|x86.ActiveCfg = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Basic|x86.ActiveCfg = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

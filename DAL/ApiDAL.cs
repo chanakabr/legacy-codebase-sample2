@@ -49,7 +49,6 @@ namespace DAL
 
         }
 
-
         public static DataTable Get_GroupMediaRules(int nMediaID, string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spGroupMediaRules = new ODBCWrapper.StoredProcedure("Get_GroupMediaRules");
@@ -1573,19 +1572,19 @@ namespace DAL
                                 switch (assetType)
                                 {
                                     case eAssetTypes.EPG:
-                                        {
-                                            currentRule.epgTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
                                     case eAssetTypes.MEDIA:
-                                        {
-                                            currentRule.mediaTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
                                     default:
-                                        {
-                                            break;
-                                        }
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1923,19 +1922,19 @@ namespace DAL
                             switch (assetType)
                             {
                                 case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
                                 case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
                                 default:
-                                    {
-                                        break;
-                                    }
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1960,6 +1959,129 @@ namespace DAL
             return rules;
         }
 
+        public static List<int> GetPermittedGeoBlockRules(int groupId, string ip)
+        {
+            List<int> result = new List<int>();
+
+
+            // default = -1
+            long ipValue = -1;
+
+            if (string.IsNullOrEmpty(ip))
+            {
+                return result;
+            }
+            
+            if (ip != "127.0.0.1")
+            {
+                string[] splitted = ip.Split('.');
+
+                ipValue = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+            }
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@IPValue", ipValue);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<int> GetPermittedGeoBlockRulesByCountry(int groupId, int country)
+        {
+            List<int> result = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules_ByCountry");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@Country", country);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        public static void Get_User_ParentalRules_Tags(int groupId, string siteGuid,
+            out List<TagPair> mediaTags, out List<TagPair> epgTags)
+        {
+            mediaTags = new List<TagPair>();
+            epgTags = new List<TagPair>();
+
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Tags");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    string name = ODBCWrapper.Utils.ExtractString(row, "NAME");
+                    string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                    // Asset type in database should match the enum!
+                    eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+
+                    // According to asset, update the relevant list
+                    switch (assetType)
+                    {
+                        case eAssetTypes.EPG:
+                        {
+                            epgTags.Add(new TagPair()
+                            {
+                                key = name,
+                                value = value
+                            });
+
+                            break;
+                        }
+                        case eAssetTypes.MEDIA:
+                        {
+                            mediaTags.Add(new TagPair()
+                            {
+                                key = name,
+                                value = value
+                            });
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         public static long GetLinearMediaIdByEpgId(long epgId)
         {
             long mediaId = 0;
@@ -1969,10 +2091,11 @@ namespace DAL
             storedProcedure.AddParameter("@epg_id", epgId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0){
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
                 mediaId = ODBCWrapper.Utils.GetLongSafeVal(dataSet.Tables[0].Rows[0]["ID"]);
             }
-            
+
             return mediaId;
         }
 
@@ -2172,10 +2295,6 @@ namespace DAL
             }
         }
 
-        #endregion 
-    
-       
-    
         public static bool DeleteOSSAdapter(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
         {
             try
@@ -2252,5 +2371,91 @@ namespace DAL
             }
             return res;
         }
+
+        #endregion 
+    
+        public static DataTable Get_IPToCountryTable()
+        {
+            return ODBCWrapper.Utils.GetCompleteTable("ip_to_country");
+        }
+
+        public static List<int> GetAllCountries()
+        {
+            List<int> countries = new List<int>();
+
+            DataTable table = ODBCWrapper.Utils.GetCompleteTable("countries");
+
+            if (table != null)
+            {
+                // Convert table to list of IDs
+                countries = table.Rows.Cast<DataRow>().Select(row => ODBCWrapper.Utils.ExtractInteger(row, "ID")).ToList();
+            }
+
+            return countries;
+        }
+
+        public static Dictionary<long, ParentalRule> Get_Group_ParentalRules_ByID(int groupId, List<long> ids)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Group_ParentalRules_ByID");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddIDListParameter("@IDs", ids, "ID");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            Dictionary<long, ParentalRule> dictionary = new Dictionary<long, ParentalRule>();
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                dictionary.Add(ids[i], null);
+            }
+
+            foreach (ParentalRule rule in rules)
+            {
+                dictionary[rule.id] = rule;
+            }
+
+            return dictionary;
+        }
+
+        public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
+        {
+            List<long> ruleIds = new List<long>();
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRulesIDs");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+
+                        if (id > 0)
+                        {
+                            ruleIds.Add(id);
+
+                        }
+                    }
+                }
+            }
+            return ruleIds;       
+
+        }
+
+            
+        
     }
 }

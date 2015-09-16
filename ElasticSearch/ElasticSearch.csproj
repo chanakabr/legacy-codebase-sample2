@@ -98,6 +98,7 @@
     <Compile Include="Searcher\IPNOFilterCompositeType.cs" />
     <Compile Include="Searcher\MultiMatchQuery.cs" />
     <Compile Include="Searcher\QueryFilter.cs" />
+    <Compile Include="Utils\IpToCountry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">

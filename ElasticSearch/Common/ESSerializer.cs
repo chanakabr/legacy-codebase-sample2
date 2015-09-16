@@ -17,23 +17,26 @@ namespace ElasticSearch.Common
         {
         }
 
-        public string SerializeMediaObject(Media oMedia)
+        public string SerializeMediaObject(Media media)
         {
 
-            StringBuilder sRecord = new StringBuilder();
-            sRecord.Append("{ ");
-            sRecord.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, \"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", \"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", \"description\": \"{16}\", \"cache_date\": \"{17}\", ",
-                            oMedia.m_nMediaID, oMedia.m_nGroupID, oMedia.m_nMediaTypeID, oMedia.m_nWPTypeID, oMedia.m_nIsActive, oMedia.m_nDeviceRuleId, oMedia.m_nLikeCounter,
-                            oMedia.m_nViews, oMedia.m_dRating, oMedia.m_nVotes, oMedia.m_sStartDate, oMedia.m_sEndDate, oMedia.m_sFinalEndDate, oMedia.m_sCreateDate, oMedia.m_sUpdateDate,
-                            Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sName), Common.Utils.ReplaceDocumentReservedCharacters(ref oMedia.m_sDescription),
-                            DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+            StringBuilder recordBuilder = new StringBuilder();
+            recordBuilder.Append("{ ");
+            recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
+                "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " + 
+                "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", " +
+                "\"description\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
+                media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive, 
+                media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate, 
+                media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName), 
+                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule);
 
             #region add media file types
 
-            sRecord.Append(" \"media_file_types\": [");
-            if (!string.IsNullOrWhiteSpace(oMedia.m_sMFTypes))
+            recordBuilder.Append(" \"media_file_types\": [");
+            if (!string.IsNullOrWhiteSpace(media.m_sMFTypes))
             {
-                string[] lMFTypesSplited = oMedia.m_sMFTypes.Split(';');
+                string[] lMFTypesSplited = media.m_sMFTypes.Split(';');
                 List<string> lFileTypes = new List<string>();
 
                 for (int i = 0; i < lMFTypesSplited.Length; i++)
@@ -45,21 +48,21 @@ namespace ElasticSearch.Common
 
                 if (lFileTypes.Count > 0)
                 {
-                    sRecord.Append(
+                    recordBuilder.Append(
                        lFileTypes.Aggregate((current, next) => current + "," + next)
                        );
                 }
             }
 
-            sRecord.Append("],");
+            recordBuilder.Append("],");
             #endregion
 
             #region add user types
             List<string> lUserTypes = new List<string>();
-            sRecord.Append(" \"user_types\": [");
-            if (!string.IsNullOrEmpty(oMedia.m_sUserTypes))
+            recordBuilder.Append(" \"user_types\": [");
+            if (!string.IsNullOrEmpty(media.m_sUserTypes))
             {
-                string[] lUserTypesSplited = oMedia.m_sUserTypes.Split(';');
+                string[] lUserTypesSplited = media.m_sUserTypes.Split(';');
 
                 foreach (string ut in lUserTypesSplited)
                 {
@@ -75,22 +78,22 @@ namespace ElasticSearch.Common
             {
                 lUserTypes.Add("0");
             }
-            sRecord.Append(string.Join(",", lUserTypes));
-            sRecord.Append("],");
+            recordBuilder.Append(string.Join(",", lUserTypes));
+            recordBuilder.Append("],");
             #endregion
 
             #region add metas
-            sRecord.Append(" \"metas\": {");
+            recordBuilder.Append(" \"metas\": {");
 
-            if (oMedia.m_dMeatsValues != null && oMedia.m_dMeatsValues.Count > 0)
+            if (media.m_dMeatsValues != null && media.m_dMeatsValues.Count > 0)
             {
                 List<string> metaNameValues = new List<string>();
                 #region added default lang metas
-                foreach (string sMetaName in oMedia.m_dMeatsValues.Keys)
+                foreach (string sMetaName in media.m_dMeatsValues.Keys)
                 {
                     if (!string.IsNullOrWhiteSpace(sMetaName))
                     {
-                        string sMetaValue = oMedia.m_dMeatsValues[sMetaName];
+                        string sMetaValue = media.m_dMeatsValues[sMetaName];
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
@@ -100,29 +103,29 @@ namespace ElasticSearch.Common
                 }
 
                 if (metaNameValues.Count > 0)
-                    sRecord.Append(string.Join(",", metaNameValues));
+                    recordBuilder.Append(string.Join(",", metaNameValues));
                 #endregion
 
             }
-            sRecord.Append("},");
+            recordBuilder.Append("},");
             #endregion
 
             #region add tags
-            sRecord.Append(" \"tags\": {");
+            recordBuilder.Append(" \"tags\": {");
 
-            if (oMedia.m_dTagValues != null && oMedia.m_dTagValues.Count > 0)
+            if (media.m_dTagValues != null && media.m_dTagValues.Count > 0)
             {
                 List<string> tagNameValues = new List<string>();
 
-                foreach (string sTagName in oMedia.m_dTagValues.Keys)
+                foreach (string sTagName in media.m_dTagValues.Keys)
                 {
                     if (string.IsNullOrEmpty(sTagName))
                         continue;
 
                     List<string> lTagValues = new List<string>();
-                    foreach (var tagID in oMedia.m_dTagValues[sTagName].Keys)
+                    foreach (var tagID in media.m_dTagValues[sTagName].Keys)
                     {
-                        string sTagVal = oMedia.m_dTagValues[sTagName][tagID];
+                        string sTagVal = media.m_dTagValues[sTagName][tagID];
                         string sEscapedTagVal = Common.Utils.ReplaceDocumentReservedCharacters(ref sTagVal);
 
                         if (!string.IsNullOrEmpty(sEscapedTagVal))
@@ -136,42 +139,42 @@ namespace ElasticSearch.Common
                     }
                 }
                 if (tagNameValues.Count > 0)
-                    sRecord.Append(string.Join(",", tagNameValues));
+                    recordBuilder.Append(string.Join(",", tagNameValues));
             }
 
-            sRecord.Append(" }");
+            recordBuilder.Append(" }");
 
             #endregion
 
             #region add regions
 
             // Add this field only if there are regions on the media object
-            if (oMedia.regions != null && oMedia.regions.Count > 0)
+            if (media.regions != null && media.regions.Count > 0)
             {
-                sRecord.Append(", \"regions\": [");
+                recordBuilder.Append(", \"regions\": [");
 
-                foreach (int regionId in oMedia.regions)
+                foreach (int regionId in media.regions)
                 {
-                    sRecord.Append(regionId);
-                    sRecord.Append(',');
+                    recordBuilder.Append(regionId);
+                    recordBuilder.Append(',');
                 }
 
                 // Remove last ','
-                sRecord.Remove(sRecord.Length - 1, 1);
+                recordBuilder.Remove(recordBuilder.Length - 1, 1);
 
-                sRecord.Append("]");
+                recordBuilder.Append("]");
             }
 
             #endregion
 
-            sRecord.Append(" }");
+            recordBuilder.Append(" }");
 
-            return sRecord.ToString();
+            return recordBuilder.ToString();
 
         }
 
-        public string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags, string sIndexAnalyzer, string sSearchAnalyzer,
-            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+        public string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags, 
+            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -233,8 +236,22 @@ namespace ElasticSearch.Common
 
             ElasticSearch.Common.MultiFieldMappingProperty descProperty = new MultiFieldMappingProperty() { name = "description" };
 
-            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "description", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = false });
-            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "description",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = false
+            });
+            descProperty.fields.Add(new ElasticSearch.Common.BasicMappingProperty()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                analyzed = true,
+                search_analyzer = sSearchAnalyzer,
+                index_analyzer = sIndexAnalyzer
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -266,9 +283,26 @@ namespace ElasticSearch.Common
                     {
                         sTagName = sTagName.ToLower();
 
-                        MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty() { name = sTagName };
-                        multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = sTagName, type = ElasticSearch.Common.eESFieldType.STRING, null_value = string.Empty, analyzed = false });
-                        multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+                        MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty()
+                        {
+                            name = sTagName
+                        };
+                        multiField.AddField(new ElasticSearch.Common.BasicMappingProperty()
+                        {
+                            name = sTagName,
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = string.Empty,
+                            analyzed = false
+                        });
+                        multiField.AddField(new ElasticSearch.Common.BasicMappingProperty()
+                        {
+                            name = "analyzed",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            analyzed = true,
+                            search_analyzer = sSearchAnalyzer,
+                            index_analyzer = sIndexAnalyzer
+                        });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
                         {
@@ -287,6 +321,7 @@ namespace ElasticSearch.Common
                     }
                 }
             }
+
             #endregion
 
             #region Add metas mapping
@@ -308,9 +343,26 @@ namespace ElasticSearch.Common
                                 string sNullValue;
                                 eESFieldType eMetaType;
                                 GetMetaType(sMeta, out eMetaType, out sNullValue);
-                                MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty() { name = sMetaName };
-                                multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = sMetaName, type = eMetaType, null_value = sNullValue, analyzed = false });
-                                multiField.AddField(new ElasticSearch.Common.BasicMappingProperty() { name = "analyzed", type = ElasticSearch.Common.eESFieldType.STRING, null_value = "", analyzed = true, search_analyzer = sSearchAnalyzer, index_analyzer = sIndexAnalyzer });
+                                MultiFieldMappingProperty multiField = new ElasticSearch.Common.MultiFieldMappingProperty()
+                                {
+                                    name = sMetaName
+                                };
+                                multiField.AddField(new ElasticSearch.Common.BasicMappingProperty()
+                                {
+                                    name = sMetaName,
+                                    type = eMetaType,
+                                    null_value = sNullValue,
+                                    analyzed = false
+                                });
+                                multiField.AddField(new ElasticSearch.Common.BasicMappingProperty()
+                                {
+                                    name = "analyzed",
+                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    null_value = "",
+                                    analyzed = true,
+                                    search_analyzer = sSearchAnalyzer,
+                                    index_analyzer = sIndexAnalyzer
+                                });
 
                                 if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
                                 {
@@ -627,8 +679,8 @@ namespace ElasticSearch.Common
             string name = oEpg.Name;
             string description = oEpg.Description;
 
-            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\", \"name\": " +
-                "\"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\",",
+            sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," + 
+                " \"name\": \"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
                 /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),

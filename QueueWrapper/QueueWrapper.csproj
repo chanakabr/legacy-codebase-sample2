@@ -65,6 +65,7 @@
     <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
+    <Compile Include="Queues\QueueObjects\SetupTasksQueue.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />
     <Compile Include="Queues\QueueObjects\CatalogQueue.cs" />
     <Compile Include="Interfaces\IQueueable.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Queues\QueueObjects\PictureQueue.cs" />
     <Compile Include="Queues\QueueObjects\PSNotificationsQueue.cs" />
     <Compile Include="Queues\QueueObjects\SocialQueue.cs" />
+    <Compile Include="Queues\QueueObjects\UpdateCacheQueue.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConfigurationData.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitConnection.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitQueue.cs" />

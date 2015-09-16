@@ -316,7 +316,9 @@ namespace ApiObjects
         LessThanOrEqual,
         LessThan,
         WordStartsWith,
-        In
+        In,
+        NotIn,
+        Prefix
     }
 
     [Serializable]
@@ -356,5 +358,22 @@ namespace ApiObjects
 
         [EnumMember]
         Household
+    }
+
+    [Serializable]
+    public enum ePersonalFilter
+    {
+        ParentalRules,
+        GeoBlockRules,
+        EntitledAssets
+    }
+
+    /// <summary>
+    /// enum for Remote tasks: setup tasks are one-time tasks that we call when setting an environment
+    /// </summary>
+    [Serializable]
+    public enum eSetupTask
+    {
+        BuildIPToCountry
     }
 }

@@ -30,6 +30,7 @@ using QueueWrapper;
 using StatisticsBL;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using CachingHelpers;
 
 namespace Catalog
 {
@@ -762,6 +763,10 @@ namespace Catalog
 
             int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
 
+            List<int> geoBlockRules = null;
+            Dictionary<string, List<string>> mediaParentalRulesTags = null;
+            Dictionary<string, List<string>> epgParentalRulesTags = null;
+
             if (request.filterTree != null)
             {
                 // Add prefixes, check if non start/end date exist
@@ -805,17 +810,7 @@ namespace Catalog
 
                                     BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
 
-                                    // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
-                                    if (parentMapping.ContainsKey(leaf))
-                                    {
-                                        parentMapping[leaf].nodes.Remove(leaf);
-                                        parentMapping[leaf].nodes.Add(newPhrase);
-                                    }
-                                    else
-                                    // If it doesn't exist in the mapping, it's probably the root
-                                    {
-                                        request.filterTree = newPhrase;
-                                    }
+                                    Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, newPhrase);
                                 }
                             }
                             else if (searchKeys.Count == 1)
@@ -850,6 +845,104 @@ namespace Catalog
 
                                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
                                     }
+                                    else if (searchKeyLowered == "geo_block")
+                                    {
+                                        // geo_block is a personal filter that currently will work only with "true".
+                                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                                        {
+                                            if (geoBlockRules == null)
+                                            {
+                                                geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                                            }
+
+                                            BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
+                                            BooleanLeaf newLeaf =
+                                                new BooleanLeaf("geo_block_rule_id", 
+                                                    geoBlockRules.Select(id => id.ToString()).ToList(),
+                                                    typeof(List<string>), ComparisonOperator.In);
+
+                                            BooleanPhrase newPhrase = new BooleanPhrase(
+                                                new List<BooleanPhraseNode>()
+                                                {
+                                                    mediaTypeCondition, 
+                                                    newLeaf
+                                                },
+                                                eCutType.And);
+
+                                            Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, newPhrase);
+                                        }
+                                        else
+                                        {
+                                            var exception = new ArgumentException("Invalid search value or operator was sent for geo_block");
+                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                                            throw exception;
+                                        }
+                                    }
+                                    else if (searchKeyLowered == "parental_rules")
+                                    {
+                                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                                        {
+                                            if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
+                                            {
+                                                Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+                                                    out mediaParentalRulesTags, out epgParentalRulesTags);
+                                            }
+
+                                            List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
+                                            List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
+
+                                            newMediaNodes.Add(new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix));
+
+                                            // Run on all tags and their values
+                                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                                            {
+                                                // Create a Not-in leaf for each of the tags
+                                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                                    tagValues.Value,
+                                                    typeof(List<string>),
+                                                    ComparisonOperator.NotIn);
+
+                                                newMediaNodes.Add(newLeaf);
+                                            }
+
+                                            newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
+
+                                            // Run on all tags and their values
+                                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                                            {
+                                                // Create a Not-in leaf for each of the tags
+                                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                                    tagValues.Value,
+                                                    typeof(List<string>),
+                                                    ComparisonOperator.NotIn);
+
+                                                newEpgNodes.Add(newLeaf);
+                                            }
+
+                                            // connect all tags with AND
+                                            BooleanPhrase newMediaPhrase = new BooleanPhrase(newMediaNodes, eCutType.And);
+                                            BooleanPhrase newEpgPhrase = new BooleanPhrase(newEpgNodes, eCutType.And);
+
+                                            // connect media and epg with OR
+                                            List<BooleanPhraseNode> newOrNodes = new List<BooleanPhraseNode>();
+                                            newOrNodes.Add(newMediaPhrase);
+                                            newOrNodes.Add(newEpgPhrase);
+
+                                            BooleanPhrase orPhrase = new BooleanPhrase(newOrNodes, eCutType.Or);
+
+                                            // Replace the original leaf (parental_rules='true') with the new phrase
+                                            Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, orPhrase);
+                                        }
+                                        else
+                                        {
+                                            var exception = new ArgumentException("Invalid search value or operator was sent for parental_rules");
+                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
+                                            throw exception;
+                                        }
+                                    }
                                     else if (reservedNumericFields.Contains(searchKeyLowered))
                                     {
                                         leaf.valueType = typeof(long);
@@ -867,7 +960,8 @@ namespace Catalog
                                 #region IN operator
 
                                 // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
-                                if (leaf.operand == ComparisonOperator.In)
+                                if (leaf.operand == ComparisonOperator.In || leaf.operand == ComparisonOperator.NotIn &&
+                                    leaf.valueType != typeof(List<string>))
                                 {
                                     leaf.valueType = typeof(List<string>);
                                     string value = leaf.value.ToString().ToLower();
@@ -1023,11 +1117,171 @@ namespace Catalog
             Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
                 out definitions.parentMediaTypes, out definitions.associationTags,
                 definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
+            
+            #region Personal Filters
+
+            if (request.personalFilters != null)
+            {
+                // Get geo block rules that the user is allowed to watch
+                if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
+                {
+                    if (geoBlockRules == null)
+                    {
+                        geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                    }
+
+                    definitions.geoBlockRules = geoBlockRules;
+                }
+
+                // Get parental rules tags that user is NOT allowed to see
+                if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
+                {
+                    if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
+                    {
+                        Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+                            out mediaParentalRulesTags, out epgParentalRulesTags);
+                    }
+
+                    definitions.mediaParentalRulesTags = mediaParentalRulesTags;
+                    definitions.epgParentalRulesTags = epgParentalRulesTags;
+                }
+            }
+
+            #endregion
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             return definitions;
+        }
+
+        private static void ReplaceLeafWithPhrase(UnifiedSearchRequest request, 
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
+        {
+            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+            if (parentMapping.ContainsKey(leaf))
+            {
+                parentMapping[leaf].nodes.Remove(leaf);
+                parentMapping[leaf].nodes.Add(newPhrase);
+            }
+            else
+            // If it doesn't exist in the mapping, it's probably the root
+            {
+                request.filterTree = newPhrase;
+            }
+        }
+
+        private static void GetParentalRulesTags(int groupId, string siteGuid, 
+            out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
+        {
+            mediaTags = new Dictionary<string, List<string>>();
+            epgTags = new Dictionary<string, List<string>>();
+
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.API);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            // validate user name and password length
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_API login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            // Initialize web service
+            using (ws_api.API apiWebService = new ws_api.API())
+            {
+                string url = Utils.GetWSURL("ws_api");
+                apiWebService.Url = url;
+
+                // Call webservice method
+                var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
+
+                // Validate webservice response
+                if (serviceResponse != null && serviceResponse.status != null && serviceResponse.status.Code == 0)
+                {
+                    Group group = new GroupManager().GetGroup(groupId);
+
+                    // Media: Convert TagPair array to our dictionary
+                    if (serviceResponse.mediaTags != null)
+                    {
+                        foreach (var tag in serviceResponse.mediaTags)
+                        {
+                            string tagName = group.m_oGroupTags[tag.id];
+
+                            if (!mediaTags.ContainsKey(tagName))
+                            {
+                                mediaTags[tagName] = new List<string>();
+                            }
+
+                            if (tag.value != null)
+                            {
+                                mediaTags[tagName].Add(tag.value);
+                            }
+                        }
+                    }
+
+                    // EPG: Convert TagPair array to our dictionary
+                    if (serviceResponse.epgTags != null)
+                    {
+                        foreach (var tag in serviceResponse.epgTags)
+                        {
+                            string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
+
+                            if (!epgTags.ContainsKey(tagName))
+                            {
+                                epgTags[tagName] = new List<string>();
+                            }
+
+                            if (tag.value != null)
+                            {
+                                epgTags[tagName].Add(tag.value);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception(string.Format(
+                        "Error when getting user parental rule tags from WS_API. user_id = {0}, group_id = {1}",
+                        siteGuid, groupId));
+                }
+            }
+        }
+
+        /// <summary>
+        /// For a given IP, gets all the rules that don't block this specific IP
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="ip"></param>
+        /// <returns></returns>
+        private static List<int> GetGeoBlockRules(int groupId, string ip)
+        {
+            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+
+            //GroupsCache.Instance().
+            List<int> result = GeoBlockRulesCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
+
+            // Make sure DAL didn't return empty result
+            if (result == null)
+            {
+                result = new List<int>();
+            }
+
+            // Always add 0, for media without rules at all
+            result.Add(0);
+
+            return result;
         }
 
         /// <summary>
@@ -2159,7 +2413,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
 
                     // backward compatibility
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
@@ -2192,7 +2446,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
                     // Backward compatibility
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
@@ -4307,7 +4561,7 @@ namespace Catalog
 
                     var queue = new CatalogQueue();
 
-                    result = queue.Enqueue(data, string.Format(@"{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                    result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
                 }
             }
             catch (Exception ex)

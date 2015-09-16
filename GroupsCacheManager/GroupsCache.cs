@@ -41,7 +41,6 @@ namespace GroupsCacheManager
         private string keyCachePrefix = string.Empty;
         private ICachingService groupCacheService = null;
         private ICachingService channelsCache = null;
-
         private static GroupsCache instance = null;
 
         private string version;
@@ -106,6 +105,8 @@ namespace GroupsCacheManager
 
         #endregion
 
+        #region Initialization
+
         private string GetCacheName()
         {
             string res = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
@@ -128,6 +129,10 @@ namespace GroupsCacheManager
             this.groupCacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
             this.channelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
         }
+
+        #endregion
+
+        #region Groups Cache
 
         private static double GetDocTTLSettings()
         {
@@ -785,5 +790,8 @@ namespace GroupsCacheManager
 
             return (mediaTypes);
         }
+
+	    #endregion
+
     }
 }

@@ -113,6 +113,21 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public Dictionary<int, string> associationTags;
 
+        /// <summary>
+        /// List of Ids of geo block rules that the media belong to
+        /// </summary>
+        public List<int> geoBlockRules;
+
+        /// <summary>
+        /// List of tags and their values that the user needs to enter parental PIN to watch
+        /// </summary>
+        public Dictionary<string, List<string>> mediaParentalRulesTags;
+
+        /// <summary>
+        /// List of tags and their values that the user needs to enter parental PIN to watch
+        /// </summary>
+        public Dictionary<string, List<string>> epgParentalRulesTags;
+
         #endregion
 
         #region Ctor
@@ -139,6 +154,10 @@ namespace ApiObjects.SearchObjects
             extraReturnFields = new List<string>();
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
+            geoBlockRules = new List<int>();
+
+            mediaParentalRulesTags = new Dictionary<string, List<string>>();
+            epgParentalRulesTags = new Dictionary<string, List<string>>();
         }
 
         #endregion

@@ -176,6 +176,7 @@
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
+    <Compile Include="QueueObjects\CelerySetupTaskData.cs" />
     <Compile Include="QueueObjects\IndexingData.cs" />
     <Compile Include="QueueObjects\PendingTransactionData.cs" />
     <Compile Include="QueueObjects\PSNotificationData.cs" />
@@ -198,10 +199,12 @@
     <Compile Include="NotifiedActions.cs" />
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
+    <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
     <Compile Include="Rules\GenericRuleResponse.cs" />
+    <Compile Include="Rules\ParentalRulesTagsResponse.cs" />
     <Compile Include="Rules\PinResponse.cs" />
     <Compile Include="Rules\ParentalRule.cs" />
     <Compile Include="Rules\ParentalRulesResponse.cs" />

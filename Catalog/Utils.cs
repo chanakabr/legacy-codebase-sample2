@@ -803,15 +803,16 @@ namespace Catalog
                             {
                                 DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "end_date");
                                 media.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
-
                             }
 
                             if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "final_end_date")))
                             {
                                 DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "final_end_date");
                                 media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
-
                             }
+
+                            media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
+
                             #endregion
 
                             #region - get all metas by groupId

@@ -45,6 +45,9 @@ namespace Catalog.Request
         [DataMember]
         public string nameAndDescription;
 
+        [DataMember]
+        public List<ePersonalFilter> personalFilters;
+
         #endregion
 
         #region Ctor
