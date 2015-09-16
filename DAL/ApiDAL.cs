@@ -1980,15 +1980,277 @@ namespace DAL
         
         public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
         {
-            throw new NotImplementedException();
+            int paymentGWID = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterByExternalD");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@external_identifier", externalIdentifier);
+                                                        
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    paymentGWID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return paymentGWID;
         }
 
         public static bool InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@name", ossAdapter.Name);
+                sp.AddParameter("@adapter_url", ossAdapter.AdapterUrl);
+                sp.AddParameter("@external_identifier", ossAdapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", ossAdapter.SharedSecret);
+                sp.AddParameter("@isActive", ossAdapter.IsActive);
+
+                DataTable dt = CreateDataTable(ossAdapter.Settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
+
+        private static DataTable CreateDataTable(List<OSSAdapterSettings> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("idkey", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+
+                foreach (OSSAdapterSettings item in list)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["idkey"] = item.key;
+                    row["value"] = item.value;
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return resultTable;
+        }
+        
+        public static bool DeleteOSSAdapter(int groupID, int ossAdapterId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetOSSAdapter(int groupID, OSSAdapter ossAdapter)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapter.ID);
+                sp.AddParameter("@name", ossAdapter.Name);
+                sp.AddParameter("@external_identifier", ossAdapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", ossAdapter.SharedSecret);
+                sp.AddParameter("@adapter_url", ossAdapter.AdapterUrl);
+//                sp.AddParameter("@isDefault", ossAdapter.IsDefault);
+                sp.AddParameter("@isActive", ossAdapter.IsActive);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<OSSAdapterBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<OSSAdapterBase> res = new List<OSSAdapterBase>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapterList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        OSSAdapterBase ossAdapter = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            ossAdapter = new OSSAdapterBase();
+                            ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            //int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+//                            ossAdapter.IsDefault = isDefault == 1 ? true : false;
+
+                            res.Add(ossAdapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<OSSAdapterBase>();
+            }
+            return res;   
+        }
+
+        public static bool InsertOSSAdapterSettings(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetOSSAdapterSettings(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         #endregion 
     
        
+    
+        public static bool DeleteOSSAdapter(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<OSSAdapter> GetOSSAdapterSettingsList(int groupID, int ossAdapterId = 0, int status = 1, int isActive = 1)
+        {
+            List<OSSAdapter> res = new List<OSSAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapterSettingsList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ossAdapterId", ossAdapterId);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        OSSAdapter ossAdapter = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            ossAdapter = new OSSAdapter();
+                            ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            ossAdapter.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            ossAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            ossAdapter.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            //int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            //ossAdapter.IsDefault = isDefault == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + ossAdapter.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (ossAdapter.Settings == null)
+                                    {
+                                        ossAdapter.Settings = new List<OSSAdapterSettings>();
+                                    }
+                                    ossAdapter.Settings.Add(new OSSAdapterSettings(key, value));
+                                }
+                            }
+                            res.Add(ossAdapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<OSSAdapter>();
+            }
+            return res;
+        }
     }
 }

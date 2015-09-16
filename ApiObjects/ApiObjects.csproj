@@ -171,6 +171,8 @@
     <Compile Include="OSSAdapter.cs" />
     <Compile Include="OSSAdapterBase.cs" />
     <Compile Include="OSSAdapterSettings.cs" />
+    <Compile Include="OSSAdapterResponse.cs" />
+    <Compile Include="OSSAdapterSettingsResponse.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
