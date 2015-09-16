@@ -151,6 +151,14 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_pending_retries.Initialize("Pending Retries", "adm_table_header_nbg", "FormInput", "pending_retries", false);
         theRecord.AddRecord(dr_pending_retries);
 
+        DataRecordShortIntField dr_renewal_interval = new DataRecordShortIntField(true, 9, 9);
+        dr_renewal_interval.Initialize("Renewal Interval (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_interval_minutes", false);
+        theRecord.AddRecord(dr_renewal_interval);
+
+        DataRecordShortIntField dr_renewal_start = new DataRecordShortIntField(true, 9, 9);
+        dr_renewal_start.Initialize("Renewal Start Offset (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_start_minutes", false);
+        theRecord.AddRecord(dr_renewal_start);
+
         DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", true);
         theRecord.AddRecord(dr_shared_secret);
