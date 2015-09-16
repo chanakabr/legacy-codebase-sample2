@@ -41,15 +41,7 @@ namespace SubscriptionRenewHandler
                     cas.Url = url;
                 }
 
-                bool success = false;
-
-                
-                ApiObjects.Response.Status status = null;
-
-                if (status != null && status.Code == 0)
-                {
-                    success = true;
-                }
+                bool success = cas.Rewnew(username, password, request.SiteGuid, request.PurchaseId);
 
                 if (!success)
                 {

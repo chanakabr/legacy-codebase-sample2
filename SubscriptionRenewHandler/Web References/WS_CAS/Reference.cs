@@ -34,6 +34,8 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback RewnewOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -249,6 +251,9 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         /// <remarks/>
         public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
+        
+        /// <remarks/>
+        public event RewnewCompletedEventHandler RewnewCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -575,6 +580,41 @@ namespace SubscriptionRenewHandler.WS_CAS {
             if ((this.GetDomainEntitlementsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Rewnew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool Rewnew(string sWSUserName, string sWSPassword, string siteguid, string purchaseId) {
+            object[] results = this.Invoke("Rewnew", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        purchaseId});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, string purchaseId) {
+            this.RewnewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, null);
+        }
+        
+        /// <remarks/>
+        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, string purchaseId, object userState) {
+            if ((this.RewnewOperationCompleted == null)) {
+                this.RewnewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRewnewOperationCompleted);
+            }
+            this.InvokeAsync("Rewnew", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        purchaseId}, this.RewnewOperationCompleted, userState);
+        }
+        
+        private void OnRewnewOperationCompleted(object arg) {
+            if ((this.RewnewCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RewnewCompleted(this, new RewnewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4162,12 +4202,12 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Purchase", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
+        public TransactionResponse Purchase(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId) {
             object[] results = this.Invoke("Purchase", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        householdId,
                         price,
                         currency,
                         contentId,
@@ -4176,17 +4216,17 @@ namespace SubscriptionRenewHandler.WS_CAS {
                         coupon,
                         userIp,
                         deviceName,
-                        paymentGwId});
+                        paymentGatewayId});
             return ((TransactionResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId) {
-            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, houshold, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGwId, null);
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId) {
+            this.PurchaseAsync(sWSUserName, sWSPassword, siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId, null);
         }
         
         /// <remarks/>
-        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long houshold, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, object userState) {
+        public void PurchaseAsync(string sWSUserName, string sWSPassword, string siteguid, long householdId, double price, string currency, int contentId, int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId, object userState) {
             if ((this.PurchaseOperationCompleted == null)) {
                 this.PurchaseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnPurchaseOperationCompleted);
             }
@@ -4194,7 +4234,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        houshold,
+                        householdId,
                         price,
                         currency,
                         contentId,
@@ -4203,7 +4243,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
                         coupon,
                         userIp,
                         deviceName,
-                        paymentGwId}, this.PurchaseOperationCompleted, userState);
+                        paymentGatewayId}, this.PurchaseOperationCompleted, userState);
         }
         
         private void OnPurchaseOperationCompleted(object arg) {
@@ -4817,7 +4857,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
@@ -4825,8 +4865,8 @@ namespace SubscriptionRenewHandler.WS_CAS {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4903,99 +4943,6 @@ namespace SubscriptionRenewHandler.WS_CAS {
             }
             set {
                 this.assetIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ProtectNPVRCommand : BaseNPVRCommand {
-        
-        private bool isProtectField;
-        
-        /// <remarks/>
-        public bool isProtect {
-            get {
-                return this.isProtectField;
-            }
-            set {
-                this.isProtectField = value;
             }
         }
     }
@@ -5113,6 +5060,99 @@ namespace SubscriptionRenewHandler.WS_CAS {
             }
             set {
                 this.couponCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class ProtectNPVRCommand : BaseNPVRCommand {
+        
+        private bool isProtectField;
+        
+        /// <remarks/>
+        public bool isProtect {
+            get {
+                return this.isProtectField;
+            }
+            set {
+                this.isProtectField = value;
             }
         }
     }
@@ -8249,6 +8289,8 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         private bool m_bCancelWindowField;
         
+        private bool m_bIsInGracePeriodField;
+        
         /// <remarks/>
         public string m_sSubscriptionCode {
             get {
@@ -8396,6 +8438,16 @@ namespace SubscriptionRenewHandler.WS_CAS {
             }
             set {
                 this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsInGracePeriod {
+            get {
+                return this.m_bIsInGracePeriodField;
+            }
+            set {
+                this.m_bIsInGracePeriodField = value;
             }
         }
     }
@@ -8882,6 +8934,8 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         private bool isRenewableField;
         
+        private bool isInGracePeriodField;
+        
         private int mediaIDField;
         
         /// <remarks/>
@@ -9055,6 +9109,16 @@ namespace SubscriptionRenewHandler.WS_CAS {
         }
         
         /// <remarks/>
+        public bool IsInGracePeriod {
+            get {
+                return this.isInGracePeriodField;
+            }
+            set {
+                this.isInGracePeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
         public int mediaID {
             get {
                 return this.mediaIDField;
@@ -9172,6 +9236,32 @@ namespace SubscriptionRenewHandler.WS_CAS {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Entitlements)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void RewnewCompletedEventHandler(object sender, RewnewCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RewnewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RewnewCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }
