@@ -1116,6 +1116,8 @@ namespace DAL
                             pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
                             pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
                             pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            pgw.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
+                            pgw.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1383,6 +1385,8 @@ namespace DAL
                 sp.AddParameter("@renew_url", paymentGateway.RenewUrl);
                 sp.AddParameter("@isDefault", paymentGateway.IsDefault);
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
+                sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
+                sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1411,6 +1415,8 @@ namespace DAL
                 sp.AddParameter("@shared_secret", pgw.SharedSecret);
                 sp.AddParameter("@isDefault", pgw.IsDefault);
                 sp.AddParameter("@isActive", pgw.IsActive);
+                sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
+                sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
