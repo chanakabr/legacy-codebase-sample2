@@ -13837,10 +13837,9 @@ namespace ConditionalAccess
         public bool Rewnew(string siteguid, long purchaseId)
         {
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, groupId {1}, purchaseId {2}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,      // {0}
-                m_nGroupID,                                                        // {1}
-                purchaseId); // {2}
+            string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,  // {0}
+                purchaseId);                                                // {1}
 
             log.DebugFormat("Starting renewal process. data: {0}", logString);
 
@@ -13869,6 +13868,8 @@ namespace ConditionalAccess
             }
             else
             {
+                log.DebugFormat("subscription purchase found and validated. data: {0}", logString);
+
                 // get billing GUID
                 string billingGuid = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "billing_guid");
 
@@ -13917,6 +13918,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
+                    log.DebugFormat("Renew details received. data: {0}", logString);
+
                     // get billing method
                     int billingMethod = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "BILLING_METHOD");
 
@@ -13968,6 +13971,8 @@ namespace ConditionalAccess
                         return false;
                     }
 
+                    log.DebugFormat("Subscription data received. data: {0}", logString);
+
                     // check if purchased with preview module
                     bool isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModule(m_nGroupID, siteguid, (int)purchaseId);
                     paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
@@ -13987,7 +13992,7 @@ namespace ConditionalAccess
                             endDate, ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely,
                             ref maxVLCOfSelectedUsageModule))
                         {
-
+                            // call billing process renewal
                             string billingUserName = string.Empty;
                             string billingPassword = string.Empty;
                             TvinciBilling.module wsBillingService = null;
@@ -13996,7 +14001,6 @@ namespace ConditionalAccess
                             TvinciBilling.TransactResult transactionResponse = null;
                             try
                             {
-                                // call billing process renewal
                                 transactionResponse = wsBillingService.ProcessRenewal(billingUserName, billingPassword, siteguid, household, price, currency,
                                                           userIp, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
                             }
@@ -14006,13 +14010,21 @@ namespace ConditionalAccess
                                 return false;
                             }
 
-                            if (transactionResponse != null &&
-                                transactionResponse.Status != null &&
-                                transactionResponse.Status.Code == (int)eResponseStatus.OK)
+                            log.DebugFormat("Renew transaction returned from billing. data: {0}", logString);
+
+                            if (transactionResponse == null ||
+                                transactionResponse.Status == null ||
+                                transactionResponse.Status.Code != (int)eResponseStatus.OK)
+                            {
+                            }
+                            else
                             {
                                 switch (transactionResponse.State)
                                 {
                                     case ConditionalAccess.TvinciBilling.eTransactionState.OK:
+
+                                        // renew subscription success!
+                                        log.DebugFormat("Transaction renew success. data: {0}", logString);
 
                                         // get billing gateway
                                         TvinciBilling.PaymentGateway paymentGatewayResponse = null;
@@ -14030,7 +14042,7 @@ namespace ConditionalAccess
                                         }
                                         catch (Exception ex)
                                         {
-                                            log.Error("Error while calling the billing process renewal", ex);
+                                            log.Error("Error while trying to get the PG", ex);
                                             return false;
                                         }
 
@@ -14056,13 +14068,11 @@ namespace ConditionalAccess
                                         //}
 
 
-
                                         // create new rabbit msg (next renew period)
                                         // return true;
 
                                         //  {
                                         // Enqueue notification for PS so they will know a sub was renewed
-
 
 
                                         // enqueue pending transaction
@@ -14075,19 +14085,6 @@ namespace ConditionalAccess
                                         {
                                             log.ErrorFormat("Failed enqueue of pending transaction {0}", data);
                                         }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                                         var dicData = new Dictionary<string, object>()
                                         {
@@ -14106,6 +14103,9 @@ namespace ConditionalAccess
                                         break;
                                     case ConditionalAccess.TvinciBilling.eTransactionState.Pending:
 
+                                        // renew subscription pending!
+                                        log.DebugFormat("Transaction renew pending. data: {0}", logString);
+
                                         // create new rabbit msg (next renew interval)
 
                                         // get PG by transaction ID
@@ -14115,6 +14115,10 @@ namespace ConditionalAccess
                                         //     call HandleMPPRenewalBillingSuccess
                                         break;
                                     case ConditionalAccess.TvinciBilling.eTransactionState.Failed:
+
+                                        // renew subscription failed!
+                                        log.DebugFormat("Transaction renew failed. data: {0}", logString);
+
                                         // reoccurring status = 0 
 
                                         // return true;
