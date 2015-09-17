@@ -8,12 +8,16 @@ using System.Text;
 using GroupsCacheManager;
 using System.Threading.Tasks;
 using EpgBL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public class EpgIndexBuilder : AbstractIndexBuilder
     {
         private static readonly string EPG = "epg";
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Data Members
 
@@ -89,7 +93,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
+                    log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
                 string sMapping = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
@@ -101,22 +105,28 @@ namespace ElasticSearchHandler.IndexBuilders
                     success = false;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type epg for language ", language.Name), "ESFeeder");
+                {
+                    log.Error(string.Concat("Could not create mapping of type epg for language ", language.Name));
+                }
 
             }
             #endregion
 
             if (!success)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", newIndexName), "ESFeeder");
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
                 return success;
             }
+
+            log.DebugFormat("Start populating epg index = {0}", newIndexName);
 
             while (tempDate <= this.EndDate.Value)
             {
                 PopulateEpgIndex(newIndexName, EPG, tempDate);
                 tempDate = tempDate.AddDays(1);
             }
+
+            log.DebugFormat("Finished populating epg index = {0}", newIndexName);
 
             bool indexExists = api.IndexExists(ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId));
 
@@ -155,7 +165,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESFeeder");
+                        log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
                     }
                     else
                     {
@@ -177,57 +187,88 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected void PopulateEpgIndex(string index, string type, DateTime date)
         {
-            // Get EPG objects from CB
-            Dictionary<ulong, EpgCB> programs = GetEpgPrograms(groupId, date, 0);
-
-            List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
-
-            // Run on all programs
-            foreach (ulong epgID in programs.Keys)
+            try
             {
-                EpgCB epg = programs[epgID];
+                // Get EPG objects from CB
+                Dictionary<ulong, EpgCB> programs = GetEpgPrograms(groupId, date);
 
-                if (epg != null)
+                List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
+
+                // Run on all programs
+                foreach (ulong epgID in programs.Keys)
                 {
-                    // Serialize EPG object to string
-                    string serializedEpg = serializer.SerializeEpgObject(epg);
-                    epgList.Add(new KeyValuePair<ulong, string>(epg.EpgID, serializedEpg));
+                    EpgCB epg = programs[epgID];
+
+                    if (epg != null)
+                    {
+                        // Serialize EPG object to string
+                        string serializedEpg = serializer.SerializeEpgObject(epg);
+                        epgList.Add(new KeyValuePair<ulong, string>(epg.EpgID, serializedEpg));
+                    }
+
+                    // If we exceeded maximum size of bulk 
+                    if (epgList.Count >= sizeOfBulk)
+                    {
+                        // create bulk request now and clear list
+                        api.CreateBulkIndexRequest(index, type, epgList);
+
+                        epgList.Clear();
+                    }
                 }
 
-                // If we exceeded maximum size of bulk 
-                if (epgList.Count >= sizeOfBulk)
+                // If we have anything left that is less than the size of the bulk
+                if (epgList.Count > 0)
                 {
-                    // create bulk request now and clear list
                     api.CreateBulkIndexRequest(index, type, epgList);
-
-                    epgList.Clear();
                 }
             }
-
-            // If we have anything left that is less than the size of the bulk
-            if (epgList.Count > 0)
+            catch (Exception ex)
             {
-                api.CreateBulkIndexRequest(index, type, epgList);
+                log.ErrorFormat("Failed when populating epg index. index = {0}, type = {1}, date = {2}, message = {3}, st = {4}",
+                    index, type, date, ex.Message, ex.StackTrace);
+
+                throw ex;
             }
         }
 
-        protected Dictionary<ulong, EpgCB> GetEpgPrograms(int groupId, DateTime? dateTime, int epgID)
+        protected Dictionary<ulong, EpgCB> GetEpgPrograms(int groupId, DateTime? dateTime)
         {
-            Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();
-
-            //Get All programs by group_id + date from CB
-            TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
-            List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1));
-
-            if (lEpgCB != null && lEpgCB.Count > 0)
+            try
             {
-                foreach (EpgCB epg in lEpgCB)
-                {
-                    epgs.Add(epg.EpgID, epg);
-                }
-            }
+                Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();
 
-            return epgs;
+                //Get All programs by group_id + date from CB
+                TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
+                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1));
+                
+                if (lEpgCB != null && lEpgCB.Count > 0)
+                {
+                    foreach (EpgCB epg in lEpgCB)
+                    {
+                        if (epg != null)
+                        {
+                            epgs.Add(epg.EpgID, epg);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Received null epg from TvinciEpgBL, date is {0}", dateTime);
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("Got 0 or null EPG Programs. group = {0}, date = {1}", groupId, dateTime);
+                }
+
+                return epgs;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetEpgPrograms. group id = {2}, Date = {3}, Message = {0}, stack trace = {1}", 
+                    ex.Message, ex.StackTrace,
+                    groupId, dateTime);
+                throw ex;
+            }
         }
 
         #endregion

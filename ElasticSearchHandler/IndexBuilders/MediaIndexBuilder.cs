@@ -10,12 +10,16 @@ using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using System.Data;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public class MediaIndexBuilder :  AbstractIndexBuilder
     {
         private static readonly string MEDIA = "media";
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public MediaIndexBuilder(int groupID) 
             : base (groupID)
@@ -54,7 +58,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (group == null)
             {
-                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESFeeder");
+                log.Error("Could not load group in media index builder");
                 return false;
             }
 
@@ -92,7 +96,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
+                    log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
                 string sMapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
@@ -103,12 +107,15 @@ namespace ElasticSearchHandler.IndexBuilders
                     actionResult = false;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESFeeder");
+                {
+                    log.Error(string.Concat("Could not create mapping of type media for language ", language.Name));
+                }
 
             }
 
             if (!actionResult)
                 return actionResult;
+
             #endregion
 
             #region insert medias
@@ -162,7 +169,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (group.channelIDs != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count), "ESFeeder");
+                log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
 
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
@@ -202,7 +209,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
+                    log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
                 }
             }
 
@@ -247,7 +254,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (oGroup == null)
                 {
-                    Logger.Logger.Log("Error", "Could not load group from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Could not load group from cache in GetGroupMedias");
                     return dMediaTrans;
                 }
 
@@ -255,7 +262,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (oDefaultLangauge == null)
                 {
-                    Logger.Logger.Log("Error", "Could not get group default language from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Could not get group default language from cache in GetGroupMedias");
                     return dMediaTrans;
                 }
 
@@ -429,7 +436,8 @@ namespace ElasticSearchHandler.IndexBuilders
                                 }
                                 catch
                                 {
-                                    Logger.Logger.Log("Error", string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", nTagMediaID, mttn, tagID, val), "ESFeeder");
+                                    log.Error(string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", 
+                                        nTagMediaID, mttn, tagID, val));
                                 }
                             }
                         }
@@ -551,7 +559,7 @@ namespace ElasticSearchHandler.IndexBuilders
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Media Exception", ex.Message, "ESFeeder");
+                log.Error(string.Format("GetGroupMedias - {0}", ex.Message), ex);
             }
 
             return dMediaTrans;
@@ -577,7 +585,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ElasticSearch");
+                        log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
                     }
                     else
                     {
