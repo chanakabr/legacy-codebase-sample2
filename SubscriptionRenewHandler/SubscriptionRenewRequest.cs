@@ -16,6 +16,13 @@ namespace SubscriptionRenewHandler
             set;
         }
 
+        [JsonProperty("billing_guid")]
+        public string BillingGuid
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("site_guid")]
         public string SiteGuid
         {
