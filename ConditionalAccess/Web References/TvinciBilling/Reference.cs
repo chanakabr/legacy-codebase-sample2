@@ -2846,6 +2846,10 @@ namespace ConditionalAccess.TvinciBilling {
         
         private int pendingRetriesField;
         
+        private int renewalIntervalMinutesField;
+        
+        private int renewalStartMinutesField;
+        
         private string sharedSecretField;
         
         private PaymentGatewaySettings[] settingsField;
@@ -2927,6 +2931,26 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.pendingRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalIntervalMinutes {
+            get {
+                return this.renewalIntervalMinutesField;
+            }
+            set {
+                this.renewalIntervalMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalStartMinutes {
+            get {
+                return this.renewalStartMinutesField;
+            }
+            set {
+                this.renewalStartMinutesField = value;
             }
         }
         

@@ -84,7 +84,7 @@ namespace ConditionalAccess
 
         protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID, DateTime? subscriptionEndDate);
+                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID, ref DateTime? subscriptionEndDate);
 
         protected abstract bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
@@ -12545,14 +12545,15 @@ namespace ConditionalAccess
 
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
+                                DateTime? endDate = null;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, null);
+                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate);
 
-                                if (handleBillingPassed)
+                                if (handleBillingPassed && endDate.HasValue)
                                 {
                                     WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
@@ -12561,6 +12562,38 @@ namespace ConditionalAccess
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
                                         UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
+                                    }
+
+                                    if (subscription.m_bIsRecurring)
+                                    {
+                                        TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+                                        try
+                                        {
+                                            // call billing process renewal
+                                            string billingUserName = string.Empty;
+                                            string billingPassword = string.Empty;
+                                            TvinciBilling.module wsBillingService = null;
+                                            InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
+                                            paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+                                            if (paymentGatewayResponse == null)
+                                            {
+                                                // error getting PG
+                                                log.Error("Error getting the PG");
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Error("Error while trying to get the PG", ex);
+                                        }
+
+                                        // enqueue renew transaction
+                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes));
+                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                        if (!enqueueSuccessful)
+                                        {
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
                                     }
 
                                     // build notification message
@@ -12855,21 +12888,53 @@ namespace ConditionalAccess
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
-                                DateTime subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                                DateTime? subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
                                 bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
 
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, subscriptionEndDate);
+                                                                                      billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, ref subscriptionEndDate);
 
-                                if (handleBillingPassed)
+                                if (handleBillingPassed && subscriptionEndDate.HasValue)
                                 {
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
                                         UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
+                                    }
+
+                                    if (subscription.m_bIsRecurring)
+                                    {
+                                        TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+                                        try
+                                        {
+                                            // call billing process renewal
+                                            string billingUserName = string.Empty;
+                                            string billingPassword = string.Empty;
+                                            TvinciBilling.module wsBillingService = null;
+                                            InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
+                                            paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+                                            if (paymentGatewayResponse == null)
+                                            {
+                                                // error getting PG
+                                                log.Error("Error getting the PG");
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.Error("Error while trying to get the PG", ex);
+                                        }
+
+                                        // enqueue renew transaction
+                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, subscriptionEndDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes));
+                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                        if (!enqueueSuccessful)
+                                        {
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
                                     }
 
                                     // build notification message
@@ -13658,11 +13723,12 @@ namespace ConditionalAccess
 
                 // update entitlement date
                 DateTime entitlementDate = DateTime.UtcNow;
+                DateTime? endDate = null;
 
                 // grant entitlement
                 var result = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, false, entitlementDate, ref purchaseID, null);
+                    entitleToPreview, false, entitlementDate, ref purchaseID, ref endDate);
 
                 if (result)
                 {
@@ -14016,77 +14082,65 @@ namespace ConditionalAccess
                                 transactionResponse.Status == null ||
                                 transactionResponse.Status.Code != (int)eResponseStatus.OK)
                             {
+                                log.Error("Received error from PG");
+                                return false;
                             }
                             else
                             {
                                 switch (transactionResponse.State)
                                 {
                                     case ConditionalAccess.TvinciBilling.eTransactionState.OK:
-
-                                        // renew subscription success!
-                                        log.DebugFormat("Transaction renew success. data: {0}", logString);
-
-                                        // get billing gateway
-                                        TvinciBilling.PaymentGateway paymentGatewayResponse = null;
-                                        try
                                         {
-                                            paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, household, billingGuid);
-                                            if (paymentGatewayResponse == null)
+                                            // renew subscription success!
+                                            log.DebugFormat("Transaction renew success. data: {0}", logString);
+
+                                            // get billing gateway
+                                            TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+                                            try
                                             {
-                                                // error getting PG
+                                                paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, household, billingGuid);
+                                                if (paymentGatewayResponse == null)
+                                                {
+                                                    // error getting PG
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                log.Error("Error while trying to get the PG", ex);
+                                                return false;
+                                            }
+
+                                            // update end date (PG response end date + configured PG start renew time)
+                                            if (transactionResponse.EndDateSeconds > 0)
+                                            {
+                                                // end date returned
+                                                endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
                                             }
                                             else
                                             {
-
+                                                // end wasn't retuned - get next end date from MPP
+                                                endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
                                             }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            log.Error("Error while trying to get the PG", ex);
-                                            return false;
-                                        }
 
-                                        // update end date (PG response end date + configured PG start renew time)
-                                        if (transactionResponse.EndDateSeconds > 0)
-                                        {
-                                            // end date returned
-                                            endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
-                                        }
-                                        else
-                                        {
-                                            // end wasn't retuned - get next end date from MPP
-                                            endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
-                                        }
+                                            ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
 
-                                        ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
+                                            //long lBillingTransactionID = 0;
+                                            //if (!string.IsNullOrEmpty(sBillingTransactionID) && long.TryParse(sBillingTransactionID, out lBillingTransactionID) && lBillingTransactionID > 0)
+                                            //{
+                                            //    ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID);
+                                            //}
 
-                                        long lBillingTransactionID = 0;
+                                            // enqueue renew transaction
+                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, endDate.AddMinutes(paymentGatewayResponse.RenewalStartMinutes));
+                                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                            if (!enqueueSuccessful)
+                                            {
+                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            }
 
-                                        //if (!string.IsNullOrEmpty(sBillingTransactionID) && long.TryParse(sBillingTransactionID, out lBillingTransactionID) && lBillingTransactionID > 0)
-                                        //{
-                                        //    ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID);
-                                        //}
-
-
-                                        // create new rabbit msg (next renew period)
-                                        // return true;
-
-                                        //  {
-                                        // Enqueue notification for PS so they will know a sub was renewed
-
-
-                                        // enqueue pending transaction
-                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, endDate);
-
-                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-
-                                        if (!enqueueSuccessful)
-                                        {
-                                            log.ErrorFormat("Failed enqueue of pending transaction {0}", data);
-                                        }
-
-                                        var dicData = new Dictionary<string, object>()
+                                            // PS message 
+                                            var dicData = new Dictionary<string, object>()
                                         {
                                             {"BillingTransactionID", transactionResponse.TransactionID},
                                             {"SiteGUID", siteguid},
@@ -14097,32 +14151,59 @@ namespace ConditionalAccess
                                             {"PurchaseID", purchaseId},
                                             {"SubscriptionCode", subscription.m_SubscriptionCode}
                                         };
+                                            this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
 
-                                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
-
-                                        break;
+                                            return true;
+                                        }
                                     case ConditionalAccess.TvinciBilling.eTransactionState.Pending:
+                                        {
+                                            // renew subscription pending!
+                                            log.DebugFormat("Transaction renew pending. data: {0}", logString);
 
-                                        // renew subscription pending!
-                                        log.DebugFormat("Transaction renew pending. data: {0}", logString);
+                                            // get billing gateway
+                                            TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+                                            try
+                                            {
+                                                paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, household, billingGuid);
+                                                if (paymentGatewayResponse == null)
+                                                {
+                                                    // error getting PG
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                log.Error("Error while trying to get the PG", ex);
+                                                return false;
+                                            }
 
-                                        // create new rabbit msg (next renew interval)
+                                            // enqueue renew transaction
+                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes));
+                                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                            if (!enqueueSuccessful)
+                                            {
+                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            }
 
-                                        // get PG by transaction ID
-
-                                        // return true;
-
-                                        //     call HandleMPPRenewalBillingSuccess
-                                        break;
+                                            return true;
+                                        }
                                     case ConditionalAccess.TvinciBilling.eTransactionState.Failed:
+                                        {
+                                            // renew subscription failed!
+                                            log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
-                                        // renew subscription failed!
-                                        log.DebugFormat("Transaction renew failed. data: {0}", logString);
+                                            // Try to cancel subscription
 
-                                        // reoccurring status = 0 
+                                            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode) > 0)
+                                            {
+                                            }
+                                            else
+                                            {
 
-                                        // return true;
-                                        break;
+                                            }
+
+                                            return true;
+                                        }
                                     default:
                                         break;
                                 }
