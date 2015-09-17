@@ -5279,7 +5279,7 @@ namespace ConditionalAccess
 
                         bool bCancellationWindow = false;
                         int nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
-                        if (nWaiver == 0 && dLastViewDate < dCreateDate) // user didn't waiver yet and didn't use the sub yet
+                        if (nWaiver == 0 && lastViewDate < createDate) // user didn't waiver yet and didn't use the sub yet
                         {
                             IsCancellationWindow(ref oUsageModule, subscriptionCode, createDate, ref bCancellationWindow, eTransactionType.Subscription);
                         }
