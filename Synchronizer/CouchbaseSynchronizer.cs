@@ -31,6 +31,7 @@ namespace Synchronizer
         #region Static Data Members
 
         private static readonly Random random;
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #endregion
 
@@ -175,6 +176,8 @@ namespace Synchronizer
                         }
                         catch (Exception ex)
                         {
+                            log.Error(string.Format("Syncrhnoizer failed performing action. key = {0}, message = {1}, st = {2}, target site = {3}", 
+                                key, ex.Message, ex.StackTrace, ex.TargetSite), ex);
                             throw ex;
                         }
                         // Always unlock, even if exception is thrown - to avoid infinite lock
