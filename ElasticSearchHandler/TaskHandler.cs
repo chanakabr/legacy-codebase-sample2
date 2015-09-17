@@ -86,6 +86,8 @@ namespace ElasticSearchHandler
             }
             catch (Exception ex)
             {
+                log.Error(string.Format("Failed performing elastic search request. data = {0} message = {1}, stack trace= {2}, target site = {3}", 
+                    data, ex.Message, ex.StackTrace, ex.TargetSite), ex);
                 throw ex;
             }
             

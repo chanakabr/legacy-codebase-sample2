@@ -177,27 +177,34 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected void PopulateEpgIndex(string index, string type, DateTime date)
         {
+            // Get EPG objects from CB
             Dictionary<ulong, EpgCB> programs = GetEpgPrograms(groupId, date, 0);
 
             List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
+
+            // Run on all programs
             foreach (ulong epgID in programs.Keys)
             {
                 EpgCB epg = programs[epgID];
 
                 if (epg != null)
                 {
+                    // Serialize EPG object to string
                     string serializedEpg = serializer.SerializeEpgObject(epg);
                     epgList.Add(new KeyValuePair<ulong, string>(epg.EpgID, serializedEpg));
                 }
 
+                // If we exceeded maximum size of bulk 
                 if (epgList.Count >= sizeOfBulk)
                 {
+                    // create bulk request now and clear list
                     api.CreateBulkIndexRequest(index, type, epgList);
 
-                    epgList = new List<KeyValuePair<ulong, string>>();
+                    epgList.Clear();
                 }
             }
 
+            // If we have anything left that is less than the size of the bulk
             if (epgList.Count > 0)
             {
                 api.CreateBulkIndexRequest(index, type, epgList);
