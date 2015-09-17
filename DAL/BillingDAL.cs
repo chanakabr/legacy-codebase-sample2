@@ -1318,9 +1318,9 @@ namespace DAL
             return paymentGateway;
         }
 
-        public static DataSet GetLatestPaymentGatewayTransaction(int groupId, long householdId, string billingGuid)
+        public static DataRow GetLatestPaymentGatewayTransaction(int groupId, long householdId, string billingGuid)
         {
-            DataSet dateset = null;
+            DataRow dataRow = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestPaymentGatewayTransaction");
@@ -1329,12 +1329,15 @@ namespace DAL
                 sp.AddParameter("@domain_id", householdId);
                 sp.AddParameter("@billing_guid", billingGuid);
                 DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows[0];
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
-            return dateset;
+            return dataRow;
         }
 
         public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, int? selected, string chargeID = null, int status = 1)

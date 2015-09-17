@@ -1909,9 +1909,9 @@ namespace DAL
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
 
-            return sp.ExecuteReturnValue<int>() > 0;            
+            return sp.ExecuteReturnValue<int>() > 0;
         }
-        
+
         public static bool UpdateSubscriptionPurchaseActiveStatus(string billingGuid, int isActive, int isRecurringStatus)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
@@ -1931,6 +1931,27 @@ namespace DAL
             sp.AddParameter("@billing_guid", billingGuid);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataRow Get_RenewDetails(int groupId, long subscriptionPurchaseId, string billingGuid)
+        {
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_RenewDetails");
+            spLastBillingTransactions.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spLastBillingTransactions.AddParameter("@GroupID", groupId);
+            spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
+            spLastBillingTransactions.AddParameter("@BillingGuid", billingGuid);
+
+            DataSet ds = spLastBillingTransactions.ExecuteDataSet();
+            if (ds != null &&
+                ds.Tables != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows != null &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                return ds.Tables[0].Rows[0];
+            }
+
+            return null;
         }
     }
 }

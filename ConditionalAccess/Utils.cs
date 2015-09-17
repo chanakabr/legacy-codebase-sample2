@@ -3354,5 +3354,23 @@ namespace ConditionalAccess
             }
             return status;
         }
+
+
+        public static int CalcPaymentNumber(int nNumOfPayments, int nPaymentNumber, bool bIsPurchasedWithPreviewModule)
+        {
+            int res = nPaymentNumber;
+            if (nPaymentNumber == 0 && bIsPurchasedWithPreviewModule)
+                res = 0;
+            else
+            {
+                if (nNumOfPayments != 0)
+                {
+                    res = nPaymentNumber % nNumOfPayments;
+                    if (res == 0)
+                        res = nNumOfPayments;
+                }
+            }
+            return res;
+        }
     }
 }

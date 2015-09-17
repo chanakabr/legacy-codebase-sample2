@@ -1045,6 +1045,49 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="ProcessRenewal">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="price" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customData" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="productCode" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentNumber" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="numberOfPayments" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="gracePeriodMinutes" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProcessRenewalResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ProcessRenewalResult" type="tns:TransactResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPaymentGatewayByBillingGuid">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPaymentGatewayByBillingGuidResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPaymentGatewayByBillingGuidResult" type="tns:PaymentGateway" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -1057,6 +1100,7 @@
       <s:element name="PaymentGatewayChargeIDResponse" nillable="true" type="tns:PaymentGatewayChargeIDResponse" />
       <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
       <s:element name="UpdatePendingResponse" nillable="true" type="tns:UpdatePendingResponse" />
+      <s:element name="PaymentGateway" nillable="true" type="tns:PaymentGateway" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetBillingCutomDataSoapIn">
@@ -1322,6 +1366,18 @@
   </wsdl:message>
   <wsdl:message name="VerifyReceiptSoapOut">
     <wsdl:part name="parameters" element="tns:VerifyReceiptResponse" />
+  </wsdl:message>
+  <wsdl:message name="ProcessRenewalSoapIn">
+    <wsdl:part name="parameters" element="tns:ProcessRenewal" />
+  </wsdl:message>
+  <wsdl:message name="ProcessRenewalSoapOut">
+    <wsdl:part name="parameters" element="tns:ProcessRenewalResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewayByBillingGuid" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewayByBillingGuidResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1708,6 +1764,33 @@
   <wsdl:message name="VerifyReceiptHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactResult" />
   </wsdl:message>
+  <wsdl:message name="ProcessRenewalHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productCode" type="s:string" />
+    <wsdl:part name="paymentNumber" type="s:string" />
+    <wsdl:part name="numberOfPayments" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="gracePeriodMinutes" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProcessRenewalHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGateway" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetBillingCutomData">
       <wsdl:input message="tns:GetBillingCutomDataSoapIn" />
@@ -1885,6 +1968,14 @@
       <wsdl:input message="tns:VerifyReceiptSoapIn" />
       <wsdl:output message="tns:VerifyReceiptSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <wsdl:input message="tns:ProcessRenewalSoapIn" />
+      <wsdl:output message="tns:ProcessRenewalSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <wsdl:input message="tns:GetPaymentGatewayByBillingGuidSoapIn" />
+      <wsdl:output message="tns:GetPaymentGatewayByBillingGuidSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetBillingCutomData">
@@ -2026,6 +2117,14 @@
     <wsdl:operation name="VerifyReceipt">
       <wsdl:input message="tns:VerifyReceiptHttpPostIn" />
       <wsdl:output message="tns:VerifyReceiptHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <wsdl:input message="tns:ProcessRenewalHttpPostIn" />
+      <wsdl:output message="tns:ProcessRenewalHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <wsdl:input message="tns:GetPaymentGatewayByBillingGuidHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewayByBillingGuidHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2419,6 +2518,24 @@
     </wsdl:operation>
     <wsdl:operation name="VerifyReceipt">
       <soap:operation soapAction="http://billing.tvinci.com/VerifyReceipt" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <soap:operation soapAction="http://billing.tvinci.com/ProcessRenewal" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <soap:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayByBillingGuid" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2825,6 +2942,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <soap12:operation soapAction="http://billing.tvinci.com/ProcessRenewal" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <soap12:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayByBillingGuid" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -3134,6 +3269,24 @@
     </wsdl:operation>
     <wsdl:operation name="VerifyReceipt">
       <http:operation location="/VerifyReceipt" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <http:operation location="/ProcessRenewal" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <http:operation location="/GetPaymentGatewayByBillingGuid" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
