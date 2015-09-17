@@ -31,7 +31,7 @@ namespace SubscriptionRenewHandler
         }
 
         [JsonProperty("purchase_id")]
-        public string PurchaseId
+        public long PurchaseId
         {
             get;
             set;

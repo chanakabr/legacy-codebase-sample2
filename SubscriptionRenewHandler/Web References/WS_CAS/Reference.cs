@@ -585,7 +585,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Rewnew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool Rewnew(string sWSUserName, string sWSPassword, string siteguid, string purchaseId) {
+        public bool Rewnew(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
             object[] results = this.Invoke("Rewnew", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -595,12 +595,12 @@ namespace SubscriptionRenewHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, string purchaseId) {
+        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
             this.RewnewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, null);
         }
         
         /// <remarks/>
-        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, string purchaseId, object userState) {
+        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, object userState) {
             if ((this.RewnewOperationCompleted == null)) {
                 this.RewnewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRewnewOperationCompleted);
             }
@@ -6338,6 +6338,8 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         private ServiceObject[] m_lServicesField;
         
+        private int m_GracePeriodMinutesField;
+        
         /// <remarks/>
         public BundleCodeContainer[] m_sCodes {
             get {
@@ -6546,6 +6548,16 @@ namespace SubscriptionRenewHandler.WS_CAS {
             }
             set {
                 this.m_lServicesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_GracePeriodMinutes {
+            get {
+                return this.m_GracePeriodMinutesField;
+            }
+            set {
+                this.m_GracePeriodMinutesField = value;
             }
         }
     }
