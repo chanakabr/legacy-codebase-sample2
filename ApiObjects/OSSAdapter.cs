@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -7,6 +8,7 @@ namespace ApiObjects
         public int IsActive { get; set; }
         public string AdapterUrl { get; set; }
         public string ExternalIdentifier { get; set; }
+        [XmlIgnore]
         public string SharedSecret { get; set; }
 
         public List<OSSAdapterSettings> Settings { get; set; }

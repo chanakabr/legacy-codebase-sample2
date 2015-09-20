@@ -2126,9 +2126,10 @@ namespace DAL
             return paymentGWID;
         }
 
-        public static bool InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
+        public static bool InsertOSSAdapter(int groupID, OSSAdapter ossAdapter, out int ossAdapterID)
         {
-
+            bool isInsert = false;            
+            ossAdapterID = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
@@ -2143,7 +2144,13 @@ namespace DAL
                 DataTable dt = CreateDataTable(ossAdapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
-                bool isInsert = sp.ExecuteReturnValue<bool>();
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    isInsert = true;
+                }
                 return isInsert;
             }
             catch (Exception ex)
