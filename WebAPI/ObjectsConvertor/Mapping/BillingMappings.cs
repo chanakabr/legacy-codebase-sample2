@@ -25,6 +25,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
+                .ForMember(dest => dest.PendingRetries, opt => opt.MapFrom(src => src.PendingRetries))
+                .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PendingInterval))
+                .ForMember(dest => dest.RenewIntervalMinutes, opt => opt.MapFrom(src => src.RenewalIntervalMinutes))
+                .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
@@ -34,6 +38,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.TransactUrl))
                .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.StatusUrl))
+               .ForMember(dest => dest.PendingRetries, opt => opt.MapFrom(src => src.PendingRetries))
+               .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PendingInterval))
+               .ForMember(dest => dest.RenewalIntervalMinutes, opt => opt.MapFrom(src => src.RenewIntervalMinutes))
+               .ForMember(dest => dest.RenewalStartMinutes, opt => opt.MapFrom(src => src.RenewStartMinutes))
                .ForMember(dest => dest.RenewUrl, opt => opt.MapFrom(src => src.RenewUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
@@ -114,7 +122,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "unknown household payment gateway selected by");
-
             }
 
             return result;
