@@ -34,7 +34,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
         
-        private System.Threading.SendOrPostCallback RewnewOperationCompleted;
+        private System.Threading.SendOrPostCallback RenewOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
@@ -253,7 +253,7 @@ namespace SubscriptionRenewHandler.WS_CAS {
         public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
         
         /// <remarks/>
-        public event RewnewCompletedEventHandler RewnewCompleted;
+        public event RenewCompletedEventHandler RenewCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -584,9 +584,9 @@ namespace SubscriptionRenewHandler.WS_CAS {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Rewnew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool Rewnew(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
-            object[] results = this.Invoke("Rewnew", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Renew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool Renew(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
+            object[] results = this.Invoke("Renew", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
@@ -595,26 +595,26 @@ namespace SubscriptionRenewHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
-            this.RewnewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, null);
+        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId) {
+            this.RenewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, null);
         }
         
         /// <remarks/>
-        public void RewnewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, object userState) {
-            if ((this.RewnewOperationCompleted == null)) {
-                this.RewnewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRewnewOperationCompleted);
+        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, object userState) {
+            if ((this.RenewOperationCompleted == null)) {
+                this.RenewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRenewOperationCompleted);
             }
-            this.InvokeAsync("Rewnew", new object[] {
+            this.InvokeAsync("Renew", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteguid,
-                        purchaseId}, this.RewnewOperationCompleted, userState);
+                        purchaseId}, this.RenewOperationCompleted, userState);
         }
         
-        private void OnRewnewOperationCompleted(object arg) {
-            if ((this.RewnewCompleted != null)) {
+        private void OnRenewOperationCompleted(object arg) {
+            if ((this.RenewCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.RewnewCompleted(this, new RewnewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.RenewCompleted(this, new RenewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -9254,17 +9254,17 @@ namespace SubscriptionRenewHandler.WS_CAS {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void RewnewCompletedEventHandler(object sender, RewnewCompletedEventArgs e);
+    public delegate void RenewCompletedEventHandler(object sender, RenewCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class RewnewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class RenewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal RewnewCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal RenewCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

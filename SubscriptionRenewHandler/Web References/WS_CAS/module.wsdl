@@ -103,7 +103,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="Rewnew">
+      <s:element name="Renew">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -113,10 +113,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="RewnewResponse">
+      <s:element name="RenewResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="RewnewResult" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="RenewResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2834,11 +2834,11 @@
   <wsdl:message name="GetDomainEntitlementsSoapOut">
     <wsdl:part name="parameters" element="tns:GetDomainEntitlementsResponse" />
   </wsdl:message>
-  <wsdl:message name="RewnewSoapIn">
-    <wsdl:part name="parameters" element="tns:Rewnew" />
+  <wsdl:message name="RenewSoapIn">
+    <wsdl:part name="parameters" element="tns:Renew" />
   </wsdl:message>
-  <wsdl:message name="RewnewSoapOut">
-    <wsdl:part name="parameters" element="tns:RewnewResponse" />
+  <wsdl:message name="RenewSoapOut">
+    <wsdl:part name="parameters" element="tns:RenewResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -3374,13 +3374,13 @@
   <wsdl:message name="GetDomainEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
   </wsdl:message>
-  <wsdl:message name="RewnewHttpPostIn">
+  <wsdl:message name="RenewHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
     <wsdl:part name="purchaseId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="RewnewHttpPostOut">
+  <wsdl:message name="RenewHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
@@ -4467,9 +4467,9 @@
       <wsdl:input message="tns:GetDomainEntitlementsSoapIn" />
       <wsdl:output message="tns:GetDomainEntitlementsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="Rewnew">
-      <wsdl:input message="tns:RewnewSoapIn" />
-      <wsdl:output message="tns:RewnewSoapOut" />
+    <wsdl:operation name="Renew">
+      <wsdl:input message="tns:RenewSoapIn" />
+      <wsdl:output message="tns:RenewSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -4825,9 +4825,9 @@
       <wsdl:input message="tns:GetDomainEntitlementsHttpPostIn" />
       <wsdl:output message="tns:GetDomainEntitlementsHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="Rewnew">
-      <wsdl:input message="tns:RewnewHttpPostIn" />
-      <wsdl:output message="tns:RewnewHttpPostOut" />
+    <wsdl:operation name="Renew">
+      <wsdl:input message="tns:RenewHttpPostIn" />
+      <wsdl:output message="tns:RenewHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -5170,8 +5170,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Rewnew">
-      <soap:operation soapAction="http://ca.tvinci.com/Rewnew" style="document" />
+    <wsdl:operation name="Renew">
+      <soap:operation soapAction="http://ca.tvinci.com/Renew" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5974,8 +5974,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Rewnew">
-      <soap12:operation soapAction="http://ca.tvinci.com/Rewnew" style="document" />
+    <wsdl:operation name="Renew">
+      <soap12:operation soapAction="http://ca.tvinci.com/Renew" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -6778,8 +6778,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Rewnew">
-      <http:operation location="/Rewnew" />
+    <wsdl:operation name="Renew">
+      <http:operation location="/Renew" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -7510,13 +7510,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap:address location="http://192.168.162.142/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap12:address location="http://192.168.162.142/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/ws_cas/module.asmx" />
+      <http:address location="http://192.168.162.142/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

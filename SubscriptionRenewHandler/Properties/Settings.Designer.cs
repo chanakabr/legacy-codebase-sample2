@@ -26,7 +26,7 @@ namespace SubscriptionRenewHandler.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_cas/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.162.142/WS_ConditionalAccess/module.asmx")]
         public string SubscriptionRenewHandler_WS_CAS_module {
             get {
                 return ((string)(this["SubscriptionRenewHandler_WS_CAS_module"]));

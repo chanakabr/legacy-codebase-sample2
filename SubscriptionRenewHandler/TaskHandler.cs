@@ -41,7 +41,7 @@ namespace SubscriptionRenewHandler
                     cas.Url = url;
                 }
 
-                bool success = cas.Rewnew(username, password, request.SiteGuid, request.PurchaseId);
+                bool success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId);
 
                 if (!success)
                 {

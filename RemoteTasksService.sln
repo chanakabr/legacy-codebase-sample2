@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCacheHandler", "Updat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronizer", "..\tvmcore\Synchronizer\Synchronizer.csproj", "{9B1D6676-614F-4F0D-9BFB-66422F8A5031}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionRenewHandler", "SubscriptionRenewHandler\SubscriptionRenewHandler.csproj", "{98C65129-0998-4385-B7FE-BF95E74E3F40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -523,6 +525,18 @@ Global
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Basic|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Local|x86.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98C65129-0998-4385-B7FE-BF95E74E3F40}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
