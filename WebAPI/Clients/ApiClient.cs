@@ -1110,9 +1110,11 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
+        internal KalturaOSSAdapterInsertResponse InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
         {
-            WebAPI.Api.Status response = null;
+            WebAPI.Api.OSSAdapterInsertResponse response = null;
+            KalturaOSSAdapterInsertResponse kalturaOSSAdapterInsertResponse = null;
+
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -1129,17 +1131,20 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
+
             if (response == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            return true;
+            kalturaOSSAdapterInsertResponse = Mapper.Map<Models.API.KalturaOSSAdapterInsertResponse>(response);
+
+            return kalturaOSSAdapterInsertResponse;
         }
 
         internal bool SetOSSAdapter(int groupId, int ossAdapterId, KalturaOSSAdapterProfile ossAdapter)

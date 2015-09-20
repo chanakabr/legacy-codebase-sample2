@@ -3890,12 +3890,12 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InsertOSSAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status InsertOSSAdapter(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
+        public OSSAdapterInsertResponse InsertOSSAdapter(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
             object[] results = this.Invoke("InsertOSSAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
                         ossAdapter});
-            return ((Status)(results[0]));
+            return ((OSSAdapterInsertResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4474,8 +4474,6 @@ namespace WebAPI.Api {
         
         private string externalIdentifierField;
         
-        private string sharedSecretField;
-        
         private OSSAdapterSettings[] settingsField;
         
         /// <remarks/>
@@ -4505,16 +4503,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.externalIdentifierField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string SharedSecret {
-            get {
-                return this.sharedSecretField;
-            }
-            set {
-                this.sharedSecretField = value;
             }
         }
         
@@ -4625,6 +4613,51 @@ namespace WebAPI.Api {
             }
             set {
                 this.oSSAdaptersField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class OSSAdapterInsertResponse {
+        
+        private Status statusField;
+        
+        private int oSSAdapterIdField;
+        
+        private string sharedSecretField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int OSSAdapterId {
+            get {
+                return this.oSSAdapterIdField;
+            }
+            set {
+                this.oSSAdapterIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SharedSecret {
+            get {
+                return this.sharedSecretField;
+            }
+            set {
+                this.sharedSecretField = value;
             }
         }
     }
@@ -12675,10 +12708,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public Status Result {
+        public OSSAdapterInsertResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((OSSAdapterInsertResponse)(this.results[0]));
             }
         }
     }

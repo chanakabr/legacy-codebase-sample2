@@ -80,9 +80,9 @@ namespace WebAPI.Controllers
         /// <param name="oss_adapter">OSS adapter Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(KalturaOSSAdapterProfile oss_adapter)
+        public KalturaOSSAdapterInsertResponse Add(KalturaOSSAdapterProfile oss_adapter)
         {
-            bool response = false;
+            KalturaOSSAdapterInsertResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

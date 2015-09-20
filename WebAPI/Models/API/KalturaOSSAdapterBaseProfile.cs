@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// PaymentGWBasic
+    /// OSS adapter basic
     /// </summary>
     public class KalturaOSSAdapterBaseProfile : KalturaOTTObject
     {

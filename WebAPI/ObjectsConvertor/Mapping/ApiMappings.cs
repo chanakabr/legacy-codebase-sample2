@@ -109,6 +109,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                ;
 
+            Mapper.CreateMap<OSSAdapterInsertResponse, WebAPI.Models.API.KalturaOSSAdapterInsertResponse>()
+             .ForMember(dest => dest.OSSAdapterId, opt => opt.MapFrom(src => src.OSSAdapterId))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
           
             #endregion
 

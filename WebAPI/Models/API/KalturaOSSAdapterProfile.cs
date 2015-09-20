@@ -10,14 +10,12 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// PaymentGW
+    /// OSS Adapter
     /// </summary>
     public class KalturaOSSAdapterProfile : KalturaOSSAdapterBaseProfile
     {
-
-
         /// <summary>
-        /// Payment gateway is active status
+        /// OSS adapter active status
         /// </summary>
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
@@ -25,7 +23,7 @@ namespace WebAPI.Models.API
         public int IsActive { get; set; }
 
         /// <summary>
-        /// Payment gateway adapter URL
+        /// OSS adapter adapter URL
         /// </summary>
         [DataMember(Name = "adapter_url")]
         [JsonProperty("adapter_url")]
@@ -41,7 +39,7 @@ namespace WebAPI.Models.API
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
-        /// Payment gateway external identifier
+        /// OSS adapter external identifier
         /// </summary>
         [DataMember(Name = "external_identifier")]
         [JsonProperty("external_identifier")]
