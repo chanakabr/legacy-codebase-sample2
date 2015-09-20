@@ -671,8 +671,8 @@ namespace ConditionalAccess
             ref Subscription[] subsRes, ref Collection[] collsRes,
             ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
         {
-            DataSet ds = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
-            if (IsBundlesDataSetValid(ds))
+            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
+            if (IsBundlesDataSetValid(dataSet))
             {
                 // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
                 // given as input belongs to it.
@@ -683,10 +683,10 @@ namespace ConditionalAccess
                 List<string> colsToBundleCreditDownloadedQuery = new List<string>();
 
                 // iterate over subscriptions
-                DataTable subs = ds.Tables[0];
-                int nWaiver = 0;
-                DateTime dPurchaseDate = DateTime.MinValue;
-                DateTime dEndDate = DateTime.MinValue;
+                DataTable subs = dataSet.Tables[0];
+                int waiver = 0;
+                DateTime purchaseDate = DateTime.MinValue;
+                DateTime endDate = DateTime.MinValue;
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
@@ -695,11 +695,16 @@ namespace ConditionalAccess
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
-                        nWaiver = 0;
-                        dPurchaseDate = DateTime.MinValue;
-                        dEndDate = DateTime.MinValue;
+                        waiver = 0;
+                        purchaseDate = DateTime.MinValue;
+                        endDate = DateTime.MinValue;
+                        int gracePeriodMinutes = 0;
 
-                        GetBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
+                        GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+
+                        // decide which is the correct end period
+                        if (endDate < DateTime.UtcNow)
+                            endDate = endDate.AddMinutes(gracePeriodMinutes);
 
                         // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
                         //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
@@ -719,9 +724,9 @@ namespace ConditionalAccess
                                     subsPurchase.Add(bundleCode, new UserBundlePurchase()
                                     {
                                         sBundleCode = bundleCode,
-                                        nWaiver = nWaiver,
-                                        dtPurchaseDate = dPurchaseDate,
-                                        dtEndDate = dEndDate
+                                        nWaiver = waiver,
+                                        dtPurchaseDate = purchaseDate,
+                                        dtEndDate = endDate
                                     });
                                 }
                             }
@@ -734,7 +739,7 @@ namespace ConditionalAccess
                 }
 
                 //iterate over collections
-                DataTable colls = ds.Tables[1];
+                DataTable colls = dataSet.Tables[1];
                 if (colls != null && colls.Rows != null && colls.Rows.Count > 0)
                 {
                     for (int i = 0; i < colls.Rows.Count; i++)
@@ -742,11 +747,11 @@ namespace ConditionalAccess
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
-                        nWaiver = 0;
-                        dPurchaseDate = DateTime.MinValue;
-                        dEndDate = DateTime.MinValue;
+                        waiver = 0;
+                        purchaseDate = DateTime.MinValue;
+                        endDate = DateTime.MinValue;
 
-                        GetBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref nWaiver, ref dPurchaseDate, ref dEndDate);
+                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
                         // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
                         //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                         // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
@@ -766,9 +771,9 @@ namespace ConditionalAccess
                                     collPurchase.Add(bundleCode, new UserBundlePurchase()
                                     {
                                         sBundleCode = bundleCode,
-                                        nWaiver = nWaiver,
-                                        dtPurchaseDate = dPurchaseDate,
-                                        dtEndDate = dEndDate
+                                        nWaiver = waiver,
+                                        dtPurchaseDate = purchaseDate,
+                                        dtEndDate = endDate
                                     });
                                 }
                             }
@@ -976,17 +981,27 @@ namespace ConditionalAccess
             }
         }
 
-        private static void GetBundlePurchaseData(DataRow dr, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
-            ref string bundleCode, ref int nWaiver, ref DateTime dPurchaseDate, ref DateTime dEndDate)
+        private static void GetSubscriptionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
+            ref string bundleCode, ref int waiver, ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin)
         {
-            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["NUM_OF_USES"]);
-            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dr["MAX_NUM_OF_USES"]);
-            bundleCode = ODBCWrapper.Utils.GetSafeStr(dr[codeColumnName]);
+            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+            bundleCode = ODBCWrapper.Utils.GetSafeStr(dataRow[codeColumnName]);
+            waiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+            purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
+            endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
+            gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
+        }
 
-            nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
-            dPurchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-
-            dEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE");
+        private static void GetCollectionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
+            ref string bundleCode, ref int waiver, ref DateTime purchaseDate, ref DateTime endDate)
+        {
+            numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
+            maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
+            bundleCode = ODBCWrapper.Utils.GetSafeStr(dataRow[codeColumnName]);
+            waiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
+            purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
+            endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
         }
 
         private static bool IsBundlesDataSetValid(DataSet ds)
@@ -1026,7 +1041,7 @@ namespace ConditionalAccess
 
                     if (oCouponsGroup != null &&
                         theCouponData != null &&
-                        theCouponData.Status != null && 
+                        theCouponData.Status != null &&
                         theCouponData.Status.Code == (int)eResponseStatus.OK &&
                         theCouponData.Coupon != null &&
                         theCouponData.Coupon.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
@@ -1113,7 +1128,7 @@ namespace ConditionalAccess
                         theCouponData.Status.Code != (int)eResponseStatus.OK ||
                         theCouponData.Coupon == null)
                     {
-                        
+
                     }
                     else if (theCouponData.Coupon.m_CouponType == TvinciPricing.CouponType.Voucher &&
                             theCouponData.Coupon.m_campID > 0 &&
@@ -1136,13 +1151,13 @@ namespace ConditionalAccess
                         }
                     }
                     else if (theCouponData.Coupon.m_CouponStatus == ConditionalAccess.TvinciPricing.CouponsStatus.Valid &&
-                            theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)    
+                            theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                     {
                         //Coupon discount should take place
                         TvinciPricing.DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
                         p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
                     }
-                    
+
                 }
             } // end if coupon code is not empty
             return p;
@@ -2854,10 +2869,10 @@ namespace ConditionalAccess
                     {
                         p.Url = sWSURL;
                     }
-                    
+
                     TvinciPricing.CouponDataResponse couponData = p.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
-                    
-                    if (couponData != null && 
+
+                    if (couponData != null &&
                         couponData.Status != null &&
                         couponData.Status.Code == (int)eResponseStatus.OK &&
                         couponData.Coupon != null &&
@@ -3271,7 +3286,7 @@ namespace ConditionalAccess
                         //check Domain and suspend
                         if (response.m_user != null)
                         {
-                            if (houseHoldID != 0 && houseHoldID != response.m_user.m_domianID) 
+                            if (houseHoldID != 0 && houseHoldID != response.m_user.m_domianID)
                             {
                                 status = ResponseStatus.UserNotIndDomain;
                             }
@@ -3284,7 +3299,7 @@ namespace ConditionalAccess
                                     status = ResponseStatus.UserNotIndDomain;
                                 }
                             }
-                            
+
                             if (response.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
                             {
                                 status = ResponseStatus.UserSuspended;
@@ -3338,6 +3353,24 @@ namespace ConditionalAccess
                     ex);
             }
             return status;
+        }
+
+
+        public static int CalcPaymentNumber(int nNumOfPayments, int nPaymentNumber, bool bIsPurchasedWithPreviewModule)
+        {
+            int res = nPaymentNumber;
+            if (nPaymentNumber == 0 && bIsPurchasedWithPreviewModule)
+                res = 0;
+            else
+            {
+                if (nNumOfPayments != 0)
+                {
+                    res = nPaymentNumber % nNumOfPayments;
+                    if (res == 0)
+                        res = nNumOfPayments;
+                }
+            }
+            return res;
         }
     }
 }

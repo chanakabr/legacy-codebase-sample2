@@ -6,7 +6,7 @@ using System.Text;
 namespace ApiObjects.Billing
 {
     /// <summary>
-    /// Object that defines performaing a transaction vis adapters controller
+    /// Object that defines performing a transaction via adapters controller
     /// </summary>
     public class TransactionRequest
     {
@@ -23,5 +23,6 @@ namespace ApiObjects.Billing
         public long householdID;
         public string billingGuid;
         public string customData;
+        public string productCode;
     }
 }

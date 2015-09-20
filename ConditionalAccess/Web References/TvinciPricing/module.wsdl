@@ -74,6 +74,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="tns:PreviewModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="tns:ArrayOfServiceObject" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_GracePeriodMinutes" type="s:int" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3699,13 +3700,13 @@
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap:address location="http://localhost/WS_Pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <soap12:address location="http://localhost/WS_Pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/pricing/module.asmx" />
+      <http:address location="http://localhost/WS_Pricing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

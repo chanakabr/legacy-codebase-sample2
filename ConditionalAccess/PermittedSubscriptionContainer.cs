@@ -24,13 +24,15 @@ namespace ConditionalAccess
         public string m_sDeviceName;
         public bool m_bCancelWindow;
 
+        public bool m_bIsInGracePeriod;
+
 
         public PermittedSubscriptionContainer()
         {
             m_sSubscriptionCode = "";
             m_nMaxUses = 0;
             m_nCurrentUses = 0;
-            m_dEndDate = new DateTime(2099 ,1 , 1);
+            m_dEndDate = new DateTime(2099, 1, 1);
             m_dCurrentDate = DateTime.UtcNow;
             m_dPurchaseDate = DateTime.UtcNow;
             m_bRecurringStatus = false;
@@ -40,11 +42,12 @@ namespace ConditionalAccess
             m_sDeviceName = string.Empty;
 
             m_bCancelWindow = false;
+            m_bIsInGracePeriod = false;
         }
 
-        public void Initialize(string sSubscriptionCode , Int32 nMaxUses , Int32 nCurrentUses , 
-            DateTime dEndTime , DateTime dCurrentDate , DateTime dLastViewDate , DateTime dPurchaseDate , DateTime dNextRenewalDate ,
-            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false)
+        public void Initialize(string sSubscriptionCode, Int32 nMaxUses, Int32 nCurrentUses,
+            DateTime dEndTime, DateTime dCurrentDate, DateTime dLastViewDate, DateTime dPurchaseDate, DateTime dNextRenewalDate,
+            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false, bool isInGracePeriod = false)
         {
             m_nSubscriptionPurchaseID = nSubscriptionPurchaseID;
             m_sSubscriptionCode = sSubscriptionCode;
@@ -52,7 +55,7 @@ namespace ConditionalAccess
             m_nCurrentUses = nCurrentUses;
             m_dEndDate = dEndTime;
             m_dCurrentDate = dCurrentDate;
-            if (dLastViewDate != new DateTime(2099 ,1 , 1))
+            if (dLastViewDate != new DateTime(2099, 1, 1))
                 m_dLastViewDate = dLastViewDate;
             m_dPurchaseDate = dPurchaseDate;
             m_dNextRenewalDate = dNextRenewalDate;
@@ -60,6 +63,7 @@ namespace ConditionalAccess
             m_bIsSubRenewable = bIsSubRenewable;
             m_paymentMethod = payMethod;
             m_bCancelWindow = bCancelWindow;
+            this.m_bIsInGracePeriod = isInGracePeriod;
 
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
