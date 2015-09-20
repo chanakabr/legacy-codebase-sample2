@@ -154,6 +154,10 @@
       <Project>{fb37385f-06ea-4f98-a7e2-e45bfab900d4}</Project>
       <Name>SocialMergeHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SubscriptionRenewHandler\SubscriptionRenewHandler.csproj">
+      <Project>{98c65129-0998-4385-b7fe-bf95e74e3f40}</Project>
+      <Name>SubscriptionRenewHandler</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
