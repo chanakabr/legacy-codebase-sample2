@@ -108,6 +108,6 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renew_start_minutes")]
         [JsonProperty("renew_start_minutes")]
         [XmlElement(ElementName = "renew_start_minutes")]
-        public string RenewStartMinutes { get; set; }
+        public int RenewStartMinutes { get; set; }
     }
 }
