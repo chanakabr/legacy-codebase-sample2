@@ -2772,7 +2772,7 @@ namespace ConditionalAccess
 
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     m = new TvinciPricing.mdoule();
-                    string sWSURL = Utils.GetWSURL("cloud_pricing_ws");
+                    string sWSURL = Utils.GetWSURL("pricing_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
                     {
                         m.Url = sWSURL;
@@ -13990,7 +13990,7 @@ namespace ConditionalAccess
             }
 
             // get transaction details
-            DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(m_nGroupID, productId, billingGuid);
+            DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(m_nGroupID, purchaseId, billingGuid);
             if (renewDetailsRow == null)
             {
                 // transaction details weren't found
@@ -14091,7 +14091,7 @@ namespace ConditionalAccess
             try
             {
                 transactionResponse = wsBillingService.ProcessRenewal(billingUserName, billingPassword, siteguid, householdId, price, currency,
-                                          userIp, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
+                                          customData, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
             }
             catch (Exception ex)
             {
