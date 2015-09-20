@@ -722,7 +722,7 @@ namespace ConditionalAccess
 
         protected override bool HandleSubscriptionBillingSuccess(string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
                                                                  string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId, DateTime? subscriptionEndDate)
+                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate)
         {
             purchaseId = 0;
             try

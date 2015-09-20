@@ -117,6 +117,10 @@ namespace ConditionalAccess.TvinciBilling {
         
         private System.Threading.SendOrPostCallback VerifyReceiptOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ProcessRenewalOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPaymentGatewayByBillingGuidOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -286,6 +290,12 @@ namespace ConditionalAccess.TvinciBilling {
         
         /// <remarks/>
         public event VerifyReceiptCompletedEventHandler VerifyReceiptCompleted;
+        
+        /// <remarks/>
+        public event ProcessRenewalCompletedEventHandler ProcessRenewalCompleted;
+        
+        /// <remarks/>
+        public event GetPaymentGatewayByBillingGuidCompletedEventHandler GetPaymentGatewayByBillingGuidCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1983,6 +1993,94 @@ namespace ConditionalAccess.TvinciBilling {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/ProcessRenewal", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactResult ProcessRenewal(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes) {
+            object[] results = this.Invoke("ProcessRenewal", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdId,
+                        price,
+                        currency,
+                        customData,
+                        productId,
+                        productCode,
+                        paymentNumber,
+                        numberOfPayments,
+                        billingGuid,
+                        gracePeriodMinutes});
+            return ((TransactResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ProcessRenewalAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes) {
+            this.ProcessRenewalAsync(sWSUserName, sWSPassword, siteGUID, householdId, price, currency, customData, productId, productCode, paymentNumber, numberOfPayments, billingGuid, gracePeriodMinutes, null);
+        }
+        
+        /// <remarks/>
+        public void ProcessRenewalAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes, object userState) {
+            if ((this.ProcessRenewalOperationCompleted == null)) {
+                this.ProcessRenewalOperationCompleted = new System.Threading.SendOrPostCallback(this.OnProcessRenewalOperationCompleted);
+            }
+            this.InvokeAsync("ProcessRenewal", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdId,
+                        price,
+                        currency,
+                        customData,
+                        productId,
+                        productCode,
+                        paymentNumber,
+                        numberOfPayments,
+                        billingGuid,
+                        gracePeriodMinutes}, this.ProcessRenewalOperationCompleted, userState);
+        }
+        
+        private void OnProcessRenewalOperationCompleted(object arg) {
+            if ((this.ProcessRenewalCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ProcessRenewalCompleted(this, new ProcessRenewalCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayByBillingGuid", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGateway GetPaymentGatewayByBillingGuid(string sWSUserName, string sWSPassword, long householdId, string billingGuid) {
+            object[] results = this.Invoke("GetPaymentGatewayByBillingGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        householdId,
+                        billingGuid});
+            return ((PaymentGateway)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGatewayByBillingGuidAsync(string sWSUserName, string sWSPassword, long householdId, string billingGuid) {
+            this.GetPaymentGatewayByBillingGuidAsync(sWSUserName, sWSPassword, householdId, billingGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGatewayByBillingGuidAsync(string sWSUserName, string sWSPassword, long householdId, string billingGuid, object userState) {
+            if ((this.GetPaymentGatewayByBillingGuidOperationCompleted == null)) {
+                this.GetPaymentGatewayByBillingGuidOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGatewayByBillingGuidOperationCompleted);
+            }
+            this.InvokeAsync("GetPaymentGatewayByBillingGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        householdId,
+                        billingGuid}, this.GetPaymentGatewayByBillingGuidOperationCompleted, userState);
+        }
+        
+        private void OnGetPaymentGatewayByBillingGuidOperationCompleted(object arg) {
+            if ((this.GetPaymentGatewayByBillingGuidCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPaymentGatewayByBillingGuidCompleted(this, new GetPaymentGatewayByBillingGuidCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2748,6 +2846,10 @@ namespace ConditionalAccess.TvinciBilling {
         
         private int pendingRetriesField;
         
+        private int renewalIntervalMinutesField;
+        
+        private int renewalStartMinutesField;
+        
         private string sharedSecretField;
         
         private PaymentGatewaySettings[] settingsField;
@@ -2829,6 +2931,26 @@ namespace ConditionalAccess.TvinciBilling {
             }
             set {
                 this.pendingRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalIntervalMinutes {
+            get {
+                return this.renewalIntervalMinutesField;
+            }
+            set {
+                this.renewalIntervalMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalStartMinutes {
+            get {
+                return this.renewalStartMinutesField;
+            }
+            set {
+                this.renewalStartMinutesField = value;
             }
         }
         
@@ -4543,6 +4665,58 @@ namespace ConditionalAccess.TvinciBilling {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((TransactResult)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void ProcessRenewalCompletedEventHandler(object sender, ProcessRenewalCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ProcessRenewalCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ProcessRenewalCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactResult)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetPaymentGatewayByBillingGuidCompletedEventHandler(object sender, GetPaymentGatewayByBillingGuidCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPaymentGatewayByBillingGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPaymentGatewayByBillingGuidCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGateway Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGateway)(this.results[0]));
             }
         }
     }

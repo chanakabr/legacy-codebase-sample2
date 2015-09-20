@@ -337,8 +337,8 @@ namespace DAL
         }
 
 
-        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, 
-            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, 
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions,
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType,
             ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
         {
             bool res = false;
@@ -1320,6 +1320,27 @@ namespace DAL
             return paymentGateway;
         }
 
+        public static DataRow GetLatestPaymentGatewayTransaction(int groupId, long householdId, string billingGuid)
+        {
+            DataRow dataRow = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestPaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@domain_id", householdId);
+                sp.AddParameter("@billing_guid", billingGuid);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows[0];
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return dataRow;
+        }
 
         public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, int? selected, string chargeID = null, int status = 1)
         {
@@ -1651,7 +1672,6 @@ namespace DAL
                     chargeID = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id");
                     isPaymentGWHouseholdExist = true;
                 }
-
             }
             catch (Exception ex)
             {
