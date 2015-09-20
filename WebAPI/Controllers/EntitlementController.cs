@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         /// <param name="history">Controls if the new entilements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027,
+        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
         ///,       
         /// </remarks>
         [Route("grant"), HttpPost]

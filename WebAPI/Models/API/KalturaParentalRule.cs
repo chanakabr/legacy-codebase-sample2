@@ -76,7 +76,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "rule_type")]
         [JsonProperty("rule_type")]
-        [XmlElement(ElementName = "rule_type")]
+        [XmlElement(ElementName = "rule_type", IsNullable = true)]
         public KalturaParentalRuleType ruleType { get; set; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "media_tag_values")]
         [JsonProperty("media_tag_values")]
-        [XmlArray(ElementName = "media_tag_values")]
+        [XmlArray(ElementName = "media_tag_values", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaStringValue> mediaTagValues { get; set; }
 
@@ -93,7 +93,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "epg_tag_values")]
         [JsonProperty("epg_tag_values")]
-        [XmlArray(ElementName = "epg_tag_values")]
+        [XmlArray(ElementName = "epg_tag_values", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaStringValue> epgTagValues { get; set; }
 
@@ -110,8 +110,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
-        [XmlElement(ElementName = "origin")]
-        public KalturaRuleLevel origin { get; set; }
+        [XmlElement(ElementName = "origin", IsNullable = true)]
+        public KalturaRuleLevel Origin { get; set; }
 
     }
 

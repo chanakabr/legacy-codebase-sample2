@@ -18,7 +18,7 @@ namespace WebAPI.Models.General
     public abstract class KalturaValue : KalturaOTTObject
     {
         [DataMember(Name = "description")]
-        [XmlElement("description")]
+        [XmlElement("description", IsNullable = true)]
         [JsonProperty("description")]
         public string description { get; set; }
     }

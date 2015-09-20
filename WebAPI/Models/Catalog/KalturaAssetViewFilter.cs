@@ -18,7 +18,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_types")]
         [JsonProperty(PropertyName = "filter_types")]
-        [XmlArray(ElementName = "filter_types")]
+        [XmlArray(ElementName = "filter_types", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public KalturaIntegerValue[] filter_types { get; set; }
 
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "filter_status")]
         [JsonProperty(PropertyName = "filter_status")]
-        [XmlElement(ElementName = "filter_status")]
+        [XmlElement(ElementName = "filter_status", IsNullable = true)]
         public KalturaWatchStatus? filter_status { get; set; }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "with")]
         [JsonProperty(PropertyName = "with")]
-        [XmlArray(ElementName = "with")]
+        [XmlArray(ElementName = "with", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaCatalogWithHolder> with { get; set; }
     }

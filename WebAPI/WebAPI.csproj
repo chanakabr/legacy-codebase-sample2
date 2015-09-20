@@ -732,6 +732,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
@@ -744,6 +745,8 @@
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
+    <Compile Include="Models\General\KalturaClientConfiguration.cs" />
+    <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />

@@ -58,18 +58,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
             Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));

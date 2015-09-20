@@ -51,8 +51,8 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "devices")]
         [JsonProperty("devices")]
-        [XmlArray(ElementName = "devices")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "devices", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaDevice> Devices { get; set; }
     }
 }

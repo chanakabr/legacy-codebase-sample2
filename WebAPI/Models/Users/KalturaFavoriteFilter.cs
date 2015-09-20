@@ -35,8 +35,8 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "media_ids")]
         [JsonProperty(PropertyName = "media_ids")]
-        [XmlArray(ElementName = "media_ids")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "media_ids", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaIntegerValue> MediaIds { get; set; }
     }
 }

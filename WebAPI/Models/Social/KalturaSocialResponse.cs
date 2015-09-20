@@ -81,7 +81,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "social_user")]
         [JsonProperty("social_user")]
-        [XmlElement(ElementName = "social_user")]
+        [XmlElement(ElementName = "social_user", IsNullable = true)]
         public KalturaSocialUser SocialUser { get; set; }
     }
 }

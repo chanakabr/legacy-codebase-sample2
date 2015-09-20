@@ -12,7 +12,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// User
     /// </summary>
-    [DataContract(Name="user")]
+    [DataContract(Name = "user")]
     public class KalturaOTTUser : KalturaBaseOTTUser
     {
         /// <summary>
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "country")]
         [JsonProperty("country")]
-        [XmlElement(ElementName = "country")]
+        [XmlElement(ElementName = "country", IsNullable = true)]
         public KalturaCountry Country { get; set; }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "user_type")]
         [JsonProperty("user_type")]
-        [XmlElement(ElementName = "user_type")]
+        [XmlElement(ElementName = "user_type", IsNullable = true)]
         public KalturaOTTUserType UserType { get; set; }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "dynamic_data")]
         [JsonProperty("dynamic_data")]
-        [XmlElement(ElementName = "dynamic_data")]
+        [XmlElement(ElementName = "dynamic_data", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>

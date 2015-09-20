@@ -59,7 +59,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "buzz_score")]
         [JsonProperty(PropertyName = "buzz_score")]
-        [XmlElement(ElementName = "buzz_score")]
+        [XmlElement(ElementName = "buzz_score", IsNullable = true)]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
     }
 }

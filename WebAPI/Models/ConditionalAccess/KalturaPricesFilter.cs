@@ -16,8 +16,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "subscriptions_ids")]
         [JsonProperty("subscriptions_ids")]
-        [XmlArray(ElementName = "subscriptions_ids")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "subscriptions_ids", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaIntegerValue> SubscriptionsIds { get; set; }
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "files_ids")]
         [JsonProperty("files_ids")]
-        [XmlArray(ElementName = "files_ids")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "files_ids", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaIntegerValue> FilesIds { get; set; }
 
         /// <summary>

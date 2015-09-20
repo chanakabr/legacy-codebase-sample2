@@ -27,8 +27,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        [XmlArray(ElementName = "images")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "images", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "media_types")]
         [JsonProperty(PropertyName = "media_types")]
-        [XmlArray(ElementName = "media_types")]
+        [XmlArray(ElementName = "media_types", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> MediaTypes { get; set; }
     }

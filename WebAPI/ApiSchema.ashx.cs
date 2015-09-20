@@ -335,7 +335,10 @@ namespace WebAPI
             //Handling Enums
             if (type.IsEnum)
             {
-                return string.Format("type='string' enumType='{0}' {1}", getTypeFriendlyName(type), isOptional ? string.Format("default='{0}'", getDefaultForType(type)) : "");
+                bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+                var etype = isIntEnum ? "int" : "string";
+
+                return string.Format("type='{0}' enumType='{1}' {2}", etype, getTypeFriendlyName(type), isOptional ? string.Format("default='{0}'", getDefaultForType(type)) : "");
             }
             //Handling arrays
             else if (type.IsArray || type.IsGenericType)

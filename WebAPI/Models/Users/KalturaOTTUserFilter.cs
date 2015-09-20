@@ -19,8 +19,8 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "user_ids")]
         [JsonProperty("user_ids")]
-        [XmlArray(ElementName = "user_ids")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "user_ids", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaStringValue> UserIDs { get; set; }
     }
 }

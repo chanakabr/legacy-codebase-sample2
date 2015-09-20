@@ -16,7 +16,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "user")]
         [JsonProperty("user")]
-        [XmlElement(ElementName = "user")]
+        [XmlElement(ElementName = "user", IsNullable = true)]
         public KalturaOTTUser User { get; set; }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "login_session")]
         [JsonProperty("login_session")]
-        [XmlElement(ElementName = "login_session")]
+        [XmlElement(ElementName = "login_session", IsNullable = true)]
         public KalturaLoginSession LoginSession { get; set; }
     }
 }
