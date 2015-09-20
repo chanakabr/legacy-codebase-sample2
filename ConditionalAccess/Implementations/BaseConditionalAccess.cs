@@ -13922,7 +13922,6 @@ namespace ConditionalAccess
             string userIp = "1.1.1.1";
 
             // validate purchaseId
-            long longPurchaseId = 0;
             if (purchaseId <= 0)
             {
                 // Illegal purchase ID  
@@ -13931,13 +13930,13 @@ namespace ConditionalAccess
             }
 
             // get subscription purchase 
-            DataRow subscriptionPurchaseRow = ODBCWrapper.Utils.GetTableSingleRow("subscriptions_purchases", longPurchaseId);
+            DataRow subscriptionPurchaseRow = ODBCWrapper.Utils.GetTableSingleRow("subscriptions_purchases", purchaseId);
 
             // validate subscription purchase
             if (subscriptionPurchaseRow == null)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", longPurchaseId, logString);
+                log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
                 return false;
             }
 
@@ -13946,7 +13945,7 @@ namespace ConditionalAccess
                 ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "STATUS") != 1)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase is not active or is not in reoccurring state. Purchase ID: {0}, data: {1}", longPurchaseId, logString);
+                log.ErrorFormat("Subscription purchase is not active or is not in reoccurring state. Purchase ID: {0}, data: {1}", purchaseId, logString);
                 return true;
             }
 
