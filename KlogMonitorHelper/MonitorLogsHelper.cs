@@ -83,6 +83,19 @@ namespace KlogMonitorHelper
                 catch (Exception ex)
                 {
                     log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString), ex);
+
+                    // try taking data from query string
+                    try
+                    {
+                        var nameValueCollection = HttpUtility.ParseQueryString(requestString);
+                        string username = nameValueCollection["sWSUserName"];
+                        string password = nameValueCollection["sWSPassword"];
+                        HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, username, password);
+                    }
+                    catch (Exception ex2)
+                    {
+                        log.Error(string.Format("Error while loading and parsing WS quesy string. XML Request: {0}", requestString), ex2);
+                    }
                 }
 
                 // start k-monitor
