@@ -96,6 +96,7 @@ namespace WebAPI.Controllers
         /// Retrieving users' favorites
         /// </summary>            
         /// <param name="filter">Request filter</param>                        
+        /// <param name="udid">device identifier</param>                        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <param name="language">Language Code</param>                

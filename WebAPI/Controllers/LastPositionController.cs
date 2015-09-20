@@ -86,10 +86,8 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
                             }
                         }
-                        break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
-                        break;
                 }
                 
             }

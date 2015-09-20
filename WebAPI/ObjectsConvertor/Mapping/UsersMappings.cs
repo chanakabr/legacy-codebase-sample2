@@ -159,7 +159,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
-                    break;
             }
             return result;
         }
@@ -184,7 +183,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
-                    break;
             }
             return result;
         }
@@ -203,7 +201,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
-                    break;
             }
             return result;
         }
@@ -219,7 +216,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
-                    break;
             }
             return result;
         }

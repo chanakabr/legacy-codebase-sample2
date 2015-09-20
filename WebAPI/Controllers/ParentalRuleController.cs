@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to disable the default rule (if disabling by user)</</param> 
+        /// <param name="household_user_id">The identifier of the household user for whom to disable the default rule (if disabling by user)</param> 
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
