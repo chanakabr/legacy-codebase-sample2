@@ -1054,6 +1054,8 @@ namespace DAL
                             pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
                             pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
                             pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            pgw.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
+                            pgw.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
