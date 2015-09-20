@@ -11138,23 +11138,31 @@ namespace ConditionalAccess
         /// <param name="p_dicData"></param>
         protected bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
         {
-            string task = Utils.GetValueFromConfig("ProfessionalServices.task");
+            bool result = false;
 
-            PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, p_dicData, p_eAction);
-
-            PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
-
-            string routingKey = Utils.GetValueFromConfig("ProfessionalServices.routingKey");
-
-            if (string.IsNullOrEmpty(routingKey))
+            try
             {
-                routingKey = m_nGroupID.ToString();
+                string task = Utils.GetValueFromConfig("ProfessionalServices.task");
+
+                PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, p_dicData, p_eAction);
+
+                PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
+
+                string routingKey = Utils.GetValueFromConfig("ProfessionalServices.routingKey");
+
+                if (string.IsNullOrEmpty(routingKey))
+                {
+                    routingKey = m_nGroupID.ToString();
+                }
+
+                result = qNotificationQueue.Enqueue(oNotification, routingKey);
+                log.Debug(string.Format("EnqueueEventRecord - Notification:{0}, Res:{1}", oNotification.ToString(), result));
             }
-
-            bool bResult = qNotificationQueue.Enqueue(oNotification, routingKey);
-            log.Debug(string.Format("EnqueueEventRecord - Notification:{0}, Res:{1}", oNotification.ToString(), bResult));
-
-            return (bResult);
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+            }
+            return result;
         }
 
         /// <summary>
@@ -11401,9 +11409,7 @@ namespace ConditionalAccess
                             mainStreamingCoID = mf.m_oFile.m_nCdnID;
                             altStreamingCoID = mf.m_oFile.m_nAltCdnID;
                         }
-
                     }
-
                 }
             }
 
@@ -13990,7 +13996,7 @@ namespace ConditionalAccess
             {
                 // transaction details weren't found
                 log.ErrorFormat("Transaction details weren't found. Product ID: {0}, billing GUID: {1}, data: {2}", productId, billingGuid, logString);
-                return true;
+                return false;
             }
 
             log.DebugFormat("Renew details received. data: {0}", logString);
@@ -14055,6 +14061,8 @@ namespace ConditionalAccess
             {
                 // Subscription ended
                 log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, paymentNumber, numOfPayments);
+                WriteToUserLog(siteguid, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}",
+                    productId, numOfPayments, paymentNumber, numOfPayments));
                 return true;
             }
 
@@ -14119,14 +14127,14 @@ namespace ConditionalAccess
                             if (paymentGateway == null)
                             {
                                 // error getting PG
-                                log.Error("Error while trying to get the PG");
-                                return false;
+                                log.Error("Transaction occurred! Error while trying to get the PG");
+                                return true;
                             }
                         }
                         catch (Exception ex)
                         {
-                            log.Error("Error while trying to get the PG", ex);
-                            return false;
+                            log.Error("Transaction occurred! Error while trying to get the PG", ex);
+                            return true;
                         }
 
                         // update end-date
@@ -14147,18 +14155,19 @@ namespace ConditionalAccess
                         try
                         {
                             ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
+                            WriteToUserLog(siteguid, string.Format("Successfully renewed. subID: {0}, price: {1}, currency: {2}, purchase ID: {3}", productId, price, currency, purchaseId));
                         }
                         catch (Exception ex)
                         {
                             log.Error("Error while trying to update MPP renew data", ex);
-                            return false;
+                            return true;
                         }
 
-                        //long lBillingTransactionID = 0;
-                        //if (!string.IsNullOrEmpty(sBillingTransactionID) && long.TryParse(sBillingTransactionID, out lBillingTransactionID) && lBillingTransactionID > 0)
-                        //{
-                        //    ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID);
-                        //}
+                        // update billing_transactions subscriptions_purchased reference  
+                        if (transactionResponse.TransactionID > 0)
+                            ApiDAL.Update_PurchaseIDInBillingTransactions(transactionResponse.TransactionID, purchaseId);
+                        else
+                            log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
 
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -14167,7 +14176,7 @@ namespace ConditionalAccess
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                            return false;
+                            return true;
                         }
                         else
                             log.DebugFormat("New task created (upon renew success response). data: {0}", data);
@@ -14186,6 +14195,7 @@ namespace ConditionalAccess
                                         };
                         this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
 
+                        log.DebugFormat("Successfully renewed. subID: {0}, price: {1}, currency: {2}, userID: {3}", productId, price, currency, siteguid);
                         return true;
                     }
 
@@ -14224,6 +14234,7 @@ namespace ConditionalAccess
                         else
                             log.DebugFormat("New task created (upon renew pending response). data: {0}", data);
 
+                        log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}", productId, price, currency, siteguid);
                         return true;
                     }
 
@@ -14233,7 +14244,6 @@ namespace ConditionalAccess
                         log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
                         // Try to cancel subscription
-
                         if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode) == 0)
                         {
                             log.Error("Error while trying to cancel subscription");
