@@ -5,10 +5,9 @@ namespace ApiObjects
 {
     public class OSSAdapter : OSSAdapterBase
     {
-        public int IsActive { get; set; }
+        public bool IsActive { get; set; }
         public string AdapterUrl { get; set; }
-        public string ExternalIdentifier { get; set; }
-        [XmlIgnore]
+        public string ExternalIdentifier { get; set; }        
         public string SharedSecret { get; set; }
 
         public List<OSSAdapterSettings> Settings { get; set; }
@@ -27,5 +26,7 @@ namespace ApiObjects
             this.SharedSecret = ossAdapter.SharedSecret;
             this.Settings = ossAdapter.Settings;
         }
+
+
     }
 }

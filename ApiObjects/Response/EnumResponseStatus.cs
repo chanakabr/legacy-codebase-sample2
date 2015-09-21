@@ -108,8 +108,8 @@ namespace ApiObjects.Response
         SharedSecretRequired = 5006,
         OSSAdapterIdentifierRequired = 5007,
         OSSAdapterNotExist = 5008,
-        OSSAdapterParamsRequired = 5009,
-
+        OSSAdapterParamsRequired = 5009,   
+        UnknownOSSAdapterState = 5010,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

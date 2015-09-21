@@ -376,4 +376,12 @@ namespace ApiObjects
     {
         BuildIPToCountry
     }
+
+
+    [Serializable]
+    public enum eOSSAdapterState
+    {
+        OK = 0,
+        NoConfigurationForHousehold = 1
+    }
 }

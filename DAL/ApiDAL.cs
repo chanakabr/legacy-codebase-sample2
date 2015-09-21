@@ -2100,10 +2100,36 @@ namespace DAL
         }
 
         #region OSSAdapter
-        
+
+        public static string GetOSSAdapterUrl (int groupID, int ossAdapterId, ref bool isOSSAdapterExist)
+        {
+            string adapterUrl = string.Empty;
+            isOSSAdapterExist = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterUrl");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@ossAdapterId", ossAdapterId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    adapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    isOSSAdapterExist = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterUrl;
+        }
+
         public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
         {
-            int paymentGWID = 0;
+            int ossAdapterId = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterByExternalD");
@@ -2115,7 +2141,7 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    paymentGWID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 }
 
             }
@@ -2123,13 +2149,11 @@ namespace DAL
             {
                 HandleException(ex);
             }
-            return paymentGWID;
+            return ossAdapterId;
         }
 
-        public static bool InsertOSSAdapter(int groupID, OSSAdapter ossAdapter, out int ossAdapterID)
+        public static OSSAdapter InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
         {
-            bool isInsert = false;            
-            ossAdapterID = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
@@ -2148,15 +2172,23 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    ossAdapterID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                    isInsert = true;
+                    ossAdapter = new OSSAdapter();
+                    ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapter.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapter.IsActive = is_Active == 1 ? true : false;
+                    ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
                 }
-                return isInsert;
+                
             }
             catch (Exception ex)
             {
-                return false;
+                ossAdapter = null;
             }
+
+            return ossAdapter;
         }
 
         private static DataTable CreateDataTable(List<OSSAdapterSettings> list)
@@ -2348,7 +2380,8 @@ namespace DAL
                             ossAdapter.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
                             ossAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
                             ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
-                            ossAdapter.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            ossAdapter.IsActive = is_Active == 1 ? true : false;
                             //int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             //ossAdapter.IsDefault = isDefault == 1 ? true : false;
 

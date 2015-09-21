@@ -1023,7 +1023,7 @@ namespace DAL
             return sRet;
         }
 
-        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGatewaySettingsList(int groupID, int paymentGatewayId = 0, int status = 1, int isActive = 1)
         {
             List<PaymentGateway> res = new List<PaymentGateway>();
             try
@@ -1031,7 +1031,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWSettingsList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@paymentGWId", paymentGWId);
+                sp.AddParameter("@paymentGWId", paymentGatewayId);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
