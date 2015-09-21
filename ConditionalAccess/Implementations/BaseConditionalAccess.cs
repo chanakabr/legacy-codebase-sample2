@@ -78,15 +78,16 @@ namespace ConditionalAccess
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService);
 
-        protected abstract bool HandlePPVBillingSuccess(string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
+        protected abstract bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
                                                         PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID);
 
-        protected abstract bool HandleSubscriptionBillingSuccess(string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
+        protected abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseID, ref DateTime? subscriptionEndDate);
+                                                                 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate,
+                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate);
 
-        protected abstract bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
+        protected abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
                                                               string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
 
@@ -2755,7 +2756,6 @@ namespace ConditionalAccess
            ref bool bIsMPPRecurringInfinitely, ref int nMaxVLCOfSelectedUsageModule)
         {
             string sCouponCode = string.Empty;
-
             UserResponseObject ExistUser = Utils.GetExistUser(sSiteGUID, m_nGroupID);
 
             if (ExistUser != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
@@ -2769,79 +2769,31 @@ namespace ConditionalAccess
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
-
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     m = new TvinciPricing.mdoule();
                     string sWSURL = Utils.GetWSURL("pricing_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
-                    {
                         m.Url = sWSURL;
-                    }
+
                     TvinciPricing.Subscription theSub = null;
 
                     theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                    if (theSub != null)
-                    {
-                        TvinciPricing.UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(theSub, nPaymentNumber, nPurchaseID, nTotalPaymentsNumber, nNumOfPayments, bIsPurchasedWithPreviewModule);
-
-                        dPrice = 0;
-                        TvinciPricing.Currency oCurrency = null;
-                        sCurrency = "n/a";
-                        bool bIsRecurring = theSub.m_bIsRecurring;
-
-                        if (AppUsageModule != null)
-                        {
-                            TvinciPricing.PriceCode p = m.GetPriceCodeData(sWSUserName, sWSPass, AppUsageModule.m_pricing_id.ToString(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            TvinciPricing.DiscountModule externalDisount = m.GetDiscountCodeData(sWSUserName, sWSPass, AppUsageModule.m_ext_discount_id.ToString());
-
-                            if (externalDisount != null)
-                            {
-                                TvinciPricing.Price price = Utils.GetPriceAfterDiscount(p.m_oPrise, externalDisount, 1);
-                                dPrice = price.m_dPrice;
-                                oCurrency = price.m_oCurrency;
-                                sCurrency = price.m_oCurrency.m_sCurrencyCD3;
-
-                            }
-                            else
-                            {
-                                dPrice = p.m_oPrise.m_dPrice;
-                                oCurrency = p.m_oPrise.m_oCurrency;
-                                sCurrency = p.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-                            }
-
-                            HandleRecurringCoupon(nPurchaseID, theSub, nTotalPaymentsNumber, oCurrency, bIsPurchasedWithPreviewModule, ref dPrice, ref sCouponCode);
-
-                            nRecPeriods = theSub.m_nNumberOfRecPeriods;
-
-                            bIsMPPRecurringInfinitely = theSub.m_bIsInfiniteRecurring;
-
-                            nMaxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
-
-                            sCustomData = GetCustomDataForMPPRenewal(theSub, AppUsageModule, p, sSubscriptionCode,
-                                sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-                        }
-                        else
-                        {
-                            throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Subscription returned from pricing module is null");
-                    }
+                    GetMultiSubscriptionUsageModule(sSiteGUID, sUserIP, nPurchaseID, nPaymentNumber, nTotalPaymentsNumber, nNumOfPayments, bIsPurchasedWithPreviewModule,
+                        ref dPrice, ref sCustomData, ref sCurrency, ref nRecPeriods, ref bIsMPPRecurringInfinitely, ref nMaxVLCOfSelectedUsageModule,
+                        ref sCouponCode, theSub);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Empty, ex);
                 }
                 finally
                 {
-                    #region Disposing
                     if (m != null)
                     {
                         m.Dispose();
                         m = null;
                     }
-                    #endregion
                 }
-
             }
             else
             {
@@ -2849,6 +2801,74 @@ namespace ConditionalAccess
             }
 
             return true;
+        }
+
+        private void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
+                int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
+                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, TvinciPricing.Subscription subscription)
+        {
+            if (subscription == null)
+            {
+                throw new Exception("Subscription returned from pricing module is null");
+            }
+            else
+            {
+                TvinciPricing.UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber,
+                                                                                                      numOfPayments, isPurchasedWithPreviewModule);
+
+                priceValue = 0;
+                TvinciPricing.Currency oCurrency = null;
+                sCurrency = "n/a";
+                bool isRecurring = subscription.m_bIsRecurring;
+
+                if (AppUsageModule != null)
+                    throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
+                else
+                {
+                    // price data and discount code data
+                    string wsUserName = string.Empty;
+                    string waPass = string.Empty;
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref wsUserName, ref waPass);
+                    using (TvinciPricing.mdoule priceModule = new TvinciPricing.mdoule())
+                    {
+                        string wsUrl = Utils.GetWSURL("pricing_ws");
+                        if (!string.IsNullOrEmpty(wsUrl))
+                            priceModule.Url = wsUrl;
+
+                        try
+                        {
+                            TvinciPricing.PriceCode p = priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
+                            TvinciPricing.DiscountModule externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
+
+                            if (externalDisount != null)
+                            {
+                                TvinciPricing.Price price = Utils.GetPriceAfterDiscount(p.m_oPrise, externalDisount, 1);
+                                priceValue = price.m_dPrice;
+                                oCurrency = price.m_oCurrency;
+                                sCurrency = price.m_oCurrency.m_sCurrencyCD3;
+                            }
+                            else
+                            {
+                                priceValue = p.m_oPrise.m_dPrice;
+                                oCurrency = p.m_oPrise.m_oCurrency;
+                                sCurrency = p.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                            }
+
+                            HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
+                            nRecPeriods = subscription.m_nNumberOfRecPeriods;
+                            isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
+                            maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
+
+                            customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, p, subscription.m_SubscriptionCode,
+                                siteguid, priceValue, sCurrency, couponCode, userIp, string.Empty, string.Empty, string.Empty);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Empty, ex);
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -12416,7 +12436,7 @@ namespace ConditionalAccess
 
                                 // grant entitlement
                                 long purchaseID = 0;
-                                bool handleBillingPassed = HandleCollectionBillingSuccess(siteguid, householdId, collection, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, price, currency, coupon, userIp,
                                                                                           country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                           billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
 
@@ -12555,7 +12575,7 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                       billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate);
 
@@ -12759,7 +12779,7 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = HandlePPVBillingSuccess(siteguid, householdId, relevantSub, price, currency, coupon, userIp,
+                                bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, price, currency, coupon, userIp,
                                                                                    country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
                                                                                    productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
@@ -12901,7 +12921,7 @@ namespace ConditionalAccess
 
 
                                 // grant entitlement
-                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                                bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                       billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, ref subscriptionEndDate);
 
@@ -13046,10 +13066,12 @@ namespace ConditionalAccess
                     response.TransactionID = transactionResponse.TransactionID.ToString();
                     response.State = transactionResponse.State.ToString();
                     response.FailReasonCode = transactionResponse.FailReasonCode;
+                    response.StartDateSeconds = transactionResponse.StartDateSeconds;
+                    response.EndDateSeconds = transactionResponse.EndDateSeconds;
+                    response.AutoRenewing = transactionResponse.AutoRenewing;
+
                     if (transactionResponse.Status != null)
-                    {
                         response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
-                    }
                     else
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status returned from billing service");
@@ -13734,9 +13756,10 @@ namespace ConditionalAccess
                 // update entitlement date
                 DateTime entitlementDate = DateTime.UtcNow;
                 DateTime? endDate = null;
+                TransactionResponse response = null;
 
                 // grant entitlement
-                var result = HandleSubscriptionBillingSuccess(siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
+                var result = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
                     entitleToPreview, false, entitlementDate, ref purchaseID, ref endDate);
 
@@ -13871,11 +13894,12 @@ namespace ConditionalAccess
 
                 // purchase passed, update entitlement date
                 DateTime entitlementDate = DateTime.UtcNow;
+                TransactionResponse response = null;
 
                 // grant entitlement
                 long lBillingTransactionID = 0;
                 long purchaseID = 0;
-                var result = HandleCollectionBillingSuccess(siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                var result = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                           country, deviceName, lBillingTransactionID, customData, productId,
                                                                           billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
                 if (result)
@@ -14073,12 +14097,17 @@ namespace ConditionalAccess
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
             int maxVLCOfSelectedUsageModule = 0;
-            if (!GetBaseRenewMultiUsageSubscriptionData(siteguid, productId.ToString(), userIp, (int)purchaseId, paymentNumber,
-                totalNumOfPayments, string.Empty, string.Empty, string.Empty, numOfPayments, isPurchasedWithPreviewModule,
-                endDate, ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule))
+            string couponCode = string.Empty;
+            try
+            {
+                GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
+                        ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                        ref couponCode, subscription);
+            }
+            catch (Exception ex)
             {
                 // "Error while trying to get MPP
-                log.ErrorFormat("Error while trying to get MPP");
+                log.Error("Error while trying to get MPP", ex);
                 return false;
             }
 
