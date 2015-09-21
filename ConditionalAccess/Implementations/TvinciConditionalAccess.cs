@@ -711,6 +711,8 @@ namespace ConditionalAccess
                                     contentId,            // {2}
                                     productId);           // {3}
                 }
+
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
             }
             catch (Exception ex)
             {
@@ -757,6 +759,8 @@ namespace ConditionalAccess
                                     productId);           // {2}
                 }
 
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+
             }
             catch (Exception ex)
             {
@@ -795,6 +799,7 @@ namespace ConditionalAccess
                                     productID);           // {2}
                 }
 
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
             }
             catch (Exception ex)
             {
