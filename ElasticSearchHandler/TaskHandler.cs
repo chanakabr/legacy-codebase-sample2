@@ -28,7 +28,7 @@ namespace ElasticSearchHandler
                 {
                     #region Rebuild
 
-                    Synchronizer.CouchbaseSynchronizer synchronizer = new Synchronizer.CouchbaseSynchronizer(0);
+                    Synchronizer.CouchbaseSynchronizer synchronizer = new Synchronizer.CouchbaseSynchronizer(0, 3600);
                     synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
 
                     Dictionary<string, object> parameters = new Dictionary<string, object>();
