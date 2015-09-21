@@ -40,6 +40,7 @@ namespace Synchronizer
         private CouchbaseClient couchbaseClient;
         private object locker;
         private int maximumTries;
+        private int secondsInCache;
 
         #endregion
 
@@ -55,12 +56,14 @@ namespace Synchronizer
             locker = new object();
             maximumTries = 100;
             couchbaseClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.CACHE);
+            secondsInCache = -1;
         }
 
-        public CouchbaseSynchronizer(int maximumTries)
+        public CouchbaseSynchronizer(int maximumTries, int secondsInCache = -1)
             : this()
         {
             this.maximumTries = maximumTries;
+            this.secondsInCache = secondsInCache;
         }
 
         #endregion
@@ -160,8 +163,20 @@ namespace Synchronizer
                 // If not locked
                 if (isLocked == 0)
                 {
-                    // Try to lock
-                    CasResult<bool> setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, getResult.Cas);
+                    CasResult<bool> setResult = new CasResult<bool>();
+
+                    if (this.secondsInCache > -1)
+                    {
+                        DateTime expiresAt = DateTime.UtcNow.AddSeconds(this.secondsInCache);
+
+                        // Try to lock temporarily
+                        setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, expiresAt, getResult.Cas);
+                    }
+                    else
+                    {
+                        // Try to lock permenantly 
+                        setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, getResult.Cas);
+                    }
 
                     // If succesfully locked
                     if (setResult.StatusCode == 0 && setResult.Result)
