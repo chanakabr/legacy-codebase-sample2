@@ -676,7 +676,7 @@ namespace ConditionalAccess
         }
 
 
-        protected override bool HandlePPVBillingSuccess(string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
+        protected override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
                                                         PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, ref long purchaseId)
         {
@@ -693,6 +693,12 @@ namespace ConditionalAccess
                 if (isPPVUsageModuleExists)
                 {
                     endDate = Utils.GetEndDateTime(entitlementDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                    if (response != null)
+                    {
+                        response.EndDateSeconds = (long)endDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
                 }
 
                 int maxNumOfViews = isPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
@@ -722,7 +728,7 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleSubscriptionBillingSuccess(string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
+        protected override bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
                                                                  string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
                                                                  bool isEntitledToPreviewModule, bool isRecurring, DateTime entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate)
         {
@@ -743,6 +749,14 @@ namespace ConditionalAccess
                 if (!subscriptionEndDate.HasValue)
                 {
                     subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
+                }
+
+                // update response object
+                if (response != null)
+                {
+                    response.EndDateSeconds = (long)subscriptionEndDate.Value.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    response.AutoRenewing = isRecurring;
                 }
 
                 // grant entitlement
@@ -769,7 +783,7 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleCollectionBillingSuccess(string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
+        protected override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                                string userIP, string country, string deviceName, long billingTransactionId, string customData,
                                                                int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseId)
         {
@@ -783,6 +797,13 @@ namespace ConditionalAccess
 
                 // get collection end date
                 DateTime collectionEndDate = CalcCollectionEndDate(collection, entitlementDate);
+
+                // update response object
+                if (response != null)
+                {
+                    response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                }
 
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
