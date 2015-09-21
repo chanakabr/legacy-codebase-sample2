@@ -2815,15 +2815,12 @@ namespace ConditionalAccess
             {
                 TvinciPricing.UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber,
                                                                                                       numOfPayments, isPurchasedWithPreviewModule);
-
                 priceValue = 0;
                 TvinciPricing.Currency oCurrency = null;
                 sCurrency = "n/a";
                 bool isRecurring = subscription.m_bIsRecurring;
 
                 if (AppUsageModule != null)
-                    throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
-                else
                 {
                     // price data and discount code data
                     string wsUserName = string.Empty;
@@ -2867,6 +2864,10 @@ namespace ConditionalAccess
                             log.Error(string.Empty, ex);
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
                 }
             }
         }
@@ -14251,16 +14252,19 @@ namespace ConditionalAccess
                         }
 
                         // enqueue renew transaction
-                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes));
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                        if (!enqueueSuccessful)
+                        if (paymentGatewayResponse.RenewalIntervalMinutes > 0)
                         {
-                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                            return false;
+                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes));
+                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                            if (!enqueueSuccessful)
+                            {
+                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                return false;
+                            }
+                            else
+                                log.DebugFormat("New task created (upon renew pending response). data: {0}", data);
                         }
-                        else
-                            log.DebugFormat("New task created (upon renew pending response). data: {0}", data);
 
                         log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}", productId, price, currency, siteguid);
                         return true;
