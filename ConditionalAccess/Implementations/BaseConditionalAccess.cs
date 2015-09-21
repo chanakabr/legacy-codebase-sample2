@@ -2815,15 +2815,12 @@ namespace ConditionalAccess
             {
                 TvinciPricing.UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber,
                                                                                                       numOfPayments, isPurchasedWithPreviewModule);
-
                 priceValue = 0;
                 TvinciPricing.Currency oCurrency = null;
                 sCurrency = "n/a";
                 bool isRecurring = subscription.m_bIsRecurring;
 
                 if (AppUsageModule != null)
-                    throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
-                else
                 {
                     // price data and discount code data
                     string wsUserName = string.Empty;
@@ -2867,6 +2864,10 @@ namespace ConditionalAccess
                             log.Error(string.Empty, ex);
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("Usage Module returned from GetAppropriateUsageModule is null");
                 }
             }
         }
