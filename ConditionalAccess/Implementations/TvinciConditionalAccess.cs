@@ -751,18 +751,36 @@ namespace ConditionalAccess
                     subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate);
                 }
 
+
+                DateTime transactionStartDate = entitlementDate;
                 // update response object
                 if (response != null)
                 {
-                    response.EndDateSeconds = (long)subscriptionEndDate.Value.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                    response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    if (response.EndDateSeconds == 0)
+                    {
+                        // update end date by subscription end date
+                        response.EndDateSeconds = (long)subscriptionEndDate.Value.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+
+                    if (response.StartDateSeconds == 0)
+                    {
+                        // update start date by subscription start date
+                        response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+                    else
+                    {
+                        // update start date by transaction start date
+                        transactionStartDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.StartDateSeconds);
+                    }
+
                     response.AutoRenewing = isRecurring;
+
                 }
 
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
                              deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                             previewModuleID, entitlementDate, subscriptionEndDate.Value, entitlementDate, houseHoldId, billingGuid);
+                             previewModuleID, transactionStartDate, subscriptionEndDate.Value, entitlementDate, houseHoldId, billingGuid);
 
                 if (purchaseId == 0)
                 {
