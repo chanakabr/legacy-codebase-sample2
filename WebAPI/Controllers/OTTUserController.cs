@@ -260,7 +260,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
-        /// <remarks>Possible status codes: User does not exist = 2000, Wrong username or password = 1011</remarks>
+        /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("resetPassword"), HttpPost]
         public bool resetPassword(int partnerId, string username, string password)
         {
