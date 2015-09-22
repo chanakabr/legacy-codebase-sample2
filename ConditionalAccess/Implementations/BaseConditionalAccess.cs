@@ -14184,7 +14184,12 @@ namespace ConditionalAccess
                         try
                         {
                             ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
-                            WriteToUserLog(siteguid, string.Format("Successfully renewed. subID: {0}, price: {1}, currency: {2}, purchase ID: {3}", productId, price, currency, purchaseId));
+                            WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
+                                productId,                           // {0}
+                                price,                               // {1}
+                                currency,                            // {2}
+                                purchaseId,                          // {3}
+                                transactionResponse.TransactionID)); // {4}
                         }
                         catch (Exception ex)
                         {
@@ -14272,6 +14277,13 @@ namespace ConditionalAccess
                         }
 
                         log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}", productId, price, currency, siteguid);
+                        WriteToUserLog(siteguid, string.Format("pending renew returned. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}",
+                              productId,                           // {0}
+                              price,                               // {1}
+                              currency,                            // {2}
+                              purchaseId));                        // {3}
+
+
                         return true;
                     }
 
@@ -14287,7 +14299,13 @@ namespace ConditionalAccess
                             return false;
                         }
                         else
+                        {
                             log.Debug("Subscription was canceled");
+                        }
+
+                        WriteToUserLog(siteguid, string.Format("Transaction renew failed. Product ID: {0}, purchase ID: {1}",
+                             productId,                           // {0}
+                             purchaseId));                        // {1}
 
                         return true;
                     }
