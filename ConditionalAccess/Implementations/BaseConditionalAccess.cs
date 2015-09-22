@@ -14265,6 +14265,11 @@ namespace ConditionalAccess
                             else
                                 log.DebugFormat("New task created (upon renew pending response). data: {0}", data);
                         }
+                        else
+                        {
+                            // Error - interval value is 0
+                            log.ErrorFormat("Renew interval must be more than 0. Purchase ID: {0}, Billing GUID: {1}", purchaseId, billingGuid);
+                        }
 
                         log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}", productId, price, currency, siteguid);
                         return true;
