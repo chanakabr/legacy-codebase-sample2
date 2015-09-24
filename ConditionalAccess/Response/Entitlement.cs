@@ -29,28 +29,29 @@ namespace ConditionalAccess.Response
     {
         public eTransactionType type { get; set; }
         public string entitlementId { get; set; }
-       
+
         public Int32 currentUses { get; set; }
         public DateTime endDate { get; set; }
         public DateTime currentDate { get; set; }
         public DateTime lastViewDate { get; set; }
         public DateTime purchaseDate { get; set; }
-      
+
         public Int32 purchaseID { get; set; } // subscription + collection 
         public PaymentMethod paymentMethod { get; set; }
 
         public string deviceUDID { get; set; }
         public string deviceName { get; set; }
         public bool cancelWindow { get; set; }
- 
+
         public Int32 maxUses { get; set; } // subscription + ppv
         public DateTime nextRenewalDate { get; set; } // subscription only
         public bool recurringStatus { get; set; } // subscription only
         public bool isRenewable { get; set; } // subscription only
+        public bool IsInGracePeriod { get; set; } // subscription only
 
         public Int32 mediaFileID; // ppv only
         public int mediaID { get; set; } // ppv only
-       
+
         public Entitlement(PermittedSubscriptionContainer item)
         {
             this.type = eTransactionType.Subscription;
@@ -69,6 +70,7 @@ namespace ConditionalAccess.Response
             this.nextRenewalDate = item.m_dNextRenewalDate;
             this.recurringStatus = item.m_bRecurringStatus;
             this.isRenewable = item.m_bIsSubRenewable;
+            this.IsInGracePeriod = item.m_bIsInGracePeriod;
 
             this.mediaFileID = 0;
         }
@@ -109,7 +111,7 @@ namespace ConditionalAccess.Response
 
 
         public Entitlement()
-        {           
+        {
         }
     }
 }
