@@ -13,8 +13,9 @@ namespace ApiObjects
         private long purchaseId;
         private string billingGuid;
         private string siteGuid;
+        private long endDate;
 
-        public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, DateTime nextRenewDate) :
+        public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -26,6 +27,7 @@ namespace ApiObjects
             this.billingGuid = billingGuid;
             this.siteGuid = siteGuid;
             this.purchaseId = purchaseId;
+            this.endDate = endDate;
 
             this.args = new List<object>()
             {
