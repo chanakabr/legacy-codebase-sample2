@@ -115,6 +115,12 @@ namespace WebAPI.Billing {
         
         private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
         
+        private System.Threading.SendOrPostCallback VerifyReceiptOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ProcessRenewalOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPaymentGatewayByBillingGuidOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -281,6 +287,15 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
+        
+        /// <remarks/>
+        public event VerifyReceiptCompletedEventHandler VerifyReceiptCompleted;
+        
+        /// <remarks/>
+        public event ProcessRenewalCompletedEventHandler ProcessRenewalCompleted;
+        
+        /// <remarks/>
+        public event GetPaymentGatewayByBillingGuidCompletedEventHandler GetPaymentGatewayByBillingGuidCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1865,10 +1880,10 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CheckPendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactResult CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
+        public TransactResult CheckPendingTransaction(string sWSUserName, string sWSPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
             object[] results = this.Invoke("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         paymentGatewayPendingId,
                         numberOfRetries,
                         billingGuid,
@@ -1878,18 +1893,18 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
-            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, null);
+        public void CheckPendingTransactionAsync(string sWSUserName, string sWSPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
+            this.CheckPendingTransactionAsync(sWSUserName, sWSPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, null);
         }
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, object userState) {
+        public void CheckPendingTransactionAsync(string sWSUserName, string sWSPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, object userState) {
             if ((this.CheckPendingTransactionOperationCompleted == null)) {
                 this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
             }
             this.InvokeAsync("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
+                        sWSUserName,
+                        sWSPassword,
                         paymentGatewayPendingId,
                         numberOfRetries,
                         billingGuid,
@@ -1901,6 +1916,167 @@ namespace WebAPI.Billing {
             if ((this.CheckPendingTransactionCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/VerifyReceipt", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactResult VerifyReceipt(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayType, string billingGuid) {
+            object[] results = this.Invoke("VerifyReceipt", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdID,
+                        price,
+                        currency,
+                        userIP,
+                        customData,
+                        productID,
+                        productCode,
+                        productType,
+                        contentID,
+                        purchaseToken,
+                        paymentGatewayType,
+                        billingGuid});
+            return ((TransactResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void VerifyReceiptAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayType, string billingGuid) {
+            this.VerifyReceiptAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, productCode, productType, contentID, purchaseToken, paymentGatewayType, billingGuid, null);
+        }
+        
+        /// <remarks/>
+        public void VerifyReceiptAsync(
+                    string sWSUserName, 
+                    string sWSPassword, 
+                    string siteGUID, 
+                    long householdID, 
+                    double price, 
+                    string currency, 
+                    string userIP, 
+                    string customData, 
+                    int productID, 
+                    string productCode, 
+                    eTransactionType productType, 
+                    int contentID, 
+                    string purchaseToken, 
+                    string paymentGatewayType, 
+                    string billingGuid, 
+                    object userState) {
+            if ((this.VerifyReceiptOperationCompleted == null)) {
+                this.VerifyReceiptOperationCompleted = new System.Threading.SendOrPostCallback(this.OnVerifyReceiptOperationCompleted);
+            }
+            this.InvokeAsync("VerifyReceipt", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdID,
+                        price,
+                        currency,
+                        userIP,
+                        customData,
+                        productID,
+                        productCode,
+                        productType,
+                        contentID,
+                        purchaseToken,
+                        paymentGatewayType,
+                        billingGuid}, this.VerifyReceiptOperationCompleted, userState);
+        }
+        
+        private void OnVerifyReceiptOperationCompleted(object arg) {
+            if ((this.VerifyReceiptCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.VerifyReceiptCompleted(this, new VerifyReceiptCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/ProcessRenewal", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TransactResult ProcessRenewal(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes) {
+            object[] results = this.Invoke("ProcessRenewal", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdId,
+                        price,
+                        currency,
+                        customData,
+                        productId,
+                        productCode,
+                        paymentNumber,
+                        numberOfPayments,
+                        billingGuid,
+                        gracePeriodMinutes});
+            return ((TransactResult)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ProcessRenewalAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes) {
+            this.ProcessRenewalAsync(sWSUserName, sWSPassword, siteGUID, householdId, price, currency, customData, productId, productCode, paymentNumber, numberOfPayments, billingGuid, gracePeriodMinutes, null);
+        }
+        
+        /// <remarks/>
+        public void ProcessRenewalAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes, object userState) {
+            if ((this.ProcessRenewalOperationCompleted == null)) {
+                this.ProcessRenewalOperationCompleted = new System.Threading.SendOrPostCallback(this.OnProcessRenewalOperationCompleted);
+            }
+            this.InvokeAsync("ProcessRenewal", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        householdId,
+                        price,
+                        currency,
+                        customData,
+                        productId,
+                        productCode,
+                        paymentNumber,
+                        numberOfPayments,
+                        billingGuid,
+                        gracePeriodMinutes}, this.ProcessRenewalOperationCompleted, userState);
+        }
+        
+        private void OnProcessRenewalOperationCompleted(object arg) {
+            if ((this.ProcessRenewalCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ProcessRenewalCompleted(this, new ProcessRenewalCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayByBillingGuid", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentGateway GetPaymentGatewayByBillingGuid(string sWSUserName, string sWSPassword, long householdId, string billingGuid) {
+            object[] results = this.Invoke("GetPaymentGatewayByBillingGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        householdId,
+                        billingGuid});
+            return ((PaymentGateway)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGatewayByBillingGuidAsync(string sWSUserName, string sWSPassword, long householdId, string billingGuid) {
+            this.GetPaymentGatewayByBillingGuidAsync(sWSUserName, sWSPassword, householdId, billingGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetPaymentGatewayByBillingGuidAsync(string sWSUserName, string sWSPassword, long householdId, string billingGuid, object userState) {
+            if ((this.GetPaymentGatewayByBillingGuidOperationCompleted == null)) {
+                this.GetPaymentGatewayByBillingGuidOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGatewayByBillingGuidOperationCompleted);
+            }
+            this.InvokeAsync("GetPaymentGatewayByBillingGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        householdId,
+                        billingGuid}, this.GetPaymentGatewayByBillingGuidOperationCompleted, userState);
+        }
+        
+        private void OnGetPaymentGatewayByBillingGuidOperationCompleted(object arg) {
+            if ((this.GetPaymentGatewayByBillingGuidCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPaymentGatewayByBillingGuidCompleted(this, new GetPaymentGatewayByBillingGuidCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2171,6 +2347,12 @@ namespace WebAPI.Billing {
         
         private string paymentMethodField;
         
+        private long startDateSecondsField;
+        
+        private long endDateSecondsField;
+        
+        private bool autoRenewingField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -2248,6 +2430,36 @@ namespace WebAPI.Billing {
             }
             set {
                 this.paymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long StartDateSeconds {
+            get {
+                return this.startDateSecondsField;
+            }
+            set {
+                this.startDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EndDateSeconds {
+            get {
+                return this.endDateSecondsField;
+            }
+            set {
+                this.endDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool AutoRenewing {
+            get {
+                return this.autoRenewingField;
+            }
+            set {
+                this.autoRenewingField = value;
             }
         }
     }
@@ -2634,6 +2846,10 @@ namespace WebAPI.Billing {
         
         private int pendingRetriesField;
         
+        private int renewalIntervalMinutesField;
+        
+        private int renewalStartMinutesField;
+        
         private string sharedSecretField;
         
         private PaymentGatewaySettings[] settingsField;
@@ -2715,6 +2931,26 @@ namespace WebAPI.Billing {
             }
             set {
                 this.pendingRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalIntervalMinutes {
+            get {
+                return this.renewalIntervalMinutesField;
+            }
+            set {
+                this.renewalIntervalMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RenewalStartMinutes {
+            get {
+                return this.renewalStartMinutesField;
+            }
+            set {
+                this.renewalStartMinutesField = value;
             }
         }
         
@@ -4403,6 +4639,84 @@ namespace WebAPI.Billing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((TransactResult)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void VerifyReceiptCompletedEventHandler(object sender, VerifyReceiptCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class VerifyReceiptCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal VerifyReceiptCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactResult)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ProcessRenewalCompletedEventHandler(object sender, ProcessRenewalCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ProcessRenewalCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ProcessRenewalCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TransactResult Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TransactResult)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPaymentGatewayByBillingGuidCompletedEventHandler(object sender, GetPaymentGatewayByBillingGuidCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPaymentGatewayByBillingGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPaymentGatewayByBillingGuidCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentGateway Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentGateway)(this.results[0]));
             }
         }
     }

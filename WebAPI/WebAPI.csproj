@@ -275,7 +275,13 @@
     <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\module.disco" />
+    <Content Include="Web References\Api\OSSAdapterResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ParentalRulesTagsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -379,7 +385,7 @@
     <Content Include="Web References\ConditionalAccess\DomainsBillingTransactionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\module.wsdl" />
+    <None Include="Web References\Billing\module.wsdl" />
     <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -389,10 +395,13 @@
     <Content Include="Web References\Billing\PaymentGatewaySettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\Reference.map">
+    <Content Include="Web References\Billing\PaymentGateway.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Billing\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -402,13 +411,13 @@
     <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\OSSAdapterInsertResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Api\OSSAdapterResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\OSSAdapterSettingsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterBillingDetailsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -719,7 +728,6 @@
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterBaseProfile.cs" />
-    <Compile Include="Models\API\KalturaOSSAdapterInsertResponse.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />

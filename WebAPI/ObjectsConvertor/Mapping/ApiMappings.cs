@@ -109,9 +109,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                ;
 
-            Mapper.CreateMap<OSSAdapterInsertResponse, WebAPI.Models.API.KalturaOSSAdapterInsertResponse>()
-             .ForMember(dest => dest.OSSAdapterId, opt => opt.MapFrom(src => src.OSSAdapterId))
-             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+            Mapper.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.OSSAdapter.Settings));
 
           
             #endregion

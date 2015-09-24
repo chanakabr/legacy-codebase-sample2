@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public int IsActive { get; set; }
+        public bool IsActive { get; set; }
 
         /// <summary>
         /// OSS adapter adapter URL
@@ -34,8 +34,8 @@ namespace WebAPI.Models.API
         /// OSS adapter extra parameters
         /// </summary>
         [DataMember(Name = "oss_adapter_settings")]
-        [JsonProperty("oss_adapter_settings")]
-        [XmlElement(ElementName = "oss_adapter_settings")]
+        [JsonProperty("oss_adapter_settings")]        
+        [XmlElement("oss_adapter_settings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>

@@ -1317,50 +1317,6 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="ChangePasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="EmailNotificationRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1391,27 +1347,19 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ForgotPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
@@ -1433,12 +1381,55 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="SendAdminTokenRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1475,7 +1466,7 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+      <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
@@ -1489,9 +1480,18 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ForgotPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
@@ -2736,6 +2736,56 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetUserParentalRuleTags">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserParentalRuleTagsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserParentalRuleTagsResult" type="tns:ParentalRulesTagsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ParentalRulesTagsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="mediaTags" type="tns:ArrayOfIdValuePair" />
+          <s:element minOccurs="0" maxOccurs="1" name="epgTags" type="tns:ArrayOfIdValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfIdValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="IdValuePair" nillable="true" type="tns:IdValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="IdValuePair">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="BuildIPToCountryIndex">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BuildIPToCountryIndexResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="BuildIPToCountryIndexResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetErrorCodesDictionary">
         <s:complexType>
           <s:sequence>
@@ -2770,9 +2820,10 @@
         <s:complexContent mixed="false">
           <s:extension base="tns:OSSAdapterBase">
             <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfOSSAdapterSettings" />
             </s:sequence>
           </s:extension>
@@ -2798,15 +2849,14 @@
       <s:element name="InsertOSSAdapterResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertOSSAdapterResult" type="tns:OSSAdapterInsertResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="InsertOSSAdapterResult" type="tns:OSSAdapterResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="OSSAdapterInsertResponse">
+      <s:complexType name="OSSAdapterResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="OSSAdapterId" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OSSAdapter" type="tns:OSSAdapter" />
         </s:sequence>
       </s:complexType>
       <s:element name="DeleteOSSAdapter">
@@ -2838,7 +2888,7 @@
       <s:element name="SetOSSAdapterResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetOSSAdapterResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetOSSAdapterResult" type="tns:OSSAdapterResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2853,11 +2903,11 @@
       <s:element name="GetOSSAdapterResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetOSSAdapterResult" type="tns:OSSAdapterResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetOSSAdapterResult" type="tns:OSSAdapterResponseList" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="OSSAdapterResponse">
+      <s:complexType name="OSSAdapterResponseList">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapterBase" />
@@ -2945,6 +2995,61 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapter" nillable="true" type="tns:OSSAdapter" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetUserBillingDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBillingDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserBillingDetailsResult" type="tns:OSSAdapterBillingDetailsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OSSAdapterBillingDetailsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="ChargeId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentGatewayId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateCache">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="bucket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="keys" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateCacheResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateCacheResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateGeoBlockRulesCache">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateGeoBlockRulesCacheResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateGeoBlockRulesCacheResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -2969,9 +3074,11 @@
       <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
       <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
+      <s:element name="ParentalRulesTagsResponse" nillable="true" type="tns:ParentalRulesTagsResponse" />
       <s:element name="StatusErrorCodesResponse" nillable="true" type="tns:StatusErrorCodesResponse" />
-      <s:element name="OSSAdapterResponse" nillable="true" type="tns:OSSAdapterResponse" />
+      <s:element name="OSSAdapterResponseList" nillable="true" type="tns:OSSAdapterResponseList" />
       <s:element name="OSSAdapterSettingsResponse" nillable="true" type="tns:OSSAdapterSettingsResponse" />
+      <s:element name="OSSAdapterBillingDetailsResponse" nillable="true" type="tns:OSSAdapterBillingDetailsResponse" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -3532,6 +3639,18 @@
   <wsdl:message name="GetEpgRulesSoapOut">
     <wsdl:part name="parameters" element="tns:GetEpgRulesResponse" />
   </wsdl:message>
+  <wsdl:message name="GetUserParentalRuleTagsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserParentalRuleTags" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRuleTagsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserParentalRuleTagsResponse" />
+  </wsdl:message>
+  <wsdl:message name="BuildIPToCountryIndexSoapIn">
+    <wsdl:part name="parameters" element="tns:BuildIPToCountryIndex" />
+  </wsdl:message>
+  <wsdl:message name="BuildIPToCountryIndexSoapOut">
+    <wsdl:part name="parameters" element="tns:BuildIPToCountryIndexResponse" />
+  </wsdl:message>
   <wsdl:message name="GetErrorCodesDictionarySoapIn">
     <wsdl:part name="parameters" element="tns:GetErrorCodesDictionary" />
   </wsdl:message>
@@ -3585,6 +3704,24 @@
   </wsdl:message>
   <wsdl:message name="GetOSSAdapterSettingsSoapOut">
     <wsdl:part name="parameters" element="tns:GetOSSAdapterSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserBillingDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserBillingDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCacheSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateCache" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCacheSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateCacheResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateGeoBlockRulesCacheSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateGeoBlockRulesCache" />
+  </wsdl:message>
+  <wsdl:message name="UpdateGeoBlockRulesCacheSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateGeoBlockRulesCacheResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4208,6 +4345,22 @@
   <wsdl:message name="GetEpgRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
   </wsdl:message>
+  <wsdl:message name="GetUserParentalRuleTagsHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRuleTagsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesTagsResponse" />
+  </wsdl:message>
+  <wsdl:message name="BuildIPToCountryIndexHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="BuildIPToCountryIndexHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="GetErrorCodesDictionaryHttpPostIn">
     <wsdl:part name="userName" type="s:string" />
     <wsdl:part name="webServicePassword" type="s:string" />
@@ -4228,7 +4381,7 @@
     <wsdl:part name="sWSPassword" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetOSSAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterResponse" />
+    <wsdl:part name="Body" element="tns:OSSAdapterResponseList" />
   </wsdl:message>
   <wsdl:message name="GetOSSAdapterSettingsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4236,6 +4389,30 @@
   </wsdl:message>
   <wsdl:message name="GetOSSAdapterSettingsHttpPostOut">
     <wsdl:part name="Body" element="tns:OSSAdapterSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingDetailsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="ossAdapterId" type="s:string" />
+    <wsdl:part name="userIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingDetailsHttpPostOut">
+    <wsdl:part name="Body" element="tns:OSSAdapterBillingDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCacheHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+    <wsdl:part name="bucket" type="s:string" />
+    <wsdl:part name="keys" type="s1:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCacheHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="UpdateGeoBlockRulesCacheHttpPostIn">
+    <wsdl:part name="groupId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateGeoBlockRulesCacheHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
@@ -4602,6 +4779,14 @@
       <wsdl:input message="tns:GetEpgRulesSoapIn" />
       <wsdl:output message="tns:GetEpgRulesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRuleTags">
+      <wsdl:input message="tns:GetUserParentalRuleTagsSoapIn" />
+      <wsdl:output message="tns:GetUserParentalRuleTagsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BuildIPToCountryIndex">
+      <wsdl:input message="tns:BuildIPToCountryIndexSoapIn" />
+      <wsdl:output message="tns:BuildIPToCountryIndexSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <wsdl:input message="tns:GetErrorCodesDictionarySoapIn" />
       <wsdl:output message="tns:GetErrorCodesDictionarySoapOut" />
@@ -4637,6 +4822,18 @@
     <wsdl:operation name="GetOSSAdapterSettings">
       <wsdl:input message="tns:GetOSSAdapterSettingsSoapIn" />
       <wsdl:output message="tns:GetOSSAdapterSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingDetails">
+      <wsdl:input message="tns:GetUserBillingDetailsSoapIn" />
+      <wsdl:output message="tns:GetUserBillingDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCache">
+      <wsdl:input message="tns:UpdateCacheSoapIn" />
+      <wsdl:output message="tns:UpdateCacheSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateGeoBlockRulesCache">
+      <wsdl:input message="tns:UpdateGeoBlockRulesCacheSoapIn" />
+      <wsdl:output message="tns:UpdateGeoBlockRulesCacheSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
@@ -4904,6 +5101,14 @@
       <wsdl:input message="tns:GetEpgRulesHttpPostIn" />
       <wsdl:output message="tns:GetEpgRulesHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRuleTags">
+      <wsdl:input message="tns:GetUserParentalRuleTagsHttpPostIn" />
+      <wsdl:output message="tns:GetUserParentalRuleTagsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BuildIPToCountryIndex">
+      <wsdl:input message="tns:BuildIPToCountryIndexHttpPostIn" />
+      <wsdl:output message="tns:BuildIPToCountryIndexHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <wsdl:input message="tns:GetErrorCodesDictionaryHttpPostIn" />
       <wsdl:output message="tns:GetErrorCodesDictionaryHttpPostOut" />
@@ -4919,6 +5124,18 @@
     <wsdl:operation name="GetOSSAdapterSettings">
       <wsdl:input message="tns:GetOSSAdapterSettingsHttpPostIn" />
       <wsdl:output message="tns:GetOSSAdapterSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingDetails">
+      <wsdl:input message="tns:GetUserBillingDetailsHttpPostIn" />
+      <wsdl:output message="tns:GetUserBillingDetailsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCache">
+      <wsdl:input message="tns:UpdateCacheHttpPostIn" />
+      <wsdl:output message="tns:UpdateCacheHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateGeoBlockRulesCache">
+      <wsdl:input message="tns:UpdateGeoBlockRulesCacheHttpPostIn" />
+      <wsdl:output message="tns:UpdateGeoBlockRulesCacheHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -5742,6 +5959,24 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRuleTags">
+      <soap:operation soapAction="http://api.tvinci.com/GetUserParentalRuleTags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildIPToCountryIndex">
+      <soap:operation soapAction="http://api.tvinci.com/BuildIPToCountryIndex" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <soap:operation soapAction="http://api.tvinci.com/GetErrorCodesDictionary" style="document" />
       <wsdl:input>
@@ -5816,6 +6051,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetOSSAdapterSettings">
       <soap:operation soapAction="http://api.tvinci.com/GetOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingDetails">
+      <soap:operation soapAction="http://api.tvinci.com/GetUserBillingDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCache">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateGeoBlockRulesCache">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateGeoBlockRulesCache" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6645,6 +6907,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRuleTags">
+      <soap12:operation soapAction="http://api.tvinci.com/GetUserParentalRuleTags" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildIPToCountryIndex">
+      <soap12:operation soapAction="http://api.tvinci.com/BuildIPToCountryIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <soap12:operation soapAction="http://api.tvinci.com/GetErrorCodesDictionary" style="document" />
       <wsdl:input>
@@ -6719,6 +6999,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetOSSAdapterSettings">
       <soap12:operation soapAction="http://api.tvinci.com/GetOSSAdapterSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingDetails">
+      <soap12:operation soapAction="http://api.tvinci.com/GetUserBillingDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCache">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateCache" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateGeoBlockRulesCache">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateGeoBlockRulesCache" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7323,6 +7630,24 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRuleTags">
+      <http:operation location="/GetUserParentalRuleTags" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildIPToCountryIndex">
+      <http:operation location="/BuildIPToCountryIndex" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetErrorCodesDictionary">
       <http:operation location="/GetErrorCodesDictionary" />
       <wsdl:input>
@@ -7352,6 +7677,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetOSSAdapterSettings">
       <http:operation location="/GetOSSAdapterSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingDetails">
+      <http:operation location="/GetUserBillingDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCache">
+      <http:operation location="/UpdateCache" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateGeoBlockRulesCache">
+      <http:operation location="/UpdateGeoBlockRulesCache" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
