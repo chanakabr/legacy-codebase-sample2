@@ -34,7 +34,8 @@ namespace ApiObjects
                 groupId,
                 billingGuid,
                 siteGuid,
-                purchaseId
+                purchaseId,
+                endDate
             };
         }
     }
