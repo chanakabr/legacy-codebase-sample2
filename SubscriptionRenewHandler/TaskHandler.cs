@@ -41,12 +41,15 @@ namespace SubscriptionRenewHandler
                     cas.Url = url;
                 }
 
-                bool success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId);
+                bool success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
 
                 if (!success)
                 {
-                    throw new Exception(string.Format(
-                        "Renew subscription request on purchase id = {0} and site guid = {1} did not finish successfully.", request.PurchaseId, request.SiteGuid));
+                    throw new Exception(string.Format("Renew subscription request did not finish successfully. Purchase id = {0}, siteguid = {1}, BillingGuid = {2}, EndDate = {3}.",
+                        request != null ? request.PurchaseId : 0,                                            // {0}
+                        request != null && request.SiteGuid != null ? request.SiteGuid : string.Empty,       // {1}
+                        request != null && request.BillingGuid != null ? request.BillingGuid : string.Empty, // {2}
+                        request != null ? request.EndDate : 0));                                             // {3}
                 }
             }
             catch (Exception ex)

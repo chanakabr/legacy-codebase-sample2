@@ -36,5 +36,12 @@ namespace SubscriptionRenewHandler
             get;
             set;
         }
+
+        [JsonProperty("end_date")]
+        public long EndDate
+        {
+            get;
+            set;
+        }
     }
 }
