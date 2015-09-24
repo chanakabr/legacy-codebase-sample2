@@ -117,6 +117,7 @@
     <Compile Include="DBManipulator.cs" />
     <Compile Include="DBRecordWebEditor.cs" />
     <Compile Include="DBTableWebEditor.cs" />
+    <Compile Include="EncryptUtils.cs" />
     <Compile Include="FTPUploader.cs" />
     <Compile Include="HashUtils.cs" />
     <Compile Include="Hitter.cs" />

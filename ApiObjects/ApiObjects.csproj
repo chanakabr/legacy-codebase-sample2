@@ -105,8 +105,9 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
+    <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
-    <Compile Include="OSSAdapterInsertResponse.cs" />
+    <Compile Include="OSSAdapterResponseList.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
