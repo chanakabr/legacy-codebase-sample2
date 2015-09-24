@@ -13959,7 +13959,7 @@ namespace ConditionalAccess
             }
 
             // get subscription purchase 
-            DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionTransactionForRenewal(m_nGroupID, purchaseId, billingGuid);
+            DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(m_nGroupID, purchaseId, billingGuid);
 
 
             // validate subscription received
@@ -14331,7 +14331,7 @@ namespace ConditionalAccess
 
         public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
         {
-            return ConditionalAccessDAL.Update_SubscriptionTransactionRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
+            return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
         }
     }
 }

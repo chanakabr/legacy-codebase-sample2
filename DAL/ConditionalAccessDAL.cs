@@ -1954,9 +1954,9 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_SubscriptionTransactionForRenewal(int groupId, long subscriptionPurchaseId, string billingGuid)
+        public static DataRow Get_SubscriptionPurchaseForRenewal(int groupId, long subscriptionPurchaseId, string billingGuid)
         {
-            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionTransactionForRenewal");
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForRenewal");
             spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
             spLastBillingTransactions.AddParameter("@GroupID", groupId);
             spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
@@ -1975,9 +1975,9 @@ namespace DAL
             return null;
         }
 
-        public static bool Update_SubscriptionTransactionRenewalActiveStatus(int groupId, long subscriptionPurchaseId, string billingGuid, int isActive)
+        public static bool Update_SubscriptionPurchaseRenewalActiveStatus(int groupId, long subscriptionPurchaseId, string billingGuid, int isActive)
         {
-            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Update_SubscriptionTransactionRenewalActiveStatus");
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseRenewalActiveStatus");
             spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
             spLastBillingTransactions.AddParameter("@GroupID", groupId);
             spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
