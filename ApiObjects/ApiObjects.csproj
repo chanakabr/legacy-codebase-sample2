@@ -105,7 +105,6 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
-    <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
     <Compile Include="OSSAdapterResponseList.cs" />
     <Compile Include="DRM\CencRequest.cs" />
@@ -260,6 +259,7 @@
     <Compile Include="Response\Status.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
+    <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
