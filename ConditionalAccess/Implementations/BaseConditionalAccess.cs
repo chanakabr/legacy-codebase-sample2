@@ -12615,15 +12615,16 @@ namespace ConditionalAccess
 
                                         // enqueue renew transaction
                                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                         RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
-                                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes));
+                                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
                                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                                         if (!enqueueSuccessful)
                                         {
                                             log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                                         }
                                         else
-                                            log.DebugFormat("New task created (upon subscription purchase success). data: {0}", data);
+                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                     }
 
                                     // build notification message
@@ -12959,15 +12960,16 @@ namespace ConditionalAccess
 
                                         // enqueue renew transaction
                                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        DateTime nextRenewalDate = subscriptionEndDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                         RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate),
-                                            subscriptionEndDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes));
+                                            nextRenewalDate);
                                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                                         if (!enqueueSuccessful)
                                         {
                                             log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                                         }
                                         else
-                                            log.DebugFormat("New task created (upon process subscription receipt response). data: {0}", data);
+                                            log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
                                     }
 
                                     // build notification message
@@ -14206,8 +14208,8 @@ namespace ConditionalAccess
 
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate),
-                            endDate.AddMinutes(paymentGateway.RenewalStartMinutes));
+                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                         if (!enqueueSuccessful)
                         {
@@ -14215,7 +14217,7 @@ namespace ConditionalAccess
                             return true;
                         }
                         else
-                            log.DebugFormat("New task created (upon renew success response). data: {0}", data);
+                            log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
 
                         // PS message 
                         var dicData = new Dictionary<string, object>()
@@ -14268,8 +14270,8 @@ namespace ConditionalAccess
                         if (paymentGatewayResponse.RenewalIntervalMinutes > 0)
                         {
                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate),
-                                DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes));
+                            DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes);
+                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                             if (!enqueueSuccessful)
                             {
@@ -14277,7 +14279,7 @@ namespace ConditionalAccess
                                 return false;
                             }
                             else
-                                log.DebugFormat("New task created (upon renew pending response). data: {0}", data);
+                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
                         }
                         else
                         {
