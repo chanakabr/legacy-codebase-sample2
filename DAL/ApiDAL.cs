@@ -2250,7 +2250,6 @@ namespace DAL
                 
                 DataSet ds = sp.ExecuteDataSet();
                 
-                
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     ossAdapterRes = new OSSAdapter();
@@ -2261,6 +2260,20 @@ namespace DAL
                     ossAdapterRes.IsActive = is_Active == 1 ? true : false;
                     ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
                     ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in ds.Tables[1].Rows)
+                        {
+                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                            if (ossAdapterRes.Settings == null)
+                            {
+                                ossAdapterRes.Settings = new List<OSSAdapterSettings>();
+                            }
+                            ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
+                        }
+                    }
                 }
             }
             catch (Exception ex)

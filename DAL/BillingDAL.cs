@@ -1087,7 +1087,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, string paymentGWName = "", int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGatewaySettingsList(int groupID, string paymentGWName = "", int status = 1, int isActive = 1)
         {
             List<PaymentGateway> res = new List<PaymentGateway>();
             try
