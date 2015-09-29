@@ -98,45 +98,49 @@ namespace ESIndexUpdateHandler.Updaters
             return bRes;
         }
 
-        private bool UpdateChannel(List<int> lChannelIds)
+        private bool UpdateChannel(List<int> channelIds)
         {
-            bool bRes = false;
+            bool result = false;
             GroupManager groupManager = new GroupManager();
-            Group oGroup = groupManager.GetGroup(m_nGroupID);
+            Group group = groupManager.GetGroup(m_nGroupID);
 
-            if (oGroup == null || oGroup.channelIDs == null || oGroup.channelIDs.Count == 0)
-                return bRes;
+            if (group == null || group.channelIDs == null || group.channelIDs.Count == 0)
+            {
+                return result;
+            }
 
             List<string> aliases = m_oESApi.GetAliases(m_nGroupID.ToString());
 
-            Channel oChannel;
-            MediaSearchObj oSearchObj;
-            ESMediaQueryBuilder oQueryParser;
-            string sQueryStr;
+            Channel channel;
+            MediaSearchObj searchObject;
+            ESMediaQueryBuilder queryBuilder;
+            string queryString;
 
             if (aliases != null && aliases.Count > 0)
             {
-                foreach (int nChannelID in lChannelIds)
+                foreach (int nChannelID in channelIds)
                 {
-                    oChannel = ChannelRepository.GetChannel(nChannelID, oGroup);
-                    if (oChannel != null && oChannel.m_nIsActive == 1)
+                    channel = ChannelRepository.GetChannel(nChannelID, group);
+                    if (channel != null && channel.m_nIsActive == 1)
                     {
-                        oQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT, m_nGroupID = oChannel.m_nGroupID };
-                        oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel, oGroup.m_nSubGroup);
-                        oQueryParser.oSearchObject = oSearchObj;
-                        sQueryStr = oQueryParser.BuildSearchQueryString(false);
-
-                        foreach (string sIndex in aliases)
+                        queryBuilder = new ESMediaQueryBuilder()
                         {
-                            bRes = m_oESApi.AddQueryToPercolator(sIndex, oChannel.m_nChannelID.ToString(), ref sQueryStr);
+                            QueryType = eQueryType.EXACT,
+                            m_nGroupID = channel.m_nGroupID
+                        };
+                        searchObject = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(channel, group.m_nSubGroup);
+                        queryBuilder.oSearchObject = searchObject;
+                        queryString = queryBuilder.BuildSearchQueryString(false);
+
+                        foreach (string alias in aliases)
+                        {
+                            result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref queryString);
                         }
                     }
                 }
             }
 
-            return bRes;
-        }
-
-        
+            return result;
+        }        
     }
 }

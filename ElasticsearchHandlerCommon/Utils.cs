@@ -103,11 +103,11 @@ namespace ElasticsearchTasksCommon
 
         public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
         {
-            MediaSearchObj searchObject = new MediaSearchObj();
+            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = channel.m_nMediaType.ToString();
+            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
             searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
@@ -166,14 +166,14 @@ namespace ElasticsearchTasksCommon
             }
         }
 
-        public static string GetPermittedWatchRules(int nGroupId, List<int> lSubGroup)
+        public static string GetPermittedWatchRules(int nGroupId, List<int> lSubGroup = null)
         {
-            System.Data.DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
+            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
             {
                 lWatchRulesIds = new List<string>();
-                foreach (System.Data.DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
+                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
                 {
                     lWatchRulesIds.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow["RuleID"]));
                 }
