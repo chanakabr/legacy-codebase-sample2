@@ -118,9 +118,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapter\RecommendationAdapter.cs" />
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
+    <Compile Include="Request\ExternalChannelRequest.cs" />
     <Compile Include="Response\AssetStatsResponse.cs" />
     <Compile Include="BaseEpg.cs" />
     <Compile Include="Request\BaseProtocolRequest.cs" />
@@ -141,9 +143,7 @@
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Branding.cs" />
     <Compile Include="Catalog.cs" />
-    <Compile Include="Channel.cs" />
     <Compile Include="Response\ChannelDetailsResponse.cs" />
-    <Compile Include="ChannelRepository.cs" />
     <Compile Include="Request\ChannelRequest.cs" />
     <Compile Include="Request\ChannelRequestMultiFiltering.cs" />
     <Compile Include="Response\ChannelResponse.cs" />
@@ -599,6 +599,10 @@
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj">
       <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
       <Name>StaticticsBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Synchronizer\Synchronizer.csproj">
+      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
+      <Name>Synchronizer</Name>
     </ProjectReference>
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>

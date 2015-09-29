@@ -128,6 +128,8 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public Dictionary<string, List<string>> epgParentalRulesTags;
 
+        public List<long> assetIds;
+
         #endregion
 
         #region Ctor

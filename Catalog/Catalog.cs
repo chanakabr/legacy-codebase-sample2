@@ -689,7 +689,7 @@ namespace Catalog
 
             if (searcher != null)
             {
-                SetLanguageDefinition(request, searchDefinitions);
+                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
@@ -707,24 +707,24 @@ namespace Catalog
         /// </summary>
         /// <param name="request"></param>
         /// <param name="searchDefinitions"></param>
-        private static void SetLanguageDefinition(UnifiedSearchRequest request, UnifiedSearchDefinitions searchDefinitions)
+        private static void SetLanguageDefinition(int groupId, Filter filter, UnifiedSearchDefinitions searchDefinitions)
         {
             GroupManager groupManager = new GroupManager();
             CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupId = catalogCache.GetParentGroup(request.m_nGroupID);
+            int parentGroupId = catalogCache.GetParentGroup(groupId);
             Group groupInCache = groupManager.GetGroup(parentGroupId);
 
             if (groupInCache != null)
             {
                 LanguageObj objLang = null;
 
-                if (request.m_oFilter == null)
+                if (filter == null)
                 {
                     objLang = groupInCache.GetGroupDefaultLanguage();
                 }
                 else
                 {
-                    objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
+                    objLang = groupInCache.GetLanguage(filter.m_nLanguage);
                 }
 
                 searchDefinitions.langauge = objLang;
@@ -738,21 +738,6 @@ namespace Catalog
         /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            HashSet<string> reservedStringFields = new HashSet<string>()
-            {
-                "name",
-                "description",
-                "epg_channel_id"
-            };
-
-            HashSet<string> reservedNumericFields = new HashSet<string>()
-            {
-                "like_counter",
-                "views",
-                "rating",
-                "votes"
-            };
-
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             CatalogCache catalogCache = CatalogCache.Instance();
@@ -769,6 +754,21 @@ namespace Catalog
 
             if (request.filterTree != null)
             {
+                HashSet<string> reservedStringFields = new HashSet<string>()
+                {
+                    "name",
+                    "description",
+                    "epg_channel_id"
+                };
+
+                    HashSet<string> reservedNumericFields = new HashSet<string>()
+                {
+                    "like_counter",
+                    "views",
+                    "rating",
+                    "votes"
+                };
+
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
 
@@ -857,7 +857,7 @@ namespace Catalog
 
                                             BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
                                             BooleanLeaf newLeaf =
-                                                new BooleanLeaf("geo_block_rule_id", 
+                                                new BooleanLeaf("geo_block_rule_id",
                                                     geoBlockRules.Select(id => id.ToString()).ToList(),
                                                     typeof(List<string>), ComparisonOperator.In);
 
@@ -1000,7 +1000,7 @@ namespace Catalog
 
                             // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
                             // Otherwise the search will not work completely 
-                            if (maxNGram > 0 && 
+                            if (maxNGram > 0 &&
                                 (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
                             {
                                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
@@ -4571,6 +4571,80 @@ namespace Catalog
             }
 
             return result;
+        }
+
+        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList)
+        {
+            Status status = new Status();
+
+            searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            var externalChannelsCache = ExternalChannelCache.Instance();
+
+            ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
+
+            List<long> assetIds = RecommendationAdapter.GetInstance().GetChannelRecommendations(externalChannel);
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            // Group have user types per media  +  siteGuid != empty
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            {
+                if (request.m_oFilter == null)
+                {
+                    request.m_oFilter = new Filter();
+                }
+
+                //call ws_users to get userType                  
+                request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+            }
+
+            BooleanPhraseNode filterTree = null;
+
+            if (!string.IsNullOrEmpty(externalChannel.filterExpression))
+            {
+                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.filterExpression, ref filterTree);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    return status;
+                }
+            }
+
+            UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
+
+            searchDefinitions.assetIds = assetIds;
+
+            if (searcher != null)
+            {
+                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
+
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+
+                if (searchResults != null)
+                {
+                    searchResultsList = searchResults;
+                }
+            }
+
+            return status;           
+        }
+
+        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, ExternalChannel externalChannel, BooleanPhraseNode filterTree)
+        {
+            UnifiedSearchRequest alternateRequest = new UnifiedSearchRequest(request.m_nPageSize, request.m_nPageIndex,
+                request.m_nGroupID, string.Empty, string.Empty, null, null, externalChannel.filterExpression, string.Empty,
+                filterTree);
+
+            UnifiedSearchDefinitions definitions = BuildUnifiedSearchObject(alternateRequest);
+
+            definitions.order = new OrderObj()
+            {
+                m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RECOMMENDATION,
+                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+            };
+
+            return definitions;
         }
     }
 }

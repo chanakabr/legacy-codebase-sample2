@@ -193,7 +193,9 @@ namespace ApiObjects.SearchObjects
         [EnumMember]
         RELATED = 31,
         [EnumMember]
-        NONE = 101
+        NONE = 101,
+        [EnumMember]
+        RECOMMENDATION = -13
 
         /*
     [EnumMember]

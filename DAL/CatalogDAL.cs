@@ -2926,5 +2926,10 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+
+        public static ExternalChannel GetExternalChannel(int groupId, string channelId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCacheHelper.cs" />
+    <Compile Include="ExternalChannelCache.cs" />
     <Compile Include="GeoBlockRulesCache.cs" />
     <Compile Include="ParentalRulesCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

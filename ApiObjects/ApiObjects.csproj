@@ -148,6 +148,7 @@
     <Compile Include="Epg\xmltv.cs">
       <DependentUpon>xmltv.xsd</DependentUpon>
     </Compile>
+    <Compile Include="ExternalChannel.cs" />
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />

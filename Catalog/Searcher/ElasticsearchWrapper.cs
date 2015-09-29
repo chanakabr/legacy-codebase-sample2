@@ -110,7 +110,9 @@ namespace Catalog
 
                             if (oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                             {
-                                lMediaIds = SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir, oSearch.associationTags, oSearch.parentMediaTypes);
+                                lMediaIds = 
+                                    SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir, 
+                                        oSearch.associationTags, oSearch.parentMediaTypes).Cast<int>().ToList();
                             }
                             else
                             {
@@ -959,6 +961,8 @@ namespace Catalog
             if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
                 orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
                 orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
+                // Recommendations is also non-sortable
+                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
                 // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
                 (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
                 unifiedSearchDefinitions.parentMediaTypes.Count > 0))
@@ -1013,6 +1017,8 @@ namespace Catalog
 
                 if (httpStatus == STATUS_OK)
                 {
+                    #region Process ElasticSearch result
+
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
@@ -1032,15 +1038,39 @@ namespace Catalog
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                         if (isOrderedByStat)
                         {
-                            List<int> assetIds = searchResultsList.Select(item => int.Parse(item.AssetId)).ToList();
+                            #region Ordered by stat
+                            List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
 
-                            List<int> orderedIds = null;
+                            List<long> orderedIds = null;
 
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
                             {
                                 orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
                                     unifiedSearchDefinitions.associationTags,
                                     unifiedSearchDefinitions.parentMediaTypes);
+                            }
+                            // Recommendation - the order is predefined already. We will use the order that is given to us
+                            else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
+                            {
+                                orderedIds = new List<long>();
+                                HashSet<long> idsHashset = new HashSet<long>(assetIds);
+
+                                // Add all ordered ids from definitions first
+                                foreach (var id in unifiedSearchDefinitions.assetIds)
+                                {
+                                    // If the id exists in search results
+                                    if (idsHashset.Remove(id))
+                                    {
+                                        // add to ordered list
+                                        orderedIds.Add(id);
+                                    }
+                                }
+
+                                // Add all ids that are left
+                                foreach (long id in idsHashset)
+                                {
+                                    orderedIds.Add(id);
+                                }
                             }
                             else
                             {
@@ -1095,8 +1125,11 @@ namespace Catalog
                                     }
                                 }
                             }
+                            #endregion
                         }
-                    }
+                    } 
+
+                    #endregion
                 }
                 else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
                 {
@@ -1107,13 +1140,13 @@ namespace Catalog
             return (searchResultsList);
         }
 
-        private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
+        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
             int groupId, OrderDir orderDirection,
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
         {
             if (assets == null || assets.Count == 0)
             {
-                return new List<int>();
+                return new List<long>();
             }
 
             Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
@@ -1298,7 +1331,7 @@ namespace Catalog
 
             #region Create final, sorted, list
 
-            List<int> sortedList = new List<int>();
+            List<long> sortedList = new List<long>();
             HashSet<int> alreadyContainedIds = new HashSet<int>();
 
             foreach (var currentId in sortedDictionary)
@@ -1350,10 +1383,10 @@ namespace Catalog
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        private List<int> SortAssetsByStats(List<int> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        private List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
         {
-            List<int> sortedList = null;
-            HashSet<int> alreadyContainedIds = null;
+            List<long> sortedList = null;
+            HashSet<long> alreadyContainedIds = null;
 
             ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary = 
                 new ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>>();
@@ -1531,8 +1564,8 @@ namespace Catalog
             #region Process Facets
 
             // get a sorted list of the asset Ids that have statistical data in the facet
-            sortedList = new List<int>();
-            alreadyContainedIds = new HashSet<int>();
+            sortedList = new List<long>();
+            alreadyContainedIds = new HashSet<long>();
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
@@ -1549,7 +1582,7 @@ namespace Catalog
             
             if (sortedList == null)
             {
-                sortedList = new List<int>();
+                sortedList = new List<long>();
             }
 
             // Add all ids that don't have stats
@@ -1581,7 +1614,7 @@ namespace Catalog
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
         private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary, 
-            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
+            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
             if (facetsDictionary != null && facetsDictionary.Count > 0)
             {
@@ -1627,9 +1660,8 @@ namespace Catalog
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
         private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary, 
-            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
+            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
-
             if (facetsDictionary != null && facetsDictionary.Count > 0)
             {
                 List<ESTermsStatsFacet.StatisticFacetResult> statResult;

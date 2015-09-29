@@ -213,6 +213,10 @@ namespace Catalog
             {
                 return (WatchHistoryRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is ExternalChannelRequest)
+            {
+                return (ExternalChannelRequest)m_oBaseRequest;
+            }
 
             return null;
         }

@@ -177,6 +177,18 @@ namespace ElasticSearch.Searcher
 
             globalFilter.AddChild(isActiveTerm);
 
+            if (this.SearchDefinitions.assetIds != null)
+            {
+                ESTerms idsTerm = new ESTerms(true)
+                {
+                    Key = "_id"
+                };
+
+                idsTerm.Value.AddRange(this.SearchDefinitions.assetIds.Select(id => Convert.ToString(id)));
+
+                globalFilter.AddChild(idsTerm);
+            }
+
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
