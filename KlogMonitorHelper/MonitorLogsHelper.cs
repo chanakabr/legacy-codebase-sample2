@@ -153,7 +153,7 @@ namespace KlogMonitorHelper
             }
         }
 
-        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType, Message replyMessage = null)
+        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType, string replyMessage = null)
         {
             try
             {
