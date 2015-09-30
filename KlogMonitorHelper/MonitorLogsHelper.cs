@@ -153,7 +153,7 @@ namespace KlogMonitorHelper
             }
         }
 
-        public static void FinalizeMonitorLogsData(Message replyMessage, KLogMonitor.KLogEnums.AppType appType)
+        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType, Message replyMessage = null)
         {
             try
             {
@@ -195,8 +195,6 @@ namespace KlogMonitorHelper
             // log response
             if (replyMessage != null)
                 log.Debug("RESPONSE STRING:" + replyMessage.ToString());
-            else
-                log.Debug("RESPONSE STRING IS NULL");
         }
 
         static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
