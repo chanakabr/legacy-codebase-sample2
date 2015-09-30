@@ -31,7 +31,7 @@ namespace ServiceExtensions
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
             // finalize monitor and logs
-            MonitorLogsHelper.FinalizeMonitorLogsData(reply, KLogEnums.AppType.WCF);
+            MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF, reply);
         }
     }
 }
