@@ -82,7 +82,8 @@ namespace KlogMonitorHelper
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString), ex);
+                    // no need to log exception
+                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString));
 
                     // try taking data from query string
                     try
@@ -94,7 +95,8 @@ namespace KlogMonitorHelper
                     }
                     catch (Exception ex2)
                     {
-                        log.Error(string.Format("Error while loading and parsing WS quesy string. XML Request: {0}", requestString), ex2);
+                        // no need to log exception
+                        log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestString));
                     }
                 }
 
