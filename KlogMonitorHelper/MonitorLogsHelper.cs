@@ -49,7 +49,9 @@ namespace KlogMonitorHelper
 
         public static void InitMonitorLogsDataWS(eWSModules module, string requestString)
         {
-            if (!string.IsNullOrEmpty(requestString))
+            if (string.IsNullOrEmpty(requestString))
+                log.Debug("REQUEST STRING IS EMPTY");
+            else
             {
                 // get request ID
                 HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
@@ -104,46 +106,54 @@ namespace KlogMonitorHelper
                 HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                 // log request
-                log.Debug(requestString);
+                log.Debug("REQUEST STRING:" + requestString);
             }
         }
 
         public static void InitMonitorLogsDataWCF(Message requestMessage)
         {
-            string requestString = requestMessage.ToString();
-            if (!string.IsNullOrEmpty(requestString))
+            if (requestMessage == null)
+                log.Debug("REQUEST STRING IS NULL");
+            else
             {
-                if (requestMessage.Headers != null)
+                string requestString = requestMessage.ToString();
+
+                if (string.IsNullOrEmpty(requestString))
+                    log.Debug("REQUEST STRING IS EMPTY");
+                else
                 {
-                    // get action name
-                    if (requestMessage.Headers.Action != null)
+                    if (requestMessage.Headers != null)
                     {
-                        string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
-                        OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = actionName;
+                        // get action name
+                        if (requestMessage.Headers.Action != null)
+                        {
+                            string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
+                            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = actionName;
+                        }
+                        else
+                            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = "null";
                     }
-                    else
-                        OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = "null";
+
+                    // get request ID
+                    OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+
+                    // get user agent
+                    OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] = Dns.GetHostName();
+
+                    // get host IP
+                    if (requestMessage.Properties != null && requestMessage.Properties[RemoteEndpointMessageProperty.Name] != null)
+                        OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] = (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address;
+
+                    // start k-monitor
+                    OperationContext.Current.IncomingMessageProperties[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
+
+                    // log request
+                    log.Debug("REQUEST STRING:" + requestString);
                 }
-
-                // get request ID
-                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
-
-                // get user agent
-                OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] = Dns.GetHostName();
-
-                // get host IP
-                if (requestMessage.Properties != null && requestMessage.Properties[RemoteEndpointMessageProperty.Name] != null)
-                    OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] = (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address;
-
-                // start k-monitor
-                OperationContext.Current.IncomingMessageProperties[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
-
-                // log request
-                log.Debug(requestString);
             }
         }
 
-        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType)
+        public static void FinalizeMonitorLogsData(Message replyMessage, KLogMonitor.KLogEnums.AppType appType)
         {
             try
             {
@@ -181,6 +191,12 @@ namespace KlogMonitorHelper
                 // ignore error - this will happen when updating WCF reference - NO NEED TO LOG
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
+
+            // log response
+            if (replyMessage != null)
+                log.Debug("RESPONSE STRING:" + replyMessage.ToString());
+            else
+                log.Debug("RESPONSE STRING IS NULL");
         }
 
         static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
