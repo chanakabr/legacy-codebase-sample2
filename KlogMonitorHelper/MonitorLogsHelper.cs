@@ -153,7 +153,7 @@ namespace KlogMonitorHelper
             }
         }
 
-        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType, string replyMessage = null)
+        public static void FinalizeMonitorLogsData(KLogMonitor.KLogEnums.AppType appType)
         {
             try
             {
@@ -191,10 +191,6 @@ namespace KlogMonitorHelper
                 // ignore error - this will happen when updating WCF reference - NO NEED TO LOG
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
-
-            // log response
-            if (replyMessage != null)
-                log.Debug("RESPONSE STRING:" + replyMessage.ToString());
         }
 
         static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
