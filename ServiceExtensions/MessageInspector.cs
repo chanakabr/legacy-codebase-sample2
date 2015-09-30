@@ -30,8 +30,12 @@ namespace ServiceExtensions
 
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
+            string replyMessage = string.Empty;
+            if (reply != null)
+                replyMessage = reply.ToString();
+
             // finalize monitor and logs
-            MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF, reply);
+            MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF, replyMessage);
         }
     }
 }
