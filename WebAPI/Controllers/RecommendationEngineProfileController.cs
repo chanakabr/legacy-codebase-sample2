@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.Billing;
-using WebAPI.Models.Catalog;
+using WebAPI.Models.API;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -24,16 +20,16 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<Models.Catalog.KalturaRecommendationEngineBaseProfile> List()
+        public List<KalturaRecommendationEngineBaseProfile> List()
         {
-            List<Models.Catalog.KalturaRecommendationEngineBaseProfile> response = null;
+            List<KalturaRecommendationEngineBaseProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().GetRecommendationEngines(groupId);
+                response = ClientsManager.ApiClient().GetRecommendationEngines(groupId);
             }
             catch (ClientException ex)
             {
@@ -61,7 +57,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().DeleteRecommendationEngine(groupId, recommendation_engine_id);
+                response = ClientsManager.ApiClient().DeleteRecommendationEngine(groupId, recommendation_engine_id);
             }
             catch (ClientException ex)
             {
@@ -89,7 +85,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().InsertRecommendationEngine(groupId, recommendation_engine);
+                response = ClientsManager.ApiClient().InsertRecommendationEngine(groupId, recommendation_engine);
             }
             catch (ClientException ex)
             {
@@ -118,7 +114,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().SetRecommendationEngine(groupId, recommendation_engine_id, recommendation_engine);
+                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine_id, recommendation_engine);
             }
             catch (ClientException ex)
             {

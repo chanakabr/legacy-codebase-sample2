@@ -702,6 +702,8 @@
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
+    <Compile Include="Models\API\KalturaRecommendationEngineBaseProfile.cs" />
+    <Compile Include="Models\API\KalturaRecommendationEngineProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
@@ -720,8 +722,6 @@
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
-    <Compile Include="Models\Catalog\KalturaRecommendationEngineBaseProfile.cs" />
-    <Compile Include="Models\Catalog\KalturaRecommendationEngineProfile.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />

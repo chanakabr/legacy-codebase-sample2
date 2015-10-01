@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.Billing;
-using WebAPI.Models.Catalog;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -34,7 +30,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().GetRecommendationEngineSettings(groupId);
+                response = ClientsManager.ApiClient().GetRecommendationEngineSettings(groupId);
             }
             catch (ClientException ex)
             {
@@ -67,7 +63,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().DeleteRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().DeleteRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {
@@ -99,7 +95,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().InsertRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().InsertRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {
@@ -132,7 +128,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().SetRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().SetRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {

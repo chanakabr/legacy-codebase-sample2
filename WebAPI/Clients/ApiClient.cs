@@ -1,17 +1,15 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Reflection;
 using WebAPI.Api;
-using WebAPI.Exceptions;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Models;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
-using KLogMonitor;
-using System.Reflection;
-using WebAPI.Managers.Models;
 
 
 namespace WebAPI.Clients
@@ -1042,5 +1040,50 @@ namespace WebAPI.Clients
 
             return codes;
         }
+
+        #region Recommendation Engine
+
+        internal List<KalturaRecommendationEngineBaseProfile> GetRecommendationEngines(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        internal bool DeleteRecommendationEngine(int groupId, int recommendation_engine_id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaRecommendationEngineProfile InsertRecommendationEngine(int groupId, KalturaRecommendationEngineProfile recommendation_engine)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaRecommendationEngineProfile SetRecommendationEngine(int groupId, int recommendation_engine_id, KalturaRecommendationEngineProfile recommendation_engine)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal List<KalturaRecommendationEngineProfile> GetRecommendationEngineSettings(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool InsertRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool SetRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

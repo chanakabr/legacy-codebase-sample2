@@ -7,7 +7,7 @@ using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// Kaltura Recommendation Engine Base
@@ -29,13 +29,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
-
-        ///// <summary>
-        ///// recommendation engine default (true/false)
-        ///// </summary>
-        //[DataMember(Name = "is_default")]
-        //[JsonProperty("is_default")]
-        //[XmlElement(ElementName = "is_default")]
-        //public bool IsDefault { get; set; }
     }
 }

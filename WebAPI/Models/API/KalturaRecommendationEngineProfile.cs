@@ -7,7 +7,7 @@ using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// PaymentGW
