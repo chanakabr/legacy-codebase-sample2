@@ -47,6 +47,20 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                     {
                         Int32 nID = DBManipulator.DoTheWork();
 
+                        if (pgid == 0 && nID > 0)
+                        {
+                            // Create Shared secret
+                            string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("oss_adapter");
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("shared_secret", "=", sharedSecret);
+                            updateQuery += " where ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+                            updateQuery.Execute();
+                            updateQuery.Finish();
+                            updateQuery = null;
+                        }
+
                         // set adapter configuration
                         apiWS.API api = new apiWS.API();
 
@@ -59,8 +73,8 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                             api.Url = sWSURL;
                         try
                         {
-                            apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, nID);
-                            Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", nID, status.Code), "SetOSSAdapterConfiguration");
+                            //apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, nID);
+                            //Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", nID, status.Code), "SetOSSAdapterConfiguration");
                         }
                         catch (Exception ex)
                         {
@@ -129,10 +143,13 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", false);
         theRecord.AddRecord(dr_adapter_url);
-        
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
-        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
-        theRecord.AddRecord(dr_shared_secret);
+
+        if (t != null)
+        {
+            DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
+            dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
+            theRecord.AddRecord(dr_shared_secret);
+        }
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
