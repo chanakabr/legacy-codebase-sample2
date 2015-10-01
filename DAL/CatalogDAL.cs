@@ -2932,9 +2932,350 @@ namespace Tvinci.Core.DAL
             throw new NotImplementedException();
         }
 
+        #region RecommendationEngine
         public static RecommendationEngine GetRecommendationEngine(int engineId)
         {
             throw new NotImplementedException();
         }
+
+        public static string GetRecommendationEngineAdapterUrl(int groupID, int recommendationEngineId, ref bool isRecommendationEngineExist)
+        {
+            string adapterUrl = string.Empty;
+            isRecommendationEngineExist = false;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GetRecommendationEngineAdapterUrl");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@recommendationEngineId", recommendationEngineId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                adapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                isRecommendationEngineExist = true;
+            }
+
+            return adapterUrl;
+        }
+
+        public static int GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
+        {
+            int recommendationEngineId = 0;
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@external_identifier", externalIdentifier);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+
+            return recommendationEngineId;
+        }
+
+        public static RecommendationEngine InsertOSSAdapter(int groupID, RecommendationEngine recommendationEngine)
+        {
+            RecommendationEngine ossAdapterRes = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_RecommendationEngine");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@name", recommendationEngine.Name);
+            sp.AddParameter("@adapter_url", recommendationEngine.AdapterUrl);
+            sp.AddParameter("@external_identifier", recommendationEngine.ExternalIdentifier);
+            sp.AddParameter("@shared_secret", recommendationEngine.SharedSecret);
+            sp.AddParameter("@isActive", recommendationEngine.IsActive);
+
+            DataTable dt = CreateDataTable(recommendationEngine.Settings);
+            sp.AddDataTableParameter("@KeyValueList", dt);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                ossAdapterRes = new RecommendationEngine();
+                ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+            }
+
+            return ossAdapterRes;
+        }
+
+        private static DataTable CreateDataTable(List<RecommendationEngineSettings> recommendationEngineSettings)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("idkey", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+
+                foreach (RecommendationEngineSettings item in recommendationEngineSettings)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["idkey"] = item.key;
+                    row["value"] = item.value;
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return resultTable;
+        }
+
+        public static bool DeleteRecommendationEngine(int groupID, int recommendationEngineId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_RecommendationEngine");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", recommendationEngineId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static RecommendationEngine SetRecommendationEngine(int groupID, RecommendationEngine recommendationEngine)
+        {
+            RecommendationEngine ossAdapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_RecommendationEngine");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", recommendationEngine.ID);
+                sp.AddParameter("@name", recommendationEngine.Name);
+                sp.AddParameter("@external_identifier", recommendationEngine.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", recommendationEngine.SharedSecret);
+                sp.AddParameter("@adapter_url", recommendationEngine.AdapterUrl);
+                sp.AddParameter("@isActive", recommendationEngine.IsActive);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterRes = new RecommendationEngine();
+                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in ds.Tables[1].Rows)
+                        {
+                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                            if (ossAdapterRes.Settings == null)
+                            {
+                                ossAdapterRes.Settings = new List<RecommendationEngineSettings>();
+                            }
+                            ossAdapterRes.Settings.Add(new RecommendationEngineSettings(key, value));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ossAdapterRes;
+        }
+
+        public static List<RecommendationEngineBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<RecommendationEngineBase> res = new List<RecommendationEngineBase>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineBaseList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        RecommendationEngineBase recommendationEngine = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            recommendationEngine = new RecommendationEngineBase();
+                            recommendationEngine.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            recommendationEngine.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            res.Add(recommendationEngine);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<RecommendationEngineBase>();
+            }
+            return res;
+        }
+
+        public static RecommendationEngine GetRecommendationEngineBase(int groupID, int recommendationEngineId)
+        {
+            RecommendationEngine ossAdapterRes = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineBase");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@recommendationEngineId", recommendationEngineId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                ossAdapterRes = new RecommendationEngine();
+                ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+            }
+            return ossAdapterRes;
+        }
+
+        public static bool InsertRecommendationEngineSettings(int groupID, int recommendationEngineId, List<RecommendationEngineSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_RecommendationEngineSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", recommendationEngineId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetRecommendationEngineSettings(int groupID, int recommendationEngineId, List<RecommendationEngineSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_RecommendationEngineSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", recommendationEngineId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool DeleteRecommendationEngineSettings(int groupID, int recommendationEngineId, List<RecommendationEngineSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_RecommendationEngineSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", recommendationEngineId);
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<RecommendationEngine> GetRecommendationEngineSettingsList(int groupID, int recommendationEngineId = 0, int status = 1, int isActive = 1)
+        {
+            List<RecommendationEngine> res = new List<RecommendationEngine>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecommendationEngineSettingsList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@recommendationEngineId", recommendationEngineId);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        RecommendationEngine recommendationEngine = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            recommendationEngine = new RecommendationEngine();
+                            recommendationEngine.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            recommendationEngine.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            recommendationEngine.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            recommendationEngine.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            recommendationEngine.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            recommendationEngine.IsActive = is_Active == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + recommendationEngine.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (recommendationEngine.Settings == null)
+                                    {
+                                        recommendationEngine.Settings = new List<RecommendationEngineSettings>();
+                                    }
+                                    recommendationEngine.Settings.Add(new RecommendationEngineSettings(key, value));
+                                }
+                            }
+                            res.Add(recommendationEngine);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<RecommendationEngine>();
+            }
+            return res;
+        }
+
+        #endregion 
+
+    
     }
 }

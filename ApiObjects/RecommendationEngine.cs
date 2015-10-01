@@ -6,29 +6,17 @@ using System.Xml.Serialization;
 
 namespace ApiObjects
 {
-    public class RecommendationEngine
+    public class RecommendationEngine : RecommendationEngineBase
     {
         #region Properties
-
-        public int ID
-        {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
+       
         public bool IsDefault
         {
             get;
             set;
         }
 
-        public int IsActive
+        public bool IsActive
         {
             get;
             set;
@@ -72,7 +60,7 @@ namespace ApiObjects
             set;
         }
 
-        public List<KeyValuePair> Settings
+        public List<RecommendationEngineSettings> Settings
         {
             get;
             set;
@@ -99,7 +87,7 @@ namespace ApiObjects
             this.ExternalIdentifier = clone.ExternalIdentifier;
             this.SharedSecret = clone.SharedSecret;
             this.Selected = clone.Selected;
-            this.Settings = new List<KeyValuePair>(clone.Settings);
+            this.Settings = new List<RecommendationEngineSettings>(clone.Settings);
         }
 
         #endregion
