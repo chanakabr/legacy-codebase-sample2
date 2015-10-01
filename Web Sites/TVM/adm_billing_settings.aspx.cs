@@ -86,9 +86,61 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_SecurityQuestion.Initialize("Enable Payment Gateway Selection", "adm_table_header_nbg", "FormInput", "ENABLE_PAYMENT_GATEWAY_SELECTION", false);
             theRecord.AddRecord(dr_SecurityQuestion);
 
+            DataRecordDropDownField dr_ossAdapter = new DataRecordDropDownField("oss_adapter", "name", "id", "group_id", groupId, 60, true);
+            dr_ossAdapter.SetFieldType("int");
+            System.Data.DataTable ossAdapterDT = GetOSSAdapterDT();
+            dr_ossAdapter.SetSelectsDT(ossAdapterDT);
+            dr_ossAdapter.Initialize("OSS adapter to query", "adm_table_header_nbg", "FormInput", "OSS_ADAPTER", false);
+            dr_ossAdapter.SetDefault(0);
+            theRecord.AddRecord(dr_ossAdapter);
+
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
         return sTable;
+    }
+
+    private System.Data.DataTable GetOSSAdapterDT()
+    {
+        apiWS.API m = new apiWS.API();
+        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        
+        if (sWSURL != "")
+            m.Url = sWSURL;
+        string sWSUserName = "";
+        string sWSPass = "";
+
+        string sIP = "1.1.1.1";
+        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetOSSAdapter", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+
+        System.Data.DataTable ossAdapterDT = GetBaseDT();
+
+        apiWS.OSSAdapterResponseList ossAdapterResponseList = m.GetOSSAdapter(sWSUserName, sWSPass);
+        if (ossAdapterResponseList != null && ossAdapterResponseList.Status.Code == 0 && ossAdapterResponseList.OSSAdapters != null)
+        {
+            System.Data.DataRow tmpRow = null;
+
+            for (int i = 0; i < ossAdapterResponseList.OSSAdapters.Length; i++)
+            {
+                tmpRow = ossAdapterDT.NewRow();
+                tmpRow["ID"] = ossAdapterResponseList.OSSAdapters[i].ID;
+                tmpRow["txt"] = ossAdapterResponseList.OSSAdapters[i].Name;
+
+                ossAdapterDT.Rows.InsertAt(tmpRow, 0);
+                ossAdapterDT.AcceptChanges();
+            }
+        }
+        return ossAdapterDT;
+    }
+
+    private System.Data.DataTable GetBaseDT()
+    {
+        System.Data.DataTable dT = new System.Data.DataTable();
+        Int32 n = 0;
+        string s = "";
+        dT.Columns.Add(PageUtils.GetColumn("ID", n));
+        dT.Columns.Add(PageUtils.GetColumn("txt", s));
+        return dT.Copy();
     }
 
     private bool IsParentGroup(int groupID)
