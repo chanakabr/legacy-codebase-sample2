@@ -1953,5 +1953,38 @@ namespace DAL
 
             return null;
         }
+
+        public static DataRow Get_SubscriptionPurchaseForRenewal(int groupId, long subscriptionPurchaseId, string billingGuid)
+        {
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForRenewal");
+            spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
+            spLastBillingTransactions.AddParameter("@GroupID", groupId);
+            spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
+            spLastBillingTransactions.AddParameter("@BillingGuid", billingGuid);
+
+            DataSet ds = spLastBillingTransactions.ExecuteDataSet();
+            if (ds != null &&
+                ds.Tables != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows != null &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                return ds.Tables[0].Rows[0];
+            }
+
+            return null;
+        }
+
+        public static bool Update_SubscriptionPurchaseRenewalActiveStatus(int groupId, long subscriptionPurchaseId, string billingGuid, int isActive)
+        {
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseRenewalActiveStatus");
+            spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
+            spLastBillingTransactions.AddParameter("@GroupID", groupId);
+            spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
+            spLastBillingTransactions.AddParameter("@BillingGuid", billingGuid);
+            spLastBillingTransactions.AddParameter("@IsActive", isActive);
+
+            return spLastBillingTransactions.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
