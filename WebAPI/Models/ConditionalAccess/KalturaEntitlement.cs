@@ -159,5 +159,13 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "media_id")]
         public int MediaId { get; set; }
 
+        /// <summary>
+        /// Indicates whether the user is currently in his grace period entitlement
+        /// </summary>
+        [DataMember(Name = "is_in_grace_period")]
+        [JsonProperty("is_in_grace_period")]
+        [XmlElement(ElementName = "is_in_grace_period")]
+        public bool IsInGracePeriod { get; set; }
+
     }
 }

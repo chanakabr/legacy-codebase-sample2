@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
         /// <summary>
-        /// Returns a list of subscriptions that contain the supplied file
+        /// Returns a list of subscriptions requested by Subscription ID or file ID
         /// </summary>
         /// <param name="filter">Filter request</param>
         /// <param name="udid">Device UDID</param>

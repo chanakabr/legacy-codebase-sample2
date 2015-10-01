@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         /// Retrieve the purchase settings that applies for the household or a user        
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to get the setting (if getting by user)</</param> 
+        /// <param name="household_user_id">The identifier of the household user for whom to get the setting (if getting by user)</param> 
         /// <remarks>
         /// Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001

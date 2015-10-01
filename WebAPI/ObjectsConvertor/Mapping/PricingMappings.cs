@@ -124,6 +124,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
                .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.m_sName))
+               .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
 

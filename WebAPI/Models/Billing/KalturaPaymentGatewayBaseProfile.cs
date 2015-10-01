@@ -31,12 +31,11 @@ namespace WebAPI.Models.Billing
         public string Name { get; set; }
 
         /// <summary>
-        /// Payment gateway default (true / false)
+        /// Payment gateway default (true/false)
         /// </summary>
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
         public bool IsDefault { get; set; }
-        
     }
 }
