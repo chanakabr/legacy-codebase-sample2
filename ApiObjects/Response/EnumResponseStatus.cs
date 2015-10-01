@@ -103,6 +103,14 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+        NoOSSAdapterToInsert = 5004,
+        NameRequired = 5005,
+        SharedSecretRequired = 5006,
+        OSSAdapterIdentifierRequired = 5007,
+        OSSAdapterNotExist = 5008,
+        OSSAdapterParamsRequired = 5009,
+        UnknownOSSAdapterState = 5010,
+        DeleteIsNotAllowed = 5011,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -144,7 +152,8 @@ namespace ApiObjects.Response
         NoPaymentGatewayToInsert = 6041,        
         UnknownTransactionState = 6042,
         PaymentGatewayNotValid = 6043,
-        PaymentGatewayAdapterFailReasonUnknown = 6045,
+        HouseholdRequired = 6044,
+        PaymentGatewayAdapterFailReasonUnknown = 6045,         
 
         // social 7000 - 7999
         Conflict = 7000,

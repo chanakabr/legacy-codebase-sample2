@@ -106,6 +106,8 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
+    <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
+    <Compile Include="OSSAdapterResponseList.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
@@ -170,6 +172,11 @@
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
+    <Compile Include="OSSAdapter.cs" />
+    <Compile Include="OSSAdapterBase.cs" />
+    <Compile Include="OSSAdapterSettings.cs" />
+    <Compile Include="OSSAdapterResponse.cs" />
+    <Compile Include="OSSAdapterSettingsResponse.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
@@ -257,6 +264,7 @@
     <Compile Include="Response\Status.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
+    <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
