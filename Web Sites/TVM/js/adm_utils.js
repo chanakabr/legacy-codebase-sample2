@@ -1017,14 +1017,21 @@ function CloseID(theID)
 	
 }
 
+var overrideMsg = '';
+
 function submitASPFormWithCheck(thePage) {
     
     if( validateGenericForm() )
         submitASPForm(thePage);
     else
     {
-        grayOut(true , {'opacity':'35'});
-        alert("Please fill all requiered fields");
+        grayOut(true, { 'opacity': '35' });
+        if (overrideMsg != '') {
+            alert(overrideMsg);
+            overrideMsg = '';
+        }
+        else
+            alert("Please fill all requiered fields");
         grayOut(false);
     }
 }
@@ -1042,6 +1049,8 @@ function validateGenericForm()
         var sName2 = i + "_val2";
         var sType = i + "_type";
         var sMust = i + "_must";
+        var sMin = i + "_min";
+        var sMax = i + "_max";
         var sID = i + "_id";
         var sInputType = i + "_inputtype";
         var sValidation = i + "_validation";
@@ -1079,9 +1088,35 @@ function validateGenericForm()
                         if (theVal == null || theVal == "")
                         {
                             bOK = false;
-//                            document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
+                            //document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
                             window.document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
                             
+                        }
+                    }
+                }
+
+                if (sTypeVal == "int") {
+                    if (theVal != '' && parseInt(theVal).toString() != theVal) {
+                        bOK = false;
+                        overrideMsg = 'Field has to be int';
+                        window.document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
+                    }
+
+                    var minEle = window.document.getElementsByName(sMin)[0];
+                    if (minEle != null) {
+                        if (parseInt(minEle.value) > parseInt(theVal)) {
+                            bOK = false;
+                            overrideMsg = "Field has to be >= " + minEle.value;
+                            window.document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
+                        }
+                    }
+
+                    var maxEle = window.document.getElementsByName(sMax)[0];
+                    if (maxEle != null) {
+                        if (parseInt(maxEle.value) < parseInt(theVal)) {
+                            bOK = false;
+                            overrideMsg = "Field has to be <= " + maxEle.value;
+                            window.document.getElementsByName(sName)[0].style.cssText = "border: 1px solid red;color: red;";
                         }
                     }
                 }
