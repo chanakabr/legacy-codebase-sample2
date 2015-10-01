@@ -1127,6 +1127,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
         theRecord.AddRecord(dr_domain_limitation_module);
 
+        DataRecordShortIntField dr_grace_period_minutes = new DataRecordShortIntField(true, 9, 9);
+        dr_grace_period_minutes.Initialize("Grace Period (Minutes)", "adm_table_header_nbg", "FormInput", "GRACE_PERIOD_MINUTES", false);
+        dr_grace_period_minutes.SetDefault(0);
+        theRecord.AddRecord(dr_grace_period_minutes);
+
         m.Dispose();
 
         string sTable = theRecord.GetTableHTML("adm_multi_pricing_plans_new.aspx?submited=1", true);
