@@ -4584,7 +4584,10 @@ namespace Catalog
 
             ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
 
-            List<long> assetIds = RecommendationAdapter.GetInstance().GetChannelRecommendations(externalChannel);
+            Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.enrichments);
+
+            // Adapter will respond with a collection of media assets ID with Kaltura terminology
+            List<UnifiedSearchResult> recommendations = RecommendationAdapter.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
@@ -4613,21 +4616,88 @@ namespace Catalog
 
             UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
 
-            searchDefinitions.assetIds = assetIds;
+            searchDefinitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+
+            // Map recommendations to dictionary of search definitions
+            foreach (var recommendation in recommendations)
+            {
+                if (!searchDefinitions.specificAssets.ContainsKey(recommendation.AssetType))
+                {
+                    searchDefinitions.specificAssets[recommendation.AssetType] = new List<string>();
+                }
+
+                searchDefinitions.specificAssets[recommendation.AssetType].Add(recommendation.AssetId);
+            }
+
+            // Map order of IDs
+            searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.AssetId)).ToList();
 
             if (searcher != null)
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
+                // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
                 if (searchResults != null)
                 {
                     searchResultsList = searchResults;
+
+                    // After applying the filter - the recommendation engine should be reported back with the remaining result set
+                    // async query - no response is expected from the recommendation engine
+                    RecommendationAdapter.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
                 }
             }
 
             return status;           
+        }
+
+        private static Dictionary<string, string> GetEnrichments(ExternalChannelRequest request, List<ExternalChannelEnrichment> list)
+        {
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+
+            foreach (ExternalChannelEnrichment enrichment in list)
+            {
+                switch (enrichment)
+                {
+                    case ExternalChannelEnrichment.ClientLocation:
+                    {
+                        int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(request.m_sUserIP);
+                        dictionary["client_location"] = countryId.ToString();
+                        break;
+                    }
+                    case ExternalChannelEnrichment.UserId:
+                    {
+                        dictionary["user_id"] = request.m_sSiteGuid;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.HouseholdId:
+                    {
+                        dictionary["household_id"] = request.domainId.ToString();
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DeviceId:
+                    {
+                        dictionary["device_id"] = request.deviceId;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DeviceType:
+                    {
+                        dictionary["device_type"] = request.deviceType;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.UTCOffset:
+                    {
+                        dictionary["utc_offset"] = string.Empty;
+                        throw new NotImplementedException();
+                        break;
+                    }
+                    default:
+                    break;
+                }
+            }
+
+            return dictionary;
         }
 
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, ExternalChannel externalChannel, BooleanPhraseNode filterTree)

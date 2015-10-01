@@ -48,6 +48,7 @@
     <Compile Include="GeoBlockRulesCache.cs" />
     <Compile Include="ParentalRulesCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecommendationEnginesCache.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

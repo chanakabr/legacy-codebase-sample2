@@ -22,16 +22,23 @@ namespace Catalog.Request
 
         [DataMember]
         public string externalChannelId;
-        
+
+        [DataMember]
+        public string deviceId;
+
+        [DataMember]
+        public string deviceType;
+
         #endregion
 
         #region Ctor
 
         public ExternalChannelRequest(string externalChannelId, int groupID, 
-            int pageSize, int pageIndex, string userIP, string signature, string signStringA)
-            : base()
+            int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string deviceId, string deviceType)
+            : base(pageSize, pageIndex, userIP, groupID, filter, signature, signString)
         {
             this.externalChannelId = externalChannelId;
+            this.deviceId = deviceId;
         }
 
         #endregion

@@ -2931,5 +2931,10 @@ namespace Tvinci.Core.DAL
         {
             throw new NotImplementedException();
         }
+
+        public static RecommendationEngine GetRecommendationEngine(int engineId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

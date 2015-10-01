@@ -177,16 +177,39 @@ namespace ElasticSearch.Searcher
 
             globalFilter.AddChild(isActiveTerm);
 
-            if (this.SearchDefinitions.assetIds != null)
+            // If specific assets should return, filter their IDs.
+            // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
+            if (this.SearchDefinitions.specificAssets != null)
             {
-                ESTerms idsTerm = new ESTerms(true)
+                foreach (var item in this.SearchDefinitions.specificAssets)
                 {
-                    Key = "_id"
-                };
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id"
+                    };
 
-                idsTerm.Value.AddRange(this.SearchDefinitions.assetIds.Select(id => Convert.ToString(id)));
+                    idsTerm.Value.AddRange(item.Value);
 
-                globalFilter.AddChild(idsTerm);
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        break;
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            epgFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.NPVR:
+                        break;
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            mediaFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+                }
             }
 
             // Dates filter: 

@@ -198,6 +198,7 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
+    <Compile Include="RecommendationEngine.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
@@ -241,7 +242,6 @@
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
     <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />
-    <Compile Include="SearchObjects\UnifiedSearchResult.cs" />
     <Compile Include="SearchOrderByObject.cs" />
     <Compile Include="ChannelObject.cs" />
     <Compile Include="SendAdminTokenRequest.cs" />

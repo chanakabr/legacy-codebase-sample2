@@ -128,7 +128,15 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public Dictionary<string, List<string>> epgParentalRulesTags;
 
-        public List<long> assetIds;
+        /// <summary>
+        /// Lists of specific assets that should be returned in query
+        /// </summary>
+        public Dictionary<eAssetTypes, List<string>> specificAssets;
+
+        /// <summary>
+        /// List of IDs in required order of return
+        /// </summary>
+        public List<long> specificOrder;
 
         #endregion
 

@@ -7,13 +7,27 @@ namespace ApiObjects
 {
     public class ExternalChannel
     {
+        public long id;
         public string externalId;
         public string name;
-        public List<string> enrichments;
+        public int groupId;
+        public List<ExternalChannelEnrichment> enrichments;
 
         /// <summary>
         /// KSQL expression with personalized filtering
         /// </summary>
         public string filterExpression;
+
+        public int recommendationEngineId;
+    }
+
+    public enum ExternalChannelEnrichment
+    {
+        ClientLocation,
+        UserId,
+        HouseholdId,
+        DeviceId,
+        DeviceType,
+        UTCOffset
     }
 }

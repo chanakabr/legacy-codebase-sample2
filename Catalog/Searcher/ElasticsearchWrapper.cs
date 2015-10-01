@@ -1056,7 +1056,7 @@ namespace Catalog
                                 HashSet<long> idsHashset = new HashSet<long>(assetIds);
 
                                 // Add all ordered ids from definitions first
-                                foreach (var id in unifiedSearchDefinitions.assetIds)
+                                foreach (var id in unifiedSearchDefinitions.specificOrder)
                                 {
                                     // If the id exists in search results
                                     if (idsHashset.Remove(id))

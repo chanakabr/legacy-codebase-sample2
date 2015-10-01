@@ -52,7 +52,9 @@ namespace CachingHelpers
             int groupId = (int)parameters[0];
             string channelId = (string)parameters[1];
 
-            return CatalogDAL.GetExternalChannel(groupId, channelId);
+            var externalChannel = CatalogDAL.GetExternalChannel(groupId, channelId);
+
+            return externalChannel;
         }
 
         public ExternalChannel GetChannel(int groupId, string channelId)
