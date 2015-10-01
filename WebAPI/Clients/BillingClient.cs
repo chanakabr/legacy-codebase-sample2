@@ -487,6 +487,5 @@ namespace WebAPI.Clients
         }
 
         #endregion
-
     }
 }

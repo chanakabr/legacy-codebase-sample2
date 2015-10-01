@@ -1,0 +1,57 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Catalog
+{
+    /// <summary>
+    /// PaymentGW
+    /// </summary>
+    public class KalturaRecommendationEngineProfile : KalturaRecommendationEngineBaseProfile
+    {
+        /// <summary>
+        /// recommendation engine is active status
+        /// </summary>
+        [DataMember(Name = "is_active")]
+        [JsonProperty("is_active")]
+        [XmlElement(ElementName = "is_active")]
+        public int IsActive { get; set; }
+
+        /// <summary>
+        /// recommendation engine adapter URL
+        /// </summary>
+        [DataMember(Name = "adapter_url")]
+        [JsonProperty("adapter_url")]
+        [XmlElement(ElementName = "adapter_url")]
+        public string AdapterUrl { get; set; }
+
+        /// <summary>
+        /// recommendation engine extra parameters
+        /// </summary>
+        [DataMember(Name = "recommendation_engine_settings")]
+        [JsonProperty("recommendation_engine_settings")]
+        [XmlElement(ElementName = "recommendation_engine_settings", IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
+
+        /// <summary>
+        /// recommendation engine external identifier
+        /// </summary>
+        [DataMember(Name = "external_identifier")]
+        [JsonProperty("external_identifier")]
+        [XmlElement(ElementName = "external_identifier")]
+        public string ExternalIdentifier { get; set; }
+       
+        /// <summary>
+        /// Shared Secret
+        /// </summary>
+        [DataMember(Name = "shared_secret")]
+        [JsonProperty("shared_secret")]
+        [XmlElement(ElementName = "shared_secret")]
+        public string SharedSecret { get; set; }
+    }
+}

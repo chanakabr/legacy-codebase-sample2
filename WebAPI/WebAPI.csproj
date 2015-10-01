@@ -659,7 +659,9 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\RecommendationEngineProfileSettingsController.cs" />
     <Compile Include="Controllers\EPGChannelController.cs" />
+    <Compile Include="Controllers\RecommendationEngineProfileController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
@@ -718,6 +720,8 @@
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
+    <Compile Include="Models\Catalog\KalturaRecommendationEngineBaseProfile.cs" />
+    <Compile Include="Models\Catalog\KalturaRecommendationEngineProfile.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
