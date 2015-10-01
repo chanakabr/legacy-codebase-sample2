@@ -332,7 +332,7 @@ namespace TVinciShared
             else
                 sTmp.Append("password' ");
             if (m_bEnabled == false)
-                sTmp.Append("disabled ");
+                sTmp.Append("readonly='readonly' ");
             sTmp.Append("dir='").Append(m_sDir).Append("' ");
             sTmp.Append("size=").Append(m_nWidth.ToString()).Append(" ");
             sTmp.Append("maxlength=").Append(m_nMaxLength.ToString()).Append(" ");
@@ -1496,12 +1496,18 @@ namespace TVinciShared
         protected bool m_bEnabled;
         protected long m_nWidth;
         protected long m_nMaxLength;
-        public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength)
+
+        protected long? m_nMaxValue;
+        protected long? m_nMinValue;
+
+        public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength, int? minVal = null, int? maxVal = null)
             : base()
         {
             m_bEnabled = bEnabled;
             m_nWidth = nWidth;
             m_nMaxLength = nMaxLength;
+            m_nMinValue = minVal;
+            m_nMaxValue = maxVal;
         }
 
         public override string GetFieldHtml(long nID)
@@ -1533,6 +1539,10 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            if (m_nMinValue.HasValue)
+                sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_min' value='" + m_nMinValue + "'/>";
+            if (m_nMaxValue.HasValue)
+                sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_max' value='" + m_nMaxValue + "'/>";
             sTmp += "</td>";
             //sTmp += "<td width=100% nowrap></td>";
             sTmp += "</tr>";
