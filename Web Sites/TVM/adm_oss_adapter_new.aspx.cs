@@ -73,8 +73,8 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                             api.Url = sWSURL;
                         try
                         {
-                            //apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, nID);
-                            //Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", nID, status.Code), "SetOSSAdapterConfiguration");
+                            apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, nID);
+                            Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", nID, status.Code), "SetOSSAdapterConfiguration");
                         }
                         catch (Exception ex)
                         {
@@ -146,7 +146,7 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
 
         if (t != null)
         {
-            DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
+            DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
             dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
             theRecord.AddRecord(dr_shared_secret);
         }

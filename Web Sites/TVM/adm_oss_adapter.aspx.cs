@@ -92,8 +92,7 @@ public partial class adm_oss_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "oss_adapter");
-            linkColumn.AddQueryStringValue("db", "main_connection");
+            linkColumn.AddQueryStringValue("table", "oss_adapter");            
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
@@ -106,8 +105,7 @@ public partial class adm_oss_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "oss_adapter");
-            linkColumn.AddQueryStringValue("db", "main_connection");
+            linkColumn.AddQueryStringValue("table", "oss_adapter");            
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
