@@ -27,12 +27,7 @@ namespace ApiObjects
             get;
             set;
         }
-        
-        public string StatusUrl
-        {
-            get;
-            set;
-        }
+             
 
         public string ExternalIdentifier
         {
@@ -53,12 +48,7 @@ namespace ApiObjects
             set;
         }
 
-        [XmlIgnore]
-        public int Selected
-        {
-            get;
-            set;
-        }
+      
 
         public List<RecommendationEngineSettings> Settings
         {
@@ -83,10 +73,8 @@ namespace ApiObjects
             this.IsActive = clone.IsActive;
             this.AdapterUrl = clone.AdapterUrl;
             this.Status = clone.Status;
-            this.StatusUrl = clone.StatusUrl;
             this.ExternalIdentifier = clone.ExternalIdentifier;
             this.SharedSecret = clone.SharedSecret;
-            this.Selected = clone.Selected;
             this.Settings = new List<RecommendationEngineSettings>(clone.Settings);
         }
 

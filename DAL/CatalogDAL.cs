@@ -3085,7 +3085,7 @@ namespace Tvinci.Core.DAL
             List<RecommendationEngineBase> res = new List<RecommendationEngineBase>();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineBaseList");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineList");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
@@ -3230,7 +3230,7 @@ namespace Tvinci.Core.DAL
 
                             if (dtConfig != null)
                             {
-                                DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + recommendationEngine.ID);
+                                DataRow[] drpc = dtConfig.Select("recommendation_engine_id =" + recommendationEngine.ID);
 
                                 foreach (DataRow drp in drpc)
                                 {
