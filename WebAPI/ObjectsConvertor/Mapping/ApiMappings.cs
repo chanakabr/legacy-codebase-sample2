@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using WebAPI.Api;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models;
 using WebAPI.Models.API;
-using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 
@@ -84,8 +80,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region OSS Adapter
-
-            
+                        
             Mapper.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -99,15 +94,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             Mapper.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-               ;
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             Mapper.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
@@ -117,11 +109,90 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.OSSAdapter.Settings));
+                      
+            #endregion
 
-          
+            #region Recommendation Engine
+
+            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationEngineProfile, RecommendationEngine>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<RecommendationEngineBase, WebAPI.Models.API.KalturaRecommendationEngineBaseProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecommendationEngine.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.RecommendationEngine.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RecommendationEngine.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.RecommendationEngine.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.RecommendationEngine.Settings));
+
             #endregion
 
 
+        }
+
+        internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(RecommendationEngineSettings[] settings)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (settings != null && settings.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
+            return result;
+        }
+
+        internal static RecommendationEngineSettings[] ConvertRecommendationEngineSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<Api.RecommendationEngineSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<RecommendationEngineSettings>();
+                Api.RecommendationEngineSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Api.RecommendationEngineSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
