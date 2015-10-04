@@ -2938,44 +2938,25 @@ namespace Tvinci.Core.DAL
             throw new NotImplementedException();
         }
 
-        public static string GetRecommendationEngineAdapterUrl(int groupID, int recommendationEngineId, ref bool isRecommendationEngineExist)
+        public static int GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
         {
-            string adapterUrl = string.Empty;
-            isRecommendationEngineExist = false;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GetRecommendationEngineAdapterUrl");
+            int recommendationEngineId = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
-            sp.AddParameter("@recommendationEngineId", recommendationEngineId);
+            sp.AddParameter("@external_identifier", externalIdentifier);
+
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                adapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                isRecommendationEngineExist = true;
+                recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
             }
-
-            return adapterUrl;
-        }
-
-        public static int GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
-        {
-            int recommendationEngineId = 0;
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@external_identifier", externalIdentifier);
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                }
 
             return recommendationEngineId;
         }
 
-        public static RecommendationEngine InsertOSSAdapter(int groupID, RecommendationEngine recommendationEngine)
+        public static RecommendationEngine InsertRecommendationEngine(int groupID, RecommendationEngine recommendationEngine)
         {
             RecommendationEngine ossAdapterRes = null;
 
@@ -3099,7 +3080,7 @@ namespace Tvinci.Core.DAL
             return ossAdapterRes;
         }
 
-        public static List<RecommendationEngineBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
+        public static List<RecommendationEngineBase> GetRecommendationEngineList(int groupID, int status = 1, int isActive = 1)
         {
             List<RecommendationEngineBase> res = new List<RecommendationEngineBase>();
             try
@@ -3132,7 +3113,7 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        public static RecommendationEngine GetRecommendationEngineBase(int groupID, int recommendationEngineId)
+        public static RecommendationEngine GetRecommendationEngine(int groupID, int recommendationEngineId)
         {
             RecommendationEngine ossAdapterRes = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineBase");
@@ -3275,6 +3256,7 @@ namespace Tvinci.Core.DAL
         }
 
         #endregion 
+        
 
     
     }

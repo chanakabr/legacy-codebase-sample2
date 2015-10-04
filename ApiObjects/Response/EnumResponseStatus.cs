@@ -98,6 +98,12 @@ namespace ApiObjects.Response
         IndexMissing = 4003,
         SyntaxError = 4004,
         InvalidSearchField = 4005,
+        NoRecommendationEngineToInsert = 4006,
+        RecommendationEngineNotExist = 4007,
+        RecommendationEngineIdentifierRequired = 4008,
+        RecommendationEngineParamsRequired = 4009,
+
+
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
