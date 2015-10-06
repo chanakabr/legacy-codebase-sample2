@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
         public KalturaTransactionType Type { get; set; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "payment_method")]
         [JsonProperty("payment_method")]
-        [XmlElement(ElementName = "payment_method")]
+        [XmlElement(ElementName = "payment_method", IsNullable = true)]
         public KalturaPaymentMethod PaymentMethod { get; set; }
 
         /// <summary>
@@ -158,6 +158,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("media_id")]
         [XmlElement(ElementName = "media_id")]
         public int MediaId { get; set; }
+
+        /// <summary>
+        /// Indicates whether the user is currently in his grace period entitlement
+        /// </summary>
+        [DataMember(Name = "is_in_grace_period")]
+        [JsonProperty("is_in_grace_period")]
+        [XmlElement(ElementName = "is_in_grace_period")]
+        public bool IsInGracePeriod { get; set; }
 
     }
 }

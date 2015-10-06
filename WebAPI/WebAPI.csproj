@@ -50,14 +50,6 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -277,6 +269,19 @@
     </Content>
     <Content Include="Web References\Api\BulkExportTasksResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ParentalRulesTagsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
@@ -382,7 +387,7 @@
     <Content Include="Web References\ConditionalAccess\DomainsBillingTransactionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\module.wsdl" />
+    <None Include="Web References\Billing\module.wsdl" />
     <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -392,10 +397,13 @@
     <Content Include="Web References\Billing\PaymentGatewaySettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\Reference.map">
+    <Content Include="Web References\Billing\PaymentGateway.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Billing\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -403,6 +411,15 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterSettingsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterBillingDetailsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -671,6 +688,8 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
+    <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
+    <Compile Include="Controllers\OSSAdapterProfileController.cs" />
     <Compile Include="Controllers\EPGChannelController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
@@ -715,6 +734,8 @@
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterBaseProfile.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
@@ -740,6 +761,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionsFilterBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransaction.cs" />
@@ -752,6 +774,8 @@
     <Compile Include="Models\General\KalturaFilterPager.cs" />
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
+    <Compile Include="Models\General\KalturaClientConfiguration.cs" />
+    <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />

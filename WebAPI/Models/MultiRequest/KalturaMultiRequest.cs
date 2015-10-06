@@ -11,18 +11,19 @@ namespace WebAPI.Models.MultiRequest
 {
     public class KalturaMultiRequest : KalturaOTTObject
     {
-        [XmlElement(ElementName="service")]
+        [XmlElement(ElementName = "service", IsNullable = true)]
         [JsonProperty("service")]
-        [DataMember(Name="service")]
+        [DataMember(Name = "service")]
         public string service { get; set; }
-        [XmlElement(ElementName = "action")]
+
+        [XmlElement(ElementName = "action", IsNullable = true)]
         [JsonProperty("action")]
         [DataMember(Name = "action")]
         public string action { get; set; }
-        [XmlElement(ElementName = "parameters")]
+
         [JsonProperty("parameters")]
-        [XmlArray(ElementName = "parameters")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "parameters", IsNullable = true )]
+        [XmlArrayItem("item")]
         public KalturaStringValue[] parameters { get; set; }
     }
 }

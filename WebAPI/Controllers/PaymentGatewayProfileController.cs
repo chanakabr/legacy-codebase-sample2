@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   External idntifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
+        ///   External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
         /// <param name="payment_gateway">Payment Gateway Object</param>
         [Route("add"), HttpPost]

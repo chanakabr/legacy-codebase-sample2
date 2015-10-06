@@ -36,7 +36,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
-        [XmlElement(ElementName = "price")]
+        [XmlElement(ElementName = "price", IsNullable = true)]
         public KalturaPrice Price { get; set; }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "full_price")]
         [JsonProperty("full_price")]
-        [XmlElement(ElementName = "full_price")]
+        [XmlElement(ElementName = "full_price", IsNullable = true)]
         public KalturaPrice FullPrice { get; set; }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "ppv_descriptions")]
         [JsonProperty("ppv_descriptions")]
-        [XmlArray(ElementName = "ppv_descriptions")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "ppv_descriptions", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "related_media_file_ids")]
         [JsonProperty("related_media_file_ids")]
-        [XmlArray(ElementName = "related_media_file_ids")]
+        [XmlArray(ElementName = "related_media_file_ids", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> RelatedMediaFileIds { get; set; }
 

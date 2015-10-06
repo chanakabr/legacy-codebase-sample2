@@ -19,7 +19,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "by")]
         [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
+        [XmlElement(ElementName = "by", IsNullable = true)]
         public KalturaEntityReferenceBy By
         {
             get;
@@ -31,7 +31,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [XmlElement(ElementName = "start_date", IsNullable = true)]
         public DateTime? StartDate { get; set; }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [XmlElement(ElementName = "end_date", IsNullable = true)]
         public DateTime? EndDate { get; set; }
     }
 }

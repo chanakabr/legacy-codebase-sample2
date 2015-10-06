@@ -7,15 +7,15 @@ using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Billing
+namespace WebAPI.Models.API
 {
     /// <summary>
-    /// PaymentGWBasic
+    /// OSS adapter basic
     /// </summary>
-    public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
+    public class KalturaOSSAdapterBaseProfile : KalturaOTTObject
     {
         /// <summary>
-        /// payment gateway id
+        /// OSS adapter id
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
@@ -23,19 +23,12 @@ namespace WebAPI.Models.Billing
         public int Id { get; set; }
 
         /// <summary>
-        /// payment gateway name
+        /// OSS adapter name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
-
-        /// <summary>
-        /// Payment gateway default (true/false)
-        /// </summary>
-        [DataMember(Name = "is_default")]
-        [JsonProperty("is_default")]
-        [XmlElement(ElementName = "is_default")]
-        public bool IsDefault { get; set; }
+        
     }
 }

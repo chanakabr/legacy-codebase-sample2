@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaGenericRule> GenericRules { get; set; }
     }

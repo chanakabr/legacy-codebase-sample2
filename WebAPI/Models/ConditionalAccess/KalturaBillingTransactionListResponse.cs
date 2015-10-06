@@ -20,8 +20,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaBillingTransaction> transactions { get; set; }
     }
 
@@ -68,7 +68,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "billing_action")]
         [JsonProperty("billing_action")]
-        [XmlElement(ElementName = "billing_action")]
+        [XmlElement(ElementName = "billing_action", IsNullable = true)]
         public KalturaBillingAction billingAction { get; set; }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "price")]
         [JsonProperty("price")]
-        [XmlElement(ElementName = "price")]
+        [XmlElement(ElementName = "price", IsNullable = true)]
         public Pricing.KalturaPrice price { get; set; }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "payment_method")]
         [JsonProperty("payment_method")]
-        [XmlElement(ElementName = "payment_method")]
+        [XmlElement(ElementName = "payment_method", IsNullable = true)]
         public KalturaPaymentMethod paymentMethod { get; set; }
 
         /// <summary>

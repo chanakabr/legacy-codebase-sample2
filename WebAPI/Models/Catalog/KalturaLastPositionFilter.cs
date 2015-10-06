@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "udid")]
         [JsonProperty(PropertyName = "udid")]
-        [XmlElement(ElementName = "udid")]        
+        [XmlElement(ElementName = "udid")]
         public string UDID { get; set; }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "ids")]
         [JsonProperty(PropertyName = "ids")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaStringValue> Ids { get; set; }
 

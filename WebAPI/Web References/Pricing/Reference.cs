@@ -2180,6 +2180,8 @@ namespace WebAPI.Pricing {
         
         private ServiceObject[] m_lServicesField;
         
+        private int m_GracePeriodMinutesField;
+        
         /// <remarks/>
         public BundleCodeContainer[] m_sCodes {
             get {
@@ -2388,6 +2390,16 @@ namespace WebAPI.Pricing {
             }
             set {
                 this.m_lServicesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_GracePeriodMinutes {
+            get {
+                return this.m_GracePeriodMinutesField;
+            }
+            set {
+                this.m_GracePeriodMinutesField = value;
             }
         }
     }

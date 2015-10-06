@@ -20,12 +20,12 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects")]
-        [XmlArrayItem("item")] 
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
         public List<KalturaWatchHistoryAsset> Objects { get; set; }
 
         public KalturaWatchHistoryAssetWrapper()
-        {            
+        {
             Objects = new List<KalturaWatchHistoryAsset>();
         }
     }
@@ -41,7 +41,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
-        [XmlElement(ElementName = "asset")]
+        [XmlElement(ElementName = "asset", IsNullable = true)]
         public KalturaAssetInfo Asset { get; set; }
 
         /// <summary>

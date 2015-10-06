@@ -14,8 +14,6 @@ namespace WebAPI.Models.Billing
     /// </summary>
     public class KalturaPaymentGatewayProfile : KalturaPaymentGatewayBaseProfile
     {
-
-
         /// <summary>
         /// Payment gateway is active status
         /// </summary>
@@ -61,7 +59,7 @@ namespace WebAPI.Models.Billing
         /// </summary>
         [DataMember(Name = "payment_gatewaye_settings")]
         [JsonProperty("payment_gatewaye_settings")]
-        [XmlElement(ElementName = "payment_gatewaye_settings")]
+        [XmlElement(ElementName = "payment_gatewaye_settings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -88,7 +86,6 @@ namespace WebAPI.Models.Billing
         [XmlElement(ElementName = "pending_retries")]
         public int PendingRetries { get; set; }
 
-
         /// <summary>
         /// Shared Secret
         /// </summary>
@@ -96,5 +93,21 @@ namespace WebAPI.Models.Billing
         [JsonProperty("shared_secret")]
         [XmlElement(ElementName = "shared_secret")]
         public string SharedSecret { get; set; }
+
+        /// <summary>
+        /// Renew Interval Minutes
+        /// </summary>
+        [DataMember(Name = "renew_interval_minutes")]
+        [JsonProperty("renew_interval_minutes")]
+        [XmlElement(ElementName = "renew_interval_minutes")]
+        public int RenewIntervalMinutes { get; set; }
+
+        /// <summary>
+        /// Renew Start Minutes
+        /// </summary>
+        [DataMember(Name = "renew_start_minutes")]
+        [JsonProperty("renew_start_minutes")]
+        [XmlElement(ElementName = "renew_start_minutes")]
+        public int RenewStartMinutes { get; set; }
     }
 }
