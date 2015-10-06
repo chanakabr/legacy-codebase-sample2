@@ -2113,6 +2113,7 @@ namespace DAL
             storedProcedure.AddParameter("@export_type", exportType);
             storedProcedure.AddParameter("@frequency", frequency);
             storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@updater_id", null);
 
             rowCount = storedProcedure.ExecuteReturnValue<int>();
 
@@ -2142,7 +2143,7 @@ namespace DAL
         {
             int rowCount = 0;
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id != 0 ? id : null);
             storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
@@ -2154,12 +2155,12 @@ namespace DAL
 
         public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys)
         {
-            List<BulkExportTask> tasks = null;
+            List<BulkExportTask> tasks = new List<BulkExportTask>();
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_BulkExportTasks");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@ids", ids != null && ids.Count > 0 ? ids : null);
-            storedProcedure.AddParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null);
+            storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
+            storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
