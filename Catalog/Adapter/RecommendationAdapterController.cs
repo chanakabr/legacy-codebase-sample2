@@ -13,7 +13,7 @@ using TVinciShared;
 
 namespace Catalog
 {
-    public class RecommendationAdapter
+    public class RecommendationAdapterController
     {
         #region Consts
 
@@ -38,14 +38,14 @@ namespace Catalog
 
         #region Singleton
 
-        private static RecommendationAdapter instance;
+        private static RecommendationAdapterController instance;
 
         /// <summary>
         /// Gets the singleton instance of the adapter controller
         /// </summary>
         /// <param name="paymentGatewayId"></param>
         /// <returns></returns>
-        public static RecommendationAdapter GetInstance()
+        public static RecommendationAdapterController GetInstance()
         {
             if (instance == null)
             {
@@ -53,7 +53,7 @@ namespace Catalog
                 {
                     if (instance == null)
                     {
-                        instance = new RecommendationAdapter();
+                        instance = new RecommendationAdapterController();
                     }
                 }
             }
@@ -71,7 +71,7 @@ namespace Catalog
 
         #region Ctor
 
-        private RecommendationAdapter()
+        private RecommendationAdapterController()
         {
             configurationSynchronizer = new CouchbaseSynchronizer(100);
             configurationSynchronizer.SynchronizedAct += configurationSynchronizer_SynchronizedAct;

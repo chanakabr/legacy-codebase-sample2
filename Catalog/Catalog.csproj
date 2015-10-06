@@ -118,7 +118,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Adapter\RecommendationAdapter.cs" />
+    <Compile Include="Adapter\RecommendationAdapterController.cs" />
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />

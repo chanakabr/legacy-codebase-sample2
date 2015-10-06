@@ -4587,7 +4587,7 @@ namespace Catalog
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.enrichments);
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
-            List<UnifiedSearchResult> recommendations = RecommendationAdapter.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
+            List<UnifiedSearchResult> recommendations = RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
@@ -4645,7 +4645,7 @@ namespace Catalog
 
                     // After applying the filter - the recommendation engine should be reported back with the remaining result set
                     // async query - no response is expected from the recommendation engine
-                    RecommendationAdapter.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
+                    RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
                 }
             }
 
