@@ -748,7 +748,7 @@ namespace Catalog
             return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
         }
 
-        public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations, 
+        public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
             ref Dictionary<int, Media> medias, Group group, DataSet dataSet)
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
@@ -908,7 +908,7 @@ namespace Catalog
                             }
                             catch
                             {
-                                Logger.Logger.Log("Error", string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", nTagMediaID, mttn, tagID, val), "ESFeeder");
+                                log.ErrorFormat("Error - Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", nTagMediaID, mttn, tagID, val);
                             }
                         }
                     }
