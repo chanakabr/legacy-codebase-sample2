@@ -21,13 +21,13 @@ namespace ApiObjects
         public int recommendationEngineId;
     }
 
-    public enum ExternalChannelEnrichment
+    public enum ExternalChannelEnrichment : int
     {
-        ClientLocation,
-        UserId,
-        HouseholdId,
-        DeviceId,
-        DeviceType,
-        UTCOffset
+        ClientLocation = 1,
+        UserId = 2,
+        HouseholdId = 4,
+        DeviceId = 8,
+        DeviceType = 16,
+        UTCOffset = 32
     }
 }
