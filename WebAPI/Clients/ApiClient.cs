@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using AutoMapper;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,13 +10,8 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
-using WebAPI.Utils;
-using KLogMonitor;
-using System.Reflection;
-using WebAPI.Managers.Models;
-using WebAPI.Models.API;
-using AutoMapper;
 using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 
 
@@ -1047,52 +1043,275 @@ namespace WebAPI.Clients
 
             return codes;
         }
-
-
+        
         #region Recommendation Engine
 
         internal List<KalturaRecommendationEngineBaseProfile> GetRecommendationEngines(int groupId)
         {
-            throw new NotImplementedException();
+            List<Models.API.KalturaRecommendationEngineBaseProfile> kalturaRecommendationEngineBaseProfile = null;
+            WebAPI.Api.RecommendationEnginesResponseList response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetRecommendationEngines(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetRecommendationEngines. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineBaseProfile = Mapper.Map<List<Models.API.KalturaRecommendationEngineBaseProfile>>(response.RecommendationEngines);
+
+            return kalturaRecommendationEngineBaseProfile;
+        }
+        
+        internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DeleteRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendatioEngineId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteRecommendationEngine.  groupID: {0}, recommendatioEngineId: {1}, exception: {2}", groupId, recommendatioEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
 
-
-        internal bool DeleteRecommendationEngine(int groupId, int recommendation_engine_id)
+        internal KalturaRecommendationEngineProfile InsertRecommendationEngine(int groupId, KalturaRecommendationEngineProfile recommendationEngine)
         {
-            throw new NotImplementedException();
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    response = Api.InsertRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertRecommendationEngine.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            return kalturaRecommendationEngineProfile;
         }
 
-        internal KalturaRecommendationEngineProfile InsertRecommendationEngine(int groupId, KalturaRecommendationEngineProfile recommendation_engine)
+        internal KalturaRecommendationEngineProfile SetRecommendationEngine(int groupId, int recommendationEngineId, KalturaRecommendationEngineProfile recommendationEngine)
         {
-            throw new NotImplementedException();
-        }
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
 
-        internal KalturaRecommendationEngineProfile SetRecommendationEngine(int groupId, int recommendation_engine_id, KalturaRecommendationEngineProfile recommendation_engine)
-        {
-            throw new NotImplementedException();
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetRecommendationEngine. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            return kalturaRecommendationEngineProfile;
         }
 
         internal List<KalturaRecommendationEngineProfile> GetRecommendationEngineSettings(int groupId)
         {
-            throw new NotImplementedException();
+            List<Models.API.KalturaRecommendationEngineProfile> KalturaRecommendationEngineList = null;
+            WebAPI.Api.RecommendationEngineSettinsResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetRecommendationEngineSettings. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+
+            KalturaRecommendationEngineList = Mapper.Map<List<Models.API.KalturaRecommendationEngineProfile>>(response.RecommendationEngines);
+
+            return KalturaRecommendationEngineList;
         }
 
-        internal bool DeleteRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        internal bool DeleteRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            throw new NotImplementedException();
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.DeleteRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteRecommendationEngineSettings.  groupID: {0}, recommendationEngineId: {1}, exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
 
-        internal bool InsertRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        internal bool InsertRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            throw new NotImplementedException();
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.InsertRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertRecommendationEngineSettings. groupID: {0}, recommendationEngineId: {1} ,exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
 
-        internal bool SetRecommendationEngineSettings(int groupId, int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        internal bool SetRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            throw new NotImplementedException();
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] configs = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.SetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, configs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetRecommendationEngineSettings. groupID: {0}, recommendationEngineId: {1}, exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
         #endregion
-
+        
         #region OSS Adapter
 
         internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
@@ -1143,7 +1362,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteOSSAdapter.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, ossAdapterId, ex);
+                log.ErrorFormat("Error while DeleteOSSAdapter.  groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
