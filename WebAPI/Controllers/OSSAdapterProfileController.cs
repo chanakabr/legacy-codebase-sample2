@@ -18,9 +18,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all OSS adapters for partner : id + name
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        ///  
+        /// <remarks>       
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -47,7 +45,8 @@ namespace WebAPI.Controllers
         /// Delete OSS adapter by OSS adapter id
         /// </summary>
         /// <remarks>
-        /// Possible status codes:               
+        /// Possible status codes:       
+        /// oss adapter identifier required = 5007, oss adapter not exist = 5008,  delete is not allowed = 5011
         /// </remarks>
         /// <param name="oss_adapter_id">OSS adapter identifier</param>
         [Route("delete"), HttpPost]
@@ -75,7 +74,8 @@ namespace WebAPI.Controllers
         /// Insert new OSS adapter for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes:               
+        /// Possible status codes:     
+        /// no oss adapter to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="oss_adapter">OSS adapter Object</param>
         [Route("add"), HttpPost]
@@ -103,7 +103,8 @@ namespace WebAPI.Controllers
         /// Update OSS adapter details
         /// </summary>
         /// <remarks>
-        /// Possible status codes:      
+        /// Possible status codes:   
+        /// name required = 5005, oss adapter identifier required = 5007, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="oss_adapter_id">OSS adapter Identifier</param> 
         /// <param name="oss_adapter">OSS adapter Object</param>       

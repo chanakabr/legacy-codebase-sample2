@@ -19,9 +19,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all OSS adapter settings for partner
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        ///  
+        /// <remarks>       
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -49,7 +47,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// OssAdapterIdRequired 
+        /// oss adapter identifier required = 5007, oss adapter params required = 5009
         /// </remarks>
         /// <param name="oss_adapter_id">OSS adapter Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -82,7 +80,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// OssAdapterIdRequired
+        /// oss adapter identifier required = 5007, oss adapter params required = 5009
         /// </remarks>
         /// <param name="oss_adapter_id">OSS Adapter identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -115,7 +113,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///  
+        /// oss adapter identifier required = 5007
         /// </remarks>
         /// <param name="oss_adapter_id">OSS Adapter identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
