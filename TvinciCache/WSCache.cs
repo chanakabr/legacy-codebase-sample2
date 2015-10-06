@@ -130,5 +130,13 @@ namespace TvinciCache
 
             return cache.GetValues(keys);
         }
+
+        public static void ClearAll()
+        {
+            if (instance != null)
+            {
+                instance = null;
+            }
+        }
     }
 }
