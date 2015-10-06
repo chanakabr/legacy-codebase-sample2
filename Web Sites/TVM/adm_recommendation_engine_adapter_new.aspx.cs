@@ -161,7 +161,7 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
         bool result = false;
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("billing_connection");
+        selectQuery.SetConnectionKey("main_connection_string");
         selectQuery += "select ID from recommendation_engines where status=1 and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
         selectQuery += "and";

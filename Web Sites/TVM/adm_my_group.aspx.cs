@@ -294,6 +294,9 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_dateFormat.Initialize("Default date Format for email notifications", "adm_table_header_nbg", "FormInput", "date_email_format", false);
         theRecord.AddRecord(dr_dateFormat);
 
+        DataRecordDropDownField dr_recommendation_engine = new DataRecordDropDownField("recommendation_engines", "name", "id", "group_id", t, 60, true);
+        dr_recommendation_engine.Initialize("Default Recommendation Engine", "adm_table_header_nbg", "FormInput", "SELECTED_RECOMMENDATION_ENGINE", false);
+        theRecord.AddRecord(dr_recommendation_engine);
 
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 

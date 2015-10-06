@@ -61,9 +61,11 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select adapter.id, adapter.name, adapter.group_id, adapter.is_active, adapter.status, adapter.adapter_url as 'adapter url'";
-        theTable += ",adapter.external_identifier as 'external id'"; //, pg.pending_interval, pg.pending_retries, pg.shared_secret";
+        theTable += "select adapter.id as 'ID', adapter.name as 'Name', adapter.group_id, adapter.is_active, adapter.status, adapter.adapter_url as 'Adapter URL'";
+        theTable += ",case g.[SELECTED_RECOMMENDATION_ENGINE] when adapter.id then 'Yes' else 'No' end as 'Is Default'";
+        theTable += ",adapter.external_identifier as 'External ID'"; 
         theTable += "from recommendation_engines adapter ";
+        theTable += "left join groups g on adapter.group_id = g.id";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.group_id", "=", groupID);
         theTable += "and";
@@ -75,11 +77,10 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
         theTable.AddActivationField("is_active");
-        //theTable.AddActivationField("payment_gateway");
 
-        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_recommendation_engines_settings.aspx", "Params", "");
-        linkColumnKeParams.AddQueryStringValue("paymentGW_id", "field=id");
-        linkColumnKeParams.AddQueryCounterValue("select count(*) as val from adm_recommendation_engines_settings where ( status=1 or status = 4 )  and recommendation_engine_id=", "field=id");
+        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_recommendation_engine_adapter_settings.aspx", "Params", "");
+        linkColumnKeParams.AddQueryStringValue("adapter_id", "field=id");
+        linkColumnKeParams.AddQueryCounterValue("select count(*) as val from recommendation_engines_settings where ( status=1 or status = 4 )  and recommendation_engine_id=", "field=id");
         theTable.AddLinkColumn(linkColumnKeParams);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
@@ -121,7 +122,7 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "payment_gateway");
+            linkColumn.AddQueryStringValue("table", "recommendation_engines");
             linkColumn.AddQueryStringValue("db", "billing_connection");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "6");
