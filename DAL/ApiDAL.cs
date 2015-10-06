@@ -2101,32 +2101,6 @@ namespace DAL
 
         #region OSSAdapter
 
-        public static string GetOSSAdapterUrl (int groupID, int ossAdapterId, ref bool isOSSAdapterExist)
-        {
-            string adapterUrl = string.Empty;
-            isOSSAdapterExist = false;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterUrl");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@ossAdapterId", ossAdapterId);
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    adapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                    isOSSAdapterExist = true;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-            return adapterUrl;
-        }
-
         public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
         {
             int ossAdapterId = 0;
