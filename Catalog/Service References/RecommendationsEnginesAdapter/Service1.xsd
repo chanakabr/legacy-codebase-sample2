@@ -6,7 +6,6 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="recommendationEngineId" type="xs:int" />
-        <xs:element minOccurs="0" name="statusUrl" nillable="true" type="xs:string" />
         <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="connectionSettings" nillable="true" type="q1:ArrayOfKeyValue" />
         <xs:element minOccurs="0" name="partnerId" type="xs:int" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />

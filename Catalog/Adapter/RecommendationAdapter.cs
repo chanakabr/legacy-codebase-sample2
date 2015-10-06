@@ -268,7 +268,7 @@ namespace Catalog
                 {
                     //call Adapter Transact
                     RecommendationsEnginesAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(engine.ID, engine.StatusUrl,
+                        client.SetConfiguration(engine.ID,
                         engine.Settings != null ? engine.Settings.Select(setting => new RecommendationsEnginesAdapter.KeyValue()
                         {
                             Key = setting.key,
