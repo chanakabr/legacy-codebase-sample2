@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, null, filter.ExternalKeys.Select(ek => ek.value).ToArray());
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, null, filter.ExternalKeys != null ? filter.ExternalKeys.Select(ek => ek.value).ToArray() : null);
             }
             catch (ClientException ex)
             {

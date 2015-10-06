@@ -58,18 +58,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
             Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
-                .ForMember(dest => dest.origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
@@ -80,6 +80,43 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
+
+            #endregion
+
+            #region OSS Adapter
+
+            Mapper.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<OSSAdapter, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                //.ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+               ;
+
+            Mapper.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.OSSAdapter.Settings));
+
 
             #endregion
 
@@ -279,6 +316,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown bulk export export type");
             }
 
+            return result;
+        }
+
+        internal static OSSAdapterSettings[] ConvertOSSAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<Api.OSSAdapterSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<OSSAdapterSettings>();
+                Api.OSSAdapterSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Api.OSSAdapterSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, KalturaStringValue> ConvertOSSAdapterSettings(Api.OSSAdapterSettings[] settings)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (settings != null && settings.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
             return result;
         }
     }

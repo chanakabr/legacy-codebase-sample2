@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "external_keys")]
         [JsonProperty("external_keys")]
-        [XmlArray(ElementName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaStringValue> ExternalKeys{ get; set; }
     }
