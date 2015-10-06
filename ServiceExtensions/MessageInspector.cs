@@ -14,11 +14,14 @@ using System.Xml;
 using System.ServiceModel.Web;
 using System.Net;
 using KlogMonitorHelper;
+using System.Reflection;
 
 namespace ServiceExtensions
 {
     public class MessageInspector : IDispatchMessageInspector
     {
+        //private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public object AfterReceiveRequest(ref Message request,
           System.ServiceModel.IClientChannel channel,
           System.ServiceModel.InstanceContext instanceContext)
@@ -32,6 +35,11 @@ namespace ServiceExtensions
         {
             // finalize monitor and logs
             MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF);
+
+            // log response
+            //string replyMessage = string.Empty;
+            //if (reply != null)
+            //    log.Debug("RESPONSE STRING:" + replyMessage.ToString());
         }
     }
 }

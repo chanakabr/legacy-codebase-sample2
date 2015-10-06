@@ -50,7 +50,6 @@ namespace DAL
 
         }
 
-
         public static DataTable Get_GroupMediaRules(int nMediaID, string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spGroupMediaRules = new ODBCWrapper.StoredProcedure("Get_GroupMediaRules");
@@ -1574,19 +1573,19 @@ namespace DAL
                                 switch (assetType)
                                 {
                                     case eAssetTypes.EPG:
-                                        {
-                                            currentRule.epgTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
                                     case eAssetTypes.MEDIA:
-                                        {
-                                            currentRule.mediaTagValues.Add(value);
-                                            break;
-                                        }
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
                                     default:
-                                        {
-                                            break;
-                                        }
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1924,19 +1923,19 @@ namespace DAL
                             switch (assetType)
                             {
                                 case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
                                 case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
                                 default:
-                                    {
-                                        break;
-                                    }
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1961,6 +1960,129 @@ namespace DAL
             return rules;
         }
 
+        public static List<int> GetPermittedGeoBlockRules(int groupId, string ip)
+        {
+            List<int> result = new List<int>();
+
+
+            // default = -1
+            long ipValue = -1;
+
+            if (string.IsNullOrEmpty(ip))
+            {
+                return result;
+            }
+            
+            if (ip != "127.0.0.1")
+            {
+                string[] splitted = ip.Split('.');
+
+                ipValue = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+            }
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@IPValue", ipValue);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<int> GetPermittedGeoBlockRulesByCountry(int groupId, int country)
+        {
+            List<int> result = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Permitted_GeoBlockRules_ByCountry");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@Country", country);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
+
+        public static void Get_User_ParentalRules_Tags(int groupId, string siteGuid,
+            out List<TagPair> mediaTags, out List<TagPair> epgTags)
+        {
+            mediaTags = new List<TagPair>();
+            epgTags = new List<TagPair>();
+
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Tags");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    string name = ODBCWrapper.Utils.ExtractString(row, "NAME");
+                    string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                    // Asset type in database should match the enum!
+                    eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
+
+                    // According to asset, update the relevant list
+                    switch (assetType)
+                    {
+                        case eAssetTypes.EPG:
+                        {
+                            epgTags.Add(new TagPair()
+                            {
+                                key = name,
+                                value = value
+                            });
+
+                            break;
+                        }
+                        case eAssetTypes.MEDIA:
+                        {
+                            mediaTags.Add(new TagPair()
+                            {
+                                key = name,
+                                value = value
+                            });
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         public static long GetLinearMediaIdByEpgId(long epgId)
         {
             long mediaId = 0;
@@ -1970,10 +2092,11 @@ namespace DAL
             storedProcedure.AddParameter("@epg_id", epgId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0){
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
                 mediaId = ODBCWrapper.Utils.GetLongSafeVal(dataSet.Tables[0].Rows[0]["ID"]);
             }
-            
+
             return mediaId;
         }
 
@@ -2066,8 +2189,433 @@ namespace DAL
                     }
                 }
             }
-
             return tasks;
+        }
+
+        #region OSSAdapter
+
+        public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
+        {
+            int ossAdapterId = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterByExternalD");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@external_identifier", externalIdentifier);
+                                                        
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return ossAdapterId;
+        }
+
+        public static OSSAdapter InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
+        {
+            OSSAdapter ossAdapterRes = null; 
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@name", ossAdapter.Name);
+                sp.AddParameter("@adapter_url", ossAdapter.AdapterUrl);
+                sp.AddParameter("@external_identifier", ossAdapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", ossAdapter.SharedSecret);
+                sp.AddParameter("@isActive", ossAdapter.IsActive);
+
+                DataTable dt = CreateDataTable(ossAdapter.Settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterRes = new OSSAdapter();
+                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ossAdapterRes;
+        }
+
+        private static DataTable CreateDataTable(List<OSSAdapterSettings> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("idkey", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+
+                foreach (OSSAdapterSettings item in list)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["idkey"] = item.key;
+                    row["value"] = item.value;
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return resultTable;
+        }
+        
+        public static bool DeleteOSSAdapter(int groupID, int ossAdapterId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static OSSAdapter SetOSSAdapter(int groupID, OSSAdapter ossAdapter)
+        {
+            OSSAdapter ossAdapterRes = null; 
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapter.ID);
+                sp.AddParameter("@name", ossAdapter.Name);
+                sp.AddParameter("@external_identifier", ossAdapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", ossAdapter.SharedSecret);
+                sp.AddParameter("@adapter_url", ossAdapter.AdapterUrl);
+                sp.AddParameter("@isActive", ossAdapter.IsActive);
+                
+                DataSet ds = sp.ExecuteDataSet();
+                
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterRes = new OSSAdapter();
+                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in ds.Tables[1].Rows)
+                        {
+                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                            if (ossAdapterRes.Settings == null)
+                            {
+                                ossAdapterRes.Settings = new List<OSSAdapterSettings>();
+                            }
+                            ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ossAdapterRes;
+        }
+
+        public static List<OSSAdapterBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
+        {
+            List<OSSAdapterBase> res = new List<OSSAdapterBase>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapterList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        OSSAdapterBase ossAdapter = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            ossAdapter = new OSSAdapterBase();
+                            ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            res.Add(ossAdapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<OSSAdapterBase>();
+            }
+            return res;   
+        }
+
+        public static OSSAdapter GetOSSAdapter(int groupID, int ossAdapterId)
+        {
+            OSSAdapter ossAdapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ossAdapterId", ossAdapterId);
+                
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterRes = new OSSAdapter();
+                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return ossAdapterRes;  
+        }
+
+        public static bool InsertOSSAdapterSettings(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetOSSAdapterSettings(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool DeleteOSSAdapter(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static List<OSSAdapter> GetOSSAdapterSettingsList(int groupID, int ossAdapterId = 0, int status = 1, int isActive = 1)
+        {
+            List<OSSAdapter> res = new List<OSSAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapterSettingsList");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ossAdapterId", ossAdapterId);
+                sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        OSSAdapter ossAdapter = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            ossAdapter = new OSSAdapter();
+                            ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            ossAdapter.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            ossAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            ossAdapter.IsActive = is_Active == 1 ? true : false;
+                            //int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            //ossAdapter.IsDefault = isDefault == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + ossAdapter.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (ossAdapter.Settings == null)
+                                    {
+                                        ossAdapter.Settings = new List<OSSAdapterSettings>();
+                                    }
+                                    ossAdapter.Settings.Add(new OSSAdapterSettings(key, value));
+                                }
+                            }
+                            res.Add(ossAdapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<OSSAdapter>();
+            }
+            return res;
+        }
+
+        #endregion 
+    
+        public static DataTable Get_IPToCountryTable()
+        {
+            return ODBCWrapper.Utils.GetCompleteTable("ip_to_country");
+        }
+
+        public static List<int> GetAllCountries()
+        {
+            List<int> countries = new List<int>();
+
+            DataTable table = ODBCWrapper.Utils.GetCompleteTable("countries");
+
+            if (table != null)
+            {
+                // Convert table to list of IDs
+                countries = table.Rows.Cast<DataRow>().Select(row => ODBCWrapper.Utils.ExtractInteger(row, "ID")).ToList();
+            }
+
+            return countries;
+        }
+
+        public static Dictionary<long, ParentalRule> Get_Group_ParentalRules_ByID(int groupId, List<long> ids)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Group_ParentalRules_ByID");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddIDListParameter("@IDs", ids, "ID");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
+
+            Dictionary<long, ParentalRule> dictionary = new Dictionary<long, ParentalRule>();
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                dictionary.Add(ids[i], null);
+            }
+
+            foreach (ParentalRule rule in rules)
+            {
+                dictionary[rule.id] = rule;
+            }
+
+            return dictionary;
+        }
+
+        public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
+        {
+            List<long> ruleIds = new List<long>();
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRulesIDs");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@SiteGuid", siteGuid);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+
+                        if (id > 0)
+                        {
+                            ruleIds.Add(id);
+
+                        }
+                    }
+                }
+            }
+            return ruleIds;       
         }
     }
 }
+        
+        

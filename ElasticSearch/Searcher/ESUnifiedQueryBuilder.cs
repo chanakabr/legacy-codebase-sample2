@@ -181,14 +181,13 @@ namespace ElasticSearch.Searcher
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
 
-            FilterCompositeType epgDatesFilter = null;
 
             // epg ranges
             if (this.SearchDefinitions.shouldSearchEpg)
             {
                 #region Epg Dates ranges
 
-                epgDatesFilter = new FilterCompositeType(CutWith.AND);
+                FilterCompositeType epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
                 // Now +- days offset
                 string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
@@ -224,6 +223,38 @@ namespace ElasticSearch.Searcher
                 {
                     epgFilter.AddChild(epgDatesFilter);
                 }
+                #endregion
+
+                #region Parental Rules
+
+                if (this.SearchDefinitions.epgParentalRulesTags.Count > 0)
+                {
+                    FilterCompositeType epgParentalRulesTagsComposite = new FilterCompositeType(CutWith.AND);
+
+                    // Run on all tags and their values
+                    foreach (KeyValuePair<string,List<string>> tagValues in this.SearchDefinitions.epgParentalRulesTags)
+                    {
+                        // Create a Not-in terms for each of the tags
+                        ESTerms currentTag = new ESTerms(false);
+                        
+                        currentTag.isNot = true;
+                        currentTag.Key = string.Concat("tags.", tagValues.Key.ToLower());
+
+                        foreach (var value in tagValues.Value)
+                        {
+                            currentTag.Value.Add(value.ToLower());
+                        }
+
+                        // Connect each terms with "AND"
+                        epgParentalRulesTagsComposite.AddChild(currentTag);
+                    }
+
+                    if (!epgParentalRulesTagsComposite.IsEmpty())
+                    {
+                        epgFilter.AddChild(epgParentalRulesTagsComposite);
+                    }
+                }
+
                 #endregion
             }
 
@@ -391,6 +422,55 @@ namespace ElasticSearch.Searcher
 
                 #endregion
 
+                #region Geo Block Rules
+
+                // region term 
+                if (SearchDefinitions.geoBlockRules != null && SearchDefinitions.geoBlockRules.Count > 0)
+                {
+                    ESTerms geoBlockTerms = new ESTerms(true)
+                    {
+                        Key = "geo_block_rule_id"
+                    };
+
+                    geoBlockTerms.Value.AddRange(SearchDefinitions.geoBlockRules.Select(rule => rule.ToString()));
+
+                    mediaFilter.AddChild(geoBlockTerms);
+                }
+
+                #endregion
+
+                #region Parental Rules
+
+                if (this.SearchDefinitions.mediaParentalRulesTags.Count > 0)
+                {
+                    FilterCompositeType mediaParentalRulesTagsComposite = new FilterCompositeType(CutWith.AND);
+
+                    // Run on all tags and their values
+                    foreach (KeyValuePair<string, List<string>> tagValues in this.SearchDefinitions.mediaParentalRulesTags)
+                    {
+                        // Create a Not-in terms for each of the tags
+                        ESTerms currentTag = new ESTerms(false);
+
+                        currentTag.isNot = true;
+                        currentTag.Key = string.Concat("tags.", tagValues.Key.ToLower());
+
+                        foreach (var value in tagValues.Value)
+                        {
+                            currentTag.Value.Add(value.ToLower());
+                        }
+
+
+                        // Connect each terms with "AND"
+                        mediaParentalRulesTagsComposite.AddChild(currentTag);
+                    }
+
+                    if (!mediaParentalRulesTagsComposite.IsEmpty())
+                    {
+                        mediaFilter.AddChild(mediaParentalRulesTagsComposite);
+                    }
+                }
+
+                #endregion
             }
 
             QueryFilter filterPart = new QueryFilter();
@@ -764,11 +844,29 @@ namespace ElasticSearch.Searcher
                         Value = value
                     };
                 }
+                else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+                {
+                    term = new ESPrefix()
+                    {
+                        Key = leaf.field,
+                        Value = value
+                    };
+                }
                 else if (leaf.operand == ApiObjects.ComparisonOperator.In)
                 {
                     term = new ESTerms(false)
                     {
                         Key = leaf.field
+                    };
+
+                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                }
+                else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+                {
+                    term = new ESTerms(false)
+                    {
+                        Key = leaf.field,
+                        isNot = true
                     };
 
                     (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
@@ -898,11 +996,29 @@ namespace ElasticSearch.Searcher
                     isNot = true
                 };
             }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+            {
+                term = new ESPrefix()
+                {
+                    Key = leaf.field,
+                    Value = value
+                };
+            }
             else if (leaf.operand == ApiObjects.ComparisonOperator.In)
             {
                 term = new ESTerms(false)
                 {
                     Key = leaf.field
+                };
+
+                (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+            {
+                term = new ESTerms(false)
+                {
+                    Key = leaf.field,
+                    isNot = true
                 };
 
                 (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);

@@ -345,6 +345,10 @@ namespace DalCB
                 {
                     lRes = res.ToList();
                 }
+                else
+                {
+                    log.Debug("group_programs view result is null");
+                }
             }
             catch (Exception ex)
             {

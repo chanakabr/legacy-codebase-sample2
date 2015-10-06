@@ -78,6 +78,7 @@ namespace ApiObjects.Billing
 
         public TransactResult()
         {
+            Status = new Response.Status();
         }
     }
 }

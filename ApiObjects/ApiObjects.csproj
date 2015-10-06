@@ -100,6 +100,7 @@
     <Compile Include="Billing\PaymentGatewayResponse.cs" />
     <Compile Include="Billing\PaymentGatewayTransaction.cs" />
     <Compile Include="Billing\PendingTransactionRequest.cs" />
+    <Compile Include="Billing\TransactionRenewalRequest.cs" />
     <Compile Include="Billing\TransactionRequest.cs" />
     <Compile Include="Billing\TransactionResponse.cs" />
     <Compile Include="Billing\TransactResult.cs" />
@@ -107,6 +108,8 @@
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
     <Compile Include="BulkExport\BulkExportTask.cs" />
     <Compile Include="BulkExport\BulkExportTasksResponse.cs" />
+    <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
+    <Compile Include="OSSAdapterResponseList.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
@@ -170,9 +173,16 @@
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
+    <Compile Include="OSSAdapter.cs" />
+    <Compile Include="OSSAdapterBase.cs" />
+    <Compile Include="OSSAdapterSettings.cs" />
+    <Compile Include="OSSAdapterResponse.cs" />
+    <Compile Include="OSSAdapterSettingsResponse.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
+    <Compile Include="QueueObjects\CelerySetupTaskData.cs" />
+    <Compile Include="QueueObjects\RenewTransactionData.cs" />
     <Compile Include="QueueObjects\IndexingData.cs" />
     <Compile Include="QueueObjects\PendingTransactionData.cs" />
     <Compile Include="QueueObjects\PSNotificationData.cs" />
@@ -195,10 +205,12 @@
     <Compile Include="NotifiedActions.cs" />
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
+    <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
     <Compile Include="Rules\GenericRuleResponse.cs" />
+    <Compile Include="Rules\ParentalRulesTagsResponse.cs" />
     <Compile Include="Rules\PinResponse.cs" />
     <Compile Include="Rules\ParentalRule.cs" />
     <Compile Include="Rules\ParentalRulesResponse.cs" />
@@ -251,6 +263,7 @@
     <Compile Include="Response\Status.cs" />
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
+    <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />

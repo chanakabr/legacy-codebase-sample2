@@ -337,8 +337,8 @@ namespace DAL
         }
 
 
-        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions, 
-            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType, 
+        public static bool Get_DataForAdyenNotification(string sPSPReference, ref long lIDInAdyenTransactions,
+            ref long lIDInBillingTransactions, ref bool bIsCreatedByAdyenCallback, ref int nPurchaseType,
             ref long lIDInRelevantCATable, ref bool bIsPurchasedWithPreviewModule)
         {
             bool res = false;
@@ -1023,7 +1023,7 @@ namespace DAL
             return sRet;
         }
 
-        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, int paymentGWId = 0, int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGatewaySettingsList(int groupID, int paymentGatewayId = 0, int status = 1, int isActive = 1)
         {
             List<PaymentGateway> res = new List<PaymentGateway>();
             try
@@ -1031,7 +1031,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGWSettingsList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@paymentGWId", paymentGWId);
+                sp.AddParameter("@paymentGWId", paymentGatewayId);
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1054,6 +1054,8 @@ namespace DAL
                             pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
                             pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
                             pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            pgw.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
+                            pgw.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1085,7 +1087,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGateway> GetPaymentGatewateSettingsList(int groupID, string paymentGWName = "", int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGatewaySettingsList(int groupID, string paymentGWName = "", int status = 1, int isActive = 1)
         {
             List<PaymentGateway> res = new List<PaymentGateway>();
             try
@@ -1116,6 +1118,8 @@ namespace DAL
                             pgw.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
                             pgw.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
                             pgw.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            pgw.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
+                            pgw.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
@@ -1318,6 +1322,27 @@ namespace DAL
             return paymentGateway;
         }
 
+        public static DataRow GetLatestPaymentGatewayTransaction(int groupId, long householdId, string billingGuid)
+        {
+            DataRow dataRow = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestPaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@domain_id", householdId);
+                sp.AddParameter("@billing_guid", billingGuid);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows[0];
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return dataRow;
+        }
 
         public static bool SetPaymentGatewayHousehold(int groupID, int paymentGwID, int householdID, int? selected, string chargeID = null, int status = 1)
         {
@@ -1383,6 +1408,8 @@ namespace DAL
                 sp.AddParameter("@renew_url", paymentGateway.RenewUrl);
                 sp.AddParameter("@isDefault", paymentGateway.IsDefault);
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
+                sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
+                sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1411,6 +1438,8 @@ namespace DAL
                 sp.AddParameter("@shared_secret", pgw.SharedSecret);
                 sp.AddParameter("@isDefault", pgw.IsDefault);
                 sp.AddParameter("@isActive", pgw.IsActive);
+                sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
+                sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -1645,7 +1674,6 @@ namespace DAL
                     chargeID = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id");
                     isPaymentGWHouseholdExist = true;
                 }
-
             }
             catch (Exception ex)
             {

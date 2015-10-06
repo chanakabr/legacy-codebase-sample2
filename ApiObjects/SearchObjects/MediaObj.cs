@@ -7,6 +7,8 @@ namespace ApiObjects.SearchObjects
 {
     public class Media
     {
+        #region Data Members
+
         public int m_nMediaID;
         public int m_nMediaTypeID;
         public int m_nWPTypeID;
@@ -33,7 +35,19 @@ namespace ApiObjects.SearchObjects
         public Dictionary<string, Dictionary<long, string>> m_dTagValues;
         public Dictionary<string, string> m_dMeatsValues;
 
+        /// <summary>
+        /// Region IDs in which the media is available in
+        /// </summary>
         public List<int> regions;
+
+        /// <summary>
+        /// Geo Block Rules ID that is applied on this media
+        /// </summary>
+        public int geoBlockRule;
+
+        #endregion
+
+        #region Ctor
 
         public Media()
         {
@@ -52,6 +66,7 @@ namespace ApiObjects.SearchObjects
             m_nViews = 0;
             m_dRating = 0.0;
             m_nVotes = 0;
+            geoBlockRule = 0;
 
             string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
@@ -67,6 +82,10 @@ namespace ApiObjects.SearchObjects
             m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
             regions = new List<int>();
         }
+
+        #endregion
+
+        #region Public Methods
 
         public Media Clone()
         {
@@ -90,7 +109,8 @@ namespace ApiObjects.SearchObjects
                 m_sFinalEndDate = this.m_sFinalEndDate,
                 m_sStartDate = this.m_sStartDate,
                 m_sUpdateDate = this.m_sUpdateDate,
-                m_sUserTypes = this.m_sUserTypes
+                m_sUserTypes = this.m_sUserTypes,
+                geoBlockRule = this.geoBlockRule
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
@@ -112,6 +132,8 @@ namespace ApiObjects.SearchObjects
 
             return clone;
         }
+
+        #endregion
     }
 
     public class MetaObject
@@ -131,6 +153,7 @@ namespace ApiObjects.SearchObjects
             m_sName = name;
         }
     }
+
     public enum MetaType
     {
         STR = 1,

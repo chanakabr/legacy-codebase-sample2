@@ -83,13 +83,13 @@ namespace ApiObjects.Response
         NoContentID = 3018, /// 
         NoProductID = 3019,
         CouponNotValid = 3020,
-        PPVPurchased = 3021,
-        Free = 3022,
-        ForPurchaseSubscriptionOnly = 3023,
-        SubscriptionPurchased = 3024,
+        UnableToPurchasePPVPurchased = 3021,
+        UnableToPurchaseFree = 3022,
+        UnableToPurchaseForPurchaseSubscriptionOnly = 3023,
+        UnableToPurchaseSubscriptionPurchased = 3024,
         NotForPurchase = 3025,  
         Fail = 3026,
-        CollectionPurchased = 3027,
+        UnableToPurchaseCollectionPurchased = 3027,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -103,6 +103,14 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+        NoOSSAdapterToInsert = 5004,
+        NameRequired = 5005,
+        SharedSecretRequired = 5006,
+        OSSAdapterIdentifierRequired = 5007,
+        OSSAdapterNotExist = 5008,
+        OSSAdapterParamsRequired = 5009,
+        UnknownOSSAdapterState = 5010,
+        DeleteIsNotAllowed = 5011,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -145,7 +153,7 @@ namespace ApiObjects.Response
         UnknownTransactionState = 6042,
         PaymentGatewayNotValid = 6043,
         HouseholdRequired = 6044,
-        PaymentGatewayAdapterFailReasonUnknown = 6045,
+        PaymentGatewayAdapterFailReasonUnknown = 6045,         
 
         // social 7000 - 7999
         Conflict = 7000,

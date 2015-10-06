@@ -797,5 +797,39 @@ namespace ODBCWrapper
 
             return result;
         }
+
+        public static DataTable GetCompleteTable(string tableName, string connectionKey = "", int timeInCache = -1)
+        {
+            DataTable result = null;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            if (timeInCache != -1)
+            {
+                selectQuery.SetCachedSec(timeInCache);
+            }
+
+            if (connectionKey != "")
+            {
+                selectQuery.SetConnectionKey(connectionKey);
+            }
+
+            selectQuery += "SELECT * FROM " + tableName;
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                var table = selectQuery.Table("query");
+
+                if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                {
+                    result = table;
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
     }
 }
