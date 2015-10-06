@@ -172,7 +172,7 @@ namespace TVPApiModule.Objects.Responses
 
             ExtraParams = new Dictionary<string, string>();
 
-            ExtraParams.Add("epg_channel_id ", epg.EPG_CHANNEL_ID);
+            ExtraParams.Add("epg_channel_id", epg.EPG_CHANNEL_ID);
             ExtraParams.Add("epg_id", epg.EPG_IDENTIFIER);
             ExtraParams.Add("related_media_id", epg.media_id);
         }
