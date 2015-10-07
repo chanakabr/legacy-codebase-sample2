@@ -236,6 +236,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetUserBillingDetailsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetOSSAdapterConfigurationOperationCompleted;
+        
         private System.Threading.SendOrPostCallback UpdateCacheOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdateGeoBlockRulesCacheOperationCompleted;
@@ -586,6 +588,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event GetUserBillingDetailsCompletedEventHandler GetUserBillingDetailsCompleted;
+        
+        /// <remarks/>
+        public event SetOSSAdapterConfigurationCompletedEventHandler SetOSSAdapterConfigurationCompleted;
         
         /// <remarks/>
         public event UpdateCacheCompletedEventHandler UpdateCacheCompleted;
@@ -4047,29 +4052,27 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetOSSAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public OSSAdapterResponse SetOSSAdapter(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter) {
+        public OSSAdapterResponse SetOSSAdapter(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
             object[] results = this.Invoke("SetOSSAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         ossAdapter});
             return ((OSSAdapterResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter) {
-            this.SetOSSAdapterAsync(sWSUserName, sWSPassword, ossAdapterId, ossAdapter, null);
+        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
+            this.SetOSSAdapterAsync(sWSUserName, sWSPassword, ossAdapter, null);
         }
         
         /// <remarks/>
-        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter, object userState) {
+        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter, object userState) {
             if ((this.SetOSSAdapterOperationCompleted == null)) {
                 this.SetOSSAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetOSSAdapterOperationCompleted);
             }
             this.InvokeAsync("SetOSSAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         ossAdapter}, this.SetOSSAdapterOperationCompleted, userState);
         }
         
@@ -4281,6 +4284,39 @@ namespace WebAPI.Api {
             if ((this.GetUserBillingDetailsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUserBillingDetailsCompleted(this, new GetUserBillingDetailsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetOSSAdapterConfiguration", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetOSSAdapterConfiguration(string sWSUserName, string sWSPassword, int ossAdapterId) {
+            object[] results = this.Invoke("SetOSSAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ossAdapterId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetOSSAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int ossAdapterId) {
+            this.SetOSSAdapterConfigurationAsync(sWSUserName, sWSPassword, ossAdapterId, null);
+        }
+        
+        /// <remarks/>
+        public void SetOSSAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int ossAdapterId, object userState) {
+            if ((this.SetOSSAdapterConfigurationOperationCompleted == null)) {
+                this.SetOSSAdapterConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetOSSAdapterConfigurationOperationCompleted);
+            }
+            this.InvokeAsync("SetOSSAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ossAdapterId}, this.SetOSSAdapterConfigurationOperationCompleted, userState);
+        }
+        
+        private void OnSetOSSAdapterConfigurationOperationCompleted(object arg) {
+            if ((this.SetOSSAdapterConfigurationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetOSSAdapterConfigurationCompleted(this, new SetOSSAdapterConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -13285,6 +13321,32 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((OSSAdapterBillingDetailsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetOSSAdapterConfigurationCompletedEventHandler(object sender, SetOSSAdapterConfigurationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetOSSAdapterConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetOSSAdapterConfigurationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

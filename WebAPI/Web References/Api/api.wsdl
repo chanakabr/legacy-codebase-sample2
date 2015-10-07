@@ -2880,7 +2880,6 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="ossAdapter" type="tns:OSSAdapter" />
           </s:sequence>
         </s:complexType>
@@ -3020,6 +3019,22 @@
           <s:element minOccurs="0" maxOccurs="1" name="PaymentGatewayId" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="SetOSSAdapterConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetOSSAdapterConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetOSSAdapterConfigurationResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UpdateCache">
         <s:complexType>
           <s:sequence>
@@ -3711,6 +3726,12 @@
   <wsdl:message name="GetUserBillingDetailsSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserBillingDetailsResponse" />
   </wsdl:message>
+  <wsdl:message name="SetOSSAdapterConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapterConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:SetOSSAdapterConfigurationResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdateCacheSoapIn">
     <wsdl:part name="parameters" element="tns:UpdateCache" />
   </wsdl:message>
@@ -4400,6 +4421,14 @@
   <wsdl:message name="GetUserBillingDetailsHttpPostOut">
     <wsdl:part name="Body" element="tns:OSSAdapterBillingDetailsResponse" />
   </wsdl:message>
+  <wsdl:message name="SetOSSAdapterConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="ossAdapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetOSSAdapterConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:message name="UpdateCacheHttpPostIn">
     <wsdl:part name="groupId" type="s:string" />
     <wsdl:part name="bucket" type="s:string" />
@@ -4827,6 +4856,10 @@
       <wsdl:input message="tns:GetUserBillingDetailsSoapIn" />
       <wsdl:output message="tns:GetUserBillingDetailsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterConfiguration">
+      <wsdl:input message="tns:SetOSSAdapterConfigurationSoapIn" />
+      <wsdl:output message="tns:SetOSSAdapterConfigurationSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <wsdl:input message="tns:UpdateCacheSoapIn" />
       <wsdl:output message="tns:UpdateCacheSoapOut" />
@@ -5128,6 +5161,10 @@
     <wsdl:operation name="GetUserBillingDetails">
       <wsdl:input message="tns:GetUserBillingDetailsHttpPostIn" />
       <wsdl:output message="tns:GetUserBillingDetailsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterConfiguration">
+      <wsdl:input message="tns:SetOSSAdapterConfigurationHttpPostIn" />
+      <wsdl:output message="tns:SetOSSAdapterConfigurationHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <wsdl:input message="tns:UpdateCacheHttpPostIn" />
@@ -6060,6 +6097,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingDetails">
       <soap:operation soapAction="http://api.tvinci.com/GetUserBillingDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterConfiguration">
+      <soap:operation soapAction="http://api.tvinci.com/SetOSSAdapterConfiguration" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7015,6 +7061,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterConfiguration">
+      <soap12:operation soapAction="http://api.tvinci.com/SetOSSAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <soap12:operation soapAction="http://api.tvinci.com/UpdateCache" style="document" />
       <wsdl:input>
@@ -7686,6 +7741,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserBillingDetails">
       <http:operation location="/GetUserBillingDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetOSSAdapterConfiguration">
+      <http:operation location="/SetOSSAdapterConfiguration" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
