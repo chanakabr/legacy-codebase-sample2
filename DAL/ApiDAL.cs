@@ -2120,12 +2120,13 @@ namespace DAL
             return rowCount > 0;
         }
 
-        public static bool UpdateBulkExportTask(long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        public static bool UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
         {
             int rowCount = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@id", id != 0 ? id : null);
             storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
             storedProcedure.AddParameter("@name", name);
@@ -2139,12 +2140,13 @@ namespace DAL
             return rowCount > 0;
         }
 
-        public static bool DeleteBulkExportTask(long? id, string externalKey)
+        public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
         {
             int rowCount = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@id", id != 0 ? id : null);
             storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
 
@@ -2159,9 +2161,9 @@ namespace DAL
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_BulkExportTasks");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
             storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
-            storedProcedure.AddParameter("@group_id", groupId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
