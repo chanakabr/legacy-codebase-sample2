@@ -18,11 +18,11 @@ namespace TvinciCache
 
             Credentials uc = new Credentials();
 
-            if ((uc = WSCache.Instance.Get<Credentials>(key)) == null)
+            if (!WSCache.Instance.TryGet<Credentials>(key, out uc))
             {
                 lock (lckC)
                 {
-                    if ((uc = WSCache.Instance.Get<Credentials>(key)) == null)
+                    if (!WSCache.Instance.TryGet<Credentials>(key, out uc))
                     {
                         string sUN = string.Empty;
                         string sPass = string.Empty;
@@ -48,11 +48,11 @@ namespace TvinciCache
 
             int nGroupID = 0;
 
-            if ((nGroupID = WSCache.Instance.Get<int>(key)) == 0)
+            if (!WSCache.Instance.TryGet<int>(key, out nGroupID))
             {
                 lock (lckG)
                 {
-                    if ((nGroupID = WSCache.Instance.Get<int>(key)) == 0)
+                    if (!WSCache.Instance.TryGet<int>(key, out nGroupID))
                     {
                         nGroupID = TVinciShared.WS_Utils.GetGroupID(eMainWSModule.ToString(), uc.m_sUsername, uc.m_sPassword);
                         if (nGroupID > 0)
