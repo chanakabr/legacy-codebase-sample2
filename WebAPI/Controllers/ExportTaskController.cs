@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaExportTask> List(KalturaExportFilter filter)
+        public List<KalturaExportTask> List(KalturaExportFilter filter = null)
         {
             List<KalturaExportTask> response = null;
 
