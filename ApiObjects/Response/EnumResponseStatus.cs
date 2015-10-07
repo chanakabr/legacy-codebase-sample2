@@ -111,6 +111,7 @@ namespace ApiObjects.Response
         OSSAdapterParamsRequired = 5009,
         UnknownOSSAdapterState = 5010,
         DeleteIsNotAllowed = 5011,
+        NoOSSAdapterToUpdate = 5012,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
