@@ -4584,7 +4584,7 @@ namespace Catalog
 
             ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
 
-            Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.enrichments);
+            Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<UnifiedSearchResult> recommendations = RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
@@ -4605,9 +4605,9 @@ namespace Catalog
 
             BooleanPhraseNode filterTree = null;
 
-            if (!string.IsNullOrEmpty(externalChannel.filterExpression))
+            if (!string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
-                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.filterExpression, ref filterTree);
+                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     return status;
@@ -4703,7 +4703,7 @@ namespace Catalog
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, ExternalChannel externalChannel, BooleanPhraseNode filterTree)
         {
             UnifiedSearchRequest alternateRequest = new UnifiedSearchRequest(request.m_nPageSize, request.m_nPageIndex,
-                request.m_nGroupID, string.Empty, string.Empty, null, null, externalChannel.filterExpression, string.Empty,
+                request.m_nGroupID, string.Empty, string.Empty, null, null, externalChannel.FilterExpression, string.Empty,
                 filterTree);
 
             UnifiedSearchDefinitions definitions = BuildUnifiedSearchObject(alternateRequest);

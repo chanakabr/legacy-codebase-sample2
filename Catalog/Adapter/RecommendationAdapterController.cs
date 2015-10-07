@@ -85,7 +85,7 @@ namespace Catalog
         {
             List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 
-            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.groupId, externalChannel.recommendationEngineId);
+            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             RecommendationsEnginesAdapter.ServiceClient adapterClient = new RecommendationsEnginesAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
@@ -113,7 +113,7 @@ namespace Catalog
             {
                 //call Adapter get channel recommendations
                 var adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
-                    externalChannel.externalId,
+                    externalChannel.ExternalIdentifier,
                     enrichmentsList.ToArray(),
                     unixTimestamp,
                     System.Convert.ToBase64String(
@@ -130,14 +130,14 @@ namespace Catalog
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ENGINE, engine},
-                        {PARAMETER_GROUP_ID, externalChannel.groupId}
+                        {PARAMETER_GROUP_ID, externalChannel.GroupId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
                     adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
-                        externalChannel.externalId,
+                        externalChannel.ExternalIdentifier,
                         enrichmentsList.ToArray(),
                         unixTimestamp,
                         System.Convert.ToBase64String(
@@ -151,7 +151,7 @@ namespace Catalog
                 log.ErrorFormat("Error in get channel recommendations: error = {0} ",
                     ex,
                     engine.ID,
-                    externalChannel.id
+                    externalChannel.ID
                     );                                                                           // {7}
             }
 
@@ -193,7 +193,7 @@ namespace Catalog
 
         public void ShareFilteredResponse(ExternalChannel externalChannel, List<UnifiedSearchResult> results)
         {
-            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.groupId, externalChannel.recommendationEngineId);
+            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             RecommendationsEnginesAdapter.ServiceClient adapterClient = new RecommendationsEnginesAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 

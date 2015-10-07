@@ -102,6 +102,10 @@ namespace ApiObjects.Response
         RecommendationEngineNotExist = 4007,
         RecommendationEngineIdentifierRequired = 4008,
         RecommendationEngineParamsRequired = 4009,
+        NoExternalChannelToInsert = 4010,
+        ExternalChannelNotExist = 4011,
+        NoExternalChannelToUpdate = 4012,
+        ExternalChannelIdentifierRequired = 4013,
 
 
 

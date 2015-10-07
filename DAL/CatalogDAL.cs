@@ -3255,9 +3255,135 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        #endregion 
-        
+        #endregion
 
-    
+        #region External Channel
+
+        public static int GetExternalChannelInternalID(int groupID, string externalIdentifier)
+        {
+            int recommendationEngineId = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@external_identifier", externalIdentifier);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+            }
+
+            return recommendationEngineId;
+        }
+
+        public static ExternalChannel InsertExternalChannel(int groupID, ExternalChannel externalChannel)
+        {
+            ExternalChannel externalChannelRes = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_ExternalChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", externalChannel.Name);
+            sp.AddParameter("@externalIdentifier", externalChannel.ExternalIdentifier);
+            sp.AddParameter("@recommendationEngineId", externalChannel.RecommendationEngineId);
+            sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
+            int enrichments = GetEnrichments(externalChannel.Enrichments);
+            sp.AddParameter("@enrichments", enrichments);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            externalChannelRes = setExternalChannel(ds);
+
+            return externalChannelRes;
+        }
+
+        public static bool DeleteExternalChannel(int groupID, int externalChannelId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_ExternalChannel");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", externalChannelId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static ExternalChannel SetExternalChannel(int groupID, ExternalChannel externalChannel)
+        {
+            ExternalChannel externalChannelRes = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_ExternalChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ID", externalChannel.ID);
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", externalChannel.Name);
+            sp.AddParameter("@externalIdentifier", externalChannel.ExternalIdentifier);
+            sp.AddParameter("@recommendationEngineId", externalChannel.RecommendationEngineId);
+            sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
+            int enrichments = GetEnrichments(externalChannel.Enrichments);
+            sp.AddParameter("@enrichments", enrichments);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            externalChannelRes = setExternalChannel(ds);
+
+            return externalChannelRes;
+        }
+
+        private static ExternalChannel setExternalChannel(DataSet ds)
+        {
+            ExternalChannel externalChannelRes = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                externalChannelRes = new ExternalChannel();
+                externalChannelRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                externalChannelRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME");
+                externalChannelRes.GroupId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "GROUP_ID");
+                externalChannelRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "EXTERNAL_IDENTIFIER");
+                externalChannelRes.FilterExpression = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "FILTER_EXPRESSION");
+                externalChannelRes.RecommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "RECOMMENDATION_ENGINE_ID");
+                int isActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                externalChannelRes.IsActive = isActive == 1 ? true : false;
+                int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ENRICHMENTS");
+                externalChannelRes.Enrichments = SetEnrichments(enrichmentsVal);
+            }
+
+            return externalChannelRes;
+        }
+
+        private static int GetEnrichments(List<ExternalChannelEnrichment> list)
+        {
+            int enrichmentListValue = 0;
+            foreach (ExternalChannelEnrichment externalChannelEnrichment in list)
+            {
+                enrichmentListValue += (int)externalChannelEnrichment;
+            }
+
+            return enrichmentListValue;
+        }
+
+        private static List<ExternalChannelEnrichment> SetEnrichments(int enrichmentListValue)
+        {
+            List<ExternalChannelEnrichment> list = new List<ExternalChannelEnrichment>();
+
+            foreach (var value in Enum.GetValues(typeof(ExternalChannelEnrichment)))
+            {
+                if (((int)value & enrichmentListValue) == (int)value)
+                {
+                    list.Add((ExternalChannelEnrichment)value);
+                }
+            }
+            return list;
+        }
+        #endregion
+
     }
 }
