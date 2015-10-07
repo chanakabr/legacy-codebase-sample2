@@ -1415,7 +1415,7 @@ namespace WebAPI.Clients
             return kalturaOSSAdapterProfile;
         }
 
-        internal KalturaOSSAdapterProfile SetOSSAdapter(int groupId, int ossAdapterId, KalturaOSSAdapterProfile ossAdapter)
+        internal KalturaOSSAdapterProfile SetOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
         {
             WebAPI.Api.OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
@@ -1427,7 +1427,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
-                    response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
+                    response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
             catch (Exception ex)
