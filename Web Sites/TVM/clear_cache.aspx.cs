@@ -21,33 +21,25 @@ public partial class clear_cache : System.Web.UI.Page
             sHost = HttpContext.Current.Request.ServerVariables["REMOTE_HOST"].ToLower();
         if (HttpContext.Current.Request.ServerVariables["HTTP_REFERER"] != null)
             sRefferer = HttpContext.Current.Request.ServerVariables["HTTP_REFERER"].ToLower();
-        bool bAdmin = false;
-        if (sHost.ToLower().IndexOf("admin.tvinci.com") != -1 ||
-            sHost.ToLower().IndexOf("62.128.54.164") != -1 ||
-            sHost.ToLower().IndexOf("62.128.54.165") != -1 ||
-            sHost.ToLower().IndexOf("62.128.54.166") != -1 ||
-            sHost.ToLower().IndexOf("62.128.54.167") != -1 ||
-            sHost.ToLower().IndexOf("62.128.54.168") != -1 ||
-            sHost.ToLower().IndexOf("80.179.194.132") != -1 ||
-            sHost.ToLower().IndexOf("213.8.115.108") != -1 ||
-            sHost.ToLower().StartsWith("72.26.211") == true ||
-            sHost.ToLower().IndexOf("127.0.0.1") != -1 ||
-            sRefferer.ToLower().IndexOf("tvinci.com") != -1)
-            bAdmin = true;
+
         if (Request.QueryString["action"] != null &&
             Request.QueryString["action"].ToString().ToLower().Trim() == "clear_all")
         {
             Response.Clear();
             Response.Write("Clear cache request from host: " + sHost + " , Refferer: " + sRefferer + "<br/>");
-            if (bAdmin == true)
+
+            try
             {
                 CachingManager.CachingManager.RemoveFromCache("");
+                TvinciCache.WSCache.ClearAll();
                 Response.Write("Cache cleared");
             }
-            else
+            catch (Exception ex)
             {
+                Response.Write("Error : " + ex.Message);
                 Response.StatusCode = 404;
             }
+
         }
         else
             Response.StatusCode = 404;
