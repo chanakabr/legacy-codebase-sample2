@@ -2153,7 +2153,7 @@ namespace DAL
             return rowCount > 0;
         }
 
-        public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys)
+        public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys, int groupId)
         {
             List<BulkExportTask> tasks = new List<BulkExportTask>();
 
@@ -2161,6 +2161,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
             storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
+            storedProcedure.AddParameter("@group_id", groupId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
