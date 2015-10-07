@@ -3996,29 +3996,27 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetOSSAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public OSSAdapterResponse SetOSSAdapter(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter) {
+        public OSSAdapterResponse SetOSSAdapter(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
             object[] results = this.Invoke("SetOSSAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         ossAdapter});
             return ((OSSAdapterResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter) {
-            this.SetOSSAdapterAsync(sWSUserName, sWSPassword, ossAdapterId, ossAdapter, null);
+        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter) {
+            this.SetOSSAdapterAsync(sWSUserName, sWSPassword, ossAdapter, null);
         }
         
         /// <remarks/>
-        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, int ossAdapterId, OSSAdapter ossAdapter, object userState) {
+        public void SetOSSAdapterAsync(string sWSUserName, string sWSPassword, OSSAdapter ossAdapter, object userState) {
             if ((this.SetOSSAdapterOperationCompleted == null)) {
                 this.SetOSSAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetOSSAdapterOperationCompleted);
             }
             this.InvokeAsync("SetOSSAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         ossAdapter}, this.SetOSSAdapterOperationCompleted, userState);
         }
         
