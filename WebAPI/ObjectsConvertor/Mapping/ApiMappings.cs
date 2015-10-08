@@ -116,7 +116,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.OSSAdapter.Settings));
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
+
 
           
             #endregion
