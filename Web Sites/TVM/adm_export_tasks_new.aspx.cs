@@ -132,6 +132,11 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
         dr_groups.SetValue(group_id.ToString());
         theRecord.AddRecord(dr_groups);
 
+        DataRecordShortIntField dr_version = new DataRecordShortIntField(false, 9, 9);
+        dr_version.Initialize("Version", "adm_table_header_nbg", "FormInput", "version", false);
+        dr_version.SetValue(ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow).ToString());
+        theRecord.AddRecord(dr_version);
+
         string sTable = theRecord.GetTableHTML("adm_export_tasks_new.aspx?submited=1");
 
         return sTable;
