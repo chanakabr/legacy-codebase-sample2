@@ -1,4 +1,4 @@
-var DualList = function (firstListParams, secondListParams ,attachToElement) {
+var DualList = function (firstListParams, secondListParams, attachToElement, pageName, withCalendar) {
 
     var firstListTitle = (firstListParams) ? (firstListParams.Title) ? firstListParams.Title : "First List Title" : "First List Title";
     var firstListItems = (firstListParams) ? (firstListParams.data) ? firstListParams.data : {} : {};
@@ -13,8 +13,8 @@ var DualList = function (firstListParams, secondListParams ,attachToElement) {
     };
 
     var createDualList = function () {
-        firstList = new List("selected-list", firstListTitle);
-        secondList = new List("unselected-list", secondListTitle);
+        firstList = new List("selected-list", firstListTitle, pageName, withCalendar);
+        secondList = new List("unselected-list", secondListTitle, pageName, withCalendar);
         firstList.addItemsToList(firstListItems,'remove');
         secondList.addItemsToList(secondListItems,'add');
         $firstList = $(firstList.getComponentElement());

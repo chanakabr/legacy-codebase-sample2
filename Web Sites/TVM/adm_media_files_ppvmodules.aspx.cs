@@ -355,6 +355,8 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         }
 
         DualListPPVM.Add("Data", resultData);
+        DualListPPVM.Add("pageName", "adm_media_files_ppvmodules.aspx");
+        DualListPPVM.Add("withCalendar", true);
         Logger.Logger.Log("Pricing WS", resultData.ToJSON(), "PricingWS");
         return DualListPPVM.ToJSON();
     }

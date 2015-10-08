@@ -10,7 +10,7 @@ function initDualList(data)
         data: getListData(data.Data, false)
     };
     window.components = window.components || {};
-    window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'));
+    window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
     $('.has-placeholder').placeholder();
 }
 
@@ -48,15 +48,19 @@ function getListData(data, isInCurrentList) {
     return ListData
 }
 
-function changeItemStatus(sID) {
-    RS.Execute("adm_media_files_ppvmodules.aspx", "changeItemStatus", sID, "", callback_status_changed, errorCallback);
+function changeItemStatus(sID, pageName) {
+    RS.Execute(pageName, "changeItemStatus", sID, "", callback_status_changed, errorCallback);
 }
 
-function changeItemDates(sID, startDate, endDate) {
-    RS.Execute("adm_media_files_ppvmodules.aspx", "changeItemDates", sID, startDate, endDate, callback_dates_changed, errorCallback);
+function changeItemDates(sID, startDate, endDate, pageName) {
+    RS.Execute(pageName, "changeItemDates", sID, startDate, endDate, callback_dates_changed, errorCallback);
 }
 function initDualObj() {
     RS.Execute("adm_media_files_ppvmodules.aspx", "initDualObj", callback_init_dobj, errorCallback);
+}
+
+function initDuallistObj(page) {
+    RS.Execute(page, "initDualObj", callback_init_dobj, errorCallback);
 }
 
 function errorCallback(res) {
