@@ -2114,6 +2114,7 @@ namespace DAL
             storedProcedure.AddParameter("@frequency", frequency);
             storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@updater_id", null);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
 
             rowCount = storedProcedure.ExecuteReturnValue<int>();
 
@@ -2134,6 +2135,7 @@ namespace DAL
             storedProcedure.AddParameter("@filter", filter);
             storedProcedure.AddParameter("@export_type", exportType);
             storedProcedure.AddParameter("@frequency", frequency);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
 
             rowCount = storedProcedure.ExecuteReturnValue<int>();
 
