@@ -1746,7 +1746,6 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Perform a user purchase for subscription")]
-        [PrivateMethod]
         public MediaFileItemPricesContainer[] GetItemPrices(InitializationObject initObj, int[] fileIds, bool bOnlyLowest)
         {
             MediaFileItemPricesContainer[] itemPrices = null;
