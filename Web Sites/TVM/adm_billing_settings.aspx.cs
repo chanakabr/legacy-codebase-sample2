@@ -90,7 +90,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_ossAdapter.SetFieldType("int");
             System.Data.DataTable ossAdapterDT = GetOSSAdapterDT();
             dr_ossAdapter.SetSelectsDT(ossAdapterDT);
-            dr_ossAdapter.Initialize("OSS adapter to query", "adm_table_header_nbg", "FormInput", "OSS_ADAPTER", false);
+            dr_ossAdapter.Initialize("OSS adapter", "adm_table_header_nbg", "FormInput", "OSS_ADAPTER", false);
             dr_ossAdapter.SetDefault(0);
             theRecord.AddRecord(dr_ossAdapter);
 
