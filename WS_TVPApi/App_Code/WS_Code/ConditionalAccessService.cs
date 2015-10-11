@@ -164,15 +164,17 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get items prices with coupon")]
-        [PrivateMethod]
         public MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             MediaFileItemPricesContainer[] res = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemsPricesWithCoupons", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             if (groupId > 0)
             {
+                if (sUserGUID == "0")
+                    sUserGUID = string.Empty;
+
                 // Tokenization: validate siteGuid
-                if (AuthorizationManager.IsTokenizationEnabled() &&
+                if (AuthorizationManager.IsTokenizationEnabled() && (!string.IsNullOrEmpty(initObj.SiteGuid) || !string.IsNullOrEmpty(sUserGUID)) &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sUserGUID, 0, null, groupId, initObj.Platform))
                 {
                     return null;
