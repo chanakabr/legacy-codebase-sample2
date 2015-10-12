@@ -22,7 +22,7 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("api")]
+    [RoutePrefix("api_v3")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
