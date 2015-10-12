@@ -260,7 +260,7 @@ namespace AdapterControllers
             return result;
         }
 
-        private bool SendConfiguration(RecommendationEngine engine, int groupId)
+        public bool SendConfiguration(RecommendationEngine engine, int groupId)
         {
             bool result = false;
 
