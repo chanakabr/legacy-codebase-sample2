@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using CachingHelpers;
-using Catalog.Response;
 using KLogMonitor;
 using Synchronizer;
 using System;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
 
-namespace Catalog
+namespace AdapterControllers
 {
     public class RecommendationAdapterController
     {
@@ -81,13 +81,13 @@ namespace Catalog
 
         #region Public Methods
         
-        public List<UnifiedSearchResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments)
+        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments)
         {
-            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
+            List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
-            RecommendationsEnginesAdapter.ServiceClient adapterClient = new RecommendationsEnginesAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
+            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
             if (!string.IsNullOrEmpty(engine.AdapterUrl))
             {
@@ -103,7 +103,7 @@ namespace Catalog
                 //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);
 
             var enrichmentsList =
-                enrichments.Select(item => new RecommendationsEnginesAdapter.KeyValue()
+                enrichments.Select(item => new RecommendationEngineAdapter.KeyValue()
                 {
                     Key = item.Key,
                     Value = item.Value
@@ -135,7 +135,7 @@ namespace Catalog
 
                     configurationSynchronizer.DoAction(key, parameters);
 
-                    //call Adapter Transact - after it is configured
+                    //call Adapter get recommendations - after it is configured
                     adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
                         externalChannel.ExternalIdentifier,
                         enrichmentsList.ToArray(),
@@ -145,21 +145,31 @@ namespace Catalog
 
                     LogAdapterResponse(adapterResponse, "GetChannelRecommendation");
                 }
+
+                if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    searchResults = 
+                        adapterResponse.Results.Select(result =>
+                            new RecommendationResult()
+                            {
+                                id = result.AssetId,
+                                type = (eAssetTypes)result.AssetType
+                            }).ToList();
+                }
             }
             catch (Exception ex)
-            {   
+            {
                 log.ErrorFormat("Error in get channel recommendations: error = {0} ",
                     ex,
                     engine.ID,
                     externalChannel.ID
-                    );                                                                           // {7}
+                    );
             }
 
-            //return adapterResponse;
             return searchResults;
         }
 
-        private void LogAdapterResponse(RecommendationsEnginesAdapter.RecommendationsResult adapterResponse, string action)
+        private void LogAdapterResponse(RecommendationEngineAdapter.RecommendationsResult adapterResponse, string action)
         {
             string logMessage = string.Empty;
 
@@ -191,11 +201,11 @@ namespace Catalog
             log.Debug(logMessage);
         }
 
-        public void ShareFilteredResponse(ExternalChannel externalChannel, List<UnifiedSearchResult> results)
+        public void ShareFilteredResponse(ExternalChannel externalChannel, List<RecommendationResult> results)
         {
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
-            RecommendationsEnginesAdapter.ServiceClient adapterClient = new RecommendationsEnginesAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
+            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
             if (!string.IsNullOrEmpty(engine.AdapterUrl))
             {
@@ -210,11 +220,11 @@ namespace Catalog
             //string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
             //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);
 
-            RecommendationsEnginesAdapter.SearchResult[] resultsArray = results.Select(item => 
-                new RecommendationsEnginesAdapter.SearchResult()
+            RecommendationEngineAdapter.SearchResult[] resultsArray = results.Select(item =>
+                new RecommendationEngineAdapter.SearchResult()
                 {
-                    AssetId = item.AssetId,
-                    AssetType = ConvertAssetType(item.AssetType)
+                    AssetId = item.id,
+                    AssetType = ConvertAssetType(item.type)
                 }).ToArray();
 
             // Call share filtered response - asynchronously
@@ -256,7 +266,7 @@ namespace Catalog
 
             if (engine != null && !string.IsNullOrEmpty(engine.AdapterUrl))
             {
-                RecommendationsEnginesAdapter.ServiceClient client = new RecommendationsEnginesAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
+                RecommendationEngineAdapter.ServiceClient client = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -267,9 +277,9 @@ namespace Catalog
                 try
                 {
                     //call Adapter Transact
-                    RecommendationsEnginesAdapter.AdapterStatus adapterResponse =
+                    RecommendationEngineAdapter.AdapterStatus adapterResponse =
                         client.SetConfiguration(engine.ID,
-                        engine.Settings != null ? engine.Settings.Select(setting => new RecommendationsEnginesAdapter.KeyValue()
+                        engine.Settings != null ? engine.Settings.Select(setting => new RecommendationEngineAdapter.KeyValue()
                         {
                             Key = setting.key,
                             Value = setting.value
@@ -297,20 +307,20 @@ namespace Catalog
             return result;
         }
 
-        private RecommendationsEnginesAdapter.eAssetTypes ConvertAssetType(eAssetTypes origin)
+        private RecommendationEngineAdapter.eAssetTypes ConvertAssetType(eAssetTypes origin)
         {
             switch (origin)
             {
                 case eAssetTypes.UNKNOWN:
-                    return RecommendationsEnginesAdapter.eAssetTypes.UNKNOWN;
+                return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
                 case eAssetTypes.EPG:
-                    return RecommendationsEnginesAdapter.eAssetTypes.EPG;
+                return RecommendationEngineAdapter.eAssetTypes.EPG;
                 case eAssetTypes.NPVR:
-                    return RecommendationsEnginesAdapter.eAssetTypes.NPVR;
+                return RecommendationEngineAdapter.eAssetTypes.NPVR;
                 case eAssetTypes.MEDIA:
-                    return RecommendationsEnginesAdapter.eAssetTypes.MEDIA;
+                return RecommendationEngineAdapter.eAssetTypes.MEDIA;
                 default:
-                    return RecommendationsEnginesAdapter.eAssetTypes.UNKNOWN;
+                return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
             }
         }
 

@@ -31,6 +31,7 @@ using StatisticsBL;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using CachingHelpers;
+using AdapterControllers;
 
 namespace Catalog
 {
@@ -1601,52 +1602,11 @@ namespace Catalog
                 // Otherwise get the region of the requesting domain
                 else
                 {
-                    string userName = string.Empty;
-                    string password = string.Empty;
+                    int regionId = GetRegionIdOfDomain(groupId, domainId, siteGuid, group);
 
-                    //get username + password from wsCache
-                    Credentials credentials =
-                        TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
-
-                    if (credentials != null)
+                    if (regionId > -1)
                     {
-                        userName = credentials.m_sUsername;
-                        password = credentials.m_sPassword;
-                    }
-
-                    if (userName.Length == 0 || password.Length == 0)
-                    {
-                        throw new Exception(string.Format(
-                            "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
-                            siteGuid, groupId));
-                    }
-
-                    using (WS_Domains.module domainsWebService = new WS_Domains.module())
-                    {
-                        string url = Utils.GetWSURL("ws_domains");
-                        domainsWebService.Url = url;
-
-                        WS_Domains.Domain domain = null;
-                        var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
-                        if (domainRes != null)
-                        {
-                            domain = domainRes.Domain;
-                        }
-
-                        // If the domain is not associated to a domain - get default region
-                        if (domain.m_nRegion == 0)
-                        {
-                            int defaultRegion = group.defaultRegion;
-
-                            if (defaultRegion != 0)
-                            {
-                                regionIds.Add(defaultRegion);
-                            }
-                        }
-                        else
-                        {
-                            regionIds.Add(domain.m_nRegion);
-                        }
+                        regionIds.Add(regionId);
                     }
                 }
 
@@ -1662,6 +1622,61 @@ namespace Catalog
                     linearMediaTypes.AddRange(mediaTypesArray);
                 }
             }
+        }
+
+        private static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group)
+        {
+            int regionId = -1;
+
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            using (WS_Domains.module domainsWebService = new WS_Domains.module())
+            {
+                string url = Utils.GetWSURL("ws_domains");
+                domainsWebService.Url = url;
+
+                WS_Domains.Domain domain = null;
+                var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
+                if (domainRes != null)
+                {
+                    domain = domainRes.Domain;
+                }
+
+                // If the domain is not associated to a domain - get default region
+                if (domain.m_nRegion == 0)
+                {
+                    int defaultRegion = group.defaultRegion;
+
+                    if (defaultRegion != 0)
+                    {
+                        regionId = defaultRegion;
+                    }
+                }
+                else
+                {
+                    regionId = domain.m_nRegion;
+                }
+            }
+
+            return regionId;
         }
 
         /*Build Full search object*/
@@ -4609,7 +4624,8 @@ namespace Catalog
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
-            List<UnifiedSearchResult> recommendations = RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
+            List<RecommendationResult> recommendations = 
+                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
 
             if (recommendations == null)
             {
@@ -4625,7 +4641,13 @@ namespace Catalog
 
                 if (!illegalRequest)
                 {
-                    searchResultsList = pagedList.ToList();
+                    searchResultsList = pagedList.Select(result =>
+                        new UnifiedSearchResult()
+                        {
+                            AssetId = result.id,
+                            AssetType = (eAssetTypes)result.type
+                        }
+                    ).ToList();
                 }
             }
             else
@@ -4660,16 +4682,16 @@ namespace Catalog
                 // Map recommendations to dictionary of search definitions
                 foreach (var recommendation in recommendations)
                 {
-                    if (!searchDefinitions.specificAssets.ContainsKey(recommendation.AssetType))
+                    if (!searchDefinitions.specificAssets.ContainsKey(recommendation.type))
                     {
-                        searchDefinitions.specificAssets[recommendation.AssetType] = new List<string>();
+                        searchDefinitions.specificAssets[recommendation.type] = new List<string>();
                     }
 
-                    searchDefinitions.specificAssets[recommendation.AssetType].Add(recommendation.AssetId);
+                    searchDefinitions.specificAssets[recommendation.type].Add(recommendation.id);
                 }
 
                 // Map order of IDs
-                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.AssetId)).ToList();
+                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
 
                 if (searcher != null)
                 {
@@ -4682,9 +4704,16 @@ namespace Catalog
                     {
                         searchResultsList = searchResults;
 
+                        List<RecommendationResult> recommendationResults = searchResultsList.Select(result =>
+                            new RecommendationResult()
+                            {
+                                id = result.AssetId,
+                                type = result.AssetType
+                            }).ToList();
+
                         // After applying the filter - the recommendation engine should be reported back with the remaining result set
                         // async query - no response is expected from the recommendation engine
-                        RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
+                        RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, recommendationResults);
                     }
                 }
             }
@@ -4765,6 +4794,18 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.DTTRegion:
                     {
+                        GroupManager manager = new GroupManager();
+                        Group group = manager.GetGroup(request.m_nGroupID);
+
+                        int regionId = GetRegionIdOfDomain(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group);
+
+                        DataRow regionRow = ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
+
+                        if (regionRow != null)
+                        {
+                            dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                        }
+
                         break;
                     }
                     case ExternalChannelEnrichment.AtHome:

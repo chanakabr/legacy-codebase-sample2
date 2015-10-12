@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RecommendationsEnginesAdapter {
+namespace AdapterControllers.RecommendationEngineAdapter {
     using System.Runtime.Serialization;
     using System;
     
@@ -145,10 +145,10 @@ namespace RecommendationsEnginesAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private RecommendationsEnginesAdapter.SearchResult[] ResultsField;
+        private AdapterControllers.RecommendationEngineAdapter.SearchResult[] ResultsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private RecommendationsEnginesAdapter.AdapterStatus StatusField;
+        private AdapterControllers.RecommendationEngineAdapter.AdapterStatus StatusField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -161,7 +161,7 @@ namespace RecommendationsEnginesAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RecommendationsEnginesAdapter.SearchResult[] Results {
+        public AdapterControllers.RecommendationEngineAdapter.SearchResult[] Results {
             get {
                 return this.ResultsField;
             }
@@ -174,7 +174,7 @@ namespace RecommendationsEnginesAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RecommendationsEnginesAdapter.AdapterStatus Status {
+        public AdapterControllers.RecommendationEngineAdapter.AdapterStatus Status {
             get {
                 return this.StatusField;
             }
@@ -209,7 +209,7 @@ namespace RecommendationsEnginesAdapter {
         private string AssetIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private RecommendationsEnginesAdapter.eAssetTypes AssetTypeField;
+        private AdapterControllers.RecommendationEngineAdapter.eAssetTypes AssetTypeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -235,7 +235,7 @@ namespace RecommendationsEnginesAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RecommendationsEnginesAdapter.eAssetTypes AssetType {
+        public AdapterControllers.RecommendationEngineAdapter.eAssetTypes AssetType {
             get {
                 return this.AssetTypeField;
             }
@@ -275,26 +275,26 @@ namespace RecommendationsEnginesAdapter {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="RecommendationsEnginesAdapter.IService")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="RecommendationEngineAdapter.IService")]
     public interface IService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        RecommendationsEnginesAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, RecommendationsEnginesAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetChannelRecommendations", ReplyAction="http://tempuri.org/IService/GetChannelRecommendationsResponse")]
-        RecommendationsEnginesAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, RecommendationsEnginesAdapter.KeyValue[] enrichments, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/ShareFilteredResponse", ReplyAction="http://tempuri.org/IService/ShareFilteredResponseResponse")]
-        void ShareFilteredResponse(int recommendationEngineId, RecommendationsEnginesAdapter.SearchResult[] searchResults);
+        void ShareFilteredResponse(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.SearchResult[] searchResults);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IServiceChannel : RecommendationsEnginesAdapter.IService, System.ServiceModel.IClientChannel {
+    public interface IServiceChannel : AdapterControllers.RecommendationEngineAdapter.IService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class ServiceClient : System.ServiceModel.ClientBase<RecommendationsEnginesAdapter.IService>, RecommendationsEnginesAdapter.IService {
+    public partial class ServiceClient : System.ServiceModel.ClientBase<AdapterControllers.RecommendationEngineAdapter.IService>, AdapterControllers.RecommendationEngineAdapter.IService {
         
         public ServiceClient() {
         }
@@ -315,15 +315,15 @@ namespace RecommendationsEnginesAdapter {
                 base(binding, remoteAddress) {
         }
         
-        public RecommendationsEnginesAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, RecommendationsEnginesAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
+        public AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
             return base.Channel.SetConfiguration(recommendationEngineId, connectionSettings, partnerId, timeStamp, signature);
         }
         
-        public RecommendationsEnginesAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, RecommendationsEnginesAdapter.KeyValue[] enrichments, long timeStamp, string signature) {
+        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, long timeStamp, string signature) {
             return base.Channel.GetChannelRecommendations(recommendationEngineId, channelId, enrichments, timeStamp, signature);
         }
         
-        public void ShareFilteredResponse(int recommendationEngineId, RecommendationsEnginesAdapter.SearchResult[] searchResults) {
+        public void ShareFilteredResponse(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.SearchResult[] searchResults) {
             base.Channel.ShareFilteredResponse(recommendationEngineId, searchResults);
         }
     }

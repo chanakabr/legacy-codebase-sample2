@@ -57,7 +57,7 @@ namespace CachingHelpers
 
         public RecommendationEngine GetRecommendationEngine(int groupId, int engineId)
         {
-            string cacheKey = string.Format("recommendation_engine_{0}", engineId);
+            string cacheKey = string.Format("{0}_recommendation_engine_{1}", version, engineId);
             string mutexName = string.Concat("Group RecommendationEngines GID_", groupId);
 
             return base.Get(cacheKey, mutexName, engineId);
