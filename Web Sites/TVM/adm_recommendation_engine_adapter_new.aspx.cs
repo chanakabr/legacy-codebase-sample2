@@ -50,25 +50,34 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
                     {
                         Int32 nID = DBManipulator.DoTheWork();
 
-                        //// set adapter configuration
-                        //Billing.module billing = new Billing.module();
+                        // After save is done:
+                        // Update cache (Recommendation Engines are saved in cache as well as in DB)
+                        // Update adapter itself that configuration has changed
+                        
+                        string ip = "1.1.1.1";
+                        string userName = "";
+                        string password = "";
 
-                        //string sIP = "1.1.1.1";
-                        //string sWSUserName = "";
-                        //string sWSPass = "";
-                        //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        //string sWSURL = GetWSURL("billing_ws");
-                        //if (sWSURL != "")
-                        //    billing.Url = sWSURL;
-                        //try
-                        //{
-                        //    Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
-                        //    Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
-                        //}
+                        int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                        TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+                        string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+
+                        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            List<string> keys = new List<string>();
+                            keys.Add(string.Format("{0}_recommendation_engine_{1}", version, adapterId));
+
+                            apiWS.API client = new apiWS.API();
+                            client.Url = url;
+
+                            client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+                            client.UpdateRecommendationEngineConfiguration(userName, password, adapterId);
+                        }
 
                         return;
                     }

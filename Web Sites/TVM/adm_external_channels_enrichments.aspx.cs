@@ -164,6 +164,32 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
         updateQuery.Execute();
         updateQuery.Finish();
         updateQuery = null;
+
+        string ip = "1.1.1.1";
+        string userName = "";
+        string password = "";
+
+        int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+        TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+        string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+
+        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+        {
+            return;
+        }
+        else
+        {
+            List<string> keys = new List<string>();
+            keys.Add(string.Format("{0}_external_channel_{1}_{2}", version, parentGroupId, channelId));
+
+            apiWS.API client = new apiWS.API();
+            client.Url = url;
+
+            client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+        }
+
+        return;
     }
 
     public string changeItemDates(string sID, string sStartDate, string sEndDate)
@@ -277,7 +303,7 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
         DataTable table = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         
-        selectQuery += "select id, name, value from external_channels_enrichments";
+        selectQuery += "select id, name, value from external_channels_enrichments where status = 1";
         
         if (selectQuery.Execute("query", true) != null)
         {

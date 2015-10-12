@@ -29,19 +29,19 @@ public partial class adm_external_channels_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                int pgid = 0;
+                int channelId = 0;
 
                 // Validate uniqe external id
                 if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && int.Parse(Session["channel_id"].ToString()) != 0)
                 {
-                    int.TryParse(Session["channel_id"].ToString(), out pgid);
+                    int.TryParse(Session["channel_id"].ToString(), out channelId);
                 }
 
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
 
                 if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]))
                 {
-                    if (IsExternalIDExists(coll["1_val"], pgid))
+                    if (IsExternalIDExists(coll["1_val"], channelId))
                     {
                         Session["error_msg"] = "External Id must be unique";
                         flag = true;
@@ -50,25 +50,29 @@ public partial class adm_external_channels_new : System.Web.UI.Page
                     {
                         Int32 nID = DBManipulator.DoTheWork();
 
-                        //// set adapter configuration
-                        //Billing.module billing = new Billing.module();
+                        string ip = "1.1.1.1";
+                        string userName = "";
+                        string password = "";
 
-                        //string sIP = "1.1.1.1";
-                        //string sWSUserName = "";
-                        //string sWSPass = "";
-                        //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        //string sWSURL = GetWSURL("billing_ws");
-                        //if (sWSURL != "")
-                        //    billing.Url = sWSURL;
-                        //try
-                        //{
-                        //    Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
-                        //    Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
-                        //}
+                        int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+                        TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+                        string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+
+                        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            List<string> keys = new List<string>();
+                            keys.Add(string.Format("{0}_external_channel_{1}_{2}", version, parentGroupId, channelId));
+
+                            apiWS.API client = new apiWS.API();
+                            client.Url = url;
+
+                            client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+                        }
 
                         return;
                     }
