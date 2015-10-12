@@ -1527,7 +1527,8 @@ namespace ConditionalAccess
             Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
             
             // check if file is avilable             
-            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1]{nMediaFileID});
+            Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode);
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
                 theReason = PriceReason.NotForPurchase;
