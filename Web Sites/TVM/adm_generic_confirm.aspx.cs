@@ -182,6 +182,14 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         {
             bIsPublished = true;
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+            
+            // if media is deleted - update it's update_date too.
+            if (m_sTable.ToLower() == "media")
+            {
+                // TODO: make sure it's DateTime.Now and not DateTime.UtcNow
+                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+            }
+
         }
         else
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
