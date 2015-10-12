@@ -29,6 +29,9 @@ namespace Catalog.Request
         [DataMember]
         public string deviceType;
 
+        [DataMember]
+        public string utcOffset;
+
         #endregion
 
         #region Ctor

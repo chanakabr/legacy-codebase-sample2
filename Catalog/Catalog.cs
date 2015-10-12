@@ -709,6 +709,30 @@ namespace Catalog
         /// <param name="searchDefinitions"></param>
         private static void SetLanguageDefinition(int groupId, Filter filter, UnifiedSearchDefinitions searchDefinitions)
         {
+            LanguageObj objLang = null;
+
+            if (filter == null)
+            {
+                objLang = GetLanguage(groupId, -1);
+            }
+            else
+            {
+                objLang = GetLanguage(groupId, filter.m_nLanguage);
+            }
+
+            searchDefinitions.langauge = objLang;
+        }
+
+
+        /// <summary>
+        /// Creates a language object for a given group
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="searchDefinitions"></param>
+        private static LanguageObj GetLanguage(int groupId, int languageId)
+        {
+            LanguageObj language = null;
+
             GroupManager groupManager = new GroupManager();
             CatalogCache catalogCache = CatalogCache.Instance();
             int parentGroupId = catalogCache.GetParentGroup(groupId);
@@ -716,19 +740,17 @@ namespace Catalog
 
             if (groupInCache != null)
             {
-                LanguageObj objLang = null;
-
-                if (filter == null)
+                if (languageId <= 0)
                 {
-                    objLang = groupInCache.GetGroupDefaultLanguage();
+                    language = groupInCache.GetGroupDefaultLanguage();
                 }
                 else
                 {
-                    objLang = groupInCache.GetLanguage(filter.m_nLanguage);
+                    language = groupInCache.GetLanguage(languageId);
                 }
-
-                searchDefinitions.langauge = objLang;
             }
+
+            return language;
         }
 
         /// <summary>
@@ -4589,63 +4611,81 @@ namespace Catalog
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<UnifiedSearchResult> recommendations = RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-            // Group have user types per media  +  siteGuid != empty
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            if (recommendations == null)
             {
-                if (request.m_oFilter == null)
-                {
-                    request.m_oFilter = new Filter();
-                }
-
-                //call ws_users to get userType                  
-                request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+                status.Code = (int)(eResponseStatus.AdapterAppFailure);
+                status.Message = "No recommendations received";
             }
 
-            BooleanPhraseNode filterTree = null;
-
-            if (!string.IsNullOrEmpty(externalChannel.FilterExpression))
+            if (string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
+                totalItems = recommendations.Count;
+                bool illegalRequest = false;
+                var pagedList = TVinciShared.ListUtils.Page(recommendations, request.m_nPageSize, request.m_nPageIndex, out illegalRequest);
+
+                if (!illegalRequest)
+                {
+                    searchResultsList = pagedList.ToList();
+                }
+            }
+            else
+            {
+                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                {
+                    if (request.m_oFilter == null)
+                    {
+                        request.m_oFilter = new Filter();
+                    }
+
+                    //call ws_users to get userType                  
+                    request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+                }
+
+                BooleanPhraseNode filterTree = null;
+
                 status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
+
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     return status;
                 }
-            }
 
-            UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
+                UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
 
-            searchDefinitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                searchDefinitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
 
-            // Map recommendations to dictionary of search definitions
-            foreach (var recommendation in recommendations)
-            {
-                if (!searchDefinitions.specificAssets.ContainsKey(recommendation.AssetType))
+                // Map recommendations to dictionary of search definitions
+                foreach (var recommendation in recommendations)
                 {
-                    searchDefinitions.specificAssets[recommendation.AssetType] = new List<string>();
+                    if (!searchDefinitions.specificAssets.ContainsKey(recommendation.AssetType))
+                    {
+                        searchDefinitions.specificAssets[recommendation.AssetType] = new List<string>();
+                    }
+
+                    searchDefinitions.specificAssets[recommendation.AssetType].Add(recommendation.AssetId);
                 }
 
-                searchDefinitions.specificAssets[recommendation.AssetType].Add(recommendation.AssetId);
-            }
+                // Map order of IDs
+                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.AssetId)).ToList();
 
-            // Map order of IDs
-            searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.AssetId)).ToList();
-
-            if (searcher != null)
-            {
-                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
-
-                // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
-
-                if (searchResults != null)
+                if (searcher != null)
                 {
-                    searchResultsList = searchResults;
+                    SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
-                    // After applying the filter - the recommendation engine should be reported back with the remaining result set
-                    // async query - no response is expected from the recommendation engine
-                    RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
+                    // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
+                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+
+                    if (searchResults != null)
+                    {
+                        searchResultsList = searchResults;
+
+                        // After applying the filter - the recommendation engine should be reported back with the remaining result set
+                        // async query - no response is expected from the recommendation engine
+                        RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, searchResultsList);
+                    }
                 }
             }
 
@@ -4688,12 +4728,57 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.UTCOffset:
                     {
-                        dictionary["utc_offset"] = string.Empty;
+                        dictionary["utc_offset"] = request.utcOffset;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.Language:
+                    {
+                        LanguageObj objLang = null;
+
+                        if (request.m_oFilter == null)
+                        {
+                            objLang = GetLanguage(request.m_nGroupID, -1);
+                        }
+                        else
+                        {
+                            objLang = GetLanguage(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+                        }
+
+                        dictionary["default_language"] = objLang.Code;  
+                         
+                        break;
+                    }
+                    case ExternalChannelEnrichment.NPVRSupport:
+                    {
                         throw new NotImplementedException();
                         break;
                     }
+                    case ExternalChannelEnrichment.Catchup:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
+                    case ExternalChannelEnrichment.Parental:
+                    {
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DTTRegion:
+                    {
+                        break;
+                    }
+                    case ExternalChannelEnrichment.AtHome:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
                     default:
-                    break;
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
                 }
             }
 

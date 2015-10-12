@@ -1094,24 +1094,7 @@ namespace Catalog
 
                             // check which results should be returned
                             bool illegalRequest = false;
-
-                            if (pageSize < 0 || pageIndex < 0)
-                            {
-                                // illegal parameters
-                                illegalRequest = true;
-                            }
-                            else
-                            {
-                                if (pageSize == 0 && pageIndex == 0)
-                                {
-                                    // return all results
-                                }
-                                else
-                                {
-                                    // apply paging on results 
-                                    assetIds = orderedIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                                }
-                            }
+                            assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
 
                             if (!illegalRequest)
                             {
