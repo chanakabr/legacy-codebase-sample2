@@ -2190,6 +2190,8 @@ namespace DAL
                                 Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false: true
                             });
                         }
                     }
@@ -2588,7 +2590,7 @@ namespace DAL
         }
 
         public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
-        {
+        { 
             List<long> ruleIds = new List<long>();
             // Perform stored procedure
 
@@ -2620,6 +2622,20 @@ namespace DAL
                 }
             }
             return ruleIds;       
+        }
+
+        public static bool SetBulkExportTaskProcess(long id, bool inProcess)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_BulkExportTaskProcess");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@in_process", inProcess ? 1 : 0);
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
         }
     }
 }

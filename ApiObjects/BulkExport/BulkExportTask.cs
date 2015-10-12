@@ -21,5 +21,9 @@ namespace ApiObjects.BulkExport
 
         public long Frequency { get; set; }
 
+        public string Version { get; set; }
+
+        public bool InProcess { get; set; }
+
     }
 }

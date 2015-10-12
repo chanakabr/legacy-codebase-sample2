@@ -84,7 +84,7 @@ namespace TVinciShared
 
         static public string XMLEncode(string sToEncode, bool bAttribute)
         {
-            if (sToEncode.Length == 0)
+            if (string.IsNullOrEmpty(sToEncode))
                 return string.Empty;
             //XmlAttribute element = m_xmlDox.CreateAttribute("E");
             //element.InnerText = sToEncode;
