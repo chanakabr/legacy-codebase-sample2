@@ -12605,26 +12605,28 @@ namespace ConditionalAccess
                                             if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
-                                                log.Error("Error getting the PG");
+                                                log.Error("Error getting the PG - no renewal taks sent");
+                                            }
+                                            else
+                                            {
+                                                // enqueue renew transaction
+                                                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                                DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
+                                                RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
+                                                    TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
+                                                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                                if (!enqueueSuccessful)
+                                                {
+                                                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                                }
+                                                else
+                                                    log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                             }
                                         }
                                         catch (Exception ex)
                                         {
                                             log.Error("Error while trying to get the PG", ex);
                                         }
-
-                                        // enqueue renew transaction
-                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                        DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
-                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
-                                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
-                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                        if (!enqueueSuccessful)
-                                        {
-                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                        }
-                                        else
-                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                     }
 
                                     // build notification message
