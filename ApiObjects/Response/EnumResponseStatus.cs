@@ -103,6 +103,7 @@ namespace ApiObjects.Response
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
+        ActionIsNotAllowed = 5011,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
