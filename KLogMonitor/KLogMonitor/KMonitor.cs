@@ -192,9 +192,9 @@ namespace KLogMonitor
             try
             {
                 Newtonsoft.Json.JsonSerializer _jsonWriter = new Newtonsoft.Json.JsonSerializer
-            {
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-            };
+                {
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+                };
 
 
 #if RUNNING_ON_3_5
