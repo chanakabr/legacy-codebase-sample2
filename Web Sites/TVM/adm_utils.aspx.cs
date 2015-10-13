@@ -410,7 +410,7 @@ public partial class adm_utils : System.Web.UI.Page
                 updateQuery.SetConnectionKey(sConnectionKey);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", int.Parse(sStatus));
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", LoginManager.GetLoginID());
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
             updateQuery += "where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sID));
             updateQuery.Execute();
@@ -640,6 +640,6 @@ public partial class adm_utils : System.Web.UI.Page
 
     public void GetCurrentDate()
     {
-        HttpContext.Current.Response.Write(DateUtils.GetStrFromDate(DateTime.Now));
+        HttpContext.Current.Response.Write(DateUtils.GetStrFromDate(DateTime.UtcNow));
     }
 }

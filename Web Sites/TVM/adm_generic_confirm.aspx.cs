@@ -186,8 +186,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             // if media is deleted - update it's update_date too.
             if (m_sTable.ToLower() == "media")
             {
-                // TODO: make sure it's DateTime.Now and not DateTime.UtcNow
-                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
             }
 
         }
@@ -326,7 +325,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         {
             ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery2.SetConnectionKey(m_sDB);
-            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.UtcNow);
             updateQuery2 += "where";
             updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
             updateQuery2.Execute();
@@ -431,7 +430,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         {
             ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery2.SetConnectionKey(m_sDB);
-            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.UtcNow);
             updateQuery2 += "where";
             updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
             updateQuery2.Execute();
