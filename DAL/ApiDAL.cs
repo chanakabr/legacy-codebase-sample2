@@ -2191,7 +2191,8 @@ namespace DAL
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                                 Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
-                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false: true
+                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false: true,
+                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS")
                             });
                         }
                     }
@@ -2592,7 +2593,6 @@ namespace DAL
         public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
         { 
             List<long> ruleIds = new List<long>();
-            // Perform stored procedure
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRulesIDs");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2606,7 +2606,6 @@ namespace DAL
             {
                 DataTable table = dataSet.Tables[0];
 
-                // Run on first table and create initial list of parental rules, without tag values
                 if (table != null && table.Rows != null && table.Rows.Count > 0)
                 {
                     foreach (DataRow row in table.Rows)
@@ -2624,7 +2623,7 @@ namespace DAL
             return ruleIds;       
         }
 
-        public static bool SetBulkExportTaskProcess(long id, bool inProcess)
+        public static bool SetBulkExportTaskProcess(long id, bool inProcess, DateTime? lastProcess = null)
         {
             int rowCount = 0;
 
@@ -2632,10 +2631,45 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
             storedProcedure.AddParameter("@in_process", inProcess ? 1 : 0);
+            storedProcedure.AddParameter("@last_process", lastProcess); 
 
             rowCount = storedProcedure.ExecuteReturnValue<int>();
 
             return rowCount > 0;
+        }
+
+        public static List<long> GetNotActiveMediaIds(int groupId, DateTime since)
+        {
+            List<long> mediaIds = new List<long>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActiveMediaIds");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@since", since);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            // Validate tables count
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                // Run on first table and create initial list of parental rules, without tag values
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+
+                        if (id > 0)
+                        {
+                            mediaIds.Add(id);
+
+                        }
+                    }
+                }
+            }
+            return mediaIds;       
         }
     }
 }

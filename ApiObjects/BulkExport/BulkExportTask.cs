@@ -25,5 +25,7 @@ namespace ApiObjects.BulkExport
 
         public bool InProcess { get; set; }
 
+        public DateTime? LastProcess { get; set; }
+
     }
 }
