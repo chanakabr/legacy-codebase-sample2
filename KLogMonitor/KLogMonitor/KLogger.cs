@@ -18,6 +18,7 @@ namespace KLogMonitor
         private bool disposed;
 
         public static KLogEnums.AppType AppType { get; set; }
+        public static string UniqueStaticId { get; set; }
         public string UniqueID { get; set; }
         public string PartnerID { get; set; }
         public string ClassName { get; set; }
@@ -48,6 +49,13 @@ namespace KLogMonitor
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
+            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+        }
+
+        public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueID)
+        {
+            AppType = appType;
+            UniqueStaticId = UniqueID;
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
         }
 
@@ -92,6 +100,11 @@ namespace KLogMonitor
                         if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.USER_ID, out temp))
                             this.UserID = temp.ToString();
                     }
+                    break;
+
+                case KLogEnums.AppType.WindowsService:
+
+                    this.UniqueID = UniqueStaticId;
                     break;
 
                 case KLogEnums.AppType.WS:
@@ -194,7 +207,7 @@ namespace KLogMonitor
 
         public void Debug(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
         }
 
         public void DebugFormat(string format, params object[] args)
@@ -204,7 +217,7 @@ namespace KLogMonitor
 
         public void Info(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
         }
 
         public void InfoFormat(string format, params object[] args)
@@ -214,7 +227,7 @@ namespace KLogMonitor
 
         public void Warn(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
         }
 
         public void WarnFormat(string format, params object[] args)
@@ -224,7 +237,7 @@ namespace KLogMonitor
 
         public void Error(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
         }
 
         public void ErrorFormat(string format, params object[] args)
@@ -234,7 +247,7 @@ namespace KLogMonitor
 
         public void DebugNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
         }
 
         public void DebugFormatNoFlush(string format, params object[] args)
@@ -244,7 +257,7 @@ namespace KLogMonitor
 
         public void InfoNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.INFO, false, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, false, null, ex);
         }
 
         public void InfoFormatNoFlush(string format, params object[] args)
@@ -254,7 +267,7 @@ namespace KLogMonitor
 
         public void WarnNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
         }
 
         public void WarnFormatNoFlush(string format, params object[] args)
@@ -264,7 +277,7 @@ namespace KLogMonitor
 
         public void ErrorNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage, KLogger.LogEvent.LogLevel.ERROR, false, null, ex);
+            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, false, null, ex);
         }
 
         public void ErrorFormatNoFlush(string format, params object[] args)

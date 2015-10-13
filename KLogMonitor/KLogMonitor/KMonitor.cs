@@ -16,6 +16,7 @@ namespace KLogMonitor
     public class KMonitor : IDisposable
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static string UniqueStaticId { get; set; }
         public static KLogEnums.AppType AppType { get; set; }
         private bool disposed;
 
@@ -139,6 +140,11 @@ namespace KLogMonitor
                     }
                     break;
 
+                case KLogEnums.AppType.WindowsService:
+
+                    this.UniqueID = UniqueStaticId;
+                    break;
+
                 case KLogEnums.AppType.WS:
                 default:
 
@@ -174,14 +180,21 @@ namespace KLogMonitor
             log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
         }
 
+        public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueId)
+        {
+            AppType = appType;
+            UniqueStaticId = UniqueId;
+            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+        }
+
         public override string ToString()
         {
             try
             {
                 Newtonsoft.Json.JsonSerializer _jsonWriter = new Newtonsoft.Json.JsonSerializer
-            {
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-            };
+                {
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+                };
 
 
 #if RUNNING_ON_3_5
