@@ -21,7 +21,8 @@ namespace KLogMonitor
         public enum AppType
         {
             WS,
-            WCF
+            WCF,
+            WindowsService
         }
     }
 }
