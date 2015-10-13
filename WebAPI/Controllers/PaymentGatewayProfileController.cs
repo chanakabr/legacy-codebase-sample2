@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:      
-        ///   Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
+        /// Action is not allowed = 5011, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
         /// External identifier must be unique = 6040            
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 

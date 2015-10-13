@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// oss adapter identifier required = 5007, oss adapter not exist = 5008,  delete is not allowed = 5011
+        /// oss adapter identifier required = 5007, oss adapter not exist = 5008,  action is not allowed = 5011
         /// </remarks>
         /// <param name="oss_adapter_id">OSS adapter identifier</param>
         [Route("delete"), HttpPost]
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// no oss adapter to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// no oss adapter to insert = 5004, name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="oss_adapter">OSS adapter Object</param>
         [Route("add"), HttpPost]
@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, external identifier required = 6016, external identifier must be unique = 6040  
+        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="oss_adapter">OSS adapter Object</param>       
         [Route("update"), HttpPost]
