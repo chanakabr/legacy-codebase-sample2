@@ -4,15 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Configuration;
+using KLogMonitor;
 
 namespace Scheduler
 {
     class Runner
     {
         static public object o = new object();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public Runner()
         {
-            //Logger.Logger.Log("message", "message = Scheduled Runner started to run", "TVM_Tasker", "Scheduled Runner started to run");
+            log.Debug("Scheduled Runner started to run");
         }
 
         protected void RunDll(string sDllName, Int32 nID, Int32 nIntervalInSec, string sParameters)
@@ -22,7 +25,7 @@ namespace Scheduler
                 string sBaseLoc = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                 Assembly a = Assembly.LoadFrom(sBaseLoc + "/" + sDllName);
                 Type[] ts = a.GetTypes();
-                foreach( Type t in ts )
+                foreach (Type t in ts)
                 {
                     try
                     {
@@ -40,14 +43,14 @@ namespace Scheduler
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("message", "exception=" + ex.Message, "TVM_Tasker", "Exception on " + sDllName + " : " + ex.Message + " | " + ex.StackTrace);
+                        log.ErrorFormat("Exception on {0}, exception: {1}", sDllName, ex);
                         UpdateTaskStatus(nID, 0, nIntervalInSec);
                     }
                 }
             }
-            catch( Exception e )
+            catch (Exception e)
             {
-                Logger.Logger.Log("message", "exception=" + e.Message, "TVM_Tasker" , "Exception on " + sDllName + " : " + e.Message  + " | " + e.StackTrace);
+                log.ErrorFormat("Exception on {0}, exception: {1}", sDllName, e);
                 UpdateTaskStatus(nID, 0, nIntervalInSec);
             }
         }
@@ -57,19 +60,19 @@ namespace Scheduler
             DoTheJobOnes();
         }
 
-        virtual protected void UpdateTaskStatus(Int32 nTaskID , Int32 nStatus)
+        virtual protected void UpdateTaskStatus(Int32 nTaskID, Int32 nStatus)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_STATUS" , "=" , nStatus);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE" , "=" , DateTime.Now);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_STATUS", "=", nStatus);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
             updateQuery += "where";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID" , "=" , nTaskID);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nTaskID);
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
         }
 
-        virtual protected void UpdateTaskStatus(Int32 nTaskID, Int32 nStatus , Int32 nInterval)
+        virtual protected void UpdateTaskStatus(Int32 nTaskID, Int32 nStatus, Int32 nInterval)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RUN_STATUS", "=", nStatus);
@@ -99,7 +102,7 @@ namespace Scheduler
                 catch (Exception ex)
                 {
                     sServer = string.Empty;
-                    Logger.Logger.Log("Scheduler Runner", "Key=SERVER," + ex.Message, "Tcm");
+                    log.Error("Scheduler Runner - key=SERVER", ex);
                 }
 
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -131,7 +134,7 @@ namespace Scheduler
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("message", "exception DoTheJobOnes=" + ex.Message + "||" + ex.StackTrace, "TVM_Tasker", "Exception on " + sDLL + " : " + ex.Message);
+                log.ErrorFormat("message - exception DoTheJobOnes TVM_Tasker. Exception on {0}, exception: {1}", sDLL, ex);
                 UpdateTaskStatus(nID, 0, nInterval);
             }
         }

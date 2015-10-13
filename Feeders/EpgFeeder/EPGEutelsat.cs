@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using ApiObjects;
 using EpgBL;
+using KLogMonitor;
 using TvinciImporter;
 
 namespace EpgFeeder
 {
     public class EPGEutelsat : EPGImplementor
     {
-        #region Member
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         kabel.tv m_TvChannels;
 
-        #endregion
 
         public EPGEutelsat(string sGroupID, string sPathType, string sPath, Dictionary<string, string> sExtraParamter)
             : base(sGroupID, sPathType, sPath, sExtraParamter)
@@ -137,7 +138,7 @@ namespace EpgFeeder
 
         private Dictionary<DateTime, List<int>> SaveTvChannels()
         {
-            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());           
+            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
 
             kabel.tvChannel item = m_TvChannels.channel;
@@ -247,14 +248,14 @@ namespace EpgFeeder
                     DateTime dProgEndDate = DateTime.MinValue;
                     if (!Utils.ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
                     {
-                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", progItem.start, progItem.stop), "EPG");
+                        log.Error("Program Dates Error " + string.Format("start:{0}, end:{1}", progItem.start, progItem.stop));
                         continue;
                     }
 
                     //need this for both DB and CB!!!!!!!!!
                     Kabel_SetMappingValues(FieldEntityMapping, progItem);
 
-                    #region GenerateEpgCB                    
+                    #region GenerateEpgCB
                     newEpgItem.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(channelID);
                     newEpgItem.Name = progItem.title;
                     if (!string.IsNullOrEmpty(progItem.desc))
@@ -304,7 +305,7 @@ namespace EpgFeeder
                 }
                 catch (Exception exc)
                 {
-                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, groupID, exc.Message), "EpgFeeder");                    
+                    log.Error("Genarate Epgs - " + string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, groupID, exc.Message), exc);
                 }
             }
 
@@ -335,7 +336,7 @@ namespace EpgFeeder
                 }
 
                 #endregion
-                           
+
                 DateTime progDate = new DateTime(epg.StartDate.Year, epg.StartDate.Month, epg.StartDate.Day);
 
                 if (!epgDateWithChannelIds.ContainsKey(progDate))
@@ -348,21 +349,21 @@ namespace EpgFeeder
                 {
                     epgDateWithChannelIds[progDate].Add(channelID);
                 }
-            }          
+            }
 
             if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
-            {                
+            {
                 bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
             }
 
             //start Upload proccess Queue
-            UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);           
-            
+            UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);
+
             return epgDateWithChannelIds;
         }
 
 
-        
+
         private void DeleteAllPrograms(Int32 channelID, IEnumerable<kabel.tvProgramme> prog)
         {
             Dictionary<DateTime, bool> deletedChannelDates = new Dictionary<DateTime, bool>();
@@ -388,7 +389,7 @@ namespace EpgFeeder
 
             foreach (DateTime progStartDate in deletedChannelDates.Keys)
             {
-                Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID), "EpgFeeder");
+                log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID));
                 Tvinci.Core.DAL.EpgDal.DeleteProgramsOnDate(progStartDate, s_GroupID, channelID);
             }
             #endregion
@@ -403,7 +404,7 @@ namespace EpgFeeder
             {
                 nParentGroupID = DAL.UtilsDal.GetParentGroupID(int.Parse(s_GroupID));
             }
-            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);      
+            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
 
             List<DateTime> lDates = new List<DateTime>();
             dProgStartDate = DateTime.MinValue;
@@ -416,7 +417,7 @@ namespace EpgFeeder
                 }
             }
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -425,7 +426,7 @@ namespace EpgFeeder
             bool resDelete = Utils.DeleteEPGDocFromES(m_ParentGroupId, channelID, lDates);
             #endregion
         }
-                  
+
         protected void Kabel_SetMappingValues(List<FieldTypeEntity> FieldEntityMapping, kabel.tvProgramme node)
         {
             if (node == null)
@@ -444,7 +445,7 @@ namespace EpgFeeder
                                 if (node.subtitle != null && node.subtitle.Length > 0)
                                 {
                                     FieldEntityMapping[i].Value.Add(node.subtitle);
-                                }                              
+                                }
                                 break;
                             }
                         case "episode num":
@@ -522,7 +523,7 @@ namespace EpgFeeder
                                         string[] numOfNum = wordsSeEp[2].Split('/');
                                         if (numOfNum.Length > 1)
                                         {
-                                            string finelValue = numOfNum[1] == "" ? "" : (int.Parse(numOfNum[1])+1).ToString();
+                                            string finelValue = numOfNum[1] == "" ? "" : (int.Parse(numOfNum[1]) + 1).ToString();
                                             FieldEntityMapping[i].Value.Add(finelValue);
                                         }
                                     }

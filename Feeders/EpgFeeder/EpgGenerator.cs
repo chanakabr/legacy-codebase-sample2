@@ -14,27 +14,27 @@ using Catalog.Cache;
 using TvinciImporter;
 using ApiObjects.Epg;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EpgFeeder
 {
     public class EpgGenerator
     {
-        #region Member
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         EpgChannels m_Channels;
         BaseEpgBL oEpgBL;
-        List<LanguageObj> lLanguage = new List<LanguageObj>();        
+        List<LanguageObj> lLanguage = new List<LanguageObj>();
         List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
         Dictionary<int, string> ratios;
         string update_epg_package;
         int nCountPackage;
 
-        protected static readonly int MaxDescriptionSize = 1024;        
+        protected static readonly int MaxDescriptionSize = 1024;
         public static readonly int MaxNameSize = 255;
 
-        #endregion
-
         public EpgGenerator()
-        {            
+        {
         }
         public void Initialize(EpgChannels epgChannel)
         {
@@ -59,9 +59,9 @@ namespace EpgFeeder
                 EpgChannelType epgChannelType;
 
                 // get the kaltura+ type to each channel by its external id                
-                List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();                
+                List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
                 Dictionary<string, List<EpgChannelObj>> epgChannelDict = EpgDal.GetAllEpgChannelsDic(m_Channels.groupid, channelExternalIds);
-                
+
                 //Run for each channel - 
                 foreach (KeyValuePair<string, List<EpgChannelObj>> channel in epgChannelDict)
                 {
@@ -80,14 +80,14 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("SaveChannelPrograms", string.Format("exception={0}", ex.Message), "EpgGenerator");
-            }        
+                log.Error("SaveChannelPrograms - " + string.Format("exception={0}", ex.Message), ex);
+            }
         }
 
         private void SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
-            
+
             int nCount = 0;
             int nPicID = 0;
             List<ulong> epgIds = new List<ulong>();
@@ -103,9 +103,9 @@ namespace EpgFeeder
             Dictionary<string, List<EpgTagTranslate>> dTags = new Dictionary<string, List<EpgTagTranslate>>(); // tagType, List<EpgTagTranslate>
 
             #region each program  create CB objects
- 
+
             DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
-            List<DateTime>  deletedDays = new List<DateTime>();     
+            List<DateTime> deletedDays = new List<DateTime>();
             foreach (programme prog in programs)
             {
                 newEpgItem = new EpgCB();
@@ -121,7 +121,7 @@ namespace EpgFeeder
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
-                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", prog.start, prog.stop), "EPG");
+                        log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", prog.start, prog.stop));
                         continue;
                     }
 
@@ -174,9 +174,9 @@ namespace EpgFeeder
                             }
                         }
                     }
-                    #endregion  
-                      
-                     #region Upload Picture
+                    #endregion
+
+                    #region Upload Picture
                     if (!string.IsNullOrEmpty(picName) && prog.icon != null) // create the urlPic if this is the main language
                     {
                         foreach (icon icon in prog.icon)
@@ -214,15 +214,15 @@ namespace EpgFeeder
                             }
                         }
                     }
-                    #endregion                   
+                    #endregion
 
                     #region Tags and Metas
                     foreach (KeyValuePair<string, EpgCB> epg in dEpgCbTranslate)
                     {
                         language = epg.Key.ToLower();
                         epg.Value.Metas = GetEpgProgramMetas(prog, language);
-                        epg.Value.Tags = GetEpgProgramTags(prog, language);                       
-                        epg.Value.Language = language;                        
+                        epg.Value.Tags = GetEpgProgramTags(prog, language);
+                        epg.Value.Language = language;
                         if (dEpg.ContainsKey(epg.Value.EpgIdentifier))
                         {
                             dEpg[epg.Value.EpgIdentifier].Add(epg);
@@ -236,7 +236,7 @@ namespace EpgFeeder
                 }
                 catch (Exception exc)
                 {
-                    Logger.Logger.Log("Genarate Epgs", string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, exc.Message), "EpgFeeder");
+                    log.Error("Generate EPGs - " + string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, exc.Message), exc);
                 }
             }
             #endregion
@@ -248,7 +248,7 @@ namespace EpgFeeder
 
             //insert EPGs to DB in batches
             InsertEpgsDBBatches(ref dEpg, m_Channels.groupid, nCountPackage, FieldEntityMapping, m_Channels.mainlang.ToLower(), dPublishDate, kalturaChannelID);
-            
+
             // Delete all EpgIdentifiers that are not needed (per channel per day)
             List<int> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
             List<string> docIds = BuildDocIdsToRemoveGroupPrograms(lProgramsID);
@@ -297,7 +297,7 @@ namespace EpgFeeder
 
             //start Upload proccess Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(m_Channels.parentgroupid);
-        }       
+        }
 
         //Build docids with languages per programid 
         private List<string> BuildDocIdsToRemoveGroupPrograms(List<int> lProgramsID)
@@ -321,12 +321,12 @@ namespace EpgFeeder
                     docIds.Add(docID);
                 }
             }
-           
+
             return docIds;
         }
 
         private List<int> DeleteEpgs(DateTime dPublishDate, int channelID, int groupID, List<DateTime> deletedDays)
-        {           
+        {
             try
             {
                 List<int> epgIds = new List<int>();
@@ -344,7 +344,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("KDG - " + string.Format("fail to DeleteEpgs ex = {0}", ex.Message), ex);
                 return null;
             }
         }
@@ -359,7 +359,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }
@@ -367,7 +367,7 @@ namespace EpgFeeder
         private void InsertEpgsDBBatches(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, string mainLlanguage,
             DateTime dPublishDate, int channelID)
         {
-            Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();            
+            Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
             Dictionary<int, List<string>> tagsAndValues = new Dictionary<int, List<string>>(); // <tagTypeId, List<tagValues>>
 
             int nEpgCount = 0;
@@ -414,7 +414,7 @@ namespace EpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgsDBBatches - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), exc);
                 return;
             }
         }
@@ -426,7 +426,7 @@ namespace EpgFeeder
                 DataTable dtEpgMetas = InitEPGProgramMetaDataTable();
                 DataTable dtEpgTags = InitEPGProgramTagsDataTable();
                 DataTable dtEpgTagsValues = InitEPG_Tags_Values();
-                DataTable dtEpgPictures =  InitEPGProgramPicturesDataTable();
+                DataTable dtEpgPictures = InitEPGProgramPicturesDataTable();
 
                 int nUpdaterID = m_Channels.updaterid;
                 if (m_Channels.updaterid == 0)
@@ -458,12 +458,12 @@ namespace EpgFeeder
                         //update Metas
                         UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
                         //update Tags                    
-                        UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID); 
+                        UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID);
                         // update Pictures
                         FillEpgPictureTable(ref dtEpgPictures, epg, ratios);
                     }
                 }
-               
+
                 // batch insert 
 
                 InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, groupID, nUpdaterID);
@@ -476,7 +476,7 @@ namespace EpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), exc);
                 return;
             }
         }
@@ -501,7 +501,7 @@ namespace EpgFeeder
                     {
                         row["ratio_id"] = 0;
                     }
-                 
+
                     row["STATUS"] = epg.Status;
                     row["GROUP_ID"] = epg.GroupID;
                     row["UPDATER_ID"] = 400;
@@ -509,7 +509,7 @@ namespace EpgFeeder
                     row["CREATE_DATE"] = epg.CreateDate;
                     dtEpgPictures.Rows.Add(row);
                 }
-            }          
+            }
         }
 
         private DataTable InitEPGProgramPicturesDataTable()
@@ -526,7 +526,7 @@ namespace EpgFeeder
             dt.Columns.Add("UPDATE_DATE", typeof(DateTime));
             return dt;
         }
-        
+
         private void InsertNewTagValues(Dictionary<string, EpgCB> epgDic, DataTable dtEpgTagsValues, ref DataTable dtEpgTags, Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int groupID, int nUpdaterID)
         {
             Dictionary<KeyValuePair<string, int>, int> tagValueWithID = new Dictionary<KeyValuePair<string, int>, int>();
@@ -660,7 +660,7 @@ namespace EpgFeeder
             dt.Columns.Add("like_counter", typeof(long));
             return dt;
         }
-                        
+
         private void UpdateEpgDic(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, DateTime dPublishDate, int channelID)
         {
             try
@@ -678,7 +678,7 @@ namespace EpgFeeder
                     {
                         ulong epgID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                         string epgIDentifier = ODBCWrapper.Utils.GetSafeStr(dr, "EPG_IDENTIFIER");
-                        
+
                         if (epgDic.ContainsKey(epgIDentifier))
                         {
                             foreach (KeyValuePair<string, EpgCB> item in epgDic[epgIDentifier])
@@ -690,9 +690,9 @@ namespace EpgFeeder
                                 }
                                 else // otherwise add the lang to the id value 
                                 {
-                                    epgIDCB = string.Format("{0}_{1}",epgID.ToString(), item.Key);
+                                    epgIDCB = string.Format("{0}_{1}", epgID.ToString(), item.Key);
                                 }
-                                epgIds.Add(epgIDCB);                                
+                                epgIds.Add(epgIDCB);
                             }
                         }
                     }
@@ -704,7 +704,7 @@ namespace EpgFeeder
                     BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
                     List<EpgCB> lResCB = oEpgBL.GetEpgs(epgIds);
                     List<KeyValuePair<string, EpgCB>> removeLang = new List<KeyValuePair<string, EpgCB>>();
-                    
+
                     // TO DO need to add all keys for languages 
                     if (lResCB != null && lResCB.Count > 0) // start comper the objects
                     {
@@ -749,11 +749,11 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("KDG - " + string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), ex);
             }
         }
 
-        private  List<LanguageObj>  GetLanguages(int nGroupID)
+        private List<LanguageObj> GetLanguages(int nGroupID)
         {
             List<LanguageObj> lLang = new List<LanguageObj>();
             try
@@ -777,7 +777,7 @@ namespace EpgFeeder
                 GroupManager groupManager = new GroupManager();
                 List<int> lSubTree = groupManager.GetSubGroup(nGroupID);
 
-                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);   
+                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
@@ -803,7 +803,7 @@ namespace EpgFeeder
                 return new List<FieldTypeEntity>();
             }
         }
-      
+
         private Dictionary<string, List<string>> GetEpgProgramMetas(programme prog, string language)
         {
             try
@@ -832,7 +832,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgFeeder");
+                log.Error("GetEpgProgramMetas - " + string.Format("faild due ex={0}", ex.Message), ex);
                 return new Dictionary<string, List<string>>();
             }
         }
@@ -864,41 +864,41 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetEpgProgramMetas", string.Format("faild due ex={0}", ex.Message), "EpgFeeder");
+                log.Error("GetEpgProgramMetas - " + string.Format("failed due ex={0}", ex.Message), ex);
                 return new Dictionary<string, List<string>>();
             }
         }
-                       
-         //generate a Dictionary of all tag and values in the epg
-         private void GenerateTagsAndValues(EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref  Dictionary<int, List<string>> tagsAndValues)
-         {
-             foreach (string tagType in epg.Tags.Keys)
-             {
-                 string tagTypel = tagType.ToLower();
-                 int tagTypeID = 0;
-                 List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
-                 if (tagField != null && tagField.Count > 0)
-                 {
-                     tagTypeID = tagField[0].ID;
-                 }
-                 else
-                 {
-                     Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
-                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
-                 }
 
-                 if (!tagsAndValues.ContainsKey(tagTypeID))
-                 {
-                     tagsAndValues.Add(tagTypeID, new List<string>());
-                 }
-                 foreach (string tagValue in epg.Tags[tagType])
-                 {
-                     if (!tagsAndValues[tagTypeID].Contains(tagValue.ToLower()))
-                         tagsAndValues[tagTypeID].Add(tagValue.ToLower());
-                 }
-             }
-         }
-              
+        //generate a Dictionary of all tag and values in the epg
+        private void GenerateTagsAndValues(EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref  Dictionary<int, List<string>> tagsAndValues)
+        {
+            foreach (string tagType in epg.Tags.Keys)
+            {
+                string tagTypel = tagType.ToLower();
+                int tagTypeID = 0;
+                List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
+                if (tagField != null && tagField.Count > 0)
+                {
+                    tagTypeID = tagField[0].ID;
+                }
+                else
+                {
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
+                    continue;//missing tag definition in DB (in FieldEntityMapping)                        
+                }
+
+                if (!tagsAndValues.ContainsKey(tagTypeID))
+                {
+                    tagsAndValues.Add(tagTypeID, new List<string>());
+                }
+                foreach (string tagValue in epg.Tags[tagType])
+                {
+                    if (!tagsAndValues[tagTypeID].Contains(tagValue.ToLower()))
+                        tagsAndValues[tagTypeID].Add(tagValue.ToLower());
+                }
+            }
+        }
+
         private DataTable InitEPGDataTable()
         {
             DataTable dt = new DataTable();
@@ -922,7 +922,7 @@ namespace EpgFeeder
             dt.Columns.Add("like_counter", typeof(long));
             return dt;
         }
-              
+
         private DataTable InitEPGProgramMetaDataTable()
         {
             DataTable dt = new DataTable();
@@ -937,7 +937,7 @@ namespace EpgFeeder
             dt.Columns.Add("language_id", typeof(long));
             return dt;
         }
-        
+
         private DataTable InitEPGProgramTagsDataTable()
         {
             DataTable dt = new DataTable();
@@ -997,7 +997,7 @@ namespace EpgFeeder
         {
             Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
 
-            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, tagsAndValues);          
+            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, tagsAndValues);
 
             if (dtTagValueID != null && dtTagValueID.Rows != null)
             {
@@ -1030,7 +1030,7 @@ namespace EpgFeeder
             }
             return dicTagTypeWithValues;
         }
-        
+
         /*
          ** Insert into epg_channels_schedule table  with the new epg program , 
          * and fill the dictionary with the epg_id for each 
@@ -1217,12 +1217,12 @@ namespace EpgFeeder
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
             }
         }
-       
+
         private void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime, int languageID = 0, bool bFillLanguageID = false)
         {
@@ -1230,7 +1230,7 @@ namespace EpgFeeder
             if (bIsMeta)
             {
                 row["value"] = sValue;
-                row["epg_meta_id"] = nID;                
+                row["epg_meta_id"] = nID;
             }
             else
             {
@@ -1243,10 +1243,10 @@ namespace EpgFeeder
             row["updater_id"] = nUpdaterID;
             row["create_date"] = dCreateTime;
             row["update_date"] = dUpdateTime;
-           if (bFillLanguageID)
-           {
+            if (bFillLanguageID)
+            {
                 row["language_id"] = languageID;
-           }
+            }
             dtEPGExtra.Rows.Add(row);
         }
 
@@ -1268,9 +1268,9 @@ namespace EpgFeeder
             dtEPGExtra.Rows.Add(row);
         }
 
-        private void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags, ref DataTable dtEpgTagsValues, 
+        private void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags, ref DataTable dtEpgTagsValues,
             Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
-        {           
+        {
             KeyValuePair<string, int> kvp = new KeyValuePair<string, int>();
 
             foreach (string sTagName in epg.Tags.Keys)
@@ -1284,7 +1284,7 @@ namespace EpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -1336,8 +1336,8 @@ namespace EpgFeeder
                 }
             }
         }
-        
-        private void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus,int nUpdaterID, 
+
+        private void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus, int nUpdaterID,
             DateTime dCreateTime, DateTime dUpdateTime)
         {
             DataRow row = dtEPGTagValue.NewRow();
@@ -1416,7 +1416,7 @@ namespace EpgFeeder
                     {
                         foreach (string epgGUID in newTagValueEpgs[kvpUpdated])
                         {
-                            List<KeyValuePair<string,EpgCB>> lEpgToUpdate = epgDic[epgGUID];
+                            List<KeyValuePair<string, EpgCB>> lEpgToUpdate = epgDic[epgGUID];
                             foreach (KeyValuePair<string, EpgCB> KVEpgToUpdate in lEpgToUpdate)
                             {
                                 EpgCB epgToUpdate = KVEpgToUpdate.Value;
@@ -1427,7 +1427,7 @@ namespace EpgFeeder
                 }
             }
         }
-                
+
         // initialize each item with all external_ref  
         private void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
         {

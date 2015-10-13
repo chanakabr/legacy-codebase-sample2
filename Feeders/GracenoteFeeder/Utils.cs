@@ -16,14 +16,17 @@ using GroupsCacheManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using System.IO.Compression;
+using KLogMonitor;
+using System.Reflection;
 
 namespace GracenoteFeeder
-{    
+{
     public static class Utils
-    {     
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly int MaxDescriptionSize = 1024;
-        public static readonly int MaxNameSize =255;
-        
+        public static readonly int MaxNameSize = 255;
+
 
         /*Build the FieldTypeEntity Mapping for each Tag / Meta with it's xml mapping */
         public static List<FieldTypeEntity> GetMappingFields(int nGroupID, int channelID, EpgChannelType eEpgChannelType)
@@ -36,7 +39,7 @@ namespace GracenoteFeeder
                 List<int> lSubTree = new List<int>();
                 lSubTree = groupManager.GetSubGroup(nGroupID);
 
-                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID, channelID);                
+                DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID, channelID);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
                 {
@@ -45,15 +48,15 @@ namespace GracenoteFeeder
                         int nEpgChannelType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[4].Rows[0], "epg_channel_type");
                         eEpgChannelType = (EpgChannelType)nEpgChannelType;
                     }
-                    if (ds.Tables[0] != null)//basic
+                    if (ds.Tables[0] != null) // basic
                     {
                         InitializeMappingFields(ds.Tables[0], ds.Tables[3], enums.FieldTypes.Basic, ref AllFieldTypeMapping, eEpgChannelType);
                     }
-                    if (ds.Tables[1] != null)//metas
+                    if (ds.Tables[1] != null) // metas
                     {
                         InitializeMappingFields(ds.Tables[1], ds.Tables[3], enums.FieldTypes.Meta, ref AllFieldTypeMapping, eEpgChannelType);
                     }
-                    if (ds.Tables[2] != null)//Tags
+                    if (ds.Tables[2] != null) // Tags
                     {
                         InitializeMappingFields(ds.Tables[2], ds.Tables[3], enums.FieldTypes.Tag, ref AllFieldTypeMapping, eEpgChannelType);
                     }
@@ -73,11 +76,11 @@ namespace GracenoteFeeder
         {
             DateTime dProgEndDate = dProgStartDate.AddDays(1).AddMilliseconds(-1);
 
-            #region Delete all existing programs in CB that have start/end dates within the new schedule            
+            #region Delete all existing programs in CB that have start/end dates within the new schedule
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
             List<DateTime> lDates = new List<DateTime>() { dProgStartDate };
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", nParentGroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", nParentGroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -108,7 +111,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteDocFromES", string.Format("channelID = {0},ex = {1}", channelID, ex.Message), "EpgFeeder");
+                log.Error("DeleteDocFromES - " + string.Format("channelID = {0},ex = {1}", channelID, ex.Message), ex);
                 return false;
             }
         }
@@ -171,24 +174,24 @@ namespace GracenoteFeeder
                 updateQuery.Finish();
                 updateQuery = null;
 
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), "GraceNoteFeeder");
+                log.Debug("DeleteScheduleProgramByDate - " + string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
             }
             catch (Exception ex)
             {
                 //ProcessError = true;
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "GraceNoteFeeder");
+                log.Error("DeleteScheduleProgramByDate - " + string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), ex);
             }
         }
 
         // initialize each item with all external_ref  
         private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, enums.FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping, EpgChannelType eEpgChannelType)
-        { 
+        {
             FieldTypeEntity item;
 
             foreach (DataRow dr in dataTable.Rows)
             {
-                switch (fieldTypes) 
-                {  
+                switch (fieldTypes)
+                {
                     case enums.FieldTypes.Basic:
                         item = new FieldTypeEntity();
                         item.FieldType = fieldTypes;
@@ -197,7 +200,7 @@ namespace GracenoteFeeder
                         AllFieldTypeMapping.Add(item);
                         break;
                     case enums.FieldTypes.Meta:
-                        item = InitializationMeta(dr, eEpgChannelType, dataTableRef);                        
+                        item = InitializationMeta(dr, eEpgChannelType, dataTableRef);
                         AllFieldTypeMapping.Add(item);
                         break;
                     case enums.FieldTypes.Tag:
@@ -205,7 +208,7 @@ namespace GracenoteFeeder
                         break;
                     default:
                         break;
-                }               
+                }
             }
         }
 
@@ -254,7 +257,7 @@ namespace GracenoteFeeder
             if (bNewTag)
             {
                 AllFieldTypeMapping.Add(item);
-            }           
+            }
         }
 
         private static FieldTypeEntity InitializationMeta(DataRow dr, EpgChannelType eEpgChannelType, DataTable dataTableRef)
@@ -292,7 +295,7 @@ namespace GracenoteFeeder
             }
             return item;
         }
-        
+
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)
@@ -317,19 +320,19 @@ namespace GracenoteFeeder
                 dt = new DateTime(year, month, day, hour, min, sec);
             }
             catch (Exception exp)
-            {                                
+            {
             }
             return dt;
         }
-        
+
         /*create EpgCB object by all the values from XML*/
-        public static EpgCB generateEPGCB(string epg_url, string description, string name, int channelID, string EPGGuid, DateTime dProgStartDate, 
+        public static EpgCB generateEPGCB(string epg_url, string description, string name, int channelID, string EPGGuid, DateTime dProgStartDate,
             DateTime dProgEndDate, XmlNode progItem, int groupID, int parentGroupID, List<FieldTypeEntity> lFieldTypeEntity)
         {
             EpgCB newEpgItem = new EpgCB();
             try
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), "GraceNoteFeeder");
+                log.Debug("generateEPGCB - " + string.Format("EpgIdentifier '{0}' ", EPGGuid));
 
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0}", name);
@@ -343,7 +346,7 @@ namespace GracenoteFeeder
                 newEpgItem.CreateDate = DateTime.UtcNow;
                 newEpgItem.isActive = true;
                 newEpgItem.Status = 1;
-                
+
                 newEpgItem.Metas = Utils.GetEpgProgramMetas(lFieldTypeEntity);
                 // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
                 newEpgItem.Tags = Utils.GetEpgProgramTags(lFieldTypeEntity);
@@ -363,15 +366,15 @@ namespace GracenoteFeeder
                         newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
                     }
                 }
-                #endregion              
+                #endregion
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), "GraceNoteFeeder");
+                log.Error("generateEPGCB - " + string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), exp);
             }
             return newEpgItem;
         }
-             
+
 
         private static Dictionary<string, List<string>> GetEpgProgramMetas(List<FieldTypeEntity> FieldEntityMapping)
         {
@@ -422,7 +425,7 @@ namespace GracenoteFeeder
             }
             return dTags;
         }
-        
+
         public static void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
        ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
         {
@@ -439,12 +442,12 @@ namespace GracenoteFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
                 foreach (string sTagValue in epg.Tags[sTagName])
-                { 
+                {
                     if (sTagValue != "")
                     {
                         kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
@@ -548,7 +551,7 @@ namespace GracenoteFeeder
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
             }
@@ -818,7 +821,7 @@ namespace GracenoteFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -844,7 +847,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }
@@ -884,7 +887,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}, uri={1}", ex.Message, uri), "GracenoteFeeder");
+                log.Error("getXmlFromGracenote - " + string.Format("ex={0}, uri={1}", ex.Message, uri), ex);
                 return string.Empty;
             }
         }
@@ -907,7 +910,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
+                log.Error("GetProxyConfig - " + string.Format("fail to initialize proxy details ex={0}", ex.Message), ex);
             }
         }
 

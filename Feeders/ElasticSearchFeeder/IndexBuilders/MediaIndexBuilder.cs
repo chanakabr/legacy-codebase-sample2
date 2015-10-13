@@ -10,11 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
     public class MediaIndexBuilder : AbstractIndexBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected ElasticSearchApi m_oESApi;
         protected int m_nGroupID;
         protected ESSerializer m_oESSerializer;
@@ -48,7 +52,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             if (oGroup == null)
             {
-                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESFeeder");
+                log.Error("Error - Could not load group in media index builder. ESFeeder");
                 return false;
             }
 
@@ -68,7 +72,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
 
-                string analyzerDefinitionName= ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
 
                 if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
@@ -85,7 +89,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
+                    log.Error("Error - " + string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code) + " ElasticSearch");
                 }
 
                 string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
@@ -96,7 +100,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                     bRes = false;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESFeeder");
+                    log.Error("Error - " + string.Concat("Could not create mapping of type media for language ", language.Name) + " ESFeeder");
 
             }
 
@@ -109,7 +113,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             if (dGroupMedias != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", dGroupMedias.Count), "ESFeeder");
+                log.Debug("Info - " + string.Format("Start indexing medias. total medias={0}", dGroupMedias.Count) + " ESFeeder");
                 List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
 
                 foreach (int nMediaID in dGroupMedias.Keys)
@@ -149,7 +153,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
             if (oGroup.channelIDs != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing channels. total channels={0}", oGroup.channelIDs.Count), "ESFeeder");
+                log.Debug("Info - " + string.Format("Start indexing channels. total channels={0}", oGroup.channelIDs.Count) + " ESFeeder");
 
                 MediaSearchObj oSearchObj;
                 string sQueryStr;
@@ -186,7 +190,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
+                    log.Error("Error " + string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace) + " ESFeeder", ex);
                 }
             }
 
@@ -228,7 +232,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ElasticSearch");
+                        log.Error("Error - " + string.Format("analyzer for language {0} doesn't exist", language.Code));
                     }
                     else
                     {
@@ -252,7 +256,7 @@ namespace ElasticSearchFeeder.IndexBuilders
         {
 
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
-            //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
+            //E.g. dMedias[123][2] --> will return media 123 of the Hebrew language
             Dictionary<int, Dictionary<int, Media>> dMediaTrans = new Dictionary<int, Dictionary<int, Media>>();
 
             //temporary media dictionary
@@ -264,7 +268,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                 if (oGroup == null)
                 {
-                    Logger.Logger.Log("Error", "Could not load group from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Error - Could not load group from cache in GetGroupMedias. ESFeeder");
                     return dMediaTrans;
                 }
 
@@ -272,7 +276,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                 if (oDefaultLangauge == null)
                 {
-                    Logger.Logger.Log("Error", "Could not get group default language from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Error - Could not get group default language from cache in GetGroupMedias. ESFeeder");
                     return dMediaTrans;
                 }
 
@@ -290,7 +294,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Media Exception", ex.Message, "ESFeeder");
+                log.Error("Media Exception - " + ex.Message + " ESFeeder", ex);
             }
 
             return dMediaTrans;

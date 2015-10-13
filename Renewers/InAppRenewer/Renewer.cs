@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace InAppRenewer
 {
-
     public class Renewer : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static protected object o = new object();
         protected Int32 m_nGroupID;
         protected int m_nBillingProvider = 200;
@@ -18,7 +21,7 @@ namespace InAppRenewer
             if (!string.IsNullOrEmpty(sParameters))
             {
                 m_nGroupID = int.Parse(sParameters);
-               
+
             }
             else
             {
@@ -119,7 +122,8 @@ namespace InAppRenewer
         public bool DoTheJob()
         {
             string sList = " ";
-            Logger.Logger.Log("Start" , "Job start: group: " + m_nGroupID.ToString() + " | billing provider: " + m_nBillingProvider.ToString() , "InAppRenewer");
+            log.DebugFormat("Start - Job start: group: {0} billing provider: {1}", m_nGroupID.ToString(), m_nBillingProvider.ToString());
+
             while (sList != "")
             {
                 sList = GetList();
@@ -127,11 +131,11 @@ namespace InAppRenewer
                 {
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery += "select q.* from (select * from billing_transactions where purchase_id in (" + sList + ") and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER" , "=" , m_nBillingProvider);
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", m_nBillingProvider);
                     //selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
                     selectQuery += ")q,(select max(id) as id,purchase_id from billing_transactions where ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER" , "=" , m_nBillingProvider);
-                   // selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", m_nBillingProvider);
+                    // selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
                     selectQuery += " and purchase_id in (" + sList + ") group by purchase_id)q1 where q.id=q1.id";
                     if (selectQuery.Execute("query", true) != null)
                     {
@@ -147,16 +151,16 @@ namespace InAppRenewer
                                 nBillingMethod = int.Parse(oBillingMethod.ToString());
                             }
                             string sSiteGUID = selectQuery.Table("query").DefaultView[i].Row["SITE_GUID"].ToString();
-                            double dPrice = double.Parse(selectQuery.Table("query").DefaultView[i].Row["PRICE"].ToString()); 
-                            string sCurrency = selectQuery.Table("query").DefaultView[i].Row["CURRENCY_CODE"].ToString(); 
+                            double dPrice = double.Parse(selectQuery.Table("query").DefaultView[i].Row["PRICE"].ToString());
+                            string sCurrency = selectQuery.Table("query").DefaultView[i].Row["CURRENCY_CODE"].ToString();
                             string sSubscriptionCode = selectQuery.Table("query").DefaultView[i].Row["SUBSCRIPTION_CODE"].ToString();
                             if (!string.IsNullOrEmpty(sSubscriptionCode))
                             {
                                 string sExtraParams = selectQuery.Table("query").DefaultView[i].Row["EXTRA_PARAMS"].ToString();
                                 Int32 nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["purchase_id"].ToString());
-                                                                                                        
+
                                 int nInAppTransactionID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "BILLING_PROVIDER_REFFERENCE", i);
-                                
+
                                 Int32 nPaymentNumber = int.Parse(selectQuery.Table("query").DefaultView[i].Row["PAYMENT_NUMBER"].ToString());
                                 Int32 nNumOfPayments = int.Parse(selectQuery.Table("query").DefaultView[i].Row["number_of_payments"].ToString());
                                 if (nInAppTransactionID > 0 && (nNumOfPayments == 0 || nPaymentNumber <= nNumOfPayments))
@@ -185,14 +189,6 @@ namespace InAppRenewer
                                     ConditionalAccess.TvinciBilling.InAppBillingResponse resp = t.InApp_RenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, nPurchaseID, 200,
                                         nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName, nInAppTransactionID);
 
-
-                                    //if (m_nBillingProvider == 0)
-                                    //{
-                                       // ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
-                                       //nPurchaseID, nBillingMethod, nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName);
-                                       // Logger.Logger.Log("renew", sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode, "CCRenewer");
-                                   // }
-                                   
                                     System.Threading.Thread.Sleep(10);
                                 }
                             }

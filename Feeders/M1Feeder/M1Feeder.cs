@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using ScheduledTasks;
 using M1BL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace M1Feeder
 {
-    public class M1Feeder : BaseTask 
+    public class M1Feeder : BaseTask
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         #region private Members
-        private int m_nGroupID = 0;    
+        private int m_nGroupID = 0;
         #endregion
 
 
@@ -31,20 +33,20 @@ namespace M1Feeder
         #region private Methods
         private void InitParams(string sParameters)
         {
-            Logger.Logger.Log("InitParams Begin", "sParameters=" + sParameters, "M1Feeder");                       
+            log.Debug("InitParams Begin - sParameters=" + sParameters + ". M1Feeder");
 
             string[] arrParams = sParameters.Split(new char[] { '|' });
             try
             {
-                int.TryParse(arrParams[0], out m_nGroupID);   
-               
+                int.TryParse(arrParams[0], out m_nGroupID);
+
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InitParams Error", "GroupID=" + m_nGroupID.ToString() + ", Exception:" + ex.ToString(), "M1Feeder");
+                log.Error("InitParams Error - GroupID=" + m_nGroupID.ToString() + ", Exception:" + ex.ToString(), ex);
             }
 
-            Logger.Logger.Log("InitParams Finish", "GroupID=" + m_nGroupID.ToString(), "M1Feeder");
+            log.Debug("InitParams Finish - GroupID=" + m_nGroupID.ToString() + ". M1Feeder");
         }
 
 
@@ -60,15 +62,15 @@ namespace M1Feeder
             {
                 M1FilesManager m1FilesManager = new M1FilesManager(m_nGroupID);
                 string sPPVFileName = m1FilesManager.ProcessCdrFile(M1ItemType.PPV);
-                string sSubscriptionFileName = m1FilesManager.ProcessCdrFile(M1ItemType.Subscription); 
+                string sSubscriptionFileName = m1FilesManager.ProcessCdrFile(M1ItemType.Subscription);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("DoTheTaskInner", "GroupID=" + m_nGroupID.ToString()+", Exception:"+ ex.ToString(), "M1Feeder");
+                log.Error("DoTheTaskInner - GroupID=" + m_nGroupID.ToString() + ", Exception:" + ex.ToString(), ex);
                 result = false;
             }
-            return result;        
-        } 
+            return result;
+        }
         #endregion
     }
 }
