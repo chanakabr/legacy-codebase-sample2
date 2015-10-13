@@ -288,5 +288,10 @@ namespace Catalog
         {
             throw new NotImplementedException();
         }
+
+        public void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

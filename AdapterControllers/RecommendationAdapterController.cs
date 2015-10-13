@@ -97,7 +97,7 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //set signature
+            //TODO: set signature
             string signature = string.Empty;
                 //string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
                 //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);
@@ -192,9 +192,9 @@ namespace AdapterControllers
             {
                 logMessage = string.Format("Recommendation Engine Adapter {0} Result Status: Message = {1}, " +
                     "Code = {2} Count = {3}",
-                    action != null ? action : string.Empty,                                                                                                                                              // {0}
-                    adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,                                 // {1}
-                    adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,                                                                                        // {2}
+                    action != null ? action : string.Empty,  // {0}
+                    adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,  // {1}
+                    adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1, // {2}
                     adapterResponse != null && adapterResponse.Results != null ? adapterResponse.Results.Length : -1); // {3}
             }
 
@@ -203,7 +203,8 @@ namespace AdapterControllers
 
         public void ShareFilteredResponse(ExternalChannel externalChannel, List<RecommendationResult> results)
         {
-            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
+            RecommendationEngine engine =
+                RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
@@ -215,7 +216,7 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //set signature
+            //TODO: set signature
             string signature = string.Empty;
             //string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
             //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);

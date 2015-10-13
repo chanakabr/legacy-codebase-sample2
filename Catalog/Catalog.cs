@@ -4633,6 +4633,9 @@ namespace Catalog
                 status.Message = "No recommendations received";
             }
 
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            // If there is no filter - no need to go to Searcher, just page the results list and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
                 totalItems = recommendations.Count;
@@ -4645,15 +4648,17 @@ namespace Catalog
                         new UnifiedSearchResult()
                         {
                             AssetId = result.id,
-                            AssetType = (eAssetTypes)result.type
+                            AssetType = (eAssetTypes)result.type,
+                            m_dUpdateDate = DateTime.MinValue
                         }
                     ).ToList();
+
+                    searcher.FillUpdateDates(request.m_nGroupID, searchResultsList);
                 }
             }
+            // If there is, go to ES and perform further filter
             else
             {
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
                 {
@@ -4721,6 +4726,12 @@ namespace Catalog
             return status;           
         }
 
+        /// <summary>
+        /// Builds a dictionary of enrichments for recommendation engine adapter
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
         private static Dictionary<string, string> GetEnrichments(ExternalChannelRequest request, List<ExternalChannelEnrichment> list)
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
@@ -4762,6 +4773,7 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.Language:
                     {
+                        // If requested specific language - use it. Otherwise, group's default
                         LanguageObj objLang = null;
 
                         if (request.m_oFilter == null)
@@ -4790,10 +4802,14 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.Parental:
                     {
+                        throw new NotImplementedException();
+
                         break;
                     }
                     case ExternalChannelEnrichment.DTTRegion:
                     {
+                        // External ID of region of current domain
+
                         GroupManager manager = new GroupManager();
                         Group group = manager.GetGroup(request.m_nGroupID);
 
@@ -4826,6 +4842,13 @@ namespace Catalog
             return dictionary;
         }
 
+        /// <summary>
+        /// Because unified search works only with Unified Search Request, we conver the External Channel Request to make it work
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="externalChannel"></param>
+        /// <param name="filterTree"></param>
+        /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, ExternalChannel externalChannel, BooleanPhraseNode filterTree)
         {
             UnifiedSearchRequest alternateRequest = new UnifiedSearchRequest(request.m_nPageSize, request.m_nPageIndex,

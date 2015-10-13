@@ -77,6 +77,9 @@ namespace Catalog.Request
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 
                 response.status = Catalog.GetExternalChannelAssets(request, out totalItems, out searchResults);
+
+                response.searchResults = searchResults;
+                response.m_nTotalItems = totalItems;
             }
             catch (Exception ex)
             {

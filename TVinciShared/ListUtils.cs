@@ -24,6 +24,7 @@ namespace TVinciShared
                 if (pageSize == 0 && pageIndex == 0)
                 {
                     // return all results
+                    output = original;
                 }
                 else
                 {
