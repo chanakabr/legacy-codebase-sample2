@@ -849,6 +849,14 @@ namespace Catalog
 
                                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
                                     }
+                                    else if (searchKeyLowered == "update_date")
+                                    {
+                                        leaf.valueType = typeof(DateTime);
+
+                                        long epoch = Convert.ToInt64(leaf.value);
+
+                                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                                    }
                                     else if (searchKeyLowered == "geo_block")
                                     {
                                         // geo_block is a personal filter that currently will work only with "true".
