@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Configuration;
 using EpgBL;
 using TvinciImporter;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace EpgFeeder
@@ -47,15 +49,12 @@ namespace EpgFeeder
 
         #endregion
 
-        #region Private Members
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private NetworkCredential m_NetCredential;
         private string m_SuccessPath;
         private string m_FailedPath;
         private bool m_ProcessError = false;
         private string UpdaterID = "700";
-        
-        #endregion
 
 
         public EPGImplementor(string sGroupID)
@@ -273,7 +272,7 @@ namespace EpgFeeder
                     {
 
                         FieldTypeEntity item = new FieldTypeEntity();
-                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr,"ID");
+                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                         item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
                         item.FieldType = enums.FieldTypes.Meta;
                         AllFieldType.Add(item);
@@ -300,7 +299,7 @@ namespace EpgFeeder
                     {
 
                         FieldTypeEntity item = new FieldTypeEntity();
-                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr , "ID");
+                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                         item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
                         item.FieldType = enums.FieldTypes.Tag;
                         AllFieldType.Add(item);
@@ -423,7 +422,7 @@ namespace EpgFeeder
             }
             return res;
         }
-        
+
         public virtual List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
@@ -537,7 +536,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertEPGProgramMetaValue", string.Format("could not Insert EPG Program Meta Value '{0}' epg_meta_id '{1}' , error message: {2}", value, EPGMetaID, exp.Message), LogFileName);
+                log.Error("InsertEPGProgramMetaValue - " + string.Format("could not Insert EPG Program Meta Value '{0}' epg_meta_id '{1}' , error message: {2}", value, EPGMetaID, exp.Message), exp);
             }
         }
 
@@ -585,7 +584,7 @@ namespace EpgFeeder
 
             try
             {
-                Logger.Logger.Log("EPGImplementor.ProcessFilesFromFtpFolder(), Before get response from ftp", string.Format("userName:{0},password:{1},successPath:{2},failedPath:{3}", userName, password, successPath, failedPath), LogFileName);
+                log.Debug("EPGImplementor.ProcessFilesFromFtpFolder(), Before get response from ftp - " + string.Format("userName:{0},password:{1},successPath:{2},failedPath:{3}", userName, password, successPath, failedPath));
 
                 m_NetCredential = new NetworkCredential(userName, password);
                 FtpWebRequest reqFTP;
@@ -618,7 +617,7 @@ namespace EpgFeeder
                         {
                             m_ProcessError = true;
                             enabledelete = MoveFile(filename);
-                            Logger.Logger.Log("EPGImplementor.ProcessFilesFromFtpFolder() Exception:", string.Format("there an error occurring during the processing  EPG File '{0}', Error : {1}", filename, ex.Message), LogFileName);
+                            log.Error("EPGImplementor.ProcessFilesFromFtpFolder() Exception: " + string.Format("there an error occurring during the processing  EPG File '{0}', Error : {1}", filename, ex.Message));
                         }
                         finally
                         {
@@ -635,7 +634,7 @@ namespace EpgFeeder
                     }
                 }
 
-                Logger.Logger.Log("EPGImplementor.ProcessFilesFromFtpFolder() ", "After Processing files form ftp", LogFileName);
+                log.Debug("EPGImplementor.ProcessFilesFromFtpFolder() After Processing files form ftp");
             }
 
             catch (Exception exp)
@@ -653,8 +652,7 @@ namespace EpgFeeder
                     reader.Close();
                 }
 
-                Logger.Logger.Log("EPG_LoadFiles_From_FTP", string.Format("there an error occurred during the Load Files process,  Error: {0}", exp.Message), LogFileName);
-
+                log.Debug("EPG_LoadFiles_From_FTP - " + string.Format("there an error occurred during the Load Files process,  Error: {0}", exp.Message));
             }
             finally
             {
@@ -698,7 +696,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }
@@ -821,7 +819,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertEPGTagValue", string.Format("could not Insert EPG Tag Value Tag id {0} value '{1}' , error message: {2}", EPGTagTypeID, value, exp.Message), LogFileName);
+                log.Error("InsertEPGTagValue - " + string.Format("could not Insert EPG Tag Value Tag id {0} value '{1}' , error message: {2}", EPGTagTypeID, value, exp.Message), exp);
             }
         }
 
@@ -842,7 +840,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertEPGProgramTag", string.Format("could not Insert EPG Program Tag id {0} to program id {1} , error message: {2}", tagid, ProgramID, exp.Message), LogFileName);
+                log.Error("InsertEPGProgramTag - " + string.Format("could not Insert EPG Program Tag id {0} to program id {1} , error message: {2}", tagid, ProgramID, exp.Message), exp);
             }
         }
 
@@ -976,7 +974,7 @@ namespace EpgFeeder
 
         private XmlDocument GetXmlDocFromFTPFile(string sFileName, NetworkCredential networkCredentials)
         {
-            Logger.Logger.Log("Start EPGImplementor.GetXmlDocFromFTPFile()", string.Format("File Name:{0}", sFileName), LogFileName);
+            log.Debug("Start EPGImplementor.GetXmlDocFromFTPFile() - " + string.Format("File Name:{0}", sFileName));
 
 
             XmlDocument xmlDoc = new XmlDocument();
@@ -1002,7 +1000,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("EPGImplementor.GetXmlDocFromFTPFile() Exception:", string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName);
+                log.Error("EPGImplementor.GetXmlDocFromFTPFile() Exception: - " + string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), exp);
             }
             finally
             {
@@ -1012,7 +1010,7 @@ namespace EpgFeeder
                 }
             }
 
-            Logger.Logger.Log("End EPGImplementor.GetXmlDocFromFTPFile()", string.Format("File Name:{0}", sFileName), LogFileName);
+            log.Debug("End EPGImplementor.GetXmlDocFromFTPFile() - " + string.Format("File Name:{0}", sFileName));
             return xmlDoc;
         }
         /// <summary>
@@ -1020,10 +1018,10 @@ namespace EpgFeeder
         /// </summary>
         /// <param name="sFileName">set file name</param>
         /// <param name="sTargetDirectoryPath">Target Directory Path</param>
-        /// <returns>retur true if success else return false</returns>
+        /// <returns>return true if success else return false</returns>
         private bool MoveFile(string sFileName)
         {
-            bool moveSucceeded = false;           
+            bool moveSucceeded = false;
             string sTargetDirectoryPath = GetMoveFilePath();
             FtpWebResponse response = null;
             Stream stream = null;
@@ -1043,35 +1041,35 @@ namespace EpgFeeder
                     byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
                     sourceStream.Close();
 
-                    request.ContentLength = fileContents.Length;               
+                    request.ContentLength = fileContents.Length;
 
                     Stream requestStream = request.GetRequestStream();
                     requestStream.Write(fileContents, 0, fileContents.Length);
                     requestStream.Close();
-                   
+
 
                     Uploadresponse = (FtpWebResponse)request.GetResponse();
 
                     moveSucceeded = true;
 
-                    Logger.Logger.Log("EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                    log.Debug("EPG Move file - " + string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription));
                 }
                 catch (Exception exp)
-                { 
-                    Logger.Logger.Log("EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG Moves source file faild.");
+                {
+                    log.Error("EPG Move file - " + string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), exp);
                 }
                 finally
                 {
                     if (response != null)
                     {
                         response.Close();
-                        response = null;                      
+                        response = null;
                     }
 
                     if (stream != null)
                     {
                         stream.Close();
-                        stream = null;                     
+                        stream = null;
                     }
 
                     if (Uploadresponse != null)
@@ -1101,7 +1099,7 @@ namespace EpgFeeder
                 reqFTP.Method = WebRequestMethods.Ftp.DeleteFile;
                 response = (FtpWebResponse)reqFTP.GetResponse();
                 res = true;
-                Logger.Logger.Log("EPG Delete file", string.Format("delete source file '{0}' success .! , response status: {1}", sFileName, response.StatusDescription), LogFileName);
+                log.Debug("EPG Delete file - " + string.Format("delete source file '{0}' success .! , response status: {1}", sFileName, response.StatusDescription));
             }
             catch (Exception exp)
             {
@@ -1110,7 +1108,7 @@ namespace EpgFeeder
                     response.Close();
                 }
                 res = false;
-                Logger.Logger.Log("EPG_Delete", string.Format("there an error occurred during the delete process, delete file '{0}'  , Error: {1}", sFileName, exp.Message), LogFileName, "EPG  - delete source file faild.");
+                log.Error("EPG_Delete - " + string.Format("there an error occurred during the delete process, delete file '{0}'  , Error: {1}", sFileName, exp.Message) + " EPG  - delete source file failed.", exp);
             }
             finally
             {
@@ -1151,9 +1149,8 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("EPG FTP Stream ", string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG - Get stream file failed.");
+                log.Error("EPG FTP Stream " + string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), exp);
                 response = null;
-
             }
 
             return stream;
@@ -1223,7 +1220,7 @@ namespace EpgFeeder
 
             foreach (DateTime progStartDate in deletedChannelDates.Keys)
             {
-                Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID), "EpgFeeder");
+                log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID));
                 Tvinci.Core.DAL.EpgDal.DeleteProgramsOnDate(progStartDate, s_GroupID, channelID);
             }
             #endregion
@@ -1252,7 +1249,7 @@ namespace EpgFeeder
                 }
             }
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -1265,7 +1262,7 @@ namespace EpgFeeder
 
         protected void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping)
         {
-          
+
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
             Dictionary<int, List<string>> tagsAndValues = new Dictionary<int, List<string>>();
             int nEpgCount = 0;
@@ -1277,7 +1274,7 @@ namespace EpgFeeder
                     nEpgCount++;
 
                     //generate a Dictionary of all tag and values in the epg
-                    GenerateTagsAndValues(epgDic[sGuid], FieldEntityMapping, ref tagsAndValues);                  
+                    GenerateTagsAndValues(epgDic[sGuid], FieldEntityMapping, ref tagsAndValues);
 
                     if (nEpgCount >= nCountPackage)
                     {
@@ -1309,14 +1306,14 @@ namespace EpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgsDBBatches - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), exc);
                 return;
             }
         }
 
         //generate a Dictionary of all tag and values in the epg
         protected void GenerateTagsAndValues(EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref  Dictionary<int, List<string>> tagsAndValues)
-        {            
+        {
             foreach (string tagType in epg.Tags.Keys)
             {
                 string tagTypel = tagType.ToLower();
@@ -1328,7 +1325,7 @@ namespace EpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -1343,7 +1340,7 @@ namespace EpgFeeder
                 }
             }
         }
-        
+
         //this FUnction inserts Epgs, thier Metas and tags to DB, and updates the EPGID in the EpgCB object according to the ID of the epg_channels_schedule in the DB
         protected void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues)
         {
@@ -1362,7 +1359,7 @@ namespace EpgFeeder
                 List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == enums.FieldTypes.Tag).ToList();
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
-            //    Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithAllValues(nGroupID, FieldEntityMappingTags);  //all the tag types IDs and thier values that are in the DB (can be more than one) 
+                //    Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithAllValues(nGroupID, FieldEntityMappingTags);  //all the tag types IDs and thier values that are in the DB (can be more than one) 
 
                 Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithRelevantValues(nGroupID, FieldEntityMappingTags, tagsAndValues);//return relevant tag value ID, if they exist in the DB
 
@@ -1386,7 +1383,7 @@ namespace EpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), exc);
                 return;
             }
         }
@@ -1398,7 +1395,7 @@ namespace EpgFeeder
             Dictionary<KeyValuePair<string, int>, int> tagValueWithID = new Dictionary<KeyValuePair<string, int>, int>();
             Dictionary<int, List<string>> dicTagTypeIDAndValues = new Dictionary<int, List<string>>();
             string sConn = "MAIN_CONNECTION_STRING";
-          
+
             if (dtEpgTagsValues != null && dtEpgTagsValues.Rows != null && dtEpgTagsValues.Rows.Count > 0)
             {
                 //insert all New tag values from dtEpgTagsValues to DB
@@ -1461,7 +1458,7 @@ namespace EpgFeeder
                         }
                     }
                 }
-            } 
+            }
         }
 
 
@@ -1470,7 +1467,7 @@ namespace EpgFeeder
         protected Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithRelevantValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags, Dictionary<int, List<string>> tagsAndValues)
         {
             Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
-                        
+
             DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, tagsAndValues);
 
             if (dtTagValueID != null && dtTagValueID.Rows != null)
@@ -1563,7 +1560,7 @@ namespace EpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -1584,7 +1581,7 @@ namespace EpgFeeder
                             else//tha tag value does not exist in the DB
                             {
                                 //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
-                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) 
+                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0)
                                 {
                                     newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
                                 }
@@ -1620,7 +1617,7 @@ namespace EpgFeeder
         //    ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
         //{         
         //    KeyValuePair<string, int> kvp  = new KeyValuePair<string,int>();
-           
+
         //    foreach (string sTagName in epg.Tags.Keys)
         //    {
         //        List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
@@ -1686,7 +1683,7 @@ namespace EpgFeeder
         //}
 
         protected void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
-        {           
+        {
             List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
             foreach (string sMetaName in epg.Metas.Keys)
             {
@@ -1697,16 +1694,16 @@ namespace EpgFeeder
                     nID = metaField[0].ID;
                     if (epg.Metas[sMetaName].Count > 0)
                     {
-                        string sValue = epg.Metas[sMetaName][0];                       
+                        string sValue = epg.Metas[sMetaName][0];
                         FillEpgExtraDataTable(ref dtEpgMetas, true, sValue, epg.EpgID, nID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
                     }
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}",sMetaName, epg.EpgID), "EpgFeeder");                        
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
-            }            
+            }
         }
 
         protected void InsertEPG_Channels_sched(ref Dictionary<string, EpgCB> epgDic)
@@ -1714,7 +1711,7 @@ namespace EpgFeeder
             EpgCB epg;
             Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
 
-            DataTable dtEPG = InitEPGDataTable();       
+            DataTable dtEPG = InitEPGDataTable();
             FillEPGDataTable(epgDic, ref dtEPG);
             string sConn = "MAIN_CONNECTION_STRING";
             InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
@@ -1737,7 +1734,7 @@ namespace EpgFeeder
             }
         }
 
-       //Insert rows of table to the db at once using bulk operation.      
+        //Insert rows of table to the db at once using bulk operation.      
         protected void InsertBulk(DataTable dt, string sTableName, string sConnName)
         {
             if (dt != null)
@@ -1762,7 +1759,7 @@ namespace EpgFeeder
                         insertMessagesBulk.Finish();
                     }
                     insertMessagesBulk = null;
-                }              
+                }
             }
         }
 
@@ -1800,7 +1797,7 @@ namespace EpgFeeder
             dt.Columns.Add("status", typeof(int));
             dt.Columns.Add("updater_id", typeof(int));
             dt.Columns.Add("create_date", typeof(DateTime));
-            dt.Columns.Add("update_date", typeof(DateTime));       
+            dt.Columns.Add("update_date", typeof(DateTime));
             return dt;
         }
 
@@ -1813,7 +1810,7 @@ namespace EpgFeeder
             dt.Columns.Add("status", typeof(int));
             dt.Columns.Add("updater_id", typeof(int));
             dt.Columns.Add("create_date", typeof(DateTime));
-            dt.Columns.Add("update_date", typeof(DateTime));           
+            dt.Columns.Add("update_date", typeof(DateTime));
             return dt;
         }
 
@@ -1859,7 +1856,7 @@ namespace EpgFeeder
                         row["EPG_TAG"] = null;
                         row["media_id"] = epg.ExtraData.MediaID;
                         row["FB_OBJECT_ID"] = epg.ExtraData.FBObjectID;
-                        row["like_counter"] =  epg.Statistics.Likes;
+                        row["like_counter"] = epg.Statistics.Likes;
                         dtEPG.Rows.Add(row);
                     }
                 }
@@ -1867,7 +1864,7 @@ namespace EpgFeeder
 
         }
 
-        protected void FillEpgExtraDataTable(ref DataTable dtEPGExtra,bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus, 
+        protected void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
             int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
         {
             DataRow row = dtEPGExtra.NewRow();
@@ -1893,7 +1890,7 @@ namespace EpgFeeder
         protected void FillEpgTagValueTable(ref DataTable dtEPGTagValue, string sValue, ulong nProgID, int nTagTypeID, int nGroupID, int nStatus,
            int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
         {
-            DataRow row = dtEPGTagValue.NewRow();           
+            DataRow row = dtEPGTagValue.NewRow();
             row["value"] = sValue;
             row["epg_tag_type_id"] = nTagTypeID;
             row["group_id"] = nGroupID;

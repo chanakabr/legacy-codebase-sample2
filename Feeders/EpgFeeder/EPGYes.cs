@@ -9,12 +9,14 @@ using System.Net;
 using ApiObjects;
 using System.Configuration;
 using System.Web;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EpgFeeder
 {
     public class EPGYes : EPGImplementor
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected override string LogFileName
         {
@@ -305,7 +307,7 @@ namespace EpgFeeder
         }
         private void ProcessOneXmlFile(XmlDocument xmlDoc)
         {
-            Logger.Logger.Log("Start EPGYes.ProcessOneXmlFile()", "Deserialize xmlDoc", LogFileName);
+            log.Debug("Start EPGYes.ProcessOneXmlFile() Deserialize xmlDoc");
             try
             {
                 XmlSerializer ser = new XmlSerializer(typeof(Tvinci.EPG.Yes.tv));
@@ -315,14 +317,14 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EPGYes.ProcessOneXmlFile()", "Exception on Deserialize xml:" + ex.Message, LogFileName);
+                log.Error("EPGYes.ProcessOneXmlFile() Exception on Deserialize xml:" + ex.Message, ex);
             }
-            Logger.Logger.Log("End EPGYes.ProcessOneXmlFile()", "Deserialize xmlDoc", LogFileName);
+            log.Debug("End EPGYes.ProcessOneXmlFile() Deserialize xmlDoc");
         }
         private Dictionary<DateTime, List<int>> SaveTvChannels()
         {
             Dictionary<DateTime, List<int>> dateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
-            Logger.Logger.Log("Start EPGYes.SaveTvChannels()", "Save tv channels to db", LogFileName);
+            log.Debug("Start EPGYes.SaveTvChannels() Save tv channels to db");
 
             try
             {
@@ -467,9 +469,9 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EPGYes.SaveTvChannels()", "Exception on saving channels to db:" + ex.Message, LogFileName);
+                log.Error("EPGYes.SaveTvChannels() Exception on saving channels to db:" + ex.Message, ex);
             }
-            Logger.Logger.Log("End EPGYes.SaveTvChannels()", "Save tv channels to db", LogFileName);
+            log.Debug("End EPGYes.SaveTvChannels() Save tv channels to db");
 
             return dateWithChannelIds;
         }
@@ -501,7 +503,7 @@ namespace EpgFeeder
         private string GetYesRestUrl(DateTime startDate, string sEPGChannelID, int nTotalMinutes, int nTotalPrograms)
         {
             string day = startDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
             url.AppendFormat("schedules?");
@@ -604,7 +606,7 @@ namespace EpgFeeder
             }
 
             double dTT = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
-            Logger.Logger.Log("GetEPGChannelPrograms", string.Format("TT:{0}, ct:{1}, nt:{2}, URL:{3}", dTT, dCiscoTime, dTT - dCiscoTime, url), "Cisco");
+            log.Debug("GetEPGChannelPrograms - " + string.Format("TT:{0}, ct:{1}, nt:{2}, URL:{3}", dTT, dCiscoTime, dTT - dCiscoTime, url));
 
             return res;
         }
@@ -678,7 +680,7 @@ namespace EpgFeeder
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl"); 
+            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);

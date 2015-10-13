@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using KLogMonitor;
 using Tvinci.Core.DAL;
 
 namespace CouchbaseMediaMarksFeeder
@@ -13,6 +15,7 @@ namespace CouchbaseMediaMarksFeeder
      */ 
     internal class ChunkManager : IDisposable
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private int index;
         private bool isInitialized;
         private int total;

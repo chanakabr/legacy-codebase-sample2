@@ -12,10 +12,13 @@ using TVinciShared;
 using System.Data;
 using ApiObjects;
 using EpgBL;
+using KLogMonitor;
+using System.Reflection;
 namespace EpgFeeder
 {
     public class EPGMediaCorp : EPGImplementor
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         List<string> FilePathList = new List<string>();
         string sPath_successPath;
         string sPath_FailedPath;
@@ -40,7 +43,7 @@ namespace EpgFeeder
         {
 
         }
-        
+
         public EPGMediaCorp(string sGroupID, string sPathType, string sPath, Dictionary<string, string> sExtraParamter)
             : base(sGroupID, sPathType, sPath, sExtraParamter)
         {
@@ -131,7 +134,7 @@ namespace EpgFeeder
             catch (Exception exp)
             {
                 string errorMessage = string.Format("could not get the node '{0}' innerText value, error:{1}", xpath, exp.Message);
-                Logger.Logger.Log("Media Corp: Upload EPG File", errorMessage, LogFileName, errorMessage);
+                log.Error("Media Corp: Upload EPG File - " + errorMessage, exp);
             }
             return res;
         }
@@ -139,13 +142,13 @@ namespace EpgFeeder
         private void DeleteProgramsByChannelAndDate(Int32 channelID, DateTime dProgStartDate)
         {
             DateTime dProgEndDate = dProgStartDate.AddDays(1).AddMilliseconds(-1);
-                       
+
             #region Delete all existing programs in CB that have start/end dates within the new schedule
             int nParentGroupID = int.Parse(m_ParentGroupId);
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
-            List<DateTime> lDates = new List<DateTime>() { dProgStartDate }; 
+            List<DateTime> lDates = new List<DateTime>() { dProgStartDate };
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -153,7 +156,7 @@ namespace EpgFeeder
             #region Delete all existing programs in DB that have start/end dates within the new schedule
 
             DeleteScheduleProgramByDate(channelID, dProgStartDate);
-            
+
             #endregion
 
             #region Delete all existing programs in ES that have start/end dates within the new schedule
@@ -179,7 +182,7 @@ namespace EpgFeeder
             bool enabledelete = false;
             ProcessError = false;
 
-           
+
             //-------------------- Start Add Schedule EPG to Data Base ------------------------------//
             //
             //
@@ -198,11 +201,11 @@ namespace EpgFeeder
                 channelID = GetExistChannel(channel_id);
             }
 
-            try 
+            try
             {
                 if (channelID > 0)
                 {
-                    Logger.Logger.Log("Media Corp: EPG", string.Format("\r\n###################################### START EPG Channel {0} ######################################\r\n", channelID), LogFileName);
+                    log.Debug("Media Corp: EPG - " + string.Format("\r\n###################################### START EPG Channel {0} ######################################\r\n", channelID));
 
                     List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
 
@@ -222,17 +225,17 @@ namespace EpgFeeder
 
                     BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
                     string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package); 
+                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
                     int nCount = 0;
-                    List<ulong> ulProgram =  new List<ulong>();
+                    List<ulong> ulProgram = new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();
-                    Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();                                
+                    Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();
 
                     foreach (XmlNode node in xmlnodelist)
-                    {     
+                    {
                         Guid EPGGuid = Guid.NewGuid();
 
-                        #region Basic xml Data                      
+                        #region Basic xml Data
                         string schedule_date = GetSingleNodeValue(node, "schedule_date");
                         string start_time = GetSingleNodeValue(node, "start_time");
                         string duration = GetSingleNodeValue(node, "duration");
@@ -247,17 +250,17 @@ namespace EpgFeeder
                         #region Set field mapping valus
                         SetMappingValues(FieldEntityMapping, node);
                         #endregion
-                            
-                        #region Delete Programs by channel + date                            
-                                
-                            DateTime dDate = ParseEPGStrToDate(schedule_date, "000000");// get all day start from 00:00:00
-                            if (!deletedDays.Contains(dDate))
-                            {
-                                deletedDays.Add(dDate);
-                                DeleteProgramsByChannelAndDate(channelID, dDate);
-                            }
-                            
-                        #endregion 
+
+                        #region Delete Programs by channel + date
+
+                        DateTime dDate = ParseEPGStrToDate(schedule_date, "000000");// get all day start from 00:00:00
+                        if (!deletedDays.Contains(dDate))
+                        {
+                            deletedDays.Add(dDate);
+                            DeleteProgramsByChannelAndDate(channelID, dDate);
+                        }
+
+                        #endregion
 
                         #region Generate EPG CB
 
@@ -266,15 +269,15 @@ namespace EpgFeeder
                         // AddDateRange(dProgStartDate); //not used
 
                         EpgCB newEpgItem = generateEPGCB(epg_poster, program_desc_english, program_desc_chinese, episode_no, syp, syp_chi, channelID, EPGGuid.ToString(), dProgStartDate, dProgEndDate, node);
-                                
+
                         #endregion
 
-                        epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem); 
+                        epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
                     }
-                            
+
                     //insert EPGs to DB in batches
                     InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);
-       
+
                     foreach (EpgCB epg in epgDic.Values)
                     {
                         nCount++;
@@ -289,7 +292,7 @@ namespace EpgFeeder
                         if (nCount >= nCountPackage)
                         {
                             ulProgram.Add(epg.EpgID);
-                            bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);                                
+                            bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
                             ulProgram = new List<ulong>();
                             nCount = 0;
                         }
@@ -297,9 +300,9 @@ namespace EpgFeeder
                         {
                             ulProgram.Add(epg.EpgID);
                         }
-                            
+
                         #endregion
-                                                                                      
+
                         DateTime progDate = new DateTime(epg.StartDate.Year, epg.StartDate.Month, epg.StartDate.Day);
 
                         if (!epgDateWithChannelIds.ContainsKey(progDate))
@@ -317,12 +320,12 @@ namespace EpgFeeder
                     }
 
                     if (nCount > 0 && ulProgram != null && ulProgram.Count > 0)
-                    {                             
+                    {
                         bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
                     }
 
                     //start Upload proccess Queue
-                    UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);                   
+                    UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);
 
                     //foreach (DateTime date in EPGDateRang)
                     //{
@@ -337,16 +340,16 @@ namespace EpgFeeder
                         stream.Close();
 
                     enabledelete = MoveFile(sFileName);
-                    Logger.Logger.Log("Media Corp: EPG", string.Format("\r\n###################################### END EPG Channel {0} ######################################\r\n", channelID), LogFileName);
+                    log.Debug("Media Corp: EPG - " + string.Format("\r\n###################################### END EPG Channel {0} ######################################\r\n", channelID));
 
                     //
                     //
                     //-------------------- End Add Schedule EPG to Data Base --------------------------------//
-                } 
+                }
                 else
                 {
                     ProcessError = true;
-                    Logger.Logger.Log("Media Corp: Channel Id doesn’t exist ", string.Format("could not add programs schedule for EPG channel id '{0}' in file name: {1}", channel_id, sFileName), LogFileName, string.Format("could not add programs schedule for EPG channel id '{0}' in file name : {1}", channel_id, sFileName));
+                    log.Debug("Media Corp: Channel Id doesn’t exist - " + string.Format("could not add programs schedule for EPG channel id '{0}' in file name: {1}", channel_id, sFileName));
 
                     if (response != null)
                         response.Close();
@@ -355,7 +358,7 @@ namespace EpgFeeder
                         stream.Close();
                     enabledelete = MoveFile(sFileName);
                 }
-            } 
+            }
             catch (Exception exp)
             {
                 ProcessError = true;
@@ -364,7 +367,7 @@ namespace EpgFeeder
 
                 if (stream != null)
                     stream.Close();
-                Logger.Logger.Log("Media Corp: Upload EPG File", string.Format("there an error occurring during the process Upload EPG File '{0}', Error : {1}", sFileName, exp.Message), LogFileName, string.Format("there an error occurring during the process Upload EPG File '{0}'", sFileName));
+                log.Error("Media Corp: Upload EPG File - " + string.Format("there an error occurring during the process Upload EPG File '{0}', Error : {1}", sFileName, exp.Message));
                 enabledelete = MoveFile(sFileName);
             }
             finally
@@ -396,7 +399,7 @@ namespace EpgFeeder
                 return sPath_successPath;
             }
         }
-       
+
         private void InsertProgramSchedule(string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi, int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate)
         {
             try
@@ -420,23 +423,23 @@ namespace EpgFeeder
                 insertProgQuery = null;
                 if (!res)
                 {
-                    Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: SQL execute query error.", channelID, dProgStartDate, dProgEndDate), LogFileName);
+                    log.Debug("InsertProgramSchedule - " + string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: SQL execute query error.", channelID, dProgStartDate, dProgEndDate));
                 }
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertProgramSchedule", string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
+                log.Error("InsertProgramSchedule - " + string.Format("could not Insert Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), exp);
             }
         }
         private EpgCB generateEPGCB(string epg_poster, string program_desc_english, string program_desc_chinese, string episode_no, string syp, string syp_chi,
             int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate, XmlNode progItem)
-        {           
+        {
             EpgCB newEpgItem = new EpgCB();
             try
-            {   
+            {
                 //BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(int.Parse(m_ParentGroupId));
 
-                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), LogFileName);
+                log.Debug("generateEPGCB - " + string.Format("EpgIdentifier '{0}' ", EPGGuid));
 
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0} {1} {2}", program_desc_english, program_desc_chinese, episode_no);
@@ -463,10 +466,10 @@ namespace EpgFeeder
                 {
                     int nPicID = ImporterImpl.DownloadEPGPic(epg_poster, program_desc_english, int.Parse(s_GroupID), 0, channelID);
                     if (nPicID != 0)
-                    {                      
+                    {
                         newEpgItem.PicID = nPicID;
-                        newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);                      
-                    }  
+                        newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
+                    }
                 }
                 #endregion
 
@@ -479,7 +482,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), LogFileName);
+                log.Error("generateEPGCB - " + string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), exp);
             }
             return newEpgItem;
         }
@@ -501,18 +504,18 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("InsertEPGProgramMetaValue", string.Format("could not Insert EPG Program Meta Value '{0}' epg_meta_id '{1}' , error message: {2}", value, EPGMetaID, exp.Message), LogFileName);
+                log.Error("InsertEPGProgramMetaValue - " + string.Format("could not Insert EPG Program Meta Value '{0}' epg_meta_id '{1}' , error message: {2}", value, EPGMetaID, exp.Message), exp);
             }
         }
-      
+
         /// <summary>
-        /// remove chaneel schedule from DB
+        /// remove channel schedule from DB
         /// </summary>
         /// <returns></returns>
         public override bool ResetChannelSchedule()
         {
             try
-            {                
+            {
             }
             catch (Exception exp)
             { }
@@ -534,7 +537,7 @@ namespace EpgFeeder
             catch (Exception exp)
             {
                 string errormessage = string.Format("Media Corp: Upload EPG File", "could not parse EPG date field value '{0} - {1}', error message: {2} \r\n", date, programtime, exp.Message);
-                Logger.Logger.Log("Media Corp: Upload EPG File", errormessage, LogFileName, errormessage);
+                log.Error("Media Corp: Upload EPG File - " + errormessage, exp);
             }
             return dt;
         }
@@ -586,19 +589,18 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("Media Corp: EPG FTP Stream ", string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - Get stream file faild.");
+                log.Error("Media Corp: EPG FTP Stream " + string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error: {1}", sFileName, exp.Message), exp);
                 response = null;
-
             }
 
             return stream;
         }
         /// <summary>
-        /// Move file to spasfice destination
+        /// Move file to specified destination
         /// </summary>
         /// <param name="sFileName">set file name</param>
         /// <param name="sTargetDirectoryPath">Target Directory Path</param>
-        /// <returns>retur true if success else return false</returns>
+        /// <returns>return true if success else return false</returns>
         private bool MoveFile(string sFileName)
         {
             bool res = false;
@@ -636,7 +638,7 @@ namespace EpgFeeder
 
                 res = true;
 
-                Logger.Logger.Log("Media Corp: EPG Move file", string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription), LogFileName);
+                log.Debug("Media Corp: EPG Move file. " + string.Format("Move source file '{0}' to directory path '{1}' success .! , response status: {2}", sFileName, sTargetDirectoryPath, Uploadresponse.StatusDescription));
             }
             catch (Exception exp)
             {
@@ -649,7 +651,7 @@ namespace EpgFeeder
                 if (Uploadresponse != null)
                     Uploadresponse.Close();
 
-                Logger.Logger.Log("Media Corp: EPG Move file", string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - Moves source file faild.");
+                log.Error("Media Corp: EPG Move file: " + string.Format("there an error occurring during move file process, Move file '{0}' , Error: {1}", sFileName, exp.Message), exp);
             }
             finally
             {
@@ -661,10 +663,6 @@ namespace EpgFeeder
 
                 if (Uploadresponse != null)
                     Uploadresponse.Close();
-
-
-
-
             }
             return res;
         }
@@ -672,7 +670,7 @@ namespace EpgFeeder
         /// Delete file from source 
         /// </summary>
         /// <param name="sFileName">set file name</param>
-        /// <returns>retur true if success else return false</returns>
+        /// <returns>return true if success else return false</returns>
         private bool DeleteFile(string sFileName)
         {
             bool res = false;
@@ -685,7 +683,7 @@ namespace EpgFeeder
                 reqFTP.Method = WebRequestMethods.Ftp.DeleteFile;
                 response = (FtpWebResponse)reqFTP.GetResponse();
                 res = true;
-                Logger.Logger.Log("Media Corp: EPG Delete file", string.Format("delete source file '{0}' success .! , response status: {1}", sFileName, response.StatusDescription), LogFileName);
+                log.Debug("Media Corp: EPG Delete file - " + string.Format("delete source file '{0}' success .! , response status: {1}", sFileName, response.StatusDescription));
             }
             catch (Exception exp)
             {
@@ -694,7 +692,7 @@ namespace EpgFeeder
                     response.Close();
                 }
                 res = false;
-                Logger.Logger.Log("MediaCorp_EPG_Delete", string.Format("there an error occurred during the delete process, delete file '{0}' EPGMediaCorp , Error: {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - delete source file faild.");
+                log.Error("MediaCorp_EPG_Delete - " + string.Format("there an error occurred during the delete process, delete file '{0}' EPGMediaCorp , Error: {1}", sFileName, exp.Message), exp);
             }
             finally
             {
@@ -752,7 +750,7 @@ namespace EpgFeeder
                 {
                     reader.Close();
                 }
-                Logger.Logger.Log("MediaCorp_EPG_LoadFile", string.Format("there an error occurred during the Load Files process,  Error: {0}", exp.Message), LogFileName);
+                log.Error("MediaCorp_EPG_LoadFile - " + string.Format("there an error occurred during the Load Files process,  Error: {0}", exp.Message), exp);
 
             }
             finally
@@ -771,7 +769,7 @@ namespace EpgFeeder
                 }
             }
         }
-        
+
         private Int32 GetMediaIDByChannelID(Int32 EPG_IDENTIFIER)
         {
             Int32 res = 0;
@@ -795,7 +793,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("GetMediaIDByChannelID", string.Format("could not get Get Media ID By ChannelID by EPG_IDENTIFIER  {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), LogFileName);
+                log.Error("GetMediaIDByChannelID - " + string.Format("could not get Get Media ID By ChannelID by EPG_IDENTIFIER  {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), exp);
             }
             return res;
         }
@@ -824,7 +822,7 @@ namespace EpgFeeder
                 }
                 catch (Exception exp)
                 {
-                    Logger.Logger.Log("GetExistChannel", string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), LogFileName);
+                    log.Error("GetExistChannel - " + string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), exp);
                 }
             }
             return res;
@@ -853,7 +851,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("GetExistMedia", string.Format("could not get Exist Media by EPG Identifier {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), LogFileName);
+                log.Error("GetExistMedia - " + string.Format("could not get Exist Media by EPG Identifier {0}, error message: {1}", EPG_IDENTIFIER.ToString(), exp.Message), exp);
             }
             return res;
         }
@@ -865,14 +863,14 @@ namespace EpgFeeder
             {
                 if (!EPGDateRang.Exists(c => c.Day == date.Day && c.Month == date.Month && c.Year == date.Year))
                 {
-                    Logger.Logger.Log("AddDateRange", string.Format("add date '{0}' to EPG date range success.", date.ToString()), LogFileName);
+                    log.Debug("AddDateRange - " + string.Format("add date '{0}' to EPG date range success.", date.ToString()));
                     EPGDateRang.Add(date);
                     res = false;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("AddDateRange", string.Format("error add date '{0}' to EPG date range , error message: {1}", date.ToString(), ex.Message), LogFileName);
+                log.Error("AddDateRange - " + string.Format("error add date '{0}' to EPG date range , error message: {1}", date.ToString(), ex.Message), ex);
             }
             return res;
         }
@@ -899,12 +897,12 @@ namespace EpgFeeder
                 updateQuery.Finish();
                 updateQuery = null;
 
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), LogFileName);
+                log.Debug("DeleteScheduleProgramByDate - " + string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
             }
             catch (Exception ex)
             {
                 //ProcessError = true;
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), LogFileName, string.Format("Media Corp EPG Error : Could not delete schedule program for EPG Channel ID {0} between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
+                log.Error("DeleteScheduleProgramByDate - " + string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), ex);
             }
         }
 
@@ -930,13 +928,12 @@ namespace EpgFeeder
                 updateQuery.Finish();
                 updateQuery = null;
 
-                Logger.Logger.Log("ApproverdScheduleProgramByDate", string.Format("success approverd schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.\r\n", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), LogFileName);
+                log.Error("ApproverdScheduleProgramByDate " + string.Format("success approved schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.\r\n", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
             }
             catch (Exception ex)
             {
                 //ProcessError = true;
-                Logger.Logger.Log("ApproverdScheduleProgramByDate", string.Format("success approverd schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), LogFileName, string.Format("Media Corp EPG Error : Could not approved schedule program for EPG Channel ID {0} between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
-
+                log.Error("ApproverdScheduleProgramByDate " + string.Format("success approved schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), ex);
             }
         }
 
