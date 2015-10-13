@@ -20,8 +20,9 @@ namespace Scheduler
             try
             {
                 // set monitor and log configuration files
-                KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);
-                KLogger.Configure("log4net.config", KLogEnums.AppType.WCF);
+                string monitorUniqueGuid = Guid.NewGuid().ToString();
+                KMonitor.Configure("log4net.config", KLogEnums.AppType.WindowsService, monitorUniqueGuid);
+                KLogger.Configure("log4net.config", KLogEnums.AppType.WindowsService, monitorUniqueGuid);
 
                 TCMClient.Settings.Instance.Init();
             }

@@ -57,7 +57,10 @@ namespace Scheduler
 
         public void DoTheJob()
         {
-            DoTheJobOnes();
+            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START, null, "Scheduler", null, null))
+            {
+                DoTheJobOnes();
+            }
         }
 
         virtual protected void UpdateTaskStatus(Int32 nTaskID, Int32 nStatus)
