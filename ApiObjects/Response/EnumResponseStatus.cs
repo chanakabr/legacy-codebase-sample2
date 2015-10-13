@@ -112,6 +112,7 @@ namespace ApiObjects.Response
         UnknownOSSAdapterState = 5010,
         ActionIsNotAllowed = 5011,
         NoOSSAdapterToUpdate = 5012,
+        AdapterUrlRequired = 5013, 
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
