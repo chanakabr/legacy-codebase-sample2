@@ -2929,13 +2929,117 @@ namespace Tvinci.Core.DAL
 
         public static ExternalChannel GetExternalChannel(int groupId, string channelId)
         {
-            throw new NotImplementedException();
+            ExternalChannel result = null;
+
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("external_channels", channelId);
+
+            if (row != null)
+            {
+                result = new ExternalChannel()
+                {
+                    Enrichments = new List<ExternalChannelEnrichment>(),
+                    ExternalIdentifier = ODBCWrapper.Utils.ExtractString(row, "external_identifier"),
+                    FilterExpression = ODBCWrapper.Utils.ExtractString(row, "filter_expression"),
+                    GroupId = ODBCWrapper.Utils.ExtractInteger(row, "group_id"),
+                    ID = ODBCWrapper.Utils.ExtractInteger(row, "id"),
+                    IsActive = ODBCWrapper.Utils.ExtractBoolean(row, "is_active"),
+                    Name = ODBCWrapper.Utils.ExtractString(row, "name"),
+                    RecommendationEngineId = ODBCWrapper.Utils.ExtractInteger(row, "recommendation_engine_id")
+                };
+
+                ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
+
+                foreach (var currentValue in Enum.GetValues(typeof(ExternalChannelEnrichment)))
+                {
+                    if ((enrichments & (ExternalChannelEnrichment)currentValue) > 0)
+                    {
+                        result.Enrichments.Add((ExternalChannelEnrichment)currentValue);
+                    }
+                }
+
+                //if ((enrichments & ExternalChannelEnrichment.AtHome) == ExternalChannelEnrichment.AtHome)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.AtHome);
+                //}
+
+                //if ((enrichments & ExternalChannelEnrichment.Catchup) == ExternalChannelEnrichment.Catchup)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.Catchup);
+                //}
+
+                //if ((enrichments & ExternalChannelEnrichment.ClientLocation) == ExternalChannelEnrichment.ClientLocation)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.ClientLocation);
+                //}
+
+                //if ((enrichments & ExternalChannelEnrichment.DeviceId) == ExternalChannelEnrichment.DeviceId)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.DeviceId);
+                //}
+
+                //if ((enrichments & ExternalChannelEnrichment.DeviceType) == ExternalChannelEnrichment.DeviceType)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.DeviceType);
+                //}
+
+                //if ((enrichments & ExternalChannelEnrichment.DeviceType) == ExternalChannelEnrichment.DeviceType)
+                //{
+                //    result.Enrichments.Add(ExternalChannelEnrichment.DeviceType);
+                //}
+            }
+
+            return result;
         }
 
         #region RecommendationEngine
+
         public static RecommendationEngine GetRecommendationEngine(int engineId)
         {
-            throw new NotImplementedException();
+            RecommendationEngine result = null;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_RecommendationEngine");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@RecommendationEngineId", engineId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
+            {
+                if (dataSet.Tables[0] != null && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    if (row != null)
+                    {
+                        result = new RecommendationEngine()
+                        {
+                            AdapterUrl = ODBCWrapper.Utils.ExtractString(row, "adapter_url"),
+                            ExternalIdentifier = ODBCWrapper.Utils.ExtractString(row, "external_identifier"),
+                            ID = engineId,
+                            IsActive = ODBCWrapper.Utils.ExtractBoolean(row, "is_active"),
+                            Name = ODBCWrapper.Utils.ExtractString(row, "name"),
+                            Settings = new List<RecommendationEngineSettings>(),
+                            SharedSecret = ODBCWrapper.Utils.ExtractString(row, "shared_secret"),
+                            Status = ODBCWrapper.Utils.ExtractInteger(row, "status"),
+                            IsDefault = ODBCWrapper.Utils.ExtractBoolean(row, "is_default"),
+                        };
+                    }
+
+                    if (dataSet.Tables[1] != null && dataSet.Tables[1].Rows.Count > 0)
+                    {
+                        foreach (DataRow setting in dataSet.Tables[1].Rows)
+                        {
+                            result.Settings.Add(new RecommendationEngineSettings()
+                            {
+                                key = ODBCWrapper.Utils.ExtractString(setting, "keyName"),
+                                value = ODBCWrapper.Utils.ExtractString(setting, "value"),
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         public static int GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
