@@ -143,15 +143,15 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_renew_url.Initialize("Payment Gateway Renew URL", "adm_table_header_nbg", "FormInput", "renew_url", false);
         theRecord.AddRecord(dr_renew_url);
 
-        DataRecordShortIntField dr_pending_interval = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_pending_interval = new DataRecordShortIntField(true, 9, 9, 5);
         dr_pending_interval.Initialize("Pending Interval (Minutes)", "adm_table_header_nbg", "FormInput", "pending_interval", false);
         theRecord.AddRecord(dr_pending_interval);
 
-        DataRecordShortIntField dr_pending_retries = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_pending_retries = new DataRecordShortIntField(true, 9, 9, null, 100);
         dr_pending_retries.Initialize("Pending Retries", "adm_table_header_nbg", "FormInput", "pending_retries", false);
         theRecord.AddRecord(dr_pending_retries);
 
-        DataRecordShortIntField dr_renewal_interval = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_renewal_interval = new DataRecordShortIntField(true, 9, 9, 15);
         dr_renewal_interval.Initialize("Renewal Interval (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_interval_minutes", false);
         theRecord.AddRecord(dr_renewal_interval);
 
@@ -159,8 +159,8 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_renewal_start.Initialize("Renewal Start Offset (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_start_minutes", false);
         theRecord.AddRecord(dr_renewal_start);
 
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", true);
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);        
+        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
