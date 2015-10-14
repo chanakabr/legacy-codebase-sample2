@@ -178,12 +178,56 @@
     <None Include="Service References\Catalog\Service14.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service19.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service20.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service22.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service23.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service24.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service25.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service28.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\Catalog\Service3.wsdl" />
     <None Include="Service References\Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Service References\Catalog\Service4.wsdl" />
     <None Include="Service References\Catalog\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -202,6 +246,7 @@
     <None Include="Service References\Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Service References\Catalog\Service2.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -736,6 +781,7 @@
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
+    <Compile Include="Models\Catalog\KalturaExternalChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
