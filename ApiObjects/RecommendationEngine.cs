@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -14,6 +15,7 @@ namespace ApiObjects
         #region Properties
 
         [JsonProperty()]
+        [DataMember]
         public bool IsDefault
         {
             get;
@@ -21,6 +23,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public bool IsActive
         {
             get;
@@ -28,6 +31,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public string AdapterUrl
         {
             get;
@@ -35,6 +39,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public string ExternalIdentifier
         {
             get;
@@ -42,6 +47,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public string SharedSecret
         {
             get;
@@ -50,6 +56,7 @@ namespace ApiObjects
 
         [XmlIgnore]
         [JsonProperty()]
+        [DataMember]
         public int Status
         {
             get;
@@ -57,6 +64,7 @@ namespace ApiObjects
         }
         
         [JsonProperty()]
+        [DataMember]
         public List<RecommendationEngineSettings> Settings
         {
             get;

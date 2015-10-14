@@ -1,17 +1,26 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ApiObjects
 {
+    [Serializable]
+    [JsonObject(Id = "id")]
     public class RecommendationEngineBase
     {
+        [DataMember]
+        [JsonProperty()]
         public int ID
         {
             get;
             set;
         }
+
+        [DataMember]
+        [JsonProperty()]
         public string Name
         {
             get;

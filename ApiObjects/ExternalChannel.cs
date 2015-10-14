@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 namespace ApiObjects
@@ -12,6 +13,7 @@ namespace ApiObjects
         #region Data Members
 
         [JsonProperty()]
+        [DataMember]
         public int ID
         {
             get;
@@ -20,6 +22,7 @@ namespace ApiObjects
 
         [JsonProperty()]
         [XmlIgnore]
+        [DataMember]
         public int GroupId
         {
             get;
@@ -27,6 +30,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public string Name
         {
             get;
@@ -34,6 +38,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public string ExternalIdentifier
         {
             get;
@@ -41,6 +46,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public int RecommendationEngineId
         {
             get;
@@ -48,6 +54,7 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public bool IsActive
         {
             get;
@@ -55,12 +62,14 @@ namespace ApiObjects
         }
 
         [JsonProperty()]
+        [DataMember]
         public List<ExternalChannelEnrichment> Enrichments;
 
         /// <summary>
         /// KSQL expression with personalized filtering
         /// </summary>
         [JsonProperty()]
+        [DataMember]
         public string FilterExpression
         {
             get;
