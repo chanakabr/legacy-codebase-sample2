@@ -151,7 +151,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_pending_retries.Initialize("Pending Retries", "adm_table_header_nbg", "FormInput", "pending_retries", false);
         theRecord.AddRecord(dr_pending_retries);
 
-        DataRecordShortIntField dr_renewal_interval = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_renewal_interval = new DataRecordShortIntField(true, 9, 9, 15);
         dr_renewal_interval.Initialize("Renewal Interval (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_interval_minutes", false);
         theRecord.AddRecord(dr_renewal_interval);
 
