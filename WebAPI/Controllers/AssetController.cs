@@ -26,19 +26,20 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier.
+        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier or external channel identifier.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
         /// <param name="order_by">Ordering the channel</param>
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="udid">Unique device identifier</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null)
+            KalturaFilterPager pager = null, string language = null, string udid = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -130,6 +131,19 @@ namespace WebAPI.Controllers
                             }
                         }
                         break;
+                    case KalturaCatalogReferenceBy.external_channel:
+                        {
+                            string externalChannelId = filter.IDs.First().value;
+
+                            var convertedWith = with.Select(x => x.type).ToList();
+
+                            //KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
+
+                            response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, filter.DeviceType, filter.UtcOffset);
+
+                            break;
+                        }
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
