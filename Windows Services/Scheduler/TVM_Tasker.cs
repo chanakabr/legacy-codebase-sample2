@@ -4,20 +4,24 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
+using KLogMonitor;
 
 namespace Scheduler
 {
     partial class TVM_Tasker : ServiceBase
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TVM_Tasker()
         {
             InitTcmConfig();
             InitializeComponent();
         }
-        
+
         private void InitTcmConfig()
         {
             try
@@ -26,9 +30,8 @@ namespace Scheduler
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Scheduler.TVM_Tasker", "InitTcmConfig=" + ex.Message, "Tcm");
+                log.Error("Scheduler.TVM_Tasker - InitTcmConfig", ex);
             }
-
         }
 
 
@@ -41,12 +44,12 @@ namespace Scheduler
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
-            
+
         }
 
         protected override void OnStart(string[] args)
         {
-            Logger.Logger.Log("message", "OnStart", "TVM_Tasker");
+            log.Debug("message OnStart - TVM_Tasker");
             InitializeDLLs();
             timer1 = new System.Timers.Timer();
             timer1.Interval = 60000;
@@ -55,7 +58,7 @@ namespace Scheduler
             timer1.Start();
         }
 
-        void  timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             Runner t = new Runner();
             ThreadStart job = new ThreadStart(t.DoTheJob);
@@ -65,7 +68,7 @@ namespace Scheduler
 
         protected override void OnStop()
         {
-            Logger.Logger.Log("message", "OnStop", "TVM_Tasker");
+            log.Debug("message - OnStop, TVM_Tasker");
         }
 
         protected override void OnPause()

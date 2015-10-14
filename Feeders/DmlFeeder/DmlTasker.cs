@@ -6,16 +6,20 @@ using System.Net;
 using System.IO;
 using System.Xml;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DmlFeeder
 {
     public class DmlTasker : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         // m_uniqueKey unique connection key, m_url address of the get request and m_lastDate the invoke interval 
-        private string m_lastDate   = string.Empty;
-        private string m_url        = string.Empty;
-        private string m_uniqueKey  = string.Empty;
-        private int m_groupID       = 0;
+        private string m_lastDate = string.Empty;
+        private string m_url = string.Empty;
+        private string m_uniqueKey = string.Empty;
+        private int m_groupID = 0;
 
         private DmlTasker(Int32 nTaskID, Int32 nIntervalInSec, string engrameters)
             : base(nTaskID, nIntervalInSec, engrameters)
@@ -24,9 +28,9 @@ namespace DmlFeeder
             string[] splited = engrameters.Split(seperator, StringSplitOptions.None);
             if (splited.Length == 4)
             {
-                m_groupID   = int.Parse(splited[0]);
-                m_lastDate  = splited[1];
-                m_url       = splited[2];
+                m_groupID = int.Parse(splited[0]);
+                m_lastDate = splited[1];
+                m_url = splited[2];
                 m_uniqueKey = splited[3];
             }
         }
@@ -42,14 +46,14 @@ namespace DmlFeeder
 
             string sFullURL = string.Format("{0}?fromDate=\"{1}\"", m_url, m_lastDate);
 
-            HttpWebRequest request            = (HttpWebRequest)WebRequest.Create(sFullURL);
-            request.Headers["X-DML-API-KEY"]  = m_uniqueKey;
-            request.Method                    = "GET";
-            request.ContentType               = "text/xml; encoding='utf-8'";
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(sFullURL);
+            request.Headers["X-DML-API-KEY"] = m_uniqueKey;
+            request.Method = "GET";
+            request.ContentType = "text/xml; encoding='utf-8'";
 
             HttpWebResponse myHttpWebResponse = null;
-            XmlDocument dmlXMLDocument        = null;
-            XmlTextReader dmlXMLReader        = null;
+            XmlDocument dmlXMLDocument = null;
+            XmlTextReader dmlXMLReader = null;
 
             try
             {
@@ -64,11 +68,11 @@ namespace DmlFeeder
                 dmlXMLDocument.Load(dmlXMLReader);
 
                 string res = string.IsNullOrEmpty(dmlXMLDocument.InnerXml) ? "Empty res" : "Full res";
-                Logger.Logger.Log("GetDMLRemote", string.Format("{0}", res) , "DmlFeeder");
+                log.Debug("GetDMLRemote - " + string.Format("{0}", res));
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetDMLRemote", ex.ToString(), "DmlFeeder");
+                log.Error("GetDMLRemote - " + ex.ToString(), ex);
             }
 
             return dmlXMLDocument;
@@ -76,12 +80,12 @@ namespace DmlFeeder
 
         protected override bool DoTheTaskInner()
         {
-            Logger.Logger.Log("Start task", string.Format("Group:{0}, LastDate:{1}, Url:{2}, UniqueKey:{3} ", m_groupID, m_lastDate, m_url, m_uniqueKey), "DmlFeeder");
+            log.Debug("Start task - " + string.Format("Group:{0}, LastDate:{1}, Url:{2}, UniqueKey:{3} ", m_groupID, m_lastDate, m_url, m_uniqueKey));
             // Get Dml xml using http post request
-            DateTime d                 = DateTime.UtcNow;
+            DateTime d = DateTime.UtcNow;
             XmlDocument dmlXMLDocument = GetDmlXmlString();
 
-            StringWriter writer     = new StringWriter();
+            StringWriter writer = new StringWriter();
             XmlDocument mediaOutXML = new XmlDocument();
             XSLT_transform_handlar.DmlTransform DmlTransformer = new XSLT_transform_handlar.DmlTransform();
 
@@ -95,15 +99,15 @@ namespace DmlFeeder
 
                 string exeptionString = string.Empty;
                 TvinciImporter.ImporterImpl.DoTheWorkInner(mediaOutXML.OuterXml, m_groupID, "", ref exeptionString, false);
-                Logger.Logger.Log("Importer res", exeptionString.ToString(), "DmlFeeder");
+                log.Debug("Importer res - " + exeptionString.ToString());
 
                 string mediaListParameters = string.Format("<medias>{0}</medias>", exeptionString);
                 SaveIngestDataToFTP(writer.ToString(), dmlXMLDocument.InnerXml.ToString(), mediaListParameters);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("Ingest fail", ex.ToString(), "DmlFeeder");
+                log.Error("Ingest fail - " + ex.ToString(), ex);
             }
 
             string parameters = string.Format("{0}||{1}||{2}||{3}", m_groupID, d.ToString("yyyy-MM-ddTHH:mm:ss"), m_url, m_uniqueKey);
@@ -116,7 +120,7 @@ namespace DmlFeeder
             updateQuery.Finish();
             updateQuery = null;
 
-            Logger.Logger.Log("Ending task,", d.ToString("yyyy-MM-ddTHH:mm:ss"), "DmlFeeder");
+            log.Debug("Ending task," + d.ToString("yyyy-MM-ddTHH:mm:ss"));
             return true;
         }
 
@@ -143,7 +147,7 @@ namespace DmlFeeder
                 IngestionUtils.InsertIngestMediaData(ingestID, nTVMID, coGuid, status);
             }
 
-            
+
 
             Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
             files.Add("original.xml", IngestionUtils.StringToBytes(sOrigXML));

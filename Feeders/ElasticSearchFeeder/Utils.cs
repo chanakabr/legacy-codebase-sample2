@@ -10,11 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using Tvinci.Core.DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchFeeder
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static string GetWSURL(string key)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(key);
@@ -71,13 +75,13 @@ namespace ElasticSearchFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), "ESFeeder");
+                log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), ex);
                 return null;
             }
         }
         public static List<EpgCB> GetEpgProgram(int nGroupID, int nEpgID, List<string> languages)
-        {  
-             List<EpgCB> epgs = null;
+        {
+            List<EpgCB> epgs = null;
 
             EpgBL.BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nGroupID);
             try
@@ -88,12 +92,12 @@ namespace ElasticSearchFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), "ESFeeder");
+                log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace) + " ESFeeder");
                 return new List<EpgCB>();
             }
         }
         public static string GetPermittedWatchRules(int nGroupId)
-        {   
+        {
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
@@ -138,5 +142,5 @@ namespace ElasticSearchFeeder
     }
 
 
-    
+
 }

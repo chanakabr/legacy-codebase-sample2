@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects;
 using ApiObjects.MediaIndexingObjects;
+using KLogMonitor;
 using QueueWrapper;
 using Tvinci.Core.DAL;
 
@@ -12,8 +14,7 @@ namespace EpgFeeder
 {
     public class EpgFeederObj : ScheduledTasks.BaseTask
     {
-
-        #region member
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         const char spliter = '|';
         string sGroupID;
         string sEPGChannel;
@@ -21,7 +22,7 @@ namespace EpgFeeder
         string sPath;
         Dictionary<string, string> sExtraParamter = new Dictionary<string, string>();
         EPGAbstract oEPGFeed;
-        #endregion
+        
 
         public EpgFeederObj(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
@@ -42,7 +43,7 @@ namespace EpgFeeder
                 switch (sEPGChannel)
                 {
                     case "EPGxmlTv":
-                        oEPGFeed.Implementer = new EPGGeneral(sGroupID, sPathType, sPath, sExtraParamter);  
+                        oEPGFeed.Implementer = new EPGGeneral(sGroupID, sPathType, sPath, sExtraParamter);
                         break;
                     case "EPG_MediaCorp":
                         oEPGFeed.Implementer = new EPGMediaCorp(sGroupID, sPathType, sPath, sExtraParamter);
@@ -58,12 +59,12 @@ namespace EpgFeeder
 
                 if (oEPGFeed != null)
                 {
-                    Dictionary<DateTime, List<int>> datesWithChannelIds = oEPGFeed.SaveChannel();   
+                    Dictionary<DateTime, List<int>> datesWithChannelIds = oEPGFeed.SaveChannel();
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", sGroupID, ex.Message), "EpgFeeder");
+                log.Error("Error - " + string.Format("group:{0}, ex:{1}", sGroupID, ex.Message));
             }
             return true;
         }
