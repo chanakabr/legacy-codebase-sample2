@@ -16,8 +16,6 @@ namespace SubscriptionRenewHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #region ITaskHandler Members
-
         public string HandleTask(string data)
         {
             string result = "failure";
@@ -51,6 +49,8 @@ namespace SubscriptionRenewHandler
                         request != null && request.BillingGuid != null ? request.BillingGuid : string.Empty, // {2}
                         request != null ? request.EndDate : 0));                                             // {3}
                 }
+
+                result = "success";
             }
             catch (Exception ex)
             {
@@ -59,7 +59,5 @@ namespace SubscriptionRenewHandler
 
             return result;
         }
-
-        #endregion
     }
 }
