@@ -221,6 +221,9 @@ namespace TVinciShared
         ODBCWrapper.DataSetSelectQuery m_theQuery;
         DataTable m_theDataTable;
         protected Int32 m_nQueryCount;
+        protected int m_nIgnoreDeleteId;
+        protected int m_nIgnoreActiveId;
+
 
         static public void GetSearchFree(string sHeader, string sInputID, string sDir)
         {
@@ -232,7 +235,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public string GetListOfRelevantIDsFromManyToMany(string sM2MTable, string sIDField, string sFixIDField, object nFixIDValue ,  string sConnectionKey)
+        static public string GetListOfRelevantIDsFromManyToMany(string sM2MTable, string sIDField, string sFixIDField, object nFixIDValue, string sConnectionKey)
         {
             string sRet = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -258,7 +261,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public void GetSearchSelectOptions(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus , string sConnectionKey)
+        static public void GetSearchSelectOptions(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sConnectionKey)
         {
             string sSelectedID = "";
             if (HttpContext.Current.Session["search_save"] != null)
@@ -295,7 +298,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public void GetSearchSelectOptionsExp(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sWhereStr , string sConncetionKey)
+        static public void GetSearchSelectOptionsExp(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sWhereStr, string sConncetionKey)
         {
             string sSelectedID = "";
             if (HttpContext.Current.Session["search_save"] != null)
@@ -392,7 +395,9 @@ namespace TVinciShared
             string sPagerCss,
             string sTableCss,
             string sOrderBy,
-            Int32 nPageSize)
+            Int32 nPageSize,
+            int ignoreDeleteId = 0,
+            int ignoreActiveId = 0)
         {
             m_sNewStr = "";
             m_bLinksBefore = false;
@@ -424,6 +429,8 @@ namespace TVinciShared
             m_bWithVideo = false;
             m_nQueryCount = 0;
             m_sConnectionKey = "";
+            m_nIgnoreDeleteId = ignoreDeleteId;
+            m_nIgnoreActiveId = ignoreActiveId;
         }
 
         public void SetConnectionKey(string sKey)
@@ -744,7 +751,7 @@ namespace TVinciShared
                     sTable += "<td><a class=\"btn_new\" href=\"" + GetNewPageURL() + "\"></a></td>";
                 else
                     sTable += "<td><a href=\"javascript: void(0);\" class=\"menuanchorclass\" rel=\"anylinkmenu1\" data-image=\"images/new01.png\" data-overimage=\"images/new02.png\"><img src=\"images/new01.png\" style=\"border-width:0\" /></a></td>";
-                    
+
             }
             if (m_bPrintButton)
             {
@@ -792,7 +799,7 @@ namespace TVinciShared
                     sTable += "<td>...</td>";
                 if (nEnd < nPages)
                     sTable += "<td nowrap=\"nowrap\" class='pagelinks' onclick='javascript:GetPageTable(\"" + sOrderBy + "\"," + nPages.ToString() + ");' onmouseover='this.className=\"pagelinks_over\";' onmouseout='this.className=\"pagelinks\";'>" + nPages.ToString() + "</td>";
-                
+
                 sTable += "</tr></table>";
             }
             sTable += "</td>";
@@ -814,7 +821,7 @@ namespace TVinciShared
                 sTable += " src='images/button_next_dis.gif' /></td>";
             sTable += "</tr>";
             sTable += "</table></td>";
-            
+
             sTable += "</tr></table>";
             return sTable;
         }
@@ -824,7 +831,7 @@ namespace TVinciShared
             return GetTableHTML(nPageNum, sOrderBy, sPageURL, true);
         }
 
-        protected string GetTableHTML(Int32 nPageNum, string sOrderBy, string sPageURL , bool bEnterToSession)
+        protected string GetTableHTML(Int32 nPageNum, string sOrderBy, string sPageURL, bool bEnterToSession)
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
             string sBasePicsURL = PageUtils.GetBasePicURL(nGroupID);
@@ -1151,7 +1158,7 @@ namespace TVinciShared
                         {
                             sFileExt = sValue.ToString().Substring(sValue.ToString().LastIndexOf('.'));
                             sFileName = sValue.ToString().Substring(0, sValue.ToString().LastIndexOf('.'));
-                            
+
                         }
                         if (sFileName != "" && sFileName != "-")
                         {
@@ -1326,6 +1333,7 @@ namespace TVinciShared
                 }
                 for (int i = 0; i < m_LinkColumns.Count; i++)
                 {
+                    Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
                     string sURL = GetLinkURL(i, pageIndx);
                     string sTarget = GetLinkTarget(i, pageIndx);
                     string sInner = GetLinkInner(i, pageIndx);
@@ -1337,7 +1345,6 @@ namespace TVinciShared
                         string sDynamicTextQuery = ((DataTableLinkColumn)m_LinkColumns[i.ToString()]).GetColumnTextDynamicQuery();
                         if (sDynamicTextQuery != "")
                         {
-                            Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
                             sDynamicTextQuery += nID.ToString();
                             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                             if (m_sConnectionKey != "")
@@ -1388,7 +1395,7 @@ namespace TVinciShared
                                     sImgeURL = "images/cancel_btn.gif";
                                     sImgeURLOver = "images/cancel_btn-over.gif";
                                 }
-                                if (sText.Trim().ToLower() == "delete")
+                                if (sText.Trim().ToLower() == "delete" && nID != m_nIgnoreDeleteId)
                                 {
                                     sImgeURL = "images/delete_btn.gif";
                                     sImgeURLOver = "images/delete_btn-over.gif";
@@ -1413,12 +1420,16 @@ namespace TVinciShared
                                     sImgeURL = "images/stat_btn.gif";
                                     sImgeURLOver = "images/stat_btn-over.gif";
                                 }
-                                sTable.Append("<img style='cursor: pointer;' src='");
-                                sTable.Append(sImgeURL);
-                                sTable.Append("' onmouseover='this.src=\"" + sImgeURLOver + "\"' onmouseout='this.src=\"" + sImgeURL + "\"' onclick='document.location.href=\"");
-                                sTable.Append(sURL);
-                                sTable.Append("\"'");
-                                sTable.Append(" />");
+
+                                if ((sText.Trim().ToLower() != "delete" || nID == 0 || nID != m_nIgnoreDeleteId))
+                                {
+                                    sTable.Append("<img style='cursor: pointer;' src='");
+                                    sTable.Append(sImgeURL);
+                                    sTable.Append("' onmouseover='this.src=\"" + sImgeURLOver + "\"' onmouseout='this.src=\"" + sImgeURL + "\"' onclick='document.location.href=\"");
+                                    sTable.Append(sURL);
+                                    sTable.Append("\"'");
+                                    sTable.Append(" />");
+                                }
                                 //sTable += sText;
                                 sTable.Append(sCounterStr);
                             }
@@ -1433,62 +1444,66 @@ namespace TVinciShared
                     Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
                     //Int32 nActive = int.Parse(ODBCWrapper.Utils.GetTableSingleVal(m_sActivationTable, "IS_ACTIVE", nID , m_sConnectionKey).ToString());
                     Int32 nActive = -1;
+
                     if (!Int32.TryParse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString(), out nActive) || nActive < 0)
                     {
                         nActive = Boolean.Parse(m_theDataTable.DefaultView[pageIndx].Row["IS_ACTIVE"].ToString()) ? 1 : 0;
                     }
 
                     sTable.Append("<td nowrap id=\"activation_" + nID.ToString() + "\">");
-                    if (nActive == 1)
+                    if (nID == 0 || nID != m_nIgnoreActiveId)
                     {
-                        sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "');\" ");
-                        sTable.Append(" class='adm_table_link_div' >");
-                        sTable.Append("Off");
-                        sTable.Append("</a>");
+                        if (nActive == 1)
+                        {
+                            sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "');\" ");
+                            sTable.Append(" class='adm_table_link_div' >");
+                            sTable.Append("Off");
+                            sTable.Append("</a>");
+                        }
+                        if (nActive == 0)
+                        {
+                            sTable.Append("<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",1,'" + m_sConnectionKey + "');\" ");
+                            sTable.Append(" class='adm_table_link_div' >");
+                            sTable.Append("On");
+                            sTable.Append("</a>");
+                        }
+                        sTable.Append("</td>");
                     }
-                    if (nActive == 0)
+                    if (m_bWithEditorRemarks == true)
                     {
-                        sTable.Append("<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",1,'" + m_sConnectionKey + "');\" ");
-                        sTable.Append(" class='adm_table_link_div' >");
-                        sTable.Append("On");
-                        sTable.Append("</a>");
+                        nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
+                        string sRemarks = m_theDataTable.DefaultView[pageIndx].Row["editor_remarks"].ToString();
+                        //string sRemarks = PageUtils.GetTableSingleVal(m_sEditorRemarksTable, "EDITOR_REMARKS", nID).ToString();
+                        sTable.Append("<td nowrap>");
+                        //sTable += "<a href='javascript: void();' onmouseout='closeCollDiv(\"\");' onclick='return false;' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br>").Trim()) + "\");'";
+                        //sTable += " class='adm_table_link_div' >";
+                        //sTable += "Editor remarks";
+                        //sTable += "</a>";
+                        sTable.Append("<img style='cursor: pointer;' src='");
+                        sTable.Append("images/info_btn.gif");
+                        sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
+                        sTable.Append(" />");
+                        sTable.Append("</td>");
                     }
-                    sTable.Append("</td>");
-                }
-                if (m_bWithEditorRemarks == true)
-                {
-                    Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
-                    string sRemarks = m_theDataTable.DefaultView[pageIndx].Row["editor_remarks"].ToString();
-                    //string sRemarks = PageUtils.GetTableSingleVal(m_sEditorRemarksTable, "EDITOR_REMARKS", nID).ToString();
-                    sTable.Append("<td nowrap>");
-                    //sTable += "<a href='javascript: void();' onmouseout='closeCollDiv(\"\");' onclick='return false;' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br>").Trim()) + "\");'";
-                    //sTable += " class='adm_table_link_div' >";
-                    //sTable += "Editor remarks";
-                    //sTable += "</a>";
-                    sTable.Append("<img style='cursor: pointer;' src='");
-                    sTable.Append("images/info_btn.gif");
-                    sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"" , "").Replace("'" , "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
-                    sTable.Append(" />");
-                    sTable.Append("</td>");
-                }
-                if (m_bWithTechDetails == true)
-                {
-                    Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
-                    string sUpdaterName = "";
-                    string sCreateSate = "";
-                    string sUpdateSate = "";
-                    string sPublishSate = "";
-                    GetTechDetails(nID, ref sPublishSate, ref sCreateSate, ref sUpdateSate, ref sUpdaterName);
-                    sTable.Append("<td nowrap>");
-                    //sTable += "<a href='javascript: void();' onclick='return false;' onmouseout='closeCollDiv(\"\");' onmouseover='javascript:openTechDetails(\"" + sUpdaterName + "\",\"" + sCreateSate + "\",\"" + sUpdateSate + "\",\"" + sPublishSate + "\");'";
-                    //sTable += " class='adm_table_link_div' >";
-                    //sTable += "History";
-                    //sTable += "</a>";
-                    sTable.Append("<img style='cursor: pointer;' src='");
-                    sTable.Append("images/history_btn.gif");
-                    sTable.Append("' onmouseover='javascript:openTechDetails(\"" + sUpdaterName + "\",\"" + sCreateSate + "\",\"" + sUpdateSate + "\",\"" + sPublishSate + "\");' onmouseout='closeCollDiv(\"\");' onclick='return false;'");
-                    sTable.Append(" />");
-                    sTable.Append("</td>");
+                    if (m_bWithTechDetails == true)
+                    {
+                        nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
+                        string sUpdaterName = "";
+                        string sCreateSate = "";
+                        string sUpdateSate = "";
+                        string sPublishSate = "";
+                        GetTechDetails(nID, ref sPublishSate, ref sCreateSate, ref sUpdateSate, ref sUpdaterName);
+                        sTable.Append("<td nowrap>");
+                        //sTable += "<a href='javascript: void();' onclick='return false;' onmouseout='closeCollDiv(\"\");' onmouseover='javascript:openTechDetails(\"" + sUpdaterName + "\",\"" + sCreateSate + "\",\"" + sUpdateSate + "\",\"" + sPublishSate + "\");'";
+                        //sTable += " class='adm_table_link_div' >";
+                        //sTable += "History";
+                        //sTable += "</a>";
+                        sTable.Append("<img style='cursor: pointer;' src='");
+                        sTable.Append("images/history_btn.gif");
+                        sTable.Append("' onmouseover='javascript:openTechDetails(\"" + sUpdaterName + "\",\"" + sCreateSate + "\",\"" + sUpdateSate + "\",\"" + sPublishSate + "\");' onmouseout='closeCollDiv(\"\");' onclick='return false;'");
+                        sTable.Append(" />");
+                        sTable.Append("</td>");
+                    }
                 }
                 sTable.Append("</tr>");
             }
@@ -1596,7 +1611,7 @@ namespace TVinciShared
             HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
             System.IO.StringWriter stringWrite = new System.IO.StringWriter();
             HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
-          
+
             gv.RenderControl(htmlWrite);
             HttpContext.Current.Response.Write(stringWrite.ToString());
             HttpContext.Current.Response.End();
@@ -1704,7 +1719,7 @@ namespace TVinciShared
             return GetTableHTML(nPageNum, sOrderBy, "");
         }
 
-        public string GetPageHTML(Int32 nPageNum, string sOrderBy , bool bEnterToSession)
+        public string GetPageHTML(Int32 nPageNum, string sOrderBy, bool bEnterToSession)
         {
             return GetTableHTML(nPageNum, sOrderBy, "", bEnterToSession);
         }
