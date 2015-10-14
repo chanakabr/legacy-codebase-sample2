@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGatewateSettings(groupId);
+                response = ClientsManager.BillingClient().GetPaymentGatewaySettings(groupId);
             }
             catch (ClientException ex)
             {

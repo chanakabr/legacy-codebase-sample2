@@ -273,6 +273,18 @@
     <Content Include="Web References\Api\ParentalRulesTagsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\ExternalChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEngineResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEngineSettinsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEnginesResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -677,6 +689,7 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\ExternalChannelProfileController.cs" />
     <Compile Include="Controllers\RecommendationEngineProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileController.cs" />
@@ -718,6 +731,8 @@
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
+    <Compile Include="Models\API\KalturaChannelEnrichment.cs" />
+    <Compile Include="Models\API\KalturaExternalChannelProfile.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />

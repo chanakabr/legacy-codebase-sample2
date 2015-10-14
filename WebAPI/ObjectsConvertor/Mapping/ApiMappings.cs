@@ -141,12 +141,44 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.RecommendationEngine.IsActive))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RecommendationEngine.Name))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.RecommendationEngine.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.RecommendationEngine.Settings));
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.RecommendationEngine.Settings)));
 
             #endregion
 
+            #region External Channel
 
+            //Mapper.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
+            //   .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+            //   .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            //   .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+            //   .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
+            //   .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
+            //   ;
+
+            //Mapper.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
+            //  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+            //  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            //  .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+            //  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            //  .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEnrichments(src.Settings)))
+            //  .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            //Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
+            // .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
+            // .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
+            // .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
+            // .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
+            // .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
+            // .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
+            // .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
+
+            #endregion
         }
+
+        //private static TMember ConvertEnrichments(List<KalturaChannelEnrichmentHolder> list)
+        //{
+        //    throw new System.NotImplementedException();
+        //}
 
         internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(RecommendationEngineSettings[] settings)
         {

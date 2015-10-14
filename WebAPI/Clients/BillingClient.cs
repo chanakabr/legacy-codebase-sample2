@@ -36,7 +36,7 @@ namespace WebAPI.Clients
 
         #region Payment GateWay
 
-        public List<Models.Billing.KalturaPaymentGatewayProfile> GetPaymentGatewateSettings(int groupId)
+        public List<Models.Billing.KalturaPaymentGatewayProfile> GetPaymentGatewaySettings(int groupId)
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> KalturaPaymentGatewayProfileList = null;
             WebAPI.Billing.PaymentGatewaySettingsResponse response = null;
