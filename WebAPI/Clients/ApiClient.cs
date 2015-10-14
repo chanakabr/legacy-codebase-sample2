@@ -1159,7 +1159,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
-                    response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                    response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
             catch (Exception ex)
@@ -1579,6 +1579,44 @@ namespace WebAPI.Clients
             return true;
         }
 
+        #endregion
+
+        #region ExternalChannel
+        internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
+        {
+            WebAPI.Api.ExternalChannelResponse response = null;
+            KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.ExternalChannel request = Mapper.Map<WebAPI.Api.ExternalChannel>(externalChannel);
+                    response = Api.InsertExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertExternalChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaExternalChannelProfile = Mapper.Map<Models.API.KalturaExternalChannelProfile>(response);
+            return kalturaExternalChannelProfile;
+        }
         #endregion
     }
 }
