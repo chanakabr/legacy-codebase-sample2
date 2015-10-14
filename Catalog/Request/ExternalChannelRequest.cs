@@ -50,7 +50,7 @@ namespace Catalog.Request
 
         public BaseResponse GetResponse(BaseRequest baseRequest)
         {
-            UnifiedSearchResponse response = null;
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
 
             try
             {
@@ -70,8 +70,6 @@ namespace Catalog.Request
                 }
 
                 CheckSignature(baseRequest);
-
-                response = new UnifiedSearchResponse();
 
                 int totalItems;
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
