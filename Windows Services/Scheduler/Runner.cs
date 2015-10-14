@@ -59,7 +59,14 @@ namespace Scheduler
         {
             using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START, null, "Scheduler", null, null))
             {
-                DoTheJobOnes();
+                try
+                {
+                    DoTheJobOnes();
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Empty, ex);
+                }
             }
         }
 
