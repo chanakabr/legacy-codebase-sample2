@@ -264,6 +264,8 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // parameters validation
             if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
@@ -283,7 +285,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, string.Empty, language,
                 pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
                 with.Select(x => x.type).ToList());
             }
