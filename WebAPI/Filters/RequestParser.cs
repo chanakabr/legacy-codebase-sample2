@@ -32,16 +32,15 @@ namespace WebAPI.Filters
 
         private static Couchbase.CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
 
-        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";        
+        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
 
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
 
-        private bool createMethodInvoker(HttpActionContext actionContext, string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
+        private bool createMethodInvoker(HttpActionContext actionContext, string serviceName, string actionName, Assembly asm, out MethodInfo methodInfo, out object classInstance)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
 
             classInstance = null;
@@ -89,8 +88,9 @@ namespace WebAPI.Filters
 
             MethodInfo methodInfo = null;
             object classInstance = null;
+            Assembly asm = Assembly.GetExecutingAssembly();
 
-            if (!createMethodInvoker(actionContext, currentController, currentAction, out methodInfo, out classInstance))
+            if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
                 return;
 
             if (actionContext.Request.Method == HttpMethod.Post)
@@ -111,8 +111,8 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
-                            if (reqParams["ks"] != null)                          
-                                InitKS(actionContext, reqParams["ks"].ToObject<string>());                            
+                            if (reqParams["ks"] != null)
+                                InitKS(actionContext, reqParams["ks"].ToObject<string>());
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -138,7 +138,21 @@ namespace WebAPI.Filters
 
                                 try
                                 {
-                                    methodParams.Add(reqParams[p.Name].ToObject(p.ParameterType));
+                                    Type t = p.ParameterType;
+
+                                    var objType = reqParams[p.Name].SelectToken("objectType");
+
+                                    if (objType != null)
+                                    {
+                                        var types = asm.GetTypes().Where(x => x.Name == objType.ToString());
+
+                                        if (types != null && types.Any())
+                                        {
+                                            t = types.First();
+                                        }
+                                    }
+
+                                    methodParams.Add(reqParams[p.Name].ToObject(t));
                                 }
                                 catch (Exception ex)
                                 {
@@ -473,7 +487,10 @@ namespace WebAPI.Filters
             actionContext.Response = actionContext.Request.CreateResponse(new ApiException.ExceptionPayload()
             {
                 code = errorCode,
-                error = new HttpError() { ExceptionMessage = msg }
+                error = new HttpError()
+                {
+                    ExceptionMessage = msg
+                }
             });
         }
 

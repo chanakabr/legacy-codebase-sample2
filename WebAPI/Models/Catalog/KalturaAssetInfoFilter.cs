@@ -57,29 +57,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "cut_with")]
         [XmlElement("cut_with")]
         public KalturaCutWith cutWith { get; set; }
-
-        /// <summary>
-        /// Device Type
-        /// </summary>
-        [DataMember(Name = "device_type")]
-        [JsonProperty(PropertyName = "device_type")]
-        [XmlElement("device_type", IsNullable = true)]
-        public string DeviceType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// UTC Offset
-        /// </summary>
-        [DataMember(Name = "utc_offset")]
-        [JsonProperty(PropertyName = "utc_offset")]
-        [XmlElement("utc_offset", IsNullable = true)]
-        public string UtcOffset
-        {
-            get;
-            set;
-        }
     }
 }

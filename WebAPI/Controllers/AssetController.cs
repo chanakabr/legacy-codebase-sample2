@@ -137,10 +137,10 @@ namespace WebAPI.Controllers
 
                             var convertedWith = with.Select(x => x.type).ToList();
 
-                            //KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
+                            KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
 
                             response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, filter.DeviceType, filter.UtcOffset);
+                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, convertedFilter.DeviceType, convertedFilter.UtcOffset);
 
                             break;
                         }

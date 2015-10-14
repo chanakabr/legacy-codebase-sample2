@@ -18,7 +18,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "device_type")]
         [JsonProperty(PropertyName = "device_type")]
         [XmlElement("device_type", IsNullable = true)]
-        public string DeviceType2
+        public string DeviceType
         {
             get;
             set;
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "utc_offset")]
         [JsonProperty(PropertyName = "utc_offset")]
         [XmlElement("utc_offset", IsNullable = true)]
-        public string UtcOffset2
+        public string UtcOffset
         {
             get;
             set;
