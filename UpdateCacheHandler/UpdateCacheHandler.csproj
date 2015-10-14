@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase">
-      <HintPath>..\..\tvincicommon\External\Couchbase.dll</HintPath>
-    </Reference>
     <Reference Include="KLogMonitor">
       <HintPath>..\..\tvincicommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>

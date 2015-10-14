@@ -1,5 +1,4 @@
 ﻿using CachingProvider;
-using Couchbase;
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
