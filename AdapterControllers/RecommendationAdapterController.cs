@@ -97,10 +97,9 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //TODO: set signature
-            string signature = string.Empty;
-                //string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
-                //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);
+            //TODO: verify that signature is correct
+            string signature =
+                string.Concat(externalChannel.ID, engine.ID, unixTimestamp);
 
             var enrichmentsList =
                 enrichments.Select(item => new RecommendationEngineAdapter.KeyValue()
@@ -216,10 +215,9 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //TODO: set signature
-            string signature = string.Empty;
-            //string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
-            //request.productId, request.productType, request.contentId, request.userIP, unixTimestamp);
+            //TODO: verify that signature is correct
+            string signature =
+                string.Concat(externalChannel.ID, engine.ID, unixTimestamp);
 
             RecommendationEngineAdapter.SearchResult[] resultsArray = results.Select(item =>
                 new RecommendationEngineAdapter.SearchResult()

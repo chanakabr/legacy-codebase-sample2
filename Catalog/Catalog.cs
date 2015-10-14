@@ -4621,6 +4621,7 @@ namespace Catalog
 
             ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
 
+            // Build dictionary of enrichments for recommendation engine adapter
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
@@ -4635,7 +4636,7 @@ namespace Catalog
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
-            // If there is no filter - no need to go to Searcher, just page the results list and return it to client
+            // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
                 totalItems = recommendations.Count;
@@ -4671,8 +4672,8 @@ namespace Catalog
                     request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
                 }
 
+                // Build boolean phrase tree based on filter expression
                 BooleanPhraseNode filterTree = null;
-
                 status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
 
                 if (status.Code != (int)eResponseStatus.OK)
@@ -4843,13 +4844,14 @@ namespace Catalog
         }
 
         /// <summary>
-        /// Because unified search works only with Unified Search Request, we conver the External Channel Request to make it work
+        /// Because unified search works only with Unified Search Request, we convert the External Channel Request to make it work
         /// </summary>
         /// <param name="request"></param>
         /// <param name="externalChannel"></param>
         /// <param name="filterTree"></param>
         /// <returns></returns>
-        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, ExternalChannel externalChannel, BooleanPhraseNode filterTree)
+        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, 
+            ExternalChannel externalChannel, BooleanPhraseNode filterTree)
         {
             UnifiedSearchRequest alternateRequest = new UnifiedSearchRequest(request.m_nPageSize, request.m_nPageIndex,
                 request.m_nGroupID, string.Empty, string.Empty, null, null, externalChannel.FilterExpression, string.Empty,
@@ -4857,6 +4859,7 @@ namespace Catalog
 
             UnifiedSearchDefinitions definitions = BuildUnifiedSearchObject(alternateRequest);
 
+            // Order is a new kind - "recommendation". Which means the order is predefined
             definitions.order = new OrderObj()
             {
                 m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RECOMMENDATION,

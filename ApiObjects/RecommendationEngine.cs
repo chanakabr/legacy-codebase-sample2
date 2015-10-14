@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,35 +7,41 @@ using System.Xml.Serialization;
 
 namespace ApiObjects
 {
+    [Serializable]
+    [JsonObject(Id = "id")]
     public class RecommendationEngine : RecommendationEngineBase
     {
         #region Properties
-       
+
+        [JsonProperty()]
         public bool IsDefault
         {
             get;
             set;
         }
 
+        [JsonProperty()]
         public bool IsActive
         {
             get;
             set;
         }
 
+        [JsonProperty()]
         public string AdapterUrl
         {
             get;
             set;
         }
-             
 
+        [JsonProperty()]
         public string ExternalIdentifier
         {
             get;
             set;
         }
 
+        [JsonProperty()]
         public string SharedSecret
         {
             get;
@@ -42,14 +49,14 @@ namespace ApiObjects
         }
 
         [XmlIgnore]
+        [JsonProperty()]
         public int Status
         {
             get;
             set;
         }
-
-      
-
+        
+        [JsonProperty()]
         public List<RecommendationEngineSettings> Settings
         {
             get;

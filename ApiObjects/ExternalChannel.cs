@@ -1,23 +1,73 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace ApiObjects
 {
+    [Serializable]
+    [JsonObject(Id = "id")]
     public class ExternalChannel
     {
-        public int ID { get; set; }
+        #region Data Members
+
+        [JsonProperty()]
+        public int ID
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
         [XmlIgnore]
-        public int GroupId { get; set; }
-        public string Name { get; set; }
-        public string ExternalIdentifier { get; set; }
-        public int RecommendationEngineId { get; set; }
-        public bool IsActive { get; set; }
+        public int GroupId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        public string ExternalIdentifier
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        public int RecommendationEngineId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        public bool IsActive
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
         public List<ExternalChannelEnrichment> Enrichments;
 
         /// <summary>
         /// KSQL expression with personalized filtering
         /// </summary>
-        public string FilterExpression { get; set; }
+        [JsonProperty()]
+        public string FilterExpression
+        {
+            get;
+            set;
+        }
+
+        #endregion
 
         public ExternalChannel()
         {
