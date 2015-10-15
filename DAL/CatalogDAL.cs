@@ -2998,7 +2998,7 @@ namespace Tvinci.Core.DAL
 
         public static RecommendationEngine InsertRecommendationEngine(int groupID, RecommendationEngine recommendationEngine)
         {
-            RecommendationEngine ossAdapterRes = null;
+            RecommendationEngine result = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_RecommendationEngine");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -3014,19 +3014,29 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
+            result = CreateRecommendationEngine(ds);
+           
+            return result;
+        }
+
+        private static RecommendationEngine CreateRecommendationEngine(DataSet ds)
+        {
+            RecommendationEngine result = null;
+
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                ossAdapterRes = new RecommendationEngine();
-                ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                result = new RecommendationEngine();
+                result.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                result.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                ossAdapterRes.IsActive = is_Active == 1 ? true : false;
-                ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                result.IsActive = is_Active == 1 ? true : false;
+                result.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
             }
 
-            return ossAdapterRes;
+            return result;
+
         }
 
         private static DataTable CreateDataTable(List<RecommendationEngineSettings> recommendationEngineSettings)
@@ -3271,6 +3281,22 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+        public static RecommendationEngine SetRecommendationEngineSharedSecret(int groupID, int recommendationEngineId, string sharedSecret)
+        {
+            RecommendationEngine result = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_RecommendationEngineSharedSecret");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@id", recommendationEngineId);
+            sp.AddParameter("@sharedSecret", sharedSecret);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            result = CreateRecommendationEngine(ds);
+
+            return result;
+        }
+
         #endregion
 
         #region External Channel
@@ -3497,5 +3523,7 @@ namespace Tvinci.Core.DAL
                 }
             }
         }
+
+       
     }
 }

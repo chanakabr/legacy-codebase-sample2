@@ -2266,9 +2266,9 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSharedSecret");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", ossAdapterId);
-                sp.AddParameter("@shared_secret", sharedSecret);
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@id", ossAdapterId);
+                sp.AddParameter("@sharedSecret", sharedSecret);
 
                 DataSet ds = sp.ExecuteDataSet();
 
