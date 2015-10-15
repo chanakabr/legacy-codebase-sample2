@@ -34,7 +34,7 @@ namespace ElasticSearchHandler
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }
@@ -90,13 +90,13 @@ namespace ElasticSearchHandler
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), "ESFeeder");
+                log.Error("Error (GetEpgProgram) " + string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), ex);
                 return null;
             }
         }
         public static List<EpgCB> GetEpgProgram(int nGroupID, int nEpgID, List<string> languages)
-        {  
-             List<EpgCB> epgs = null;
+        {
+            List<EpgCB> epgs = null;
 
             EpgBL.BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nGroupID);
             try
@@ -107,12 +107,12 @@ namespace ElasticSearchHandler
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace), "ESFeeder");
+                log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", nEpgID, ex.Message, ex.StackTrace));
                 return new List<EpgCB>();
             }
         }
         public static string GetPermittedWatchRules(int nGroupId)
-        {   
+        {
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
             List<string> lWatchRulesIds = null;
             if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
@@ -158,5 +158,5 @@ namespace ElasticSearchHandler
     }
 
 
-    
+
 }

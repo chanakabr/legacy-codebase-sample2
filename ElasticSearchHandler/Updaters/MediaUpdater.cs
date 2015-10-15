@@ -10,16 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchHandler.Updaters
 {
     public class MediaUpdater : IUpdateable
     {
-        #region Consts
-        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string MEDIA = "media";
-
-        #endregion
 
         #region Data Members
 
@@ -53,11 +52,11 @@ namespace ElasticSearchHandler.Updaters
         {
             bool result = false;
 
-            Logger.Logger.Log("Info", "Start Media update", "ESUpdateHandler");
+            log.Debug("Info - Start Media update");
 
             if (this.IDs == null || this.IDs.Count == 0)
             {
-                Logger.Logger.Log("Info", "Media id list empty", "ESUpdateHandler");
+                log.Debug("Info - Media id list empty");
                 result = true;
 
                 return result;
@@ -65,7 +64,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(groupID)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type media for group {0} does not exist", groupID), "ESUpdateHandler");
+                log.Error("Error - " + string.Format("Index of type media for group {0} does not exist", groupID));
 
                 return result;
             }
@@ -75,14 +74,14 @@ namespace ElasticSearchHandler.Updaters
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                result = UpdateMedias(IDs);
-                break;
+                    result = UpdateMedias(IDs);
+                    break;
                 case ApiObjects.eAction.Delete:
-                result = Delete(IDs);
-                break;
+                    result = Delete(IDs);
+                    break;
                 default:
-                result = true;
-                break;
+                    result = true;
+                    break;
             }
 
             return result;
@@ -136,9 +135,9 @@ namespace ElasticSearchHandler.Updaters
 
                                         if (!tempResult)
                                         {
-                                            Logger.Logger.Log("Error", string.Format(
-                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};", 
-                                                groupID, type, media.m_nMediaID, serializedMedia), "ESUpdateHandler");
+                                            log.Error("Error - " + string.Format(
+                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                                groupID, type, media.m_nMediaID, serializedMedia));
                                         }
                                     }
                                 }
@@ -148,7 +147,7 @@ namespace ElasticSearchHandler.Updaters
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), "ESUpdateHandler");
+                    log.Error("Error - " + string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                     throw ex;
                 }
             }
@@ -160,7 +159,7 @@ namespace ElasticSearchHandler.Updaters
         {
             bool result = true;
             string index = groupID.ToString();
-            
+
             ESDeleteResult deleteResult;
 
             foreach (int id in mediaIDs)
@@ -169,7 +168,7 @@ namespace ElasticSearchHandler.Updaters
 
                 if (!deleteResult.Ok)
                 {
-                    Logger.Logger.Log("Error", String.Concat("Could not delete media from ES. Media id=", id), "ESUpdateHandler");
+                    log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
                 }
 
                 result &= deleteResult.Ok;

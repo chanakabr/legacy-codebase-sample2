@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace SocialFeedHandler
 {
     public class SocialFeeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public int m_nGroupID { get; set; }
         public int m_sSiteGuid { get; set; }
 
@@ -41,7 +45,7 @@ namespace SocialFeedHandler
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Info", string.Format("Error occurred while updating friends feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), "UpdateFriendsFeed");
+                    log.Error("Error - " + string.Format("Error occurred while updating friends feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
                 }
             }
 
@@ -71,7 +75,7 @@ namespace SocialFeedHandler
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Info", string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), "DeleteUserFeed");
+                    log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
                 }
             }
         }

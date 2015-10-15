@@ -10,11 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticsearchTasksCommon
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -70,7 +74,7 @@ namespace ElasticsearchTasksCommon
 
                 if (group == null)
                 {
-                    Logger.Logger.Log("Error", "Could not load group from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Error - Could not load group from cache in GetGroupMedias");
                     return mediaTranslations;
                 }
 
@@ -78,7 +82,7 @@ namespace ElasticsearchTasksCommon
 
                 if (defaultLangauge == null)
                 {
-                    Logger.Logger.Log("Error", "Could not get group default language from cache in GetGroupMedias", "ESFeeder");
+                    log.Error("Error - Could not get group default language from cache in GetGroupMedias");
                     return mediaTranslations;
                 }
 
@@ -95,7 +99,7 @@ namespace ElasticsearchTasksCommon
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Media Exception", ex.Message, "ESFeeder");
+                log.Error("Media Exception", ex);
             }
 
             return mediaTranslations;
@@ -290,7 +294,7 @@ namespace ElasticsearchTasksCommon
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error (GetEpgProgram)", string.Format("epg:{0}, msg:{1}, st:{2}", epgId, ex.Message, ex.StackTrace), "ESUpdateHandler");
+                    log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", epgId, ex.Message, ex.StackTrace), ex);
                 }
             }
 

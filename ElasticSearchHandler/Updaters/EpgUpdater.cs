@@ -6,16 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchHandler.Updaters
 {
     public class EpgUpdater : IUpdateable
     {
-        #region Consts
-        
-        public static readonly string EPG = "epg";
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #endregion
+        public static readonly string EPG = "epg";
 
         #region Data Members
 
@@ -48,10 +48,10 @@ namespace ElasticSearchHandler.Updaters
         public bool Start()
         {
             bool result = false;
-            Logger.Logger.Log("Info", "Start Epg update", "ESUpdateHandler");
+            log.Debug("Info - Start EPG update");
             if (IDs == null || IDs.Count == 0)
             {
-                Logger.Logger.Log("Info", "Epg Id list empty", "ESUpdateHandler");
+                log.Debug("Info - EPG Id list empty");
                 result = true;
 
                 return result;
@@ -59,7 +59,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type EPG for group {0} does not exist", groupId), "ESUpdateHandler");
+                log.Error("Error - " + string.Format("Index of type EPG for group {0} does not exist", groupId));
                 return result;
             }
 
@@ -67,15 +67,15 @@ namespace ElasticSearchHandler.Updaters
             {
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
-                result = DeleteEpg(IDs);
-                break;
+                    result = DeleteEpg(IDs);
+                    break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                result = UpdateEpg(IDs);
-                break;
+                    result = UpdateEpg(IDs);
+                    break;
                 default:
-                result = true;
-                break;
+                    result = true;
+                    break;
             }
 
             return result;
@@ -83,8 +83,6 @@ namespace ElasticSearchHandler.Updaters
 
         #endregion
 
-        #region Private Methods
-        
         private bool UpdateEpg(List<int> epgIds)
         {
             bool result = false;
@@ -110,8 +108,7 @@ namespace ElasticSearchHandler.Updaters
                 else
                 {
                     // return false; // perhaps?
-                    Logger.Logger.Log("Warning", string.Format(
-                        "Group {0} has no languages defined.", groupId), "ESUpdateHandler");
+                    log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", groupId));
                 }
 
                 Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
@@ -141,7 +138,7 @@ namespace ElasticSearchHandler.Updaters
                     foreach (LanguageObj language in languages)
                     {
                         // Filter programs to current language
-                        List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg => 
+                        List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                             epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
                         if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
@@ -170,9 +167,9 @@ namespace ElasticSearchHandler.Updaters
                             {
                                 foreach (var invalidResult in invalidResults)
                                 {
-                                    Logger.Logger.Log("Error", string.Format(
+                                    log.Error("Error - " + string.Format(
                                         "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
-                                        groupId, EPG, invalidResult.docID, invalidResult.document), "ESUpdateHandler");
+                                        groupId, EPG, invalidResult.docID, invalidResult.document));
                                 }
 
                                 result = false;
@@ -188,9 +185,9 @@ namespace ElasticSearchHandler.Updaters
                     result = temporaryResult;
                 }
             }
-            catch  (Exception ex)
+            catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), "ESUpdateHandler");
+                log.Error("Error - " + string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
 
@@ -224,8 +221,5 @@ namespace ElasticSearchHandler.Updaters
 
             return result;
         }
-
-        #endregion
-
     }
 }

@@ -10,12 +10,16 @@ using System.Text;
 using System.Threading;
 using System.Configuration;
 using RemoteTasksCommon;
+using KLogMonitor;
+using System.Reflection;
 
 namespace RemoteTasksService
 {
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public class Service : IService
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "tasks")]
         public AddTaskResponse AddTask(AddTaskRequest request)
         {
@@ -23,7 +27,7 @@ namespace RemoteTasksService
 
             try
             {
-                Logger.Logger.Log("Info", string.Concat("Add Task Request Started: ", request.task), "RemoteTasksService");
+                log.Debug("Info - " + string.Concat("Add Task Request Started: ", request.task));
 
                 string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
 
@@ -32,11 +36,11 @@ namespace RemoteTasksService
                 response.retval = taskHandler.HandleTask(request.data);
                 response.status = "success";
 
-                Logger.Logger.Log("Info", string.Concat("Add Task Request Success: ", request.task), "RemoteTasksService");
+                log.Debug("Info - " + string.Concat("Add Task Request Success: ", request.task));
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Add Task Request Fail: {0}, Error: {1}, Stacktrace: {2}", request.task, ex.Message, ex.StackTrace), "RemoteTasksService");
+                log.Error("Error - Add Task Request Failed", ex);
 
                 response.status = "failure";
                 response.reason = ex.Message;

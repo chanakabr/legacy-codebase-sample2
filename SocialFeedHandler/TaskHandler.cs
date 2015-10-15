@@ -4,18 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace SocialFeedHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string HandleTask(string data)
         {
             string res = "failure";
 
             try
             {
-                Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "SocialFeedHandler");
+                log.Info("Info - " + string.Concat("starting social feeder request. data=", data));
 
                 SocialFeedRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<SocialFeedRequest>(data);
 

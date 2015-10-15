@@ -8,11 +8,14 @@ using Catalog;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ESIndexRebuildHandler.IndexBuilders
 {
-    public class MediaIndexBuilder :  IIndexBuilder
+    public class MediaIndexBuilder : IIndexBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string MEDIA = "media";
 
         private int m_nGroupID;
@@ -36,7 +39,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
         public bool Build()
         {
             bool bSuccess = false;
-            Logger.Logger.Log("Info", string.Concat("Starting media index build for group ", m_nGroupID), "ESBuildHandler");
+            log.Debug("Info - " + string.Concat("Starting media index build for group ", m_nGroupID));
 
             if (m_nGroupID == 0)
             {
@@ -49,7 +52,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (m_oGroup == null)
             {
-                Logger.Logger.Log("Error", "Could not load group in media index builder", "ESBuildHandler");
+                log.Error("Error - Could not load group in media index builder");
                 return bSuccess;
             }
 
@@ -58,7 +61,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bSuccess)
             {
-                Logger.Logger.Log("Error", string.Concat("Building index for group failed. group id=",m_nGroupID), "ESBuildHandler");
+                log.Error("Error - " + string.Concat("Building index for group failed. group id=", m_nGroupID));
                 return bSuccess;
             }
 
@@ -67,7 +70,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bSuccess)
             {
-                Logger.Logger.Log("Error", string.Concat("Building mapping for group failed. group id=", m_nGroupID), "ESBuildHandler");
+                log.Error("Error - " + string.Concat("Building mapping for group failed. group id=", m_nGroupID));
                 return bSuccess;
             }
 
@@ -75,7 +78,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
             IndexChannels(sNewIndex);
 
             if (SwitchIndexAlias)
-               bSuccess = SwitchIndices(sNewIndex);
+                bSuccess = SwitchIndices(sNewIndex);
 
 
             return bSuccess;
@@ -117,7 +120,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ESBuildHandler");
+                    log.Error("Error - " + string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
                 string sMapping = m_oESSerializer.CreateMediaMapping(m_oGroup.m_oMetasValuesByGroupId, m_oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer);
@@ -128,7 +131,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
                     bRes = true;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type media for language ", language.Name), "ESBuildHandler");
+                    log.Error("Error - " + string.Concat("Could not create mapping of type media for language ", language.Name));
 
             }
 
@@ -223,7 +226,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bSwithcIndex)
             {
-                Logger.Logger.Log("Info", string.Concat("Unable to switch from old to new index. id=", sIndex), "ESBuildHandler");
+                log.Debug("Info - " + string.Concat("Unable to switch from old to new index. id=", sIndex));
             }
             else if (DeleteOldIndices)
             {
@@ -247,7 +250,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESBuildHandler");
+                        log.Error("Error - " + string.Format("analyzer for language {0} doesn't exist", language.Code));
                     }
                     else
                     {
@@ -272,7 +275,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("TvinciShared.Ws_Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("TvinciShared.Ws_Utils Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }

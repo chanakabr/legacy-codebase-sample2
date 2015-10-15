@@ -10,33 +10,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ESIndexUpdateHandler.Updaters
 {
     public class MediaUpdater : IUpdateable
     {
-        #region Consts
-        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string MEDIA = "media";
-
-        #endregion
-
-        #region Data Members
 
         private int groupID;
         private ElasticSearch.Common.ESSerializer esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
-        #endregion
-
-        #region Properties
-
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
-
-        #endregion
-
-        #region Ctors
 
         public MediaUpdater(int groupID)
         {
@@ -45,19 +34,15 @@ namespace ESIndexUpdateHandler.Updaters
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
-        #endregion
-
-        #region Interface Methods
-
         public bool Start()
         {
             bool result = false;
 
-            Logger.Logger.Log("Info", "Start Media update", "ESUpdateHandler");
+            log.Debug("Info - Start Media update");
 
             if (this.IDs == null || this.IDs.Count == 0)
             {
-                Logger.Logger.Log("Info", "Media id list empty", "ESUpdateHandler");
+                log.Debug("Info - Media id list empty");
                 result = true;
 
                 return result;
@@ -65,7 +50,7 @@ namespace ESIndexUpdateHandler.Updaters
 
             if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(groupID)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type media for group {0} does not exist", groupID), "ESUpdateHandler");
+                log.Error("Error - " + string.Format("Index of type media for group {0} does not exist", groupID));
 
                 return result;
             }
@@ -75,22 +60,18 @@ namespace ESIndexUpdateHandler.Updaters
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                result = UpdateMedias(IDs);
-                break;
+                    result = UpdateMedias(IDs);
+                    break;
                 case ApiObjects.eAction.Delete:
-                result = Delete(IDs);
-                break;
+                    result = Delete(IDs);
+                    break;
                 default:
-                result = true;
-                break;
+                    result = true;
+                    break;
             }
 
             return result;
         }
-
-        #endregion
-
-        #region Private Methods
 
         private bool UpdateMedias(List<int> mediaIds)
         {
@@ -136,9 +117,9 @@ namespace ESIndexUpdateHandler.Updaters
 
                                         if (!tempResult)
                                         {
-                                            Logger.Logger.Log("Error", string.Format(
-                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};", 
-                                                groupID, type, media.m_nMediaID, serializedMedia), "ESUpdateHandler");
+                                            log.Error("Error - " + string.Format(
+                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                                groupID, type, media.m_nMediaID, serializedMedia));
                                         }
                                     }
                                 }
@@ -148,7 +129,7 @@ namespace ESIndexUpdateHandler.Updaters
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), "ESUpdateHandler");
+                    log.Error("Error - " + string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace));
                     throw ex;
                 }
             }
@@ -160,7 +141,7 @@ namespace ESIndexUpdateHandler.Updaters
         {
             bool result = true;
             string index = groupID.ToString();
-            
+
             ESDeleteResult deleteResult;
 
             foreach (int id in mediaIDs)
@@ -169,7 +150,7 @@ namespace ESIndexUpdateHandler.Updaters
 
                 if (!deleteResult.Ok)
                 {
-                    Logger.Logger.Log("Error", String.Concat("Could not delete media from ES. Media id=", id), "ESUpdateHandler");
+                    log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
                 }
 
                 result &= deleteResult.Ok;
@@ -177,7 +158,5 @@ namespace ESIndexUpdateHandler.Updaters
 
             return result;
         }
-
-        #endregion
     }
 }

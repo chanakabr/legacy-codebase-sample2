@@ -8,11 +8,14 @@ using System.Linq;
 using System.Text;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ESIndexUpdateHandler.Updaters
 {
     public class ChannelUpdater : IUpdateable
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string PERCOLATOR = "_percolator";
 
         private int m_nGroupID;
@@ -32,10 +35,10 @@ namespace ESIndexUpdateHandler.Updaters
         public bool Start()
         {
             bool result = false;
-            Logger.Logger.Log("Info", "Start Channel update", "ESUpdateHandler");
+            log.Debug("Info - Start Channel update");
             if (IDs == null || IDs.Count == 0)
             {
-                Logger.Logger.Log("Info", "Channel Id list empty", "ESUpdateHandler");
+                log.Debug("Info - Channel Id list empty");
                 result = true;
 
                 return result;
@@ -43,7 +46,7 @@ namespace ESIndexUpdateHandler.Updaters
 
             if (!m_oESApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(m_nGroupID)))
             {
-                Logger.Logger.Log("Error", string.Format("Index of type media for group {0} does not exist", m_nGroupID), "ESUpdateHandler");
+                log.Error("Error - " + string.Format("Index of type media for group {0} does not exist", m_nGroupID));
                 return result;
             }
 
@@ -85,14 +88,14 @@ namespace ESIndexUpdateHandler.Updaters
 
                         if (!deleteResult.Ok)
                         {
-                            Logger.Logger.Log("Error", string.Concat("Could not delete channel from elasticsearch. ID=", nChannelID), "ESUpdateHandler");
+                            log.Error("Error - " + string.Concat("Could not delete channel from Elasticsearch. ID=", nChannelID));
                         }
                     }
                 }
             }
             else
             {
-                Logger.Logger.Log("Error", string.Concat("Could not find indices for alias ", sIndex), "ESUpdateHandler");
+                log.Error("Error - " + string.Concat("Could not find indices for alias ", sIndex));
             }
 
             return bRes;
@@ -141,6 +144,6 @@ namespace ESIndexUpdateHandler.Updaters
             }
 
             return result;
-        }        
+        }
     }
 }

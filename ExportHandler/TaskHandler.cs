@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using ExportHandler.WS_API;
 using KLogMonitor;
 using Newtonsoft.Json;
+using RemoteTasksCommon;
 using TVinciShared;
 
 namespace ExportHandler
 {
-    public class TaskHandler
+    public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

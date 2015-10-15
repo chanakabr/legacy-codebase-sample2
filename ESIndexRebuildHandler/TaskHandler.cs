@@ -4,16 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ESIndexRebuildHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string HandleTask(string data)
         {
             string res = "failure";
 
-            Logger.Logger.Log("Info", string.Concat("starting index rebuild request. data=", data), "ESBuildHandler");
+            log.Debug("Info - " + string.Concat("starting index rebuild request. data=", data));
 
             try
             {

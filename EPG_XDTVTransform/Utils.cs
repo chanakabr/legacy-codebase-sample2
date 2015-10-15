@@ -5,11 +5,15 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System.IO.Compression;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EPG_XDTVTransform
 {
     public class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static string GetTcmConfigValue(string sKey)
         {
             string result = string.Empty;
@@ -20,7 +24,7 @@ namespace EPG_XDTVTransform
             catch (Exception ex)
             {
                 result = string.Empty;
-                Logger.Logger.Log("EPG_XDTVTransform.Utils", "Key=" + sKey + "," + ex.Message, "Tcm");
+                log.Error("EPG_XDTVTransform.Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }

@@ -5,15 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
 
 namespace SocialMergeHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string HandleTask(string data)
         {
             string res = "failure";
-            Logger.Logger.Log("Info", string.Concat("starting social feeder request. data=", data), "SocialMergeHandler");
+            log.Debug("Info - " + string.Concat("starting social feeder request. data=", data));
             ApiObjects.MediaIndexingObjects.SocialMergeRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiObjects.MediaIndexingObjects.SocialMergeRequest>(data);
 
             if (request == null || request.GroupId == 0 || string.IsNullOrEmpty(request.sSiteGuid))
@@ -24,11 +28,13 @@ namespace SocialMergeHandler
                 case "create":
                     DoMerge(request);
                     break;
+
                 case "delete":
                     DoUnmerge(request);
                     break;
+
                 default:
-                    Logger.Logger.Log("Error", string.Concat("Invalid request action. request=", data), "SocialMergeHandler");
+                    log.Error("Error - " + string.Concat("Invalid request action. request=", data));
                     break;
             }
 
@@ -58,7 +64,7 @@ namespace SocialMergeHandler
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Info", string.Format("Error occurred while updating friends feed. groupId: {0}, siteguid: {1} exception: {2}", request.GroupId, siteGuid, ex.Message), "UpdateFriendsFeed");
+                        log.Error("Error - " + string.Format("Error occurred while updating friends feed. groupId: {0}, siteguid: {1} exception: {2}", request.GroupId, siteGuid, ex.Message), ex);
                     }
                 }
             }
@@ -105,7 +111,7 @@ namespace SocialMergeHandler
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Info", string.Format("Error occurred while deleting friends feed. groupId: {0}, siteguid: {1} exception: {2}", groupId, siteGuid, ex.Message), "DeleteActivitiesFromFriendsFeed");
+                    log.Error("Error - " + string.Format("Error occurred while deleting friends feed. groupId: {0}, siteguid: {1} exception: {2}", groupId, siteGuid, ex.Message), ex);
                 }
             }
         }
@@ -128,7 +134,7 @@ namespace SocialMergeHandler
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Info", string.Format("Error occurred while deleting user feed. groupId: {0}, siteguid: {1} exception: {2}", groupId, siteGuid, ex.Message), "DeleteUserFeed");
+                    log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, siteguid: {1} exception: {2}", groupId, siteGuid, ex.Message), ex);
                 }
             }
         }

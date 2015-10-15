@@ -15,16 +15,16 @@ using System.Reflection;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class MediaIndexBuilder :  AbstractIndexBuilder
+    public class MediaIndexBuilder : AbstractIndexBuilder
     {
         private static readonly string MEDIA = "media";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public MediaIndexBuilder(int groupID) 
-            : base (groupID)
+        public MediaIndexBuilder(int groupID)
+            : base(groupID)
         {
-            
+
         }
 
         #region Interface Methods
@@ -38,7 +38,7 @@ namespace ElasticSearchHandler.IndexBuilders
             string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
             string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
             string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-            
+
             int numOfShards;
             int numOfReplicas;
             int sizeOfBulk;
@@ -123,7 +123,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (groupMedias != null)
             {
-                Logger.Logger.Log("Info", string.Format("Start indexing medias. total medias={0}", groupMedias.Count), "ESFeeder");
+                log.Debug("Info - " + string.Format("Start indexing medias. total medias={0}", groupMedias.Count));
                 List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
 
                 foreach (int mediaId in groupMedias.Keys)
@@ -436,7 +436,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                 }
                                 catch
                                 {
-                                    log.Error(string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}", 
+                                    log.Error(string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}",
                                         nTagMediaID, mttn, tagID, val));
                                 }
                             }
@@ -645,7 +645,7 @@ namespace ElasticSearchHandler.IndexBuilders
             return sRules;
         }
 
-        private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject, 
+        private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
             ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)
         {
             List<ApiObjects.SearchObjects.SearchValue> m_dAnd = new List<ApiObjects.SearchObjects.SearchValue>();
@@ -667,17 +667,17 @@ namespace ElasticSearchHandler.IndexBuilders
                         switch (cutWith)
                         {
                             case ApiObjects.SearchObjects.CutWith.OR:
-                            {
-                                m_dOr.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dOr.Add(search);
+                                    break;
+                                }
                             case ApiObjects.SearchObjects.CutWith.AND:
-                            {
-                                m_dAnd.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dAnd.Add(search);
+                                    break;
+                                }
                             default:
-                            break;
+                                break;
                         }
                     }
                 }

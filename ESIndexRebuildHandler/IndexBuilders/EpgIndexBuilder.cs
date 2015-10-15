@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ESIndexRebuildHandler.IndexBuilders
 {
     public class EpgIndexBuilder : IIndexBuilder
     {
-         private static readonly string EPG = "epg";
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly string EPG = "epg";
 
         private int m_nGroupID;
         private ESSerializer m_oESSerializer;
@@ -34,7 +37,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
         {
             bool bSuccess = false;
 
-            Logger.Logger.Log("Info", string.Concat("Starting epg index build for group ", m_nGroupID), "ESBuildHandler");
+            log.Debug("Info - " + string.Concat("Starting epg index build for group ", m_nGroupID));
 
             if (m_nGroupID == 0)
             {
@@ -48,7 +51,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (m_oGroup == null)
             {
-                Logger.Logger.Log("Error", "Could not load group in epg index builder", "ESBuildHandler");
+                log.Error("Error - Could not load group in epg index builder");
                 return bSuccess;
             }
 
@@ -57,7 +60,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bSuccess)
                 return bSuccess;
-            
+
             bSuccess = CreateMapping(ref sNewIndex);
             if (!bSuccess)
                 return bSuccess;
@@ -67,7 +70,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
             if (SwitchIndexAlias)
                 bSuccess = SwitchIndices(ref sNewIndex);
 
-            
+
             return bSuccess;
         }
 
@@ -116,7 +119,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bRes)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", sNewIndex), "ESBuildHandler");
+                log.Error("Error - " + string.Format("Failed creating index for index:{0}", sNewIndex));
             }
 
             return bRes;
@@ -134,7 +137,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bRes)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating EPG mapping for index:{0}; mapping:{1}", sIndex, sMapping), "ESBuildHandler");
+                log.Error("Error - " + string.Format("Failed creating EPG mapping for index:{0}; mapping:{1}", sIndex, sMapping));
             }
 
             return bRes;
@@ -149,7 +152,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
 
             if (!bSwithcIndex)
             {
-                Logger.Logger.Log("Info", string.Concat("Unable to switch from old to new index. id=", sIndex), "ESBuildHandler");
+                log.Debug("Info - " + string.Concat("Unable to switch from old to new index. id=", sIndex));
             }
             else if (DeleteOldIndices)
             {

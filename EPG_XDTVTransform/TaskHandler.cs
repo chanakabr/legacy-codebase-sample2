@@ -10,12 +10,15 @@ using System.IO;
 using Tvinci.Core.DAL;
 using System.IO.Compression;
 using ApiObjects.Epg;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace EPG_XDTVTransform
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public string HandleTask(string data)
         {
@@ -25,7 +28,7 @@ namespace EPG_XDTVTransform
 
             string sXml = Utils.Decompress(request.sXml);
 
-            Logger.Logger.Log("Info", string.Concat("Received EPG XDTV: ", sXml), "EPG_XDTVTransform");
+            log.Debug("Info - " + string.Concat("Received EPG XDTV: ", sXml));
 
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -47,17 +50,17 @@ namespace EPG_XDTVTransform
                         int nChannelIDALU = channelID_DB_ALU[nChannelIDDB];
                         string sChannelName = channel.ChannelName;
 
-                        //tranform to xdtv and get response to send to ALU
+                        // transform to XDTV and get response to send to ALU
                         res = TransformAndResponseALU(xmlDoc, nChannelIDALU, sChannelName);
                     }
                     else
                     {
-                        Logger.Logger.Log("InsertProgramsPerChannel", string.Format("no ALU channel ID found for channel {0}. channel cannot be sent to ALU", nChannelIDDB), "EPG_XDTVTransform");
+                        log.Debug("InsertProgramsPerChannel - " + string.Format("no ALU channel ID found for channel {0}. channel cannot be sent to ALU", nChannelIDDB));
                     }
                 }
             }
 
-            Logger.Logger.Log("Info", string.Concat("EPG XDTV transformed result: ", res), "EPG_XDTVTransform");
+            log.Debug("Info - " + string.Concat("EPG XDTV transformed result: ", res));
 
             return res;
         }
@@ -89,7 +92,7 @@ namespace EPG_XDTVTransform
                 }
                 catch (Exception exp)
                 {
-                    Logger.Logger.Log("Error", string.Format("Exception in transforming xml from graceNote to ALU format", exp.Message), "EPG_XDTVTransform");
+                    log.Error("Error - " + string.Format("Exception in transforming xml from graceNote to ALU format", exp.Message), exp);
                     return null;
                 }
                 return xmlResult;
@@ -108,7 +111,7 @@ namespace EPG_XDTVTransform
             }
             else
             {
-                Logger.Logger.Log("getALUIDs", string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath), "EPG_XDTVTransform");
+                log.Debug("getALUIDs - " + string.Format("GraceNote_ALU_IDConvertion in path {0} was not found. channel cannot be sent to ALU", sPath));
             }
 
             return channelID_DB_ALU;
