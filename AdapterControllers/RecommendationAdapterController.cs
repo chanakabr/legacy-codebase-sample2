@@ -87,20 +87,18 @@ namespace AdapterControllers
             
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
-            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
-
-            if (!string.IsNullOrEmpty(engine.AdapterUrl))
-            {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
-            }
-            else
+            if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 var exception = new ArgumentException("Recommendation engine adapter has no URL");
                 exception.Data["StatusCode"] = (int)eResponseStatus.AdapterUrlRequired;
 
                 throw exception;
             }
+            
+            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
