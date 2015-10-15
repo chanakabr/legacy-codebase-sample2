@@ -238,6 +238,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback SetOSSAdapterConfigurationOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GenerateOSSSharedSecretOperationCompleted;
+        
         private System.Threading.SendOrPostCallback UpdateCacheOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdateGeoBlockRulesCacheOperationCompleted;
@@ -591,6 +593,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event SetOSSAdapterConfigurationCompletedEventHandler SetOSSAdapterConfigurationCompleted;
+        
+        /// <remarks/>
+        public event GenerateOSSSharedSecretCompletedEventHandler GenerateOSSSharedSecretCompleted;
         
         /// <remarks/>
         public event UpdateCacheCompletedEventHandler UpdateCacheCompleted;
@@ -4317,6 +4322,39 @@ namespace WebAPI.Api {
             if ((this.SetOSSAdapterConfigurationCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SetOSSAdapterConfigurationCompleted(this, new SetOSSAdapterConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GenerateOSSSharedSecret", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public OSSAdapterResponse GenerateOSSSharedSecret(string sWSUserName, string sWSPassword, int ossAdapterId) {
+            object[] results = this.Invoke("GenerateOSSSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ossAdapterId});
+            return ((OSSAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GenerateOSSSharedSecretAsync(string sWSUserName, string sWSPassword, int ossAdapterId) {
+            this.GenerateOSSSharedSecretAsync(sWSUserName, sWSPassword, ossAdapterId, null);
+        }
+        
+        /// <remarks/>
+        public void GenerateOSSSharedSecretAsync(string sWSUserName, string sWSPassword, int ossAdapterId, object userState) {
+            if ((this.GenerateOSSSharedSecretOperationCompleted == null)) {
+                this.GenerateOSSSharedSecretOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGenerateOSSSharedSecretOperationCompleted);
+            }
+            this.InvokeAsync("GenerateOSSSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ossAdapterId}, this.GenerateOSSSharedSecretOperationCompleted, userState);
+        }
+        
+        private void OnGenerateOSSSharedSecretOperationCompleted(object arg) {
+            if ((this.GenerateOSSSharedSecretCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GenerateOSSSharedSecretCompleted(this, new GenerateOSSSharedSecretCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -13347,6 +13385,32 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GenerateOSSSharedSecretCompletedEventHandler(object sender, GenerateOSSSharedSecretCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GenerateOSSSharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GenerateOSSSharedSecretCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public OSSAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((OSSAdapterResponse)(this.results[0]));
             }
         }
     }

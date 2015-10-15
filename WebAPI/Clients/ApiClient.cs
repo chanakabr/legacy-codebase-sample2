@@ -1312,6 +1312,43 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int oss_adapter_id)
+        {
+            WebAPI.Api.OSSAdapterResponse response = null;
+            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, oss_adapter_id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GenerateOSSSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+            return kalturaOSSAdapterProfile;
+        }
+
+        
         #endregion
+
     }
 }

@@ -3035,6 +3035,22 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GenerateOSSSharedSecret">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GenerateOSSSharedSecretResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GenerateOSSSharedSecretResult" type="tns:OSSAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UpdateCache">
         <s:complexType>
           <s:sequence>
@@ -3094,6 +3110,7 @@
       <s:element name="OSSAdapterResponseList" nillable="true" type="tns:OSSAdapterResponseList" />
       <s:element name="OSSAdapterSettingsResponse" nillable="true" type="tns:OSSAdapterSettingsResponse" />
       <s:element name="OSSAdapterBillingDetailsResponse" nillable="true" type="tns:OSSAdapterBillingDetailsResponse" />
+      <s:element name="OSSAdapterResponse" nillable="true" type="tns:OSSAdapterResponse" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -3731,6 +3748,12 @@
   </wsdl:message>
   <wsdl:message name="SetOSSAdapterConfigurationSoapOut">
     <wsdl:part name="parameters" element="tns:SetOSSAdapterConfigurationResponse" />
+  </wsdl:message>
+  <wsdl:message name="GenerateOSSSharedSecretSoapIn">
+    <wsdl:part name="parameters" element="tns:GenerateOSSSharedSecret" />
+  </wsdl:message>
+  <wsdl:message name="GenerateOSSSharedSecretSoapOut">
+    <wsdl:part name="parameters" element="tns:GenerateOSSSharedSecretResponse" />
   </wsdl:message>
   <wsdl:message name="UpdateCacheSoapIn">
     <wsdl:part name="parameters" element="tns:UpdateCache" />
@@ -4429,6 +4452,14 @@
   <wsdl:message name="SetOSSAdapterConfigurationHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="GenerateOSSSharedSecretHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="ossAdapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GenerateOSSSharedSecretHttpPostOut">
+    <wsdl:part name="Body" element="tns:OSSAdapterResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdateCacheHttpPostIn">
     <wsdl:part name="groupId" type="s:string" />
     <wsdl:part name="bucket" type="s:string" />
@@ -4860,6 +4891,10 @@
       <wsdl:input message="tns:SetOSSAdapterConfigurationSoapIn" />
       <wsdl:output message="tns:SetOSSAdapterConfigurationSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GenerateOSSSharedSecret">
+      <wsdl:input message="tns:GenerateOSSSharedSecretSoapIn" />
+      <wsdl:output message="tns:GenerateOSSSharedSecretSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <wsdl:input message="tns:UpdateCacheSoapIn" />
       <wsdl:output message="tns:UpdateCacheSoapOut" />
@@ -5165,6 +5200,10 @@
     <wsdl:operation name="SetOSSAdapterConfiguration">
       <wsdl:input message="tns:SetOSSAdapterConfigurationHttpPostIn" />
       <wsdl:output message="tns:SetOSSAdapterConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateOSSSharedSecret">
+      <wsdl:input message="tns:GenerateOSSSharedSecretHttpPostIn" />
+      <wsdl:output message="tns:GenerateOSSSharedSecretHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <wsdl:input message="tns:UpdateCacheHttpPostIn" />
@@ -6106,6 +6145,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetOSSAdapterConfiguration">
       <soap:operation soapAction="http://api.tvinci.com/SetOSSAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateOSSSharedSecret">
+      <soap:operation soapAction="http://api.tvinci.com/GenerateOSSSharedSecret" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7070,6 +7118,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GenerateOSSSharedSecret">
+      <soap12:operation soapAction="http://api.tvinci.com/GenerateOSSSharedSecret" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateCache">
       <soap12:operation soapAction="http://api.tvinci.com/UpdateCache" style="document" />
       <wsdl:input>
@@ -7750,6 +7807,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetOSSAdapterConfiguration">
       <http:operation location="/SetOSSAdapterConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateOSSSharedSecret">
+      <http:operation location="/GenerateOSSSharedSecret" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
