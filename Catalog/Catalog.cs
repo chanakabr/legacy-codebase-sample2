@@ -4624,6 +4624,21 @@ namespace Catalog
             // Build dictionary of enrichments for recommendation engine adapter
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
+            // If no recommendation engine defined - use group's default
+            if (externalChannel.RecommendationEngineId <= 0)
+            {
+                GroupManager groupManager = new GroupManager();
+                externalChannel.RecommendationEngineId = groupManager.GetGroup(request.m_nGroupID).defaultRecommendationEngine;
+            }
+
+            // If there is still no recommendation engine
+            if (externalChannel.RecommendationEngineId <= 0)
+            {
+                var exception = new ArgumentException("External Channel has no recommendation engine selected.");
+                exception.Data.Add("StatusCode", (int)eResponseStatus.ExternalChannelHasNoRecommendationEngine);
+                throw exception;           
+            }
+
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<RecommendationResult> recommendations = 
                 RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);

@@ -102,6 +102,11 @@ namespace Catalog.Request
                         response.status.Message = "Got error with Elasticsearch";
                     }
                 }
+                else if (ex is UriFormatException)
+                {
+                    response.status.Code = (int)eResponseStatus.AdapterUrlRequired;
+                    response.status.Message = "Invalid adapter URL was defined. Correct adapter URL is required";
+                }
                 else if (ex is ArgumentException)
                 {
                     // This is a specific exception we created.
@@ -114,13 +119,13 @@ namespace Catalog.Request
                     else
                     {
                         response.status.Code = (int)eResponseStatus.Error;
-                        response.status.Message = "Search failed";
+                        response.status.Message = "Getting media failed";
                     }
                 }
                 else
                 {
                     response.status.Code = (int)eResponseStatus.Error;
-                    response.status.Message = "Search failed";
+                    response.status.Message = "Getting media failed";
                 }
             }
 

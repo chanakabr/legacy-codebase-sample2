@@ -3489,5 +3489,32 @@ namespace Tvinci.Core.DAL
         }
         #endregion
 
+        public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine)
+        {
+            isRegionalizationEnabled = false;
+            defaultRegion = 0;
+            defaultRecommendationEngine = 0;
+
+            // Call stored procedure that checks if this group has regionalization or not
+            ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultParameters");
+            storedProcedureDefaultRegion.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedureDefaultRegion.AddParameter("@GroupID", groupId);
+
+            DataSet groupDataSet = storedProcedureDefaultRegion.ExecuteDataSet();
+
+            if (groupDataSet != null && groupDataSet.Tables != null && groupDataSet.Tables.Count == 1)
+            {
+                DataTable groupTable = groupDataSet.Tables[0];
+
+                if (groupTable != null && groupTable.Rows != null && groupTable.Rows.Count > 0 && groupTable.Rows[0] != null)
+                {
+                    DataRow groupRow = groupTable.Rows[0];
+
+                    isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
+                    defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
+                    defaultRecommendationEngine = ODBCWrapper.Utils.ExtractInteger(groupRow, "SELECTED_RECOMMENDATION_ENGINE");
+                }
+            }
+        }
     }
 }

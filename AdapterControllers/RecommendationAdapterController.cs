@@ -84,7 +84,7 @@ namespace AdapterControllers
         public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
-
+            
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
@@ -92,6 +92,13 @@ namespace AdapterControllers
             if (!string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            }
+            else
+            {
+                var exception = new ArgumentException("Recommendation engine adapter has no URL");
+                exception.Data["StatusCode"] = (int)eResponseStatus.AdapterUrlRequired;
+
+                throw exception;
             }
 
             //set unixTimestamp
