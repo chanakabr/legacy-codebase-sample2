@@ -2638,38 +2638,26 @@ namespace DAL
             return rowCount > 0;
         }
 
-        public static List<long> GetNotActiveMediaIds(int groupId, DateTime since)
+        public static DataSet GetNotActiveMedia(int groupId, DateTime since)
         {
-            List<long> mediaIds = new List<long>();
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActiveMedia");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@since", since);
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActiveMediaIds");
+            return storedProcedure.ExecuteDataSet();
+        }
+
+        public static DataSet GetNotActivePrograms(int groupId, DateTime since)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActivePrograms");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@since", since);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
-            // Validate tables count
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
-            {
-                DataTable table = dataSet.Tables[0];
-
-                // Run on first table and create initial list of parental rules, without tag values
-                if (table != null && table.Rows != null && table.Rows.Count > 0)
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-
-                        if (id > 0)
-                        {
-                            mediaIds.Add(id);
-
-                        }
-                    }
-                }
-            }
-            return mediaIds;       
+            return dataSet;
         }
     }
 }
