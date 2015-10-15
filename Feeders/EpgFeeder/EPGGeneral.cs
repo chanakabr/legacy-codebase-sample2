@@ -11,14 +11,15 @@ using System.Web;
 using DAL;
 using EpgBL;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace EpgFeeder
 {
     public class EPGGeneral : EPGImplementor
     {
-        #region Member
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         tv m_TvChannels;
-        #endregion
 
         protected override string LogFileName
         {
@@ -399,16 +400,16 @@ namespace EpgFeeder
 
         private Dictionary<DateTime, List<int>> SaveTvChannels()
         {
-            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());           
+            Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
-            EpgCB newEpgItem;            
-           
+            EpgCB newEpgItem;
+
 
             string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
             int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
             int nCount = 0;
             List<ulong> ulProgram = new List<ulong>();
-            
+
             #region get Group ID (parent Group if possible)
             int groupID = 0;
             if (!string.IsNullOrEmpty(m_ParentGroupId))
@@ -507,9 +508,9 @@ namespace EpgFeeder
                     DateTime dProgEndDate = DateTime.MinValue;
                     if (!ParseEPGStrToDate(progItem.start, ref dProgStartDate) || !ParseEPGStrToDate(progItem.stop, ref dProgEndDate))
                     {
-                        Logger.Logger.Log("Program Dates Error", string.Format("start:{0}, end:{1}", progItem.start, progItem.stop), "EPG");
+                        log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", progItem.start, progItem.stop));
                         continue;
-                    }                   
+                    }
 
                     SetMappingValues(FieldEntityMapping, progItem);
 
@@ -573,12 +574,12 @@ namespace EpgFeeder
                     #endregion
 
                     #endregion
-                 
+
                     epgDic.Add(newEpgItem.EpgIdentifier, newEpgItem);
-                }                             
+                }
 
                 //insert EPGs to DB in batches
-                InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);              
+                InsertEpgsDBBatches(ref epgDic, groupID, nCountPackage, FieldEntityMapping);
 
                 foreach (EpgCB epg in epgDic.Values)
                 {
@@ -606,7 +607,7 @@ namespace EpgFeeder
                     }
 
                     #endregion
-                    
+
                     DateTime progDate = new DateTime(epg.StartDate.Year, epg.StartDate.Month, epg.StartDate.Day);
 
                     if (!epgDateWithChannelIds.ContainsKey(progDate))
@@ -640,7 +641,7 @@ namespace EpgFeeder
             Dictionary<DateTime, bool> deletedChannelDates = new Dictionary<DateTime, bool>();
             DateTime dProgStartDate = DateTime.MinValue;
             DateTime dProgEndDate = DateTime.MinValue;
-                        
+
             #region Delete all existing programs in DB that have start/end dates within the new schedule
             foreach (var progItem in prog)
             {
@@ -660,13 +661,13 @@ namespace EpgFeeder
 
             foreach (DateTime progStartDate in deletedChannelDates.Keys)
             {
-                Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID), "EpgFeeder");
+                log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs on Date {1} that belong to channel {2}", s_GroupID, progStartDate, channelID));
                 Tvinci.Core.DAL.EpgDal.DeleteProgramsOnDate(progStartDate, s_GroupID, channelID);
             }
             #endregion
 
             #region Delete all existing programs in CB that have start/end dates within the new schedule
-            int nParentGroupID = int.Parse(m_ParentGroupId);            
+            int nParentGroupID = int.Parse(m_ParentGroupId);
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
             List<DateTime> lDates = new List<DateTime>();
             dProgStartDate = DateTime.MinValue;
@@ -679,7 +680,7 @@ namespace EpgFeeder
                 }
             }
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("Group ID = {0}; Deleting Programs  that belong to channel {1}", s_GroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion

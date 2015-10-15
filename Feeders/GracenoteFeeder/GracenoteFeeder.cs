@@ -13,13 +13,17 @@ using QueueWrapper;
 using ApiObjects.MediaIndexingObjects;
 using QueueWrapper.Queues.QueueObjects;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace GracenoteFeeder
 {
     public class GracenoteFeederObj : ScheduledTasks.BaseTask
     {
-        #region CONST      
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region CONST
         private const char spliter = '|';
         #endregion
 
@@ -57,27 +61,27 @@ namespace GracenoteFeeder
             {
                 //get all epg channel ids by group
                 Dictionary<string, List<EpgChannelObj>> channelDic = EpgDal.GetAllEpgChannelsDic(GroupID);
-                
+
                 //GetAllChannels();
                 List<string> channels = channelDic.Keys.ToList();
                 if (channels != null && channels.Count == 0)
                 {
-                    Logger.Logger.Log("Error", string.Format("group:{0} No channels exsits in DB for this group", GroupID), "GracenoteFeeder");
+                    log.Error("Error - " + string.Format("group:{0} No channels exists in DB for this group", GroupID));
                     return false;
                 }
 
-                // foreach channel get the right xml file       
+                // for each channel get the right xml file       
                 List<RESPONSES> lResponse = getXmlTVChannel(channels);
 
                 // run over and insert the programs
                 bool res = InsertProgramsPerChannel(lResponse, channelDic);
-                
+
                 // Clear pic urls to support pic updates
                 BaseGracenoteFeeder.dCategoryToDefaultPic.Clear();
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", GroupID, ex.Message), "GracenoteFeeder");
+                log.Error("Error - " + string.Format("group:{0}, ex:{1}", GroupID, ex.Message), ex);
             }
 
             return true;
@@ -90,50 +94,50 @@ namespace GracenoteFeeder
             try
             {
                 List<XmlDocument> xmlList = getChannelXMLs(lResponse);
-               
+
                 #region send to celery Queue if needed
                 try
                 {
-                bool bSendToQueue = false;
+                    bool bSendToQueue = false;
 
-                string groupIDs = TVinciShared.WS_Utils.GetTcmConfigValue("graceNoteXDTVTransformGroups");
-                string[] sSep = { ";" };
-                string[] sGroupArray = groupIDs.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
-                if (sGroupArray.Contains(GroupID.ToString()))
-                {
-                    bSendToQueue = true;
-                }
-
-                if (bSendToQueue)
-                {
-                    foreach (XmlDocument xml in xmlList)
+                    string groupIDs = TVinciShared.WS_Utils.GetTcmConfigValue("graceNoteXDTVTransformGroups");
+                    string[] sSep = { ";" };
+                    string[] sGroupArray = groupIDs.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
+                    if (sGroupArray.Contains(GroupID.ToString()))
                     {
-                        try
+                        bSendToQueue = true;
+                    }
+
+                    if (bSendToQueue)
+                    {
+                        foreach (XmlDocument xml in xmlList)
                         {
-                            SendToQueue(xml);
-                        }
-                        catch (Exception exp)
-                        {
-                            Logger.Logger.Log("SendToQueue in to loop", string.Format("failed to SendToQueue ex={0}", exp.Message), "SendToQueue");
+                            try
+                            {
+                                SendToQueue(xml);
+                            }
+                            catch (Exception exp)
+                            {
+                                log.Debug("SendToQueue in to loop - " + string.Format("failed to SendToQueue ex={0}", exp.Message));
+                            }
                         }
                     }
-                }
 
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("SendToQueue", string.Format("failed to SendToQueue ex={0}", ex.Message), "SendToQueue");
+                    log.Error("SendToQueue - " + string.Format("failed to SendToQueue ex={0}", ex.Message), ex);
                 }
                 #endregion
 
                 //saving the channels in DB
                 foreach (XmlDocument xml in xmlList)
                 {
-                    int nChannelIDDB = 0;                    
+                    int nChannelIDDB = 0;
                     XmlNodeList xmlChannel = xml.GetElementsByTagName("TVGRIDBATCH");
                     string sChannelID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
 
-                    if (channelDic.ContainsKey(sChannelID))             
+                    if (channelDic.ContainsKey(sChannelID))
                     {
                         foreach (EpgChannelObj channel in channelDic[sChannelID])
                         {
@@ -147,32 +151,32 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InsertProgramsPerChannel", string.Format("Exception when proccing epg in group id {0}: {1}, at :{2}", GroupID, ex.Message, ex.StackTrace), "GracenoteFeeder");
+                log.Error("InsertProgramsPerChannel -" + string.Format("Exception when proccing epg in group id {0}: {1}, at :{2}", GroupID, ex.Message, ex.StackTrace), ex);
                 return false;
             }
-        
+
             return true;
         }
 
         private void SaveChannel(XmlDocument xmlDoc, int nChannelID, string sChannelID, EpgChannelType eEpgChannelType)
-        {   
+        {
             try
             {
-                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
-                 BaseGracenoteFeeder gnf = new BaseGracenoteFeeder(Client, User, GroupID, URL, ChannelXml, CategoryXml,nParentGroupID, 700);
-                 if (gnf != null)
-                 {
-                     gnf.SaveChannel(xmlDoc, nChannelID, sChannelID, eEpgChannelType);
-                 }
-                 else
-                 {
-                     Logger.Logger.Log("SaveChannels", string.Format("no implementation for groupid={0} can't save this channel", GroupID), "GracenoteFeeder");
-                 }               
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
+                BaseGracenoteFeeder gnf = new BaseGracenoteFeeder(Client, User, GroupID, URL, ChannelXml, CategoryXml, nParentGroupID, 700);
+                if (gnf != null)
+                {
+                    gnf.SaveChannel(xmlDoc, nChannelID, sChannelID, eEpgChannelType);
+                }
+                else
+                {
+                    log.Debug("SaveChannels - " + string.Format("no implementation for groupid={0} can't save this channel", GroupID));
+                }
             }
 
             catch (Exception ex)
             {
-                Logger.Logger.Log("SaveChannels", string.Format("fail to create programObject by xml ex={0}", ex.Message), "GracenoteFeeder");
+                log.Error("SaveChannels - " + string.Format("fail to create programObject by xml ex={0}", ex.Message), ex);
             }
         }
 
@@ -193,19 +197,19 @@ namespace GracenoteFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("IsStatusOK", string.Format("Response is not OK  , responseStatus = {0},  responseURL = {1}", 
+                    log.Debug("IsStatusOK - " + string.Format("Response is not OK  , responseStatus = {0},  responseURL = {1}",
                                        (response != null && response.RESPONSE != null) ? response.RESPONSE.STATUS : "response is null",
                                        (response != null && response.RESPONSE != null && response.RESPONSE.UPDATE_INFO != null && response.RESPONSE.UPDATE_INFO.URL != null) ?
-                                       response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty"), "GracenoteFeeder");
+                                       response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty") + " GracenoteFeeder");
                 }
                 return res;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("IsStatusOK", string.Format("Response is not OK  ex:{0} , responseStatus = {1},  responseURL = {2}", ex.Message,
+                log.Error("IsStatusOK - " + string.Format("Response is not OK  ex:{0} , responseStatus = {1},  responseURL = {2}", ex.Message,
                                             (response != null && response.RESPONSE != null) ? response.RESPONSE.STATUS : "response is null",
                                             (response != null && response.RESPONSE != null && response.RESPONSE.UPDATE_INFO != null && response.RESPONSE.UPDATE_INFO.URL != null) ?
-                                            response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty"), "GracenoteFeeder");
+                                            response.RESPONSE.UPDATE_INFO.URL.Value : "response url is null/empty"), ex);
                 sUrl = string.Empty;
                 return res;
             }
@@ -226,7 +230,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InitParamter", string.Format("fail to split the parameters ex={0}", ex.Message), "GracenoteFeeder");
+                log.Error("InitParamter - " + string.Format("fail to split the parameters ex={0}", ex.Message), ex);
                 throw ex;
             }
         }
@@ -239,13 +243,13 @@ namespace GracenoteFeeder
             {
                 foreach (string sChannelID in ChannelsID)
                 {
-                    string uri = URL; 
+                    string uri = URL;
                     string method = "POST";
                     string postData = string.Format(ChannelXml, Client, User, sChannelID, Language);
                     string sXml = Utils.getXmlFromGracenote(postData, method, uri);
                     if (string.IsNullOrEmpty(sXml))
                     {
-                        Logger.Logger.Log("getXmlTVChannel", string.Format("sXml is empty sChannelID = {0}, uri= {1}", sChannelID, uri), "GracenoteFeeder");
+                        log.Debug("getXmlTVChannel - " + string.Format("sXml is empty sChannelID = {0}, uri= {1}", sChannelID, uri));
                     }
                     lResponse.Add(ConvertXmlToResponseObj(sXml));
                 }
@@ -254,7 +258,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("getXmlTVChannel", string.Format("ex={0}", ex.Message), "GracenoteFeeder");
+                log.Error("getXmlTVChannel - " + string.Format("ex={0}", ex.Message), ex);
                 return new List<RESPONSES>();
             }
         }
@@ -276,16 +280,16 @@ namespace GracenoteFeeder
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("ConvertXmlToResponseObj", string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), "GracenoteFeeder");
+                        log.Error("ConvertXmlToResponseObj - " + string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), ex);
                         oResponse = null;
                     }
-                }        
-         
+                }
+
                 return oResponse;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("ConvertXmlToResponseObj", string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), "GracenoteFeeder");
+                log.Error("ConvertXmlToResponseObj - " + string.Format("fail to convert the xml to Response Object, ex:{0}", ex.Message), ex);
                 return null;
             }
         }
@@ -304,7 +308,6 @@ namespace GracenoteFeeder
                     {
                         try
                         {
-                            #region Load the xml string to XmlDocument
                             string sXml = Utils.getXmlFromGracenote(string.Empty, "GET", sUrl);
 
                             xmlDoc = new XmlDocument();
@@ -322,11 +325,10 @@ namespace GracenoteFeeder
                                 // Build the XmlDocument from the MemorySteam of UTF-8 encoded bytes
                                 xmlDoc.Load(ms);
                             }
-                            #endregion
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("getChannelXMLs", string.Format("sURL:{0}, ex:{1}", sUrl, ex.Message), "FailGetURL");
+                            log.Error("getChannelXMLs - " + string.Format("sURL:{0}, ex:{1}", sUrl, ex.Message) + " FailGetURL", ex);
                         }
 
                         if (xmlDoc != null)
@@ -336,19 +338,19 @@ namespace GracenoteFeeder
                     }
                     else
                     {
-                        Logger.Logger.Log("getChannelXMLs", string.Format("Response has error sUrl:{0}", sUrl), "FailGetURL");
+                        log.Debug("getChannelXMLs - " + string.Format("Response has error sUrl:{0}", sUrl));
                     }
                 }
-                catch (Exception exp) // if one request faild don't fail it all
+                catch (Exception exp) // if one request failed don't fail it all
                 {
-                    Logger.Logger.Log("getChannelXMLs", string.Format("xml:{0}, ex:{1}", GroupID, exp.Message), "GracenoteFeeder");
+                    log.Error("getChannelXMLs - " + string.Format("xml:{0}, ex:{1}", GroupID, exp.Message), exp);
                 }
             }
             return xmlList;
-        }      
+        }
 
         private void SendToQueue(XmlDocument XMLDoc)
-        {            
+        {
             List<object> args = new List<object>();
             string id = Guid.NewGuid().ToString();
             string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskEPG");
@@ -359,7 +361,7 @@ namespace GracenoteFeeder
 
             XmlNodeList xmlChannel = XMLDoc.GetElementsByTagName("TVGRIDBATCH");
             string sChannelExternalID = BaseGracenoteFeeder.GetSingleNodeValue(xmlChannel[0], "GN_ID");
-            
+
             args.Add(GroupID);
             args.Add(sUrlALUCheck);
             args.Add(sUrlALUSend);
@@ -373,9 +375,8 @@ namespace GracenoteFeeder
             bool bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
             if (!bIsUpdateSucceeded)
             {
-                Logger.Logger.Log("Error", "EPGQueue was not updated  - xml was not sent to ALU ", "GraceNoteFeeder");
+                log.Error("Error - EPGQueue was not updated  - xml was not sent to ALU. GraceNoteFeeder");
             }
         }
-      
     }
 }

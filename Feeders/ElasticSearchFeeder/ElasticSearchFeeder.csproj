@@ -63,6 +63,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TvmCore\External\net40\Microsoft.CompilerServices.AsyncTargetingPack.Net4.dll</HintPath>
@@ -113,6 +116,7 @@
     <Compile Include="ElasticSearchImplementor.cs" />
     <Compile Include="IndexBuilders\EpgIndexBuilder.cs" />
     <Compile Include="IndexBuilders\MediaIndexBuilder.cs" />
+    <Compile Include="KLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

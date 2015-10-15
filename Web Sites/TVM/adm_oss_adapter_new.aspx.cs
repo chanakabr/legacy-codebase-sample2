@@ -47,20 +47,6 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                     {
                         Int32 nID = DBManipulator.DoTheWork();
 
-                        if (pgid == 0 && nID > 0)
-                        {
-                            // Create Shared secret
-                            string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-
-                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("oss_adapter");
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("shared_secret", "=", sharedSecret);
-                            updateQuery += " where ";
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
-                            updateQuery.Execute();
-                            updateQuery.Finish();
-                            updateQuery = null;
-                        }
-
                         // set adapter configuration
                         apiWS.API api = new apiWS.API();
 
@@ -141,14 +127,17 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
         theRecord.AddRecord(dr_external_identifier);
 
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", false);
+        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", true);
         theRecord.AddRecord(dr_adapter_url);
 
-        if (t != null)
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
+        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
+        theRecord.AddRecord(dr_shared_secret);
+
+        if (t == null)
         {
-            DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
-            dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
-            theRecord.AddRecord(dr_shared_secret);
+            string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+            dr_shared_secret.SetValue(sharedSecret);
         }
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);

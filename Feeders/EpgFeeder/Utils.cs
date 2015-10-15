@@ -2,22 +2,26 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EpgBL;
+using KLogMonitor;
 
 namespace EpgFeeder
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static string GetValueByKey(string sKey)
         {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey); 
+            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
 
-   
+
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)
@@ -33,13 +37,13 @@ namespace EpgFeeder
             Dictionary<string, List<string>> dMetas = new Dictionary<string, List<string>>();
 
             var MetaFieldEntity = from item in FieldEntityMapping
-                                  where item.FieldType == enums.FieldTypes.Meta && item.XmlReffName.Capacity > 0 && item.Value!= null && item.Value.Count > 0
+                                  where item.FieldType == enums.FieldTypes.Meta && item.XmlReffName.Capacity > 0 && item.Value != null && item.Value.Count > 0
                                   select item;
 
             foreach (var item in MetaFieldEntity)
             {
                 foreach (var value in item.Value)
-                {                    
+                {
                     if (dMetas.ContainsKey(item.Name))
                     {
                         dMetas[item.Name].AddRange(item.Value);
@@ -126,7 +130,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteDocFromES", string.Format("channelID = {0},ex = {1}", channelID, ex.Message), "EpgFeeder");
+                log.Error("DeleteDocFromES - " + string.Format("channelID = {0},ex = {1}", channelID, ex.Message), ex);
                 return false;
             }
         }
@@ -145,7 +149,7 @@ namespace EpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 

@@ -8,11 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace CouchbaseMediaMarksFeeder
 {
     public class CouchbaseMediaMarksFeeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object isRunningMutex = new object();
         private static bool isRunning = false;
 

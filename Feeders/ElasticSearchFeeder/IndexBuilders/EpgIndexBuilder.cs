@@ -10,11 +10,15 @@ using System.Threading.Tasks;
 using EpgBL;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchFeeder.IndexBuilders
 {
     public class EpgIndexBuilder : AbstractIndexBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected ElasticSearchApi m_oESApi;
         protected int m_nGroupID;
         protected ESSerializer m_oESSerializer;
@@ -73,10 +77,10 @@ namespace ElasticSearchFeeder.IndexBuilders
                 {
                     indexAnalyzer = "whitespace";
                     searchAnalyzer = "whitespace";
-                    Logger.Logger.Log("Error", string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code), "ElasticSearch");
+                    log.ErrorFormat("Error - could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead. ElasticSearch", language.Code);
                 }
 
-                string sMapping = m_oESSerializer.CreateEpgMapping(oGroup.m_oEpgGroupSettings.m_lMetasName, oGroup.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer, 
+                string sMapping = m_oESSerializer.CreateEpgMapping(oGroup.m_oEpgGroupSettings.m_lMetasName, oGroup.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
                     autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? EPG : string.Concat(EPG, "_", language.Code);
                 bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
@@ -85,14 +89,14 @@ namespace ElasticSearchFeeder.IndexBuilders
                     bRes = false;
 
                 if (!bMappingRes)
-                    Logger.Logger.Log("Error", string.Concat("Could not create mapping of type epg for language ", language.Name), "ESFeeder");
+                    log.Error("Error - " + string.Concat("Could not create mapping of type epg for language ", language.Name));
 
             }
             #endregion
 
             if (!bRes)
             {
-                Logger.Logger.Log("Error", string.Format("Failed creating index for index:{0}", sNewIndex), "ESFeeder");
+                log.Error("Error - " + string.Format("Failed creating index for index:{0}", sNewIndex));
                 return bRes;
             }
 
@@ -136,7 +140,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
-                        Logger.Logger.Log("Error", string.Format("analyzer for language {0} doesn't exist", language.Code), "ESFeeder");
+                        log.ErrorFormat("Error - " + string.Format("analyzer for language {0} doesn't exist", language.Code) + " ESFeeder");
                     }
                     else
                     {

@@ -7,6 +7,8 @@ using System.Xml;
 using System.Collections;
 using TVinciShared;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ExcelGenerator
 {
@@ -22,6 +24,7 @@ namespace ExcelGenerator
 
     public class ExcelGenerator
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private int nGroupID;
         private int nNumberOfFiles;
         private Dictionary<int, string> sLangs;
@@ -477,7 +480,7 @@ namespace ExcelGenerator
             nTotalMedias = medias.Length;
             int nNumberOfThreads = 5;
 
-            
+
 
             string strMediaIDs = string.Join(",", medias.Select(x => x.ToString()).ToArray());
 
@@ -495,7 +498,7 @@ namespace ExcelGenerator
             {
                 nTotalMedias = selectMediasQuery.Table("query").DefaultView.Count;
 
-                Logger.Logger.Log("Update", "total medias : " + nTotalMedias.ToString(), "ExcelGenerator");
+                log.Debug("Update - total medias : " + nTotalMedias.ToString() + " ExcelGenerator");
 
                 if (nTotalMedias >= nNumberOfThreads)
                 {
@@ -528,7 +531,7 @@ namespace ExcelGenerator
                     if (arrResults.Any(threadResult => threadResult == false))
                     {
                         resultTable.Clear();
-                    } 
+                    }
                 }
                 else
                 {
@@ -538,7 +541,7 @@ namespace ExcelGenerator
                     }
                 }
 
-                
+
             }
 
             selectMediasQuery.Finish();
@@ -558,7 +561,7 @@ namespace ExcelGenerator
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Update", "Error occured on ProcessScope(): " + ex.ToString(), "ExcelGenerator");                
+                    log.Error("Update - Error occurred on ProcessScope(): " + ex.ToString() + " ExcelGenerator", ex);
                     result = false;
                     break;
                 }
@@ -872,13 +875,13 @@ namespace ExcelGenerator
                 {
                     resultTable.Rows.Add(mediaRow);
                     nMediaCounter++;
-                    Logger.Logger.Log("Add Media", nMediaCounter.ToString() + "/" + nTotalMedias.ToString(), "ExcelGenerator");
+                    log.Debug("Add Media - " + nMediaCounter.ToString() + "/" + nTotalMedias.ToString() + " ExcelGenerator");
                 }
             }
             selectQuery.Finish();
             selectQuery = null;
 
-           
+
 
         }
 

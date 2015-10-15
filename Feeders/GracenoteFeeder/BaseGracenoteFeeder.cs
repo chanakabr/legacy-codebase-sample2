@@ -2,19 +2,23 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
 using EnumProject;
 using EpgBL;
+using KLogMonitor;
 using Tvinci.Core.DAL;
 
 namespace GracenoteFeeder
 {
-    public class BaseGracenoteFeeder 
+    public class BaseGracenoteFeeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region members
-        
+
         public int groupID { get; set; }
         public int parentGroupID { get; set; }
         public int UpdaterID { get; set; }
@@ -125,11 +129,11 @@ namespace GracenoteFeeder
         {
             try
             {
-                XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("TVPROGRAM");               
+                XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("TVPROGRAM");
 
                 if (xmlnodelist.Count > 0 && channelID > 0)
                 {
-                    Logger.Logger.Log("KDG SaveChannels", string.Format("START EPG Channel = {0}", channelID), "GracenoteFeeder");
+                    log.Debug("KDG SaveChannels - " + string.Format("START EPG Channel = {0}", channelID) + " GracenoteFeeder");
 
                     List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(groupID, channelID, eEpgChannelType);
 
@@ -161,7 +165,7 @@ namespace GracenoteFeeder
                         {
                             TempFieldEntityMapping.Add(TVinciShared.ObjectCopier.Clone<FieldTypeEntity>(item));
                         });
-                        
+
                         string EPGGuid = GetSingleNodeValue(node, "GN_ID");
                         string name = GetSingleNodeValue(node, "TITLE"); // basic (name)
                         string description = GetSingleNodeValue(node, "SYNOPSIS"); //basic (Description)
@@ -196,7 +200,7 @@ namespace GracenoteFeeder
                         DateTime dProgEndDate = DateTime.MaxValue;
                         bool parseStart = Utils.ParseEPGStrToDate(start_date, ref dProgStartDate);
                         bool parseEnd = Utils.ParseEPGStrToDate(end_date, ref dProgEndDate);
-                        if (parseStart && parseEnd) // if both dates exsits and parse OK 
+                        if (parseStart && parseEnd) // if both dates exists and parse OK 
                         {
                             #region Delete Programs by channel + date
                             DateTime dDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
@@ -212,8 +216,8 @@ namespace GracenoteFeeder
                         }
                         else
                         {
-                            Logger.Logger.Log("Dates Error", string.Format("channel_id={0}, GN_ID={1}, startDate={2}, endDate={3}, TvinciChannelID={4}",
-                                channel_id, EPGGuid, start_date, end_date, channelID), "GraceNoteFeeder");
+                            log.Error("Dates Error - " + string.Format("channel_id={0}, GN_ID={1}, startDate={2}, endDate={3}, TvinciChannelID={4}",
+                                channel_id, EPGGuid, start_date, end_date, channelID));
                         }
                         #endregion
                     }
@@ -248,7 +252,7 @@ namespace GracenoteFeeder
                                 ulProgram = new List<ulong>();
                                 nCount = 0;
                             }
-                           
+
                         }
                         #endregion
                     }
@@ -261,22 +265,20 @@ namespace GracenoteFeeder
                     //start Upload proccess Queue
                     UploadQueue.UploadQueueHelper.SetJobsForUpload(groupID);
 
-                    Logger.Logger.Log("KDG", string.Format("END EPG Channel {0}", channelID), "GraceNoteFeeder");
+                    log.Debug("KDG - " + string.Format("END EPG Channel {0}", channelID) + " GraceNoteFeeder");
                 }
                 else
                 {
-                    Logger.Logger.Log("Missing Channel ID", string.Format("GetExistChannel() ChannelID = {0}", channel_id), "GraceNoteFeeder");
+                    log.Debug("Missing Channel ID - " + string.Format("GetExistChannel() ChannelID = {0}", channel_id) + " GraceNoteFeeder");
                 }
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to insert channel to DB ex = {0}", exp.Message), "GraceNoteFeeder");
+                log.Error("KDG - " + string.Format("fail to insert channel to DB ex = {0}", exp.Message), exp);
             }
             finally
             {
             }
-
-
         }
 
         private List<int> DeleteEpgs(DateTime dPublishDate, int channelID, int groupID, List<DateTime> deletedDays)
@@ -298,19 +300,19 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to DeleteEpgs ex = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("KDG - " + string.Format("fail to DeleteEpgs ex = {0}", ex.Message), ex);
                 return null;
             }
         }
 
-        // get all epgid that already exsits in DB
+        // get all EPG ID that already exists in DB
         private void UpdateEpgDic(ref Dictionary<string, EpgCB> epgDic, int groupID, DateTime dPublishDate, int channelID)
         {
             try
             {
                 List<int> epgIdsToUpdate = new List<int>();
                 List<string> epgGuid = epgDic.Keys.ToList();
-                List<string> epgIds = new List<string>(); // list of all exsits epg programs ids 
+                List<string> epgIds = new List<string>(); // list of all exists epg programs ids 
                 DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID, channelID);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -332,13 +334,13 @@ namespace GracenoteFeeder
                     BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
                     List<EpgCB> lResCB = oEpgBL.GetEpgs(epgIds);
 
-                    if (lResCB != null && lResCB.Count > 0) // start comper the objects
+                    if (lResCB != null && lResCB.Count > 0) // start compare the objects
                     {
                         foreach (EpgCB cbEpg in lResCB)
                         {
                             if (epgDic.ContainsKey(cbEpg.EpgIdentifier))
                             {
-                                // comper object 
+                                // compare object 
                                 bool bEquals = cbEpg.Equals(epgDic[cbEpg.EpgIdentifier]);
                                 if (bEquals)
                                 {
@@ -353,7 +355,7 @@ namespace GracenoteFeeder
 
                         if (epgIdsToUpdate.Count > 0)
                         {
-                            // update the epgs with publish date 
+                            // update the EPGs with publish date 
                             bool bUpdate = EpgDal.UpdateEpgChannelSchedulePublishDate(epgIdsToUpdate, dPublishDate);
                         }
                     }
@@ -361,11 +363,11 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("KDG", string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("KDG - " + string.Format("fail to UpdateEpgDic ex = {0}", ex.Message), ex);
             }
         }
 
-        /*Get the default picture url from GraceNote API*/
+        /*Get the default picture URL from GraceNote API*/
         private string GetImageFromGN(XmlNode node, string EPGGuid)
         {
             string epg_url = string.Empty;
@@ -383,12 +385,12 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetImageFromGN", string.Format("fail to get pic URL from GraceNote API EPGGuid ={0}, ex = {1}", EPGGuid, ex.Message), "GraceNoteFeeder");
+                log.Error("GetImageFromGN - " + string.Format("fail to get pic URL from GraceNote API EPGGuid ={0}, ex = {1}", EPGGuid, ex.Message), ex);
                 return string.Empty;
             }
         }
 
-        // fille the FieldEntityMapping with all values
+        // fill the FieldEntityMapping with all values
         private void SetMappingValues(List<FieldTypeEntity> FieldEntityMapping, XmlNode node, EpgChannelType eEpgChannelType)
         {
             // fill all tags 
@@ -412,7 +414,7 @@ namespace GracenoteFeeder
                 //{
                 //    lDefaultFileds = sDefaultFileds.Split(';').ToList();
                 //}
-                
+
                 for (int i = 0; i < FieldEntityMapping.Count; i++)
                 {
                     if (FieldEntityMapping[i].FieldType == enums.FieldTypes.Meta)
@@ -444,7 +446,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetMetasValues", string.Format("failed with metaValues for node = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("GetMetasValues - " + string.Format("failed with metaValues for node = {0}", ex.Message), ex);
             }
         }
 
@@ -478,10 +480,10 @@ namespace GracenoteFeeder
                             {
                                 foreach (XmlNode multinode in node.SelectNodes(XmlRefName))
                                 {
-                                    
+
                                     if (!string.IsNullOrEmpty(multinode.InnerText))
-                                    {     
-                                        bValueFromIngest = true;                                  
+                                    {
+                                        bValueFromIngest = true;
                                         FieldEntityMapping[i].Value.Add(multinode.InnerXml);
                                     }
                                 }
@@ -497,7 +499,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetTagsValues", string.Format("failed with tagValues for node = {0}", ex.Message), "GraceNoteFeeder");
+                log.Error("GetTagsValues - " + string.Format("failed with tagValues for node = {0}", ex.Message), ex);
             }
         }
 
@@ -512,7 +514,7 @@ namespace GracenoteFeeder
                 }
                 catch (Exception exp)
                 {
-                    Logger.Logger.Log("GetExistChannel", string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), "GraceNoteFeeder");
+                    log.Error("GetExistChannel - " + string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), exp);
                 }
             }
             return res;
@@ -552,27 +554,27 @@ namespace GracenoteFeeder
                 }
             }
 
-          /*  DataTable dtEPG = Utils.InitEPGDataTable();
-            Utils.FillEPGDataTable(epgDic, ref dtEPG);
-            string sConn = "MAIN_CONNECTION_STRING";
-            Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
+            /*  DataTable dtEPG = Utils.InitEPGDataTable();
+              Utils.FillEPGDataTable(epgDic, ref dtEPG);
+              string sConn = "MAIN_CONNECTION_STRING";
+              Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
 
-            //get back the IDs list of the EPGs          
-            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
-            if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
-            {
-                for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
-                {
-                    DataRow row = dtEpgIDGUID.Rows[i];
-                    if (row != null)
-                    {
-                        string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
-                        ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
-                            epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
-                    }
-                }
-            }*/
+              //get back the IDs list of the EPGs          
+              DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
+              if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
+              {
+                  for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
+                  {
+                      DataRow row = dtEpgIDGUID.Rows[i];
+                      if (row != null)
+                      {
+                          string sGuid = ODBCWrapper.Utils.GetSafeStr(row, "EPG_IDENTIFIER");
+                          ulong nEPG_ID = (ulong)ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                          if (epgDic.TryGetValue(sGuid, out epg) && epg != null)
+                              epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
+                      }
+                  }
+              }*/
         }
 
         private void InsertEpgsDBBatches(ref Dictionary<string, EpgCB> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, DateTime dPublishDate, int channelID)
@@ -621,7 +623,7 @@ namespace GracenoteFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgsDBBatches - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", groupID, exc.Message), exc);
                 return;
             }
         }
@@ -659,7 +661,7 @@ namespace GracenoteFeeder
                     {
                         epgIDs.Add(Convert.ToInt32(epg.EpgID));
 
-                        //update Metas
+                        //update Meta
                         Utils.UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
                         //update Tags                    
                         Utils.UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID);
@@ -668,14 +670,14 @@ namespace GracenoteFeeder
 
                 Utils.InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, nGroupID, nUpdaterID);
 
-                // delete all values per tag and meta for programIDS that exsits 
+                // delete all values per tag and meta for programIDS that exists 
                 bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, nGroupID);
-                Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
+                Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Meta to DB
                 Utils.InsertBulk(dtEpgTags, "EPG_program_tags", sConn); //insert EPG Tags to DB
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), exc);
                 return;
             }
         }
@@ -710,7 +712,7 @@ namespace GracenoteFeeder
                     Utils.FillEPGDataTable(updateEpgDic, ref dtEPG, dPublishDate);
                     bool bUpdated = EpgDal.UpdateEpgChannelSchedule(dtEPG);
                 }
-            }            
+            }
         }
     }
-}    
+}

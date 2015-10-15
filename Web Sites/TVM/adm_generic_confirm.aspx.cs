@@ -309,6 +309,36 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         }
                     }
                     break;
+                case "oss_adapter_config":
+                    // set adapter configuration
+                    object oOssAdapterId = ODBCWrapper.Utils.GetTableSingleVal("oss_adapter_config", "oss_adapter_id", m_nID);
+
+                    int ossAdapterId = 0;
+                    if (oOssAdapterId != null && oOssAdapterId != DBNull.Value)
+                    {
+                        ossAdapterId = int.Parse(oOssAdapterId.ToString());
+
+                        apiWS.API api = new apiWS.API();
+
+                        sWSUserName = "";
+                        sWSPass = "";
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
+                        sWSURL = GetWSURL("api_ws");
+                        if (sWSURL != "")
+                            api.Url = sWSURL;
+
+                        try
+                        {
+                            apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, ossAdapterId);
+                            Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", ossAdapterId, status.Code), "SetOSSAdapterConfiguration");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Logger.Log("Exception", string.Format("oss adapter id :{0}, ex msg:{1}, ex st: {2} ", ossAdapterId, ex.Message, ex.StackTrace), "SetOSSAdapterConfiguration");
+                        }
+                    }
+                    break;
+                
                 default:
                     break;
             }

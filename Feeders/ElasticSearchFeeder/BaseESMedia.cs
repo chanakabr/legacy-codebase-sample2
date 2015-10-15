@@ -16,11 +16,15 @@ using ElasticSearchFeeder.IndexBuilders;
 using ElasticSearch.Common.DeleteResults;
 using Catalog.Cache;
 using GroupsCacheManager;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElasticSearchFeeder
 {
     public class BaseESMedia : ElasticSearchBaseImplementor
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected const string MEDIA = "media";
         protected const string EPG = "epg";
 
@@ -63,32 +67,34 @@ namespace ElasticSearchFeeder
 
                     if (!bReloadSuccess)
                     {
-                        Logger.Logger.Log("Error", string.Format("Reloading index failed for group {0}", m_nGroupID), "ESFeeder");
+                        log.ErrorFormat("Error- Reloading index failed for group {0}", m_nGroupID);
                         return;
                     }
                 }
                 //Get message queue
-                Logger.Logger.Log("Info", "Initializaing rabbit queue", "ESFeeder");
+                log.Debug("Info - Initializing rabbit queue. ESFeeder");
+
+
                 using (RabbitQueueSingleConnection oMessageQueue = new RabbitQueueSingleConnection(m_sQueueName, string.Empty))
                 {
                     try
                     {
                         if (oMessageQueue.Start())
                         {
-                            Logger.Logger.Log("Info", "Message queue initialized successfully", "ESFeeder");
+                            log.Debug("Info - Message queue initialized successfully, ESFeeder");
 
                             string sGroupID = m_nGroupID.ToString();
                             IndexingData oMessage = null;
 
                             string sAckId;
                             bool bRetVal;
-                            Logger.Logger.Log("Info", string.Format("Attempting to read messages for queue {0}", m_sQueueName), "ESFeeder");
+                            log.DebugFormat("Info - Attempting to read messages for queue {0}", m_sQueueName);
 
                             while ((oMessage = oMessageQueue.Dequeue<IndexingData>(m_sQueueName, out sAckId)) != null)
                             {
                                 if (oMessage.Ids != null && oMessage.Ids.Count > 0)
                                 {
-                                    Logger.Logger.Log("Info", string.Format("received message. objectType={0}; group_id={1}; action={2}; ids=[{3}]", oMessage.ObjectType.ToString(), oMessage.GroupId, oMessage.Action.ToString(), string.Join(",", oMessage.Ids)), "ESFeeder");
+                                    log.DebugFormat("Info - received message. objectType={0}; group_id={1}; action={2}; ids=[{3}]", oMessage.ObjectType.ToString(), oMessage.GroupId, oMessage.Action.ToString(), string.Join(",", oMessage.Ids));
                                     try
                                     {
                                         bRetVal = false;
@@ -110,36 +116,36 @@ namespace ElasticSearchFeeder
                                         }
                                         if (bRetVal && !string.IsNullOrEmpty(sAckId))
                                         {
-                                            Logger.Logger.Log("Info", string.Format("Message handled successfully. Sending ack to queue {0} ack_id={1}", m_sQueueName, sAckId), "ESFeeder");
+                                            log.DebugFormat("Info - Message handled successfully. Sending ack to queue {0} ack_id={1}", m_sQueueName, sAckId);
                                             bool bAckSuccess = oMessageQueue.Ack(m_sQueueName, sAckId);
-                                            Logger.Logger.Log("Info", string.Format("Ack result from queue is {0}, for ack_id={1}", bAckSuccess, sAckId), "ESFeeder");
+                                            log.DebugFormat("Info - Ack result from queue is {0}, for ack_id={1}", bAckSuccess, sAckId);
                                         }
                                         else
                                         {
-                                            Logger.Logger.Log("Error", string.Format("Message handled with errors. asset_id=[{0}]; message ack_id={1}", string.Join(",", oMessage.Ids), sAckId), "ESFeeder");
+                                            log.ErrorFormat("Error - Message handled with errors. asset_id=[{0}]; message ack_id={1}", string.Join(",", oMessage.Ids), sAckId);
                                         }
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Logger.Log("Error ", string.Format("Caught exception when performing action on message. ex={0};stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
+                                        log.ErrorFormat("Error - Caught exception when performing action on message. ex={0}", ex);
                                     }
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("Error", "Received message without ids", "ESFeeder");
+                                    log.Error("Error - Received message without ids. ESFeeder");
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception on Dequeue", string.Format("ex={0};stack={1}", ex.Message, ex.StackTrace), "ESFeeder");
+                        log.ErrorFormat("Exception on Dequeue - ex={0}", ex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message, "ESFeeder");
+                log.Error("Exception - ESFeeder", ex);
             }
         }
 
@@ -164,13 +170,13 @@ namespace ElasticSearchFeeder
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
                 //bulk insert                
-                
+
                 for (int i = 0; i < lEpgIDs.Count; i++)
                 {
                     tPrograms[i] = Task.Factory.StartNew<List<EpgCB>>(
                         (index) =>
                         {
-                             return Utils.GetEpgProgram(m_nGroupID, (int)index, languages);
+                            return Utils.GetEpgProgram(m_nGroupID, (int)index, languages);
                         }, lEpgIDs[i]);
                 }
 
@@ -206,7 +212,7 @@ namespace ElasticSearchFeeder
 
             return bRes;
         }
-               
+
 
         private bool checkIndexExists(eESFeederType eFeeder)
         {
@@ -311,7 +317,7 @@ namespace ElasticSearchFeeder
         }
 
         private bool UpdateChannel(List<int> lChannelIds)
-        {           
+        {
             bool bRes = false;
             GroupManager groupManager = new GroupManager();
             bool bres = groupManager.RemoveGroup(m_nGroupID);
@@ -391,7 +397,7 @@ namespace ElasticSearchFeeder
                                         bRes &= bTempRes;
                                         if (!bTempRes)
                                         {
-                                            Logger.Logger.Log("Error", string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3}", m_nGroupID, sType, oMedia.m_nMediaID, sMediaObj), "ESFeeder");
+                                            log.ErrorFormat("Error - Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3}", m_nGroupID, sType, oMedia.m_nMediaID, sMediaObj);
                                         }
                                     }
                                 }
@@ -401,7 +407,7 @@ namespace ElasticSearchFeeder
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Start update Media", "Exception " + ex.Message, "ESFeeder");
+                    log.Error("Start update Media. ESFeeder", ex);
                 }
             }
 

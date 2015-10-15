@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
@@ -13,16 +14,19 @@ using ElasticSearch.Searcher;
 using EnumProject;
 using EpgBL;
 using GroupsCacheManager;
+using KLogMonitor;
 using TurnerEpgFeeder;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 
 namespace TurnerFeeder
-{    
+{
     public static class Utils
-    {     
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly int MaxDescriptionSize = 1024;
-        public static readonly int MaxNameSize =255;
+        public static readonly int MaxNameSize = 255;
 
 
         /*Build the FieldTypeEntity Mapping for each Tag / Meta with it's xml mapping */
@@ -68,11 +72,11 @@ namespace TurnerFeeder
         {
             DateTime dProgEndDate = dProgStartDate.AddDays(1).AddMilliseconds(-1);
 
-            #region Delete all existing programs in CB that have start/end dates within the new schedule            
+            #region Delete all existing programs in CB that have start/end dates within the new schedule
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(nParentGroupID);
             List<DateTime> lDates = new List<DateTime>() { dProgStartDate };
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", nParentGroupID, channelID), "EpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", nParentGroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -103,11 +107,11 @@ namespace TurnerFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteDocFromES", string.Format("channelID = {0},ex = {1}", channelID, ex.Message), "EpgFeeder");
+                log.Error("DeleteDocFromES - " + string.Format("channelID = {0},ex = {1}", channelID, ex.Message), ex);
                 return false;
             }
         }
-        
+
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)
@@ -132,20 +136,20 @@ namespace TurnerFeeder
                 dt = new DateTime(year, month, day, hour, min, sec);
             }
             catch (Exception exp)
-            {                                
+            {
             }
             return dt;
         }
-        
+
         /*create EpgCB object by all the values from XML*/
-        public static EpgCBTurner generateEPGCB(string epg_url, string description, string name, string subtitle, int channelID, string EPGGuid, DateTime dProgStartDate, 
+        public static EpgCBTurner generateEPGCB(string epg_url, string description, string name, string subtitle, int channelID, string EPGGuid, DateTime dProgStartDate,
             DateTime dProgEndDate, XmlNode progItem, int groupID, int parentGroupID, List<FieldTypeEntity> lFieldTypeEntity)
         {
             EpgCBTurner newEpgItem = new EpgCBTurner();
-            
+
             try
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), "TurnerEpgFeeder");
+                log.Debug("generateEPGCB - " + string.Format("EpgIdentifier '{0}' ", EPGGuid));
 
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0}", name);
@@ -160,9 +164,9 @@ namespace TurnerFeeder
                 newEpgItem.CreateDate = DateTime.UtcNow;
                 newEpgItem.isActive = true;
                 newEpgItem.Status = 1;
-                
+
                 newEpgItem.Metas = Utils.GetEpgProgramMetas(lFieldTypeEntity);
-                
+
                 // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
                 newEpgItem.Tags = Utils.GetEpgProgramTags(lFieldTypeEntity);
 
@@ -181,16 +185,16 @@ namespace TurnerFeeder
                         newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
                     }
                 }
-                #endregion              
+                #endregion
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), "TurnerEpgFeeder");
+                log.Error("generateEPGCB - " + string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), exp);
             }
 
             return newEpgItem;
         }
-                     
+
         public static void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
        ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
         {
@@ -207,12 +211,12 @@ namespace TurnerFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
                 foreach (string sTagValue in epg.Tags[sTagName])
-                { 
+                {
                     if (sTagValue != "")
                     {
                         kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
@@ -278,7 +282,7 @@ namespace TurnerFeeder
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
             }
@@ -547,7 +551,7 @@ namespace TurnerFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "EpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -573,7 +577,7 @@ namespace TurnerFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "EpgFeeder");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }
@@ -660,7 +664,7 @@ namespace TurnerFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), "EpgFeeder");
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", nGroupID, exc.Message), exc);
                 return;
             }
         }
@@ -689,7 +693,7 @@ namespace TurnerFeeder
         //    }
         //}
 
-                
+
         private static void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)
         {
@@ -728,7 +732,7 @@ namespace TurnerFeeder
             dtEPGTagValue.Rows.Add(row);
         }
 
-                /*Build query by channelId and spesipic dates*/
+        /*Build query by channelId and spesipic dates*/
         private static string BuildDeleteQuery(int channelID, List<DateTime> lDates)
         {
             string sQuery = string.Empty;
@@ -786,12 +790,12 @@ namespace TurnerFeeder
                 updateQuery.Finish();
                 updateQuery = null;
 
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")), "TurnerEpgFeeder");
+                log.Debug("DeleteScheduleProgramByDate - " + string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2}.", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss")));
             }
             catch (Exception ex)
             {
                 //ProcessError = true;
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "TurnerEpgFeeder");
+                log.Error("DeleteScheduleProgramByDate - " + string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), ex);
             }
         }
 
@@ -881,13 +885,13 @@ namespace TurnerFeeder
 
             DataTable dtEPG = Utils.InitEPGDataTable();
             Utils.FillEPGDataTable(epgDic, ref dtEPG);
-            
+
             string sConn = "MAIN_CONNECTION_STRING";
             Utils.InsertBulk(dtEPG, "epg_channels_schedule", sConn); //insert EPGs to DB
 
             //get back the IDs list of the EPGs          
             DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(epgDic.Keys.ToList());
-            
+
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null)
             {
                 for (int i = 0; i < dtEpgIDGUID.Rows.Count; i++)
@@ -927,7 +931,7 @@ namespace TurnerFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetAllChannels", string.Format("faild to get channels for group:{0}, ex:{1}", nGroupID, ex.Message), "TurnerEpgFeeder");
+                log.Error("GetAllChannels - " + string.Format("failed to get channels for group:{0}, ex:{1}", nGroupID, ex.Message), ex);
                 return new Dictionary<int, string>();
             }
 
