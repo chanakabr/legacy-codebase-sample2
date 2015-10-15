@@ -31,6 +31,31 @@ namespace WebAPI.Filters
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
         private static Couchbase.CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
+        private static Dictionary<string, Type> types = null;
+        private static object locker = new object();
+
+        private static Dictionary<string, Type> Types
+        {
+            get
+            {
+                if (types == null)
+                {
+                    lock (locker)
+                    {
+                        types = new Dictionary<string, Type>();
+                        Assembly asm = Assembly.GetExecutingAssembly();
+                        var allTypes = asm.GetTypes();
+
+                        foreach (var type in allTypes)
+                        {
+                            types[type.Name] = type;
+                        }
+                    }
+                }
+
+                return types;
+            }
+        }
 
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
 
@@ -144,11 +169,15 @@ namespace WebAPI.Filters
 
                                     if (objType != null)
                                     {
-                                        var types = asm.GetTypes().Where(x => x.Name == objType.ToString());
+                                        string objectTypeName = objType.ToString();
 
-                                        if (types != null && types.Any())
+                                        if (Types.ContainsKey(objectTypeName))
                                         {
-                                            t = types.First();
+                                            t = RequestParser.Types[objectTypeName];
+                                        }
+                                        else
+                                        {
+                                            throw new Exception();
                                         }
                                     }
 
