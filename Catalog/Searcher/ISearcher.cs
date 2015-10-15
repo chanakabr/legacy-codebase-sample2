@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
+using ApiObjects;
 
 namespace Catalog
 {
@@ -64,5 +65,7 @@ namespace Catalog
         [OperationContract]
         List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems);
 
+        [OperationContract]
+        void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets);
     }
 }

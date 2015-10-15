@@ -31,6 +31,7 @@ using StatisticsBL;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using CachingHelpers;
+using AdapterControllers;
 
 namespace Catalog
 {
@@ -689,7 +690,7 @@ namespace Catalog
 
             if (searcher != null)
             {
-                SetLanguageDefinition(request, searchDefinitions);
+                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
 
@@ -707,28 +708,50 @@ namespace Catalog
         /// </summary>
         /// <param name="request"></param>
         /// <param name="searchDefinitions"></param>
-        private static void SetLanguageDefinition(UnifiedSearchRequest request, UnifiedSearchDefinitions searchDefinitions)
+        private static void SetLanguageDefinition(int groupId, Filter filter, UnifiedSearchDefinitions searchDefinitions)
         {
+            LanguageObj objLang = null;
+
+            if (filter == null)
+            {
+                objLang = GetLanguage(groupId, -1);
+            }
+            else
+            {
+                objLang = GetLanguage(groupId, filter.m_nLanguage);
+            }
+
+            searchDefinitions.langauge = objLang;
+        }
+
+
+        /// <summary>
+        /// Creates a language object for a given group
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="searchDefinitions"></param>
+        private static LanguageObj GetLanguage(int groupId, int languageId)
+        {
+            LanguageObj language = null;
+
             GroupManager groupManager = new GroupManager();
             CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupId = catalogCache.GetParentGroup(request.m_nGroupID);
+            int parentGroupId = catalogCache.GetParentGroup(groupId);
             Group groupInCache = groupManager.GetGroup(parentGroupId);
 
             if (groupInCache != null)
             {
-                LanguageObj objLang = null;
-
-                if (request.m_oFilter == null)
+                if (languageId <= 0)
                 {
-                    objLang = groupInCache.GetGroupDefaultLanguage();
+                    language = groupInCache.GetGroupDefaultLanguage();
                 }
                 else
                 {
-                    objLang = groupInCache.GetLanguage(request.m_oFilter.m_nLanguage);
+                    language = groupInCache.GetLanguage(languageId);
                 }
-
-                searchDefinitions.langauge = objLang;
             }
+
+            return language;
         }
 
         /// <summary>
@@ -738,21 +761,6 @@ namespace Catalog
         /// <returns></returns>
         private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            HashSet<string> reservedStringFields = new HashSet<string>()
-            {
-                "name",
-                "description",
-                "epg_channel_id"
-            };
-
-            HashSet<string> reservedNumericFields = new HashSet<string>()
-            {
-                "like_counter",
-                "views",
-                "rating",
-                "votes"
-            };
-
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             CatalogCache catalogCache = CatalogCache.Instance();
@@ -769,6 +777,21 @@ namespace Catalog
 
             if (request.filterTree != null)
             {
+                HashSet<string> reservedStringFields = new HashSet<string>()
+                {
+                    "name",
+                    "description",
+                    "epg_channel_id"
+                };
+
+                    HashSet<string> reservedNumericFields = new HashSet<string>()
+                {
+                    "like_counter",
+                    "views",
+                    "rating",
+                    "votes"
+                };
+
                 // Add prefixes, check if non start/end date exist
                 #region Phrase Tree
 
@@ -857,7 +880,7 @@ namespace Catalog
 
                                             BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
                                             BooleanLeaf newLeaf =
-                                                new BooleanLeaf("geo_block_rule_id", 
+                                                new BooleanLeaf("geo_block_rule_id",
                                                     geoBlockRules.Select(id => id.ToString()).ToList(),
                                                     typeof(List<string>), ComparisonOperator.In);
 
@@ -1000,7 +1023,7 @@ namespace Catalog
 
                             // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
                             // Otherwise the search will not work completely 
-                            if (maxNGram > 0 && 
+                            if (maxNGram > 0 &&
                                 (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
                             {
                                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
@@ -1579,52 +1602,11 @@ namespace Catalog
                 // Otherwise get the region of the requesting domain
                 else
                 {
-                    string userName = string.Empty;
-                    string password = string.Empty;
+                    int regionId = GetRegionIdOfDomain(groupId, domainId, siteGuid, group);
 
-                    //get username + password from wsCache
-                    Credentials credentials =
-                        TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
-
-                    if (credentials != null)
+                    if (regionId > -1)
                     {
-                        userName = credentials.m_sUsername;
-                        password = credentials.m_sPassword;
-                    }
-
-                    if (userName.Length == 0 || password.Length == 0)
-                    {
-                        throw new Exception(string.Format(
-                            "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
-                            siteGuid, groupId));
-                    }
-
-                    using (WS_Domains.module domainsWebService = new WS_Domains.module())
-                    {
-                        string url = Utils.GetWSURL("ws_domains");
-                        domainsWebService.Url = url;
-
-                        WS_Domains.Domain domain = null;
-                        var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
-                        if (domainRes != null)
-                        {
-                            domain = domainRes.Domain;
-                        }
-
-                        // If the domain is not associated to a domain - get default region
-                        if (domain.m_nRegion == 0)
-                        {
-                            int defaultRegion = group.defaultRegion;
-
-                            if (defaultRegion != 0)
-                            {
-                                regionIds.Add(defaultRegion);
-                            }
-                        }
-                        else
-                        {
-                            regionIds.Add(domain.m_nRegion);
-                        }
+                        regionIds.Add(regionId);
                     }
                 }
 
@@ -1640,6 +1622,61 @@ namespace Catalog
                     linearMediaTypes.AddRange(mediaTypesArray);
                 }
             }
+        }
+
+        private static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group)
+        {
+            int regionId = -1;
+
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.DOMAINS);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_Domains login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            using (WS_Domains.module domainsWebService = new WS_Domains.module())
+            {
+                string url = Utils.GetWSURL("ws_domains");
+                domainsWebService.Url = url;
+
+                WS_Domains.Domain domain = null;
+                var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
+                if (domainRes != null)
+                {
+                    domain = domainRes.Domain;
+                }
+
+                // If the domain is not associated to a domain - get default region
+                if (domain.m_nRegion == 0)
+                {
+                    int defaultRegion = group.defaultRegion;
+
+                    if (defaultRegion != 0)
+                    {
+                        regionId = defaultRegion;
+                    }
+                }
+                else
+                {
+                    regionId = domain.m_nRegion;
+                }
+            }
+
+            return regionId;
         }
 
         /*Build Full search object*/
@@ -4571,6 +4608,280 @@ namespace Catalog
             }
 
             return result;
+        }
+
+        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList)
+        {
+            Status status = new Status();
+
+            searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            var externalChannelsCache = ExternalChannelCache.Instance();
+
+            ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
+
+            // Build dictionary of enrichments for recommendation engine adapter
+            Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
+
+            // If no recommendation engine defined - use group's default
+            if (externalChannel.RecommendationEngineId <= 0)
+            {
+                GroupManager groupManager = new GroupManager();
+                externalChannel.RecommendationEngineId = groupManager.GetGroup(request.m_nGroupID).defaultRecommendationEngine;
+            }
+
+            // If there is still no recommendation engine
+            if (externalChannel.RecommendationEngineId <= 0)
+            {
+                var exception = new ArgumentException("External Channel has no recommendation engine selected.");
+                exception.Data.Add("StatusCode", (int)eResponseStatus.ExternalChannelHasNoRecommendationEngine);
+                throw exception;           
+            }
+
+            // Adapter will respond with a collection of media assets ID with Kaltura terminology
+            List<RecommendationResult> recommendations = 
+                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
+
+            if (recommendations == null)
+            {
+                status.Code = (int)(eResponseStatus.AdapterAppFailure);
+                status.Message = "No recommendations received";
+            }
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
+            if (string.IsNullOrEmpty(externalChannel.FilterExpression))
+            {
+                totalItems = recommendations.Count;
+                bool illegalRequest = false;
+                var pagedList = TVinciShared.ListUtils.Page(recommendations, request.m_nPageSize, request.m_nPageIndex, out illegalRequest);
+
+                if (!illegalRequest)
+                {
+                    searchResultsList = pagedList.Select(result =>
+                        new UnifiedSearchResult()
+                        {
+                            AssetId = result.id,
+                            AssetType = (eAssetTypes)result.type,
+                            m_dUpdateDate = DateTime.MinValue
+                        }
+                    ).ToList();
+
+                    searcher.FillUpdateDates(request.m_nGroupID, searchResultsList);
+                }
+            }
+            // If there is, go to ES and perform further filter
+            else
+            {
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                {
+                    if (request.m_oFilter == null)
+                    {
+                        request.m_oFilter = new Filter();
+                    }
+
+                    //call ws_users to get userType                  
+                    request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+                }
+
+                // Build boolean phrase tree based on filter expression
+                BooleanPhraseNode filterTree = null;
+                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
+
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    return status;
+                }
+
+                UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
+
+                searchDefinitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+
+                // Map recommendations to dictionary of search definitions
+                foreach (var recommendation in recommendations)
+                {
+                    if (!searchDefinitions.specificAssets.ContainsKey(recommendation.type))
+                    {
+                        searchDefinitions.specificAssets[recommendation.type] = new List<string>();
+                    }
+
+                    searchDefinitions.specificAssets[recommendation.type].Add(recommendation.id);
+                }
+
+                // Map order of IDs
+                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
+
+                if (searcher != null)
+                {
+                    SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
+
+                    // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
+                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+
+                    if (searchResults != null)
+                    {
+                        searchResultsList = searchResults;
+
+                        List<RecommendationResult> recommendationResults = searchResultsList.Select(result =>
+                            new RecommendationResult()
+                            {
+                                id = result.AssetId,
+                                type = result.AssetType
+                            }).ToList();
+
+                        // After applying the filter - the recommendation engine should be reported back with the remaining result set
+                        // async query - no response is expected from the recommendation engine
+                        RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, recommendationResults);
+                    }
+                }
+            }
+
+            return status;           
+        }
+
+        /// <summary>
+        /// Builds a dictionary of enrichments for recommendation engine adapter
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        private static Dictionary<string, string> GetEnrichments(ExternalChannelRequest request, List<ExternalChannelEnrichment> list)
+        {
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+
+            foreach (ExternalChannelEnrichment enrichment in list)
+            {
+                switch (enrichment)
+                {
+                    case ExternalChannelEnrichment.ClientLocation:
+                    {
+                        int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(request.m_sUserIP);
+                        dictionary["client_location"] = countryId.ToString();
+                        break;
+                    }
+                    case ExternalChannelEnrichment.UserId:
+                    {
+                        dictionary["user_id"] = request.m_sSiteGuid;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.HouseholdId:
+                    {
+                        dictionary["household_id"] = request.domainId.ToString();
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DeviceId:
+                    {
+                        dictionary["device_id"] = request.deviceId;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DeviceType:
+                    {
+                        dictionary["device_type"] = request.deviceType;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.UTCOffset:
+                    {
+                        dictionary["utc_offset"] = request.utcOffset;
+                        break;
+                    }
+                    case ExternalChannelEnrichment.Language:
+                    {
+                        // If requested specific language - use it. Otherwise, group's default
+                        LanguageObj objLang = null;
+
+                        if (request.m_oFilter == null)
+                        {
+                            objLang = GetLanguage(request.m_nGroupID, -1);
+                        }
+                        else
+                        {
+                            objLang = GetLanguage(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+                        }
+
+                        dictionary["default_language"] = objLang.Code;  
+                         
+                        break;
+                    }
+                    case ExternalChannelEnrichment.NPVRSupport:
+                    {
+                        throw new NotImplementedException();
+                        break;
+                    }
+                    case ExternalChannelEnrichment.Catchup:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
+                    case ExternalChannelEnrichment.Parental:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
+                    case ExternalChannelEnrichment.DTTRegion:
+                    {
+                        // External ID of region of current domain
+
+                        GroupManager manager = new GroupManager();
+                        Group group = manager.GetGroup(request.m_nGroupID);
+
+                        int regionId = GetRegionIdOfDomain(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group);
+
+                        DataRow regionRow = ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
+
+                        if (regionRow != null)
+                        {
+                            dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                        }
+
+                        break;
+                    }
+                    case ExternalChannelEnrichment.AtHome:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
+                    default:
+                    {
+                        throw new NotImplementedException();
+
+                        break;
+                    }
+                }
+            }
+
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Because unified search works only with Unified Search Request, we convert the External Channel Request to make it work
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="externalChannel"></param>
+        /// <param name="filterTree"></param>
+        /// <returns></returns>
+        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(ExternalChannelRequest request, 
+            ExternalChannel externalChannel, BooleanPhraseNode filterTree)
+        {
+            UnifiedSearchRequest alternateRequest = new UnifiedSearchRequest(request.m_nPageSize, request.m_nPageIndex,
+                request.m_nGroupID, string.Empty, string.Empty, null, null, externalChannel.FilterExpression, string.Empty,
+                filterTree);
+
+            UnifiedSearchDefinitions definitions = BuildUnifiedSearchObject(alternateRequest);
+
+            // Order is a new kind - "recommendation". Which means the order is predefined
+            definitions.order = new OrderObj()
+            {
+                m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RECOMMENDATION,
+                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+            };
+
+            return definitions;
         }
     }
 }

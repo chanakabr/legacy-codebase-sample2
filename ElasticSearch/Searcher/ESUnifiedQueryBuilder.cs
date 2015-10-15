@@ -177,6 +177,41 @@ namespace ElasticSearch.Searcher
 
             globalFilter.AddChild(isActiveTerm);
 
+            // If specific assets should return, filter their IDs.
+            // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
+            if (this.SearchDefinitions.specificAssets != null)
+            {
+                foreach (var item in this.SearchDefinitions.specificAssets)
+                {
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id"
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        break;
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            epgFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.NPVR:
+                        break;
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            mediaFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+                }
+            }
+
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
@@ -648,7 +683,117 @@ namespace ElasticSearch.Searcher
 
             return fullQuery;
         }
-        
+
+        /// <summary>
+        /// Build the request body for Elasticsearch getting update dates string
+        /// </summary>
+        /// <returns></returns>
+        public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets)
+        {
+            if (assets == null)
+            {
+                return string.Empty;
+            }
+
+            string fullQuery = string.Empty;
+
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+
+            filteredQueryBuilder.Append("{");
+
+            // Return fields - id and update date only
+            filteredQueryBuilder.Append("\"fields\": [\"_id\", \"update_date\"], ");
+
+            // Queried filter
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
+
+
+            bool shouldSearchEpg = false;
+            bool shouldSearchMedia = false;
+
+            QueryFilter filterPart = new QueryFilter();
+            BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
+
+            ESPrefix epgPrefixTerm = new ESPrefix()
+            {
+                Key = "_type",
+                Value = "epg"
+            };
+
+            ESPrefix mediaPrefixTerm = new ESPrefix()
+            {
+                Key = "_type",
+                Value = "media"
+            };
+
+            FilterCompositeType mediaFilter = new FilterCompositeType(CutWith.AND);
+            mediaFilter.AddChild(mediaPrefixTerm);
+
+            FilterCompositeType epgFilter = new FilterCompositeType(CutWith.AND);
+            epgFilter.AddChild(epgPrefixTerm);
+
+            ESTerms mediaIdsTerm = new ESTerms(true)
+            {
+                Key = "_id"
+            };
+
+            ESTerms epgIdsTerm = new ESTerms(true)
+            {
+                Key = "_id"
+            };
+
+            // Add Ids to relevant Terms part
+            foreach (var item in assets)
+            {
+                switch (item.Key)
+                {
+                    case ApiObjects.eAssetTypes.UNKNOWN:
+                    break;
+                    case ApiObjects.eAssetTypes.EPG:
+                    {
+                        epgIdsTerm.Value.Add(item.Value);
+                        shouldSearchEpg = true;
+                        break;
+                    }
+                    case ApiObjects.eAssetTypes.NPVR:
+                    break;
+                    case ApiObjects.eAssetTypes.MEDIA:
+                    {
+                        mediaIdsTerm.Value.Add(item.Value);
+                        shouldSearchMedia = true;
+                        break;
+                    }
+                    default:
+                    break;
+                }
+            }
+
+            // Or between media and epg
+            FilterCompositeType unifiedFilter = new FilterCompositeType(CutWith.OR);
+
+            if (shouldSearchEpg)
+            {
+                epgFilter.AddChild(epgIdsTerm);
+                unifiedFilter.AddChild(epgFilter);
+            }
+
+            if (shouldSearchMedia)
+            {
+                mediaFilter.AddChild(mediaIdsTerm);
+                unifiedFilter.AddChild(mediaFilter);
+            }
+
+            filterParent.AddChild(unifiedFilter);
+
+            filterPart.FilterSettings = filterParent;
+            filteredQueryBuilder.Append(filterPart.ToString());
+            filteredQueryBuilder.Append(" } } }");
+
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
+        }
+
         /// <summary>
         /// Builds a partial string of indexes for the URL of the ES request
         /// </summary>

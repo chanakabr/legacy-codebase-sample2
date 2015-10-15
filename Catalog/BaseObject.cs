@@ -16,6 +16,7 @@ namespace Catalog
     [KnownType(typeof(PicObj))]
     [KnownType(typeof(ProgramObj))]
     [KnownType(typeof(MediaFileObj))]
+    [KnownType(typeof(UnifiedSearchResult))]
     [DataContract]
     [Serializable]
     public class BaseObject

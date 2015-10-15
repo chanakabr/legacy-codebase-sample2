@@ -17,10 +17,10 @@ namespace ApiObjects
             OSSAdapters = new List<OSSAdapter>();
         }
 
-        public OSSAdapterSettingsResponse(ApiObjects.Response.Status status, List<OSSAdapter> ossSAdapters)
+        public OSSAdapterSettingsResponse(ApiObjects.Response.Status status, List<OSSAdapter> ossAdapters)
         {
             this.Status = status;
-            this.OSSAdapters = ossSAdapters;
+            this.OSSAdapters = ossAdapters;
         }
     }
 }

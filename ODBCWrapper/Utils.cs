@@ -765,6 +765,11 @@ namespace ODBCWrapper
 
         public static DataRow GetTableSingleRow(string tableName, long id, string connectionKey = "", int timeInCache = -1)
         {
+            return GetTableSingleRow(tableName, id.ToString(), connectionKey, timeInCache);
+        }
+
+        public static DataRow GetTableSingleRow(string tableName, string id, string connectionKey = "", int timeInCache = -1)
+        {
             DataRow result = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 

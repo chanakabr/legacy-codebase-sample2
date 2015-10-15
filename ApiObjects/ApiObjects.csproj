@@ -106,6 +106,12 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
+    <Compile Include="ExternalChannelBase.cs" />
+    <Compile Include="ExternalChannelResponse.cs" />
+    <Compile Include="ExternalChannelResponseList.cs" />
+    <Compile Include="RecommendationEngineResponse.cs" />
+    <Compile Include="RecommendationEngineResponseList.cs" />
+    <Compile Include="RecommendationEngineSettinsResponse.cs" />
     <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
     <Compile Include="OSSAdapterResponseList.cs" />
     <Compile Include="DRM\CencRequest.cs" />
@@ -150,6 +156,7 @@
     <Compile Include="Epg\xmltv.cs">
       <DependentUpon>xmltv.xsd</DependentUpon>
     </Compile>
+    <Compile Include="ExternalChannel.cs" />
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />
@@ -204,6 +211,9 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
+    <Compile Include="RecommendationEngine.cs" />
+    <Compile Include="RecommendationEngineBase.cs" />
+    <Compile Include="RecommendationEngineSettings.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Rules\GenericRule.cs" />
@@ -247,7 +257,6 @@
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
     <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />
-    <Compile Include="SearchObjects\UnifiedSearchResult.cs" />
     <Compile Include="SearchOrderByObject.cs" />
     <Compile Include="ChannelObject.cs" />
     <Compile Include="SendAdminTokenRequest.cs" />

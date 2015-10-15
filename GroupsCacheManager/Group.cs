@@ -77,6 +77,12 @@ namespace GroupsCacheManager
         [JsonProperty("m_nChannelIds")]
         public HashSet<int> channelIDs;
 
+        /// <summary>
+        /// The group's default recommendation engine
+        /// </summary>
+        [JsonProperty("default_recommendation_engine")]
+        public int defaultRecommendationEngine;
+
         #endregion
 
         #region CTOR

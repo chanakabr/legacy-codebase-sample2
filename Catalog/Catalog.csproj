@@ -121,6 +121,7 @@
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
+    <Compile Include="Request\ExternalChannelRequest.cs" />
     <Compile Include="Response\AssetStatsResponse.cs" />
     <Compile Include="BaseEpg.cs" />
     <Compile Include="Request\BaseProtocolRequest.cs" />
@@ -141,9 +142,7 @@
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Branding.cs" />
     <Compile Include="Catalog.cs" />
-    <Compile Include="Channel.cs" />
     <Compile Include="Response\ChannelDetailsResponse.cs" />
-    <Compile Include="ChannelRepository.cs" />
     <Compile Include="Request\ChannelRequest.cs" />
     <Compile Include="Request\ChannelRequestMultiFiltering.cs" />
     <Compile Include="Response\ChannelResponse.cs" />
@@ -536,6 +535,10 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj">
+      <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
+      <Name>AdapterControllers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
@@ -600,6 +603,10 @@
       <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
       <Name>StaticticsBL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synchronizer\Synchronizer.csproj">
+      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
+      <Name>Synchronizer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
@@ -633,6 +640,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\ws_api\api.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Adapter\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

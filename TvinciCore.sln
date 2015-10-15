@@ -91,6 +91,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronizer", "Synchronize
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingHelpers", "CachingHelpers\CachingHelpers.csproj", "{C94F4AFF-E892-4055-9D20-07586BE88F3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdapterControllers", "AdapterControllers\AdapterControllers.csproj", "{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -512,6 +514,15 @@ Global
 		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C94F4AFF-E892-4055-9D20-07586BE88F3A}.Release|x86.ActiveCfg = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Basic|x86.ActiveCfg = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1FBDED5-52FE-4B67-9AAB-E71CC366D5CD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
