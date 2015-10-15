@@ -1043,7 +1043,311 @@ namespace WebAPI.Clients
 
             return codes;
         }
-        
+
+        #region OSS Adapter
+
+        internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
+        {
+            List<Models.API.KalturaOSSAdapterBaseProfile> KalturaOSSAdapterBaseProfileList = null;
+            WebAPI.Api.OSSAdapterResponseList response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetOSSAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            KalturaOSSAdapterBaseProfileList = Mapper.Map<List<Models.API.KalturaOSSAdapterBaseProfile>>(response.OSSAdapters);
+
+            return KalturaOSSAdapterBaseProfileList;
+        }
+
+        internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DeleteOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteOSSAdapter.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, ossAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaOSSAdapterProfile InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
+        {
+            WebAPI.Api.OSSAdapterResponse response = null;
+            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
+                    response = Api.InsertOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertOSSAdapter.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+            return kalturaOSSAdapterProfile;
+        }
+
+        internal KalturaOSSAdapterProfile SetOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
+        {
+            WebAPI.Api.OSSAdapterResponse response = null;
+            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
+                    response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetOSSAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+            return kalturaOSSAdapterProfile;
+        }
+
+        internal List<KalturaOSSAdapterProfile> GetOSSAdapterSettings(int groupId)
+        {
+            List<Models.API.KalturaOSSAdapterProfile> KalturaOSSAdapterProfileList = null;
+            WebAPI.Api.OSSAdapterSettingsResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetOSSAdapterSettings. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+
+            KalturaOSSAdapterProfileList = Mapper.Map<List<Models.API.KalturaOSSAdapterProfile>>(response.OSSAdapters);
+
+            return KalturaOSSAdapterProfileList;
+        }
+
+        internal bool DeleteOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    response = Api.DeleteOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteOSSAdapterSettings.  groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool InsertOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    response = Api.InsertOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertOSSAdapterSettings. groupID: {0}, oss_adapter_id: {1} ,exception: {2}", groupId, ossAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool SetOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.OSSAdapterSettings[] configs = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    response = Api.SetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, configs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetOSSAdapterSettings. groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int oss_adapter_id)
+        {
+            WebAPI.Api.OSSAdapterResponse response = null;
+            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, oss_adapter_id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GenerateOSSSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+            return kalturaOSSAdapterProfile;
+        }
+
+
+        #endregion
+
         #region Recommendation Engine
 
         internal List<KalturaRecommendationEngineBaseProfile> GetRecommendationEngines(int groupId)
@@ -1080,7 +1384,7 @@ namespace WebAPI.Clients
 
             return kalturaRecommendationEngineBaseProfile;
         }
-        
+
         internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
         {
             WebAPI.Api.Status response = null;
@@ -1311,275 +1615,6 @@ namespace WebAPI.Clients
             return true;
         }
         #endregion
-        
-        #region OSS Adapter
-
-        internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
-        {
-            List<Models.API.KalturaOSSAdapterBaseProfile> KalturaOSSAdapterBaseProfileList = null;
-            WebAPI.Api.OSSAdapterResponseList response = null;
-
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Api.GetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetOSSAdapter. groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            KalturaOSSAdapterBaseProfileList = Mapper.Map<List<Models.API.KalturaOSSAdapterBaseProfile>>(response.OSSAdapters);
-
-            return KalturaOSSAdapterBaseProfileList;
-        }
-
-        internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
-        {
-            WebAPI.Api.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Api.DeleteOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while DeleteOSSAdapter.  groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        internal KalturaOSSAdapterProfile InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
-        {
-            WebAPI.Api.OSSAdapterResponse response = null;
-            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
-
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
-                    response = Api.InsertOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while InsertOSSAdapter.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
-            return kalturaOSSAdapterProfile;
-        }
-
-        internal KalturaOSSAdapterProfile SetOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
-        {
-            WebAPI.Api.OSSAdapterResponse response = null;
-            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
-
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
-                    response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SetOSSAdapter. groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
-            return kalturaOSSAdapterProfile;
-        }
-
-        internal List<KalturaOSSAdapterProfile> GetOSSAdapterSettings(int groupId)
-        {
-            List<Models.API.KalturaOSSAdapterProfile> KalturaOSSAdapterProfileList = null;
-            WebAPI.Api.OSSAdapterSettingsResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Api.GetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetOSSAdapterSettings. groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-
-            KalturaOSSAdapterProfileList = Mapper.Map<List<Models.API.KalturaOSSAdapterProfile>>(response.OSSAdapters);
-
-            return KalturaOSSAdapterProfileList;
-        }
-
-        internal bool DeleteOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
-        {
-            WebAPI.Api.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.DeleteOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while DeleteOSSAdapterSettings.  groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        internal bool InsertOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
-        {
-            WebAPI.Api.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.InsertOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while InsertOSSAdapterSettings. groupID: {0}, oss_adapter_id: {1} ,exception: {2}", groupId, ossAdapterId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        internal bool SetOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
-        {
-            WebAPI.Api.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    WebAPI.Api.OSSAdapterSettings[] configs = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.SetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, configs);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SetOSSAdapterSettings. groupID: {0}, ossAdapterId: {1}, exception: {2}", groupId, ossAdapterId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        #endregion
 
         #region ExternalChannel
         internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
@@ -1719,6 +1754,7 @@ namespace WebAPI.Clients
             return kalturaExternalChannelBaseList;
         }
         #endregion
+
 
     }
 }
