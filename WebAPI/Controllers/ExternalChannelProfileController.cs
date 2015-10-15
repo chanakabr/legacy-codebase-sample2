@@ -15,67 +15,67 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/ExternalChannelProfile/action")]
     public class ExternalChannelProfileController : ApiController
     {
-        ///// <summary>
-        ///// Returns all External channels for partner : id + name
-        ///// </summary>
-        ///// <remarks>       
-        ///// </remarks>
-        //[Route("list"), HttpPost]
-        //[ApiAuthorize]
-        //public List<KalturaExternalChannelBaseProfile> List()
-        //{
-        //    List<KalturaExternalChannelBaseProfile> response = null;
+        /// <summary>
+        /// Returns all External channels for partner : id + name
+        /// </summary>
+        /// <remarks>       
+        /// </remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public List<KalturaExternalChannelBaseProfile> List()
+        {
+            List<KalturaExternalChannelBaseProfile> response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().GetExternalChannel(groupId);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GetExternalChannels(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
-        ///// <summary>
-        ///// Delete External channel by External channel id
-        ///// </summary>
-        ///// <remarks>
-        ///// Possible status codes:       
-        ///// External channel identifier required = 5007, External channel not exist = 5008,  delete is not allowed = 5011
-        ///// </remarks>
-        ///// <param name="external_channel_id">External channel identifier</param>
-        //[Route("delete"), HttpPost]
-        //[ApiAuthorize]
-        //public bool Delete(int external_channel_id)
-        //{
-        //    bool response = false;
-            
-        //    int groupId = KS.GetFromRequest().GroupId;
+        /// <summary>
+        /// Delete External channel by External channel id
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// external channel identifier required = 5007, external channel not exist = 5008,  delete is not allowed = 5011
+        /// </remarks>
+        /// <param name="external_channel_id">External channel identifier</param>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(int external_channel_id)
+        {
+            bool response = false;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, external_channel_id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    return response;
-        //}
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, external_channel_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
 
         /// <summary>
         /// Insert new External channel for partner
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// no External channel to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, no External channel to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>
         [Route("add"), HttpPost]
@@ -99,33 +99,33 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Update External channel details
-        ///// </summary>
-        ///// <remarks>
-        ///// Possible status codes:   
-        ///// name required = 5005, External channel identifier required = 5007, no External channel to update = 5012, external identifier required = 6016, external identifier must be unique = 6040  
-        ///// </remarks>
-        ///// <param name="external_channel">External channel Object</param>       
-        //[Route("update"), HttpPost]
-        //[ApiAuthorize]
-        //public KalturaExternalChannelProfile Update(KalturaExternalChannelProfile external_channel)
-        //{
-        //    KalturaExternalChannelProfile response = null;
+        /// <summary>
+        /// Update External channel details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:   
+        /// name required = 5005, External channel identifier required = 5007, no External channel to update = 5012, external identifier required = 6016, external identifier must be unique = 6040  
+        /// </remarks>
+        /// <param name="external_channel">External channel Object</param>       
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaExternalChannelProfile Update(KalturaExternalChannelProfile external_channel)
+        {
+            KalturaExternalChannelProfile response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().SetExternalChannel(groupId, external_channel);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetExternalChannel(groupId, external_channel);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
     }
 }

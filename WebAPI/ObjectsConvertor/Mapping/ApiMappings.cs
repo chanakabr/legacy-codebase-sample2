@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebAPI.Api;
@@ -80,12 +81,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region OSS Adapter
-                        
+
             Mapper.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))               
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
@@ -109,7 +110,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
-                      
+
             #endregion
 
             #region Recommendation Engine
@@ -147,38 +148,149 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region External Channel
 
-            //Mapper.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
-            //   .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-            //   .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            //   .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-            //   .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
-            //   .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
-            //   ;
+            Mapper.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
+               ;
 
-            //Mapper.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
-            //  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-            //  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            //  .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-            //  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-            //  .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEnrichments(src.Settings)))
-            //  .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+            Mapper.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
+               ;
 
-            //Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
-            // .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
-            // .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
-            // .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
-            // .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
-            // .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
-            // .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
-            // .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
+            Mapper.CreateMap<ExternalChannelBase, WebAPI.Models.API.KalturaExternalChannelBaseProfile>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+
+            Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalChannel.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ExternalChannel.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalChannel.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.ExternalChannel.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.ExternalChannel.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
+               ;
 
             #endregion
         }
 
-        //private static TMember ConvertEnrichments(List<KalturaChannelEnrichmentHolder> list)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
+        private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalChannelEnrichment[] list)
+        {
+            List<KalturaChannelEnrichmentHolder> result = null;
+
+            if (list != null && list.Length > 0)
+            {
+                result = new List<KalturaChannelEnrichmentHolder>();
+
+                foreach (ExternalChannelEnrichment externalChannelEnrichment in list)
+                {
+                    result.Add(ConvertChannelEnrichment(externalChannelEnrichment));
+                }
+            }
+
+            return result;
+        }
+
+        private static KalturaChannelEnrichmentHolder ConvertChannelEnrichment(ExternalChannelEnrichment type)
+        {
+            KalturaChannelEnrichmentHolder result = null;
+
+            switch (type)
+            {
+                case ExternalChannelEnrichment.ClientLocation:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
+                    break;
+                case ExternalChannelEnrichment.DeviceId:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceId };
+                    break;
+                case ExternalChannelEnrichment.DeviceType:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceType };
+                    break;
+                case ExternalChannelEnrichment.HouseholdId:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HouseholdId };
+                    break;
+                case ExternalChannelEnrichment.UserId:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
+                    break;
+                case ExternalChannelEnrichment.UTCOffset:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOffset };
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown external channel enrichment");
+            }
+
+            return result;
+        }
+
+        private static ExternalChannelEnrichment[] ConvertEnrichments(List<KalturaChannelEnrichmentHolder> list)
+        {
+            List<ExternalChannelEnrichment> result = null;
+
+            if (list != null && list.Count > 0)
+            {
+                result = new List<ExternalChannelEnrichment>();
+                if (list != null && list.Count > 0)
+                {
+                    result = new List<ExternalChannelEnrichment>();
+
+                    foreach (KalturaChannelEnrichmentHolder kalturaChannelEnrichmentHolder in list)
+                    {
+                        result.Add(ConvertChannelEnrichment(kalturaChannelEnrichmentHolder.type));
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static ExternalChannelEnrichment ConvertChannelEnrichment(KalturaChannelEnrichment type)
+        {
+            ExternalChannelEnrichment result ;
+
+            switch (type)
+            {
+                case KalturaChannelEnrichment.ClientLocation:
+                    result = ExternalChannelEnrichment.ClientLocation;
+                    break;
+                case KalturaChannelEnrichment.DeviceId:
+                    result = ExternalChannelEnrichment.DeviceId;
+                    break;
+                case KalturaChannelEnrichment.DeviceType:
+                    result = ExternalChannelEnrichment.DeviceType;
+                    break;
+                case KalturaChannelEnrichment.HouseholdId:
+                    result = ExternalChannelEnrichment.HouseholdId;
+                    break;
+                case KalturaChannelEnrichment.UserId:
+                    result = ExternalChannelEnrichment.UserId;
+                    break;
+                case KalturaChannelEnrichment.UTCOffset:
+                    result = ExternalChannelEnrichment.UTCOffset;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown external channel enrichment");
+            }
+
+            return result;
+        }
 
         internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(RecommendationEngineSettings[] settings)
         {
@@ -235,15 +347,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case WebAPI.Api.eParentalRuleType.All:
                     result = WebAPI.Models.API.KalturaParentalRuleType.all;
-                break;
+                    break;
                 case WebAPI.Api.eParentalRuleType.Movies:
-                result = WebAPI.Models.API.KalturaParentalRuleType.movies;
-                break;
+                    result = WebAPI.Models.API.KalturaParentalRuleType.movies;
+                    break;
                 case WebAPI.Api.eParentalRuleType.TVSeries:
-                result = WebAPI.Models.API.KalturaParentalRuleType.tv_series;
-                break;
+                    result = WebAPI.Models.API.KalturaParentalRuleType.tv_series;
+                    break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
             }
 
             return result;
@@ -265,7 +377,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = WebAPI.Models.API.KalturaRuleLevel.account;
                     break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown rule level");
+                    throw new ClientException((int)StatusCode.Error, "Unknown rule level");
 
             }
 
@@ -288,7 +400,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = WebAPI.Models.API.KalturaPurchaseSettingsType.block;
                     break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");
+                    throw new ClientException((int)StatusCode.Error, "Unknown purchase setting");
 
             }
 

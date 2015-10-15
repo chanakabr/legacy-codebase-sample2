@@ -330,6 +330,9 @@
     <Content Include="Web References\Api\RecommendationEnginesResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\ExternalChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -777,6 +780,7 @@
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Models\API\KalturaChannelEnrichment.cs" />
+    <Compile Include="Models\API\KalturaExternalChannelBaseProfile.cs" />
     <Compile Include="Models\API\KalturaExternalChannelProfile.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />

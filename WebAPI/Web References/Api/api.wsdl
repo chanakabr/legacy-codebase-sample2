@@ -1317,23 +1317,13 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="ChangePasswordMailRequest">
+      <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1368,13 +1358,14 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
+      <s:complexType name="AddDeviceMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1421,30 +1412,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1465,11 +1432,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -1479,9 +1441,38 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
@@ -1490,6 +1481,15 @@
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3253,6 +3253,22 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="RecommendationEngine" nillable="true" type="tns:RecommendationEngine" />
         </s:sequence>
       </s:complexType>
+      <s:element name="UpdateRecommendationEngineConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recommendationEngineId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateRecommendationEngineConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateRecommendationEngineConfigurationResult" type="tns:RecommendationEngineResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="InsertExternalChannel">
         <s:complexType>
           <s:sequence>
@@ -3286,6 +3302,12 @@
           <s:enumeration value="DeviceId" />
           <s:enumeration value="DeviceType" />
           <s:enumeration value="UTCOffset" />
+          <s:enumeration value="Language" />
+          <s:enumeration value="NPVRSupport" />
+          <s:enumeration value="Catchup" />
+          <s:enumeration value="Parental" />
+          <s:enumeration value="DTTRegion" />
+          <s:enumeration value="AtHome" />
         </s:restriction>
       </s:simpleType>
       <s:element name="InsertExternalChannelResponse">
@@ -3333,6 +3355,38 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetExternalChannels">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetExternalChannelsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetExternalChannelsResult" type="tns:ExternalChannelResponseList" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ExternalChannelResponseList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalChannels" type="tns:ArrayOfExternalChannelBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfExternalChannelBase">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalChannelBase" nillable="true" type="tns:ExternalChannelBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ExternalChannelBase">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -3364,6 +3418,8 @@
       <s:element name="OSSAdapterBillingDetailsResponse" nillable="true" type="tns:OSSAdapterBillingDetailsResponse" />
       <s:element name="RecommendationEnginesResponseList" nillable="true" type="tns:RecommendationEnginesResponseList" />
       <s:element name="RecommendationEngineSettinsResponse" nillable="true" type="tns:RecommendationEngineSettinsResponse" />
+      <s:element name="RecommendationEngineResponse" nillable="true" type="tns:RecommendationEngineResponse" />
+      <s:element name="ExternalChannelResponseList" nillable="true" type="tns:ExternalChannelResponseList" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -4062,6 +4118,12 @@
   <wsdl:message name="GetRecommendationEngineSettingsSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecommendationEngineSettingsResponse" />
   </wsdl:message>
+  <wsdl:message name="UpdateRecommendationEngineConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateRecommendationEngineConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecommendationEngineConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateRecommendationEngineConfigurationResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertExternalChannelSoapIn">
     <wsdl:part name="parameters" element="tns:InsertExternalChannel" />
   </wsdl:message>
@@ -4079,6 +4141,12 @@
   </wsdl:message>
   <wsdl:message name="SetExternalChannelSoapOut">
     <wsdl:part name="parameters" element="tns:SetExternalChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetExternalChannels" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetExternalChannelsResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4801,6 +4869,14 @@
   <wsdl:message name="GetRecommendationEngineSettingsHttpPostOut">
     <wsdl:part name="Body" element="tns:RecommendationEngineSettinsResponse" />
   </wsdl:message>
+  <wsdl:message name="UpdateRecommendationEngineConfigurationHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="recommendationEngineId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecommendationEngineConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecommendationEngineResponse" />
+  </wsdl:message>
   <wsdl:message name="DeleteExternalChannelHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -4808,6 +4884,13 @@
   </wsdl:message>
   <wsdl:message name="DeleteExternalChannelHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalChannelsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalChannelsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
   </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
@@ -5266,6 +5349,10 @@
       <wsdl:input message="tns:GetRecommendationEngineSettingsSoapIn" />
       <wsdl:output message="tns:GetRecommendationEngineSettingsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
+      <wsdl:input message="tns:UpdateRecommendationEngineConfigurationSoapIn" />
+      <wsdl:output message="tns:UpdateRecommendationEngineConfigurationSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertExternalChannel">
       <wsdl:input message="tns:InsertExternalChannelSoapIn" />
       <wsdl:output message="tns:InsertExternalChannelSoapOut" />
@@ -5277,6 +5364,10 @@
     <wsdl:operation name="SetExternalChannel">
       <wsdl:input message="tns:SetExternalChannelSoapIn" />
       <wsdl:output message="tns:SetExternalChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalChannels">
+      <wsdl:input message="tns:GetExternalChannelsSoapIn" />
+      <wsdl:output message="tns:GetExternalChannelsSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
@@ -5596,9 +5687,17 @@
       <wsdl:input message="tns:GetRecommendationEngineSettingsHttpPostIn" />
       <wsdl:output message="tns:GetRecommendationEngineSettingsHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
+      <wsdl:input message="tns:UpdateRecommendationEngineConfigurationHttpPostIn" />
+      <wsdl:output message="tns:UpdateRecommendationEngineConfigurationHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="DeleteExternalChannel">
       <wsdl:input message="tns:DeleteExternalChannelHttpPostIn" />
       <wsdl:output message="tns:DeleteExternalChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalChannels">
+      <wsdl:input message="tns:GetExternalChannelsHttpPostIn" />
+      <wsdl:output message="tns:GetExternalChannelsHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -6629,6 +6728,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateRecommendationEngineConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertExternalChannel">
       <soap:operation soapAction="http://api.tvinci.com/InsertExternalChannel" style="document" />
       <wsdl:input>
@@ -6649,6 +6757,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetExternalChannel">
       <soap:operation soapAction="http://api.tvinci.com/SetExternalChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalChannels">
+      <soap:operation soapAction="http://api.tvinci.com/GetExternalChannels" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7685,6 +7802,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateRecommendationEngineConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertExternalChannel">
       <soap12:operation soapAction="http://api.tvinci.com/InsertExternalChannel" style="document" />
       <wsdl:input>
@@ -7705,6 +7831,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetExternalChannel">
       <soap12:operation soapAction="http://api.tvinci.com/SetExternalChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalChannels">
+      <soap12:operation soapAction="http://api.tvinci.com/GetExternalChannels" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8426,8 +8561,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
+      <http:operation location="/UpdateRecommendationEngineConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="DeleteExternalChannel">
       <http:operation location="/DeleteExternalChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalChannels">
+      <http:operation location="/GetExternalChannels" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

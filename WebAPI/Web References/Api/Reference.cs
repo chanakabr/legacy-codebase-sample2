@@ -258,11 +258,15 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetRecommendationEngineSettingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdateRecommendationEngineConfigurationOperationCompleted;
+        
         private System.Threading.SendOrPostCallback InsertExternalChannelOperationCompleted;
         
         private System.Threading.SendOrPostCallback DeleteExternalChannelOperationCompleted;
         
         private System.Threading.SendOrPostCallback SetExternalChannelOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetExternalChannelsOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -645,6 +649,9 @@ namespace WebAPI.Api {
         public event GetRecommendationEngineSettingsCompletedEventHandler GetRecommendationEngineSettingsCompleted;
         
         /// <remarks/>
+        public event UpdateRecommendationEngineConfigurationCompletedEventHandler UpdateRecommendationEngineConfigurationCompleted;
+        
+        /// <remarks/>
         public event InsertExternalChannelCompletedEventHandler InsertExternalChannelCompleted;
         
         /// <remarks/>
@@ -652,6 +659,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event SetExternalChannelCompletedEventHandler SetExternalChannelCompleted;
+        
+        /// <remarks/>
+        public event GetExternalChannelsCompletedEventHandler GetExternalChannelsCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -4704,6 +4714,39 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateRecommendationEngineConfiguration", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RecommendationEngineResponse UpdateRecommendationEngineConfiguration(string userName, string password, int recommendationEngineId) {
+            object[] results = this.Invoke("UpdateRecommendationEngineConfiguration", new object[] {
+                        userName,
+                        password,
+                        recommendationEngineId});
+            return ((RecommendationEngineResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateRecommendationEngineConfigurationAsync(string userName, string password, int recommendationEngineId) {
+            this.UpdateRecommendationEngineConfigurationAsync(userName, password, recommendationEngineId, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateRecommendationEngineConfigurationAsync(string userName, string password, int recommendationEngineId, object userState) {
+            if ((this.UpdateRecommendationEngineConfigurationOperationCompleted == null)) {
+                this.UpdateRecommendationEngineConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateRecommendationEngineConfigurationOperationCompleted);
+            }
+            this.InvokeAsync("UpdateRecommendationEngineConfiguration", new object[] {
+                        userName,
+                        password,
+                        recommendationEngineId}, this.UpdateRecommendationEngineConfigurationOperationCompleted, userState);
+        }
+        
+        private void OnUpdateRecommendationEngineConfigurationOperationCompleted(object arg) {
+            if ((this.UpdateRecommendationEngineConfigurationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateRecommendationEngineConfigurationCompleted(this, new UpdateRecommendationEngineConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InsertExternalChannel", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public ExternalChannelResponse InsertExternalChannel(string sWSUserName, string sWSPassword, ExternalChannel externalChannel) {
             object[] results = this.Invoke("InsertExternalChannel", new object[] {
@@ -4799,6 +4842,37 @@ namespace WebAPI.Api {
             if ((this.SetExternalChannelCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SetExternalChannelCompleted(this, new SetExternalChannelCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetExternalChannels", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ExternalChannelResponseList GetExternalChannels(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetExternalChannels", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((ExternalChannelResponseList)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetExternalChannelsAsync(string sWSUserName, string sWSPassword) {
+            this.GetExternalChannelsAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetExternalChannelsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetExternalChannelsOperationCompleted == null)) {
+                this.GetExternalChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetExternalChannelsOperationCompleted);
+            }
+            this.InvokeAsync("GetExternalChannels", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetExternalChannelsOperationCompleted, userState);
+        }
+        
+        private void OnGetExternalChannelsOperationCompleted(object arg) {
+            if ((this.GetExternalChannelsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetExternalChannelsCompleted(this, new GetExternalChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5046,11 +5120,44 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ExternalChannelResponse {
+    public partial class ExternalChannelBase {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ExternalChannelResponseList {
         
         private Status statusField;
         
-        private ExternalChannel externalChannelField;
+        private ExternalChannelBase[] externalChannelsField;
         
         /// <remarks/>
         public Status Status {
@@ -5063,12 +5170,12 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public ExternalChannel ExternalChannel {
+        public ExternalChannelBase[] ExternalChannels {
             get {
-                return this.externalChannelField;
+                return this.externalChannelsField;
             }
             set {
-                this.externalChannelField = value;
+                this.externalChannelsField = value;
             }
         }
     }
@@ -5102,6 +5209,39 @@ namespace WebAPI.Api {
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ExternalChannelResponse {
+        
+        private Status statusField;
+        
+        private ExternalChannel externalChannelField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ExternalChannel ExternalChannel {
+            get {
+                return this.externalChannelField;
+            }
+            set {
+                this.externalChannelField = value;
             }
         }
     }
@@ -5222,6 +5362,24 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         UTCOffset,
+        
+        /// <remarks/>
+        Language,
+        
+        /// <remarks/>
+        NPVRSupport,
+        
+        /// <remarks/>
+        Catchup,
+        
+        /// <remarks/>
+        Parental,
+        
+        /// <remarks/>
+        DTTRegion,
+        
+        /// <remarks/>
+        AtHome,
     }
     
     /// <remarks/>
@@ -7791,21 +7949,21 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -7989,6 +8147,27 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
@@ -8017,9 +8196,123 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class AddUserMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sMasterUsernameField;
+        
+        private string m_sNewUsernameField;
+        
+        private string m_sNewFirstNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sMasterUsername {
+            get {
+                return this.m_sMasterUsernameField;
+            }
+            set {
+                this.m_sMasterUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewUsername {
+            get {
+                return this.m_sNewUsernameField;
+            }
+            set {
+                this.m_sNewUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewFirstName {
+            get {
+                return this.m_sNewFirstNameField;
+            }
+            set {
+                this.m_sNewFirstNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sUsernameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -8187,6 +8480,15 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
         
         private string m_sPreviewModuleEndDateField;
@@ -8198,129 +8500,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sPreviewModuleEndDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sUsernameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddUserMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sMasterUsernameField;
-        
-        private string m_sNewUsernameField;
-        
-        private string m_sNewFirstNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sMasterUsername {
-            get {
-                return this.m_sMasterUsernameField;
-            }
-            set {
-                this.m_sMasterUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewUsername {
-            get {
-                return this.m_sNewUsernameField;
-            }
-            set {
-                this.m_sNewUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewFirstName {
-            get {
-                return this.m_sNewFirstNameField;
-            }
-            set {
-                this.m_sNewFirstNameField = value;
             }
         }
     }
@@ -8487,13 +8666,15 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
+    public partial class AddDeviceMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sIPField;
+        private string m_sMasterUsernameField;
         
-        private string m_sDurationField;
+        private string m_sNewDeviceUdidField;
+        
+        private string m_sNewDeviceNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -8506,22 +8687,32 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public string m_sIP {
+        public string m_sMasterUsername {
             get {
-                return this.m_sIPField;
+                return this.m_sMasterUsernameField;
             }
             set {
-                this.m_sIPField = value;
+                this.m_sMasterUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sDuration {
+        public string m_sNewDeviceUdid {
             get {
-                return this.m_sDurationField;
+                return this.m_sNewDeviceUdidField;
             }
             set {
-                this.m_sDurationField = value;
+                this.m_sNewDeviceUdidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewDeviceName {
+            get {
+                return this.m_sNewDeviceNameField;
+            }
+            set {
+                this.m_sNewDeviceNameField = value;
             }
         }
     }
@@ -8673,15 +8864,13 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddDeviceMailRequest : MailRequestObj {
+    public partial class SendAdminTokenRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sMasterUsernameField;
+        private string m_sIPField;
         
-        private string m_sNewDeviceUdidField;
-        
-        private string m_sNewDeviceNameField;
+        private string m_sDurationField;
         
         /// <remarks/>
         public string m_sToken {
@@ -8694,53 +8883,22 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public string m_sMasterUsername {
+        public string m_sIP {
             get {
-                return this.m_sMasterUsernameField;
+                return this.m_sIPField;
             }
             set {
-                this.m_sMasterUsernameField = value;
+                this.m_sIPField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sNewDeviceUdid {
+        public string m_sDuration {
             get {
-                return this.m_sNewDeviceUdidField;
+                return this.m_sDurationField;
             }
             set {
-                this.m_sNewDeviceUdidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewDeviceName {
-            get {
-                return this.m_sNewDeviceNameField;
-            }
-            set {
-                this.m_sNewDeviceNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
+                this.m_sDurationField = value;
             }
         }
     }
@@ -14431,6 +14589,32 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateRecommendationEngineConfigurationCompletedEventHandler(object sender, UpdateRecommendationEngineConfigurationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateRecommendationEngineConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateRecommendationEngineConfigurationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RecommendationEngineResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RecommendationEngineResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void InsertExternalChannelCompletedEventHandler(object sender, InsertExternalChannelCompletedEventArgs e);
     
     /// <remarks/>
@@ -14503,6 +14687,32 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((ExternalChannelResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetExternalChannelsCompletedEventHandler(object sender, GetExternalChannelsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetExternalChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetExternalChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public ExternalChannelResponseList Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((ExternalChannelResponseList)(this.results[0]));
             }
         }
     }

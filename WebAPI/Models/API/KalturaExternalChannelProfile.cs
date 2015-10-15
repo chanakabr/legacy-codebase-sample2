@@ -39,14 +39,6 @@ namespace WebAPI.Models.API
         public bool IsActive { get; set; }
 
         /// <summary>
-        /// Group id
-        /// </summary>
-        [DataMember(Name = "group_id")]
-        [JsonProperty("group_id")]
-        [XmlElement(ElementName = "group_id")]
-        public int GroupId { get; set; }
-
-        /// <summary>
         /// External channel external identifier
         /// </summary>
         [DataMember(Name = "external_identifier")]
