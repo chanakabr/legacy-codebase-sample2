@@ -111,6 +111,22 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 bool result = false;
                                 result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                             }
+
+                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                            if (m_bConfirm == true)
+                            {
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+                            }
+                            else
+                            {
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+                            }
+                            updateQuery += "where";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+                            updateQuery.Execute();
+                            updateQuery.Finish();
+                            updateQuery = null;
                         }
                         //Delete from ElasticSearch
                     }
@@ -168,6 +184,10 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             bIsPublished = true;
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
         }
+        if (m_sTable.ToLower() == "media")
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+        }
         updateQuery += "where";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
         updateQuery += "and";
@@ -182,16 +202,14 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         {
             bIsPublished = true;
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-            
-            // if media is deleted - update it's update_date too.
-            if (m_sTable.ToLower() == "media")
-            {
-                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
-            }
-
         }
         else
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        // if media is deleted - update it's update_date too.
+        if (m_sTable.ToLower() == "media")
+        {
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+        }
         updateQuery1 += "where";
         updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
         updateQuery1 += "and";
