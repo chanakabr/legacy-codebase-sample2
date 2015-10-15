@@ -106,7 +106,9 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
+    <Compile Include="ExternalChannelBase.cs" />
     <Compile Include="ExternalChannelResponse.cs" />
+    <Compile Include="ExternalChannelResponseList.cs" />
     <Compile Include="RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngineSettinsResponse.cs" />

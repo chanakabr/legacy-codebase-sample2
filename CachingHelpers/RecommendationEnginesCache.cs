@@ -51,8 +51,9 @@ namespace CachingHelpers
         protected override RecommendationEngine BuildValue(params object[] parameters)
         {
             int engineId = (int)parameters[0];
+            int groupId = (int)parameters[1];
 
-            return CatalogDAL.GetRecommendationEngine(engineId);
+            return CatalogDAL.GetRecommendationEngine(groupId, engineId);
         }
 
         public RecommendationEngine GetRecommendationEngine(int groupId, int engineId)

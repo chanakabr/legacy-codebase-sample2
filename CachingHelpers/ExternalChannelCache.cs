@@ -49,10 +49,9 @@ namespace CachingHelpers
 
         protected override ExternalChannel BuildValue(params object[] parameters)
         {
-            int groupId = (int)parameters[0];
-            string channelId = (string)parameters[1];
+            string channelId = (string)parameters[0];
 
-            var externalChannel = CatalogDAL.GetExternalChannel(groupId, channelId);
+            var externalChannel = CatalogDAL.GetExternalChannel(channelId);
 
             return externalChannel;
         }
@@ -62,7 +61,7 @@ namespace CachingHelpers
             string cacheKey = string.Format("{0}_external_channel_{1}_{2}", version, groupId, channelId);
             string mutexName = string.Concat("Group ExternalChannels GID_", groupId);
 
-            return base.Get(cacheKey, mutexName, groupId, channelId);
+            return base.Get(cacheKey, mutexName, channelId);
         }
 
         #endregion
