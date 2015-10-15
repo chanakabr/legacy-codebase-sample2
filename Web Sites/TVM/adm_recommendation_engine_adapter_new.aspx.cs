@@ -142,7 +142,7 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
         theRecord.AddRecord(dr_external_identifier);
 
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", false);
+        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", true);
         theRecord.AddRecord(dr_adapter_url);
 
         DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);

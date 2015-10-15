@@ -95,7 +95,8 @@ public partial class adm_external_channels : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
-        theTable += "SELECT ID, NAME, EXTERNAL_IDENTIFIER, FILTER_EXPRESSION, RECOMMENDATION_ENGINE_ID, IS_ACTIVE, STATUS FROM external_channels ec ";
+        theTable += "SELECT ec.ID, ec.Name, ec.EXTERNAL_IDENTIFIER AS 'External Identifier', ec.FILTER_EXPRESSION as 'Filter Expression', ";
+        theTable += "ec.recommendation_engine_id as 'Recommendation Engine', ec.IS_ACTIVE, ec.STATUS FROM external_channels ec ";
         theTable += "WHERE ec.status <> 2 ";
 
         if (Session["search_free"] != null && Session["search_free"].ToString() != "")
@@ -117,7 +118,6 @@ public partial class adm_external_channels : System.Web.UI.Page
             theTable += " order by ec.ID desc";
         }
 
-        theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
         theTable.AddOrderByColumn("Name", "ec.NAME");
 

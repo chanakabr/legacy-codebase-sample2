@@ -303,7 +303,7 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
         DataTable table = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         
-        selectQuery += "select id, name, value from external_channels_enrichments where status = 1";
+        selectQuery += "select id, name, value from external_channels_enrichments where is_active = 1";
         
         if (selectQuery.Execute("query", true) != null)
         {
