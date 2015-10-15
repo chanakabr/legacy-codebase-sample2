@@ -1118,6 +1118,10 @@ namespace ElasticSearch.Searcher
                     value = date.ToString(ES_DATE_FORMAT);
                 }
             }
+            else if (leaf.value is IEnumerable<string>)
+            {
+                leaf.value = (leaf.value as IEnumerable<string>).Select(item => item.ToLower());
+            }
             else
             {
                 value = leaf.value.ToString().ToLower();
