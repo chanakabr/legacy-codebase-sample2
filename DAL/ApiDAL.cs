@@ -2257,6 +2257,41 @@ namespace DAL
             return ossAdapterRes;
         }
 
+        public static OSSAdapter SetOSSAdapterSharedSecret(int groupID, int ossAdapterId, string sharedSecret)
+        {
+            OSSAdapter ossAdapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSharedSecret");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", ossAdapterId);
+                sp.AddParameter("@shared_secret", sharedSecret);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ossAdapterRes = new OSSAdapter();
+                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ossAdapterRes;
+        }
+
+
         public static List<OSSAdapterBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
             List<OSSAdapterBase> res = new List<OSSAdapterBase>();
