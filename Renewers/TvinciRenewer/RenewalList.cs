@@ -52,7 +52,7 @@ namespace TvinciRenewer
 
         public DateTime GetEndDateByPurchaseID(long mppPurchaseID)
         {
-            if(purchaseIDToIndexDict.ContainsKey(mppPurchaseID))
+            if (purchaseIDToIndexDict.ContainsKey(mppPurchaseID))
                 return endDates[purchaseIDToIndexDict[mppPurchaseID]];
             return new DateTime(2000, 1, 1); // same as ODBCWrapper.Utils.GetDateSafeVal value when it fails to parse
         }

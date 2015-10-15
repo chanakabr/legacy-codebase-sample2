@@ -1,4 +1,4 @@
-var Calendar = function (params, attachToElement) {
+var Calendar = function (params, attachToElement, pageName) {
     var StartDate, EndDate, startDateNotEmpty, endDateNotEmpty;
     if (params.StartDate || params.EndDate) {
         StartDate = params.StartDate || "No start";
@@ -119,7 +119,7 @@ var Calendar = function (params, attachToElement) {
             $inputContainer.find('.tooltip').removeClass('hidden');
         } else {
                 var itemId = parseInt($calendarComp.parents('li').data('id'));
-                changeItemDates(itemId, startDate, endDate);
+                changeItemDates(itemId, startDate, endDate, pageName);
         }
 
         if ($inputContainer.hasClass('start-date')) {

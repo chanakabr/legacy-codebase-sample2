@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace ElasticSearchFeeder
 {
     public class ElasticSearchFeeder : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region members
         const char spliter = '|';
@@ -38,10 +41,10 @@ namespace ElasticSearchFeeder
         {
             try
             {
-                if(nGroupID == 0)
+                if (nGroupID == 0)
                     return false;
 
-                Logger.Logger.Log("Params", "Start Task " + sType, "ESFeeder");
+                log.DebugFormat("Params - Start Task {0} ESFeeder", sType);
                 switch (sType)
                 {
                     case "media":
@@ -57,13 +60,13 @@ namespace ElasticSearchFeeder
                         oESFeed.Start();
                         break;
                     default:
-                        Logger.Logger.Log("Error", "Unknown type in elastic search feeder", "ElasticSearchFeeder");
+                        log.Error("Error - Unknown type in elastic search feeder. ElasticSearchFeeder");
                         break;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1} st:{2}", nGroupID, ex.Message, ex.StackTrace), "ElasticSearchFeeder");
+                log.ErrorFormat("Error - group:{0}, ex:{1} st:{2}", nGroupID, ex.Message, ex.StackTrace);
             }
 
             return true;
@@ -71,18 +74,19 @@ namespace ElasticSearchFeeder
 
         protected void InitParamter()
         {
-            Logger.Logger.Log("Start Init", "Start Init :" + m_sParameters, "ESFeeder");
+            log.Debug("Start Init - Start Init :" + m_sParameters + " ESFeeder");
+
             try
             {
-                
+
                 string[] items = m_sParameters.Split(spliter);
 
                 eFeederType = eESFeederType.MEDIA;
 
                 if (items.Length >= 3)
                 {
-                    Logger.Logger.Log("Start Init", "items.length" + items.Length, "ESFeeder");
-                    
+                    log.Debug("Start Init - items.length" + items.Length + " ESFeeder");
+
                     int.TryParse(items[0], out nGroupID);
                     sType = items[1];
                     sQueueName = items[2];
@@ -134,15 +138,15 @@ namespace ElasticSearchFeeder
                                 }
                             }
                         }
-                        
+
                     }
                 }
-                Logger.Logger.Log("Params", nGroupID.ToString() + " " + sType + " " + sQueueName, "ESFeeder");
+                log.Debug("Params - " + nGroupID.ToString() + " " + sType + " " + sQueueName + " ESFeeder");
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Error while parsing init parameters. params={0}. Ex={1} ST: {2}", m_sParameters, ex.Message, ex.StackTrace), "ElasticSearchFeeder");
-                throw new ArgumentException("Invalid arguments passed to Elasticsearch feeder");
+                log.ErrorFormat("Error - " + string.Format("Error while parsing init parameters. params={0}. Ex={1} ST: {2}", m_sParameters, ex.Message, ex.StackTrace) + " ElasticSearchFeeder");
+                throw new ArgumentException("Invalid arguments passed to Elastic search feeder");
             }
         }
     }

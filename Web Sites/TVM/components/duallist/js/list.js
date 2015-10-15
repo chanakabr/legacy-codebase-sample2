@@ -1,5 +1,5 @@
 /* This describes a single list, the duallist, well.. uses two of these */
-var List = function (listId, listTitle) {
+var List = function (listId, listTitle, pageName, withCalendar) {
     var listComponentId = listId;
     var listComponentTitle = listTitle;
     var listWrapper, listItems, listItemsArray, quickSearchInput;
@@ -89,10 +89,14 @@ var List = function (listId, listTitle) {
                     $(addRemoveIcon).addClass(type);
                     addRemoveIcon.setAttribute('href', 'javascript:;');
                     listLiItem.appendChild(addRemoveIcon);
-                    var infoIcon = document.createElement('a');
-                    $(infoIcon).addClass('info-icon');
-                    infoIcon.setAttribute('href', 'javascript:;');
-                    listLiItem.appendChild(infoIcon);
+
+                    if (withCalendar === true) {
+                        var infoIcon = document.createElement('a');
+                        $(infoIcon).addClass('info-icon');
+                        infoIcon.setAttribute('href', 'javascript:;');
+                        listLiItem.appendChild(infoIcon);
+                    }
+
                     $(listLiItem).hide();
                     if (type == 'add') {
                         $(listLiItem).show(800).effect("slide", { direction: "left" }, 800);
@@ -105,10 +109,15 @@ var List = function (listId, listTitle) {
 
                     // adding the calendar component
                     if (type == 'remove') {
-                        new Calendar(items[i], listLiItem);
+                        if (withCalendar === true) {
+                            new Calendar(items[i], listLiItem);
+                        }
+                        else {
+                            new Number(items[i], listLiItem);
+                        }
                     }
                     if (toChangeStatus) {
-                        changeItemStatus(items[i].ID);
+                        changeItemStatus(items[i].ID, pageName);
                     }
                 }
             }

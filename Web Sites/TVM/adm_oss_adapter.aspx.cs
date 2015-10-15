@@ -61,14 +61,14 @@ public partial class adm_oss_adapter : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select id, name, group_id, is_active, status, adapter_url as 'adapter url'";        
-        theTable += ",external_identifier as 'external id'"; 
-        theTable += "from oss_adapter ";        
+        theTable += "select id, name, group_id, is_active, status, adapter_url as 'adapter url'";
+        theTable += ",external_identifier as 'external id'";
+        theTable += "from oss_adapter ";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         theTable += "and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-        theTable += "order by id";        
+        theTable += "order by id";
 
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("status");
@@ -92,7 +92,7 @@ public partial class adm_oss_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "oss_adapter");            
+            linkColumn.AddQueryStringValue("table", "oss_adapter");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
@@ -105,7 +105,7 @@ public partial class adm_oss_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "oss_adapter");            
+            linkColumn.AddQueryStringValue("table", "oss_adapter");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
@@ -121,8 +121,8 @@ public partial class adm_oss_adapter : System.Web.UI.Page
             linkColumn.AddQueryStringValue("table", "oss_adapter");
             linkColumn.AddQueryStringValue("db", "main_connection");
             linkColumn.AddQueryStringValue("confirm", "false");
-            linkColumn.AddQueryStringValue("main_menu", "6"); 
-            linkColumn.AddQueryStringValue("sub_menu", "1"); 
+            linkColumn.AddQueryStringValue("main_menu", "6");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
             linkColumn.AddQueryStringValue("rep_field", "username");
             linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
@@ -134,8 +134,18 @@ public partial class adm_oss_adapter : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+
+        int ossAdapterIdentifier = 0;
+        Int32 groupID = LoginManager.GetLoginGroupID();
+        object defaultOSSAdapter = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", groupID, "billing_connection");
+        if (defaultOSSAdapter != null)
+        {
+            int.TryParse(defaultOSSAdapter.ToString(), out ossAdapterIdentifier);
+        }
+
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50, ossAdapterIdentifier, ossAdapterIdentifier);
         FillTheTableEditor(ref theTable, sOrderBy);
+
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
         theTable.Finish();

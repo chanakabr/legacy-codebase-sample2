@@ -8,11 +8,14 @@ using TVinciShared;
 using TvinciImporter;
 using System.Xml;
 using System.Collections;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ExcelFeeder
 {
     public class Feeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const int COLUMN_MAX = 254;
         public const int ROW_MAX = 500;
 
@@ -144,7 +147,7 @@ namespace ExcelFeeder
             string sImporterResponse = "<importer>" + sImporterNotifyXML + "</importer>";
             ImporterResponseToDataTable(ref resultTable, sImporterResponse);
 
-            Logger.Logger.Log("Excel Feeder", "Excel=" + sXml + " Importer=" + sImporterResponse, "ExcelFeeder");
+            log.Debug("Excel Feeder - Excel=" + sXml + " Importer= " + sImporterResponse + " ExcelFeeder");
 
             if (bOK == true)
             {
@@ -196,7 +199,7 @@ namespace ExcelFeeder
                         string sExtra = string.Empty;
 
                         XmlDocument theDoc = new XmlDocument();
-                        theDoc.LoadXml(dd.Columns[i].ColumnName);  
+                        theDoc.LoadXml(dd.Columns[i].ColumnName);
 
                         XmlNode typeNode = theDoc.SelectSingleNode("h/t");
                         if (typeNode != null && typeNode.FirstChild != null)
@@ -231,7 +234,7 @@ namespace ExcelFeeder
                         {
                             if (!hStr.Contains(sCols[i]))
                             {
-                                Logger.Logger.Log("Excel Feeder Error", "Error, no such String_meta found (" + sCols[i] + ")", "ExcelFeeder");
+                                log.Error("Excel Feeder Error - Error, no such String_meta found (" + sCols[i] + ") - ExcelFeeder");
                                 errMesage = "Error, no such String_meta found (" + sCols[i] + ")";
                                 return string.Empty;
                             }
@@ -241,7 +244,7 @@ namespace ExcelFeeder
                         {
                             if (!hDouble.Contains(sCols[i]))
                             {
-                                Logger.Logger.Log("Excel Feeder Error", "Error, no such Double_meta found (" + sCols[i] + ")", "ExcelFeeder");
+                                log.Error("Excel Feeder Error - Error, no such Double_meta found (" + sCols[i] + ") ExcelFeeder");
                                 errMesage = "Error, no such Double_meta found (" + sCols[i] + ")";
                                 return string.Empty;
                             }
@@ -251,15 +254,15 @@ namespace ExcelFeeder
                         {
                             if (!hBool.Contains(sCols[i]))
                             {
-                                Logger.Logger.Log("Excel Feeder Error", "Error, no such Boolean_meta found (" + sCols[i] + ")", "ExcelFeeder");
+                                log.Error("Excel Feeder Error - Error, no such Boolean_meta found (" + sCols[i] + ") ExcelFeeder");
                                 errMesage = "Error, no such Boolean_meta found (" + sCols[i] + ")";
                                 return string.Empty;
                             }
                         }
-                    }                  
+                    }
                     else
                     {
-                        Logger.Logger.Log("Excel Format Error", "Col :(" + (i + 1) + ") " + dd.Columns[i].ColumnName.ToString(), "ExcelFeeder");
+                        log.Error("Excel Format Error - Col :(" + (i + 1) + ") " + dd.Columns[i].ColumnName.ToString() + " ExcelFeeder");
                         break;
                     }
                 }
@@ -267,7 +270,7 @@ namespace ExcelFeeder
                 //Check if number of basic cols in excel file equals the number of basic cols in table
                 if (!IsNumOfBasicColsIsEqual(nNumOfBasicCols))
                 {
-                    Logger.Logger.Log("Excel Feeder Error", "Error while parsing basics cols", "ExcelFeeder");
+                    log.Error("Excel Feeder Error - Error while parsing basics cols. ExcelFeeder");
                     errMesage = "Error while parsing basics cols";
                     return string.Empty;
                 }
@@ -468,9 +471,9 @@ namespace ExcelFeeder
                                     sHandlingType = val;
                                 }
                                 else if (sParam == "file_start_date(dd/mm/yyyy hh:mm:ss)" || sParam == "file_end_date(dd/mm/yyyy hh:mm:ss)")
-                                {                                  
+                                {
                                     int index = sParam.IndexOf('(');
-                                    sParam = sParam.Substring(0,index);
+                                    sParam = sParam.Substring(0, index);
                                     if (val != "")
                                     {
                                         DateTime date;
@@ -508,7 +511,7 @@ namespace ExcelFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Excel Feeder Error", ex.Message, "ExcelFeeder");
+                log.Error("Excel Feeder Error " + ex.Message + " ExcelFeeder");
                 errMesage = ex.Message;
                 return string.Empty;
             }
@@ -543,8 +546,8 @@ namespace ExcelFeeder
         private DataSet GetExcelWorkSheet(string pathName, string fileName, int workSheetNumber)
         {
             try
-            {  
-                int rowNum = TVinciShared.WS_Utils.GetTcmIntValue("EXCEL_MAX_ROW");               
+            {
+                int rowNum = TVinciShared.WS_Utils.GetTcmIntValue("EXCEL_MAX_ROW");
                 if (rowNum == 0)
                 {
                     rowNum = ROW_MAX;
@@ -557,13 +560,13 @@ namespace ExcelFeeder
 
                 ExcelConnection.Open();
                 DataTable ExcelSheets = ExcelConnection.GetOleDbSchemaTable(System.Data.OleDb.OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
-                
+
                 int i = 0;
                 string rangeColumn = CalacRrangeColumns(i, rowNum);
                 string SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumn + "]";
                 DataSet ExcelDataSet = new DataSet();
                 bool keepRead = true;
-                
+
                 while (keepRead)
                 {
                     ExcelCommand.CommandText = @"SELECT * FROM " + SpreadSheetName;
@@ -572,8 +575,8 @@ namespace ExcelFeeder
                     try
                     {
                         ExcelAdapter.Fill(dt);
-                        dt.Columns.Add("primeryKey", typeof(string));                        
-                        for (int rowIndex = 1;  rowIndex < dt.Rows.Count; rowIndex++)
+                        dt.Columns.Add("primeryKey", typeof(string));
+                        for (int rowIndex = 1; rowIndex < dt.Rows.Count; rowIndex++)
                         {
                             dt.Rows[rowIndex]["primeryKey"] = rowIndex.ToString();
                         }
@@ -588,24 +591,24 @@ namespace ExcelFeeder
                             // get ranges 
                             i++;
                             rangeColumn = CalacRrangeColumns(i, rowNum);
-                            SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumn + "]"; 
+                            SpreadSheetName = "[" + ExcelSheets.Rows[workSheetNumber]["TABLE_NAME"].ToString() + rangeColumn + "]";
                         }
                     }
                     catch (OleDbException oleException)
                     {
                         keepRead = false;
-                        Logger.Logger.Log("Excel Feeder Error", "stop reading excel file - no more columns  " + oleException.Message, "ExcelReader");
+                        log.Error("Excel Feeder Error - stop reading excel file - no more columns  " + oleException.Message + " ExcelReader");
                     }
                 }
                 ExcelConnection.Close();
-            
-               // merge all dt to one table in dateset
+
+                // merge all dt to one table in dateset
                 DataTable mergeDT = new DataTable();
                 List<DataTable> tables = new List<DataTable>();
                 foreach (DataTable table in ExcelDataSet.Tables)
                 {
                     tables.Add(table);
-                }                
+                }
                 mergeDT = MergeAll(tables, "primeryKey");
 
                 ExcelDataSet = new DataSet();
@@ -615,7 +618,7 @@ namespace ExcelFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Excel Feeder Error", "Error opening Excel file " + ex.Message, "ExcelFeeder");
+                log.Error("Excel Feeder Error - Error opening Excel file " + ex.Message, ex);
                 return null;
             }
         }
@@ -640,10 +643,10 @@ namespace ExcelFeeder
             string range = string.Empty;
             try
             {
-                 int columnnum =  COLUMN_MAX;
-                 string from = GetExcelColumnName(index * columnnum + 1);
-                 string to = GetExcelColumnName((index * columnnum) + columnnum);
-                 range = string.Format("{0}1:{1}{2}", from, to, rowNum);                 
+                int columnnum = COLUMN_MAX;
+                string from = GetExcelColumnName(index * columnnum + 1);
+                string to = GetExcelColumnName((index * columnnum) + columnnum);
+                range = string.Format("{0}1:{1}{2}", from, to, rowNum);
             }
             catch (Exception)
             {
@@ -872,7 +875,7 @@ namespace ExcelFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Excel Feeder Error", "Error parsing importer response " + ex.Message, "ExcelFeeder");
+                log.Error("Excel Feeder Error - Error parsing importer response " + ex.Message, ex);
             }
         }
 
@@ -977,7 +980,7 @@ namespace ExcelFeeder
                 }
             }
             selectQuery.Finish();
-            selectQuery = null;         
+            selectQuery = null;
 
             hTags.Add(0, "free");
         }

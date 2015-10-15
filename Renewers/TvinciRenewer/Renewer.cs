@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using DAL;
 using ConditionalAccess;
+using KLogMonitor;
+using System.Reflection;
 /// ******************************************************
-///Tvinci L.T.D
-///Auto Renewer Schedualed Tasks
+/// Tvinci L.T.D
+/// Auto Renewer Scheduled Tasks
 ///
-///Ver Date : 13/03/2013
-///Unit : Media Store 
+/// Version Date : 13/03/2013
+/// Unit : Media Store 
 /// ******************************************************
 namespace TvinciRenewer
 {
@@ -21,26 +23,25 @@ namespace TvinciRenewer
     /// </summary>
     public class Renewer : ScheduledTasks.BaseTask
     {
-        #region members
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        //create customer group id var
+        // create customer group id variable
         protected Int32 m_nGroupID;
-        //create billing providers delimited string param
+
+        // create billing providers delimited string parameter
         protected string m_sBillingProviders;
-        //subscriptions Purchases according to delimited string "1012;1013;1014"
+
+        // subscriptions Purchases according to delimited string "1012;1013;1014"
         protected string m_sPurchasesIDs;
+
         // fail count for group id
         protected int m_nFailCount = -1;
 
-        #endregion
-
-        #region ctr and override base class nethods
-
         /// <summary>
-        /// class Constractor base BaseTask Class
+        /// class Constructor base BaseTask Class
         /// </summary>
         /// <param name="nTaskID">set Int32 Task ID</param>
-        /// <param name="nIntervalInSec">set Int32 interval in secound</param>
+        /// <param name="nIntervalInSec">set Int32 interval in second</param>
         /// <param name="sParameters">set extra string parameters</param>
         public Renewer(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
@@ -66,10 +67,10 @@ namespace TvinciRenewer
 
         }
         /// <summary>
-        /// Get Instance Scheduled Tasks renewer calss object.
+        /// Get Instance Scheduled Tasks renewer class object.
         /// </summary>
         /// <param name="nTaskID">set Int32 Task ID</param>
-        /// <param name="nIntervalInSec">set Int32 interval in secound</param>
+        /// <param name="nIntervalInSec">set Int32 interval in second</param>
         /// <param name="sParameters">set extra string parameters</param>
         /// <returns>return ScheduledTasks.BaseTask instance object</returns>
         public static ScheduledTasks.BaseTask GetInstance(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
@@ -91,9 +92,6 @@ namespace TvinciRenewer
                 return DoTheJob();
             }
         }
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Execute Job Task
@@ -113,7 +111,7 @@ namespace TvinciRenewer
             strlog.Append(string.Format("Job start :"));
             strlog.Append(string.Format(" | group: {0}", m_nGroupID.ToString()));
             strlog.Append(string.Format(" | billing providers: {0}.", m_sBillingProviders));
-            Logger.Logger.Log("Tvinci multi usage module renewal : ******* Start ******** ", strlog.ToString(), "TvinciRenewer");
+            log.DebugFormat("Tvinci multi usage module renewal : ******* Start ******** {0}", strlog.ToString());
 
             billingProvidersList = GetBillingProvidersListFromDelimitedString(m_sBillingProviders);
 
@@ -195,11 +193,11 @@ namespace TvinciRenewer
                                             strLog.Append(string.Format(" | Billing response description : {0}", resp.m_sStatusDescription));
                                             strLog.Append(string.Format(" | Billing response reciept: {0}.", resp.m_sRecieptCode));
 
-                                            Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJob ", strLog.ToString(), "TvinciRenewer");
+                                            log.DebugFormat("Tvinci multi usage module renewal : DoTheJob {0}", strLog.ToString());
                                         }
                                         catch (Exception ex)
                                         {
-                                            Logger.Logger.Log("Error (CA)", string.Format("u:{0}, s:{1}, pid:{2}, ex:{3}, st:{4}", sSiteGUID, sSubscriptionCode, nPurchaseID, ex.Message, ex.StackTrace), "TvinciRenewer");
+                                            log.ErrorFormat("Error (CA) u:{0}, s:{1}, pid:{2}, ex:{3}, st:{4}", sSiteGUID, sSubscriptionCode, nPurchaseID, ex.Message, ex.StackTrace);
                                         }
                                     }
                                 }
@@ -211,7 +209,7 @@ namespace TvinciRenewer
                 }
             }
             UpdateRecurringRunTime(totalsubscriptionsPurchasesList, 0);
-            Logger.Logger.Log("Tvinci multi usage module renewal : ******* End ******** ", "Job End.", "TvinciRenewer");
+            log.Debug("Tvinci multi usage module renewal : ******* End ******** Job End. TvinciRenewer");
 
             return true;
         }
@@ -231,7 +229,7 @@ namespace TvinciRenewer
             strlog.Append(string.Format("Job start :"));
             strlog.Append(string.Format(" | group: {0}", m_nGroupID.ToString()));
             strlog.Append(string.Format(" | billing providers: {0}.", m_sBillingProviders));
-            Logger.Logger.Log("Tvinci multi usage module renewal : ******* Start ******** ", strlog.ToString(), "TvinciRenewer");
+            log.DebugFormat("Tvinci multi usage module renewal : ******* Start ******** {0}", strlog.ToString());
 
             subscriptionsPurchasesList = GetSubscriptionsPurchasesListFromDelimitedString(m_sPurchasesIDs);
             billingProvidersList = GetBillingProvidersListFromDelimitedString(m_sBillingProviders);
@@ -266,7 +264,7 @@ namespace TvinciRenewer
                             DateTime dtCurrentEndDate = GetPurchaseEndDate(nPurchaseID);
                             if (dtCurrentEndDate == DateTime.MaxValue)
                             {
-                                Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJobTest ", "No end date found for purchase id:" + nPurchaseID.ToString(), "TvinciRenewer");
+                                log.DebugFormat("Tvinci multi usage module renewal : DoTheJobTest ", "No end date found for purchase id: {0}", nPurchaseID.ToString());
                                 break; // No purchase end date found.
                             }
 
@@ -278,11 +276,10 @@ namespace TvinciRenewer
                                 nBillingMethod = (int)ApiDAL.Get_LastNonGiftBillingMethod(sSiteGUID, nGroupID, nTransactionBillingProvider);
                             }
 
-                            #region Calculate the next payment number except subscriptions unlimited purchase renewal
+                            // Calculate the next payment number except subscriptions unlimited purchase renewal
                             nPaymentNumber = CalcPaymentNumber(nNumOfPayments, nPaymentNumber, bIsPurchasedWithPreviewModule);
-                            #endregion
 
-                            #region Renew subscription
+                            // Renew subscription
                             if (nNumOfPayments == 0 || nPaymentNumber <= nNumOfPayments)
                             {
                                 nPaymentNumber++;
@@ -296,14 +293,14 @@ namespace TvinciRenewer
 
                                 eBillingProvider eBillingProvider = (eBillingProvider)(nTransactionBillingProvider);
 
-                                if ((eBillingProvider == ConditionalAccess.eBillingProvider.Adyen || 
-                                    eBillingProvider == ConditionalAccess.eBillingProvider.Cinepolis || 
+                                if ((eBillingProvider == ConditionalAccess.eBillingProvider.Adyen ||
+                                    eBillingProvider == ConditionalAccess.eBillingProvider.Cinepolis ||
                                     eBillingProvider == ConditionalAccess.eBillingProvider.M1 ||
                                     eBillingProvider == ConditionalAccess.eBillingProvider.Offline))
                                 {
                                     try
                                     {
-                                        Logger.Logger.Log("MPP Renewal : DoTheJobTest ", "purchase_id:" + nPurchaseID, "TvinciRenewer");
+                                        log.DebugFormat("MPP Renewal : DoTheJobTest ", "purchase_id: {0}" + nPurchaseID);
 
                                         ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
@@ -313,22 +310,20 @@ namespace TvinciRenewer
                                         strLog.Append(string.Format(" | price: {0}{1}", dPrice.ToString(), sCurrency));
                                         strLog.Append(string.Format(" | Subscription Code : {0}", sSubscriptionCode));
                                         strLog.Append(string.Format(" | Extra params : {0}", sExtraParams));
-                                        strLog.Append(string.Format(" | Prchase ID : {0}", nPurchaseID));
+                                        strLog.Append(string.Format(" | Purchase ID : {0}", nPurchaseID));
                                         strLog.Append(string.Format(" | Payment number : {0}", nPaymentNumber));
                                         strLog.Append(string.Format(" | Billing response status: {0}", oBillingResponse.m_oStatus.ToString()));
                                         strLog.Append(string.Format(" | Billing response description : {0}", oBillingResponse.m_sStatusDescription));
-                                        strLog.Append(string.Format(" | Billing response reciept: {0}.", oBillingResponse.m_sRecieptCode));
+                                        strLog.Append(string.Format(" | Billing response receipt: {0}.", oBillingResponse.m_sRecieptCode));
 
-                                        Logger.Logger.Log("Tvinci multi usage module renewal : DoTheJobTest ", strLog.ToString(), "TvinciRenewer");
-
+                                        log.DebugFormat("Tvinci multi usage module renewal: DoTheJobTest {0}", strLog.ToString());
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Logger.Log("Error (CA)", string.Format("u:{0}, s:{1}, pid:{2}, ex:{3}, st:{4}", sSiteGUID, sSubscriptionCode, nPurchaseID, ex.Message, ex.StackTrace), "TvinciRenewer");
+                                        log.ErrorFormat("Error (CA) u:{0}, s:{1}, pid:{2}, ex:{3}, st:{4}", sSiteGUID, sSubscriptionCode, nPurchaseID, ex.Message, ex.StackTrace);
                                     }
                                 }
                             }
-                            #endregion
 
                             System.Threading.Thread.Sleep(10);
                         }
@@ -337,7 +332,7 @@ namespace TvinciRenewer
             }
 
             UpdateRecurringRunTime(totalsubscriptionsPurchasesList, 0);
-            Logger.Logger.Log("Tvinci multi usage module renewal : ******* End ******** ", "Job End.", "TvinciRenewer");
+            log.Debug("Tvinci multi usage module renewal : ******* End ******** Job End. TvinciRenewer");
 
             return true;
         }
@@ -353,7 +348,7 @@ namespace TvinciRenewer
             {
                 string sList = string.Join(",", retList.Select(x => x.ToString()).ToArray());
                 string strLog = string.Format("subscriptions purchases ID's ({0}) expire in the next 24 hours", sList);
-                Logger.Logger.Log("Tvinci multi usage module renewal : GetList ", strLog, "TvinciRenewer");
+                log.DebugFormat("Tvinci multi usage module renewal : GetList {0}", strLog);
                 UpdateRecurringRunTime(retList, 1);
             }
             return res;
@@ -424,7 +419,7 @@ namespace TvinciRenewer
         /// <summary>
         /// Get group fail count definition
         /// </summary>
-        /// <returns>retun the max fail count to tray renew subscription</returns>
+        /// <returns>return the max fail count to tray renew subscription</returns>
         private int GetGroupFAILCOUNT()
         {
 
@@ -456,8 +451,8 @@ namespace TvinciRenewer
                 res = updateQuery.Execute();
                 updateQuery.Finish();
                 updateQuery = null;
-                string strLog = string.Format("update subscriptions purchases ID's ({0}) runtime recurring proccess status to '{1}'.", sSubscriptionPurchaseIDs, RunttimeStatus);
-                Logger.Logger.Log("Tvinci multi usage module renewal : UpdateRecurringRunTime ", strLog, "TvinciRenewer");
+                string strLog = string.Format("update subscriptions purchases ID's ({0}) runtime recurring process status to '{1}'.", sSubscriptionPurchaseIDs, RunttimeStatus);
+                log.DebugFormat("Tvinci multi usage module renewal : UpdateRecurringRunTime {0}", strLog);
             }
             return res;
         }
@@ -490,8 +485,6 @@ namespace TvinciRenewer
             }
             return result;
         }
-
-        #endregion
     }
 }
 

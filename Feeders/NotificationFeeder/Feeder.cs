@@ -6,21 +6,23 @@ using ScheduledTasks;
 using System.Data;
 using NotificationInterface;
 using DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace NotificationFeeder
 {
     /// <summary>
-    /// Feeder for notifiactions requests,
+    /// Feeder for notifications requests,
     /// Get 2 parameters: 1)number of requests 2)group id.
     /// In each iteration get specific number requests from db (according to number of requests param) filtered
     /// by group id and process these requests by calling NotificationManager.HanldeRequests method.
     /// </summary>
     public class Feeder : BaseTask
     {
-        #region private Members
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private int m_NumOfRequests = 0;
         private long m_GroupID = 0;
-        #endregion
+
 
         #region Constructor
         public Feeder(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
@@ -32,22 +34,22 @@ namespace NotificationFeeder
 
         #region private Methods
         private void InitParams(string sParameters)
-        {                       
-            Logger.Logger.Log("InitParams Begin", "sParameters=" + sParameters, "NotificationFeeder");                       
+        {
+            log.Debug("InitParams Begin - sParameters=" + sParameters + " NotificationFeeder");
 
             string[] arrParams = sParameters.Split(new char[] { '|' });
             m_NumOfRequests = int.Parse(arrParams[0]);
             m_GroupID = long.Parse(arrParams[1]);
 
-            Logger.Logger.Log("InitParams Finish", "Num Of Requests=" + m_NumOfRequests.ToString() + "GroupID=" + m_GroupID.ToString(), "NotificationFeeder");
+            log.Debug("InitParams Finish - Num Of Requests=" + m_NumOfRequests.ToString() + "GroupID=" + m_GroupID.ToString() + " NotificationFeeder");
         }
 
         private void ProcessNotificationRequests()
         {
-            Logger.Logger.Log("ProcessNotificationRequests", "Num Of Requests=" + m_NumOfRequests.ToString() + ",GroupID=" + m_GroupID.ToString(), "NotificationFeeder");
-            NotificationManager.Instance.HandleRequests(m_NumOfRequests, m_GroupID);            
+            log.Debug("ProcessNotificationRequests - Num Of Requests=" + m_NumOfRequests.ToString() + ",GroupID=" + m_GroupID.ToString() + " NotificationFeeder");
+            NotificationManager.Instance.HandleRequests(m_NumOfRequests, m_GroupID);
         }
-                
+
         #endregion
 
         #region protected Methods
@@ -64,7 +66,7 @@ namespace NotificationFeeder
                 //TBD: Write to log
                 result = false;
             }
-            return result;        
+            return result;
         }
         #endregion
 
