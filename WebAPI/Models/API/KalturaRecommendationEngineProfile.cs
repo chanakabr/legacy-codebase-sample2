@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public int IsActive { get; set; }
+        public bool IsActive { get; set; }
 
         /// <summary>
         /// recommendation engine adapter URL

@@ -1311,7 +1311,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int oss_adapter_id)
+        internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int ossAdapterId)
         {
             WebAPI.Api.OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
@@ -1322,7 +1322,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, oss_adapter_id);
+                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
                 }
             }
             catch (Exception ex)
@@ -1614,6 +1614,42 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaRecommendationEngineProfile GeneratereRecommendationEngineSharedSecret(int groupId, int recommendationEngineId)
+        {
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GenerateRecommendationEngineSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GeneratereRecommendationEngineSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+
+            return kalturaRecommendationEngineProfile;
+        }
+        
         #endregion
 
         #region ExternalChannel
@@ -1754,7 +1790,6 @@ namespace WebAPI.Clients
             return kalturaExternalChannelBaseList;
         }
         #endregion
-
-
+        
     }
 }
