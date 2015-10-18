@@ -178,12 +178,56 @@
     <None Include="Service References\Catalog\Service14.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service19.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service20.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service22.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service23.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service24.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service25.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service28.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service3.wsdl" />
     <None Include="Service References\Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service4.wsdl" />
     <None Include="Service References\Catalog\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -202,6 +246,7 @@
     <None Include="Service References\Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service2.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -281,6 +326,21 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\OSSAdapterSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ExternalChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEngineResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEngineSettinsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RecommendationEnginesResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ExternalChannelResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Billing\module.disco" />
@@ -688,9 +748,12 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
+    <Compile Include="Controllers\ExternalChannelProfileController.cs" />
+    <Compile Include="Controllers\RecommendationEngineProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileController.cs" />
     <Compile Include="Controllers\EPGChannelController.cs" />
+    <Compile Include="Controllers\RecommendationEngineProfileController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetViewController.cs" />
@@ -731,12 +794,17 @@
     <Compile Include="Models\API\KalturaExportTask.cs" />
     <Compile Include="Models\API\KalturaExportDataType.cs" />
     <Compile Include="Models\API\KalturaExportType.cs" />
+    <Compile Include="Models\API\KalturaChannelEnrichment.cs" />
+    <Compile Include="Models\API\KalturaExternalChannelBaseProfile.cs" />
+    <Compile Include="Models\API\KalturaExternalChannelProfile.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
     <Compile Include="Models\API\KalturaGenericRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterBaseProfile.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
+    <Compile Include="Models\API\KalturaRecommendationEngineBaseProfile.cs" />
+    <Compile Include="Models\API\KalturaRecommendationEngineProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
@@ -747,6 +815,7 @@
     <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
+    <Compile Include="Models\Catalog\KalturaExternalChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />

@@ -14,5 +14,6 @@ namespace WebAPI.Models.Catalog
         channel = 1,        
         epg_internal = 2,
         epg_external = 3,
+        external_channel = 4
     }
 }

@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:      
-        ///   Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
+        /// Action is not allowed = 5011, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
         /// External identifier must be unique = 6040            
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -122,6 +122,35 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.BillingClient().SetPaymentGateway(groupId, payment_gateway_id, payment_gateway);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Generate payment gateway shared secret
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// payment gateway id required = 6005, payment gateway not exist = 6008
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment gateway identifier</param>
+        [Route("generateSharedSecret"), HttpPost]
+        [ApiAuthorize]
+        public KalturaPaymentGatewayProfile GenerateSharedSecret(int payment_gateway_id)
+        {
+            KalturaPaymentGatewayProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GeneratePaymentGatewaySharedSecret(groupId, payment_gateway_id);
             }
             catch (ClientException ex)
             {

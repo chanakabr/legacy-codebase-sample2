@@ -26,23 +26,27 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier.
+        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier or external channel identifier.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
         /// <param name="order_by">Ordering the channel</param>
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="udid">Unique device identifier</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null)
+            KalturaFilterPager pager = null, string language = null, string udid = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+
+            if (pager == null)
+                pager  = new KalturaFilterPager();
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -130,6 +134,24 @@ namespace WebAPI.Controllers
                             }
                         }
                         break;
+                    case KalturaCatalogReferenceBy.external_channel:
+                        {
+                            if (filter.IDs.Count != 1)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Must have only 1 ID when type is external channel");
+                            }
+
+                            string externalChannelId = filter.IDs.First().value;
+
+                            var convertedWith = with.Select(x => x.type).ToList();
+
+                            KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
+
+                            response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, convertedFilter.DeviceType, convertedFilter.UtcOffset);
+
+                            break;
+                        }
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
@@ -264,6 +286,8 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // parameters validation
             if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
@@ -283,7 +307,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, string.Empty, string.Empty, language,
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, string.Empty, language,
                 pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
                 with.Select(x => x.type).ToList());
             }

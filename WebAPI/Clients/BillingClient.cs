@@ -36,7 +36,7 @@ namespace WebAPI.Clients
 
         #region Payment GateWay
 
-        public List<Models.Billing.KalturaPaymentGatewayProfile> GetPaymentGatewateSettings(int groupId)
+        public List<Models.Billing.KalturaPaymentGatewayProfile> GetPaymentGatewaySettings(int groupId)
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> KalturaPaymentGatewayProfileList = null;
             WebAPI.Billing.PaymentGatewaySettingsResponse response = null;
@@ -484,6 +484,41 @@ namespace WebAPI.Clients
             }
 
             return response.ChargeID;
+        }
+
+        internal KalturaPaymentGatewayProfile GeneratePaymentGatewaySharedSecret(int groupId, int paymentGatewayId)
+        {
+            WebAPI.Billing.PaymentGatewayItemResponse response = null;
+            KalturaPaymentGatewayProfile kalturaPaymentGatewayProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GeneratePaymentGatewaySharedSecret(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GeneratePaymentGatewaySharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaPaymentGatewayProfile = Mapper.Map<KalturaPaymentGatewayProfile>(response);
+
+            return kalturaPaymentGatewayProfile;
         }
 
         #endregion

@@ -1,20 +1,19 @@
-﻿using System;
+﻿using AutoMapper;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Reflection;
 using WebAPI.Api;
-using WebAPI.Exceptions;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Models;
-using WebAPI.Models.General;
-using WebAPI.Utils;
-using KLogMonitor;
-using System.Reflection;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.API;
 using AutoMapper;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 
 namespace WebAPI.Clients
@@ -1311,6 +1310,485 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int ossAdapterId)
+        {
+            WebAPI.Api.OSSAdapterResponse response = null;
+            KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GenerateOSSSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaOSSAdapterProfile = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+            return kalturaOSSAdapterProfile;
+        }
+
+
+        #endregion
+
+        #region Recommendation Engine
+
+        internal List<KalturaRecommendationEngineBaseProfile> GetRecommendationEngines(int groupId)
+        {
+            List<Models.API.KalturaRecommendationEngineBaseProfile> kalturaRecommendationEngineBaseProfile = null;
+            WebAPI.Api.RecommendationEnginesResponseList response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetRecommendationEngines(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetRecommendationEngines. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineBaseProfile = Mapper.Map<List<Models.API.KalturaRecommendationEngineBaseProfile>>(response.RecommendationEngines);
+
+            return kalturaRecommendationEngineBaseProfile;
+        }
+
+        internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DeleteRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendatioEngineId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteRecommendationEngine.  groupID: {0}, recommendatioEngineId: {1}, exception: {2}", groupId, recommendatioEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaRecommendationEngineProfile InsertRecommendationEngine(int groupId, KalturaRecommendationEngineProfile recommendationEngine)
+        {
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    response = Api.InsertRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertRecommendationEngine.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            return kalturaRecommendationEngineProfile;
+        }
+
+        internal KalturaRecommendationEngineProfile SetRecommendationEngine(int groupId, int recommendationEngineId, KalturaRecommendationEngineProfile recommendationEngine)
+        {
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetRecommendationEngine. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            return kalturaRecommendationEngineProfile;
+        }
+
+        internal List<KalturaRecommendationEngineProfile> GetRecommendationEngineSettings(int groupId)
+        {
+            List<Models.API.KalturaRecommendationEngineProfile> KalturaRecommendationEngineList = null;
+            WebAPI.Api.RecommendationEngineSettinsResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetRecommendationEngineSettings. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+
+            KalturaRecommendationEngineList = Mapper.Map<List<Models.API.KalturaRecommendationEngineProfile>>(response.RecommendationEngines);
+
+            return KalturaRecommendationEngineList;
+        }
+
+        internal bool DeleteRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.DeleteRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteRecommendationEngineSettings.  groupID: {0}, recommendationEngineId: {1}, exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool InsertRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.InsertRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertRecommendationEngineSettings. groupID: {0}, recommendationEngineId: {1} ,exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool SetRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.RecommendationEngineSettings[] configs = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    response = Api.SetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, configs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetRecommendationEngineSettings. groupID: {0}, recommendationEngineId: {1}, exception: {2}", groupId, recommendationEngineId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaRecommendationEngineProfile GeneratereRecommendationEngineSharedSecret(int groupId, int recommendationEngineId)
+        {
+            WebAPI.Api.RecommendationEngineResponse response = null;
+            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GenerateRecommendationEngineSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GeneratereRecommendationEngineSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+
+            return kalturaRecommendationEngineProfile;
+        }
+        
+        #endregion
+
+        #region ExternalChannel
+        internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
+        {
+            WebAPI.Api.ExternalChannelResponse response = null;
+            KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.ExternalChannel request = Mapper.Map<WebAPI.Api.ExternalChannel>(externalChannel);
+                    response = Api.InsertExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertExternalChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaExternalChannelProfile = Mapper.Map<Models.API.KalturaExternalChannelProfile>(response);
+            return kalturaExternalChannelProfile;
+        }
+
+        internal KalturaExternalChannelProfile SetExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
+        {
+            WebAPI.Api.ExternalChannelResponse response = null;
+            KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
+
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.ExternalChannel request = Mapper.Map<WebAPI.Api.ExternalChannel>(externalChannel);
+                    response = Api.SetExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetExternalChannel. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaExternalChannelProfile = Mapper.Map<KalturaExternalChannelProfile>(response);
+            return kalturaExternalChannelProfile;
+        }
+
+        internal bool DeleteExternalChannel(int groupId, int externalChannelId)
+        {
+            WebAPI.Api.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.DeleteExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, externalChannelId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteExternalChannel.  groupID: {0}, externalChannelId: {1}, exception: {2}", groupId, externalChannelId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal List<KalturaExternalChannelBaseProfile> GetExternalChannels(int groupId)
+        {
+            List<Models.API.KalturaExternalChannelBaseProfile> kalturaExternalChannelBaseList = null;
+            WebAPI.Api.ExternalChannelResponseList response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetExternalChannels(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetExternalChannels. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaExternalChannelBaseList = Mapper.Map<List<Models.API.KalturaExternalChannelBaseProfile>>(response.ExternalChannels);
+
+            return kalturaExternalChannelBaseList;
         }
         #endregion
 

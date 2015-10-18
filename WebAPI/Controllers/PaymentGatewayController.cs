@@ -123,8 +123,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">Household Identifier</param>
-        [Route("delete"), HttpPost]
-        
+        [Route("delete"), HttpPost]     
         public bool Delete(int payment_gateway_id, string household_id)
         {
             bool response = false;
@@ -142,6 +141,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
+        }      
     }
 }

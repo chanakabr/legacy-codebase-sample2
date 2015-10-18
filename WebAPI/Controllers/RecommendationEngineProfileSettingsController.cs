@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.Billing;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/paymentGatewayProfileSettings/action")]
-    public class PaymentGatewayProfileSettingsController : ApiController
+    [RoutePrefix("_service/RecommendationEngineProfileSettings/action")]
+    public class RecommendationEngineProfileSettingsController : ApiController
     {
         /// <summary>
-        /// Returns all payment gateway settings for partner
+        /// Returns all recommendation engine settings for partner
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -24,16 +21,16 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<Models.Billing.KalturaPaymentGatewayProfile> List()
+        public List<KalturaRecommendationEngineProfile> List()
         {
-            List<Models.Billing.KalturaPaymentGatewayProfile> response = null;
+            List<KalturaRecommendationEngineProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGatewaySettings(groupId);
+                response = ClientsManager.ApiClient().GetRecommendationEngineSettings(groupId);
             }
             catch (ClientException ex)
             {
@@ -44,20 +41,20 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete payment gateway specific settings by settings keys 
+        /// Delete recommendation engine specific settings by settings keys 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         ///  
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Delete(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -66,7 +63,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGatewaySettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.ApiClient().DeleteRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {
@@ -77,20 +74,19 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new settings for payment gateway for partner
+        /// Insert new settings for recommendation engine for partner
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   Payment gateway id required = 6005, Payment gateway params required = 6006
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="recommendation_engine_id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Add(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -99,7 +95,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGatewaySettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.ApiClient().InsertRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {
@@ -110,20 +106,20 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update settings for payment gateway 
+        /// Update settings for recommendation engine 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         ///  
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="recommendation_engine_id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Update(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -132,7 +128,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGatewaySettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.ApiClient().SetRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
             }
             catch (ClientException ex)
             {
