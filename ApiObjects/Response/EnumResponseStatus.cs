@@ -98,6 +98,18 @@ namespace ApiObjects.Response
         IndexMissing = 4003,
         SyntaxError = 4004,
         InvalidSearchField = 4005,
+        NoRecommendationEngineToInsert = 4006,
+        RecommendationEngineNotExist = 4007,
+        RecommendationEngineIdentifierRequired = 4008,
+        RecommendationEngineParamsRequired = 4009,
+        NoExternalChannelToInsert = 4010,
+        ExternalChannelNotExist = 4011,
+        NoExternalChannelToUpdate = 4012,
+        ExternalChannelIdentifierRequired = 4013,
+        NoRecommendationEngineToUpdate = 4007,
+        ExternalChannelHasNoRecommendationEngine = 4014,
+
+
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
@@ -110,8 +122,9 @@ namespace ApiObjects.Response
         OSSAdapterNotExist = 5008,
         OSSAdapterParamsRequired = 5009,
         UnknownOSSAdapterState = 5010,
-        DeleteIsNotAllowed = 5011,
+        ActionIsNotAllowed = 5011,
         NoOSSAdapterToUpdate = 5012,
+        AdapterUrlRequired = 5013, 
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

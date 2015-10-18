@@ -110,7 +110,9 @@ namespace Catalog
 
                             if (oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                             {
-                                lMediaIds = SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir, oSearch.associationTags, oSearch.parentMediaTypes);
+                                lMediaIds =
+                                    SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir,
+                                        oSearch.associationTags, oSearch.parentMediaTypes).Cast<int>().ToList();
                             }
                             else
                             {
@@ -163,7 +165,11 @@ namespace Catalog
         {
             List<string> lRes = new List<string>();
 
-            oSearch.m_dOr.Add(new SearchValue() { m_lValue = new List<string>() { "" }, m_sKey = "name^3" });
+            oSearch.m_dOr.Add(new SearchValue()
+            {
+                m_lValue = new List<string>() { "" },
+                m_sKey = "name^3"
+            });
 
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
             queryParser.PageIndex = oSearch.m_nPageIndex;
@@ -382,7 +388,10 @@ namespace Catalog
                     ChannelContainObj tempRes;
                     foreach (ChannelContainSearchObj searchObj in oSearch)
                     {
-                        tempRes = new ChannelContainObj() { m_nChannelID = searchObj.m_nChannelID };
+                        tempRes = new ChannelContainObj()
+                        {
+                            m_nChannelID = searchObj.m_nChannelID
+                        };
                         tempRes.m_bContain = (dChannels.ContainsKey(searchObj.m_nChannelID)) ? true : false;
                     }
                 }
@@ -471,7 +480,11 @@ namespace Catalog
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
 
 
-                ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = epgSearch, bAnalyzeWildcards = true };
+                ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
+                {
+                    m_oEpgSearchObj = epgSearch,
+                    bAnalyzeWildcards = true
+                };
 
                 //string sQuery = epgQueryBuilder.BuildSearchQueryString();
                 List<string> queries = epgQueryBuilder.BuildSearchQueryStrings();
@@ -505,7 +518,11 @@ namespace Catalog
                 if (lDocs != null)
                 {
                     epgResponse = new SearchResultsObj();
-                    epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult { assetID = doc.asset_id, UpdateDate = doc.update_date }).ToList();
+                    epgResponse.m_resultIDs = lDocs.Select(doc => new SearchResult
+                    {
+                        assetID = doc.asset_id,
+                        UpdateDate = doc.update_date
+                    }).ToList();
                     epgResponse.n_TotalItems = nTotalRecords;
                 }
 
@@ -583,7 +600,10 @@ namespace Catalog
             }
 
 
-            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder() { m_oEpgSearchObj = oSearch };
+            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder()
+            {
+                m_oEpgSearchObj = oSearch
+            };
             string sQuery = queryBuilder.BuildEpgAutoCompleteQuery();
 
 
@@ -726,19 +746,19 @@ namespace Catalog
                             switch (assetType)
                             {
                                 case eAssetTypes.MEDIA:
-                                    {
-                                        assetIdField = "fields.media_id";
-                                        break;
-                                    }
+                                {
+                                    assetIdField = "fields.media_id";
+                                    break;
+                                }
                                 case eAssetTypes.EPG:
-                                    {
-                                        assetIdField = "fields.epg_id";
-                                        break;
-                                    }
+                                {
+                                    assetIdField = "fields.epg_id";
+                                    break;
+                                }
                                 default:
-                                    {
-                                        break;
-                                    }
+                                {
+                                    break;
+                                }
                             }
 
                             documents.Add(new ElasticSearchApi.ESAssetDocument()
@@ -880,7 +900,10 @@ namespace Catalog
                     jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
                     jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
                 ESMediaQueryBuilder queryBuilder = new ESMediaQueryBuilder(nGroupID, searchObj);
-                string sQuery = queryBuilder.GetDocumentsByIdsQuery(distinctMediaIDs, new OrderObj() { m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID });
+                string sQuery = queryBuilder.GetDocumentsByIdsQuery(distinctMediaIDs, new OrderObj()
+                {
+                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID
+                });
 
                 if (!string.IsNullOrEmpty(sQuery))
                 {
@@ -959,6 +982,8 @@ namespace Catalog
             if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
                 orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
                 orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
+                // Recommendations is also non-sortable
+                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
                 // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
                 (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
                 unifiedSearchDefinitions.parentMediaTypes.Count > 0))
@@ -1013,6 +1038,8 @@ namespace Catalog
 
                 if (httpStatus == STATUS_OK)
                 {
+                    #region Process ElasticSearch result
+
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
@@ -1032,15 +1059,39 @@ namespace Catalog
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                         if (isOrderedByStat)
                         {
-                            List<int> assetIds = searchResultsList.Select(item => int.Parse(item.AssetId)).ToList();
+                            #region Ordered by stat
+                            List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
 
-                            List<int> orderedIds = null;
+                            List<long> orderedIds = null;
 
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
                             {
                                 orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
                                     unifiedSearchDefinitions.associationTags,
                                     unifiedSearchDefinitions.parentMediaTypes);
+                            }
+                            // Recommendation - the order is predefined already. We will use the order that is given to us
+                            else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
+                            {
+                                orderedIds = new List<long>();
+                                HashSet<long> idsHashset = new HashSet<long>(assetIds);
+
+                                // Add all ordered ids from definitions first
+                                foreach (var id in unifiedSearchDefinitions.specificOrder)
+                                {
+                                    // If the id exists in search results
+                                    if (idsHashset.Remove(id))
+                                    {
+                                        // add to ordered list
+                                        orderedIds.Add(id);
+                                    }
+                                }
+
+                                // Add all ids that are left
+                                foreach (long id in idsHashset)
+                                {
+                                    orderedIds.Add(id);
+                                }
                             }
                             else
                             {
@@ -1064,24 +1115,7 @@ namespace Catalog
 
                             // check which results should be returned
                             bool illegalRequest = false;
-
-                            if (pageSize < 0 || pageIndex < 0)
-                            {
-                                // illegal parameters
-                                illegalRequest = true;
-                            }
-                            else
-                            {
-                                if (pageSize == 0 && pageIndex == 0)
-                                {
-                                    // return all results
-                                }
-                                else
-                                {
-                                    // apply paging on results 
-                                    assetIds = orderedIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                                }
-                            }
+                            assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
 
                             if (!illegalRequest)
                             {
@@ -1095,8 +1129,11 @@ namespace Catalog
                                     }
                                 }
                             }
+                            #endregion
                         }
                     }
+
+                    #endregion
                 }
                 else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
                 {
@@ -1107,13 +1144,13 @@ namespace Catalog
             return (searchResultsList);
         }
 
-        private List<int> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
+        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
             int groupId, OrderDir orderDirection,
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
         {
             if (assets == null || assets.Count == 0)
             {
-                return new List<int>();
+                return new List<long>();
             }
 
             Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
@@ -1298,7 +1335,7 @@ namespace Catalog
 
             #region Create final, sorted, list
 
-            List<int> sortedList = new List<int>();
+            List<long> sortedList = new List<long>();
             HashSet<int> alreadyContainedIds = new HashSet<int>();
 
             foreach (var currentId in sortedDictionary)
@@ -1350,12 +1387,12 @@ namespace Catalog
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        private List<int> SortAssetsByStats(List<int> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        private List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
         {
-            List<int> sortedList = null;
-            HashSet<int> alreadyContainedIds = null;
+            List<long> sortedList = null;
+            HashSet<long> alreadyContainedIds = null;
 
-            ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary = 
+            ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary =
                 new ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>>();
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsFacetsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
@@ -1385,29 +1422,29 @@ namespace Catalog
             switch (orderBy)
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                    {
-                        actionName = Catalog.STAT_ACTION_FIRST_PLAY;
-                        break;
-                    }
+                {
+                    actionName = Catalog.STAT_ACTION_FIRST_PLAY;
+                    break;
+                }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
-                    {
-                        actionName = Catalog.STAT_ACTION_RATES;
-                        break;
-                    }
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
                 case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                    {
-                        actionName = Catalog.STAT_ACTION_RATES;
-                        break;
-                    }
+                {
+                    actionName = Catalog.STAT_ACTION_RATES;
+                    break;
+                }
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                    {
-                        actionName = Catalog.STAT_ACTION_LIKE;
-                        break;
-                    }
+                {
+                    actionName = Catalog.STAT_ACTION_LIKE;
+                    break;
+                }
                 default:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
             }
 
             ESTerm actionTerm = new ESTerm(false)
@@ -1518,7 +1555,7 @@ namespace Catalog
                                 }
                             }
                         }
-                    }, 
+                    },
                     new Object());
 
                 tasks.Add(task);
@@ -1531,8 +1568,8 @@ namespace Catalog
             #region Process Facets
 
             // get a sorted list of the asset Ids that have statistical data in the facet
-            sortedList = new List<int>();
-            alreadyContainedIds = new HashSet<int>();
+            sortedList = new List<long>();
+            alreadyContainedIds = new HashSet<long>();
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
@@ -1546,10 +1583,10 @@ namespace Catalog
             }
 
             #endregion
-            
+
             if (sortedList == null)
             {
-                sortedList = new List<int>();
+                sortedList = new List<long>();
             }
 
             // Add all ids that don't have stats
@@ -1580,8 +1617,8 @@ namespace Catalog
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary, 
-            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
+        private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary,
+            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
             if (facetsDictionary != null && facetsDictionary.Count > 0)
             {
@@ -1626,10 +1663,9 @@ namespace Catalog
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary, 
-            OrderDir orderDirection, HashSet<int> alreadyContainedIds, List<int> sortedList)
+        private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary,
+            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
-
             if (facetsDictionary != null && facetsDictionary.Count > 0)
             {
                 List<ESTermsStatsFacet.StatisticFacetResult> statResult;
@@ -1666,6 +1702,108 @@ namespace Catalog
         }
 
         #endregion
+
+        public void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets)
+        {
+            bool shouldSearchEpg = false;
+            bool shouldSearchMedia = false;
+            string media = "media";
+            string epg = "epg";
+
+            // Realize what asset types do we have
+            shouldSearchMedia = assets.Exists(asset => asset.AssetType == eAssetTypes.MEDIA);
+            shouldSearchEpg = assets.Exists(asset => asset.AssetType == eAssetTypes.EPG);
+
+            // Build indexes and types string - for URL
+            string indexes = string.Empty;
+            string types = string.Empty;
+
+            if (shouldSearchEpg)
+            {
+                if (shouldSearchMedia)
+                {
+                    indexes = string.Format("{0},{0}_epg", groupId);
+                    types = string.Format("{0},{1}", media, epg);
+                }
+                else
+                {
+                    indexes = string.Format("{0}_epg", groupId);
+                    types = epg;
+                }
+            }
+            else
+            {
+                indexes = groupId.ToString();
+                types = media;
+            }
+
+            // Build complete URL
+            string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+
+            // Build request body with the assistance of unified query builder
+            List<KeyValuePair<eAssetTypes, string>> assetsPairs = assets.Select(asset =>
+                new KeyValuePair<eAssetTypes, string>(asset.AssetType, asset.AssetId)).ToList();
+
+            string requestBody = ESUnifiedQueryBuilder.BuildGetUpdateDatesString(assetsPairs);
+
+            int httpStatus = 0;
+
+            // Perform search
+            string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+            if (httpStatus == STATUS_OK)
+            {
+                #region Process ElasticSearch result
+
+                var jsonObj = JObject.Parse(queryResultString);
+
+                if (jsonObj != null)
+                {
+                    JToken tempToken;
+                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                    if (totalItems > 0)
+                    {
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
+                        {
+                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+                            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+
+                            string assetIdField = string.Empty;
+
+                            switch (assetType)
+                            {
+                                case eAssetTypes.MEDIA:
+                                {
+                                    assetIdField = "fields.media_id";
+                                    break;
+                                }
+                                case eAssetTypes.EPG:
+                                {
+                                    assetIdField = "fields.epg_id";
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+
+                            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+                            DateTime update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                        DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
+
+                            // Find the asset in the list with this ID, set its update date
+                            assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;
+                        }
+                    }
+                }
+
+                #endregion
+            }
+        }
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

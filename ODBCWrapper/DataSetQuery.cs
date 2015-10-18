@@ -109,7 +109,7 @@ namespace ODBCWrapper
                         {
                             DataTable dataTable = new DataTable(sVirtualTableName);
                             dataTable.BeginLoadData();
-                            adapter.Fill(dataTable);
+                           adapter.Fill(dataTable);
                             dataTable.EndLoadData();
                             m_myDataSet.EnforceConstraints = false;
                             m_myDataSet.Tables.Add(dataTable);

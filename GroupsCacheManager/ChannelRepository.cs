@@ -46,13 +46,31 @@ namespace GroupsCacheManager
                 // get all services related to group
                 GetGroupServices(ref newGroup);
 
-                SetRegionalizationSettings(newGroup);
+                SetGroupDefaults(newGroup);
             }
 
             //get all PermittedWatchRules by groupID
             SetPermittedWatchRules(ref newGroup);
 
             return newGroup;
+        }
+
+        /// <summary>
+        /// Regions, Recommendation Engine...
+        /// </summary>
+        /// <param name="newGroup"></param>
+        private static void SetGroupDefaults(Group group)
+        {
+            bool isRegionalizationEnabled;
+            int defaultRegion;
+            int defaultRecommendationEngine;
+
+            CatalogDAL.GetGroupDefaultParameters(group.m_nParentGroupID,
+                out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine);
+
+            group.isRegionalizationEnabled = isRegionalizationEnabled;
+            group.defaultRegion = defaultRegion;
+            group.defaultRecommendationEngine = defaultRecommendationEngine;
         }
 
         /// <summary>

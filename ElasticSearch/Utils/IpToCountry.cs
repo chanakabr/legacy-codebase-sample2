@@ -32,11 +32,15 @@ namespace ElasticSearch.Utilities
 
             QueryFilter filter = new QueryFilter();
 
-            string[] splitted = ip.Split('.');
+            string ipValue = "0";
 
-            string ipValue =
-                (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
-
+            if (!string.IsNullOrEmpty(ip))
+            {
+                string[] splitted = ip.Split('.');
+                ipValue =
+                    (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + 
+                        Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
+            }
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
 
             // Build range term: the country id will be the closest to these

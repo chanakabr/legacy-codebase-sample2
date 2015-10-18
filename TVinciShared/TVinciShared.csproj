@@ -104,6 +104,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdapterUtils.cs" />
     <Compile Include="CacheServerNotifier.cs" />
     <Compile Include="CBTableWebEditor.cs" />
     <Compile Include="CertificateTruster.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="ImageUtils.cs" />
     <Compile Include="IngestionUtils.cs" />
     <Compile Include="JSONUtils.cs" />
+    <Compile Include="ListUtils.cs" />
     <Compile Include="LoginManager.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="Menu.cs" />

@@ -2100,107 +2100,6 @@ namespace DAL
             return mediaId;
         }
 
-        public static bool InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
-        {
-            int rowCount = 0;
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_BulkExportTask");
-            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@name", name);
-            storedProcedure.AddParameter("@external_key", externalKey);
-            storedProcedure.AddParameter("@data_type", dataType);
-            storedProcedure.AddParameter("@filter", filter);
-            storedProcedure.AddParameter("@export_type", exportType);
-            storedProcedure.AddParameter("@frequency", frequency);
-            storedProcedure.AddParameter("@group_id", groupId);
-            storedProcedure.AddParameter("@updater_id", null);
-            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
-
-            rowCount = storedProcedure.ExecuteReturnValue<int>();
-
-            return rowCount > 0;
-        }
-
-        public static bool UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
-        {
-            int rowCount = 0;
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
-            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@group_id", groupId);
-            storedProcedure.AddParameter("@id", id != 0 ? id : null);
-            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
-            storedProcedure.AddParameter("@name", name);
-            storedProcedure.AddParameter("@data_type", dataType);
-            storedProcedure.AddParameter("@filter", filter);
-            storedProcedure.AddParameter("@export_type", exportType);
-            storedProcedure.AddParameter("@frequency", frequency);
-            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
-
-            rowCount = storedProcedure.ExecuteReturnValue<int>();
-
-            return rowCount > 0;
-        }
-
-        public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
-        {
-            int rowCount = 0;
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_BulkExportTask");
-            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@group_id", groupId);
-            storedProcedure.AddParameter("@id", id != 0 ? id : null);
-            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
-
-            rowCount = storedProcedure.ExecuteReturnValue<int>();
-
-            return rowCount > 0;
-        }
-
-        public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys, int groupId)
-        {
-            List<BulkExportTask> tasks = new List<BulkExportTask>();
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_BulkExportTasks");
-            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@group_id", groupId);
-            storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
-            storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
-
-            DataSet dataSet = storedProcedure.ExecuteDataSet();
-
-            if (dataSet != null && dataSet.Tables != null)
-            {
-                if (dataSet.Tables.Count > 0)
-                {
-                    DataTable tasksTable = dataSet.Tables[0];
-
-                    if (tasksTable != null && tasksTable.Rows != null && tasksTable.Rows.Count > 0)
-                    {
-                        tasks = new List<BulkExportTask>();
-
-                        foreach (DataRow row in tasksTable.Rows)
-                        {
-                            tasks.Add(new BulkExportTask()
-                            {
-                                DataType = (eBulkExportDataType)ODBCWrapper.Utils.GetIntSafeVal(row, "DATA_TYPE"),
-                                ExportType = (eBulkExportExportType)ODBCWrapper.Utils.GetIntSafeVal(row, "EXPORT_TYPE"),
-                                ExternalKey = ODBCWrapper.Utils.GetSafeStr(row, "EXTERNAL_KEY"),
-                                Filter = ODBCWrapper.Utils.GetSafeStr(row, "FILTER"),
-                                Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
-                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
-                                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
-                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false: true,
-                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS")
-                            });
-                        }
-                    }
-                }
-            }
-            return tasks;
-        }
-
         #region OSSAdapter
 
         public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
@@ -2248,24 +2147,49 @@ namespace DAL
 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    ossAdapterRes = new OSSAdapter();
-                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
-                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
-                }
-                
+                ossAdapterRes = CreateOSSAdapter(ds);
             }
+
             catch (Exception ex)
             {
+                HandleException(ex);
             }
 
             return ossAdapterRes;
+        }
+
+        private static OSSAdapter CreateOSSAdapter(DataSet ds)
+        {
+            OSSAdapter ossAdapterRes = null; 
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                ossAdapterRes = new OSSAdapter();
+                ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+                ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+                        string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        if (ossAdapterRes.Settings == null)
+                        {
+                            ossAdapterRes.Settings = new List<OSSAdapterSettings>();
+                        }
+                        ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
+                    }
+                }
+            }
+
+            return ossAdapterRes;
+
         }
 
         private static DataTable CreateDataTable(List<OSSAdapterSettings> list)
@@ -2325,39 +2249,40 @@ namespace DAL
                 sp.AddParameter("@isActive", ossAdapter.IsActive);
                 
                 DataSet ds = sp.ExecuteDataSet();
-                
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    ossAdapterRes = new OSSAdapter();
-                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
-                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
 
-                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in ds.Tables[1].Rows)
-                        {
-                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
-                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                            if (ossAdapterRes.Settings == null)
-                            {
-                                ossAdapterRes.Settings = new List<OSSAdapterSettings>();
-                            }
-                            ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
-                        }
-                    }
-                }
+                ossAdapterRes = CreateOSSAdapter(ds);
             }
             catch (Exception ex)
             {
+                HandleException(ex);
             }
 
             return ossAdapterRes;
         }
+
+        public static OSSAdapter SetOSSAdapterSharedSecret(int groupID, int ossAdapterId, string sharedSecret)
+        {
+            OSSAdapter ossAdapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSharedSecret");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@id", ossAdapterId);
+                sp.AddParameter("@sharedSecret", sharedSecret);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                ossAdapterRes = CreateOSSAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ossAdapterRes;
+        }
+
 
         public static List<OSSAdapterBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
@@ -2404,17 +2329,8 @@ namespace DAL
                 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    ossAdapterRes = new OSSAdapter();
-                    ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                    ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                    ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                    int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                    ossAdapterRes.IsActive = is_Active == 1 ? true : false;
-                    ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                    ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
-                }
+                ossAdapterRes = CreateOSSAdapter(ds);
+            
             }
             catch (Exception ex)
             {
@@ -2513,9 +2429,7 @@ namespace DAL
                             ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
                             int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             ossAdapter.IsActive = is_Active == 1 ? true : false;
-                            //int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            //ossAdapter.IsDefault = isDefault == 1 ? true : false;
-
+                            
                             if (dtConfig != null)
                             {
                                 DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + ossAdapter.ID);
@@ -2591,8 +2505,9 @@ namespace DAL
         }
 
         public static List<long> Get_User_ParentalRulesIDs(int groupId, string siteGuid)
-        { 
+        {
             List<long> ruleIds = new List<long>();
+            // Perform stored procedure
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRulesIDs");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2606,6 +2521,7 @@ namespace DAL
             {
                 DataTable table = dataSet.Tables[0];
 
+                // Run on first table and create initial list of parental rules, without tag values
                 if (table != null && table.Rows != null && table.Rows.Count > 0)
                 {
                     foreach (DataRow row in table.Rows)
@@ -2623,6 +2539,107 @@ namespace DAL
             return ruleIds;       
         }
 
+        public static bool InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@external_key", externalKey);
+            storedProcedure.AddParameter("@data_type", dataType);
+            storedProcedure.AddParameter("@filter", filter);
+            storedProcedure.AddParameter("@export_type", exportType);
+            storedProcedure.AddParameter("@frequency", frequency);
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@updater_id", null);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static bool UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@id", id != 0 ? id : null);
+            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@data_type", dataType);
+            storedProcedure.AddParameter("@filter", filter);
+            storedProcedure.AddParameter("@export_type", exportType);
+            storedProcedure.AddParameter("@frequency", frequency);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@id", id != 0 ? id : null);
+            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys, int groupId)
+        {
+            List<BulkExportTask> tasks = new List<BulkExportTask>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_BulkExportTasks");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
+            storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null)
+            {
+                if (dataSet.Tables.Count > 0)
+                {
+                    DataTable tasksTable = dataSet.Tables[0];
+
+                    if (tasksTable != null && tasksTable.Rows != null && tasksTable.Rows.Count > 0)
+                    {
+                        tasks = new List<BulkExportTask>();
+
+                        foreach (DataRow row in tasksTable.Rows)
+                        {
+                            tasks.Add(new BulkExportTask()
+                            {
+                                DataType = (eBulkExportDataType)ODBCWrapper.Utils.GetIntSafeVal(row, "DATA_TYPE"),
+                                ExportType = (eBulkExportExportType)ODBCWrapper.Utils.GetIntSafeVal(row, "EXPORT_TYPE"),
+                                ExternalKey = ODBCWrapper.Utils.GetSafeStr(row, "EXTERNAL_KEY"),
+                                Filter = ODBCWrapper.Utils.GetSafeStr(row, "FILTER"),
+                                Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
+                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS")
+                            });
+                        }
+                    }
+                }
+            }
+            return tasks;
+        }
+
         public static bool SetBulkExportTaskProcess(long id, bool inProcess, DateTime? lastProcess = null)
         {
             int rowCount = 0;
@@ -2631,7 +2648,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
             storedProcedure.AddParameter("@in_process", inProcess ? 1 : 0);
-            storedProcedure.AddParameter("@last_process", lastProcess); 
+            storedProcedure.AddParameter("@last_process", lastProcess);
 
             rowCount = storedProcedure.ExecuteReturnValue<int>();
 
@@ -2659,7 +2676,6 @@ namespace DAL
 
             return dataSet;
         }
+
     }
 }
-        
-        

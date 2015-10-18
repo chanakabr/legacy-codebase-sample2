@@ -56,7 +56,7 @@ namespace Catalog.Request
     [ServiceKnownType(typeof(CrowdsourceRequest))]
     [ServiceKnownType(typeof(DomainLastPositionRequest))]
     [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
-
+    [ServiceKnownType(typeof(ExternalChannelRequest))]
     [DataContract]
     public class BaseRequest
     {

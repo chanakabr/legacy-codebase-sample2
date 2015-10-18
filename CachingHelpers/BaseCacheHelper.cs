@@ -190,7 +190,7 @@ namespace CachingHelpers
                                 for (int i = 0; i < 3 && !inserted; i++)
                                 {
                                     //try insert to Cache
-                                    versionModule.result = value;
+                                    versionModule.result = tempValue;
                                     inserted = this.cacheService.SetWithVersion<T>(cacheKey, versionModule, cacheTime);
 
                                     if (inserted)
