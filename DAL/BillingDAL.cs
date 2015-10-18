@@ -1887,5 +1887,49 @@ namespace DAL
 
             return result;
         }
+
+        public static PaymentGateway SetPaymentGatewaySharedSecret(int groupID, int paymentGatewayId, string sharedSecret)
+        {
+            PaymentGateway result = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGatewaySharedSecret");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@id", paymentGatewayId);
+            sp.AddParameter("@sharedSecret", sharedSecret);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            result = CreatePaymentGateway(ds);
+
+            return result;
+        }
+
+        private static PaymentGateway CreatePaymentGateway(DataSet ds)
+        {
+            PaymentGateway result = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                result = new PaymentGateway();
+                result.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                result.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                result.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval");
+                result.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries");
+                result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                result.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                result.TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url");
+                result.StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url");
+                result.RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url");
+                result.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
+                result.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
+                result.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                int isDefault = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_default");
+                result.IsDefault = isDefault == 1 ? true : false;
+            }
+
+            return result;
+
+        }
     }
 }
