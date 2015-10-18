@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ApiObjects.QueueObjects;
+using QueueWrapper.Queues.QueueObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -46,10 +48,23 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
                     else
                     {
                         Int32 nID = DBManipulator.DoTheWork();
+                        if (nID != 0)
+                        {
+                            // insert new message to tasks queue (for celery)
+                            apiWS.API m = new apiWS.API();
+                            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                            if (sWSURL != "")
+                                m.Url = sWSURL;
+                            string sWSUserName = "";
+                            string sWSPass = "";
+
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+                            m.EnqueueExportTask(sWSUserName, sWSPass, taskid);
+                        }
                     }
                 }
-    
-           
             }
             
             Int32 nMenuID = 0;
