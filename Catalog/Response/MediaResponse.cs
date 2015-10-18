@@ -59,6 +59,10 @@ namespace Catalog.Response
         public string m_sSiteUserGuid;
         [DataMember]
         public string EntryId;
+        [DataMember]
+        public string CoGuid;
+        [DataMember]
+        public bool IsActive;
         
         public MediaObj() : base()
         {

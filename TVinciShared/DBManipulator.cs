@@ -559,7 +559,7 @@ namespace TVinciShared
             if (bValid == true)
             {
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", int.Parse(coll["id"].ToString()));
                 updateQuery.Execute();

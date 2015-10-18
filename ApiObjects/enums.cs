@@ -360,6 +360,19 @@ namespace ApiObjects
         Household
     }
 
+    public enum eBulkExportExportType
+    {
+        Full = 1,
+        Incremental = 2
+    }
+
+    public enum eBulkExportDataType
+    {
+        VOD = 1,
+        EPG = 2,
+        Users = 3
+    }
+
     [Serializable]
     public enum ePersonalFilter
     {

@@ -107,6 +107,8 @@
     <Compile Include="Billing\TransactResult.cs" />
     <Compile Include="Billing\UpdatePendingTransactionResponse.cs" />
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
+    <Compile Include="BulkExport\BulkExportTask.cs" />
+    <Compile Include="BulkExport\BulkExportTasksResponse.cs" />
     <Compile Include="ExternalChannelBase.cs" />
     <Compile Include="ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannelResponseList.cs" />

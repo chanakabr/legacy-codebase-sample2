@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Threading;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.BulkExport;
 
 namespace DAL
 {
@@ -2536,7 +2537,144 @@ namespace DAL
                 }
             }
             return ruleIds;       
+        }
 
+        public static bool InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@external_key", externalKey);
+            storedProcedure.AddParameter("@data_type", dataType);
+            storedProcedure.AddParameter("@filter", filter);
+            storedProcedure.AddParameter("@export_type", exportType);
+            storedProcedure.AddParameter("@frequency", frequency);
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@updater_id", null);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static bool UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@id", id != 0 ? id : null);
+            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@data_type", dataType);
+            storedProcedure.AddParameter("@filter", filter);
+            storedProcedure.AddParameter("@export_type", exportType);
+            storedProcedure.AddParameter("@frequency", frequency);
+            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_BulkExportTask");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@id", id != 0 ? id : null);
+            storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static List<BulkExportTask> GetBulkExportTasks(List<long> ids, List<string> externalKeys, int groupId)
+        {
+            List<BulkExportTask> tasks = new List<BulkExportTask>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_BulkExportTasks");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddIDListParameter("@ids", ids != null && ids.Count > 0 ? ids : null, "ID");
+            storedProcedure.AddIDListParameter("@external_keys", externalKeys != null && externalKeys.Count > 0 ? externalKeys : null, "STR");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null)
+            {
+                if (dataSet.Tables.Count > 0)
+                {
+                    DataTable tasksTable = dataSet.Tables[0];
+
+                    if (tasksTable != null && tasksTable.Rows != null && tasksTable.Rows.Count > 0)
+                    {
+                        tasks = new List<BulkExportTask>();
+
+                        foreach (DataRow row in tasksTable.Rows)
+                        {
+                            tasks.Add(new BulkExportTask()
+                            {
+                                DataType = (eBulkExportDataType)ODBCWrapper.Utils.GetIntSafeVal(row, "DATA_TYPE"),
+                                ExportType = (eBulkExportExportType)ODBCWrapper.Utils.GetIntSafeVal(row, "EXPORT_TYPE"),
+                                ExternalKey = ODBCWrapper.Utils.GetSafeStr(row, "EXTERNAL_KEY"),
+                                Filter = ODBCWrapper.Utils.GetSafeStr(row, "FILTER"),
+                                Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
+                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS")
+                            });
+                        }
+                    }
+                }
+            }
+            return tasks;
+        }
+
+        public static bool SetBulkExportTaskProcess(long id, bool inProcess, DateTime? lastProcess = null)
+        {
+            int rowCount = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Set_BulkExportTaskProcess");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@in_process", inProcess ? 1 : 0);
+            storedProcedure.AddParameter("@last_process", lastProcess);
+
+            rowCount = storedProcedure.ExecuteReturnValue<int>();
+
+            return rowCount > 0;
+        }
+
+        public static DataSet GetNotActiveMedia(int groupId, DateTime since)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActiveMedia");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@since", since);
+
+            return storedProcedure.ExecuteDataSet();
+        }
+
+        public static DataSet GetNotActivePrograms(int groupId, DateTime since)
+        {
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_NotActivePrograms");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@group_id", groupId);
+            storedProcedure.AddParameter("@since", since);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            return dataSet;
         }
 
     }
