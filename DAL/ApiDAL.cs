@@ -2539,9 +2539,9 @@ namespace DAL
             return ruleIds;       
         }
 
-        public static bool InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        public static long InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string version)
         {
-            int rowCount = 0;
+            long taskId = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2553,16 +2553,16 @@ namespace DAL
             storedProcedure.AddParameter("@frequency", frequency);
             storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@updater_id", null);
-            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+            storedProcedure.AddParameter("@version", version);
 
-            rowCount = storedProcedure.ExecuteReturnValue<int>();
+            taskId = storedProcedure.ExecuteReturnValue<long>();
 
-            return rowCount > 0;
+            return taskId;
         }
 
-        public static bool UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency)
+        public static long UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string version)
         {
-            int rowCount = 0;
+            long taskId = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2574,11 +2574,11 @@ namespace DAL
             storedProcedure.AddParameter("@filter", filter);
             storedProcedure.AddParameter("@export_type", exportType);
             storedProcedure.AddParameter("@frequency", frequency);
-            storedProcedure.AddParameter("@version", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+            storedProcedure.AddParameter("@version", version);
 
-            rowCount = storedProcedure.ExecuteReturnValue<int>();
+            taskId = storedProcedure.ExecuteReturnValue<long>();
 
-            return rowCount > 0;
+            return taskId;
         }
 
         public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
