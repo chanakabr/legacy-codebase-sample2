@@ -133,6 +133,11 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaCatalogReferenceBy.external_channel:
                         {
+                            if (filter.IDs.Count != 1)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Must have only 1 ID when type is external channel");
+                            }
+
                             string externalChannelId = filter.IDs.First().value;
 
                             var convertedWith = with.Select(x => x.type).ToList();
