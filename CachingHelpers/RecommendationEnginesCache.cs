@@ -35,7 +35,6 @@ namespace CachingHelpers
 
         #endregion
 
-        
         #region Ctor
 
         private RecommendationEnginesCache()
@@ -61,7 +60,7 @@ namespace CachingHelpers
             string cacheKey = string.Format("{0}_recommendation_engine_{1}", version, engineId);
             string mutexName = string.Concat("Group RecommendationEngines GID_", groupId);
 
-            return base.Get(cacheKey, mutexName, engineId);
+            return base.Get(cacheKey, mutexName, engineId, groupId);
         }
 
         #endregion
