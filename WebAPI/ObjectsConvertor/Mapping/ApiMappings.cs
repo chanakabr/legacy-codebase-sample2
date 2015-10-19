@@ -277,17 +277,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case KalturaChannelEnrichment.AtHome:
+                    result = ExternalChannelEnrichment.AtHome;
+                    break;
+                case KalturaChannelEnrichment.Catchup:
+                    result = ExternalChannelEnrichment.Catchup;
+                    break;
                 case KalturaChannelEnrichment.ClientLocation:
                     result = ExternalChannelEnrichment.ClientLocation;
                     break;
                 case KalturaChannelEnrichment.DeviceId:
-                    result = ExternalChannelEnrichment.DeviceId;
+                    result = ExternalChannelEnrichment.DeviceId ;
                     break;
                 case KalturaChannelEnrichment.DeviceType:
                     result = ExternalChannelEnrichment.DeviceType;
                     break;
+                case KalturaChannelEnrichment.DTTRegion:
+                    result = ExternalChannelEnrichment.DTTRegion;
+                    break;
                 case KalturaChannelEnrichment.HouseholdId:
                     result = ExternalChannelEnrichment.HouseholdId;
+                    break;
+                case KalturaChannelEnrichment.Language:
+                    result = ExternalChannelEnrichment.Language;
+                    break;
+                case KalturaChannelEnrichment.NPVRSupport:
+                    result = ExternalChannelEnrichment.NPVRSupport;
+                    break;
+                case KalturaChannelEnrichment.Parental:
+                    result = ExternalChannelEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
                     result = ExternalChannelEnrichment.UserId;
