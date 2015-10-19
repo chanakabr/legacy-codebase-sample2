@@ -128,6 +128,8 @@ namespace AdapterControllers
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
+                    #region Send Configuration if not found
+
                     string key = string.Format("RecommendationsEngine_Adapter_Locker_{0}", engine.ID);
 
                     // Build dictionary for synchronized action
@@ -147,18 +149,31 @@ namespace AdapterControllers
                         System.Convert.ToBase64String(
                             AdapterUtils.AesEncrypt(engine.SharedSecret, AdapterUtils.HashSHA1(signature))));
 
-                    LogAdapterResponse(adapterResponse, "GetChannelRecommendation");
+                    LogAdapterResponse(adapterResponse, "GetChannelRecommendation"); 
+
+                    #endregion
                 }
 
-                if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)eResponseStatus.OK)
+                if (adapterResponse != null && adapterResponse.Status != null)
                 {
-                    searchResults = 
-                        adapterResponse.Results.Select(result =>
-                            new RecommendationResult()
-                            {
-                                id = result.AssetId,
-                                type = (eAssetTypes)result.AssetType
-                            }).ToList();
+                    // If something went wrong in the adapter
+                    if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        var exception = new ArgumentException("Recommendation engine adapter has no URL");
+                        exception.Data["StatusCode"] = (int)eResponseStatus.AdapterAppFailure;
+
+                        throw exception;
+                    }
+                    else if (adapterResponse.Results != null)
+                    {
+                        searchResults =
+                            adapterResponse.Results.Select(result =>
+                                new RecommendationResult()
+                                {
+                                    id = result.AssetId,
+                                    type = (eAssetTypes)result.AssetType
+                                }).ToList();
+                    }
                 }
             }
             catch (Exception ex)
