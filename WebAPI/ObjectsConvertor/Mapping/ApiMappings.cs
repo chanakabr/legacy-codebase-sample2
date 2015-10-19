@@ -200,6 +200,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case ExternalChannelEnrichment.AtHome:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
+                    break;
+                case ExternalChannelEnrichment.Catchup:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
+                    break;
                 case ExternalChannelEnrichment.ClientLocation:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
                     break;
@@ -209,8 +215,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ExternalChannelEnrichment.DeviceType:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceType };
                     break;
+                case ExternalChannelEnrichment.DTTRegion:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DTTRegion };
+                    break;
                 case ExternalChannelEnrichment.HouseholdId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HouseholdId };
+                    break;
+                case ExternalChannelEnrichment.Language:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Language };
+                    break;
+                case ExternalChannelEnrichment.NPVRSupport:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
+                    break;
+                case ExternalChannelEnrichment.Parental:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
                     break;
                 case ExternalChannelEnrichment.UserId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
@@ -218,6 +236,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ExternalChannelEnrichment.UTCOffset:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOffset };
                     break;
+
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown external channel enrichment");
             }

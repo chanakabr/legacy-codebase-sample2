@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
+        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016
         /// </remarks>
         /// <param name="oss_adapter">OSS adapter Object</param>       
         [Route("update"), HttpPost]
