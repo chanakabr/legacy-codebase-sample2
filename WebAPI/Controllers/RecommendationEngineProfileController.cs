@@ -12,7 +12,7 @@ namespace WebAPI.Controllers
     public class RecommendationEngineProfileController : ApiController
     {
         /// <summary>
-        /// Returns all recommendation engines for partner : id + name
+        /// Returns all recommendation engines for partner 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -20,9 +20,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecommendationEngineBaseProfile> List()
+        public List<KalturaRecommendationEngineProfile> List()
         {
-            List<KalturaRecommendationEngineBaseProfile> response = null;
+            List<KalturaRecommendationEngineProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

@@ -46,6 +46,9 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (pager == null)
+                pager  = new KalturaFilterPager();
+
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 

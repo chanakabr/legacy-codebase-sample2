@@ -1350,9 +1350,9 @@ namespace WebAPI.Clients
 
         #region Recommendation Engine
 
-        internal List<KalturaRecommendationEngineBaseProfile> GetRecommendationEngines(int groupId)
+        internal List<KalturaRecommendationEngineProfile> GetRecommendationEngines(int groupId)
         {
-            List<Models.API.KalturaRecommendationEngineBaseProfile> kalturaRecommendationEngineBaseProfile = null;
+            List<Models.API.KalturaRecommendationEngineProfile> kalturaRecommendationEngineProfile = null;
             WebAPI.Api.RecommendationEnginesResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1380,9 +1380,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaRecommendationEngineBaseProfile = Mapper.Map<List<Models.API.KalturaRecommendationEngineBaseProfile>>(response.RecommendationEngines);
+            kalturaRecommendationEngineProfile = Mapper.Map<List<Models.API.KalturaRecommendationEngineProfile>>(response.RecommendationEngines);
 
-            return kalturaRecommendationEngineBaseProfile;
+            return kalturaRecommendationEngineProfile;
         }
 
         internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
@@ -1755,9 +1755,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal List<KalturaExternalChannelBaseProfile> GetExternalChannels(int groupId)
+        internal List<KalturaExternalChannelProfile> GetExternalChannels(int groupId)
         {
-            List<Models.API.KalturaExternalChannelBaseProfile> kalturaExternalChannelBaseList = null;
+            List<Models.API.KalturaExternalChannelProfile> kalturaExternalChannelList = null;
             WebAPI.Api.ExternalChannelResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1785,9 +1785,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaExternalChannelBaseList = Mapper.Map<List<Models.API.KalturaExternalChannelBaseProfile>>(response.ExternalChannels);
+            kalturaExternalChannelList = Mapper.Map<List<Models.API.KalturaExternalChannelProfile>>(response.ExternalChannels);
 
-            return kalturaExternalChannelBaseList;
+            return kalturaExternalChannelList;
         }
         #endregion
         

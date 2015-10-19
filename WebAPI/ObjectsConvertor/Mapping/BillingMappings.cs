@@ -58,6 +58,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.paymentGateway, opt => opt.MapFrom(src => src.PaymentGateway))
                 .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.SelectedBy)));
 
+            //PaymentGatewayItemResponse to KalturaPaymentGatewayProfile
+            Mapper.CreateMap<PaymentGatewayItemResponse, WebAPI.Models.Billing.KalturaPaymentGatewayProfile>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentGateway.ID))
+                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.PaymentGateway.AdapterUrl))
+                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.PaymentGateway.ExternalIdentifier))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.PaymentGateway.IsActive))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.PaymentGateway.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PaymentGateway.Name))
+                .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PaymentGateway.PendingInterval))
+                .ForMember(dest => dest.PendingRetries, opt => opt.MapFrom(src => src.PaymentGateway.PendingRetries))
+                .ForMember(dest => dest.RenewIntervalMinutes, opt => opt.MapFrom(src => src.PaymentGateway.RenewalIntervalMinutes))
+                .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.PaymentGateway.RenewalStartMinutes))
+                .ForMember(dest => dest.RenewUrl, opt => opt.MapFrom(src => src.PaymentGateway.RenewUrl))
+                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.PaymentGateway.SharedSecret))
+                .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.PaymentGateway.StatusUrl))
+                .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl));
         }
 
 

@@ -130,5 +130,34 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Generate payment gateway shared secret
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// payment gateway id required = 6005, payment gateway not exist = 6008
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment gateway identifier</param>
+        [Route("generateSharedSecret"), HttpPost]
+        [ApiAuthorize]
+        public KalturaPaymentGatewayProfile GenerateSharedSecret(int payment_gateway_id)
+        {
+            KalturaPaymentGatewayProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GeneratePaymentGatewaySharedSecret(groupId, payment_gateway_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

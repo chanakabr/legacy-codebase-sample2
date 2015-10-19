@@ -450,6 +450,9 @@
     <Content Include="Web References\Billing\PaymentGateway.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGatewayItemResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -780,7 +783,6 @@
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Models\API\KalturaChannelEnrichment.cs" />
-    <Compile Include="Models\API\KalturaExternalChannelBaseProfile.cs" />
     <Compile Include="Models\API\KalturaExternalChannelProfile.cs" />
     <Compile Include="Models\API\KalturaGenericRule.cs" />
     <Compile Include="Models\API\KalturaGenericRuleFilter.cs" />
@@ -788,7 +790,6 @@
     <Compile Include="Models\API\KalturaOSSAdapterBaseProfile.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
-    <Compile Include="Models\API\KalturaRecommendationEngineBaseProfile.cs" />
     <Compile Include="Models\API\KalturaRecommendationEngineProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
@@ -1062,10 +1063,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/billing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Billing\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
