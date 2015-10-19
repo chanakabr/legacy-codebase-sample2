@@ -3014,25 +3014,29 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            result = CreateRecommendationEngine(ds);
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+            }
            
             return result;
         }
 
-        private static RecommendationEngine CreateRecommendationEngine(DataSet ds)
+        private static RecommendationEngine CreateRecommendationEngine(DataRow dr)
         {
             RecommendationEngine result = null;
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            //if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (dr != null)
             {
                 result = new RecommendationEngine();
-                result.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                result.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                result.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                result.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                 result.IsActive = is_Active == 1 ? true : false;
-                result.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                result.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
             }
 
             return result;
@@ -3130,9 +3134,9 @@ namespace Tvinci.Core.DAL
             return ossAdapterRes;
         }
 
-        public static List<RecommendationEngineBase> GetRecommendationEngineList(int groupID, int status = 1, int isActive = 1)
+        public static List<RecommendationEngine> GetRecommendationEngineList(int groupID, int status = 1, int isActive = 1)
         {
-            List<RecommendationEngineBase> res = new List<RecommendationEngineBase>();
+            List<RecommendationEngine> res = new List<RecommendationEngine>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineList");
@@ -3145,20 +3149,21 @@ namespace Tvinci.Core.DAL
                     DataTable dtResult = ds.Tables[0];
                     if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        RecommendationEngineBase recommendationEngine = null;
+                        RecommendationEngine recommendationEngine = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            recommendationEngine = new RecommendationEngineBase();
-                            recommendationEngine.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            recommendationEngine.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            res.Add(recommendationEngine);
+                            recommendationEngine = CreateRecommendationEngine(dr);
+                            if (recommendationEngine != null)
+                            {
+                                res.Add(recommendationEngine);
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                res = new List<RecommendationEngineBase>();
+                res = new List<RecommendationEngine>();
             }
             return res;
         }
@@ -3292,7 +3297,10 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            result = CreateRecommendationEngine(ds);
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+            }
 
             return result;
         }
@@ -3301,9 +3309,9 @@ namespace Tvinci.Core.DAL
 
         #region External Channel
 
-        public static List<ExternalChannelBase> GetExternalChannel(int groupID, int status = 1, int isActive = 1)
+        public static List<ExternalChannel> GetExternalChannel(int groupID, int status = 1, int isActive = 1)
         {
-            List<ExternalChannelBase> res = new List<ExternalChannelBase>();
+            List<ExternalChannel> res = new List<ExternalChannel>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelList");
@@ -3316,12 +3324,10 @@ namespace Tvinci.Core.DAL
                     DataTable dtResult = ds.Tables[0];
                     if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        ExternalChannelBase externalChannelBase = null;
+                        ExternalChannel externalChannelBase = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            externalChannelBase = new ExternalChannelBase();
-                            externalChannelBase.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            externalChannelBase.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            externalChannelBase = CreateExternalChannel(dr);
                             res.Add(externalChannelBase);
                         }
                     }
@@ -3329,7 +3335,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                res = new List<ExternalChannelBase>();
+                res = new List<ExternalChannel>();
             }
             return res;
         }
@@ -3343,17 +3349,7 @@ namespace Tvinci.Core.DAL
 
             if (row != null)
             {
-                result = new ExternalChannel()
-                {
-                    Enrichments = new List<ExternalChannelEnrichment>(),
-                    ExternalIdentifier = ODBCWrapper.Utils.ExtractString(row, "external_identifier"),
-                    FilterExpression = ODBCWrapper.Utils.ExtractString(row, "filter_expression"),
-                    GroupId = ODBCWrapper.Utils.ExtractInteger(row, "group_id"),
-                    ID = ODBCWrapper.Utils.ExtractInteger(row, "id"),
-                    IsActive = ODBCWrapper.Utils.ExtractBoolean(row, "is_active"),
-                    Name = ODBCWrapper.Utils.ExtractString(row, "name"),
-                    RecommendationEngineId = ODBCWrapper.Utils.ExtractInteger(row, "recommendation_engine_id")
-                };
+                result = CreateExternalChannel(row);
 
                 ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
 
@@ -3366,6 +3362,22 @@ namespace Tvinci.Core.DAL
                 }
             }
 
+            return result;
+        }
+
+        private static ExternalChannel CreateExternalChannel( DataRow row)
+        {
+            ExternalChannel result = new ExternalChannel()
+            {
+                Enrichments = new List<ExternalChannelEnrichment>(),
+                ExternalIdentifier = ODBCWrapper.Utils.ExtractString(row, "external_identifier"),
+                FilterExpression = ODBCWrapper.Utils.ExtractString(row, "filter_expression"),
+                GroupId = ODBCWrapper.Utils.ExtractInteger(row, "group_id"),
+                ID = ODBCWrapper.Utils.ExtractInteger(row, "id"),
+                IsActive = ODBCWrapper.Utils.ExtractBoolean(row, "is_active"),
+                Name = ODBCWrapper.Utils.ExtractString(row, "name"),
+                RecommendationEngineId = ODBCWrapper.Utils.ExtractInteger(row, "recommendation_engine_id")
+            };
             return result;
         }
 

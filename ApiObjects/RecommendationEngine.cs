@@ -10,9 +10,25 @@ namespace ApiObjects
 {
     [Serializable]
     [JsonObject(Id = "id")]
-    public class RecommendationEngine : RecommendationEngineBase
+    public class RecommendationEngine 
     {
         #region Properties
+
+        [DataMember]
+        [JsonProperty()]
+        public int ID
+        {
+            get;
+            set;
+        }
+
+        [DataMember]
+        [JsonProperty()]
+        public string Name
+        {
+            get;
+            set;
+        }
 
         [JsonProperty()]
         [DataMember]
