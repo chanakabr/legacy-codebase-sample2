@@ -35,7 +35,8 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="udid">Unique device identifier</param>
         /// <param name="language">Language code</param>        
-        /// <remarks></remarks>
+        /// <remarks>Possible status codes: 
+        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
