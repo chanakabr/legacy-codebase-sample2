@@ -89,10 +89,7 @@ namespace AdapterControllers
 
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
-                var exception = new ArgumentException("Recommendation engine adapter has no URL");
-                exception.Data["StatusCode"] = (int)eResponseStatus.AdapterUrlRequired;
-
-                throw exception;
+                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
             
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
@@ -156,13 +153,10 @@ namespace AdapterControllers
 
                 if (adapterResponse != null && adapterResponse.Status != null)
                 {
-                    // If something went wrong in the adapter
+                    // If something went wrong in the adapter, throw relevant exception
                     if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
                     {
-                        var exception = new ArgumentException("Recommendation engine adapter has no URL");
-                        exception.Data["StatusCode"] = (int)eResponseStatus.AdapterAppFailure;
-
-                        throw exception;
+                        throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
                     }
                     else if (adapterResponse.Results != null)
                     {

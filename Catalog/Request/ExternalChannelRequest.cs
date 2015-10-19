@@ -63,10 +63,10 @@ namespace Catalog.Request
 
                 if (request.m_nGroupID == 0)
                 {
-                    var exception = new ArgumentException("No group Id was sent in request");
-                    exception.Data["StatusCode"] = (int)eResponseStatus.BadSearchRequest;
+                    response.status.Code = (int)eResponseStatus.BadSearchRequest;
+                    response.status.Message = "No group Id was sent in request";
 
-                    throw exception;
+                    return response;
                 }
 
                 CheckSignature(baseRequest);
@@ -107,6 +107,21 @@ namespace Catalog.Request
                     response.status.Code = (int)eResponseStatus.AdapterUrlRequired;
                     response.status.Message = "Invalid adapter URL was defined. Correct adapter URL is required";
                 }
+                else if (ex is KalturaException)
+                {
+                    // This is a specific exception we created.
+                    // If this specific KalturaException has StatusCode in its data, use it instead of the general code
+                    if (ex.Data.Contains("StatusCode"))
+                    {
+                        response.status.Code = (int)ex.Data["StatusCode"];
+                        response.status.Message = ex.Message;
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Failed getting assets of channel";
+                    }
+                }
                 else if (ex is ArgumentException)
                 {
                     // This is a specific exception we created.
@@ -119,13 +134,13 @@ namespace Catalog.Request
                     else
                     {
                         response.status.Code = (int)eResponseStatus.Error;
-                        response.status.Message = "Getting media failed";
+                        response.status.Message = "Failed getting assets of channel";
                     }
                 }
                 else
                 {
                     response.status.Code = (int)eResponseStatus.Error;
-                    response.status.Message = "Getting media failed";
+                    response.status.Message = "Failed getting assets of channel";
                 }
             }
 
