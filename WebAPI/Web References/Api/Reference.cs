@@ -5196,44 +5196,11 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ExternalChannelBase {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public int ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ExternalChannelResponseList {
         
         private Status statusField;
         
-        private ExternalChannelBase[] externalChannelsField;
+        private ExternalChannel[] externalChannelsField;
         
         /// <remarks/>
         public Status Status {
@@ -5246,7 +5213,7 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public ExternalChannelBase[] ExternalChannels {
+        public ExternalChannel[] ExternalChannels {
             get {
                 return this.externalChannelsField;
             }
@@ -5285,39 +5252,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ExternalChannelResponse {
-        
-        private Status statusField;
-        
-        private ExternalChannel externalChannelField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ExternalChannel ExternalChannel {
-            get {
-                return this.externalChannelField;
-            }
-            set {
-                this.externalChannelField = value;
             }
         }
     }
@@ -5464,6 +5398,39 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ExternalChannelResponse {
+        
+        private Status statusField;
+        
+        private ExternalChannel externalChannelField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ExternalChannel ExternalChannel {
+            get {
+                return this.externalChannelField;
+            }
+            set {
+                this.externalChannelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class RecommendationEngineSettinsResponse {
         
         private Status statusField;
@@ -5497,7 +5464,11 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class RecommendationEngine : RecommendationEngineBase {
+    public partial class RecommendationEngine {
+        
+        private int idField;
+        
+        private string nameField;
         
         private bool isDefaultField;
         
@@ -5510,6 +5481,26 @@ namespace WebAPI.Api {
         private string sharedSecretField;
         
         private RecommendationEngineSettings[] settingsField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
         
         /// <remarks/>
         public bool IsDefault {
@@ -5606,40 +5597,6 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecommendationEngine))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class RecommendationEngineBase {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public int ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5649,7 +5606,7 @@ namespace WebAPI.Api {
         
         private Status statusField;
         
-        private RecommendationEngineBase[] recommendationEnginesField;
+        private RecommendationEngine[] recommendationEnginesField;
         
         /// <remarks/>
         public Status Status {
@@ -5662,7 +5619,7 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public RecommendationEngineBase[] RecommendationEngines {
+        public RecommendationEngine[] RecommendationEngines {
             get {
                 return this.recommendationEnginesField;
             }

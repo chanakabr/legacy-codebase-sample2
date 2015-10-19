@@ -16,15 +16,15 @@ namespace WebAPI.Controllers
     public class ExternalChannelProfileController : ApiController
     {
         /// <summary>
-        /// Returns all External channels for partner : id + name
+        /// Returns all External channels for partner 
         /// </summary>
         /// <remarks>       
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaExternalChannelBaseProfile> List()
+        public List<KalturaExternalChannelProfile> List()
         {
-            List<KalturaExternalChannelBaseProfile> response = null;
+            List<KalturaExternalChannelProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

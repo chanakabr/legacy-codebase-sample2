@@ -12,8 +12,24 @@ namespace WebAPI.Models.API
     /// <summary>
     /// PaymentGW
     /// </summary>
-    public class KalturaRecommendationEngineProfile : KalturaRecommendationEngineBaseProfile
+    public class KalturaRecommendationEngineProfile : KalturaOTTObject
     {
+        /// <summary>
+        /// recommendation engine id
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public int Id { get; set; }
+
+        /// <summary>
+        /// recommendation engine name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
         /// <summary>
         /// recommendation engine is active status
         /// </summary>
