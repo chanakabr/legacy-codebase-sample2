@@ -4660,6 +4660,11 @@ namespace Catalog
                 status.Message = "No recommendations received";
             }
 
+            if (recommendations.Count == 0)
+            {
+                return status;
+            }
+
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
@@ -4686,8 +4691,18 @@ namespace Catalog
             // If there is, go to ES and perform further filter
             else
             {
+                // Build boolean phrase tree based on filter expression
+                BooleanPhraseNode filterTree = null;
+                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
+
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    return status;
+                }
+                
                 // Group have user types per media  +  siteGuid != empty
-                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
                 {
                     if (request.m_oFilter == null)
                     {
@@ -4696,15 +4711,6 @@ namespace Catalog
 
                     //call ws_users to get userType                  
                     request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
-                }
-
-                // Build boolean phrase tree based on filter expression
-                BooleanPhraseNode filterTree = null;
-                status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
-
-                if (status.Code != (int)eResponseStatus.OK)
-                {
-                    return status;
                 }
 
                 UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
