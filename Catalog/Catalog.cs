@@ -4691,6 +4691,8 @@ namespace Catalog
             // If there is, go to ES and perform further filter
             else
             {
+                externalChannel.FilterExpression = HttpUtility.HtmlDecode(externalChannel.FilterExpression);
+
                 // Build boolean phrase tree based on filter expression
                 BooleanPhraseNode filterTree = null;
                 status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
