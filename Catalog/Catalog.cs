@@ -4646,9 +4646,8 @@ namespace Catalog
             // If there is still no recommendation engine
             if (externalChannel.RecommendationEngineId <= 0)
             {
-                var exception = new ArgumentException("External Channel has no recommendation engine selected.");
-                exception.Data.Add("StatusCode", (int)eResponseStatus.ExternalChannelHasNoRecommendationEngine);
-                throw exception;           
+                status.Code = (int)eResponseStatus.ExternalChannelHasNoRecommendationEngine;
+                status.Message = "External Channel has no recommendation engine selected.";
             }
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
