@@ -131,10 +131,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngineBase, WebAPI.Models.API.KalturaRecommendationEngineBaseProfile>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-
             Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
@@ -167,12 +163,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
                ;
-
-            Mapper.CreateMap<ExternalChannelBase, WebAPI.Models.API.KalturaExternalChannelBaseProfile>()
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-
-
+            
             Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalChannel.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ExternalChannel.Name))
