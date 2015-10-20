@@ -142,6 +142,10 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
         dr_frequency.Initialize("Frequency", "adm_table_header_nbg", "FormInput", "frequency", true);
         theRecord.AddRecord(dr_frequency);
 
+        DataRecordShortTextField dr_notificationUrl = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_notificationUrl.Initialize("Notification URL", "adm_table_header_nbg", "FormInput", "notification_url", true);
+        theRecord.AddRecord(dr_notificationUrl);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
         dr_groups.SetValue(group_id.ToString());
