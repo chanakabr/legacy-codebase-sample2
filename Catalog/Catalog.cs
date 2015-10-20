@@ -908,9 +908,7 @@ namespace Catalog
                                         }
                                         else
                                         {
-                                            var exception = new ArgumentException("Invalid search value or operator was sent for geo_block");
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                                            throw exception;
+                                            throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
                                         }
                                     }
                                     else if (searchKeyLowered == "parental_rules")
@@ -973,9 +971,7 @@ namespace Catalog
                                         }
                                         else
                                         {
-                                            var exception = new ArgumentException("Invalid search value or operator was sent for parental_rules");
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                                            throw exception;
+                                            throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                                         }
                                     }
                                     else if (reservedNumericFields.Contains(searchKeyLowered))
@@ -984,9 +980,7 @@ namespace Catalog
                                     }
                                     else if (!reservedStringFields.Contains(searchKeyLowered))
                                     {
-                                        var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", originalKey));
-                                        exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
-                                        throw exception;
+                                        throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
                                     }
                                 }
 
@@ -1006,9 +1000,7 @@ namespace Catalog
                                     // If there are 
                                     if (values.Length == 0)
                                     {
-                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
-                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                        throw exception;
+                                        throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
                                     }
 
                                     foreach (var single in values)
@@ -1017,9 +1009,7 @@ namespace Catalog
 
                                         if (!int.TryParse(single, out temporaryInteger))
                                         {
-                                            var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                            throw exception;
+                                            throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
                                         }
                                     }
 
@@ -1129,9 +1119,7 @@ namespace Catalog
                 // If one of them doesn't exist, throw an exception that says the request is bad
                 if (!mediaTypes.Contains(mediaType))
                 {
-                    var exception = new ArgumentException(string.Format("Invalid media type was sent: {0}", mediaType));
-                    exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                    throw exception;
+                    throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
                 }
             }
 

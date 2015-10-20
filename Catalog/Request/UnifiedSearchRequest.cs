@@ -186,6 +186,21 @@ namespace Catalog.Request
                         response.status.Message = "Got error with Elasticsearch";
                     }
                 }
+                else if (ex is KalturaException)
+                {
+                    // This is a specific exception we created.
+                    // If this specific KalturaException has StatusCode in its data, use it instead of the general code
+                    if (ex.Data.Contains("StatusCode"))
+                    {
+                        response.status.Code = (int)ex.Data["StatusCode"];
+                        response.status.Message = ex.Message;
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Failed getting assets of channel";
+                    }
+                }
                 else if (ex is ArgumentException)
                 {
                     // This is a specific exception we created.
@@ -198,7 +213,7 @@ namespace Catalog.Request
                     else
                     {
                         response.status.Code = (int)eResponseStatus.Error;
-                        response.status.Message = "Search failed";
+                        response.status.Message = "Failed getting assets of channel";
                     }
                 }
                 else
