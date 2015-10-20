@@ -115,7 +115,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Recommendation Engine
 
-            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationEngineProfile, RecommendationEngine>()
+            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationProfile, RecommendationEngine>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -123,7 +123,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -131,7 +131,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecommendationEngine.ID))

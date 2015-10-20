@@ -1350,9 +1350,9 @@ namespace WebAPI.Clients
 
         #region Recommendation Engine
 
-        internal List<KalturaRecommendationEngineProfile> GetRecommendationEngines(int groupId)
+        internal List<KalturaRecommendationProfile> GetRecommendationEngines(int groupId)
         {
-            List<Models.API.KalturaRecommendationEngineProfile> kalturaRecommendationEngineProfile = null;
+            List<Models.API.KalturaRecommendationProfile> kalturaRecommendationEngineProfile = null;
             WebAPI.Api.RecommendationEnginesResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1380,7 +1380,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaRecommendationEngineProfile = Mapper.Map<List<Models.API.KalturaRecommendationEngineProfile>>(response.RecommendationEngines);
+            kalturaRecommendationEngineProfile = Mapper.Map<List<Models.API.KalturaRecommendationProfile>>(response.RecommendationEngines);
 
             return kalturaRecommendationEngineProfile;
         }
@@ -1415,10 +1415,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaRecommendationEngineProfile InsertRecommendationEngine(int groupId, KalturaRecommendationEngineProfile recommendationEngine)
+        internal KalturaRecommendationProfile InsertRecommendationEngine(int groupId, KalturaRecommendationProfile recommendationEngine)
         {
             WebAPI.Api.RecommendationEngineResponse response = null;
-            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+            KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1447,14 +1447,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationProfile>(response);
             return kalturaRecommendationEngineProfile;
         }
 
-        internal KalturaRecommendationEngineProfile SetRecommendationEngine(int groupId, int recommendationEngineId, KalturaRecommendationEngineProfile recommendationEngine)
+        internal KalturaRecommendationProfile SetRecommendationEngine(int groupId, int recommendationEngineId, KalturaRecommendationProfile recommendationEngine)
         {
             WebAPI.Api.RecommendationEngineResponse response = null;
-            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+            KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1482,13 +1482,13 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationProfile>(response);
             return kalturaRecommendationEngineProfile;
         }
 
-        internal List<KalturaRecommendationEngineProfile> GetRecommendationEngineSettings(int groupId)
+        internal List<KalturaRecommendationProfile> GetRecommendationEngineSettings(int groupId)
         {
-            List<Models.API.KalturaRecommendationEngineProfile> KalturaRecommendationEngineList = null;
+            List<Models.API.KalturaRecommendationProfile> KalturaRecommendationEngineList = null;
             WebAPI.Api.RecommendationEngineSettinsResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1516,7 +1516,7 @@ namespace WebAPI.Clients
             }
 
 
-            KalturaRecommendationEngineList = Mapper.Map<List<Models.API.KalturaRecommendationEngineProfile>>(response.RecommendationEngines);
+            KalturaRecommendationEngineList = Mapper.Map<List<Models.API.KalturaRecommendationProfile>>(response.RecommendationEngines);
 
             return KalturaRecommendationEngineList;
         }
@@ -1615,10 +1615,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaRecommendationEngineProfile GeneratereRecommendationEngineSharedSecret(int groupId, int recommendationEngineId)
+        internal KalturaRecommendationProfile GeneratereRecommendationEngineSharedSecret(int groupId, int recommendationEngineId)
         {
             WebAPI.Api.RecommendationEngineResponse response = null;
-            KalturaRecommendationEngineProfile kalturaRecommendationEngineProfile = null;
+            KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1645,7 +1645,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationEngineProfile>(response);
+            kalturaRecommendationEngineProfile = Mapper.Map<Models.API.KalturaRecommendationProfile>(response);
 
             return kalturaRecommendationEngineProfile;
         }

@@ -8,8 +8,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/RecommendationEngineProfile/action")]
-    public class RecommendationEngineProfileController : ApiController
+    [RoutePrefix("_service/RecommendationProfile/action")]
+    public class RecommendationProfileController : ApiController
     {
         /// <summary>
         /// Returns all recommendation engines for partner 
@@ -20,9 +20,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecommendationEngineProfile> List()
+        public List<KalturaRecommendationProfile> List()
         {
-            List<KalturaRecommendationEngineProfile> response = null;
+            List<KalturaRecommendationProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -46,10 +46,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// recommendation engine not exist = 4007, recommendatio nengine identifier required = 4008,
         /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
+        /// <param name="id">recommendation engine Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int recommendation_engine_id)
+        public bool Delete(int id)
         {
             bool response = false;
             
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteRecommendationEngine(groupId, recommendation_engine_id);
+                response = ClientsManager.ApiClient().DeleteRecommendationEngine(groupId, id);
             }
             catch (ClientException ex)
             {
@@ -78,9 +78,9 @@ namespace WebAPI.Controllers
         /// <param name="recommendation_engine">recommendation engine Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationEngineProfile Add(KalturaRecommendationEngineProfile recommendation_engine)
+        public KalturaRecommendationProfile Add(KalturaRecommendationProfile recommendation_engine)
         {
-            KalturaRecommendationEngineProfile response = null;
+            KalturaRecommendationProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -104,21 +104,20 @@ namespace WebAPI.Controllers
         /// Possible status codes:      
         /// recommendation engine identifier required = 4008, no recommendation engine to update = 4015, name required = 5005, adapter url required = 5013,
         /// external identifier required = 6016, external identifier must be unique = 6040
-        /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param> 
+        /// </remarks>        
         /// <param name="recommendation_engine">recommendation engine Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationEngineProfile Update(int recommendation_engine_id, KalturaRecommendationEngineProfile recommendation_engine)
+        public KalturaRecommendationProfile Update(KalturaRecommendationProfile recommendation_engine)
         {
-            KalturaRecommendationEngineProfile response = null;
+            KalturaRecommendationProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine_id, recommendation_engine);
+                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine.Id, recommendation_engine);
             }
             catch (ClientException ex)
             {
@@ -138,9 +137,9 @@ namespace WebAPI.Controllers
         /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationEngineProfile GenerateSharedSecret(int recommendation_engine_id)
+        public KalturaRecommendationProfile GenerateSharedSecret(int recommendation_engine_id)
         {
-            KalturaRecommendationEngineProfile response = null;
+            KalturaRecommendationProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
