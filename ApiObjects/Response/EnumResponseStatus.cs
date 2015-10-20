@@ -106,8 +106,8 @@ namespace ApiObjects.Response
         ExternalChannelNotExist = 4011,
         NoExternalChannelToUpdate = 4012,
         ExternalChannelIdentifierRequired = 4013,
-        NoRecommendationEngineToUpdate = 4007,
         ExternalChannelHasNoRecommendationEngine = 4014,
+        NoRecommendationEngineToUpdate = 4015,
 
 
 
