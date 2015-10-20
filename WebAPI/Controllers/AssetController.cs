@@ -149,8 +149,23 @@ namespace WebAPI.Controllers
 
                             KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
 
+                            string utcOffset = convertedFilter.UtcOffset;
+
+                            double utcOffsetDouble;
+
+                            if (!double.TryParse(utcOffset, out utcOffsetDouble))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                            }
+                            else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                            }
+
+                            string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+
                             response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, convertedFilter.DeviceType, convertedFilter.UtcOffset);
+                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, deviceType, convertedFilter.UtcOffset);
 
                             break;
                         }
