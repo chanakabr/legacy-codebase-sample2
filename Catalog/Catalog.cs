@@ -4621,6 +4621,12 @@ namespace Catalog
 
             ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
 
+            if (externalChannel == null || externalChannel.ID <= 0)
+            {
+                status.Code = (int)eResponseStatus.ExternalChannelNotExist;
+                status.Message = string.Format("External Channel with the ID {0} was not found.", request.externalChannelId);
+            }
+
             // Build dictionary of enrichments for recommendation engine adapter
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
@@ -4646,6 +4652,7 @@ namespace Catalog
             {
                 status.Code = (int)(eResponseStatus.AdapterAppFailure);
                 status.Message = "No recommendations received";
+                return status;
             }
 
             if (recommendations.Count == 0)
