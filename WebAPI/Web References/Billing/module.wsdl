@@ -1112,6 +1112,35 @@
           <s:element minOccurs="0" maxOccurs="1" name="PaymentGateway" type="tns:PaymentGateway" />
         </s:sequence>
       </s:complexType>
+      <s:element name="SetPartnerConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="partnerConfig" type="tns:PartnerConfiguration" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PartnerConfiguration">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:PartnerConfigurationType" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="PartnerConfigurationType">
+        <s:restriction base="s:string">
+          <s:enumeration value="DefaultPaymentGateway" />
+          <s:enumeration value="EnablePaymentGatewaySelection" />
+          <s:enumeration value="OSSAdapter" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SetPartnerConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetPartnerConfigurationResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -1409,6 +1438,12 @@
   </wsdl:message>
   <wsdl:message name="GeneratePaymentGatewaySharedSecretSoapOut">
     <wsdl:part name="parameters" element="tns:GeneratePaymentGatewaySharedSecretResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPartnerConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:SetPartnerConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="SetPartnerConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:SetPartnerConfigurationResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2019,6 +2054,10 @@
       <wsdl:input message="tns:GeneratePaymentGatewaySharedSecretSoapIn" />
       <wsdl:output message="tns:GeneratePaymentGatewaySharedSecretSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <wsdl:input message="tns:SetPartnerConfigurationSoapIn" />
+      <wsdl:output message="tns:SetPartnerConfigurationSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="GetBillingCutomData">
@@ -2599,6 +2638,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <soap:operation soapAction="http://billing.tvinci.com/SetPartnerConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleSoap12" type="tns:moduleSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -3018,6 +3066,15 @@
     </wsdl:operation>
     <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
       <soap12:operation soapAction="http://billing.tvinci.com/GeneratePaymentGatewaySharedSecret" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <soap12:operation soapAction="http://billing.tvinci.com/SetPartnerConfiguration" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
