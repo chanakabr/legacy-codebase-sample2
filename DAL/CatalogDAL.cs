@@ -2928,7 +2928,7 @@ namespace Tvinci.Core.DAL
 
         #region RecommendationEngine
 
-        public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId)
+        public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
             RecommendationEngine result = null;
 
@@ -2936,6 +2936,11 @@ namespace Tvinci.Core.DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupID);
             storedProcedure.AddParameter("@RecommendationEngineId", engineId);
+            storedProcedure.AddParameter("@Status", status);
+            if (isActive.HasValue)
+            {
+                storedProcedure.AddParameter("@IsActive", isActive.Value);
+            }
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
