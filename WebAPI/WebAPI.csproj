@@ -741,6 +741,9 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
+    <Compile Include="Controllers\PartnerConfigurationController.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controllers\RecommendationProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileController.cs" />
@@ -836,6 +839,13 @@
     <Compile Include="Models\General\KalturaStringValue.cs" />
     <Compile Include="Models\General\KalturaStringValueArray.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
+    <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Partner\KalturaPartnerConfigurationType.cs" />
+    <Compile Include="Models\Partner\KalturaPartnerConfigurationBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceListResponse.cs" />
@@ -915,6 +925,7 @@
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\GeneralMeppings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\PartnerMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PricingMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\SocialMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\UsersMappings.cs" />

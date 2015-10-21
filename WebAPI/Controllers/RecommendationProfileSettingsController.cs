@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///  
+        /// Recommendation Engine Not Exist = 4007, Recommendation Engine Identifier Required = 4008, Recommendation Engine Params required = 4009
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -77,7 +77,8 @@ namespace WebAPI.Controllers
         /// Insert new settings for recommendation engine for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes:       
+        /// Possible status codes:  
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, recommendation engine params required = 4009
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -110,7 +111,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///  
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, recommendation engine params required = 4009
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example

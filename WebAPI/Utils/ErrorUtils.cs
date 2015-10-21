@@ -31,7 +31,9 @@ namespace WebAPI.Utils
             { 6001, HttpStatusCode.BadRequest },
             { (int)StatusCode.InternalConnectionIssue, HttpStatusCode.InternalServerError },
             { (int)StatusCode.Timeout, HttpStatusCode.GatewayTimeout },
-            { (int)StatusCode.Error, HttpStatusCode.InternalServerError }
+            { (int)StatusCode.Error, HttpStatusCode.InternalServerError },
+            // ExternalChannelNotExist
+            { 4011, HttpStatusCode.NotFound}
         };
 
         public static void HandleWSException(Exception ex)
