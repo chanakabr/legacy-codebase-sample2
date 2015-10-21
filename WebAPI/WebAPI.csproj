@@ -843,7 +843,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\Partner\KalturaPartnerConfigurationType.cs" />
-    <Compile Include="Models\Partner\KalturaPartnerConfigurationBase.cs">
+    <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />

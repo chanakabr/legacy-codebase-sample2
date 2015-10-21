@@ -5,10 +5,13 @@ using WebAPI.Models.Partner;
 
 namespace WebAPI.Models.Partner
 {
-    public class KalturaBillingPartnerConfig : KalturaPartnerConfigurationBase
+    /// <summary>
+    /// partaner billing configuration
+    /// </summary>
+    public class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
     {
         /// <summary>
-        /// value
+        /// configuration value
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty("value")]

@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <param name="configuration">Partner Configuration</param>        
         [Route("update"), HttpPost]
         [ApiAuthorize(true)]
-        public bool Update(KalturaPartnerConfigurationBase configuration)
+        public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;
 

@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Billing
 {
     /// <summary>
-    /// PaymentGWBasic
+    /// Payment gateway base profile
     /// </summary>
     public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {
