@@ -2539,7 +2539,8 @@ namespace DAL
             return ruleIds;       
         }
 
-        public static long InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string version)
+        public static long InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, 
+            string notificationUrl, List<int> vodTypes, string version)
         {
             long taskId = 0;
 
@@ -2554,13 +2555,16 @@ namespace DAL
             storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@updater_id", null);
             storedProcedure.AddParameter("@version", version);
+            storedProcedure.AddParameter("@notification_url", notificationUrl);
+            storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
 
             taskId = storedProcedure.ExecuteReturnValue<long>();
 
             return taskId;
         }
 
-        public static long UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string version)
+        public static long UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
+             string notificationUrl, List<int> vodTypes, string version)
         {
             long taskId = 0;
 
@@ -2575,6 +2579,8 @@ namespace DAL
             storedProcedure.AddParameter("@export_type", exportType);
             storedProcedure.AddParameter("@frequency", frequency);
             storedProcedure.AddParameter("@version", version);
+            storedProcedure.AddParameter("@notification_url", notificationUrl);
+            storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
 
             taskId = storedProcedure.ExecuteReturnValue<long>();
 
@@ -2610,10 +2616,12 @@ namespace DAL
 
             if (dataSet != null && dataSet.Tables != null)
             {
-                if (dataSet.Tables.Count > 0)
+                if (dataSet.Tables.Count >= 2)
                 {
                     DataTable tasksTable = dataSet.Tables[0];
-
+                    DataTable taskVodTypesTable = dataSet.Tables[1];
+                    
+                    //build tasks
                     if (tasksTable != null && tasksTable.Rows != null && tasksTable.Rows.Count > 0)
                     {
                         tasks = new List<BulkExportTask>();
@@ -2631,8 +2639,32 @@ namespace DAL
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                                 Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
                                 InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
-                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS")
+                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS"),
+                                NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL")
                             });
+                        }
+                    }
+
+                    // build tasks' vod types lists
+                    if (tasks != null && tasks.Count > 0 && 
+                        taskVodTypesTable != null && taskVodTypesTable.Rows != null && taskVodTypesTable.Rows.Count > 0)
+                    {
+                        int typeId;
+                        long taskId;
+                        BulkExportTask task = null;
+
+                        foreach (DataRow row in taskVodTypesTable.Rows)
+                        {
+                            taskId = ODBCWrapper.Utils.GetLongSafeVal(row, "TASK_ID");
+                            typeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TYPE_ID");
+                            if (taskId != 0 && typeId != 0)
+                            {
+                                task = tasks.Where(t => t.Id == taskId).FirstOrDefault();
+                                if (task != null)
+                                {
+                                    task.VodTypes.Add(typeId);
+                                }
+                            }
                         }
                     }
                 }

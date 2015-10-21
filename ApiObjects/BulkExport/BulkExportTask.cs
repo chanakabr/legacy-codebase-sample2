@@ -27,5 +27,13 @@ namespace ApiObjects.BulkExport
 
         public DateTime? LastProcess { get; set; }
 
+        public List<int> VodTypes { get; set; }
+
+        public string NotificationUrl { get; set; }
+
+        public BulkExportTask()
+        {
+            VodTypes = new List<int>();
+        }
     }
 }
