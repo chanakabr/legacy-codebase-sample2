@@ -4665,23 +4665,17 @@ namespace Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
-                totalItems = recommendations.Count;
-                bool illegalRequest = false;
-                var pagedList = TVinciShared.ListUtils.Page(recommendations, request.m_nPageSize, request.m_nPageIndex, out illegalRequest);
-
-                if (!illegalRequest)
-                {
-                    searchResultsList = pagedList.Select(result =>
-                        new UnifiedSearchResult()
-                        {
-                            AssetId = result.id,
-                            AssetType = (eAssetTypes)result.type,
-                            m_dUpdateDate = DateTime.MinValue
-                        }
+                var allRecommendations = recommendations.Select(result =>
+                    new UnifiedSearchResult()
+                    {
+                        AssetId = result.id,
+                        AssetType = (eAssetTypes)result.type,
+                        m_dUpdateDate = DateTime.MinValue
+                    }
                     ).ToList();
 
-                    searcher.FillUpdateDates(request.m_nGroupID, searchResultsList);
-                }
+                searchResultsList = 
+                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref totalItems, request.m_nPageSize, request.m_nPageIndex);
             }
             // If there is, go to ES and perform further filter
             else

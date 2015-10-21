@@ -66,6 +66,6 @@ namespace Catalog
         List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems);
 
         [OperationContract]
-        void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets);
+        List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex);
     }
 }
