@@ -120,7 +120,15 @@ namespace CachingProvider
             if (result == null || result.result == null)
             {
                 result = couchbaseCache.Get(key);
-                inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+
+                if (result != null && result.result != null)
+                {
+                    inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+                }
+            }
+            else if (result.result is VersionModuleCache)
+            {
+                result.result = (result.result as VersionModuleCache).result;
             }
 
             return result;
@@ -135,8 +143,12 @@ namespace CachingProvider
             if (result == default(T))
             {
                 result = couchbaseCache.Get<T>(key);
-                BaseModuleCache newBaseModule = new BaseModuleCache(result);
-                inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
+
+                if (result != null)
+                {
+                    BaseModuleCache newBaseModule = new BaseModuleCache(result);
+                    inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
+                }
             }
 
             return result;
@@ -165,7 +177,15 @@ namespace CachingProvider
             if (result == null || result.result == null)
             {
                 result = couchbaseCache.GetWithVersion<T>(key);
-                inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+
+                if (result != null && result.result != null)
+                {
+                    inMemoryCache.Add(key, result, this.secondsInMemory / 60);
+                }
+            }
+            else if (result.result is VersionModuleCache)
+            {
+                result.result = (result.result as VersionModuleCache).result;
             }
 
             return result;
