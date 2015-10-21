@@ -50,18 +50,25 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
                         Int32 nID = DBManipulator.DoTheWork();
                         if (nID != 0)
                         {
-                            // insert new message to tasks queue (for celery)
-                            apiWS.API m = new apiWS.API();
-                            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                            try
+                            {
+                                // insert new message to tasks queue (for celery)
+                                apiWS.API m = new apiWS.API();
+                                string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
 
-                            if (sWSURL != "")
-                                m.Url = sWSURL;
-                            string sWSUserName = "";
-                            string sWSPass = "";
+                                if (sWSURL != "")
+                                    m.Url = sWSURL;
+                                string sWSUserName = "";
+                                string sWSPass = "";
 
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+                                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
 
-                            m.EnqueueExportTask(sWSUserName, sWSPass, taskid);
+                                m.EnqueueExportTask(sWSUserName, sWSPass, taskid);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Logger.Log("Error", string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", taskid, ex), "adm_export_tasks_vod_types");
+                            }
                         }
                     }
                 }

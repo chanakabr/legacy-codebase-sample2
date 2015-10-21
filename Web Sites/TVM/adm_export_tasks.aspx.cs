@@ -61,7 +61,7 @@ public partial class adm_export_tasks : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select	bet.id, bet.name, bet.external_key, lbedt.description as data_type, bet.filter, lbeet.description as export_type, bet.frequency, bet.notification_url, bet.group_id, bet.status, bet.is_active ";
+        theTable += "select	bet.id as 'ID', bet.name as 'Name', bet.external_key as 'External Key', lbedt.description as 'Data Type', bet.filter as 'Filter', lbeet.description as 'Export Type', bet.frequency as 'Frequency', bet.Notification_url as 'Notification URL', bet.group_id, bet.status, bet.is_active ";
         theTable += "FROM bulk_export_tasks bet inner join lu_bulk_export_export_types lbeet on bet.EXPORT_TYPE = lbeet.id inner join lu_bulk_export_data_types lbedt on bet.DATA_TYPE = lbedt.ID ";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
@@ -73,6 +73,13 @@ public partial class adm_export_tasks : System.Web.UI.Page
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_export_tasks_vod_types.aspx", "VOD Types", "Data Type=VOD");
+            linkColumn1.AddQueryStringValue("task_id", "field=id");
+            theTable.AddLinkColumn(linkColumn1);
+        }
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
