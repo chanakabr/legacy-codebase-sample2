@@ -732,8 +732,7 @@ namespace ElasticSearch.Searcher
                 }
 
                 // "Match" when search is not exact (contains)
-                if (leaf.operand == ApiObjects.ComparisonOperator.Contains || 
-                    leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
+                if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
                     leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                 {
                     string field = string.Empty;
@@ -753,6 +752,21 @@ namespace ElasticSearch.Searcher
                         eOperator = CutWith.AND,
                         Query = value
                     };
+                }
+                // "bool" with "must_not" when no contains
+                else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                {
+                    string field = string.Format("{0}.analyzed", leaf.field);
+
+                    term = new BoolQuery();
+
+                    (term as BoolQuery).AddNot(
+                        new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                        {
+                            Field = field,
+                            eOperator = CutWith.AND,
+                            Query = value
+                        });
                 }
                 // "Term" when search is equals/not equals
                 else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
