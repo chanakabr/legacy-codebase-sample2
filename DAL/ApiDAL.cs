@@ -2317,7 +2317,7 @@ namespace DAL
             return res;   
         }
 
-        public static OSSAdapter GetOSSAdapter(int groupID, int ossAdapterId)
+        public static OSSAdapter GetOSSAdapter(int groupID, int ossAdapterId, int? isActive= null, int status =1)
         {
             OSSAdapter ossAdapterRes = null;
             try
@@ -2326,6 +2326,11 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ossAdapterId", ossAdapterId);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                }
                 
                 DataSet ds = sp.ExecuteDataSet();
 

@@ -2928,7 +2928,7 @@ namespace Tvinci.Core.DAL
 
         #region RecommendationEngine
 
-        public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId)
+        public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
             RecommendationEngine result = null;
 
@@ -2936,6 +2936,11 @@ namespace Tvinci.Core.DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupID);
             storedProcedure.AddParameter("@RecommendationEngineId", engineId);
+            storedProcedure.AddParameter("@Status", status);
+            if (isActive.HasValue)
+            {
+                storedProcedure.AddParameter("@IsActive", isActive.Value);
+            }
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
@@ -3327,7 +3332,7 @@ namespace Tvinci.Core.DAL
                         ExternalChannel externalChannelBase = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            externalChannelBase = CreateExternalChannel(dr);
+                            externalChannelBase = SetExternalChannel(dr);
                             res.Add(externalChannelBase);
                         }
                     }
@@ -3349,7 +3354,7 @@ namespace Tvinci.Core.DAL
 
             if (row != null)
             {
-                result = CreateExternalChannel(row);
+                result = SetExternalChannel(row);
 
                 ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
 
@@ -3365,21 +3370,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        private static ExternalChannel CreateExternalChannel( DataRow row)
-        {
-            ExternalChannel result = new ExternalChannel()
-            {
-                Enrichments = new List<ExternalChannelEnrichment>(),
-                ExternalIdentifier = ODBCWrapper.Utils.ExtractString(row, "external_identifier"),
-                FilterExpression = ODBCWrapper.Utils.ExtractString(row, "filter_expression"),
-                GroupId = ODBCWrapper.Utils.ExtractInteger(row, "group_id"),
-                ID = ODBCWrapper.Utils.ExtractInteger(row, "id"),
-                IsActive = ODBCWrapper.Utils.ExtractBoolean(row, "is_active"),
-                Name = ODBCWrapper.Utils.ExtractString(row, "name"),
-                RecommendationEngineId = ODBCWrapper.Utils.ExtractInteger(row, "recommendation_engine_id")
-            };
-            return result;
-        }
+       
 
         public static int GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
@@ -3415,7 +3406,7 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            externalChannelRes = setExternalChannel(ds);
+            externalChannelRes = SetExternalChannel(ds);
 
             return externalChannelRes;
         }
@@ -3454,31 +3445,37 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            externalChannelRes = setExternalChannel(ds);
+            externalChannelRes = SetExternalChannel(ds);
 
             return externalChannelRes;
         }
 
-        private static ExternalChannel setExternalChannel(DataSet ds)
+        private static ExternalChannel SetExternalChannel(DataSet ds)
         {
             ExternalChannel externalChannelRes = null;
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                externalChannelRes = new ExternalChannel();
-                externalChannelRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                externalChannelRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME");
-                externalChannelRes.GroupId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "GROUP_ID");
-                externalChannelRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "EXTERNAL_IDENTIFIER");
-                externalChannelRes.FilterExpression = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "FILTER_EXPRESSION");
-                externalChannelRes.RecommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "RECOMMENDATION_ENGINE_ID");
-                int isActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                externalChannelRes.IsActive = isActive == 1 ? true : false;
-                int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ENRICHMENTS");
-                externalChannelRes.Enrichments = SetEnrichments(enrichmentsVal);
+                externalChannelRes = SetExternalChannel(ds.Tables[0].Rows[0]);
             }
 
             return externalChannelRes;
+        }
+
+        private static ExternalChannel SetExternalChannel(DataRow dr)
+        {
+            ExternalChannel result = new ExternalChannel();
+            result.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+            result.Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+            result.GroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+            result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_IDENTIFIER");
+            result.FilterExpression = ODBCWrapper.Utils.GetSafeStr(dr, "FILTER_EXPRESSION");
+            result.RecommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(dr, "RECOMMENDATION_ENGINE_ID");
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+            result.IsActive = isActive == 1 ? true : false;
+            int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENRICHMENTS");
+            result.Enrichments = SetEnrichments(enrichmentsVal);
+            return result;
         }
 
         private static int GetEnrichments(List<ExternalChannelEnrichment> list)

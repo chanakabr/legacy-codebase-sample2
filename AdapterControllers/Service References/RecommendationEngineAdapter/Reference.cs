@@ -279,7 +279,7 @@ namespace AdapterControllers.RecommendationEngineAdapter {
     public interface IService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetChannelRecommendations", ReplyAction="http://tempuri.org/IService/GetChannelRecommendationsResponse")]
         AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, long timeStamp, string signature);
@@ -315,8 +315,8 @@ namespace AdapterControllers.RecommendationEngineAdapter {
                 base(binding, remoteAddress) {
         }
         
-        public AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
-            return base.Channel.SetConfiguration(recommendationEngineId, connectionSettings, partnerId, timeStamp, signature);
+        public AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature) {
+            return base.Channel.SetConfiguration(recommendationEngineId, settings, partnerId, timeStamp, signature);
         }
         
         public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string channelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, long timeStamp, string signature) {

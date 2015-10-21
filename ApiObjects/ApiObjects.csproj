@@ -91,6 +91,8 @@
     <Compile Include="AdminAccountUserResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />
+    <Compile Include="Billing\PartnerConfiguration.cs" />
+    <Compile Include="Billing\PartnerConfigurationType.cs" />
     <Compile Include="Billing\PaymentGatewayBase.cs" />
     <Compile Include="Billing\PaymentGateway.cs" />
     <Compile Include="Billing\PaymentGatewayChargeIDResponse.cs" />

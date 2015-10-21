@@ -19,8 +19,8 @@ namespace ElasticSearch.Searcher
         public static readonly string TAGS = "TAGS";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
-        protected readonly int MAX_RESULTS;
-
+        protected static int MAX_RESULTS;
+        
         public UnifiedSearchDefinitions SearchDefinitions
         {
             get;
@@ -54,7 +54,20 @@ namespace ElasticSearch.Searcher
         #region Ctor
 
         /// <summary>
-        /// Regulat constructor to initialize with definitions
+        /// Static constructor that initailizes TCM consts
+        /// </summary>
+        static ESUnifiedQueryBuilder()
+        {
+            string maxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+
+            if (!int.TryParse(maxResults, out MAX_RESULTS))
+            {
+                MAX_RESULTS = 100000;
+            }
+        }
+
+        /// <summary>
+        /// Regular constructor to initialize with definitions
         /// </summary>
         /// <param name="definitions"></param>
         public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions)
@@ -62,13 +75,6 @@ namespace ElasticSearch.Searcher
             this.SearchDefinitions = definitions;
 
             this.GroupID = definitions.groupId;
-
-            string maxResults = Common.Utils.GetWSURL("MAX_RESULTS");
-
-            if (!int.TryParse(maxResults, out MAX_RESULTS))
-            {
-                MAX_RESULTS = 100000;
-            }
         }
 
         #endregion
@@ -685,7 +691,9 @@ namespace ElasticSearch.Searcher
         }
 
         /// <summary>
-        /// Build the request body for Elasticsearch getting update dates string
+        /// Build the request body for Elasticsearch getting update dates string.
+        /// Basically it filters like this:
+        /// (media id IN (...) OR epg id IN (...))
         /// </summary>
         /// <returns></returns>
         public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets)
@@ -700,6 +708,8 @@ namespace ElasticSearch.Searcher
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
             filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", MAX_RESULTS);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", 0);
 
             // Return fields - id and update date only
             filteredQueryBuilder.Append("\"fields\": [\"_id\", \"update_date\"], ");

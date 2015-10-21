@@ -1703,8 +1703,11 @@ namespace Catalog
 
         #endregion
 
-        public void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets)
+        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
+            List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
             bool shouldSearchEpg = false;
             bool shouldSearchMedia = false;
             string media = "media";
@@ -1762,7 +1765,7 @@ namespace Catalog
                 if (jsonObj != null)
                 {
                     JToken tempToken;
-                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                     if (totalItems > 0)
                     {
@@ -1801,8 +1804,35 @@ namespace Catalog
                     }
                 }
 
+                var validAssets = assets.Where(asset => 
+                    {
+                        bool valid = asset.m_dUpdateDate != DateTime.MinValue;
+
+                        if (!valid)
+                        {
+                            log.WarnFormat(
+                                "Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
+                        }
+
+                        return valid;
+                    });
+
+                bool illegalRequest = false;
+                var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
+
+                if (!illegalRequest)
+                {
+                    finalList = pagedList.ToList();
+                }
+                else
+                {
+                    finalList = null;
+                }
+
                 #endregion
             }
+
+            return finalList;
         }
     }
 

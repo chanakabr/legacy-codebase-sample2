@@ -908,9 +908,7 @@ namespace Catalog
                                         }
                                         else
                                         {
-                                            var exception = new ArgumentException("Invalid search value or operator was sent for geo_block");
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                                            throw exception;
+                                            throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
                                         }
                                     }
                                     else if (searchKeyLowered == "parental_rules")
@@ -973,9 +971,7 @@ namespace Catalog
                                         }
                                         else
                                         {
-                                            var exception = new ArgumentException("Invalid search value or operator was sent for parental_rules");
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                                            throw exception;
+                                            throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                                         }
                                     }
                                     else if (reservedNumericFields.Contains(searchKeyLowered))
@@ -984,9 +980,7 @@ namespace Catalog
                                     }
                                     else if (!reservedStringFields.Contains(searchKeyLowered))
                                     {
-                                        var exception = new ArgumentException(string.Format("Invalid search key was sent: {0}", originalKey));
-                                        exception.Data.Add("StatusCode", (int)eResponseStatus.InvalidSearchField);
-                                        throw exception;
+                                        throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
                                     }
                                 }
 
@@ -1006,9 +1000,7 @@ namespace Catalog
                                     // If there are 
                                     if (values.Length == 0)
                                     {
-                                        var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
-                                        exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                        throw exception;
+                                        throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
                                     }
 
                                     foreach (var single in values)
@@ -1017,9 +1009,7 @@ namespace Catalog
 
                                         if (!int.TryParse(single, out temporaryInteger))
                                         {
-                                            var exception = new ArgumentException(string.Format("Invalid IN clause of: {0}", originalKey));
-                                            exception.Data.Add("StatusCode", (int)eResponseStatus.SyntaxError);
-                                            throw exception;
+                                            throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
                                         }
                                     }
 
@@ -1129,9 +1119,7 @@ namespace Catalog
                 // If one of them doesn't exist, throw an exception that says the request is bad
                 if (!mediaTypes.Contains(mediaType))
                 {
-                    var exception = new ArgumentException(string.Format("Invalid media type was sent: {0}", mediaType));
-                    exception.Data.Add("StatusCode", (int)eResponseStatus.BadSearchRequest);
-                    throw exception;
+                    throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
                 }
             }
 
@@ -4633,6 +4621,12 @@ namespace Catalog
 
             ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.externalChannelId);
 
+            if (externalChannel == null || externalChannel.ID <= 0)
+            {
+                status.Code = (int)eResponseStatus.ExternalChannelNotExist;
+                status.Message = string.Format("External Channel with the ID {0} was not found.", request.externalChannelId);
+            }
+
             // Build dictionary of enrichments for recommendation engine adapter
             Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
@@ -4658,6 +4652,12 @@ namespace Catalog
             {
                 status.Code = (int)(eResponseStatus.AdapterAppFailure);
                 status.Message = "No recommendations received";
+                return status;
+            }
+
+            if (recommendations.Count == 0)
+            {
+                return status;
             }
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -4665,38 +4665,22 @@ namespace Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression))
             {
-                totalItems = recommendations.Count;
-                bool illegalRequest = false;
-                var pagedList = TVinciShared.ListUtils.Page(recommendations, request.m_nPageSize, request.m_nPageIndex, out illegalRequest);
-
-                if (!illegalRequest)
-                {
-                    searchResultsList = pagedList.Select(result =>
-                        new UnifiedSearchResult()
-                        {
-                            AssetId = result.id,
-                            AssetType = (eAssetTypes)result.type,
-                            m_dUpdateDate = DateTime.MinValue
-                        }
+                var allRecommendations = recommendations.Select(result =>
+                    new UnifiedSearchResult()
+                    {
+                        AssetId = result.id,
+                        AssetType = (eAssetTypes)result.type,
+                        m_dUpdateDate = DateTime.MinValue
+                    }
                     ).ToList();
 
-                    searcher.FillUpdateDates(request.m_nGroupID, searchResultsList);
-                }
+                searchResultsList = 
+                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref totalItems, request.m_nPageSize, request.m_nPageIndex);
             }
             // If there is, go to ES and perform further filter
             else
             {
-                // Group have user types per media  +  siteGuid != empty
-                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
-                {
-                    if (request.m_oFilter == null)
-                    {
-                        request.m_oFilter = new Filter();
-                    }
-
-                    //call ws_users to get userType                  
-                    request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
-                }
+                externalChannel.FilterExpression = HttpUtility.HtmlDecode(externalChannel.FilterExpression);
 
                 // Build boolean phrase tree based on filter expression
                 BooleanPhraseNode filterTree = null;
@@ -4705,6 +4689,19 @@ namespace Catalog
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     return status;
+                }
+                
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                {
+                    if (request.m_oFilter == null)
+                    {
+                        request.m_oFilter = new Filter();
+                    }
+
+                    //call ws_users to get userType                  
+                    request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
                 }
 
                 UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);

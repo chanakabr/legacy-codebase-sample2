@@ -112,6 +112,13 @@ namespace AdapterControllers
 
             try
             {
+                string enrichmentsString = string.Join(";", enrichmentsList.Select(item => string.Concat("Key: ", item.Key, ", Value: ", item.Value)));
+
+                log.DebugFormat("Sending request to recommendation engine adapter. Channel ID = {0}, engine = {1}, enrichments = {2}",
+                    externalChannel.ID,
+                    engine.ID,
+                    enrichmentsString);
+
                 //call Adapter get channel recommendations
                 var adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
                     externalChannel.ExternalIdentifier,
@@ -203,12 +210,16 @@ namespace AdapterControllers
             }
             else
             {
+                string recommendationsString = 
+                    string.Join(";", adapterResponse.Results.Select(item => string.Concat("ID: ", item.AssetId, ", Type: ", item.AssetType.ToString())));
+
                 logMessage = string.Format("Recommendation Engine Adapter {0} Result Status: Message = {1}, " +
-                    "Code = {2} Count = {3}",
+                    "Code = {2} Count = {3}, List = {4}",
                     action != null ? action : string.Empty,  // {0}
                     adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,  // {1}
                     adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1, // {2}
-                    adapterResponse != null && adapterResponse.Results != null ? adapterResponse.Results.Length : -1); // {3}
+                    adapterResponse != null && adapterResponse.Results != null ? adapterResponse.Results.Length : -1,
+                    recommendationsString); // {3}
             }
 
             log.Debug(logMessage);

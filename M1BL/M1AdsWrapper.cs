@@ -21,11 +21,11 @@ namespace M1BL
 
 
 
-        private const string PROXIMITY_WS_FACADE_USER_NAME = "ToggleUser";
-        private const string PROXIMITY_WS_FACADE_PASSWORD = "wbX8OBRoedf73qnR"; // "jLyeNfdqnWdWUgZ6";
-        private const string PROXIMITY_WS_FACADE_ACCOUNT_TYPE = "SSOWebServices";
+        //private const string PROXIMITY_WS_FACADE_USER_NAME = "ToggleUser";
+        //private const string PROXIMITY_WS_FACADE_PASSWORD = "wbX8OBRoedf73qnR"; // "jLyeNfdqnWdWUgZ6"; 
+        //private const string PROXIMITY_WS_FACADE_ACCOUNT_TYPE = "SSOWebServices";
 
-        private const string PROXIMITY_WS_INTERFACE_CHANNEL_ID = "CM101";
+        //private const string PROXIMITY_WS_INTERFACE_CHANNEL_ID = "CM101";
         private const string PROXIMITY_WS_INTERFACE_USER_ID = "0";
         private const int DUMMY_VAS_ALREADY_EXIST_ERROR_CODE = -81100;
 
@@ -66,11 +66,14 @@ namespace M1BL
         private string m_sWsServiceInterfaceUrl = string.Empty;
         private string m_sSessionValidationUrl = string.Empty;
         private string m_sBaseRedirectUrl = string.Empty;
-        private string m_sFixedMailAddress = string.Empty; 
+        private string m_sFixedMailAddress = string.Empty;
 
+        private string m_sWsFacadeUsername = string.Empty;
+        private string m_sWsFacadePassword = string.Empty;
+        private string m_sWsFacadeAccountType = string.Empty;
+        private string m_sWsInterfaceChannelId = string.Empty;
 
         bool bIsInit = false;
-
 
         public M1AdsWrapper()
         {
@@ -166,6 +169,10 @@ namespace M1BL
                     m_sSessionValidationUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["sessionValidation_url"]);
                     m_sBaseRedirectUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["base_redirect_url"]);
                     m_sFixedMailAddress = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["invoice_mail_address"]);
+                    m_sWsFacadeUsername = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_facade_username"]);
+                    m_sWsFacadePassword = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_facade_password"]);
+                    m_sWsFacadeAccountType = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_facade_account_type"]);
+                    m_sWsInterfaceChannelId = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_interface_channel_id"]);
                 }
             }
         }
@@ -493,7 +500,7 @@ namespace M1BL
             //                    " PROXIMITY_WS_FACADE_ACCOUNT_TYPE: " + PROXIMITY_WS_FACADE_ACCOUNT_TYPE,
             //    M1_ADSWRAPPER_LOG_FILE);
 
-            SingleSignOnService.GetAuthenticationTicketResult oTicket = oSSOService.GetAuthenticationTicketForClients(PROXIMITY_WS_FACADE_USER_NAME, PROXIMITY_WS_FACADE_PASSWORD, PROXIMITY_WS_FACADE_ACCOUNT_TYPE);
+            SingleSignOnService.GetAuthenticationTicketResult oTicket = oSSOService.GetAuthenticationTicketForClients(m_sWsFacadeUsername, m_sWsFacadePassword, m_sWsFacadeAccountType);
 
             //// to check return result
             if (oTicket != null && oTicket.ActionResult != null && oTicket.ActionResult.ErrorCode != 0)
@@ -514,7 +521,7 @@ namespace M1BL
             clTicket.Credential = oTicket.AuthTicket;
             myInterface.AuthenticationSoapHeaderValue = clTicket;
             ////invoke        
-            string channelId = PROXIMITY_WS_INTERFACE_CHANNEL_ID;
+            string channelId = m_sWsInterfaceChannelId;
             string userID = PROXIMITY_WS_INTERFACE_USER_ID;
             bool onErrorContinue = false;
 

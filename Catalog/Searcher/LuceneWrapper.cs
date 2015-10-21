@@ -289,7 +289,7 @@ namespace Catalog
             throw new NotImplementedException();
         }
 
-        public void FillUpdateDates(int groupId, List<UnifiedSearchResult> assets)
+        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
             throw new NotImplementedException();
         }
