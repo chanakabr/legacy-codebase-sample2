@@ -184,7 +184,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertExportDataType(src.DataType)))
                 .ForMember(dest => dest.ExportType, opt => opt.MapFrom(src => ConvertExportType(src.ExportType)))
                 .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.Filter))
-                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency));
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
+                .ForMember(dest => dest.NotificationUrl, opt => opt.MapFrom(src => src.NotificationUrl))
+                .ForMember(dest => dest.VodTypes, opt => opt.MapFrom(src => src.VodTypes));
         }
 
         private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalChannelEnrichment[] list)

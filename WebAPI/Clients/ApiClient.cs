@@ -1792,7 +1792,8 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal bool AddBulkExportTask(int groupId, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency)
+        internal bool AddBulkExportTask(int groupId, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
+            string notificationUrl, List<int> vodTypes)
         {
             bool success = false;
 
@@ -1807,7 +1808,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency);
+                    response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency,
+                        notificationUrl, vodTypes != null ? vodTypes.ToArray(): null);
                 }
             }
             catch (Exception ex)
@@ -1833,7 +1835,8 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal bool UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency)
+        internal bool UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
+            string notificationUrl, List<int> vodTypes)
         {
             bool success = false;
 
@@ -1848,7 +1851,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency);
+                    response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency,
+                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null);
                 }
             }
             catch (Exception ex)

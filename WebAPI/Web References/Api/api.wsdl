@@ -3411,6 +3411,8 @@
             <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
             <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3446,6 +3448,8 @@
             <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
             <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3518,6 +3522,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="Export">
@@ -5123,33 +5129,6 @@
   <wsdl:message name="GetExternalChannelsHttpPostOut">
     <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
   </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="externalKey" type="s:string" />
-    <wsdl:part name="name" type="s:string" />
-    <wsdl:part name="dataType" type="s:string" />
-    <wsdl:part name="filter" type="s:string" />
-    <wsdl:part name="exportType" type="s:string" />
-    <wsdl:part name="frequency" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="id" type="s:string" />
-    <wsdl:part name="externalKey" type="s:string" />
-    <wsdl:part name="name" type="s:string" />
-    <wsdl:part name="dataType" type="s:string" />
-    <wsdl:part name="filter" type="s:string" />
-    <wsdl:part name="exportType" type="s:string" />
-    <wsdl:part name="frequency" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
   <wsdl:message name="DeleteBulkExportTaskHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -6022,14 +6001,6 @@
     <wsdl:operation name="GetExternalChannels">
       <wsdl:input message="tns:GetExternalChannelsHttpPostIn" />
       <wsdl:output message="tns:GetExternalChannelsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <wsdl:input message="tns:AddBulkExportTaskHttpPostIn" />
-      <wsdl:output message="tns:AddBulkExportTaskHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <wsdl:input message="tns:UpdateBulkExportTaskHttpPostIn" />
-      <wsdl:output message="tns:UpdateBulkExportTaskHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <wsdl:input message="tns:DeleteBulkExportTaskHttpPostIn" />
@@ -9087,24 +9058,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetExternalChannels">
       <http:operation location="/GetExternalChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <http:operation location="/AddBulkExportTask" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <http:operation location="/UpdateBulkExportTask" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

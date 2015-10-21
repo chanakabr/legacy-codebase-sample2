@@ -35,7 +35,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency);
+                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl,
+                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null);
             }
             catch (ClientException ex)
             {
@@ -46,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Updates an existing bulk export task by external key
+        /// Updates an existing bulk export task by task identifier
         /// </summary>
         /// <param name="task">The task model to update</param>
         /// <returns></returns>
@@ -60,7 +61,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, 0, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency);
+                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
+                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null);
             }
             catch (ClientException ex)
             {
@@ -71,13 +73,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes an existing bulk export task by external key
+        /// Deletes an existing bulk export task by task identifier
         /// </summary>
-        /// <param name="external_key">The external key of the task to delete</param>
+        /// <param name="id">The identifier of the task to delete</param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(string external_key)
+        public bool Delete(long id)
         {
             bool response = false;
 
@@ -85,7 +87,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().DeleteBulkExportTask(groupId, 0, external_key);
+                response = ClientsManager.ApiClient().DeleteBulkExportTask(groupId, id, null);
             }
             catch (ClientException ex)
             {
@@ -96,13 +98,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets an existing bulk export task by external key
+        /// Gets an existing bulk export task by task identifier
         /// </summary>
-        /// <param name="external_key">The external key of the task to get</param>
+        /// <param name="id">The identifier of the task to get</param>
         /// <returns></returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaExportTask Get(string external_key)
+        public KalturaExportTask Get(long id)
         {
             KalturaExportTask response = null;
 
@@ -110,7 +112,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, null, new string[] { external_key });
+                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, new long[] { id }, null);
                 if (listRes != null && listRes.Count > 0)
                 {
                     response = listRes[0];
@@ -125,7 +127,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns bulk export tasks by external keys
+        /// Returns bulk export tasks by tasks identifiers
         /// </summary>
         /// <param name="filter">Bulk export tasks filter</param>
         /// <returns></returns>
@@ -144,7 +146,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, null, filter.ExternalKeys != null ? filter.ExternalKeys.Select(ek => ek.value).ToArray() : null);
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.Ids != null ? filter.Ids.Select(id => id.value).ToArray() : null, null);
             }
             catch (ClientException ex)
             {

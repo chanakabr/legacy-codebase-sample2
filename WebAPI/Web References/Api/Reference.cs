@@ -4984,7 +4984,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+        public Status AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
             object[] results = this.Invoke("AddBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -4993,17 +4993,19 @@ namespace WebAPI.Api {
                         dataType,
                         filter,
                         exportType,
-                        frequency});
+                        frequency,
+                        notificationUrl,
+                        vodTypes});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
-            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, null);
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
+            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, null);
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, object userState) {
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, object userState) {
             if ((this.AddBulkExportTaskOperationCompleted == null)) {
                 this.AddBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddBulkExportTaskOperationCompleted);
             }
@@ -5015,7 +5017,9 @@ namespace WebAPI.Api {
                         dataType,
                         filter,
                         exportType,
-                        frequency}, this.AddBulkExportTaskOperationCompleted, userState);
+                        frequency,
+                        notificationUrl,
+                        vodTypes}, this.AddBulkExportTaskOperationCompleted, userState);
         }
         
         private void OnAddBulkExportTaskOperationCompleted(object arg) {
@@ -5027,7 +5031,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
+        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
             object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -5037,17 +5041,19 @@ namespace WebAPI.Api {
                         dataType,
                         filter,
                         exportType,
-                        frequency});
+                        frequency,
+                        notificationUrl,
+                        vodTypes});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency) {
-            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, null);
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
+            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, null);
         }
         
         /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, object userState) {
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, object userState) {
             if ((this.UpdateBulkExportTaskOperationCompleted == null)) {
                 this.UpdateBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateBulkExportTaskOperationCompleted);
             }
@@ -5060,7 +5066,9 @@ namespace WebAPI.Api {
                         dataType,
                         filter,
                         exportType,
-                        frequency}, this.UpdateBulkExportTaskOperationCompleted, userState);
+                        frequency,
+                        notificationUrl,
+                        vodTypes}, this.UpdateBulkExportTaskOperationCompleted, userState);
         }
         
         private void OnUpdateBulkExportTaskOperationCompleted(object arg) {
@@ -5474,6 +5482,10 @@ namespace WebAPI.Api {
         
         private System.Nullable<System.DateTime> lastProcessField;
         
+        private int[] vodTypesField;
+        
+        private string notificationUrlField;
+        
         /// <remarks/>
         public long Id {
             get {
@@ -5572,6 +5584,26 @@ namespace WebAPI.Api {
             }
             set {
                 this.lastProcessField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] VodTypes {
+            get {
+                return this.vodTypesField;
+            }
+            set {
+                this.vodTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string NotificationUrl {
+            get {
+                return this.notificationUrlField;
+            }
+            set {
+                this.notificationUrlField = value;
             }
         }
     }

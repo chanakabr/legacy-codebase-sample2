@@ -16,12 +16,12 @@ namespace WebAPI.Models.API
     {
 
         /// <summary>
-        /// The tasks identifiers or external keys - depends on "by" parameter
+        /// The tasks identifiers
         /// </summary>
-        [DataMember(Name = "external_keys")]
-        [JsonProperty("external_keys")]
+        [DataMember(Name = "ids")]
+        [JsonProperty("ids")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> ExternalKeys{ get; set; }
+        public List<KalturaLongValue> Ids { get; set; }
     }
 }

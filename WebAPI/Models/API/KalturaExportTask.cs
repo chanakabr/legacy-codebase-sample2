@@ -71,5 +71,22 @@ namespace WebAPI.Models.API
         [JsonProperty("frequency")]
         [XmlElement(ElementName = "frequency")]
         public long Frequency { get; set; }
+
+        /// <summary>
+        /// The URL for sending a notification when the task's export process is done
+        /// </summary>
+        [DataMember(Name = "notification_url")]
+        [JsonProperty("notification_url")]
+        [XmlElement(ElementName = "notification_url")]
+        public string NotificationUrl { get; set; }
+
+        /// <summary>
+        /// List of media type identifiers (as configured in TVM) to export. used only in case data_type = vod
+        /// </summary>
+        [DataMember(Name = "vod_types")]
+        [JsonProperty("vod_types")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaIntegerValue> VodTypes { get; set; }
     }
 }
