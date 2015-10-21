@@ -20,7 +20,7 @@ namespace WebAPI.Models.Partner
         /// </summary>
         [DataMember(Name = "partner_configuration_type")]
         [JsonProperty("partner_configuration_type")]
-        [XmlElement(ElementName = "partner_configuration_type")]
+        [XmlElement(ElementName = "partner_configuration_type", IsNullable=true)]
         public KalturaPartnerConfigurationHolder Type { get; set; }
     }
 }
