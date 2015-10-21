@@ -9771,7 +9771,7 @@ namespace ConditionalAccess
                         {
                             GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
                         }
-                        else if (!IsUserSuspended(objPrice))
+                        else if (IsItemPurchased(objPrice))
                         // Item is not free and also not user is not suspended
                         {
                             bool bIsOfflineStatus = false;
@@ -9831,23 +9831,10 @@ namespace ConditionalAccess
                             {
                                 DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
                                 TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
+                                if (tsViewLeftSpan.TotalMilliseconds < 0)
+                                    tsViewLeftSpan = new TimeSpan();
                                 strViewLifeCycle = tsViewLeftSpan.ToString();
                             }
-
-                            //// In case user purchased the item but didn't view it - we need to find what is the usage module's full life cycle
-                            //if (nFullLifeCycle == 0 && dtStartDate.HasValue)
-                            //{
-                            //    string sPPVMCodeFromPrice = GetPPVModuleCode(objPrice);
-
-                            //    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCodeFromPrice,
-                            //        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
-
-                            //    // If getting didn't succeed for any reason, write to log
-                            //    if (!bIsSuccess)
-                            //    {
-                            //            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV), GetLogFilename());
-                            //    }
-                            //}
 
                             eTransactionType eBusinessModuleType = GetBusinessModuleType(sPPVMCode);
 
@@ -9857,6 +9844,8 @@ namespace ConditionalAccess
                                 if (dtEntitlementEndDate.HasValue)
                                 {
                                     TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
+                                    if (tsFullLeftSpan.TotalMilliseconds < 0)
+                                        tsFullLeftSpan = new TimeSpan();
                                     strFullLifeCycle = tsFullLeftSpan.ToString();
                                 }
                             }
@@ -9868,6 +9857,8 @@ namespace ConditionalAccess
                                 {
                                     DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
                                     TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
+                                    if (tsFullLeftSpan.TotalMilliseconds < 0)
+                                        tsFullLeftSpan = new TimeSpan();
                                     strFullLifeCycle = tsFullLeftSpan.ToString();
                                 }
                             }
@@ -11831,11 +11822,8 @@ namespace ConditionalAccess
             switch (reason)
             {
                 case PriceReason.SubscriptionPurchased:
-                    goto case PriceReason.PPVPurchased;
                 case PriceReason.PrePaidPurchased:
-                    goto case PriceReason.PPVPurchased;
                 case PriceReason.CollectionPurchased:
-                    goto case PriceReason.PPVPurchased;
                 case PriceReason.PPVPurchased:
                     res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
                     break;
