@@ -108,10 +108,11 @@
 										</div>
 									 </td>  
 								</tr>
+								<!-- content -->
+								<% TVinciShared.PageUtils.GetErrorMsg(1); %>
 								<tr>
-									<td id="page_content">
-										<!-- the actual content -->
-									</td>
+								    <td id="page_content" width=100% nowrap=nowrap>
+								    </td>
 								</tr>
 							</table>
 						</td>

@@ -181,8 +181,7 @@ public partial class adm_external_channels_new : System.Web.UI.Page
             {
                 result = true;
                 int newChannelId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
-                string name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
-                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}, name:{1}", newChannelId, name), "recommendation_engines");
+                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0} ", newChannelId), "external_channels");
             }
         }
 

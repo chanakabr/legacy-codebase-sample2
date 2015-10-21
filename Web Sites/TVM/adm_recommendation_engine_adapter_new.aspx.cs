@@ -186,8 +186,7 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
             {
                 result = true;
                 int newAdapterId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
-                string name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
-                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}, name:{1}", newAdapterId, name), "recommendation_engines");
+                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}", newAdapterId), "recommendation_engines");
             }
         }
 
