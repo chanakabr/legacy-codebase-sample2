@@ -12,14 +12,14 @@ namespace ApiObjects.QueueObjects
         private long taskId;
         private string version;
 
-        public ExportTaskData(int groupId, long taskId, string version, DateTime eta) :
+        public ExportTaskData(int groupId, long taskId, string version, DateTime? eta = null) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
                  TASK)
         {
             this.GroupId = groupId;
-            this.ETA = eta;
+            this.ETA = eta.Value;
             this.taskId = taskId;
             this.version = version;
             
