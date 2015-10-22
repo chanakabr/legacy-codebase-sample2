@@ -115,7 +115,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Recommendation Engine
 
-            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationEngineProfile, RecommendationEngine>()
+            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationProfile, RecommendationEngine>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -123,7 +123,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -131,7 +131,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationEngineProfile>()
+            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecommendationEngine.ID))
@@ -212,6 +212,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case ExternalChannelEnrichment.AtHome:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
+                    break;
+                case ExternalChannelEnrichment.Catchup:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
+                    break;
                 case ExternalChannelEnrichment.ClientLocation:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
                     break;
@@ -221,8 +227,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ExternalChannelEnrichment.DeviceType:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceType };
                     break;
+                case ExternalChannelEnrichment.DTTRegion:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DTTRegion };
+                    break;
                 case ExternalChannelEnrichment.HouseholdId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HouseholdId };
+                    break;
+                case ExternalChannelEnrichment.Language:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Language };
+                    break;
+                case ExternalChannelEnrichment.NPVRSupport:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
+                    break;
+                case ExternalChannelEnrichment.Parental:
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
                     break;
                 case ExternalChannelEnrichment.UserId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
@@ -230,6 +248,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ExternalChannelEnrichment.UTCOffset:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOffset };
                     break;
+
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown external channel enrichment");
             }
@@ -270,17 +289,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case KalturaChannelEnrichment.AtHome:
+                    result = ExternalChannelEnrichment.AtHome;
+                    break;
+                case KalturaChannelEnrichment.Catchup:
+                    result = ExternalChannelEnrichment.Catchup;
+                    break;
                 case KalturaChannelEnrichment.ClientLocation:
                     result = ExternalChannelEnrichment.ClientLocation;
                     break;
                 case KalturaChannelEnrichment.DeviceId:
-                    result = ExternalChannelEnrichment.DeviceId;
+                    result = ExternalChannelEnrichment.DeviceId ;
                     break;
                 case KalturaChannelEnrichment.DeviceType:
                     result = ExternalChannelEnrichment.DeviceType;
                     break;
+                case KalturaChannelEnrichment.DTTRegion:
+                    result = ExternalChannelEnrichment.DTTRegion;
+                    break;
                 case KalturaChannelEnrichment.HouseholdId:
                     result = ExternalChannelEnrichment.HouseholdId;
+                    break;
+                case KalturaChannelEnrichment.Language:
+                    result = ExternalChannelEnrichment.Language;
+                    break;
+                case KalturaChannelEnrichment.NPVRSupport:
+                    result = ExternalChannelEnrichment.NPVRSupport;
+                    break;
+                case KalturaChannelEnrichment.Parental:
+                    result = ExternalChannelEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
                     result = ExternalChannelEnrichment.UserId;

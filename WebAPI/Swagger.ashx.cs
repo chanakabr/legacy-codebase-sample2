@@ -53,9 +53,9 @@ namespace WebAPI
 
                         Assembly asm = Assembly.GetExecutingAssembly();
 
-                        var a = d.paths;
+                        var paths = d.paths;
 
-                        foreach (var k in a)
+                        foreach (var k in paths)
                         {
                             var key = k.Name.Split('/');
 
@@ -69,6 +69,19 @@ namespace WebAPI
                             if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
                             {
                                 k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
+                            }
+                        }
+
+                        var defs = d.definitions;
+
+                        foreach (var k in defs)
+                        {                            
+                            k.First.properties.objectType.Add("default", k.Name);
+
+                            foreach (var kk in k.First.properties)
+                            {
+                                if (kk.First.@default == null && kk.First.type != null && kk.First.type.Value == "string")
+                                   kk.First.Add("default", "");
                             }
                         }
 

@@ -118,8 +118,11 @@ namespace WebAPI.App_Start
             string message = errorMsg;
 #if DEBUG
             message = string.Concat(message, stack);
-#endif
             log.ErrorFormat("{0}", message);
+#else
+            log.ErrorFormat("{0} {1}", message, stack);
+#endif
+            
 
             return message;
         }

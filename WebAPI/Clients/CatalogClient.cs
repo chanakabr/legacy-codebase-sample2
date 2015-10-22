@@ -734,6 +734,7 @@ namespace WebAPI.Clients
 
             // fire search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
             {
                 // general error

@@ -11,6 +11,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
+using WebAPI.Models.Partner;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -523,5 +524,37 @@ namespace WebAPI.Clients
 
         #endregion
 
+
+        internal bool SetPartnerConfiguration(int groupId, KalturaBillingPartnerConfig partnerConfig)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Billing.PartnerConfiguration request = Mapper.Map<WebAPI.Billing.PartnerConfiguration>(partnerConfig);
+                    response = Billing.SetPartnerConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPartnerConfiguration. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace WebAPI.Filters
             DomainsMappings.RegisterMappings();
             BillingMappings.RegisterMappings();
             SocialMappings.RegisterMappings();
+            PartnerMappings.RegisterMappings();
         }
     }
 }

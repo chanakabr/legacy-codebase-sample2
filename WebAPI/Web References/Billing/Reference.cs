@@ -123,6 +123,8 @@ namespace WebAPI.Billing {
         
         private System.Threading.SendOrPostCallback GeneratePaymentGatewaySharedSecretOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetPartnerConfigurationOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -301,6 +303,9 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         public event GeneratePaymentGatewaySharedSecretCompletedEventHandler GeneratePaymentGatewaySharedSecretCompleted;
+        
+        /// <remarks/>
+        public event SetPartnerConfigurationCompletedEventHandler SetPartnerConfigurationCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2119,6 +2124,39 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPartnerConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPartnerConfiguration(string sWSUserName, string sWSPassword, PartnerConfiguration partnerConfig) {
+            object[] results = this.Invoke("SetPartnerConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        partnerConfig});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPartnerConfigurationAsync(string sWSUserName, string sWSPassword, PartnerConfiguration partnerConfig) {
+            this.SetPartnerConfigurationAsync(sWSUserName, sWSPassword, partnerConfig, null);
+        }
+        
+        /// <remarks/>
+        public void SetPartnerConfigurationAsync(string sWSUserName, string sWSPassword, PartnerConfiguration partnerConfig, object userState) {
+            if ((this.SetPartnerConfigurationOperationCompleted == null)) {
+                this.SetPartnerConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPartnerConfigurationOperationCompleted);
+            }
+            this.InvokeAsync("SetPartnerConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        partnerConfig}, this.SetPartnerConfigurationOperationCompleted, userState);
+        }
+        
+        private void OnSetPartnerConfigurationOperationCompleted(object arg) {
+            if ((this.SetPartnerConfigurationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPartnerConfigurationCompleted(this, new SetPartnerConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2237,6 +2275,55 @@ namespace WebAPI.Billing {
                 this.variantField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PartnerConfiguration {
+        
+        private string valueField;
+        
+        private PartnerConfigurationType typeField;
+        
+        /// <remarks/>
+        public string Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PartnerConfigurationType Type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum PartnerConfigurationType {
+        
+        /// <remarks/>
+        DefaultPaymentGateway,
+        
+        /// <remarks/>
+        EnablePaymentGatewaySelection,
+        
+        /// <remarks/>
+        OSSAdapter,
     }
     
     /// <remarks/>
@@ -4814,6 +4901,32 @@ namespace WebAPI.Billing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((PaymentGatewayItemResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPartnerConfigurationCompletedEventHandler(object sender, SetPartnerConfigurationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPartnerConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPartnerConfigurationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

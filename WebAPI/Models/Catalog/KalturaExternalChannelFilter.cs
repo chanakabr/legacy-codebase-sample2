@@ -13,18 +13,6 @@ namespace WebAPI.Models.Catalog
     public class KalturaExternalChannelFilter : KalturaAssetInfoFilter
     {
         /// <summary>
-        /// Device Type
-        /// </summary>
-        [DataMember(Name = "device_type")]
-        [JsonProperty(PropertyName = "device_type")]
-        [XmlElement("device_type", IsNullable = true)]
-        public string DeviceType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// UTC Offset
         /// </summary>
         [DataMember(Name = "utc_offset")]

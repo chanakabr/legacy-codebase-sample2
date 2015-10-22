@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// PaymentGW
     /// </summary>
-    public class KalturaRecommendationEngineProfile : KalturaOTTObject
+    public class KalturaRecommendationProfile : KalturaOTTObject
     {
         /// <summary>
         /// recommendation engine id

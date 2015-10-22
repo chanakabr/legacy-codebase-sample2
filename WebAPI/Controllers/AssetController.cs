@@ -36,7 +36,8 @@ namespace WebAPI.Controllers
         /// <param name="udid">Unique device identifier</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: 
-        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013</remarks>
+        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
@@ -148,8 +149,23 @@ namespace WebAPI.Controllers
 
                             KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
 
+                            string utcOffset = convertedFilter.UtcOffset;
+
+                            double utcOffsetDouble;
+
+                            if (!double.TryParse(utcOffset, out utcOffsetDouble))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                            }
+                            else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                            }
+
+                            string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+
                             response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, convertedFilter.DeviceType, convertedFilter.UtcOffset);
+                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, deviceType, convertedFilter.UtcOffset);
 
                             break;
                         }

@@ -9,8 +9,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/RecommendationEngineProfileSettings/action")]
-    public class RecommendationEngineProfileSettingsController : ApiController
+    [RoutePrefix("_service/RecommendationProfileSettings/action")]
+    public class RecommendationProfileSettingsController : ApiController
     {
         /// <summary>
         /// Returns all recommendation engine settings for partner
@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecommendationEngineProfile> List()
+        public List<KalturaRecommendationProfile> List()
         {
-            List<KalturaRecommendationEngineProfile> response = null;
+            List<KalturaRecommendationProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -45,16 +45,16 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///  
+        /// recommendation engine not exist = 4007
         /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
+        /// <param name="id">recommendation engine Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Delete(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().DeleteRecommendationEngineSettings(groupId, id, settings);
             }
             catch (ClientException ex)
             {
@@ -77,16 +77,17 @@ namespace WebAPI.Controllers
         /// Insert new settings for recommendation engine for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes:       
+        /// Possible status codes:  
+        /// recommendation engine not exist = 4007
         /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param> 
+        /// <param name="id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Add(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -95,7 +96,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().InsertRecommendationEngineSettings(groupId, id, settings);
             }
             catch (ClientException ex)
             {
@@ -110,16 +111,16 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///  
+        /// recommendation engine not exist = 4007
         /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param> 
+        /// <param name="id">recommendation engine Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(int recommendation_engine_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public bool Update(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -128,7 +129,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetRecommendationEngineSettings(groupId, recommendation_engine_id, settings);
+                response = ClientsManager.ApiClient().SetRecommendationEngineSettings(groupId, id, settings);
             }
             catch (ClientException ex)
             {
