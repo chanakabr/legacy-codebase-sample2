@@ -1793,15 +1793,8 @@ namespace DAL
                 sp.AddParameter("@groupId", groupID);
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    res = new PaymentGateway()
-                    {
-                        ID = paymentGatewayId,
-                        Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status"),
-                        IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active")
-                    };
-                }
+                res = CreatePaymentGateway(ds); 
+                
             }
             catch (Exception ex)
             {
