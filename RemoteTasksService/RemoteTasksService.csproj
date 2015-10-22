@@ -130,6 +130,10 @@
       <Project>{7740c5eb-21b0-423c-bbc3-bdea655a4b6e}</Project>
       <Name>ESIndexUpdateHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ExportHandler\ExportHandler.csproj">
+      <Project>{0303bfd2-76fe-4d89-80d6-dc2f202317ad}</Project>
+      <Name>ExportHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FileUploadHandler\FileUploadHandler.csproj">
       <Project>{82876744-9a82-4730-b9e0-29810b4cde81}</Project>
       <Name>FileUploadHandler</Name>
