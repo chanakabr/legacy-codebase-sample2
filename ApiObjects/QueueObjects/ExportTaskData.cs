@@ -19,7 +19,10 @@ namespace ApiObjects.QueueObjects
                  TASK)
         {
             this.GroupId = groupId;
-            this.ETA = eta.Value;
+            if (eta != null)
+            {
+                this.ETA = eta.Value;
+            }
             this.taskId = taskId;
             this.version = version;
             
