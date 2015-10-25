@@ -253,29 +253,30 @@ namespace ElasticSearch.Common
 
         public List<string> GetAliases(string sIndex)
         {
-            List<string> lAliases = new List<string>();
+            List<string> aliases = new List<string>();
 
             if (!string.IsNullOrEmpty(sIndex))
             {
-                string sUrl = string.Format("{0}/{1}/_aliases", ES_URL, sIndex);
-                int nStatus = 0;
+                string url = string.Format("{0}/{1}/_aliases", ES_URL, sIndex);
+                int status = 0;
 
-                string sObj = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
 
-                if (nStatus == 200 && !string.IsNullOrEmpty(sObj))
+                if (status == 200 && !string.IsNullOrEmpty(httpResponse))
                 {
                     try
                     {
-                        var jsonObj = System.Web.Helpers.Json.Decode(sObj);
+                        var jsonObj =
+                            JObject.Parse(httpResponse);
 
                         if (jsonObj != null)
                         {
                             foreach (var alias in jsonObj)
                             {
-                                string sIndexName = alias.Key;
+                                string indexName = alias.Key;
 
-                                if (!string.IsNullOrEmpty(sIndexName))
-                                    lAliases.Add(sIndexName);
+                                if (!string.IsNullOrEmpty(indexName))
+                                    aliases.Add(indexName);
                             }
                         }
 
@@ -287,7 +288,7 @@ namespace ElasticSearch.Common
                 }
             }
 
-            return lAliases;
+            return aliases;
 
         }
 
