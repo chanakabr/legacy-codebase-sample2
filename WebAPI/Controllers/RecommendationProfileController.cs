@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// recommendation engine not exist = 4007, recommendatio nengine identifier required = 4008,
+        /// recommendation engine not exist = 4007
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param>
         [Route("delete"), HttpPost]
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008
+        /// recommendation engine not exist = 4007
         /// </remarks>
         /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
         [Route("generateSharedSecret"), HttpPost]
