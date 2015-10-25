@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009
+        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009, conflicted params = 5014
         /// </remarks>
         /// <param name="oss_adapter_id">OSS adapter Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009
+        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009, conflicted params = 5014
         /// </remarks>
         /// <param name="oss_adapter_id">OSS Adapter identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009,
+        /// oss adapter identifier required = 5007, oss adapter not exist = 5008, oss adapter params required = 5009,conflicted params = 5014
         /// </remarks>
         /// <param name="oss_adapter_id">OSS Adapter identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
