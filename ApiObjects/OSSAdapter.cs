@@ -14,6 +14,7 @@ namespace ApiObjects
 
         public OSSAdapter()
         {
+            Settings = new List<OSSAdapterSettings>();
         }
 
         public OSSAdapter(OSSAdapter ossAdapter)
