@@ -21,9 +21,12 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Update Partner Configuration
-        /// possible configuration type: KalturaBillingPartnerConfig { Value: string, objectType: KalturaPartnerConfigurationHolder  }
         /// </summary>
-        /// <param name="configuration">Partner Configuration</param>        
+        /// <param name="configuration">Partner Configuration
+        /// possible configuration type: 
+        /// "configuration": { "value": 0, "partner_configuration_type": { "type": "OSSAdapter", "objectType": "KalturaPartnerConfigurationHolder" },
+        /// "objectType": "KalturaBillingPartnerConfig"}
+        /// </param>        
         [Route("update"), HttpPost]
         [ApiAuthorize(true)]
         public bool Update(KalturaPartnerConfiguration configuration)
