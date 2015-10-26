@@ -914,6 +914,10 @@ namespace TVinciShared
                             {
                                 if (sCollectionTable != "channels" && sCollectionTable != "categories")
                                     selectQuery1 += " group_id " + PageUtils.GetParentsGroupsStr(nGroupID);
+                                else if (sCollectionTable == "channels" && sMiddleTable == "categories_channels")
+                                {
+                                    selectQuery1 += " group_id " + PageUtils.GetAllGroupTreeStr(nGroupID);
+                                }
                                 else
                                     selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                             }
