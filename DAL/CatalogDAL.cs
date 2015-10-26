@@ -3399,6 +3399,7 @@ namespace Tvinci.Core.DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", externalChannel.Name);
+            sp.AddParameter("@isActive", externalChannel.IsActive);
             sp.AddParameter("@externalIdentifier", externalChannel.ExternalIdentifier);
             sp.AddParameter("@recommendationEngineId", externalChannel.RecommendationEngineId);
             sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
@@ -3438,6 +3439,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ID", externalChannel.ID);
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", externalChannel.Name);
+            sp.AddParameter("@isActive", externalChannel.IsActive);
             sp.AddParameter("@externalIdentifier", externalChannel.ExternalIdentifier);
             sp.AddParameter("@recommendationEngineId", externalChannel.RecommendationEngineId);
             sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
