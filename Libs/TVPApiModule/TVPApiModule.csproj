@@ -64,7 +64,7 @@
     <Reference Include="ApiObjects">
       <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseWrapper, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CouchbaseWrapper, Version=3.4.0.33413, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\tvincicommon\External\CouchbaseWrapper.dll</HintPath>
     </Reference>
@@ -186,6 +186,7 @@
     <Compile Include="Manager\TextLocalizationManager.cs" />
     <Compile Include="Objects\Authorization\APIToken.cs" />
     <Compile Include="Objects\Authorization\AppCredentials.cs" />
+    <Compile Include="Objects\Authorization\RefreshToken.cs" />
     <Compile Include="Objects\Authorization\DeviceToken.cs" />
     <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
     <Compile Include="Objects\Authorization\PrivateMethodAttribute.cs" />
