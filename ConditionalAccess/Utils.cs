@@ -671,7 +671,7 @@ namespace ConditionalAccess
             ref Subscription[] subsRes, ref Collection[] collsRes,
             ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
         {
-            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0));
+            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs(lstUserIDs, nFileTypes != null && nFileTypes.Length > 0 ? nFileTypes.ToList<int>() : new List<int>(0), nGroupID);
             if (IsBundlesDataSetValid(dataSet))
             {
                 // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
