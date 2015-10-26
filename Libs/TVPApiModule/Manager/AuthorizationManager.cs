@@ -140,11 +140,20 @@ namespace TVPApiModule.Manager
 
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB);
+            RefreshToken refreshToken = new RefreshToken(apiToken);
 
-            // try store in CB, will return false if the same token already exists
-            if (!_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            // try store access token doc in CB, will return false if the same token already exists
+            if (!_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration)))
             {
                 logger.ErrorFormat("GenerateAccessToken: access token was not saved in CB.");
+                returnError(500);
+                return null;
+            }
+
+            // try store refresh token doc in CB, will return false if the same token already exists
+            if (!_client.Add<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            {
+                logger.ErrorFormat("GenerateAccessToken: refresh token was not saved in CB.");
                 returnError(500);
                 return null;
             }
@@ -168,50 +177,88 @@ namespace TVPApiModule.Manager
             }
         }
 
-
         public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform)
         {
             // validate request parameters
-            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            if (string.IsNullOrEmpty(refreshToken))
             {
-                logger.ErrorFormat("RefreshAccessToken: Bad request accessToken or refreshToken are empty");
+                logger.ErrorFormat("RefreshAccessToken: Bad request refreshToken is empty");
                 returnError(400);
                 return null;
             }
 
-            // try get api token from CB
+            RefreshToken refreshTokenDoc = null;
+            APIToken accessTokenDoc = null;
+
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
-            CasGetResult<APIToken> casRes = _client.GetWithCas<APIToken>(apiTokenId);
+            string refreshTokenId = RefreshToken.GetRefreshTokenId(refreshToken);
+
+            // try get refresh token from CB
+            CasGetResult<RefreshToken> casRes = _client.GetWithCas<RefreshToken>(refreshTokenId);
             if (casRes == null)
             {
-                logger.ErrorFormat("RefreshAccessToken: No response from CB.");
+                logger.ErrorFormat("RefreshAccessToken: Refresh token not found - no response from CB.");
                 returnError(401);
                 return null;
             }
             if (casRes.OperationResult != eOperationResult.NoError)
             {
-                logger.ErrorFormat("RefreshAccessToken: Error response from CB: OperationResult = {0}", casRes.OperationResult);
+                logger.ErrorFormat("RefreshAccessToken: Refresh token not found - error response from CB: OperationResult = {0}", casRes.OperationResult);
                 returnError(401);
                 return null;
             }
             if (casRes.Value == null)
             {
-                logger.ErrorFormat("RefreshAccessToken: Token doc not found in CB - refreshToken expired.");
-                returnError(401);
-                return null;
+                logger.DebugFormat("RefreshAccessToken: Refresh token not found - token doc not found in CB.");
+
+                // try extract refresh token data using access token dox (if access token supplied).
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    logger.ErrorFormat("RefreshAccessToken: Refresh token doc not found, access token not supplied - refresh cannot be done");
+                }
+
+                // try get access token doc  from CB
+                CasGetResult<APIToken> accessCasRes = _client.GetWithCas<APIToken>(apiTokenId);
+                if (accessCasRes == null)
+                {
+                    logger.ErrorFormat("RefreshAccessToken: Access token not found - no response from CB.");
+                    returnError(401);
+                    return null;
+                }
+                if (accessCasRes.OperationResult != eOperationResult.NoError)
+                {
+                    logger.ErrorFormat("RefreshAccessToken: Access token not found - error response from CB: OperationResult = {0}", casRes.OperationResult);
+                    returnError(401);
+                    return null;
+                }
+                if (accessCasRes.Value == null)
+                {
+                    logger.ErrorFormat("RefreshAccessToken: Access token not found - token doc not found in CB - refreshToken expired.");
+                    returnError(401);
+                    return null;
+                }
+
+                // get the access token doc
+                accessTokenDoc = accessCasRes.Value;
+
+                // create refresh access docw
+                refreshTokenDoc = new RefreshToken(accessTokenDoc);
+            }
+            else
+            {
+                refreshTokenDoc = casRes.Value;
             }
 
-            APIToken apiToken = casRes.Value;
 
             // validate refresh token
-            if (apiToken.RefreshToken != refreshToken)
+            if (refreshTokenDoc.RefreshTokenValue != refreshToken)
             {
                 logger.ErrorFormat("RefreshAccessToken: refreshToken not valid.");
                 returnError(401);
                 return null;
             }
 
-            string siteGuid = apiToken.SiteGuid;
+            string siteGuid = refreshTokenDoc.SiteGuid;
 
             // validate user
             UserResponseObject user = null;
@@ -244,28 +291,32 @@ namespace TVPApiModule.Manager
             }
 
             // generate new access token with the old refresh token
-            apiToken = new APIToken(apiToken, groupConfig);
+            accessTokenDoc = new APIToken(refreshTokenDoc, groupConfig);
+            
+            // set refresh token new expiration as calculated in access token
+            refreshTokenDoc.RefreshTokenExpiration = accessTokenDoc.RefreshTokenExpiration;
 
             // Store new access + refresh tokens pair
-            if (_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            if (_client.Add<APIToken>(accessTokenDoc, TimeHelper.ConvertFromUnixTimestamp(accessTokenDoc.AccessTokenExpiration)))
             {
-                // delete the old one
-                _client.Remove(apiTokenId);
+                _client.Add<RefreshToken>(refreshTokenDoc, TimeHelper.ConvertFromUnixTimestamp(refreshTokenDoc.RefreshTokenExpiration));
             }
             else
             {
-                logger.ErrorFormat("RefreshAccessToken: Failed to store new token, returning 500");
+                logger.ErrorFormat("RefreshAccessToken: Failed to store new access token, returning 500");
                 returnError(500);
                 return null;
             }
 
-            return GetTokenResponseObject(apiToken);
+            return GetTokenResponseObject(accessTokenDoc);
         }
 
         public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, out string siteGuid, out bool isAdmin)
         {
             siteGuid = string.Empty;
             isAdmin = false;
+
+            bool isRefreshTokenInCb = false;
 
             // if no access token - validation will be performed later if needed
             if (string.IsNullOrEmpty(accessToken))
@@ -310,11 +361,40 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
-            // access token is valid - extend refreshToken if extendable
+            // access token is valid - extend refreshToken if extendable, store refresh token doc if not found
+
+            // try to get refresh token 
+            RefreshToken refreshToken;
+            string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
+            CasGetResult<RefreshToken> casRes = _client.GetWithCas<RefreshToken>(refreshTokenId);
+            if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
+            {
+                // refresh token doc not found - create a new one
+                refreshToken = new RefreshToken(apiToken);
+            }
+            else
+            {
+                refreshToken = casRes.Value;
+                isRefreshTokenInCb = true;
+            }
+
             if (groupConfig.IsRefreshTokenExtendable)
             {
                 apiToken.RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
-                _client.Store<APIToken>(apiToken, DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+
+                // set refresh token expiration as calculated in access token
+                refreshToken.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
+
+                // store updated access token doc
+                _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration));
+
+                // store refresh token doc
+                _client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(refreshToken.RefreshTokenExpiration));
+            }
+            else if (!isRefreshTokenInCb)
+            {
+                // save refresh token in CB if it was not there before (for backwards compatibility)
+                _client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(refreshToken.RefreshTokenExpiration));
             }
 
             return true;
@@ -469,7 +549,6 @@ namespace TVPApiModule.Manager
 
             return groupConfig.IsSwitchingUsersAllowed;
         }
-
 
         // Updates the siteguid of the token 
         public object UpdateUserInToken(string accessToken, string siteGuid, int groupId)
