@@ -2983,9 +2983,10 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static int GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
+        public static RecommendationEngine GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
         {
-            int recommendationEngineId = 0;
+            RecommendationEngine result = null;
+            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -2995,10 +2996,10 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
             }
 
-            return recommendationEngineId;
+            return result;
         }
 
         public static RecommendationEngine InsertRecommendationEngine(int groupID, RecommendationEngine recommendationEngine)

@@ -1201,12 +1201,13 @@ namespace DAL
             return res;
         }
 
-        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes)
+        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddIDListParameter("@Users", lstUsers, "ID");
             sp.AddIDListParameter("@FileTypes", lstFileTypes, "ID");
+            sp.AddParameter("@Group_id", nGroupID);
 
             return sp.ExecuteDataSet();
         }
