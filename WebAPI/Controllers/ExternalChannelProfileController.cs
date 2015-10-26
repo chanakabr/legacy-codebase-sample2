@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// external channel identifier required = 5007, external channel not exist = 5008
+        /// external channel not exist = 5008
         /// </remarks>
         /// <param name="external_channel_id">External channel identifier</param>
         [Route("delete"), HttpPost]
