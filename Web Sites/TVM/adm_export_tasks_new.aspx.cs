@@ -63,7 +63,7 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
 
                                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
 
-                                m.EnqueueExportTask(sWSUserName, sWSPass, taskid);
+                                m.EnqueueExportTask(sWSUserName, sWSPass, nID);
                             }
                             catch (Exception ex)
                             {
