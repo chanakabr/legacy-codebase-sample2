@@ -297,8 +297,14 @@ namespace EpgIngest
 
             // Delete all EpgIdentifiers that are not needed (per channel per day)
             List<int> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
-            List<string> docIds = Utils.BuildDocIdsToRemoveGroupPrograms(lProgramsID, lLanguage);
-            oEpgBL.RemoveGroupPrograms(docIds);
+            
+            if (lProgramsID != null && lProgramsID.Count > 0)
+            {
+                List<string> docIds = Utils.BuildDocIdsToRemoveGroupPrograms(lProgramsID, lLanguage);
+                oEpgBL.RemoveGroupPrograms(docIds);
+                List<ulong> programIds = lProgramsID.Select(i => (ulong)i).ToList();
+                bool resultEpgIndex = UpdateEpgIndex(programIds, m_Channels.parentgroupid, ApiObjects.eAction.Delete);
+            }
 
             foreach (List<KeyValuePair<string, EpgCB>> lEpg in dEpg.Values)
             {
@@ -925,7 +931,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                log.Error("KDG - " + string.Format("fail to DeleteEpgs ex = {0}", ex.Message), ex);
+                log.Error(string.Format("fail to DeleteEpgs from DB ex = {0}", ex.Message), ex);
                 return null;
             }
         }
