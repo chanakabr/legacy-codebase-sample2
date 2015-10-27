@@ -86,9 +86,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006, 
-        /// Payment Gateway ID Missing = 6005, Error Saving Payment Gateway Household = 6017, Household Already Set To Payment Gateway = 6024, Payment Gateway Selection Is Disabled = 6028,
-        /// Payment gateway not valid = 6043
+        /// user does not exist = 2000, user not in domain = 1005, user with no domain = 2024, user suspended = 2001, domain not exists = 1006, 
+        /// error saving payment gateway household = 6017, household already set to payment gateway = 6024, payment gateway selection is disabled = 6028,
+        /// payment gateway not valid = 6043
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="household_id">Household Identifier</param>
@@ -118,8 +118,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
-        /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
+        /// user does not exist = 2000, user not in domain = 1005, user with no domain = 2024, user suspended = 2001, domain not exists = 1006
+        /// payment gateway not exist = 6008, household not set to payment gateway = 6027
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">Household Identifier</param>
