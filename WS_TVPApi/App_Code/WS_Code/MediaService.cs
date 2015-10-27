@@ -3708,6 +3708,21 @@ namespace TVPApiServices
                         }
                     }
 
+                    double utcOffsetDouble;
+
+                    if (!double.TryParse(utc_offset, out utcOffsetDouble))
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
+                        return response;
+                    }
+                    else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
+                        return response;
+                    }
+
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
                     
                     response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index, 
