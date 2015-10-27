@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// no recommendation engine to insert = 4006, name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
+        /// name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
         /// <param name="recommendation_engine">recommendation engine Object</param>
         [Route("add"), HttpPost]
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:      
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, no recommendation engine to update = 4015, name required = 5005, 
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, 
         /// adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>        
         /// <param name="recommendation_engine">recommendation engine Object</param>       

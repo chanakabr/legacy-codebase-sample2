@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, no External channel to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>
         [Route("add"), HttpPost]
