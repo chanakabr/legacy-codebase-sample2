@@ -39,16 +39,15 @@ namespace ExportHandler
                 if (!string.IsNullOrEmpty(url))
                     apiClient.Url = url;
 
-                bool success = apiClient.Export(username, password, request.TaskId, request.Version);
-
-                if (!success)
-                {
-                    throw new Exception(string.Format("Export request failed. request.TaskId = {0}, request.Version = {1}",
-                        request.TaskId,                                             // {0}
-                        request.Version != null ? request.Version : string.Empty)); // {1}
-                }
+                apiClient.ExportAsync(username, password, request.TaskId, request.Version);
 
                 result = "success";
+                //if (!success)
+                //{
+                //    throw new Exception(string.Format("Export request failed. request.TaskId = {0}, request.Version = {1}",
+                //        request.TaskId,                                             // {0}
+                //        request.Version != null ? request.Version : string.Empty)); // {1}
+                //}
             }
             catch (Exception ex)
             {
