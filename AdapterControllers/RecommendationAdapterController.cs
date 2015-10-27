@@ -318,7 +318,7 @@ namespace AdapterControllers
                     else
                         log.Debug("Adapter response is null");
 
-                    if (adapterResponse == null && adapterResponse.Code == STATUS_OK)
+                    if (adapterResponse != null && adapterResponse.Code == STATUS_OK)
                     {
                         result = true;
                     }
