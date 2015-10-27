@@ -1782,7 +1782,7 @@ namespace DAL
         }
 
 
-        public static PaymentGateway GetPaymentGateway(int groupID, int paymentGatewayId, int isActive = 1, int status = 1)
+        public static PaymentGateway GetPaymentGateway(int groupID, int paymentGatewayId, int? isActive = 1, int status = 1)
         {
             PaymentGateway res = null;
             try
@@ -1791,6 +1791,12 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@paymentGatewayId", paymentGatewayId);
                 sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                } 
+                
                 DataSet ds = sp.ExecuteDataSet();
 
                 res = CreatePaymentGateway(ds); 
