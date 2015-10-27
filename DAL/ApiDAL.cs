@@ -2102,9 +2102,10 @@ namespace DAL
 
         #region OSSAdapter
 
-        public static int GetOSSAdapterInternalID(int groupID, string externalIdentifier)
+        public static OSSAdapter GetOSSAdapterInternalID(int groupID, string externalIdentifier)
         {
-            int ossAdapterId = 0;
+            OSSAdapter ossAdapterRes = null; 
+
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdpterByExternalD");
@@ -2114,17 +2115,14 @@ namespace DAL
                                                         
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                }
+                ossAdapterRes = CreateOSSAdapter(ds);
 
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
-            return ossAdapterId;
+            return ossAdapterRes;
         }
 
         public static OSSAdapter InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)

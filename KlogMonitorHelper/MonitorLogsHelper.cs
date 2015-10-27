@@ -19,6 +19,7 @@ namespace KlogMonitorHelper
         private const string K_MON_KEY = "kmon";
         private const string PREFIX_UNIQUE_ID = @"urn:uuid:";
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
+        private const int MAX_LOG_REQUEST_SIZE = 30000;
 
         public static string GetWebServiceRequestString()
         {
@@ -106,7 +107,10 @@ namespace KlogMonitorHelper
                 HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                 // log request
-                log.Debug("REQUEST STRING:" + requestString);
+                if (requestString.Length > MAX_LOG_REQUEST_SIZE)
+                    log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                else
+                    log.Debug("REQUEST STRING: " + requestString);
             }
         }
 
@@ -148,7 +152,10 @@ namespace KlogMonitorHelper
                     OperationContext.Current.IncomingMessageProperties[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                     // log request
-                    log.Debug("REQUEST STRING:" + requestString);
+                    if (requestString.Length > MAX_LOG_REQUEST_SIZE)
+                        log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                    else
+                        log.Debug("REQUEST STRING: " + requestString);
                 }
             }
         }

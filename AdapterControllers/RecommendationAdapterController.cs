@@ -184,6 +184,7 @@ namespace AdapterControllers
                     engine.ID,
                     externalChannel.ID
                     );
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
             return searchResults;
@@ -317,7 +318,7 @@ namespace AdapterControllers
                     else
                         log.Debug("Adapter response is null");
 
-                    if (adapterResponse == null && adapterResponse.Code == STATUS_OK)
+                    if (adapterResponse != null && adapterResponse.Code == STATUS_OK)
                     {
                         result = true;
                     }
