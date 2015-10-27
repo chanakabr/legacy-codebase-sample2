@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, 
-        /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027, Household required = 6044
+        /// Domain Not Exists = 1006, Household Not Set To Payment Gateway = 6027
         /// </remarks>
         /// <param name="household_id">Household Identifier</param>        
         [Route("get"), HttpPost]
