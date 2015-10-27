@@ -120,6 +120,7 @@
     <Compile Include="CatalogLoaders\APIPeopleWhoWatchedLoader.cs" />
     <Compile Include="CatalogLoaders\APIPersonalLastWatchedLoader.cs" />
     <Compile Include="CatalogLoaders\APIPersonalRecommendedLoader.cs" />
+    <Compile Include="CatalogLoaders\APIRecommendationsLoader.cs" />
     <Compile Include="CatalogLoaders\APIRelatedMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APISearchMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APISubscriptionMediaLoader.cs" />

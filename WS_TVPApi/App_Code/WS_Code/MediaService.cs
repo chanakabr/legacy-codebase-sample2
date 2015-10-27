@@ -3664,5 +3664,73 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get recommendeed assets")]
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetRecommendations(InitializationObject initObj,
+            string external_channel, string utc_offset,
+            List<string> with, int page_index, int? page_size)
+        {
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    if (page_size == null)
+                    {
+                        page_size = 25;
+                    }
+                    else if (page_size > 50)
+                    {
+                        page_size = 50;
+                    }
+                    else if (page_size < 1)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 1 and 50");
+                        return response;
+                    }
+
+                    HashSet<string> validWithValues = new HashSet<string>() { "stats", "files" };
+
+                    // validate with - make sure it contains only "stats" and/or "files"
+                    if (with != null)
+                    {
+                        foreach (var currentValue in with)
+                        {
+                            if (!validWithValues.Contains(currentValue))
+                            {
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                                return response;
+                            }
+                        }
+                    }
+
+                    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                    
+                    response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index, 
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, external_channel, utc_offset)
+                    {
+                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
     }
 }
