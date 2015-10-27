@@ -75,8 +75,8 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
                             apiWS.API client = new apiWS.API();
                             client.Url = url;
 
-                            client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
-                            client.UpdateRecommendationEngineConfiguration(userName, password, adapterId);
+                            var updateCacheResponse = client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+                            var updateConfigurationResponse = client.UpdateRecommendationEngineConfiguration(userName, password, adapterId);
                         }
 
                         return;
