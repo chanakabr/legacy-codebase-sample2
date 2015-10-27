@@ -126,6 +126,7 @@ namespace ApiObjects.Response
         NoOSSAdapterToUpdate = 5012,
         AdapterUrlRequired = 5013,
         ConflictedParams = 5014,
+        PurchaseSettingsTypeInvalid = 5015,
 
 
         // Billing 6000 - 6999
