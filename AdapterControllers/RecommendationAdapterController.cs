@@ -184,6 +184,7 @@ namespace AdapterControllers
                     engine.ID,
                     externalChannel.ID
                     );
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
             return searchResults;
