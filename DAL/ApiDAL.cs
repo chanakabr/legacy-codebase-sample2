@@ -2644,7 +2644,7 @@ namespace DAL
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                                 Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
                                 InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
-                                LastProcess = ODBCWrapper.Utils.GetDateSafeVal(row, "LAST_PROCESS"),
+                                LastProcess = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "LAST_PROCESS"),
                                 NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL")
                             });
                         }
