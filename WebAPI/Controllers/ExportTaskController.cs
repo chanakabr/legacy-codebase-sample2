@@ -59,6 +59,11 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (task.Id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "task id must be supplied");
+            }
+
             try
             {
                 response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
