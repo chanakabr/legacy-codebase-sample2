@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier or external channel identifier.
         /// </summary>
-        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="filter">Filtering the assets request. Possible additional object types: KalturaExternalChannelFilter</param>
         /// <param name="order_by">Ordering the channel</param>
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
