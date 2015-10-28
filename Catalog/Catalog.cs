@@ -4766,8 +4766,18 @@ namespace Catalog
                 {
                     case ExternalChannelEnrichment.ClientLocation:
                     {
-                        int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(request.m_sUserIP);
-                        dictionary["client_location"] = countryId.ToString();
+                        try
+                        {
+                            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(request.m_sUserIP);
+
+                            dictionary["client_location"] = countryId.ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed getting country by IP. IP = {0}", request.m_sUserIP, ex);
+                            dictionary["client_location"] = "0";
+                        }
+
                         break;
                     }
                     case ExternalChannelEnrichment.UserId:
@@ -4815,18 +4825,21 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.NPVRSupport:
                     {
-                        throw new NotImplementedException();
+                        log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined", 
+                            request.externalChannelId, (int)enrichment, enrichment.ToString());
                         break;
                     }
                     case ExternalChannelEnrichment.Catchup:
                     {
-                        throw new NotImplementedException();
+                        log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                            request.externalChannelId, (int)enrichment, enrichment.ToString());
 
                         break;
                     }
                     case ExternalChannelEnrichment.Parental:
                     {
-                        throw new NotImplementedException();
+                        log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                            request.externalChannelId, (int)enrichment, enrichment.ToString());
 
                         break;
                     }
@@ -4850,13 +4863,15 @@ namespace Catalog
                     }
                     case ExternalChannelEnrichment.AtHome:
                     {
-                        throw new NotImplementedException();
+                        log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                            request.externalChannelId, (int)enrichment, enrichment.ToString());
 
                         break;
                     }
                     default:
                     {
-                        throw new NotImplementedException();
+                        log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                            request.externalChannelId, (int)enrichment, enrichment.ToString());
 
                         break;
                     }
