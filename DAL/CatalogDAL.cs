@@ -3371,7 +3371,49 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-       
+        public static List<ExternalChannelEnrichment> GetAvailableEnrichments()
+        {
+            List<ExternalChannelEnrichment> result = new List<ExternalChannelEnrichment>();
+
+            DataTable enrichmentsTable = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            try
+            {
+                // Get from DB all enrichments that are active
+                selectQuery += "select * from external_channels_enrichments (nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+                selectQuery.SetCachedSec(1200);
+
+                enrichmentsTable = selectQuery.Execute("query", true);
+
+            }
+            catch
+            {
+                enrichmentsTable = null;
+            }
+            finally
+            {
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            if (enrichmentsTable != null && enrichmentsTable.Rows != null)
+            {
+                // Run on table and convert values to enums
+                foreach (DataRow row in enrichmentsTable.Rows)
+                {
+                    int value = ODBCWrapper.Utils.ExtractInteger(row, "value");
+
+                    if (value > 0)
+                    {
+                        result.Add((ExternalChannelEnrichment)value);
+                    }
+                }
+            }
+
+            return result;
+        }
 
         public static int GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {

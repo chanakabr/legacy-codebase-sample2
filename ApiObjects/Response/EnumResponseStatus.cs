@@ -108,7 +108,7 @@ namespace ApiObjects.Response
         ExternalChannelIdentifierRequired = 4013,
         ExternalChannelHasNoRecommendationEngine = 4014,
         NoRecommendationEngineToUpdate = 4015,
-
+        InactiveExternalChannelEnrichment = 4016,
 
 
         // Api 5000 - 5999
