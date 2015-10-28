@@ -45,6 +45,8 @@ namespace WebAPI.Controllers
         /// Delete External channel by External channel id
         /// </summary>
         /// <remarks>
+        /// Possible status codes:   
+        /// external channel not exist = 4011
         /// </remarks>
         /// <param name="external_channel_id">External channel identifier</param>
         [Route("delete"), HttpPost]
