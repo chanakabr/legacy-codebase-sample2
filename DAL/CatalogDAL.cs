@@ -3345,7 +3345,7 @@ namespace Tvinci.Core.DAL
             }
             return res;
         }
-        public static ExternalChannel GetExternalChannelById(int groupID, int channelId, int status = 1, int? isActive = 1)
+        public static ExternalChannel GetExternalChannelById(int groupID, int channelId, int status = 1, int? isActive = null)
         {
             ExternalChannel result = null;
 
