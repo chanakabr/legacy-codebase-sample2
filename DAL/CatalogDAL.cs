@@ -3345,6 +3345,29 @@ namespace Tvinci.Core.DAL
             }
             return res;
         }
+        public static ExternalChannel GetExternalChannelById(int groupID, int channelId, int status = 1, int? isActive = 1)
+        {
+            ExternalChannel result = null;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ExternalChannel");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupID);
+            storedProcedure.AddParameter("@id", channelId);
+            storedProcedure.AddParameter("@Status", status);
+            if (isActive.HasValue)
+            {
+                storedProcedure.AddParameter("@IsActive", isActive.Value);
+            }
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                result = SetExternalChannel(dataSet);
+            }
+
+            return result;
+        }
 
 
         public static ExternalChannel GetExternalChannel(string channelId)
