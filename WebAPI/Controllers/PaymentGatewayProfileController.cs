@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///    Payment gateway identifier is required = 6005, Payment gateway not exist = 6008
+        /// Payment gateway not exist = 6008
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]

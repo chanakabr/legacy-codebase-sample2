@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   Payment gateway id required = 6005, Payment gateway params required = 6006
+        /// Payment gateway params required = 6006
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example

@@ -36,6 +36,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
                 if (by == KalturaEntityReferenceBy.user)
                 {
                     if (string.IsNullOrEmpty(household_user_id))
@@ -47,12 +49,12 @@ namespace WebAPI.Controllers
                     AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
-                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id);
+                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id, householdId);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    purchaseResponse = ClientsManager.ApiClient().GetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    purchaseResponse = ClientsManager.ApiClient().GetDomainPurchaseSettings(groupId, householdId);
                 }
             }
             catch (ClientException ex)
@@ -67,7 +69,8 @@ namespace WebAPI.Controllers
         /// Set the purchase settings that applies for the household.        
         /// </summary>
         /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
+        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001,
+        /// purchase settings type invalid = 5015 </remarks>
         /// <param name="setting">New settings to apply</param>
         /// <param name="by">Reference type to filter by</param>
         /// <param name="household_user_id">The identifier of the household user for whom to update the setting (if updating by user)</param> 

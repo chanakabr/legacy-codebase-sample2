@@ -45,8 +45,8 @@ namespace WebAPI.Controllers
         /// Delete External channel by External channel id
         /// </summary>
         /// <remarks>
-        /// Possible status codes:       
-        /// external channel identifier required = 5007, external channel not exist = 5008
+        /// Possible status codes:   
+        /// external channel not exist = 4011
         /// </remarks>
         /// <param name="external_channel_id">External channel identifier</param>
         [Route("delete"), HttpPost]
@@ -75,7 +75,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, no External channel to insert = 5004, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040,
+        /// Inactive External Channel Enrichment = 4016
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>
         [Route("add"), HttpPost]
@@ -104,7 +105,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// name required = 5005, external channel identifier required = 5007, no external channel to update = 5012, external identifier required = 6016, external identifier must be unique = 6040  
+        /// external channel not exist = 4011, external channel identifier required = 4013, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  ,
+        /// Inactive External Channel Enrichment = 4016
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>       
         [Route("update"), HttpPost]

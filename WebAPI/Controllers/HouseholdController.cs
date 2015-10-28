@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:         
-        /// Domain not exists = 1006, Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Domain not exists = 1006, Payment gateway not exist = 6008, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
         /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Domain not exists = 1006, Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
+        /// Possible status codes: Domain not exists = 1006, Payment gateway not exist for group = 6008, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="household_id">Household for which to return the Charge ID</param>        
