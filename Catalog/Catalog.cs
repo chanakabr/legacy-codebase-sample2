@@ -4819,8 +4819,11 @@ namespace Catalog
                             objLang = GetLanguage(request.m_nGroupID, request.m_oFilter.m_nLanguage);
                         }
 
-                        dictionary["default_language"] = objLang.Code;  
-                         
+                        if (objLang != null)
+                        {
+                            dictionary["language"] = objLang.Code;
+                        }
+
                         break;
                     }
                     case ExternalChannelEnrichment.NPVRSupport:
