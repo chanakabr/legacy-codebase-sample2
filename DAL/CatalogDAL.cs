@@ -3371,53 +3371,11 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static List<ExternalChannelEnrichment> GetAvailableEnrichments()
+
+        public static ExternalChannel GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
-            List<ExternalChannelEnrichment> result = new List<ExternalChannelEnrichment>();
-
-            DataTable enrichmentsTable = null;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-            try
-            {
-                // Get from DB all enrichments that are active
-                selectQuery += "select * from external_channels_enrichments (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
-                selectQuery.SetCachedSec(1200);
-
-                enrichmentsTable = selectQuery.Execute("query", true);
-
-            }
-            catch
-            {
-                enrichmentsTable = null;
-            }
-            finally
-            {
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-
-            if (enrichmentsTable != null && enrichmentsTable.Rows != null)
-            {
-                // Run on table and convert values to enums
-                foreach (DataRow row in enrichmentsTable.Rows)
-                {
-                    int value = ODBCWrapper.Utils.ExtractInteger(row, "value");
-
-                    if (value > 0)
-                    {
-                        result.Add((ExternalChannelEnrichment)value);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public static int GetExternalChannelInternalID(int groupID, string externalIdentifier)
-        {
-            int recommendationEngineId = 0;
+            ExternalChannel result = null;
+            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3427,10 +3385,10 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                result = SetExternalChannel(ds.Tables[0].Rows[0]);
             }
 
-            return recommendationEngineId;
+            return result;
         }
 
         public static ExternalChannel InsertExternalChannel(int groupID, ExternalChannel externalChannel)
@@ -3523,6 +3481,50 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
+
+        public static List<ExternalChannelEnrichment> GetAvailableEnrichments()
+        {
+            List<ExternalChannelEnrichment> result = new List<ExternalChannelEnrichment>();
+
+            DataTable enrichmentsTable = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            try
+            {
+                // Get from DB all enrichments that are active
+                selectQuery += "select * from external_channels_enrichments (nolock) where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+                selectQuery.SetCachedSec(1200);
+
+                enrichmentsTable = selectQuery.Execute("query", true);
+
+            }
+            catch
+            {
+                enrichmentsTable = null;
+            }
+            finally
+            {
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            if (enrichmentsTable != null && enrichmentsTable.Rows != null)
+            {
+                // Run on table and convert values to enums
+                foreach (DataRow row in enrichmentsTable.Rows)
+                {
+                    int value = ODBCWrapper.Utils.ExtractInteger(row, "value");
+
+                    if (value > 0)
+                    {
+                        result.Add((ExternalChannelEnrichment)value);
+                    }
+                }
+            }
+
+            return result;
+        }
         private static int GetEnrichments(List<ExternalChannelEnrichment> list)
         {
             int enrichmentListValue = 0;
