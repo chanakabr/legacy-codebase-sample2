@@ -4984,7 +4984,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
+        public BulkExportTaskResponse AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
             object[] results = this.Invoke("AddBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -4995,17 +4995,18 @@ namespace WebAPI.Api {
                         exportType,
                         frequency,
                         notificationUrl,
-                        vodTypes});
-            return ((Status)(results[0]));
+                        vodTypes,
+                        isActive});
+            return ((BulkExportTaskResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
-            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, null);
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
+            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, object userState) {
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive, object userState) {
             if ((this.AddBulkExportTaskOperationCompleted == null)) {
                 this.AddBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddBulkExportTaskOperationCompleted);
             }
@@ -5019,7 +5020,8 @@ namespace WebAPI.Api {
                         exportType,
                         frequency,
                         notificationUrl,
-                        vodTypes}, this.AddBulkExportTaskOperationCompleted, userState);
+                        vodTypes,
+                        isActive}, this.AddBulkExportTaskOperationCompleted, userState);
         }
         
         private void OnAddBulkExportTaskOperationCompleted(object arg) {
@@ -5031,7 +5033,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
+        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
             object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -5043,17 +5045,18 @@ namespace WebAPI.Api {
                         exportType,
                         frequency,
                         notificationUrl,
-                        vodTypes});
+                        vodTypes,
+                        isActive});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes) {
-            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, null);
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive) {
+            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
         }
         
         /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, object userState) {
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive, object userState) {
             if ((this.UpdateBulkExportTaskOperationCompleted == null)) {
                 this.UpdateBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateBulkExportTaskOperationCompleted);
             }
@@ -5068,7 +5071,8 @@ namespace WebAPI.Api {
                         exportType,
                         frequency,
                         notificationUrl,
-                        vodTypes}, this.UpdateBulkExportTaskOperationCompleted, userState);
+                        vodTypes,
+                        isActive}, this.UpdateBulkExportTaskOperationCompleted, userState);
         }
         
         private void OnUpdateBulkExportTaskOperationCompleted(object arg) {
@@ -5460,6 +5464,39 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class BulkExportTasksResponse {
+        
+        private BulkExportTask[] tasksField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public BulkExportTask[] Tasks {
+            get {
+                return this.tasksField;
+            }
+            set {
+                this.tasksField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class BulkExportTask {
         
         private long idField;
@@ -5485,6 +5522,8 @@ namespace WebAPI.Api {
         private int[] vodTypesField;
         
         private string notificationUrlField;
+        
+        private bool isActiveField;
         
         /// <remarks/>
         public long Id {
@@ -5606,6 +5645,16 @@ namespace WebAPI.Api {
                 this.notificationUrlField = value;
             }
         }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -5643,39 +5692,6 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class BulkExportTasksResponse {
-        
-        private BulkExportTask[] tasksField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public BulkExportTask[] Tasks {
-            get {
-                return this.tasksField;
-            }
-            set {
-                this.tasksField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class Status {
         
         private int codeField;
@@ -5699,6 +5715,39 @@ namespace WebAPI.Api {
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class BulkExportTaskResponse {
+        
+        private BulkExportTask taskField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public BulkExportTask Task {
+            get {
+                return this.taskField;
+            }
+            set {
+                this.taskField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
     }
@@ -15300,10 +15349,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public Status Result {
+        public BulkExportTaskResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((BulkExportTaskResponse)(this.results[0]));
             }
         }
     }

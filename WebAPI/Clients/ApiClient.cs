@@ -1792,24 +1792,24 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal bool AddBulkExportTask(int groupId, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
-            string notificationUrl, List<int> vodTypes)
+        internal KalturaExportTask AddBulkExportTask(int groupId, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
+            string notificationUrl, List<int> vodTypes, bool isActive)
         {
-            bool success = false;
+            KalturaExportTask task = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            BulkExportTaskResponse response = null;
 
-            WebAPI.Api.eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
-            WebAPI.Api.eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
+            eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
+            eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency,
-                        notificationUrl, vodTypes != null ? vodTypes.ToArray(): null);
+                        notificationUrl, vodTypes != null ? vodTypes.ToArray(): null, isActive);
                 }
             }
             catch (Exception ex)
@@ -1818,25 +1818,24 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            else
-            {
-                success = true;
-            }
+            
+            task = AutoMapper.Mapper.Map<KalturaExportTask>(response.Task);
 
-            return success;
+            return task;
+
         }
 
         internal bool UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
-            string notificationUrl, List<int> vodTypes)
+            string notificationUrl, List<int> vodTypes, bool? isActive)
         {
             bool success = false;
 
@@ -1852,7 +1851,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency,
-                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null);
+                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null, isActive);
                 }
             }
             catch (Exception ex)

@@ -88,5 +88,13 @@ namespace WebAPI.Models.API
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaIntegerValue> VodTypes { get; set; }
+
+        /// <summary>
+        /// Indicates if the task is active or not
+        /// </summary>
+        [DataMember(Name = "is_active")]
+        [JsonProperty("is_active")]
+        [XmlElement(ElementName = "is_active", IsNullable = true)]
+        public bool? IsActive { get; set; }
     }
 }

@@ -3413,6 +3413,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3432,10 +3433,33 @@
       <s:element name="AddBulkExportTaskResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="BulkExportTaskResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Task" type="tns:BulkExportTask" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BulkExportTask">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
+          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UpdateBulkExportTask">
         <s:complexType>
           <s:sequence>
@@ -3450,6 +3474,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3508,22 +3533,6 @@
       <s:complexType name="ArrayOfBulkExportTask">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="BulkExportTask" nillable="true" type="tns:BulkExportTask" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="BulkExportTask">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
-          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
-          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
-          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
-          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="Export">

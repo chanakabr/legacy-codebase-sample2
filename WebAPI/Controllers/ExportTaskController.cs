@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(KalturaExportTask task)
+        public KalturaExportTask Add(KalturaExportTask task)
         {
-            bool response = false;
+            KalturaExportTask response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl,
-                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null);
+                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive != null ? task.IsActive.Value : true);
             }
             catch (ClientException ex)
             {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
-                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null);
+                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive);
             }
             catch (ClientException ex)
             {
