@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "purchase_settings_type")]
         [JsonProperty(PropertyName = "purchase_settings_type", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "purchase_settings_type")]
-        public KalturaPurchaseSettingsType PurchaseSettingsType
+        public KalturaPurchaseSettingsType? PurchaseSettingsType
         {
             get;
             set;
