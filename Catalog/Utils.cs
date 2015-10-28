@@ -1030,5 +1030,25 @@ namespace Catalog
             }
         }
 
+        /// <summary>
+        /// Finds the country name of a given ip, using special elastic search index
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <returns></returns>
+        public static string GetCountryNameByIp(string ip)
+        {
+            string result = string.Empty;
+
+            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+
+            object value = ODBCWrapper.Utils.GetTableSingleVal("countries", "country_name", countryId);
+
+            if (value != DBNull.Value)
+            {
+                result = Convert.ToString(value);
+            }
+
+            return result;
+        }
     }
 }
