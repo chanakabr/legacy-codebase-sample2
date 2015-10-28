@@ -3371,11 +3371,12 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-       
 
-        public static int GetExternalChannelInternalID(int groupID, string externalIdentifier)
+
+        public static ExternalChannel GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
-            int recommendationEngineId = 0;
+            ExternalChannel result = null;
+            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3385,10 +3386,10 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                recommendationEngineId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                result = SetExternalChannel(ds.Tables[0].Rows[0]);
             }
 
-            return recommendationEngineId;
+            return result;
         }
 
         public static ExternalChannel InsertExternalChannel(int groupID, ExternalChannel externalChannel)
