@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// name required = 5005, external channel identifier required = 5007, external identifier required = 6016, external identifier must be unique = 6040  
+        /// external channel not exist = 4011, external channel identifier required = 4013, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>       
         [Route("update"), HttpPost]
