@@ -559,7 +559,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -571,7 +571,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
                 }
             }
             catch (Exception ex)
