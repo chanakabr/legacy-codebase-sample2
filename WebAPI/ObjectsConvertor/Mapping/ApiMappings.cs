@@ -425,9 +425,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaPurchaseSettingsType ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
+        private static WebAPI.Models.API.KalturaPurchaseSettingsType? ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
         {
             WebAPI.Models.API.KalturaPurchaseSettingsType result = WebAPI.Models.API.KalturaPurchaseSettingsType.block;
+
+            if (type == null)
+            {
+                return null;
+            }
 
             switch (type)
             {
