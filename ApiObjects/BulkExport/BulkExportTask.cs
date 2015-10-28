@@ -31,6 +31,8 @@ namespace ApiObjects.BulkExport
 
         public string NotificationUrl { get; set; }
 
+        public bool IsActive { get; set; }
+
         public BulkExportTask()
         {
             VodTypes = new List<int>();

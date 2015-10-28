@@ -12,4 +12,11 @@ namespace ApiObjects.BulkExport
 
         public Status Status { get; set; }
     }
+
+    public class BulkExportTaskResponse
+    {
+        public BulkExportTask Task { get; set; }
+
+        public Status Status { get; set; }
+    }
 }

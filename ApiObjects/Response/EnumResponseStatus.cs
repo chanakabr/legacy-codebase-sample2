@@ -127,6 +127,7 @@ namespace ApiObjects.Response
         AdapterUrlRequired = 5013,
         ConflictedParams = 5014,
         PurchaseSettingsTypeInvalid = 5015,
+        ExportTaskNotFound = 5016,
 
 
         // Billing 6000 - 6999

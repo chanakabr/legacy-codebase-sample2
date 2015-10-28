@@ -2542,10 +2542,11 @@ namespace DAL
             return ruleIds;       
         }
 
-        public static long InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, 
-            string notificationUrl, List<int> vodTypes, string version)
+        #region Bulk Export
+        public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, 
+            string notificationUrl, List<int> vodTypes, string version, bool isActive)
         {
-            long taskId = 0;
+            BulkExportTask task = null;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2559,22 +2560,30 @@ namespace DAL
             storedProcedure.AddParameter("@updater_id", null);
             storedProcedure.AddParameter("@version", version);
             storedProcedure.AddParameter("@notification_url", notificationUrl);
+            storedProcedure.AddParameter("@is_active", isActive ? 1 : 0);
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
 
-            taskId = storedProcedure.ExecuteReturnValue<long>();
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
 
-            return taskId;
+            var tasks = BuildExportTasksFromDataSet(dataSet);
+
+            if (tasks != null && tasks.Count > 0)
+            {
+                task = tasks[0];
+            }
+
+            return task;
         }
 
-        public static long UpdateBulkExportTask(int groupId, long? id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
-             string notificationUrl, List<int> vodTypes, string version)
+        public static long UpdateBulkExportTask(int groupId, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
+             string notificationUrl, List<int> vodTypes, string version, bool? isActive)
         {
             long taskId = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@group_id", groupId);
-            storedProcedure.AddParameter("@id", id != 0 ? id : null);
+            storedProcedure.AddParameter("@id", id);
             storedProcedure.AddParameter("@external_key", !string.IsNullOrEmpty(externalKey) ? externalKey : null);
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@data_type", dataType);
@@ -2583,6 +2592,14 @@ namespace DAL
             storedProcedure.AddParameter("@frequency", frequency);
             storedProcedure.AddParameter("@version", version);
             storedProcedure.AddParameter("@notification_url", notificationUrl);
+            if (isActive != null)
+            {
+                storedProcedure.AddParameter("@is_active", isActive.Value ? 1 : 0);
+            }
+            else
+            {
+                storedProcedure.AddParameter("@is_active", null);
+            }
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
 
             taskId = storedProcedure.ExecuteReturnValue<long>();
@@ -2617,13 +2634,21 @@ namespace DAL
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
+            tasks = BuildExportTasksFromDataSet(dataSet);
+            return tasks;
+        }
+
+        private static List<BulkExportTask> BuildExportTasksFromDataSet(DataSet dataSet)
+        {
+            List<BulkExportTask> tasks = new List<BulkExportTask>();
+
             if (dataSet != null && dataSet.Tables != null)
             {
                 if (dataSet.Tables.Count >= 2)
                 {
                     DataTable tasksTable = dataSet.Tables[0];
                     DataTable taskVodTypesTable = dataSet.Tables[1];
-                    
+
                     //build tasks
                     if (tasksTable != null && tasksTable.Rows != null && tasksTable.Rows.Count > 0)
                     {
@@ -2643,13 +2668,14 @@ namespace DAL
                                 Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
                                 InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
                                 LastProcess = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "LAST_PROCESS"),
-                                NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL")
+                                NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL"),
+                                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 0 ? false : true
                             });
                         }
                     }
 
                     // build tasks' vod types lists
-                    if (tasks != null && tasks.Count > 0 && 
+                    if (tasks != null && tasks.Count > 0 &&
                         taskVodTypesTable != null && taskVodTypesTable.Rows != null && taskVodTypesTable.Rows.Count > 0)
                     {
                         int typeId;
@@ -2711,6 +2737,6 @@ namespace DAL
 
             return dataSet;
         }
-
+        #endregion
     }
 }
