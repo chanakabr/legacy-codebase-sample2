@@ -239,7 +239,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPIN(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPIN(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -251,7 +251,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
                 }
             }
             catch (Exception ex)
@@ -475,7 +475,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId)
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -487,7 +487,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId);
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
                 }
             }
             catch (Exception ex)

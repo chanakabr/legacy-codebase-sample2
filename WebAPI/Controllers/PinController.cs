@@ -35,6 +35,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
                 if (by == KalturaEntityReferenceBy.user)
                 {
                     if (string.IsNullOrEmpty(household_user_id))
@@ -48,17 +50,16 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, household_user_id);
+                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, household_user_id, householdId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, household_user_id); 
+                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, household_user_id, householdId); 
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
-                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                     if (type == KalturaPinType.parental)
                     {
