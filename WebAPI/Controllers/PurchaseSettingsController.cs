@@ -36,6 +36,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
                 if (by == KalturaEntityReferenceBy.user)
                 {
                     if (string.IsNullOrEmpty(household_user_id))
@@ -47,12 +49,12 @@ namespace WebAPI.Controllers
                     AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
 
                     // call client
-                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id);
+                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id, householdId);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    purchaseResponse = ClientsManager.ApiClient().GetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    purchaseResponse = ClientsManager.ApiClient().GetDomainPurchaseSettings(groupId, householdId);
                 }
             }
             catch (ClientException ex)
