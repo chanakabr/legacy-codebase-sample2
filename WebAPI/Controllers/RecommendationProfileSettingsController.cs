@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// recommendation engine not exist = 4007, conflicted params = 5014
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, conflicted params = 5014
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param>
         /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example

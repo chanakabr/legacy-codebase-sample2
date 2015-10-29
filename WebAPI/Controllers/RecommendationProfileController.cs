@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// recommendation engine not exist = 4007
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param>
         [Route("delete"), HttpPost]
