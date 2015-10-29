@@ -31,7 +31,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public override bool BuildIndex()
         {
-            string newIndex = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
+            string newIndexName = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
 
             #region Build new index and specify number of nodes/shards
 
@@ -58,7 +58,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (group == null)
             {
-                log.Error("Could not load group in media index builder");
+                log.ErrorFormat("Could not load group {0} in media index builder", groupId);
                 return false;
             }
 
@@ -68,7 +68,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
 
-            bool actionResult = api.BuildIndex(newIndex, numOfShards, numOfReplicas, analyzers, filters, tokenizers);
+            bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers);
+
+            if (!actionResult)
+            {
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                return actionResult;
+            }
 
             #endregion
 
@@ -99,9 +105,9 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
-                string sMapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
-                string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
-                bool bMappingRes = api.InsertMapping(newIndex, sType, sMapping.ToString());
+                string mapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
+                bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
 
                 if (language.IsDefault && !bMappingRes)
                     actionResult = false;
@@ -143,7 +149,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             lBulkObj.Add(new ESBulkRequestObj<int>()
                             {
                                 docID = media.m_nMediaID,
-                                index = newIndex,
+                                index = newIndexName,
                                 type = sType,
                                 document = serializedMedia
                             });
@@ -163,6 +169,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     t.Wait();
                 }
             }
+
             #endregion
 
             #region insert channel queries
@@ -197,14 +204,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (lChannelRequests.Count > 50)
                         {
-                            api.CreateBulkIndexRequest("_percolator", newIndex, lChannelRequests);
+                            api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
                             lChannelRequests.Clear();
                         }
                     }
 
                     if (lChannelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndex, lChannelRequests);
+                        api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -222,10 +229,16 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 List<string> oldIndices = api.GetAliases(alias);
 
-                Task<bool> tSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndex, alias, oldIndices));
-                tSwitchIndex.Wait();
+                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndexName, alias, oldIndices));
+                taskSwitchIndex.Wait();
 
-                if (this.DeleteOldIndices && tSwitchIndex.Result && oldIndices.Count > 0)
+                if (!taskSwitchIndex.Result)
+                {
+                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
+                    actionResult = false;
+                }
+
+                if (this.DeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
                 {
                     Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
                     t.Wait();
