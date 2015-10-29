@@ -33,7 +33,7 @@ public partial class adm_my_group : System.Web.UI.Page
                 DBManipulator.DoTheWork();
                 Int32 nGroupID = LoginManager.GetLoginGroupID();
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                groupManager.UpdateRegionalization(nGroupID);
+                groupManager.UpdateGroup(nGroupID);
             }
         }
     }
