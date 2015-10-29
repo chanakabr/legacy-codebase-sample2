@@ -75,8 +75,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040,
-        /// Inactive External Channel Enrichment = 4016
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, inactive external channel enrichment = 4016, 
+        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>
         [Route("add"), HttpPost]
@@ -105,8 +105,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// external channel not exist = 4011, external channel identifier required = 4013, name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  ,
-        /// Inactive External Channel Enrichment = 4016
+        /// external channel not exist = 4011, external channel identifier required = 4013, inactive external channel enrichment = 4016,
+        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
         /// <param name="external_channel">External channel Object</param>       
         [Route("update"), HttpPost]
