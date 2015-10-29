@@ -2536,7 +2536,8 @@ namespace TVPApiServices
                 try
                 {
                     APIEPGLoader loader;
-                    List<int> channelIDs = sEPGChannelID.Select(c => int.Parse(c)).ToList();
+                    List<int> channelIDs = sEPGChannelID.Distinct().Select(c => int.Parse(c)).ToList();
+                    
                     DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
