@@ -45,7 +45,22 @@ namespace ElasticSearchHandler.IndexBuilders
             Group group = groupManager.GetGroup(groupId);
 
             if (group == null)
+            {
+                log.ErrorFormat("Couldn't load group in cache when building index for group {0}", groupId);
                 return success;
+            }
+
+            // If request doesn't have start date, use [NOW - 7 days] as default
+            if (!this.StartDate.HasValue)
+            {
+                this.StartDate = DateTime.UtcNow.Date.AddDays(-7);
+            }
+
+            // If request doesn't have end date, use [NOW + 7 days] as default
+            if (!this.EndDate.HasValue)
+            {
+                this.EndDate = DateTime.UtcNow.Date.AddDays(7);
+            }
 
             DateTime tempDate = StartDate.Value;
 
@@ -132,13 +147,18 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (this.SwitchIndexAlias || !indexExists)
             {
-                List<string> lOldIndices = api.GetAliases(groupAlias);
+                List<string> oldIndices = api.GetAliases(groupAlias);
 
-                success = api.SwitchIndex(newIndexName, groupAlias, lOldIndices, null);
+                success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
 
-                if (this.DeleteOldIndices && success && lOldIndices.Count > 0)
+                if (!success)
                 {
-                    api.DeleteIndices(lOldIndices);
+                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, groupAlias);
+                }
+
+                if (this.DeleteOldIndices && success && oldIndices.Count > 0)
+                {
+                    api.DeleteIndices(oldIndices);
                 }
             }
 
