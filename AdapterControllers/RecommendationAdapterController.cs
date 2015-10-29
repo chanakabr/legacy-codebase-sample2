@@ -87,6 +87,11 @@ namespace AdapterControllers
             
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
+            if (engine == null)
+            {
+                throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist"), (int)eResponseStatus.RecommendationEngineNotExist);
+            }
+
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);

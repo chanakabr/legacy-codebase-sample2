@@ -417,5 +417,37 @@ namespace GroupsCacheManager
             }
             return isUpdated;
         }
+
+        public bool UpdateGroup(int groupID)
+        {
+            bool isUpdated = false;
+
+            try
+            {
+                Group group = ChannelRepository.BuildGroup(groupID);
+
+                bool isRemoved = cache.RemoveGroup(groupID);
+
+                if (isRemoved)
+                {
+                    Group newGroup = cache.GetGroup(groupID);
+
+                    if (newGroup == null)
+                    {
+                        isUpdated = false;
+                    }
+                    else
+                    {
+                        isUpdated = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed upating group {0} in cache", groupID, ex);
+            }
+
+            return isUpdated;
+        }
     }
 }
