@@ -4625,6 +4625,7 @@ namespace Catalog
             {
                 status.Code = (int)eResponseStatus.ExternalChannelNotExist;
                 status.Message = string.Format("External Channel with the ID {0} was not found.", request.externalChannelId);
+                return status;
             }
 
             // Build dictionary of enrichments for recommendation engine adapter
@@ -4642,6 +4643,7 @@ namespace Catalog
             {
                 status.Code = (int)eResponseStatus.ExternalChannelHasNoRecommendationEngine;
                 status.Message = "External Channel has no recommendation engine selected.";
+                return status;
             }
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
