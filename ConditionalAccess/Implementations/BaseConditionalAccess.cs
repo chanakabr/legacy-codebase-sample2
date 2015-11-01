@@ -4868,6 +4868,10 @@ namespace ConditionalAccess
                             }
                         }
                     }
+                    else if (count == 0)
+                    {
+                        retVal = PaymentMethod.Gift;
+                    }
                 }
             }
             finally

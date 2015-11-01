@@ -89,7 +89,7 @@ namespace AdapterControllers
 
             if (engine == null)
             {
-                throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist"), (int)eResponseStatus.RecommendationEngineNotExist);
+                throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", externalChannel.RecommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
 
             if (string.IsNullOrEmpty(engine.AdapterUrl))

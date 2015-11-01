@@ -3378,15 +3378,22 @@ namespace Tvinci.Core.DAL
 
             if (row != null)
             {
-                result = SetExternalChannel(row);
+                // Make sure external channel is active before creating it
+                int status = ODBCWrapper.Utils.ExtractInteger(row, "status");
+                int isActive = ODBCWrapper.Utils.ExtractInteger(row, "is_active");
 
-                ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
-
-                foreach (var currentValue in Enum.GetValues(typeof(ExternalChannelEnrichment)))
+                if (status == 1 && isActive == 1)
                 {
-                    if ((enrichments & (ExternalChannelEnrichment)currentValue) > 0)
+                    result = SetExternalChannel(row);
+
+                    ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
+
+                    foreach (var currentValue in Enum.GetValues(typeof(ExternalChannelEnrichment)))
                     {
-                        result.Enrichments.Add((ExternalChannelEnrichment)currentValue);
+                        if ((enrichments & (ExternalChannelEnrichment)currentValue) > 0)
+                        {
+                            result.Enrichments.Add((ExternalChannelEnrichment)currentValue);
+                        }
                     }
                 }
             }

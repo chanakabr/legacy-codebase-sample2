@@ -49,17 +49,21 @@ namespace Users
             int nFamilyID = 0;
             m_id = string.Empty;
             m_deviceUDID = sUDID;
-            if (nDeviceBrandID > 0)
+
+            if (!string.IsNullOrEmpty(sUDID))
             {
-                m_deviceBrandID = nDeviceBrandID;
-                m_deviceFamily = GetDeviceFamily(nDeviceBrandID, ref nFamilyID);
-                m_deviceFamilyID = nFamilyID;
-            }
-            else
-            {
-                int nBrandID = 0;
-                m_deviceFamilyID = DeviceDal.GetDeviceFamilyID(nGroupID, sUDID, ref nBrandID);
-                m_deviceBrandID = nBrandID;
+                if (nDeviceBrandID > 0)
+                {
+                    m_deviceBrandID = nDeviceBrandID;
+                    m_deviceFamily = GetDeviceFamily(nDeviceBrandID, ref nFamilyID);
+                    m_deviceFamilyID = nFamilyID;
+                }
+                else
+                {
+                    int nBrandID = 0;
+                    m_deviceFamilyID = DeviceDal.GetDeviceFamilyID(nGroupID, sUDID, ref nBrandID);
+                    m_deviceBrandID = nBrandID;
+                }
             }
 
             m_domainID = domainID;
