@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- edited with XMLSpy v2016 (http://www.altova.com) by Amishai Guilburd (Kaltura) -->
+<!-- edited with XMLSpy v2015 rel. 3 sp1 (x64) (http://www.altova.com) by liat (kaltura) -->
 <xs:schema xmlns="http://tempuri.org/xmltv" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/xmltv" elementFormDefault="qualified">
 	<xs:element name="EpgChannels">
 		<xs:complexType>
@@ -74,8 +74,6 @@
 			<xs:attribute name="pdc-start" type="xs:string"/>
 			<xs:attribute name="vps-start" type="xs:string"/>
 			<xs:attribute name="showview" type="xs:string"/>
-			<xs:attribute name="id" type="xs:string"/>
-			<xs:attribute name="action" type="xs:string"/>
 			<xs:attribute name="videoplus" type="xs:string"/>
 			<xs:attribute name="channel" type="xs:string" use="required"/>
 			<xs:attribute name="external_id" type="xs:string" use="required"/>
