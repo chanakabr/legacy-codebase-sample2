@@ -59,23 +59,27 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
+        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
         Int32 groupID = LoginManager.GetLoginGroupID();
+        // string.Format("{0}_recommendation_engine_{1}", version, adapterId)
 
-        theTable += "select adapter.id as 'ID', adapter.name as 'Name', adapter.group_id, adapter.is_active, adapter.status, adapter.adapter_url as 'Adapter URL'";
+        theTable += "select adapter.id as 'ID', adapter.name as 'Name', adapter.group_id, adapter.is_active, adapter.status as STATUS, adapter.adapter_url as 'Adapter URL'";
         theTable += ",case g.[SELECTED_RECOMMENDATION_ENGINE] when adapter.id then 'Yes' else 'No' end as 'Is Default'";
-        theTable += ",adapter.external_identifier as 'External ID'"; 
+        theTable += ",adapter.external_identifier as 'External ID', ";
+        theTable += "'" + version + "_recommendation_engine_' + CONVERT(varchar(10),adapter.ID) as 'cache_key' ";
         theTable += "from recommendation_engines adapter ";
         theTable += "left join groups g on adapter.group_id = g.id";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.group_id", "=", groupID);
         theTable += "and";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.status", "=", 1);
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.status", "<>", 2);
         theTable += "order by id";
         theTable.SetConnectionKey("main_connection_string");
 
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
+        theTable.AddHiddenField("cache_key");
         theTable.AddActivationField("is_active");
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_recommendation_engine_adapter_settings.aspx", "Params", "");
@@ -95,12 +99,12 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
             linkColumn.AddQueryStringValue("table", "recommendation_engines");
-            linkColumn.AddQueryStringValue("db", "main_connection_string");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
+            linkColumn.AddQueryStringValue("rep_field", "NAME");
+            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -109,26 +113,26 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
             linkColumn.AddQueryStringValue("table", "recommendation_engines");
-            linkColumn.AddQueryStringValue("db", "main_connection_string");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
+            linkColumn.AddQueryStringValue("rep_field", "NAME");
+            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
             linkColumn.AddQueryStringValue("table", "recommendation_engines");
-            linkColumn.AddQueryStringValue("db", "billing_connection");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
+            linkColumn.AddQueryStringValue("rep_field", "NAME");
+            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
     }
