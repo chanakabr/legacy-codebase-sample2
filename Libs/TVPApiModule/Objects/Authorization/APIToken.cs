@@ -81,8 +81,15 @@ namespace TVPApiModule.Objects.Authorization
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshTokenValue;
-            RefreshTokenExpiration = token.IsLongRefreshExpiration ? (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
-                 (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            if (groupConfig.IsRefreshTokenExtendable)
+            {
+                RefreshTokenExpiration = token.IsLongRefreshExpiration ? (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
+                     (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            }
+            else
+            {
+                RefreshTokenExpiration = token.RefreshTokenExpiration;
+            }
             // set access expiration time - no longer than refresh expiration
             long accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
