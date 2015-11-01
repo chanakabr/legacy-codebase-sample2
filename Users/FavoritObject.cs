@@ -19,7 +19,7 @@ namespace Users
             m_nID = 0;
         }
 
-        public void Initialize(Int32 nID , string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode , string sExtraData , DateTime dUpdate)
+        public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate)
         {
             m_sDeviceName = sDeviceName;
             m_sDeviceUDID = sDeviceUDID;
@@ -106,10 +106,18 @@ namespace Users
             }
 
             List<FavoritObject> favorits = new List<FavoritObject>();
-            
+
             #region Get Single Media's user Favorit
             ODBCWrapper.DataSetSelectQuery selectquery = new ODBCWrapper.DataSetSelectQuery();
-            selectquery += "select * from users_favorites where is_active=1 and status=1 and IS_CHANNEL=0";
+            selectquery += "select * from users_favorites uf ";
+
+            if (!string.IsNullOrEmpty(sType))
+            {
+                selectquery += "join tvinci..media m on ITEM_CODE = m.ID ";
+            }
+
+            selectquery += "where uf.is_active=1 and uf.status=1 and uf.IS_CHANNEL=0 ";
+
             selectquery += " and ";
             selectquery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sUserGUID);
             if (!string.IsNullOrEmpty(sUDID))
@@ -120,9 +128,9 @@ namespace Users
             if (!string.IsNullOrEmpty(sType))
             {
                 selectquery += " and ";
-                selectquery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", sType);
+                selectquery += ODBCWrapper.Parameter.NEW_PARAM("m.MEDIA_TYPE_ID", "=", sType);
             }
-            selectquery += "order by update_date desc";
+            selectquery += "order by uf.update_date desc";
             if (selectquery.Execute("query", true) != null)
             {
                 Int32 nCount = selectquery.Table("query").DefaultView.Count;
@@ -130,7 +138,7 @@ namespace Users
                 {
                     int nID = ODBCWrapper.Utils.GetIntSafeVal(selectquery, "ID", i);
                     string sDeviceUDID = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_UDID", i);
-                    string sIType = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "TYPE_CODE", i); 
+                    string sIType = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "TYPE_CODE", i);
                     string sItemCode = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "ITEM_CODE", i);
                     string sExtraData = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "EXTRA_DATA", i);
                     string sDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_NAME", i);
@@ -144,20 +152,20 @@ namespace Users
             selectquery.Finish();
             selectquery = null;
             #endregion
-            
+
             #region Get Channel Media's User Favorit
             // Get Channel Media 
             ODBCWrapper.DataSetSelectQuery selectchannelquery = new ODBCWrapper.DataSetSelectQuery();
             selectchannelquery += "select * from users_favorites where is_active=1 and status=1 and IS_CHANNEL=1";
-            selectchannelquery += "and"; 
+            selectchannelquery += "and";
             selectchannelquery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sUserGUID);
-            
+
             if (sUDID != "")
             {
                 selectchannelquery += " and ";
                 selectchannelquery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", sUDID);
             }
-            
+
             selectchannelquery += "order by update_date desc";
             if (selectchannelquery.Execute("query", true) != null)
             {
@@ -171,9 +179,9 @@ namespace Users
                     string sExtraData = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "EXTRA_DATA", i);
                     string sDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectquery, "DEVICE_NAME", i);
                     DateTime dUpdate = ODBCWrapper.Utils.GetDateSafeVal(selectquery, "UPDATE_DATE", i);
-                    
+
                     int nDeviceUDID = 0;
-                    int.TryParse(sDeviceUDID,out nDeviceUDID);
+                    int.TryParse(sDeviceUDID, out nDeviceUDID);
 
                     Int32 nChannelGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("channels", "group_id", sChannelCode, "MAIN_CONNECTION_STRING").ToString());
                     TVinciShared.Channel ch = new TVinciShared.Channel(sChannelCode, false, 0, true, 0, nDeviceUDID, nChannelGroupID, "MAIN_CONNECTION_STRING");
@@ -213,7 +221,7 @@ namespace Users
             return response;
         }
 
-        static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID , Int32 nID)
+        static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID, Int32 nID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
@@ -320,8 +328,8 @@ namespace Users
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", m_sDeviceUDID);
             }
-          
-           
+
+
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
