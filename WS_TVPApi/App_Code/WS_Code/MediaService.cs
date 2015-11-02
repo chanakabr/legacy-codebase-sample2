@@ -3671,7 +3671,7 @@ namespace TVPApiServices
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "UnifiedSearch", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendations", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupId > 0)
             {

@@ -30,7 +30,7 @@ namespace TVPApiModule.CatalogLoaders
             string deviceType, string externalChannelId, string utcOffset)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
-            this.SiteGuid = SiteGuid;
+            this.SiteGuid = siteGuid;
             this.DomainId = domainId;
             this.DeviceId = udid;
 
