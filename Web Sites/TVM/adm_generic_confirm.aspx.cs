@@ -408,9 +408,9 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             updateQuery2 = null;
         }
         if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
-            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1&confirmed_id=" + m_nID + "'</script>");
         else
-            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1&confirmed_id=" + m_nID + "'</script>");
     }
 
     private string GetWSURL(string sKey)
