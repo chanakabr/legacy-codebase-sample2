@@ -395,8 +395,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         }
     }
 
-
-
     protected void RemoveUsageModule(int umID, int subID)
     {
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_usage_modules");
@@ -441,7 +439,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         insertQuery = null;
     }
 
-
     protected void InsertUserType(int subID, int utID, int groupID)
     {
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_user_types");
@@ -454,7 +451,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         insertQuery.Finish();
         insertQuery = null;
     }
-
 
     protected void RemoveUserType(int subID, int utID)
     {
@@ -485,7 +481,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         updateQuery.Finish();
         updateQuery = null;
     }
-
 
     protected List<int> BuildSubscriptionUMs(int subID, int groupID, bool alsoUnActive)
     {
@@ -589,98 +584,119 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         }
     }
 
-    public string changeItemStatus(string sID, string sAction, string index)
+    public string changeItemStatus(string sID, string dualListName)
     {
-        string retVal = string.Empty;
+        // userType dualList cChanged then call changeItemStatusUserTypes
+        if (dualListName.ToUpper() == "DualListUserTypes".ToUpper())
+        {
+            changeItemStatusUserTypes(sID);
+        }
+        // pricePlans dualList changed then call changeItemStatusPricePlans
+        else
+        {
+            changeItemStatusPricePlans(sID);
+        }
+        
+        return "";
+    }
+
+    public void changeItemStatusPricePlans(string sID)
+    {        
         if (Session["sub_usage_modules"] != null && Session["sub_usage_modules"] is List<UMObj>)
         {
             List<UMObj> umObjList = Session["sub_usage_modules"] as List<UMObj>;
-            switch (sAction.ToLower())
+            bool isReorderNeeded = false;
+            int currentOrderNum = -1;
+            for (int i = 0; i < umObjList.Count; i++)
             {
-                case "remove":
-                    {
-                        for (int i = 0; i < umObjList.Count; i++)
-                        {
-                            UMObj obj = umObjList[i];
-                            if (obj.m_id.Equals(sID))
-                            {
-                                umObjList.Remove(obj);
-                                break;
-                            }
-                        }
-                        Session["sub_usage_modules"] = umObjList;
-                        break;
-                    }
-                case "add":
-                    {
-                        UMObj obj = new UMObj(sID, string.Empty, string.Empty, true, int.Parse(index));
-                        int newOrder = int.Parse(index);
-
-                        foreach (UMObj umObj in umObjList)
-                        {
-                            int oldOrder = umObj.m_orderNum;
-
-                            if (oldOrder >= newOrder)
-                            {
-                                umObj.m_orderNum++;
-                            }
-
-                        }
-                        umObjList.Insert(int.Parse(index), obj);
-                        umObjList.Sort();
-                        Session["sub_usage_modules"] = umObjList;
-                        break;
-                    }
+                UMObj obj = umObjList[i];
+                if (obj.m_id.Equals(sID))
+                {
+                    currentOrderNum = obj.m_orderNum;
+                    umObjList.Remove(obj);
+                    isReorderNeeded = true;
+                    break;
+                }
             }
-        }
-        return retVal; 
+            if (isReorderNeeded)
+            {
+                foreach (UMObj obj in umObjList)
+                {
+                    if (obj.m_orderNum > currentOrderNum)
+                    {
+                        obj.m_orderNum--;
+                    }
+                }
+            }
+            else
+            {
+                UMObj obj = new UMObj(sID, string.Empty, string.Empty, true, umObjList.Count);
+                int newOrder = umObjList.Count;
+                umObjList.Insert(umObjList.Count, obj);
+                umObjList.Sort();
+            }
+
+            Session["sub_usage_modules"] = umObjList;
+        }        
     }
 
-    public string changeItemStatusUserTypes(string sID, string sAction, string index)
-    {               
-        string retVal = string.Empty;
-        int sutIDClient = 0;
-        int.TryParse(sID, out sutIDClient); 
+    public void changeItemStatusUserTypes(string sID)
+    {                       
         if (Session["sub_user_types"] != null && Session["sub_user_types"] is List<int>)
         {
             List<int> sutList = Session["sub_user_types"] as List<int>;
-            switch (sAction.ToLower())
+            int sutIDClient = 0;
+            bool isAddNeeded = true;
+            if (int.TryParse(sID, out sutIDClient) && sutList.Remove(sutIDClient))
             {
-                case "remove":
-                    {
-                        for (int i = 0; i < sutList.Count; i++)
-                        {
-                            int  sutID = sutList[i];
-                            if (sutID == sutIDClient)
-                            {
-                                sutList.Remove(sutID);
-                                break;
-                            }
-                        }
-                        Session["sub_user_types"] = sutList;
-                        break;
-                    }
-                case "add":
-                    {
-                        sutList.Add(sutIDClient);
-                        Session["sub_user_types"] = sutList;
-                        break;
-                    }
+                isAddNeeded = false;
             }
-        }
-        return retVal;
+
+            if (isAddNeeded)
+            {
+                sutList.Add(sutIDClient);                
+            }
+
+            Session["sub_user_types"] = sutList;
+        }        
     }
 
     public string initDualObj()
     {
+        Dictionary<string, object> dualLists = new Dictionary<string, object>();
+        Dictionary<string, object> userTypes = new Dictionary<string,object>();
+        Dictionary<string, object> pricingPlans = new Dictionary<string, object>();
+
+        userTypes.Add("name", "DualListUserTypes");
+        userTypes.Add("FirstListTitle", "User Types");
+        userTypes.Add("SecondListTitle", "Available User Types");
+        userTypes.Add("pageName", "adm_multi_pricing_plans_new.aspx");
+        userTypes.Add("withCalendar", false);
+        object[] userTypesData = null;
+        initUserTypes(ref userTypesData);
+        userTypes.Add("Data", userTypesData);
+
+        pricingPlans.Add("name", "DualListPricePlans");
+        pricingPlans.Add("FirstListTitle", "Pricing Plans");
+        pricingPlans.Add("SecondListTitle", "Available Pricing Plans");
+        pricingPlans.Add("pageName", "adm_multi_pricing_plans_new.aspx");
+        pricingPlans.Add("withCalendar", false);
+        object[] pricePlansData = null;
+        initPricingPlans(ref pricePlansData);
+        pricingPlans.Add("Data", pricePlansData);
+
+        dualLists.Add("0", userTypes);
+        dualLists.Add("1", pricingPlans);
+        dualLists.Add("size", dualLists.Count);
+
+        return dualLists.ToJSON();
+    }
+
+    public void initPricingPlans(ref object[] resultData)
+    {
+        List<object> pricePlans = new List<object>();     
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
 
-        string sRet = "";
-        sRet += "Pricing Plans";
-        sRet += "~~|~~";
-        sRet += "Available Pricing Plans";
-        sRet += "~~|~~";
-        sRet += "<root>";
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("pricing_connection");
         selectQuery += "select * from usage_modules where is_active=1 and status=1 and ";
@@ -694,11 +710,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         if (Session["subscription_id"] != null && !string.IsNullOrEmpty(Session["subscription_id"].ToString()))
         {
             subIMsIDs = BuildSubscriptionUMs(int.Parse(Session["subscription_id"].ToString()), nCommerceGroupID, false);
-        }
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+        }        
         if (selectQuery.Execute("query", true) != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;            
             for (int i = 0; i < nCount; i++)
             {
                 string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
@@ -710,7 +725,14 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 string sDescription = "";
                 if (subIMsIDs == null || (subIMsIDs != null && !subIMsIDs.Contains(int.Parse(sID))))
                 {
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sDescription,
+                        InList = false
+                    };
+                    pricePlans.Add(data);
                 }
             }
             if (Session["subscription_id"] != null && Session["sub_usage_modules"] != null)
@@ -719,33 +741,32 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 List<UMObj> umObjList = Session["sub_usage_modules"] as List<UMObj>;
                 foreach (UMObj obj in umObjList)
                 {
-                    sRet += "<item id=\"" + obj.m_id + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_title, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_description, true) + "\" inList=\"true\" />";
+                    var data = new
+                    {
+                        ID = obj.m_id,
+                        Title = obj.m_title,
+                        Description = obj.m_description,
+                        InList = true
+                    };
+                    pricePlans.Add(data);
                 }
             }
         }
         selectQuery.Finish();
         selectQuery = null;
 
-
-        sRet += "</root>";
-        return sRet;
+        resultData = new object[pricePlans.Count];
+        resultData = pricePlans.ToArray();
     }
 
-    public string initDualObjUserTypes()
+    public void initUserTypes(ref object[] resultData)
     {
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        string sRet = "";
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();        
         string sTitle = "";
         int nID = 0;
         List<int> userTypesIDs = null;
-        Dictionary<int, string> dictUserTypes = new Dictionary<int, string>(); 
-
-
-        sRet += "User Types";
-        sRet += "~~|~~";
-        sRet += "Available User Types";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<int, string> dictUserTypes = new Dictionary<int, string>();
+        List<object> userTypes = new List<object>();
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("users_connection");
         selectQuery += "select ID,Description from users_types(nolock) where is_active=1 and status=1 and ";
@@ -767,7 +788,14 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
                 if (userTypesIDs == null || (userTypesIDs != null && !userTypesIDs.Contains(nID)))
                 {
-                    sRet += "<item id=\"" + nID.ToString()  + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty , true) + "\" inList=\"false\" />";
+                    var data = new
+                    {
+                        ID = nID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = false
+                    };
+                    userTypes.Add(data);
                 }
             }
             if (Session["subscription_id"] != null && Session["sub_user_types"] != null)
@@ -776,15 +804,23 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 foreach (int sutID in sutList)
                 {
                     sTitle = dictUserTypes[sutID];
-                    sRet += "<item id=\"" + sutID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"true\" />";
+                    var data = new
+                    {
+                        ID = sutID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = true
+                    };
+                    userTypes.Add(data);
                 }
             }
         }
         selectQuery.Finish();
         selectQuery = null;
 
-        sRet += "</root>";
-        return sRet;
+        resultData = new object[userTypes.Count];
+        resultData = userTypes.ToArray();
+
     }
 
     protected string GetLangMenu(Int32 nGroupID)

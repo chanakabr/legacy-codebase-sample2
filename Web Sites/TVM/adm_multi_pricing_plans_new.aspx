@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_multi_pricing_plans_new.aspx.cs" Inherits="adm_multi_pricing_plans_new" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_multi_pricing_plans_new.aspx.cs" Inherits="adm_multi_pricing_plans_new" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,12 +13,11 @@
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
@@ -27,6 +26,18 @@
 <script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
 <script type="text/javascript" src="js/Player.js" language="javascript"></script>
 <script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
+<script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+<!-- dual list -->
+<script type="text/javascript" src="components/duallist/js/script.js"></script>
+<script type="text/javascript" src="components/duallist/js/info.js"></script>
+<script type="text/javascript" src="components/duallist/js/calender.js"></script>
+<script type="text/javascript" src="components/duallist/js/list.js"></script>
+<script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+<!-- end dual list -->
+
 <script type="text/javascript">
     var peek_date_string = '<%=Session["peek_date"]%>';
     var Su = '<%=Session["Su"]%>';
@@ -37,120 +48,16 @@
     var Fr = '<%=Session["Fr"]%>';
     var Sa = '<%=Session["Sa"]%>';
     MonthNumber = '<%=Session["MonthList"]%>';
-    var flashObj1 = new SWFObj
-    (
-        'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-        'width', '100%',
-        'height', '100%',
-        'src', 'flash/DualList',
-        'scale', 'NoScale',
-        'id', 'DualList',
-        'bgcolor', '#869CA7',
-        'wmode', 'Window',
-        'name', 'DualList',
-        'allowFullScreen', 'false',
-        'allowScriptAccess', 'sameDomain',
-        'movie', 'flash/DualList'
-    ); //end AC code
-
-    var flashObj2 = new SWFObj
-    (
-        'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-        'width', '100%',
-        'height', '100%',
-        'src', 'flash/DualList',
-        'scale', 'NoScale',
-        'id', 'DualListUserTypes',
-        'bgcolor', '#869CA7',
-        'wmode', 'Window',
-        'name', 'DualListUserTypes',
-        'allowFullScreen', 'false',
-        'allowScriptAccess', 'sameDomain',
-        'movie', 'flash/DualList'
-    );
-
-    function flashEvents(json) {
-        switch (json.eventType) {
-            case "move":
-                //alert(json.id + "," + json.kind);      
-                //alert(json.callerID);
-                if (json.callerID == 'DualList') {
-                    RS.Execute("adm_multi_pricing_plans_new.aspx", "changeItemStatus", json.id, json.kind, json.index, callback_changeItemStatus, errorCallback);
-                }
-                else if (json.callerID == 'DualListUserTypes') {
-                    RS.Execute("adm_multi_pricing_plans_new.aspx", "changeItemStatusUserTypes", json.id, json.kind, json.index, callback_changeItemStatus_UserTypes, errorCallback);
-                }
-                break;
-            case "ready":
-                //alert(json.id + "," + json.kind);
-                if (json.id == 'DualList') {
-                    var flashObj1 = document.getElementById(json.id);
-                    initDualObj();
-                }
-                else if (json.id == 'DualListUserTypes') {
-                    var flashObj1 = document.getElementById(json.id);
-                    initDualObjUserTypes();
-                }
-                break;
-        }
-    }
-
-    function callback_changeItemStatus(ret) {
-    }
-
-    function callback_changeItemStatus_UserTypes(ret) {
-    }
-
-    function AfterDateSelect(orderBy, pageNum, theDate) {
-    }
 
     function GetPageTable(orderBy, pageNum) {
-        flashObj1.write("DualListPH");
-        flashObj2.write("DualListUT");
         RS.Execute("adm_multi_pricing_plans_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        initDuallistObj('adm_multi_pricing_plans_new.aspx')
     }
 
-    function initDualObj() {
-        RS.Execute("adm_multi_pricing_plans_new.aspx", "initDualObj", callback_init_dobj, errorCallback);
-    }
-
-    function initDualObjUserTypes() {
-        RS.Execute("adm_multi_pricing_plans_new.aspx", "initDualObjUserTypes", callback_init_dobj_user_Types, errorCallback);
-    }
-
-    function callback_init_dobj(ret) {
-        var flashObj1 = document.getElementById("DualList");
-   
-
-        var split_array = ret.split("~~|~~");
-  
-        if (split_array.length == 3) {
-            theTitle1 = split_array[0];
-            theTitle2 = split_array[1];
-            var xmlStr = split_array[2];
-            flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
-        }
-    }
-
-    function callback_init_dobj_user_Types(ret) {
-        var flashObj2 = document.getElementById("DualListUserTypes");
-
-        var split_array = ret.split("~~|~~");
-
-        if (split_array.length == 3) {
-            theTitle1 = split_array[0];
-            theTitle2 = split_array[1];
-            var xmlStr = split_array[2];
-            flashObj2.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
-        }
-    }
-    
-
-    
 </script>
 </head>
-<body class="admin_body" onload="GetPageTable('' , 0);">
-<form id="form1" name="form1" action="" method="post" runat=server>
+<body class="admin_body" onload="GetPageTable('' , 0)">
+<form id="form1" name="form1" action="" method="post" runat="server">
     <div id="tag_collections_div" class="floating_div"></div>
     <div id="calendarDiv" class="floating_div"></div>
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
@@ -237,8 +144,8 @@
 								    </td>
 								</tr>
 
-                                <tr><td><div id="DualListUT"></div></td></tr>
-                                <tr><td><div id="DualListPH"></div></td></tr>
+                                <tr><td><div id="DualListUserTypes"></div></td></tr>
+                                <tr><td><div id="DualListPricePlans"></div></td></tr>
                                                               
                                 <tr style="padding-top:30px"><td id="confirm_btn" onclick='submitASPFormWithCheck("adm_multi_pricing_plans_new.aspx?submited=1");'><a tabindex="2000" href="#confirm_btn" class="btn"></a></td>
                                 <td id="cancel_btn" onclick='window.document.location.href="adm_multi_pricing_plans.aspx?search_save=1";'><a tabindex="2000" href="#cancel_btn" class="btn"></a></td>
@@ -255,7 +162,7 @@
 	<table>
 		<tr>
 			<td>
-				<div class="rights"> Copyright © 2009 Tvinci Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
+				<div class="rights"> Copyright � 2009 Tvinci Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
 			</td>
 		</tr>
 	</table>

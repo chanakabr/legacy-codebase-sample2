@@ -1,17 +1,44 @@
 /* dual list main script */
 function initDualList(data)
 {
-    var first = {
-        Title: data.FirstListTitle,
-        data: getListData(data.Data, true)
-    };
-    var second = {
-        Title: data.SecondListTitle,
-        data: getListData(data.Data, false)
-    };
-    window.components = window.components || {};
-    window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
-    $('.has-placeholder').placeholder();
+    //add: check if size exists
+    if (data["size"] > 1)
+    {
+        initMultipleLists(data);
+    }
+    else
+    {
+        var first = {
+            Title: data.FirstListTitle,
+            data: getListData(data.Data, true)
+        };
+        var second = {
+            Title: data.SecondListTitle,
+            data: getListData(data.Data, false)
+        };
+        window.components = window.components || {};
+        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
+        $('.has-placeholder').placeholder();
+    }
+}
+
+function initMultipleLists(dataLists) {
+    var listSize = dataLists["size"];
+    for (var i = 0; i < listSize; i++)
+    {
+        var currentDualList = dataLists[i];
+        var first = {
+            Title: currentDualList.FirstListTitle,
+            data: getListData(currentDualList.Data, true)
+        };
+        var second = {
+            Title: currentDualList.SecondListTitle,
+            data: getListData(currentDualList.Data, false)
+        };
+        window.components = window.components || {};
+        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar);
+        $('.has-placeholder').placeholder();
+    }
 }
 
 function safe_addEventListener(element, type, callback) {
@@ -48,8 +75,8 @@ function getListData(data, isInCurrentList) {
     return ListData
 }
 
-function changeItemStatus(sID, pageName) {
-    RS.Execute(pageName, "changeItemStatus", sID, "", callback_status_changed, errorCallback);
+function changeItemStatus(sID, pageName, dualListParent) {
+    RS.Execute(pageName, "changeItemStatus", sID, dualListParent, callback_status_changed, errorCallback);
 }
 
 function changeItemDates(sID, startDate, endDate, pageName) {
@@ -62,6 +89,7 @@ function initDualObj() {
 function initDuallistObj(page) {
     RS.Execute(page, "initDualObj", callback_init_dobj, errorCallback);
 }
+
 
 function errorCallback(res) {
     //
