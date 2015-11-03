@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -22,7 +23,6 @@ namespace QueueWrapper
 
         #region IQueuable
 
-        //public abstract bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, int nGroupId);
         public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey)
         {
             bool bIsEnqueueSucceeded = false;
@@ -35,12 +35,65 @@ namespace QueueWrapper
                 {
                     bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey);
                 }
+
+                if (bIsEnqueueSucceeded)
+                {
+                    var celeryData = record as ApiObjects.BaseCeleryData;
+
+                    if (celeryData != null)
+                    {
+                        string[] keys = routingKey.Split('\\');
+                        if (!string.IsNullOrEmpty(keys[0]))
+                            InsertQueueMessage(celeryData.GroupId, sMessage, keys[0], celeryData.ETA.GetValueOrDefault());
+                    }
+                }
+            }
+
+            return bIsEnqueueSucceeded;
+        }
+       
+        public virtual bool Enqueue(int groupId, string record, string routingKey, DateTime runDate)
+        {
+            bool bIsEnqueueSucceeded = false;
+
+            if (!string.IsNullOrEmpty(record))
+            {
+                if (this.Implementation != null)
+                {
+                    bIsEnqueueSucceeded = this.Implementation.Enqueue(record, routingKey);
+                }
+
+                if (bIsEnqueueSucceeded)
+                {
+                    string[] keys = routingKey.Split('\\');
+                    if (!string.IsNullOrEmpty(keys[0]))
+                        InsertQueueMessage(groupId, record, keys[0], runDate);
+                }
             }
 
             return bIsEnqueueSucceeded;
         }
 
-        //public abstract T Dequeue<T>(string sQueueName, out string sAckId);
+        private void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime excutionDate)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_QueueMessage");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@messageData", messageData);
+                sp.AddParameter("@routingKey", routingKey);                
+                sp.AddParameter("@excutionDate", excutionDate);
+
+                DataSet ds = sp.ExecuteDataSet();
+            }
+
+            catch (Exception ex)
+            {
+            }
+
+        }
+
         public virtual T Dequeue<T>(string sQueueName, out string sAckId)
         {
             sAckId = string.Empty;
