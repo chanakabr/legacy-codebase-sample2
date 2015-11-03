@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Reflection;
 using ApiObjects.CrowdsourceItems;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.DataCollector.Implementations;
+using KLogMonitor;
 
 namespace CrowdsourcingFeeder.DataCollector
 {
     public static class DataCollectorFactory
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static BaseDataCollector GetInstance(eCrowdsourceType collectorType, string assetId, int groupId)
         {
             int channelId;
@@ -18,7 +22,7 @@ namespace CrowdsourcingFeeder.DataCollector
                         dataCollector = new RealTimeViewsDataCollector(groupId);
 
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing channelId", collectorType), "Crowdsourcing");
+                        log.Debug("Crowdsource - " + string.Format("Collector: {0} - Error parsing channelId", collectorType));
                     break;
 
                 case eCrowdsourceType.SlidingWindow:
@@ -26,16 +30,16 @@ namespace CrowdsourcingFeeder.DataCollector
                         dataCollector = new SlidingWindowDataCollector(int.Parse(assetId), groupId);
 
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing channelId", collectorType), "Crowdsourcing");
+                        log.Debug("Crowdsource - " + string.Format("Collector: {0} - Error parsing channelId", collectorType));
                     break;
                 case eCrowdsourceType.Orca:
-                    
+
                     eGalleryType galleryType;
                     if (Enum.TryParse(assetId, true, out galleryType))
                         dataCollector = new OrcaDataCollector(groupId, galleryType);
-                    
+
                     else
-                        Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error parsing GalleryType", collectorType), "Crowdsourcing");
+                        log.Debug("Crowdsource - " + string.Format("Collector: {0} - Error parsing GalleryType", collectorType));
                     break;
             }
             return dataCollector;

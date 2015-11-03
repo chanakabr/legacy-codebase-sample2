@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,11 +12,14 @@ using ApiObjects.CrowdsourceItems.Implementations;
 using ApiObjects.SearchObjects;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
+using KLogMonitor;
 
 namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
     public class RealTimeViewsDataCollector : BaseDataCollector
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private ChannelViewsResult[] _viewsResult;
 
         public RealTimeViewsDataCollector(int groupId)
@@ -51,7 +55,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), ex);
                 return null;
             }
         }
@@ -128,16 +132,16 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                             retDictionary.Add(mediaInfo.Key.ID, crowdsourceItem);
                         }
                     }
-                    Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item {1} - no media info: ", CollectorType, item.Id), "Crowdsourcing");
+                    log.Debug("Crowdsource - " + string.Format("Collector: {0} - Error normalizing singular item {1} - no media info: ", CollectorType, item.Id));
                 }
 
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item is null - no EpgId: ", CollectorType), "Crowdsourcing");
+                log.Debug("Crowdsource - " + string.Format("Collector: {0} - Error normalizing singular item is null - no EpgId: ", CollectorType));
 
                 return retDictionary;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector: {0} - Error normalizing singular item - Exception: \n {1}", CollectorType, ex.Message), ex);
                 return null;
             }
         }

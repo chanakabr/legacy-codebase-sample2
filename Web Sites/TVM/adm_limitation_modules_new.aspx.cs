@@ -7,11 +7,15 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using DAL;
 using System.Collections.Specialized;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_limitation_modules_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
+
     protected void Page_Load(object sender, EventArgs e)
     {
 
@@ -79,11 +83,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                                 try
                                 {
                                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, parentLimitID);
-                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", parentLimitID, resp.Code), "RemoveDLM");
+                                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", parentLimitID, resp.Code));
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", parentLimitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", parentLimitID, ex.Message, ex.StackTrace), ex);
                                 }
                             }
                             finally
@@ -120,7 +124,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-
+                    log.Error(string.Empty, ex);
                 }
                 Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
                 if (nLogedInGroupID != nOwnerGroupID && !PageUtils.IsTvinciUser())
@@ -133,7 +137,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             {
                 //if (Session["limit_id"] == null || Session["limit_id"].ToString().Length == 0)
                 //{
-                    Session["limit_id"] = 0;
+                Session["limit_id"] = 0;
                 //}
             }
 
@@ -145,7 +149,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             {
                 //if (Session["parent_limit_id"] == null || Session["parent_limit_id"].ToString().Length == 0)
                 //{
-                    Session["parent_limit_id"] = 0;
+                Session["parent_limit_id"] = 0;
                 //}
             }
 
@@ -165,7 +169,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             return false;
         else
             return true;
-        
     }
 
     static public string GetWSURL(string sKey)
@@ -193,7 +196,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             }
         }
     }
-
 
     protected void GetMainMenu()
     {
@@ -269,17 +271,18 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
     public string initDualObj()
     {
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Device Families");
+        dualList.Add("SecondListTitle", "Available Device Families");
+
+        object[] resultData = null;
+        List<object> deviceFamilies = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery selectQuery = null;
         try
         {
             Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
             int limitID = 0;
-            string sRet = string.Empty;
-            sRet += "Device Families";
-            sRet += "~~|~~";
-            sRet += "Available Device Families";
-            sRet += "~~|~~";
-            sRet += "<root>";
 
             selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("CONNECTION_STRING");
@@ -309,7 +312,14 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     string sDescription = string.Empty;
                     if (limitModulesIDs == null || (limitModulesIDs != null && !limitModulesIDs.Contains(int.Parse(sID))))
                     {
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
+                        var data = new
+                        {
+                            ID = sID,
+                            Title = sTitle,
+                            Description = sDescription,
+                            InList = false
+                        };
+                        deviceFamilies.Add(data);
                     }
                 } // end for
 
@@ -319,14 +329,26 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                     List<UMObj> umObjList = Session["device_families"] as List<UMObj>;
                     foreach (UMObj obj in umObjList)
                     {
-                        sRet += "<item id=\"" + obj.m_id + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_title, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(obj.m_description, true) + "\" inList=\"true\" />";
+                        var data = new
+                        {
+                            ID = obj.m_id,
+                            Title = obj.m_title,
+                            Description = obj.m_description,
+                            InList = true
+                        };
+                        deviceFamilies.Add(data);
                     }
                 }
             }
 
+            resultData = new object[deviceFamilies.Count];
+            resultData = deviceFamilies.ToArray();
 
-            sRet += "</root>";
-            return sRet;
+            dualList.Add("Data", resultData);
+            dualList.Add("pageName", "adm_limitation_modules_new.aspx");
+            dualList.Add("withCalendar", false);
+
+            return dualList.ToJSON();
 
         }
         finally
@@ -387,50 +409,44 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         return res;
     }
 
-    public string changeItemStatus(string sID, string sAction, string index)
+    public string changeItemStatus(string sID, string sAction)
     {
         string retVal = string.Empty;
         if (Session["device_families"] != null && Session["device_families"] is List<UMObj>)
         {
             List<UMObj> umObjList = Session["device_families"] as List<UMObj>;
-            string action = sAction.ToLower();
-            switch (action)
+            bool isReorderNeeded = false;
+            int currentOrderNum = -1;
+            for (int i = 0; i < umObjList.Count; i++)
             {
-                case "remove":
-                    {
-                        for (int i = 0; i < umObjList.Count; i++)
-                        {
-                            UMObj obj = umObjList[i];
-                            if (obj.m_id.Equals(sID))
-                            {
-                                umObjList.Remove(obj);
-                                break;
-                            }
-                        }
-                        Session["device_families"] = umObjList;
-                        break;
-                    }
-                case "add":
-                    {
-                        UMObj obj = new UMObj(sID, string.Empty, string.Empty, true, int.Parse(index));
-                        int newOrder = int.Parse(index);
-
-                        foreach (UMObj umObj in umObjList)
-                        {
-                            int oldOrder = umObj.m_orderNum;
-
-                            if (oldOrder >= newOrder)
-                            {
-                                umObj.m_orderNum++;
-                            }
-
-                        }
-                        umObjList.Insert(int.Parse(index), obj);
-                        umObjList.Sort();
-                        Session["device_families"] = umObjList;
-                        break;
-                    }
+                UMObj obj = umObjList[i];
+                if (obj.m_id.Equals(sID))
+                {
+                    currentOrderNum = obj.m_orderNum;
+                    umObjList.Remove(obj);
+                    isReorderNeeded = true;
+                    break;
+                }
             }
+            if (isReorderNeeded)
+            {
+                foreach (UMObj umObj in umObjList)
+                {
+                    if (umObj.m_orderNum > currentOrderNum)
+                    {
+                        umObj.m_orderNum--;
+                    }
+                }
+            }
+            else
+            {
+                UMObj obj = new UMObj(sID, string.Empty, string.Empty, true, umObjList.Count);
+                int newOrder = umObjList.Count;
+                umObjList.Insert(umObjList.Count, obj);
+                umObjList.Sort();
+            }
+
+            Session["device_families"] = umObjList;
 
             if (Session["parent_limit_id"] != null && Session["parent_limit_id"].ToString().Length > 0)
             {
@@ -450,11 +466,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 try
                 {
                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", limitID, resp.Code));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), ex);
                 }
             }
         }

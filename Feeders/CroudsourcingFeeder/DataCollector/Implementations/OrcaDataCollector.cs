@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ApiObjects;
@@ -12,12 +13,15 @@ using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.Implementations;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
+using KLogMonitor;
 using Newtonsoft.Json;
 
 namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
     internal class OrcaDataCollector : BaseDataCollector
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private eGalleryType _galleryType;
 
         public OrcaDataCollector(int groupId, eGalleryType galleryType)
@@ -53,7 +57,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), ex);
                 return null;
             }
         }
@@ -94,7 +98,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error normalizing singular item - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector: {0} - Error normalizing singular item - Exception: \n {1}", CollectorType, ex.Message), ex);
                 return null;
             }
         }

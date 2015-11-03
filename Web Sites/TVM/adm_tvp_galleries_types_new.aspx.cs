@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_tvp_galleries_types_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -83,7 +86,7 @@ public partial class adm_tvp_galleries_types_new : System.Web.UI.Page
         string sBack = "adm_tvp_galleries_types.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("tvp_template_channels_gallery_types", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("tvp_connection_" + nGroupID.ToString() + "_" + Session["platform"].ToString());
-        Logger.Logger.Log("Gallery Types","tvp_connection_" + nGroupID.ToString() + "_" + Session["platform"].ToString(), "UIGalleryTypes");
+        log.Debug("Gallery Types - tvp_connection_" + nGroupID.ToString() + "_" + Session["platform"].ToString());
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "VIRTUAL_NAME", true);
         theRecord.AddRecord(dr_name);

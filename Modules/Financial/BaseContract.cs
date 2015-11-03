@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using Logger;
+using KLogMonitor;
 
 namespace Financial
 {
-    
+
 
     public class BaseContract
     {
-      //  private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public Int32 m_nGroupID;
         public Int32 m_nContractID;
@@ -38,11 +39,11 @@ namespace Financial
         public CalculatedOn m_eCalculatedOn;
 
         public List<string> m_ValidCountries;
-        
+
         public bool m_bUpdateCountries;
 
         //new member 
-        public ContractRange m_cContractRange;       
+        public ContractRange m_cContractRange;
 
 
         public BaseContract()
@@ -76,11 +77,11 @@ namespace Financial
 
             m_bUpdateCountries = false;
 
-           m_cContractRange = new ContractRange();
+            m_cContractRange = new ContractRange();
         }
 
-        public void Initialize(Int32 nGID, Int32 nCID, Int32 nFEID, string sName, string sDescription, 
-            Int32 nCurID, Int32 nRID, DateTime dStart, DateTime dEnd, 
+        public void Initialize(Int32 nGID, Int32 nCID, Int32 nFEID, string sName, string sDescription,
+            Int32 nCurID, Int32 nRID, DateTime dStart, DateTime dEnd,
             double nFixAmount, double nPercentageAmount, double nMinAmount, double nMaxAmount,
             RelatedTo eRT, Int32 nCOL, Int32 nLevel, CalculatedOn eCO)
         {
@@ -148,7 +149,7 @@ namespace Financial
                     GetValidCountries();
                     m_bUpdateCountries = true;
                 }
-               
+
                 foreach (string country_name in m_ValidCountries)
                 {
                     if (country_name == sCountryName)
@@ -157,7 +158,7 @@ namespace Financial
                         break;
                     }
                 }
-            }           
+            }
             return ((nCurrenyCD == m_nCurrencyCD && validCountry) && (dDate <= m_dEndDate && dDate >= m_dStartDate));
         }
 
@@ -199,11 +200,11 @@ namespace Financial
                 {
 
                     string countryId = selectQuery.Table("query").DefaultView[i].Row["country_id"].ToString();
-                    
+
                     if (i > 0)
                         countries.Append(",");
                     countries.Append(countryId);
-                    
+
                 }
             }
             selectQuery.Finish();
@@ -262,8 +263,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("GetContractRange", "GroupID=" + m_nGroupID + " exception: "+ex.Message, "FinancialCalculator");
+                log.Error("GetContractRange GroupID=" + m_nGroupID + " exception: ", ex);
                 return cR;
             }
             return cR;

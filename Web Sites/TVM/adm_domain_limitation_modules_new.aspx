@@ -13,6 +13,10 @@
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
@@ -26,6 +30,13 @@
 <script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
 <script type="text/javascript" src="js/Player.js" language="javascript"></script>
 <script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
+<!-- dual list -->
+<script type="text/javascript" src="components/duallist/js/script.js"></script>
+<script type="text/javascript" src="components/duallist/js/info.js"></script>
+<script type="text/javascript" src="components/duallist/js/calender.js"></script>
+<script type="text/javascript" src="components/duallist/js/list.js"></script>
+<script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+<!-- end dual list -->
 <script type="text/javascript">
     var peek_date_string = '<%=Session["peek_date"]%>';
     var Su = '<%=Session["Su"]%>';
@@ -36,71 +47,15 @@
     var Fr = '<%=Session["Fr"]%>';
     var Sa = '<%=Session["Sa"]%>';
     MonthNumber = '<%=Session["MonthList"]%>';
-    var flashObj1 = new SWFObj
-(
-    'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-    'width', '100%',
-    'height', '100%',
-    'src', 'flash/DualList',
-    'scale', 'NoScale',
-    'id', 'DualList',
-    'bgcolor', '#869CA7',
-    'wmode', 'Window',
-    'name', 'DualList',
-    'allowFullScreen', 'false',
-    'allowScriptAccess', 'sameDomain',
-    'movie', 'flash/DualList'
-);
 
-    function flashEvents(json) {
-        switch (json.eventType) {
-            case "move":
-                if (json.callerID == 'DualList') {
-                    RS.Execute("adm_domain_limitation_modules_new.aspx", "changeItemStatus", json.id, json.kind, json.index, callback_changeItemStatus, errorCallback);
-                }
-                break;
-            case "ready":
-                if (json.id == 'DualList') {
-                    var flashObj1 = document.getElementById(json.id);
-                    initDualObj();
-                }
-                break;
-        }
-    }
-
-    function callback_changeItemStatus(ret) {
-    }
-
-    function callback_changeItemStatus_UserTypes(ret) {
-    }
-
-    function AfterDateSelect(orderBy, pageNum, theDate) {
-    }
-    function GetPageTable(orderBy, pageNum) {
-        flashObj1.write("DualListPH");
+    function GetPageTable(orderBy, pageNum) {        
         RS.Execute("adm_domain_limitation_modules_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
-    }
-
-    function initDualObj() {
-        RS.Execute("adm_domain_limitation_modules_new.aspx", "initDualObj", callback_init_dobj, errorCallback);
-    }
-    function callback_init_dobj(ret) {
-        var flashObj1 = document.getElementById("DualList");
-
-
-        var split_array = ret.split("~~|~~");
-
-        if (split_array.length == 3) {
-            theTitle1 = split_array[0];
-            theTitle2 = split_array[1];
-            var xmlStr = split_array[2];
-            flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
-        }
+        initDuallistObj('adm_domain_limitation_modules_new.aspx')
     }
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
-<form id="form2" name="form1" action="" method="post" runat=server>
+<form id="form2" name="form1" action="" method="post" runat="server">
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
 		<!-- top banner -->
 		<tr>

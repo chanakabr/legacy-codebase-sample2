@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_payment_gateway_config_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -49,11 +52,11 @@ public partial class adm_payment_gateway_config_new : System.Web.UI.Page
                     try
                     {
                         Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, paymentGatewayId);
-                        Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code), "SetPaymentGatewayConfiguration");
+                        log.Debug("SetPaymentGatewayConfiguration - " + string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                        log.Error("Exception - " + string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), ex);
                     }
                 }
 
@@ -103,7 +106,7 @@ public partial class adm_payment_gateway_config_new : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         Int32 groupID = LoginManager.GetLoginGroupID();
-        
+
         object t = null; ;
         if (Session["payment_gateway_config_id"] != null && Session["payment_gateway_config_id"].ToString() != "" && int.Parse(Session["payment_gateway_config_id"].ToString()) != 0)
             t = Session["payment_gateway_config_id"];
@@ -130,7 +133,7 @@ public partial class adm_payment_gateway_config_new : System.Web.UI.Page
         dr_payment_gateway_id.SetValue(Session["paymentGW_id"].ToString());
         theRecord.AddRecord(dr_payment_gateway_id);
 
-       
+
 
         string sTable = theRecord.GetTableHTML("adm_payment_gateway_config_new.aspx?submited=1");
         return sTable;

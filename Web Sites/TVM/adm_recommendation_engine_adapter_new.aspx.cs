@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -30,15 +33,15 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
                 int adapterId = 0;
-                
-                // Validate uniqe external id
+
+                // Validate unique external id
                 if (Session["adapter_id"] != null && Session["adapter_id"].ToString() != "" && int.Parse(Session["adapter_id"].ToString()) != 0)
                 {
                     int.TryParse(Session["adapter_id"].ToString(), out adapterId);
                 }
 
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-                
+
                 if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]))
                 {
                     if (IsExternalIDExists(coll["1_val"], adapterId))
@@ -53,7 +56,7 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
                         // After save is done:
                         // Update cache (Recommendation Engines are saved in cache as well as in DB)
                         // Update adapter itself that configuration has changed
-                        
+
                         string ip = "1.1.1.1";
                         string userName = "";
                         string password = "";
@@ -186,7 +189,8 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
             {
                 result = true;
                 int newAdapterId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
-                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}", newAdapterId), "recommendation_engines");
+                string name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
+                log.Debug("IsExternalIDExists - " + string.Format("id:{0}, name:{1}", newAdapterId, name));
             }
         }
 

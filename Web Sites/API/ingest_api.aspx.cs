@@ -7,14 +7,18 @@ using System.Web.UI.WebControls;
 using System.Xml;
 using TVinciShared;
 using System.Text;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class ingest_api : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
 
         string sXML = GetFormParameters();
-        Logger.Logger.Log("INGEST_API", "Start request - input is " + sXML, "INGEST_API");
+        log.Debug("INGEST_API - Start request - input is " + sXML);
         XmlDocument theDoc = new XmlDocument();
 
         string responseSTR = string.Empty;
@@ -36,7 +40,7 @@ public partial class ingest_api : System.Web.UI.Page
             if (groupID > 0)
             {
                 string xmlStr = data;
-              
+
                 TvinciImporter.ImporterImpl.DoTheWorkInner(xmlStr, groupID, string.Empty, ref responseSTR, false);
 
                 if (string.IsNullOrEmpty(responseSTR))
@@ -74,9 +78,10 @@ public partial class ingest_api : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             responseSTR = GetResponse(false, ex.Message);
         }
-        Logger.Logger.Log("INGEST_API", "For input " + sXML + " response is " + responseSTR, "INGEST_API");
+        log.Debug("INGEST_API - For input " + sXML + " response is " + responseSTR);
         Response.ContentType = "text/xml";
         Response.ClearHeaders();
         Response.Clear();
@@ -86,7 +91,7 @@ public partial class ingest_api : System.Web.UI.Page
     private string GetResponse(bool isValid, string description)
     {
         string retVal = string.Empty;
-        
+
         string statusStr = "OK";
         if (!isValid)
         {

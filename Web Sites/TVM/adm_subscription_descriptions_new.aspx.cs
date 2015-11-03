@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_subscription_descriptions_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -64,7 +67,7 @@ public partial class adm_subscription_descriptions_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", Session["subscription_id"].ToString() + " : " + ex.Message, "subscriptions_notifier");
+                    log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message, ex);
                 }
 
                 return;

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_users_list_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -63,7 +66,7 @@ public partial class adm_users_list_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nID.ToString() + " : " + ex.Message, "users_notifier");
+                    log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
                 }
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
@@ -145,10 +148,10 @@ public partial class adm_users_list_new : System.Web.UI.Page
         string sQuery = "select id , [description] as txt from users_types(nolock) where is_active = 1 and [status] = 1 and group_id=" + LoginManager.GetLoginGroupID();
         dr_userType.SetNoSelectStr("---");
         string sUserTypeDefaultValue = GetUserTypeDefaultValue();
-        dr_userType.SetDefaultVal(sUserTypeDefaultValue); 
+        dr_userType.SetDefaultVal(sUserTypeDefaultValue);
         dr_userType.SetSelectsQuery(sQuery);
         theRecord.AddRecord(dr_userType);
-     
+
 
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
@@ -173,7 +176,7 @@ public partial class adm_users_list_new : System.Web.UI.Page
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
             {
-                sRetValue =selectQuery.Table("query").DefaultView[0].Row["Description"].ToString();
+                sRetValue = selectQuery.Table("query").DefaultView[0].Row["Description"].ToString();
             }
         }
         selectQuery.Finish();

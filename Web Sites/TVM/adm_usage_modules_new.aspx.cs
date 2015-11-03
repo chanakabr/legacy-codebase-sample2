@@ -6,9 +6,12 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_usage_modules_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -79,7 +82,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
                                 if (umCount > 0)
                                 {
                                     priceCode = umSelectQuery.Table("query").DefaultView[0].Row["pricing_id"].ToString();
-                                    Logger.Logger.Log("MultiUM", "Found price code " + priceCode.ToString(), "MultiUM");
+                                    log.Debug("MultiUM - Found price code " + priceCode.ToString());
 
                                     nExtDiscountID = int.Parse(umSelectQuery.Table("query").DefaultView[0].Row["ext_discount_id"].ToString());
 
@@ -89,9 +92,9 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
                             umSelectQuery = null;
                             for (int i = 0; i < count; i++)
                             {
-                                
+
                                 int subID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["subscription_id"].ToString());
-                                Logger.Logger.Log("MultiUM", "Updateing subscription " + subID.ToString(), "MultiUM");
+                                log.Debug("MultiUM - Updating subscription " + subID.ToString());
                                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions");
                                 updateQuery.SetConnectionKey("pricing_connection");
                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SUB_PRICE_CODE", "=", priceCode);
@@ -195,7 +198,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_domain.Initialize("Code", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_domain);
 
-       
+
         DataRecordDropDownField dr_view_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, false);
         dr_view_lc.Initialize("View Life Cycle", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
         dr_view_lc.SetDefaultVal("1440");
@@ -204,7 +207,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         DataRecordDropDownField dr_sub_price_codes = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
         dr_sub_price_codes.SetFieldType("string");
         System.Data.DataTable priceCodesDT = GetPriceCodeDT();
-       
+
 
         dr_sub_price_codes.SetSelectsDT(priceCodesDT);
         dr_sub_price_codes.Initialize("Price Code", "adm_table_header_nbg", "FormInput", "pricing_id", true);
@@ -215,7 +218,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_disc.SetFieldType("string");
         dr_disc.SetNoSelectStr("---");
         System.Data.DataTable discCodesDT = GetDiscountsDT();
-      
+
         dr_disc.SetSelectsDT(discCodesDT);
         dr_disc.Initialize("Discount", "adm_table_header_nbg", "FormInput", "ext_discount_id", false);
         dr_disc.SetDefault(0);
@@ -225,11 +228,11 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_coupons_group.SetFieldType("string");
         dr_coupons_group.SetNoSelectStr("---");
         System.Data.DataTable CouponsGroupDT = GetCouponsDT();
-        
+
         dr_coupons_group.SetSelectsDT(CouponsGroupDT);
-        dr_coupons_group.Initialize("Coupon Group ", "adm_table_header_nbg", "FormInput", "coupon_id", false);       
+        dr_coupons_group.Initialize("Coupon Group ", "adm_table_header_nbg", "FormInput", "coupon_id", false);
         theRecord.AddRecord(dr_coupons_group);
-       
+
         DataRecordShortDoubleField dr_max_views = new DataRecordShortDoubleField(true, 12, 12);
         dr_max_views.Initialize("Maximum Views", "adm_table_header_nbg", "FormInput", "MAX_VIEWS_NUMBER", true);
         dr_max_views.SetDefault(0);
@@ -248,8 +251,8 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "type", false);
         dr_type.SetValue("1");
         theRecord.AddRecord(dr_type);
-                
-      
+
+
 
 
         string sTable = theRecord.GetTableHTML("adm_usage_modules_new.aspx?submited=1");
@@ -257,7 +260,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         return sTable;
     }
 
-   
+
 
     public string GetSubsPageContent(string sOrderBy, string sPageNum)
     {
@@ -328,7 +331,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_coupons_group.SetFieldType("string");
         dr_coupons_group.SetNoSelectStr("---");
         System.Data.DataTable CouponsGroupDT = GetCouponsDT();
-        
+
         dr_coupons_group.SetSelectsDT(CouponsGroupDT);
         dr_coupons_group.Initialize("Coupon Group ", "adm_table_header_nbg", "FormInput", "coupon_id", false);
         //dr_coupons_group.SetDefault(0);
@@ -339,7 +342,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_view_lc.SetDefault(1440);
         theRecord.AddRecord(dr_view_lc);
         */
-       
+
 
         DataRecordBoolField dr_sub_only = new DataRecordBoolField(true);
         dr_sub_only.Initialize("Is Renewable", "adm_table_header_nbg", "FormInput", "is_renew", false);
@@ -419,7 +422,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
-        
+
 
         // get default value from configuration for waiver_period by group id
 
@@ -484,7 +487,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         if (sWSURL != "")
             m.Url = sWSURL;
 
-        TvinciPricing.PriceCode[] oModules = m.GetPriceCodeList(sWSUserName, sWSPass,string.Empty,string.Empty,string.Empty);
+        TvinciPricing.PriceCode[] oModules = m.GetPriceCodeList(sWSUserName, sWSPass, string.Empty, string.Empty, string.Empty);
         if (oModules != null)
         {
             for (int i = 0; i < oModules.Length; i++)

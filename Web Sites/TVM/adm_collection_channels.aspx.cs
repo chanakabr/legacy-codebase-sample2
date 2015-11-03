@@ -7,9 +7,13 @@ using System.Web.UI.WebControls;
 using System.Configuration;
 using TVinciShared;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_collection_channels : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -129,7 +133,7 @@ public partial class adm_collection_channels : System.Web.UI.Page
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
             {
-                nRet    = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                 nStatus = int.Parse(selectQuery.Table("query").DefaultView[0].Row["STATUS"].ToString());
             }
         }
@@ -200,15 +204,15 @@ public partial class adm_collection_channels : System.Web.UI.Page
         if (nCommerceGroupID == 0)
             nCommerceGroupID = nLogedInGroupID;
         selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        Logger.Logger.Log("Collections group ids", PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""), "AdminSubs");
+        log.Debug("Collections group ids - " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""));
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             for (int i = 0; i < nCount; i++)
             {
-                string sID      = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
                 string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
-                string sTitle   = "";
+                string sTitle = "";
 
                 if (selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != null &&
                     selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != DBNull.Value)

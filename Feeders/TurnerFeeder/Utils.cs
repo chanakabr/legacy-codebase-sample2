@@ -63,6 +63,7 @@ namespace TurnerFeeder
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<FieldTypeEntity>();
             }
         }
@@ -137,6 +138,7 @@ namespace TurnerFeeder
             }
             catch (Exception exp)
             {
+                log.Error("", exp);
             }
             return dt;
         }
@@ -374,10 +376,7 @@ namespace TurnerFeeder
                 }
                 catch (Exception ex)
                 {
-                    #region Logging
-                    //insert Logs
-
-                    #endregion
+                    log.Error("", ex);
                 }
                 finally
                 {
@@ -582,46 +581,6 @@ namespace TurnerFeeder
             }
         }
 
-
-        // request gracenote api and get xml as a response
-        //public static string getXmlFromGracenote(string postData, string method, string uri)// 251545958-935BCC7F5502DCD265D67EBF29B2EB2B
-        //{
-        //    try
-        //    {
-        //        var request = (HttpWebRequest)WebRequest.Create(uri);//"https://c11031808.ipg.web.cddbp.net/webapi/xml/1.0/tvgridbatch_update");
-        //        GetProxyConfig(request);
-
-        //        if (method == "POST")
-        //        {
-        //            var data = Encoding.ASCII.GetBytes(postData);
-        //            request.Method = "POST";
-
-        //            request.ContentLength = data.Length;
-        //            using (var stream = request.GetRequestStream())
-        //            {
-        //                stream.Write(data, 0, data.Length);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            request.Method = "GET";
-        //        }
-        //        request.ContentType = "application/x-www-form-urlencoded";
-
-
-        //        var response = (HttpWebResponse)request.GetResponse();
-        //        var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
-
-        //        return responseString.ToString();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Logger.Log("getXmlFromGracenote", string.Format("ex={0}, uri={1}", ex.Message, uri), "GracenoteFeeder");
-        //        return string.Empty;
-        //    }
-        //}
-
         public static void InsertEpgs(int nGroupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues)
         {
             try
@@ -668,31 +627,6 @@ namespace TurnerFeeder
                 return;
             }
         }
-
-
-
-        //private static void GetProxyConfig(HttpWebRequest request)
-        //{
-        //    try
-        //    {
-        //        // add proxy configuration - for KDG internat connection
-        //        WebProxy myProxy = new WebProxy();
-        //        string proxyAddress = TVinciShared.WS_Utils.GetTcmConfigValue("proxyAddressKDG");
-        //        string username = TVinciShared.WS_Utils.GetTcmConfigValue("proxyUsernameKDG");
-        //        string password = TVinciShared.WS_Utils.GetTcmConfigValue("proxyPasswordKDG");
-        //        if (!string.IsNullOrEmpty(proxyAddress))
-        //        {
-        //            myProxy.Address = new Uri(proxyAddress);
-        //            myProxy.Credentials = new NetworkCredential(username, password);
-        //            request.Proxy = myProxy;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Logger.Log("GetProxyConfig", string.Format("fail to initialize proxy details ex={0}", ex.Message), "GracenoteFeeder");
-        //    }
-        //}
-
 
         private static void FillEpgExtraDataTable(ref DataTable dtEPGExtra, bool bIsMeta, string sValue, ulong nProgID, int nID, int nGroupID, int nStatus,
           int nUpdaterID, DateTime dCreateTime, DateTime dUpdateTime)

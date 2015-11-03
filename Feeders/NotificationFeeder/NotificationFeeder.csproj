@@ -62,10 +62,6 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\NotificationInterface\NotificationInterface.csproj">
       <Project>{1c21e97d-6309-4a6b-8c0b-013cd3168332}</Project>
       <Name>NotificationInterface</Name>

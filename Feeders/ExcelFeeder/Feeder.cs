@@ -354,6 +354,7 @@ namespace ExcelFeeder
                             }
                             catch (Exception ex)
                             {
+                                log.Error(string.Empty, ex);
                                 //Column does not belong to table - do nothing
                             }
                         }

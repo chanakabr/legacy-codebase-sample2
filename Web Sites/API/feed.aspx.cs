@@ -11,9 +11,13 @@ using System.Net;
 using System.Xml;
 using System.Configuration;
 using ODBCWrapper;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class rss : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string GetSafeQueryString(string sKey)
     {
         try
@@ -55,7 +59,7 @@ public partial class rss : System.Web.UI.Page
     static protected string FriendlyEncode(string sToEncode)
     {
         string sRet = sToEncode.Replace("/", "%2f");
-        if (string.IsNullOrEmpty(sRet)) 
+        if (string.IsNullOrEmpty(sRet))
             sRet = "NoTitle";
         sRet = sRet.Replace("&quot;", string.Empty);
         sRet = Uri.EscapeDataString(sRet);
@@ -71,8 +75,8 @@ public partial class rss : System.Web.UI.Page
         {
             sRet = "NoTitle";
         }
-        
-        
+
+
         return sRet;
 
     }
@@ -175,10 +179,10 @@ public partial class rss : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        
+
         Int32 nGroupID = 0;
         string sCallerIP = PageUtils.GetCallerIP();
-        Logger.Logger.Log("RSS IP", sCallerIP, "RSSCalls");
+        log.Debug("RSS IP - " + sCallerIP);
         string url = GetDecodedUrl(Request.Url.ToString());
         Uri uri = new Uri(url);
 
@@ -189,7 +193,7 @@ public partial class rss : System.Web.UI.Page
             bool bIPOK = IsIpValid(ref nGroupID, nFormGroupID);
             if (!string.IsNullOrEmpty(GetSafeQueryString("ext_link")))
             {
-                Logger.Logger.Log("Rss Calls", string.Format("Ext_Link is {0}", GetSafeQueryString("ext_link")), "RSSCalls");
+                log.Debug("Rss Calls - " + string.Format("Ext_Link is {0}", GetSafeQueryString("ext_link")));
                 if (GetSafeQueryString("ext_link").ToString().Equals("true"))
                 {
                     bIPOK = true;
@@ -197,7 +201,7 @@ public partial class rss : System.Web.UI.Page
             }
             if (bIPOK == false)
             {
-                Logger.Logger.Log("RSS 404", string.Format("404 returned from IP : {0}", sCallerIP), "RSSCalls"); 
+                log.Debug("RSS 404 - " + string.Format("404 returned from IP : {0}", sCallerIP));
                 Response.Expires = -1;
                 Response.StatusCode = 404;
                 Response.End();
@@ -227,8 +231,8 @@ public partial class rss : System.Web.UI.Page
                 string sRoles = GetSafeQueryString("roles");
                 string sMediaIDs = GetSafeQueryString("media_ids");
                 string sSubtitles = GetSafeQueryString("subtitles");
-                string[] sep = {","};
-                string[] sRolesSep = sRoles.Split(sep , StringSplitOptions.RemoveEmptyEntries);
+                string[] sep = { "," };
+                string[] sRolesSep = sRoles.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                 if (CachingManager.CachingManager.Exist("Rss_" + sRoles + "_" + sMediaIDs + "_" + nGroupID.ToString() + "_" + sChannelID + "_" + sPicSize + "_" + sStartIndex + "_" + sPageSize + "_" + sFileFormat + "_" + sFileQuality + "_" + sLang + "_" + sType + "_" + sBaseURL + "_" + sCountryID + "_" + sDeviceID + "_" + sPicResize + "_" + sWithImageInDescription) == true)
                 {
                     string sAll = CachingManager.CachingManager.GetCachedData("Rss_" + sRoles + "_" + sMediaIDs + "_" + nGroupID.ToString() + "_" + sChannelID + "_" + sPicSize + "_" + sStartIndex + "_" + sPageSize + "_" + sFileFormat + "_" + sFileQuality + "_" + sLang + "_" + sType + "_" + sBaseURL + "_" + sCountryID + "_" + sDeviceID + "_" + sPicResize + "_" + sWithImageInDescription).ToString();
@@ -241,7 +245,7 @@ public partial class rss : System.Web.UI.Page
                     nChannelID = int.Parse(sChannelID);
                 Int32 nLangID = 0;
                 bool bIsLangMain = true;
-                GetLangData(sLang , nGroupID , ref nLangID , ref bIsLangMain);
+                GetLangData(sLang, nGroupID, ref nLangID, ref bIsLangMain);
                 string sChannelName = "";
                 string sChannelDescription = "";
                 object oChannelName = null;
@@ -264,7 +268,7 @@ public partial class rss : System.Web.UI.Page
                     if (oChannelDescription != null && oChannelDescription != DBNull.Value)
                         sChannelDescription = oChannelDescription.ToString();
 
-                    
+
                     oPic = ODBCWrapper.Utils.GetTableSingleVal("channels", "PIC_ID", nChannelID);
                     if (oPic != null && oPic != DBNull.Value)
                         nPicID = int.Parse(oPic.ToString());
@@ -281,13 +285,13 @@ public partial class rss : System.Web.UI.Page
                     nPageSize = int.Parse(sPageSize);
                 if (nChannelID != 0 && CheackChannel(nChannelID) == false)
                 {
-                    Logger.Logger.Log("RSS 404", string.Format(" check channel failed - 404 returned from IP : {0}", sCallerIP), "RSSCalls"); 
+                    log.Error("RSS 404 - " + string.Format(" check channel failed - 404 returned from IP : {0}", sCallerIP));
                     Response.Expires = -1;
                     Response.StatusCode = 404;
                     Response.End();
                     return;
                 }
-                
+
                 if (sType == "feed")
                 {
                     sRet.Append("<feed>");
@@ -362,20 +366,20 @@ public partial class rss : System.Web.UI.Page
                         sLink = oLink.ToString();
                     if (sBaseURL != "")
                         sLink = sBaseURL;
-                    sRet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");    
+                    sRet.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
                     sRet.Append("<rss version=\"2.0\" xmlns:media=\"http://search.yahoo.com/mrss/\">");
                     sRet.Append("<channel>");
                     sRet.Append("<title>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sChannelName, true)).Append("</title>");
-                    sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sLink , true)).Append("</link>");
+                    sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sLink, true)).Append("</link>");
                     sRet.Append("<description>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sChannelDescription, true)).Append("</description>");
-                    sRet.Append("<image><url>").Append(GetPicRSSXMLParts(nPicID , nGroupID , sPicSize , sPicResize)).Append("</url>");
+                    sRet.Append("<image><url>").Append(GetPicRSSXMLParts(nPicID, nGroupID, sPicSize, sPicResize)).Append("</url>");
 
                     #region to fix
                     //sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sLink , true)).Append("</link>"); 
                     #endregion
 
                     sRet.Append("</image>");
-                    
+
 
                     DataTable d = null;
 
@@ -387,7 +391,7 @@ public partial class rss : System.Web.UI.Page
                         c.SetGroupID(nGroupID);
                         d = c.GetChannelMediaDT(nStartIndex + nPageSize);
                     }
-                    
+
 
                     if (d != null)
                     {
@@ -404,7 +408,7 @@ public partial class rss : System.Web.UI.Page
                             bool bAdmin = false;
                             Int32 nViews = 0;
                             Int32 nMediaID = int.Parse(d.DefaultView[i1].Row["ID"].ToString());
-                            Int32 nMediaRating = GetMediaRating(nMediaID , ref nViews);
+                            Int32 nMediaRating = GetMediaRating(nMediaID, ref nViews);
                             double dDuration = 0;
                             //string sLang = "";
 
@@ -416,11 +420,11 @@ public partial class rss : System.Web.UI.Page
                             //string s = ProtocolsFuncs.GetMediaInfoInner(nMediaID, nLangID, bIsLangMain, 0, true, ref theInfoStruct, true, false, false, ref theInfo, ref thePersonalStatistics, ref theMediaStatistics); 
                             #endregion
 
-       //3 calls can be reduced to 1
+                            //3 calls can be reduced to 1
                             Int32 nMediaFileID = ProtocolsFuncs.GetMediaFileID(nMediaID, sFileFormat, sFileQuality, bAdmin, nGroupID, false);
                             dDuration = GetMediaDuration(nMediaFileID);
                             string sMediaType = GetMediaType(nMediaID);
-                            
+
                             // translation
                             string sConnectionKey = String.Format("tvp_connection_{0}", nGroupID.ToString());
 
@@ -453,7 +457,7 @@ public partial class rss : System.Web.UI.Page
 
                             string sPicStr = "";
                             sPicStr = GetPicRSSXMLParts(nPicID, nGroupID, sPicSize, sPicResize);
-                            
+
                             //string sNewLink = sLink + "?media_id=" + nMediaID.ToString() + "&lang=" + sLang;
                             string sMediaName = "";
                             string sMediaDescription = "";
@@ -496,10 +500,10 @@ public partial class rss : System.Web.UI.Page
                                 sMediaDescription += "<p><img src='" + GetPicRSSXMLParts(nPicID, nGroupID, sPicSize, sPicResize) + "'/></p>";
 
                             sRet.Append("<title>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaName, true)).Append("</title>");
-                            sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sNewLink , true)).Append("</link>");
+                            sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sNewLink, true)).Append("</link>");
 
-                           
-                            
+
+
                             string sLength = "";
                             string sUrlType = "";
 
@@ -528,14 +532,14 @@ public partial class rss : System.Web.UI.Page
                             }
                            */
                             sRet.Append("<enclosure length=\"").Append(sLength).Append("\" url=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sNewLink, true)).Append("\" type=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sUrlType, true)).Append("\" alt=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaName, true)).Append("\"/>");
-                           
-                              
-                            sRet.Append("<description>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaDescription , true)).Append("</description>");
+
+
+                            sRet.Append("<description>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaDescription, true)).Append("</description>");
                             sRet.Append("<image><url>").Append(GetPicRSSXMLParts(nPicID, nGroupID, sPicSize, sPicResize)).Append("</url></image>");
                             //sRet.Append("<link>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sNewLink , true)).Append("</link>");
                             //sRet.Append("</image>");
                             sRet.Append("<rating>").Append(nMediaRating).Append("</rating>");
-                            sRet.Append("<media:text>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaDescription , true)).Append("</media:text>");
+                            sRet.Append("<media:text>").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaDescription, true)).Append("</media:text>");
                             sRet.Append("<media:content duration=\"" + dDuration.ToString() + " \" lang=\"\" />");
                             XmlDocument doc = new XmlDocument();
 
@@ -561,7 +565,7 @@ public partial class rss : System.Web.UI.Page
                             #endregion
 
                             sRet.Append("</item>");
-                                                        
+
                         }
                     }
                     sRet.Append("</channel>");
@@ -840,7 +844,7 @@ public partial class rss : System.Web.UI.Page
                             if (oMediaStartDate != null)
                             {
                                 dMediaStartDate = DateTime.Parse(oMediaStartDate.ToString());
-                                sRet.Append("<pubDate>").Append(String.Format("{0:ddd, d MMM yyyy hh:mm:ss}", dMediaStartDate)).Append(" GMT").Append("</pubDate>"); 
+                                sRet.Append("<pubDate>").Append(String.Format("{0:ddd, d MMM yyyy hh:mm:ss}", dMediaStartDate)).Append(" GMT").Append("</pubDate>");
                             }
                             string sLength = "";
                             string sPicType = "";
@@ -893,7 +897,7 @@ public partial class rss : System.Web.UI.Page
                     {
                         sPicSize = "full";
                     }
-                    
+
                     sRet.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                     sRet.Append("<rss version=\"2.0\">");
                     sRet.Append("<channel>");
@@ -1123,7 +1127,7 @@ public partial class rss : System.Web.UI.Page
                             {
                                 string[] sep1 = { "x" };
                                 //string[] sPicSizes = sPicSize.ToLower().Split(sep , StringSplitOptions.RemoveEmptyEntries);
-                                string[] sPicSizes = {"123" , "100"};
+                                string[] sPicSizes = { "123", "100" };
                                 if (sPicResize == "1")
                                 {
                                     string fullPicSize = ProtocolsFuncs.GetPicURL(nPicID, "full");
@@ -1140,7 +1144,7 @@ public partial class rss : System.Web.UI.Page
                                     sPicStr = "http://platform-us.tvinci.com/pic_resize_tool.aspx?h=100&w=123&c=true&u=" + sPicStr;
                                 }
                                 sRet.Append("<CONTENTITEM>");
-                                sRet.Append("<MEDIA TYPE=\"IMAGE\" SRC=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sPicStr,true)).Append("\" HEIGHT=\"").Append(sPicSizes[1]).Append("\" WIDTH=\"").Append(sPicSizes[0]).Append("\" ALT=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaName , true)).Append("\" />");
+                                sRet.Append("<MEDIA TYPE=\"IMAGE\" SRC=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sPicStr, true)).Append("\" HEIGHT=\"").Append(sPicSizes[1]).Append("\" WIDTH=\"").Append(sPicSizes[0]).Append("\" ALT=\"").Append(TVinciShared.ProtocolsFuncs.XMLEncode(sMediaName, true)).Append("\" />");
                                 sRet.Append("</CONTENTITEM>");
                             }
                             sRet.Append("<CONTENTITEM>");
@@ -1168,7 +1172,7 @@ public partial class rss : System.Web.UI.Page
         }
         else
         {
-            Logger.Logger.Log("RSS 404", string.Format("No group ID found - 404 returned from IP : {0}", sCallerIP), "RSSCalls"); 
+            log.Debug("RSS 404 - " + string.Format("No group ID found - 404 returned from IP : {0}", sCallerIP));
             Response.Expires = -1;
             Response.StatusCode = 404;
             Response.End();
@@ -1176,11 +1180,11 @@ public partial class rss : System.Web.UI.Page
         }
     }
 
-    static public string GetPicRSSXMLParts(Int32 nPicID, Int32 nGroupID , string sPicSize , string sPicResize)
+    static public string GetPicRSSXMLParts(Int32 nPicID, Int32 nGroupID, string sPicSize, string sPicResize)
     {
         if (nPicID == 0)
             nPicID = PageUtils.GetDefaultPICID(nGroupID);
-        string sRet = ""; 
+        string sRet = "";
         if (sPicResize == "1")
         {
             sRet = ProtocolsFuncs.GetPicURL(nPicID, "full");
@@ -1246,7 +1250,7 @@ public partial class rss : System.Web.UI.Page
         return true;
         bool bOK = false;
         string sCallerIP = PageUtils.GetCallerIP();
-        Logger.Logger.Log("Feed IP", string.Format("RSS call from IP {0}: ", sCallerIP), "RSSCalls");
+        log.Debug("Feed IP - " + string.Format("RSS call from IP {0}: ", sCallerIP));
         if (sCallerIP == "127.0.0.1")
         {
             nGroupID = nFormGroupID;

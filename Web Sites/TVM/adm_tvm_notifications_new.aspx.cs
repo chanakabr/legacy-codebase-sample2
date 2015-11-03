@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_tvm_notifications_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -65,19 +68,14 @@ public partial class adm_tvm_notifications_new : System.Web.UI.Page
             if (Request.QueryString["notification_id"] != null &&
                 Request.QueryString["notification_id"].ToString() != "")
             {
-                Logger.Logger.Log("Notification", "Startetd 5", "Notifications");
+                log.Debug("Notification - Started 5");
                 Session["notification_id"] = int.Parse(Request.QueryString["notification_id"].ToString());
                 
             }
             else
                 Session["notification_id"] = 0;
-
-           
         }
-              
     }
-
-    
 
     protected string GetLangMenu(Int32 nGroupID)
     {

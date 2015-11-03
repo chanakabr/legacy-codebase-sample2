@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_users_settings : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -26,7 +29,7 @@ public partial class adm_users_settings : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("users_connection_string");              
+                DBManipulator.DoTheWork("users_connection_string");
             }
         }
     }
@@ -39,7 +42,7 @@ public partial class adm_users_settings : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": User Settings");     
+        Response.Write(PageUtils.GetPreHeader() + ": User Settings");
     }
 
     protected void GetSubMenu()
@@ -56,7 +59,7 @@ public partial class adm_users_settings : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-      
+
         object groupId = LoginManager.GetLoginGroupID();
 
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
@@ -122,6 +125,7 @@ public partial class adm_users_settings : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             res = false;
         }
         return res;
@@ -149,6 +153,7 @@ public partial class adm_users_settings : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             userSettingId = 0;
         }
         return userSettingId;

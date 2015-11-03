@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
+using KLogMonitor;
 using TVinciShared;
 
 /// <summary>
@@ -9,6 +11,7 @@ using TVinciShared;
 /// </summary>
 public class PermittedModule : IHttpModule
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     public PermittedModule()
     {
         //
@@ -19,7 +22,7 @@ public class PermittedModule : IHttpModule
     public void Init(HttpApplication context)
     {
         context.BeginRequest += new EventHandler(Context_BeginRequest);
-        context.PreRequestHandlerExecute += new EventHandler (Application_AuthenticateRequest);
+        context.PreRequestHandlerExecute += new EventHandler(Application_AuthenticateRequest);
         context.AcquireRequestState += (new EventHandler(this.OnAcquireRequestState));
     }
 
@@ -48,7 +51,7 @@ public class PermittedModule : IHttpModule
             context.Response.End();
             return;
         }
-        
+
         string sIpAddress = context.Request.UserHostAddress;
         string sRefferer = "";
         if (context.Request.UrlReferrer != null)
@@ -87,7 +90,7 @@ public class PermittedModule : IHttpModule
 
         string sAppSateConfigValue = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
 
-        if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")       
+        if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {
             if (application.Request.Url.ToString().ToLower().EndsWith("moved.html") == false)
                 context.Server.Transfer("moved.html");
@@ -97,7 +100,7 @@ public class PermittedModule : IHttpModule
         string sRefferer = "";
         if (context.Request.UrlReferrer != null)
             sRefferer = context.Request.UrlReferrer.Host;
-        
+
         bool bCont = true;
         if (application.Request.Url.ToString().ToUpper().IndexOf("LOGIN", 0) != -1 ||
             application.Request.Url.ToString().ToUpper().IndexOf("TOKEN", 0) != -1 ||
@@ -120,8 +123,8 @@ public class PermittedModule : IHttpModule
             {
                 //if (application.Request.Form.AllKeys.Length > 0 || application.Request.QueryString.AllKeys.Length > 0)
                 //{
-                    //context.Server.Transfer("500.html");
-                    //bCont = false;
+                //context.Server.Transfer("500.html");
+                //bCont = false;
                 //}
             }
             if (application.Request.UrlReferrer != null && application.Request.UrlReferrer.Host != application.Request.Url.Host)
@@ -156,7 +159,7 @@ public class PermittedModule : IHttpModule
         }
         if (bCont == false)
             return;
-        
+
         string sIpAddress = context.Request.UserHostAddress;
 
         if (sRefferer.Trim().ToLower() == "localhost" || sRefferer.Trim().ToLower() == "admin.tvinci.com" || sRefferer.Trim().ToLower() == "tvm.tvinci.com")
@@ -175,22 +178,11 @@ public class PermittedModule : IHttpModule
             application.Request.Url.ToString().ToUpper().IndexOf(".GIF") == -1 &&
             application.Request.Url.ToString().ToUpper().IndexOf(".ICO") == -1 &&
             application.Request.Url.PathAndQuery != "/")
-        {
+
             if (bIpOK == false)
             {
-                //Logger.Logger.Log("1", application.Request.Url.ToString().ToUpper(), "sss");
                 context.Response.StatusCode = 403; // (Forbidden)
             }
-        }
-            /*
-        else
-        {
-            if (IsIPPermitted(sIpAddress) == false)
-            {
-                Logger.Logger.Log("2", application.Request.Url.ToString().ToUpper(), "sss");
-                context.Response.StatusCode = 403; // (Forbidden)
-            }
-        }*/
 
         if (application.Request.QueryString["RC"] != null ||
             application.Request.QueryString["M"] != null)

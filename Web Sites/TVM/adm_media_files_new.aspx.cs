@@ -12,8 +12,11 @@ using TVinciShared;
 using Notifiers;
 using System.Collections.Generic;
 using TvinciImporter;
+using KLogMonitor;
+using System.Reflection;
 public partial class adm_media_files_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -64,7 +67,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nMediaID.ToString() + " : " + ex.Message, "media_notifier");
+                    log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
                 }
 
                 return;
@@ -118,7 +121,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        Int32 nBackUPEnabled = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups" , "CDN_BACKUP_ACTIVE" , nGroupID).ToString());
+        Int32 nBackUPEnabled = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "CDN_BACKUP_ACTIVE", nGroupID).ToString());
         bool bBackUP = false;
         if (nBackUPEnabled == 1)
             bBackUP = true;
@@ -207,11 +210,11 @@ public partial class adm_media_files_new : System.Web.UI.Page
             dr_max_views.Initialize("Max total views(0 for Unlimited)", "adm_table_header_nbg", "FormInput", "MAX_VIEWS", false);
             theRecord.AddRecord(dr_max_views);
         }
-        
+
         DataRecordMediaViewerField dr_viewer = new DataRecordMediaViewerField("", int.Parse(Session["media_file_id"].ToString()));
         dr_viewer.Initialize("Main Video", "adm_table_header_nbg", "FormInput", "STREAMING_CODE", false);
         theRecord.AddRecord(dr_viewer);
-        
+
 
         if (bBackUP == true)
         {
@@ -299,7 +302,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
 
         DataRecordCheckBoxField dr_Is_default_language = new DataRecordCheckBoxField(true);
         dr_Is_default_language.Initialize("Is default language", "adm_table_header_nbg", "FormInput", "IS_DEFAULT_LANGUAGE", false);
-        theRecord.AddRecord(dr_Is_default_language);      
+        theRecord.AddRecord(dr_Is_default_language);
 
         string sTable = theRecord.GetTableHTML("adm_media_files_new.aspx?submited=1");
         return sTable;

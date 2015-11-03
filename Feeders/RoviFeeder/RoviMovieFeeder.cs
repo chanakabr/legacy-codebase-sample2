@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using KLogMonitor;
 using XSLT_transform_handlar;
 
 namespace RoviFeeder
 {
     public class RoviMovieFeeder : RoviBaseFeeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public RoviMovieFeeder()
         {
             m_url = string.Empty;
@@ -68,11 +72,11 @@ namespace RoviFeeder
                 try
                 {
                     res = TryIngestItem(movieUrl, transformer);
-                    Logger.Logger.Log("Error", string.Format("{0}, {1}", movieUrl, res.ToString()), "RoviMovieFeeder");
+                    log.Error("Error - " + string.Format("{0}, {1}", movieUrl, res.ToString()));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("{0}, {1}", movieUrl, ex.Message), "RoviMovieFeeder");
+                    log.Error("Error - " + string.Format("{0}, {1}", movieUrl, ex.Message), ex);
                 }
 
                 System.Threading.Thread.Sleep(1000);
@@ -236,7 +240,7 @@ namespace RoviFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("{0}", ex.Message), "RoviIngestNotification");
+                log.Error("Exception - " + string.Format("{0}", ex.Message), ex);
             }
 
             return res;

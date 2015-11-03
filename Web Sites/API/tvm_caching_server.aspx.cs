@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
+using KLogMonitor;
 
 public partial class tvm_caching_server : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (Request.IsSecureConnection == false && caching_server_utils.GetCallerIP() != "127.0.0.1")
         {
-            Logger.Logger.Log("TVM caching server ", "Http call not allowed", "tvm_caching_server");
+            log.Debug("TVM caching server Http call not allowed");
             return;
         }
         string sRequest = caching_server_utils.GetRequestXML(Request);
@@ -37,10 +41,10 @@ public partial class tvm_caching_server : System.Web.UI.Page
                 attr.OwnerElement.RemoveAttribute("alt_tvm");
             }
             XmlNode theRequest = theDoc.SelectSingleNode("/root");
-            
+
             string sXMLRequest = caching_server_utils.ConvertXMLToString(ref theRequest);
 
-            string[] sXMLRequestPart = { "", "", "" , "" , "" , "" , ""};
+            string[] sXMLRequestPart = { "", "", "", "", "", "", "" };
             caching_server_utils.SplitString(sXMLRequest, ref sXMLRequestPart);
             string sResponse = "";
             if (sXMLRequestPart[0] != "")
@@ -54,9 +58,9 @@ public partial class tvm_caching_server : System.Web.UI.Page
             Response.Expires = -1;
             Response.Write(sResponse);
         }
-        catch
+        catch (Exception ex)
         {
-            Logger.Logger.Log("TVM status notification: Wrong notification", "Exception for notification: " + sRequest, "tvm_notification");
+            log.Error("TVM status notification: Wrong notification- Exception for notification: " + sRequest, ex);
         }
     }
 }

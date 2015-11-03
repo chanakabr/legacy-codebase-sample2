@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts; 
+using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
 using System.IO;
@@ -14,10 +14,13 @@ using System.Xml;
 using System.Threading;
 using System.Text;
 using com.llnw.mediavault;
+using KLogMonitor;
+using System.Reflection;
 
 
 public class StatHolder
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected DateTime m_dStartDate;
     protected double m_dDuration;
@@ -34,7 +37,7 @@ public class StatHolder
         m_nShortest = 0;
     }
 
-    public bool AddDuration(double dDuration , Int32 nMax)
+    public bool AddDuration(double dDuration, Int32 nMax)
     {
         bool bRet = true;
         if (dDuration > m_nLongest)
@@ -84,6 +87,7 @@ public partial class api : System.Web.UI.Page
     //
     protected XmlDocument m_xmlDox;
     //
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     static protected Hashtable m_StatTableHolder;
 
     #endregion
@@ -115,19 +119,19 @@ public partial class api : System.Web.UI.Page
         theDoc.PreserveWhitespace = false;
 
         #region Init API variable
-            string sBaseResponse = "";
-            Int32 nGroupID = 0;
-            Int32 nPlayerID = 0;
-            Int32 nCountryID = 0;
-            string sTVinciGUID = "";
-            string sLastOnTvinci = "";
-            string sLastOnSite = "";
-            string sType = "";
-            bool bWithTimer = false;
-            double d = 0;
-            string sDurationStr = "";
-            //bool bDown = true;
-            bool bDown = false;
+        string sBaseResponse = "";
+        Int32 nGroupID = 0;
+        Int32 nPlayerID = 0;
+        Int32 nCountryID = 0;
+        string sTVinciGUID = "";
+        string sLastOnTvinci = "";
+        string sLastOnSite = "";
+        string sType = "";
+        bool bWithTimer = false;
+        double d = 0;
+        string sDurationStr = "";
+        //bool bDown = true;
+        bool bDown = false;
         #endregion
 
         //try request API XML if bDown = false 
@@ -136,15 +140,15 @@ public partial class api : System.Web.UI.Page
             Response.StatusCode = 404;
         }
         else
-        { 
-            #region Request API XML  
+        {
+            #region Request API XML
 
             bool bZip = false;
             try
             {
                 theDoc.LoadXml(xmlData);
                 //string sDocStruct = TVinciShared.ProtocolsFuncs.ConvertXMLToString(ref theDoc, true);
-                
+
                 string sWithTimer = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "timer");
 
                 if (sWithTimer == "1")
@@ -183,7 +187,6 @@ public partial class api : System.Web.UI.Page
                 if (HttpContext.Current.Request.ServerVariables["HTTP_REFERER"] != null)
                     sRefferer = HttpContext.Current.Request.ServerVariables["HTTP_REFERER"].ToLower();
 
-                // Logger.Logger.Log("API IPS", "Request from IP " + sHost, "API-IPS");
                 bool bAdmin = false;
                 if (sHost.ToLower().IndexOf("admin.tvinci.com") != -1 ||
                     sHost.ToLower().IndexOf("tvm.tvinci.com") != -1 ||
@@ -238,7 +241,6 @@ public partial class api : System.Web.UI.Page
                 bool bRet = false;
 
                 Int32 nDeviceID = 0;
-                //Logger.Logger.Log("TVM Request start: " + sType + " " + nGroupID.ToString(), DateTime.UtcNow.ToString(), "TVM_API_REQUESTS");
                 nWatcherID = TVinciShared.ProtocolsFuncs.GetStartValues(ref theDoc, ref nGroupID, ref sTVinciGUID, ref sLastOnTvinci, ref sLastOnSite, sSiteGUID, ref nCountryID, ref nPlayerID, bCreate, ref nDeviceID, ref sLang, ref bAdmin, ref bWithCache);
 
                 if (sDevice.Trim() != "" && nGroupID != 0)
@@ -306,12 +308,12 @@ public partial class api : System.Web.UI.Page
                 {
                     if (nGroupID == 109 || nGroupID == 110 || nGroupID == 111)
                     {
-                        Logger.Logger.Log("Request", xmlData, "PersonalLastWatched");
+                        log.Debug("Request:" + xmlData);
                     }
                     sBaseResponse = TVinciShared.ProtocolsFuncs.PersonalLastWatchedProtocol(ref theDoc, nGroupID, sTVinciGUID, sLastOnTvinci, sLastOnSite, sSiteGUID, nWatcherID, sLang, nPlayerID, bAdmin, nCountryID, ref theIniObj, ref thePageDef, ref theInfoStructObj, ref theChannelObj, nDeviceID);
                     if (nGroupID == 109 || nGroupID == 110 || nGroupID == 111)
                     {
-                        Logger.Logger.Log("Response", sBaseResponse, "PersonalLastWatched");
+                        log.Debug("Response - " + sBaseResponse);
                     }
                 }
                 else if (sType == "personal_recommended")
@@ -487,27 +489,23 @@ public partial class api : System.Web.UI.Page
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            { 
+                log.Error("",ex);
+            }
 
-            //Logger.Logger.Log("TVM Request end: " + sType + " " + nGroupID.ToString(), DateTime.UtcNow.ToString(), "TVM_API_REQUESTS");
-            //if (d > 1500)
-            //Logger.Logger.Log("Long request: " + sDurationStr, sRequest, "LONG_API_REQUESTS");
+
             if (bWithTimer == true)
                 sBaseResponse = InsertTimerToXML(sBaseResponse, d);
             if (bZip == false || sBaseResponse.Length < 400)
                 Response.Write(sBaseResponse);
             else
                 Response.BinaryWrite(zipResponse);
-
-            //CacheServerNotifier tt = new CacheServerNotifier(nGroupID, sType, xmlData, sBaseResponse);
-            //ThreadStart job = new ThreadStart(tt.Notify);
-            //Thread thread = new Thread(job);
-            //thread.Start();
             #endregion
         }
     }
 
-  
+
     #endregion
 
     #region Methods
@@ -620,8 +618,8 @@ public partial class api : System.Web.UI.Page
     }
     #endregion
 
-  
 
 
-    
+
+
 }

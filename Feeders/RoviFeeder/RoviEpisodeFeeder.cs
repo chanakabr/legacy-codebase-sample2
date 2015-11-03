@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using KLogMonitor;
 using XSLT_transform_handlar;
 
 namespace RoviFeeder
 {
     public class RoviEpisodeFeeder : RoviBaseFeeder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public RoviEpisodeFeeder()
         {
             m_url = string.Empty;
@@ -45,7 +49,7 @@ namespace RoviFeeder
 
             if (dSeasonsUrls == null || dSeasonsUrls.Count == 0)
             {
-                Logger.Logger.Log("Error", string.Format(" season url is null {0}", ContentURL), "RoviEpisodeFeeder");
+                log.Error("Error - " + string.Format(" season url is null {0}", ContentURL));
                 return false;
             }
 
@@ -56,7 +60,7 @@ namespace RoviFeeder
 
             if (dSeasonsUrls == null || dSeasonsUrls.Count == 0)
             {
-                Logger.Logger.Log("Error", string.Format("not found season URLs in relevant IDs"), "RoviEpisodeFeeder");
+                log.Error("Error - " + string.Format("not found season URLs in relevant IDs"));
                 return false;
             }
 
@@ -80,13 +84,13 @@ namespace RoviFeeder
                         string seasonsUrl = entry.Value;
 
                         res = TryIngestItem(seasonsUrl, transformer);
-                        Logger.Logger.Log("TryIngest", string.Format("{0}, {1}", seasonsUrl, res.ToString()), "RoviEpisodeFeeder");
+                        log.Debug("TryIngest - " + string.Format("{0}, {1}", seasonsUrl, res.ToString()));
 
                         if (res) { break; }
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Error", string.Format("exception in Ingest: {0}, {1}", entry.Value, ex.Message), "RoviEpisodeFeeder");
+                        log.Error("Error - " + string.Format("exception in Ingest: {0}, {1}", entry.Value, ex.Message), ex);
                         dErrorSeasonsUrls[entry.Key] = entry.Value;
                         System.Threading.Thread.Sleep(1000);
                     }
@@ -131,7 +135,7 @@ namespace RoviFeeder
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Error", string.Format("exception in retryIngest: {0}, {1}", entry.Value, ex.Message), "RoviEpisodeFeeder");
+                            log.Error("Error - " + string.Format("exception in retryIngest: {0}, {1}", entry.Value, ex.Message), ex);
                             continue;
                         }
                     }
@@ -163,7 +167,7 @@ namespace RoviFeeder
 
             if (string.IsNullOrEmpty(seasonsXML))
             {
-                Logger.Logger.Log("Error", string.Format("seasonXML is empty {0}", sVodUrl), "RoviEpisodeFeeder");
+                log.Error("Error - " + string.Format("seasonXML is empty {0}", sVodUrl));
                 return false;
             }
 
@@ -175,23 +179,10 @@ namespace RoviFeeder
             {
                 RoviFeeder.EpisodeXSD.RoviNowtilusVodApi roviResult;
                 XmlSerializer serializer = new XmlSerializer(typeof(RoviFeeder.EpisodeXSD.RoviNowtilusVodApi));
-
-                //using (TextReader reader = new StringReader(seasonsXML))
-                //{
-                //    roviResult = (RoviFeeder.EpisodeXSD.RoviNowtilusVodApi)serializer.Deserialize(reader);
-
-                //    RoviFeeder.EpisodeXSD.RoviNowtilusVodApiPresentation roviTitle = roviResult.Presentation;
-
-                //    if (!RoviFeederUtils.Validate(roviTitle))
-                //    {
-                //        Logger.Logger.Log("Error", string.Format("roviTitle is not valid"), "RoviEpisodeFeeder");
-                //        return false;
-                //    }
-                //}
             }
-            catch
+            catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("Error in Deserialization"), "RoviEpisodeFeeder");
+                log.Error("Error - " + string.Format("Error in Deserialization"), ex);
                 return false;
             }
 
@@ -201,9 +192,9 @@ namespace RoviFeeder
                 {
                     transformer.TransformA(XMLD, writer, RoviTransform.assetType.EPISODE);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Logger.Logger.Log("Error", string.Format("Error in transforming"), "RoviEpisodeFeeder");
+                    log.Error("Error - " + string.Format("Error in transforming"), ex);
                     return false;
                 }
 

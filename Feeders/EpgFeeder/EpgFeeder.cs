@@ -91,7 +91,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                //TODO
+                log.Error("", ex);
             }
         }
     }

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 namespace CCRenewer
 {
     public class Renewer : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static protected object o = new object();
         protected Int32 m_nGroupID;
         protected Int32 m_nBillingProvider;
@@ -121,7 +125,7 @@ namespace CCRenewer
         public bool DoTheJob()
         {
             string sList = " ";
-            Logger.Logger.Log("Start" , "Job start: group: " + m_nGroupID.ToString() + " | billing provider: " + m_nBillingProvider.ToString() , "CCRenewer");
+            log.Debug("Start - Job start: group: " + m_nGroupID.ToString() + " | billing provider: " + m_nBillingProvider.ToString());
             while (sList != "")
             {
                 sList = GetList();
@@ -129,15 +133,15 @@ namespace CCRenewer
                 {
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery += "select q.* from (select * from billing_transactions where purchase_id in (" + sList + ") and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER" , "=" , m_nBillingProvider);
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", m_nBillingProvider);
                     selectQuery += " and ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING", "=", 1);
                     //selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
                     selectQuery += ")q,(select max(id) as id,purchase_id from billing_transactions where ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER" , "=" , m_nBillingProvider);
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROVIDER", "=", m_nBillingProvider);
                     selectQuery += " and ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING", "=", 1);
-                   // selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
+                    // selectQuery += " and (payment_number < number_of_payments or number_of_payments = 0)";
                     selectQuery += " and purchase_id in (" + sList + ") group by purchase_id)q1 where q.id=q1.id";
                     if (selectQuery.Execute("query", true) != null)
                     {
@@ -153,8 +157,8 @@ namespace CCRenewer
                                 nBillingMethod = int.Parse(oBillingMethod.ToString());
                             }
                             string sSiteGUID = selectQuery.Table("query").DefaultView[i].Row["SITE_GUID"].ToString();
-                            double dPrice = double.Parse(selectQuery.Table("query").DefaultView[i].Row["PRICE"].ToString()); 
-                            string sCurrency = selectQuery.Table("query").DefaultView[i].Row["CURRENCY_CODE"].ToString(); 
+                            double dPrice = double.Parse(selectQuery.Table("query").DefaultView[i].Row["PRICE"].ToString());
+                            string sCurrency = selectQuery.Table("query").DefaultView[i].Row["CURRENCY_CODE"].ToString();
                             string sSubscriptionCode = selectQuery.Table("query").DefaultView[i].Row["SUBSCRIPTION_CODE"].ToString();
                             if (!string.IsNullOrEmpty(sSubscriptionCode))
                             {
@@ -162,7 +166,7 @@ namespace CCRenewer
                                 Int32 nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["purchase_id"].ToString());
                                 Int32 nPaymentNumber = int.Parse(selectQuery.Table("query").DefaultView[i].Row["PAYMENT_NUMBER"].ToString());
                                 Int32 nNumOfPayments = int.Parse(selectQuery.Table("query").DefaultView[i].Row["number_of_payments"].ToString());
-                                if (nNumOfPayments == 0 || nPaymentNumber <= nNumOfPayments )
+                                if (nNumOfPayments == 0 || nPaymentNumber <= nNumOfPayments)
                                 {
                                     nPaymentNumber++;
                                     string sLogStr = "SiteGUID: " + sSiteGUID + " | price: " + dPrice.ToString() + sCurrency + " | Subscription Code: " + sSubscriptionCode
@@ -188,13 +192,13 @@ namespace CCRenewer
                                     {
                                         ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                        nPurchaseID, nBillingMethod, nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName);
-                                        Logger.Logger.Log("renew", sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode, "CCRenewer");
+                                        log.Debug("renew - " + sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode);
                                     }
                                     else
                                     {
                                         ConditionalAccess.TvinciBilling.BillingResponse resp = t.CC_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName);
-                                        Logger.Logger.Log("renew", sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode, "CCRenewer");
+                                        log.Debug("renew - " + sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode);
                                     }
                                     System.Threading.Thread.Sleep(10);
                                 }
@@ -223,7 +227,7 @@ namespace CCRenewer
             selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
             selectQuery += "select FAIL_COUNT from groups_parameters where IS_ACTIVE =1 and STATUS=1 ";
             selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);            
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;

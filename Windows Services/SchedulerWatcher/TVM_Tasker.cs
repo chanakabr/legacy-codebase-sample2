@@ -8,12 +8,15 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.ServiceProcess;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace Scheduler
 {
     partial class TVM_Tasker : ServiceBase
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public TVM_Tasker()
         {
             InitializeComponent();
@@ -30,10 +33,10 @@ namespace Scheduler
 
         protected void UpdateServiceStatus(Int32 nID, Int32 nRequestStatus, Int32 nStatus)
         {
-            Logger.Logger.Log("Stop", "Updateing DB", "SERVICE_HANDLER");
+            log.Debug("Stop - Updating DB");
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("windows_services");
             if (nStatus >= 0)
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS" , "=" , nStatus);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
             if (nRequestStatus >= 0)
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REQUEST_TYPE", "=", nRequestStatus);
             updateQuery += "where ";
@@ -43,7 +46,7 @@ namespace Scheduler
             updateQuery = null;
         }
 
-        static protected ServiceController GetServiceByName(string sName , ref Int32 nServiceStatus)
+        static protected ServiceController GetServiceByName(string sName, ref Int32 nServiceStatus)
         {
             nServiceStatus = -1;
             ServiceController[] services = ServiceController.GetServices();
@@ -72,7 +75,7 @@ namespace Scheduler
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", ex.Message + "\r\n" + ex.StackTrace, "SERVICE_HANDLER");
+                            log.Error("Exception - " + ex.Message + "\r\n" + ex.StackTrace);
                         }
                     }
                 }
@@ -80,7 +83,7 @@ namespace Scheduler
             return null;
         }
 
-        void  timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select * from windows_services ";
@@ -93,7 +96,7 @@ namespace Scheduler
                     Int32 nID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
                     Int32 nServiceRequestID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["REQUEST_TYPE"].ToString());
                     Int32 nStatus = -1;
-                    ServiceController service = GetServiceByName(sServiceName , ref nStatus);
+                    ServiceController service = GetServiceByName(sServiceName, ref nStatus);
                     if (service == null)
                         continue;
                     if (nServiceRequestID == 0)
@@ -102,18 +105,18 @@ namespace Scheduler
                     //Stop
                     if (nServiceRequestID == 1)
                     {
-                        Logger.Logger.Log("Stop", "Service: " + sServiceName + " - is being stoped", "SERVICE_HANDLER");
+                        log.Debug("Stop - Service: " + sServiceName + " - is being stoped");
                         service.Stop();
                     }
                     //Start
                     if (nServiceRequestID == 2)
                     {
-                        Logger.Logger.Log("Stop", "Service: " + sServiceName + " - is being started", "SERVICE_HANDLER");
+                        log.Debug("Stop - Service: " + sServiceName + " - is being started");
                         service.Start();
                     }
-                    UpdateServiceStatus(nID, 0, nStatus);    
+                    UpdateServiceStatus(nID, 0, nStatus);
                 }
-                
+
             }
             selectQuery.Finish();
             selectQuery = null;
@@ -121,7 +124,7 @@ namespace Scheduler
 
         protected override void OnStop()
         {
-            Logger.Logger.Log("message", "OnStop", "TVM_Tasker");
+            log.Debug("message - OnStop");
         }
 
         protected override void OnPause()

@@ -38,7 +38,7 @@ namespace CouchbaseMediaMarksFeeder
         {
         }
 
-        private string GetWorkerLogMsg(string msg, int groupID, string outputDirectory, int numOfUsersPerBulk, DateTime fromDate, 
+        private string GetWorkerLogMsg(string msg, int groupID, string outputDirectory, int numOfUsersPerBulk, DateTime fromDate,
             DateTime toDate, int currIndex, int fromUserInclusive, int toUserInclusive, Exception ex)
         {
             StringBuilder sb = new StringBuilder(String.Concat(msg, ". "));
@@ -92,9 +92,9 @@ namespace CouchbaseMediaMarksFeeder
                             ref domainIDToMediaMarksMapping,
                             ref userMediaToMediaMarksMapping, ref usersWithNoDomain))
                         {
-                            Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(GetSuccessStatusMsg(currIndex, domainIDToMediaMarksMapping,
+                            log.Debug(LOG_HEADER_STATUS + " " + GetWorkerLogMsg(GetSuccessStatusMsg(currIndex, domainIDToMediaMarksMapping,
                                 userMediaToMediaMarksMapping, usersWithNoDomain), groupID, outputDirectory, numOfUsersPerBulk,
-                                fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                fromDate, toDate, currIndex, from, to, null));
 
                             LogUsersWithNoDomain(currIndex, usersWithNoDomain);
                             int domainFailCount = 0;
@@ -109,11 +109,11 @@ namespace CouchbaseMediaMarksFeeder
 
                             if (domainFailCount > 0)
                             {
-                                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE), LOG_FILE);
+                                log.Debug(LOG_HEADER_ERROR + string.Format(" Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE));
                             }
                             else
                             {
-                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Domain JSONS at iteration: ", currIndex, " were created successfully."), LOG_FILE);
+                                log.Debug(LOG_HEADER_STATUS + String.Concat(" Domain JSONS at iteration: ", currIndex, " were created successfully."));
                             }
 
                             int userMediaFailCount = 0;
@@ -129,13 +129,13 @@ namespace CouchbaseMediaMarksFeeder
                             if (userMediaFailCount > 0)
                             {
                                 string logMsg = string.Format("Failed to create {0} user media jsons at iteration num {1} , Refer to log file: {2} for more details.", userMediaFailCount, currIndex, UM_JSONS_LOG_FILE);
-                                Logger.Logger.Log(LOG_HEADER_ERROR, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk,
-                                    fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                log.Debug(LOG_HEADER_ERROR + GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk,
+                                    fromDate, toDate, currIndex, from, to, null));
                             }
                             else
                             {
                                 string logMsg = String.Concat("User Media JSONS at iteration: ", currIndex, " were created successfully.");
-                                Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                log.Debug(LOG_HEADER_STATUS + GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null));
                             }
 
                             isLastIterationSuccessful = true;
@@ -160,15 +160,15 @@ namespace CouchbaseMediaMarksFeeder
                             res = true; // finished consuming the data.
                         }
 
-                        Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(String.Concat("Terminating Worker. Success: ", res.ToString().ToLower()),
-                            groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                        log.Debug(LOG_HEADER_STATUS + GetWorkerLogMsg(String.Concat("Terminating Worker. Success: ", res.ToString().ToLower()),
+                            groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null));
                         break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetWorkerLogMsg("Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
-                        fromDate, toDate, currIndex, from, to, ex), LOG_FILE);
+                    log.Error(LOG_HEADER_EXCEPTION + GetWorkerLogMsg("Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
+                        fromDate, toDate, currIndex, from, to, ex), ex);
                 }
             } // for
 
@@ -196,7 +196,7 @@ namespace CouchbaseMediaMarksFeeder
 
             if (isTerminate)
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Process already running", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + GetLogMsg(" Process already running", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                 return false;
             }
 
@@ -205,7 +205,7 @@ namespace CouchbaseMediaMarksFeeder
                 outputDirectory = outputDirectory.Trim();
                 if (string.IsNullOrEmpty(outputDirectory))
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + GetLogMsg(" Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                     return false;
                 }
                 if (!outputDirectory.EndsWith("\\"))
@@ -214,11 +214,11 @@ namespace CouchbaseMediaMarksFeeder
                 }
                 if (!Directory.Exists(outputDirectory))
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + GetLogMsg("Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                     return false;
                 }
 
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Starting migration process", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetLogMsg(" Starting migration process", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                 manager = new ChunkManager(from, to, groupID, numOfUsersPerBulk);
                 if (!manager.Initialize())
                 {
@@ -238,22 +238,22 @@ namespace CouchbaseMediaMarksFeeder
                         workers[i].Dispose();
                     }
                 }
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
-                    from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetLogMsg(" Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
+                    from, to, null));
 
                 res = true;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetLogMsg("Exception occurred", groupID, outputDirectory, numOfUsersPerBulk, from, to, ex), LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception occurred", groupID, outputDirectory, numOfUsersPerBulk, from, to, ex), ex);
             }
             finally
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Main thread finally block. ", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetLogMsg(" Main thread finally block. ", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                 if (manager != null)
                 {
-                    Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
-                        from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_STATUS + GetLogMsg(" Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
+                        from, to, null));
                     manager.Dispose();
                 }
                 lock (isRunningMutex)
@@ -320,7 +320,7 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat("|~%~| Iteration: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), UM_JSONS_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
@@ -371,7 +371,7 @@ namespace CouchbaseMediaMarksFeeder
                     {
                         set.Add(devices[i]);
                     }
-                    
+
                     // flush, in order to move from read operation to write operation
                     file.Flush();
                     file.SetLength(0);
@@ -404,7 +404,7 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat("|~%~| At Iteration Num: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), DOMAIN_JSONS_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
@@ -448,9 +448,9 @@ namespace CouchbaseMediaMarksFeeder
                             ref domainIDToMediaMarksMapping,
                             ref userMediaToMediaMarksMapping, ref usersWithNoDomain))
                         {
-                            Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(GetSuccessStatusMsg(currIndex, domainIDToMediaMarksMapping,
+                            log.Debug(LOG_HEADER_STATUS + GetWorkerLogMsg(GetSuccessStatusMsg(currIndex, domainIDToMediaMarksMapping,
                                 userMediaToMediaMarksMapping, usersWithNoDomain), groupID, outputDirectory, numOfUsersPerBulk,
-                                fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                fromDate, toDate, currIndex, from, to, null));
 
                             LogUsersWithNoDomain(currIndex, usersWithNoDomain);
                             int domainFailCount = 0;
@@ -466,11 +466,11 @@ namespace CouchbaseMediaMarksFeeder
 
                             if (domainFailCount > 0)
                             {
-                                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Update. Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE), LOG_FILE);
+                                log.Debug(LOG_HEADER_ERROR + string.Format("Update. Failed to create {0} domain jsons at iteration num {1} , Refer to log file: {2} for more details.", domainFailCount, currIndex, DOMAIN_JSONS_LOG_FILE));
                             }
                             else
                             {
-                                Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Update. Domain JSONS at iteration: ", currIndex, " were created successfully."), LOG_FILE);
+                                log.Debug(LOG_HEADER_STATUS + String.Concat(" Update. Domain JSONS at iteration: ", currIndex, " were created successfully."));
                             }
 
                             int userMediaFailCount = 0;
@@ -486,13 +486,13 @@ namespace CouchbaseMediaMarksFeeder
                             if (userMediaFailCount > 0)
                             {
                                 string logMsg = string.Format("Update. Failed to create {0} user media jsons at iteration num {1} , Refer to log file: {2} for more details.", userMediaFailCount, currIndex, UM_JSONS_LOG_FILE);
-                                Logger.Logger.Log(LOG_HEADER_ERROR, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk,
-                                    fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                log.Debug(LOG_HEADER_ERROR + GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk,
+                                    fromDate, toDate, currIndex, from, to, null));
                             }
                             else
                             {
                                 string logMsg = String.Concat("Update. User Media JSONS at iteration: ", currIndex, " were created successfully.");
-                                Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                                log.Debug(LOG_HEADER_STATUS + GetWorkerLogMsg(logMsg, groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null));
                             }
 
                             isLastIterationSuccessful = true;
@@ -517,15 +517,15 @@ namespace CouchbaseMediaMarksFeeder
                             res = true; // finished consuming the data.
                         }
 
-                        Logger.Logger.Log(LOG_HEADER_STATUS, GetWorkerLogMsg(String.Concat("Update. Terminating Worker. Success: ", res.ToString().ToLower()),
-                            groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null), LOG_FILE);
+                        log.Debug(LOG_HEADER_STATUS + GetWorkerLogMsg(String.Concat(" Update. Terminating Worker. Success: ", res.ToString().ToLower()),
+                            groupID, outputDirectory, numOfUsersPerBulk, fromDate, toDate, currIndex, from, to, null));
                         break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log(LOG_HEADER_EXCEPTION, GetWorkerLogMsg("Update. Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
-                        fromDate, toDate, currIndex, from, to, ex), LOG_FILE);
+                    log.Error(LOG_HEADER_EXCEPTION + GetWorkerLogMsg(" Update. Exception occurred. ", groupID, outputDirectory, numOfUsersPerBulk,
+                        fromDate, toDate, currIndex, from, to, ex), ex);
                 }
             } // for
 
@@ -554,7 +554,7 @@ namespace CouchbaseMediaMarksFeeder
 
             if (isTerminate)
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Update. Process already running", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + GetLogMsg("Update. Process already running", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                 return false;
             }
             try
@@ -562,7 +562,7 @@ namespace CouchbaseMediaMarksFeeder
                 outputDirectory = outputDirectory.Trim();
                 if (string.IsNullOrEmpty(outputDirectory))
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + GetLogMsg("Invalid directory name", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                     return false;
                 }
                 if (!outputDirectory.EndsWith("\\"))
@@ -571,7 +571,7 @@ namespace CouchbaseMediaMarksFeeder
                 }
                 if (!Directory.Exists(outputDirectory))
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Update. Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + GetLogMsg("Update. Directory does not exist", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                     return false;
                 }
                 manager = new ChunkManager(from, to, groupID, numOfUsersPerBulk);
@@ -593,23 +593,23 @@ namespace CouchbaseMediaMarksFeeder
                         workers[i].Dispose();
                     }
                 }
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Update. Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
-                    from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetLogMsg(" Update. Workers finished processing.", groupID, outputDirectory, numOfUsersPerBulk,
+                    from, to, null));
 
                 res = true;
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, GetLogMsg("Exception at Update. ", groupID, outputDirectory, numOfUsersPerBulk,
-                    from, to, ex), LOG_FILE);
+                log.Error(LOG_HEADER_ERROR + GetLogMsg(" Exception at Update. ", groupID, outputDirectory, numOfUsersPerBulk,
+                    from, to, ex), ex);
             }
             finally
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Update. Main thread finally block. ", groupID, outputDirectory, numOfUsersPerBulk, from, to, null), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetLogMsg("Update. Main thread finally block. ", groupID, outputDirectory, numOfUsersPerBulk, from, to, null));
                 if (manager != null)
                 {
-                    Logger.Logger.Log(LOG_HEADER_STATUS, GetLogMsg("Update. Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
-                        from, to, null), LOG_FILE);
+                    log.Debug(LOG_HEADER_STATUS + GetLogMsg("Update. Dropping temp table in SQL DB.", groupID, outputDirectory, numOfUsersPerBulk,
+                        from, to, null));
                     manager.Dispose();
                 }
                 lock (isRunningMutex)
@@ -647,7 +647,7 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat("|~%~| At iteration num: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), UM_JSONS_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
@@ -683,7 +683,7 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat("|~%~| At Iteration Num: ", iteration));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), DOMAIN_JSONS_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
@@ -700,27 +700,27 @@ namespace CouchbaseMediaMarksFeeder
         {
             if (usersWithNoDomain == null || usersWithNoDomain.Count == 0)
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, string.Format("No users without domain at iteration: {0} (Iteration count starts from zero)", iteration), LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + string.Format(" No users without domain at iteration: {0} (Iteration count starts from zero)", iteration));
             }
-            else 
+            else
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("At iteration num: {0} , encountered {1} users with no domain. Refer to {2} log file. (Iteration count starts from zero)", iteration, usersWithNoDomain.Count, USERS_WITH_NO_DOMAIN_LOG_FILE), LOG_FILE);
-                Logger.Logger.Log(LOG_HEADER_ERROR, String.Concat("Starting. Users with no domain at iteration: ", iteration), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + string.Format(" At iteration num: {0} , encountered {1} users with no domain. Refer to {2} log file. (Iteration count starts from zero)", iteration, usersWithNoDomain.Count, USERS_WITH_NO_DOMAIN_LOG_FILE));
+                log.Debug(LOG_HEADER_ERROR + String.Concat("Starting. Users with no domain at iteration: ", iteration));
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < usersWithNoDomain.Count; i++)
                 {
                     sb.Append(String.Concat(usersWithNoDomain[i], ";"));
                     if (sb.Length > MAX_STRINGBUILDER_SIZE)
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                        log.Debug(LOG_HEADER_ERROR + string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()));
                         sb = new StringBuilder();
                     }
                 } // for
                 if (sb.Length > 0)
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + string.Format("Users with no domain at iteration: {0} , users: {1}", iteration, sb.ToString()));
                 }
-                Logger.Logger.Log(LOG_HEADER_ERROR, String.Concat("End. Users with no domain at iteration: ", iteration), USERS_WITH_NO_DOMAIN_LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + String.Concat("End. Users with no domain at iteration: ", iteration));
             }
         }
 
@@ -760,7 +760,7 @@ namespace CouchbaseMediaMarksFeeder
             if (string.IsNullOrEmpty(jsonsDirectory) || string.IsNullOrEmpty(zipsDirectory) || numOfCouchbaseInstances < 1
                 || numOfCouchbaseInstances < 1)
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, "Zip. Input is invalied.", ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + " Zip. Input is invalid.");
                 return false;
             }
 
@@ -778,7 +778,7 @@ namespace CouchbaseMediaMarksFeeder
 
             if (isTerminate)
             {
-                Logger.Logger.Log(LOG_HEADER_ERROR, "Different Execute/Update/Zip is already running", ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_ERROR + " Different Execute/Update/Zip is already running");
                 return false;
             }
             if (!jsonsDirectory.EndsWith("\\"))
@@ -792,10 +792,10 @@ namespace CouchbaseMediaMarksFeeder
 
             try
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, "Zip. Entering try block.", ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + " Zip. Entering try block.");
                 if (!Directory.Exists(jsonsDirectory) || !Directory.Exists(zipsDirectory))
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, "Either directory of jsons or target directory of zips does not exist.", ZIP_LOG_FILE);
+                    log.Error(LOG_HEADER_ERROR + " Either directory of jsons or target directory of zips does not exist.");
                     return false;
                 }
                 Task[] domainWorkers = null;
@@ -803,21 +803,21 @@ namespace CouchbaseMediaMarksFeeder
                 string[] domainsJsonsDir = null;
                 string[] umJsonsDir = null;
                 CreateZipDirectories(numOfCouchbaseInstances, zipsDirectory, out domainsJsonsDir, out umJsonsDir);
-                Logger.Logger.Log(LOG_HEADER_STATUS, "Created directories for each couchbase instance.", ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + " Created directories for each couchbase instance.");
                 // get domains json files
                 string[] domainsJsonsFiles = Directory.GetFiles(jsonsDirectory, "d*");
                 if (domainsJsonsFiles != null && domainsJsonsFiles.Length > 0)
                 {
-                    Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", domainsJsonsFiles.Length, " domain jsons files."), ZIP_LOG_FILE);
+                    log.Debug(LOG_HEADER_STATUS + String.Concat(" Found: ", domainsJsonsFiles.Length, " domain jsons files."));
                     domainWorkers = new Task[DEFAULT_NUM_OF_WORKER_THREADS >> 1];
-                    domainWorkers[0] = Task.Factory.StartNew(() => ZipperWorker(domainsJsonsFiles, 0, domainsJsonsFiles.Length >> 1, 
+                    domainWorkers[0] = Task.Factory.StartNew(() => ZipperWorker(domainsJsonsFiles, 0, domainsJsonsFiles.Length >> 1,
                         numOfCouchbaseInstances, domainsJsonsDir, numOfJsonsInZip));
                     domainWorkers[1] = Task.Factory.StartNew(() => ZipperWorker(domainsJsonsFiles, domainsJsonsFiles.Length >> 1,
                         domainsJsonsFiles.Length, numOfCouchbaseInstances, domainsJsonsDir, numOfJsonsInZip));
                 }
                 else
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, "No domains jsons were found.", ZIP_LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + " No domains jsons were found.");
                 }
                 // attach two worker threads to process the domains jsons.
 
@@ -825,7 +825,7 @@ namespace CouchbaseMediaMarksFeeder
                 string[] umJsonsFiles = Directory.GetFiles(jsonsDirectory, "u*m*");
                 if (umJsonsFiles != null && umJsonsFiles.Length > 0)
                 {
-                    Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Found: ", umJsonsFiles.Length, " user media jsons files."), ZIP_LOG_FILE);
+                    log.Debug(LOG_HEADER_STATUS + String.Concat(" Found: ", umJsonsFiles.Length, " user media jsons files."));
                     umWorkers = new Task[DEFAULT_NUM_OF_WORKER_THREADS >> 1];
                     umWorkers[0] = Task.Factory.StartNew(() => ZipperWorker(umJsonsFiles, 0, umJsonsFiles.Length >> 1, numOfCouchbaseInstances,
                         umJsonsDir, numOfJsonsInZip));
@@ -834,7 +834,7 @@ namespace CouchbaseMediaMarksFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log(LOG_HEADER_ERROR, "No domains jsons were found.", ZIP_LOG_FILE);
+                    log.Debug(LOG_HEADER_ERROR + " No domains jsons were found.");
                 }
 
                 if (domainWorkers != null)
@@ -871,11 +871,11 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat(" Num Of JSONs in Zip: ", numOfJsonsInZip));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), ZIP_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, "Entered finally block at Zip method.", ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + " Entered finally block at Zip method.");
                 lock (isRunningMutex)
                 {
                     if (isRunning)
@@ -891,7 +891,7 @@ namespace CouchbaseMediaMarksFeeder
         private bool ZipperWorker(string[] jsonsFilenames, int startIndexInclusive, int endIndexExclusive, int numOfCouchbaseInstances,
             string[] jsonsDir, int numOfJsonsInZip)
         {
-            int i=0;
+            int i = 0;
             int roundRobinCounter = 0;
             int jsonFileInZipCounter = 0;
             bool res = false;
@@ -899,56 +899,7 @@ namespace CouchbaseMediaMarksFeeder
             ZipArchive archive = null;
             try
             {
-                //string currZipFile = string.Empty;
-                //for (i = startIndexInclusive; i < endIndexExclusive; i++)
-                //{
-                //    if (zip == null)
-                //    {
-                //        currZipFile = String.Concat(jsonsDir[roundRobinCounter % numOfCouchbaseInstances], "\\", startIndexInclusive, "_", endIndexExclusive, "_", DateTime.UtcNow.ToString("yyyyMMddHHmmss"), ZIP_FILE_ENDING);
-                //        zip = new FileStream(currZipFile, FileMode.Create);
-                //        archive = new ZipArchive(zip, ZipArchiveMode.Create);
-                //        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Started working on file: ", currZipFile, ". Iter num: ", i, " RR Ctr: ", roundRobinCounter), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
-                //    }
-                //    string errMsg = string.Empty;
-                //    string jsonFileContent = string.Empty;
-                //    jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
-                //    if (jsonFileContent.Length > 0)
-                //    {
-                //        string currJsonFilename = GetFilenameOutOfPath(jsonsFilenames[i]);
-                //        ZipArchiveEntry entry = archive.CreateEntry(currJsonFilename);
-                //        using (StreamWriter sw = new StreamWriter(entry.Open()))
-                //        {
-                //            sw.Write(jsonFileContent);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Error at iteration: ", i, " Failed to read JSON from file: ", jsonsFilenames[i], ". Err msg: ", errMsg), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
-                //    }
-                //    jsonFileInZipCounter++;
-                //    if (jsonFileInZipCounter == numOfJsonsInZip)
-                //    {
-                //        archive.Dispose();
-                //        archive = null;
-                //        zip.Close();
-                //        zip = null;
-                //        roundRobinCounter++;
-                //        jsonFileInZipCounter = 0;
-                //        Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
-                //    }
-                //} // for
-                //if (jsonFileInZipCounter <= numOfJsonsInZip)
-                //{
-                //    archive.Dispose();
-                //    archive = null;
-                //    zip.Close();
-                //    zip = null;
-                //    roundRobinCounter++;
-                //    jsonFileInZipCounter = 0;
-                //    Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg(String.Concat("Finished processing zip file: ", currZipFile, " at iter num: ", i - 1), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
-                //}
-                //res = true;
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg("Worker thread started.", startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetZipperWorkerLogMsg("Worker thread started.", startIndexInclusive, endIndexExclusive, null));
                 List<KeyValuePair<string, string>> filenameToJsonMapping = new List<KeyValuePair<string, string>>(numOfJsonsInZip);
                 for (i = startIndexInclusive; i < endIndexExclusive; i++)
                 {
@@ -960,11 +911,11 @@ namespace CouchbaseMediaMarksFeeder
                             startIndexInclusive, endIndexExclusive, ref statusMsg))
                         {
                             // fail.
-                            Logger.Logger.Log(LOG_HEADER_ERROR, statusMsg, ZIP_LOG_FILE);
+                            log.Error(LOG_HEADER_ERROR + statusMsg);
                         }
                         else
                         {
-                            Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Success. ", statusMsg), ZIP_LOG_FILE);
+                            log.Debug(LOG_HEADER_STATUS + String.Concat(" Success. ", statusMsg));
                         }
                         // increment round robin counter
                         roundRobinCounter++;
@@ -976,7 +927,7 @@ namespace CouchbaseMediaMarksFeeder
                     string jsonFileContent = GetJsonFileContent(jsonsFilenames[i], ref errMsg);
                     if (jsonFileContent.Length == 0)
                     {
-                        Logger.Logger.Log(LOG_HEADER_ERROR, GetZipperWorkerLogMsg(String.Concat("Failed to read json out of file: ", jsonsFilenames[i], " Iter num: ", i), startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                        log.Error(LOG_HEADER_ERROR + GetZipperWorkerLogMsg(String.Concat(" Failed to read json out of file: ", jsonsFilenames[i], " Iter num: ", i), startIndexInclusive, endIndexExclusive, null));
                         continue;
                     }
                     filenameToJsonMapping.Add(new KeyValuePair<string, string>(jsonFile, jsonFileContent));
@@ -990,11 +941,11 @@ namespace CouchbaseMediaMarksFeeder
                         startIndexInclusive, endIndexExclusive, ref statusMsg))
                     {
                         // fail.
-                        Logger.Logger.Log(LOG_HEADER_ERROR, statusMsg, ZIP_LOG_FILE);
+                        log.Error(LOG_HEADER_ERROR + statusMsg);
                     }
                     else
                     {
-                        Logger.Logger.Log(LOG_HEADER_STATUS, String.Concat("Success. ", statusMsg), ZIP_LOG_FILE);
+                        log.Debug(LOG_HEADER_STATUS + String.Concat(" Success. ", statusMsg));
                     }
                     // increment round robin counter
                     roundRobinCounter++;
@@ -1013,16 +964,16 @@ namespace CouchbaseMediaMarksFeeder
                 sb.Append(String.Concat(" Num Of Jsons In Zip: ", numOfJsonsInZip));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                Logger.Logger.Log(LOG_HEADER_EXCEPTION, sb.ToString(), ZIP_LOG_FILE);
+                log.Error(LOG_HEADER_EXCEPTION + sb.ToString(), ex);
             }
             finally
             {
-                Logger.Logger.Log(LOG_HEADER_STATUS, GetZipperWorkerLogMsg("Worker thread reached finally block.", startIndexInclusive, endIndexExclusive, null), ZIP_LOG_FILE);
+                log.Debug(LOG_HEADER_STATUS + GetZipperWorkerLogMsg(" Worker thread reached finally block.", startIndexInclusive, endIndexExclusive, null));
                 if (archive != null)
                 {
                     archive.Dispose();
                 }
-                if (zip != null) 
+                if (zip != null)
                 {
                     zip.Close();
                 }
@@ -1060,6 +1011,7 @@ namespace CouchbaseMediaMarksFeeder
             {
                 res = false;
                 statusMsg = String.Concat(statusMsg, " || ", GetZipperWorkerLogMsg(String.Concat("Exception at iter: ", i, " in CreateZipFile."), startIndexInclusive, endIndexExclusive, ex));
+                log.Error(statusMsg, ex);
             }
             finally
             {
@@ -1079,7 +1031,7 @@ namespace CouchbaseMediaMarksFeeder
         private string GetFilenameOutOfPath(string path)
         {
             int i = 0;
-            for (i = path.Length - 1; i > -1; i --)
+            for (i = path.Length - 1; i > -1; i--)
             {
                 if (path[i] == '\\')
                     break;
@@ -1155,7 +1107,7 @@ namespace CouchbaseMediaMarksFeeder
                 domainJsonsDirs[i] = String.Concat(zipsDirectory, "cb_", i + 1, "_d");
                 DirectoryInfo di1 = Directory.CreateDirectory(domainJsonsDirs[i]);
                 umJsonsDir[i] = String.Concat(zipsDirectory, "cb_", i + 1, "_um");
-                DirectoryInfo di2 = Directory.CreateDirectory(umJsonsDir[i]); 
+                DirectoryInfo di2 = Directory.CreateDirectory(umJsonsDir[i]);
             }
 
         }

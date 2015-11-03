@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Net;
-using Logger;
 using System.Xml.Serialization;
 using System.Xml;
 using TvinciImporter;
@@ -472,13 +471,6 @@ namespace EpgFeeder
                     }
                 }
                 #endregion
-
-                //bool bInsert = oEpgBL.InsertEpg(newEpgItem, out epgID);
-                //if (!bInsert)
-                //{
-                //    Logger.Logger.Log("InsertProgramScheduleCB", string.Format("Failed Insert Program Schedule to CB in channelID '{0}' ,start date {1} end date {2} ", channelID, dProgStartDate, dProgEndDate), LogFileName);
-                //}
-                //newEpgItem.EpgID = epgID;
             }
             catch (Exception exp)
             {
@@ -518,7 +510,9 @@ namespace EpgFeeder
             {
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return true;
         }
         private DateTime ParseEPGStrToDate(string date, string programtime)

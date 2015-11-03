@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
 using System.Globalization;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -115,7 +118,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 
     private string GetMainLang(int nGroupID)
     {
-        string sMainLang = string.Empty; 
+        string sMainLang = string.Empty;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select code3 from lu_languages where id in (select LANGUAGE_ID from groups where";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
@@ -134,7 +137,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         return sMainLang;
     }
 
-    protected void InsertPPVModulesMediaFilesID(Int32 nPPVModuleID , Int32 nMEdiaFileID , Int32 nGroupID)
+    protected void InsertPPVModulesMediaFilesID(Int32 nPPVModuleID, Int32 nMEdiaFileID, Int32 nGroupID)
     {
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_media_files");
         insertQuery.SetConnectionKey("pricing_connection");
@@ -151,7 +154,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         insertQuery = null;
     }
 
-    protected void UpdatePPVModulesMediaFilesID(Int32 nID , Int32 nStatus)
+    protected void UpdatePPVModulesMediaFilesID(Int32 nID, Int32 nStatus)
     {
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
         updateQuery.SetConnectionKey("pricing_connection");
@@ -163,7 +166,8 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         updateQuery = null;
     }
 
-    protected void UpdatePPVModulesMediaFilesIDDates(Int32 nID ,string sStartDate,string sEndDate) {        
+    protected void UpdatePPVModulesMediaFilesIDDates(Int32 nID, string sStartDate, string sEndDate)
+    {
         DateTime? dStartDate = string.IsNullOrEmpty(sStartDate) ? null : (DateTime?)(DateTime.ParseExact(sStartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
         DateTime? dEndDate = string.IsNullOrEmpty(sEndDate) ? null : (DateTime?)(DateTime.ParseExact(sEndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
@@ -181,10 +185,11 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         {
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", (DateTime)dEndDate);
         }
-        else {
+        else
+        {
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", DBNull.Value);
         }
-        
+
         updateQuery += "where ";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
         updateQuery.Execute();
@@ -192,7 +197,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         updateQuery = null;
     }
 
-    protected Int32 GetPPVModulesMediaFilesID(Int32 nPPVModuleID, Int32 nLogedInGroupID , ref Int32 nStatus)
+    protected Int32 GetPPVModulesMediaFilesID(Int32 nPPVModuleID, Int32 nLogedInGroupID, ref Int32 nStatus)
     {
         Int32 nRet = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -220,7 +225,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         return nRet;
     }
 
-    public string changeItemStatus(string sID , string sAction)
+    public string changeItemStatus(string sID, string sAction)
     {
         if (Session["media_file_id"] == null || Session["media_file_id"].ToString() == "" || Session["media_file_id"].ToString() == "0")
         {
@@ -246,7 +251,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         }
         else
         {
-            InsertPPVModulesMediaFilesID(int.Parse(sID), int.Parse(Session["media_file_id"].ToString()) , nLogedInGroupID);
+            InsertPPVModulesMediaFilesID(int.Parse(sID), int.Parse(Session["media_file_id"].ToString()), nLogedInGroupID);
         }
 
         try
@@ -259,13 +264,13 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("exception", Session["media_id"].ToString() + " : " + ex.Message, "media_notifier");
+            log.Error("exception - " + Session["media_id"].ToString() + " : " + ex.Message, ex);
         }
 
         return "";
     }
 
-    public string changeItemDates(string sID, string sStartDate,string sEndDate)
+    public string changeItemDates(string sID, string sStartDate, string sEndDate)
     {
         if (Session["media_file_id"] == null || Session["media_file_id"].ToString() == "" || Session["media_file_id"].ToString() == "0")
         {
@@ -284,7 +289,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         Int32 nPPVModuleMediaFilesID = GetPPVModulesMediaFilesID(int.Parse(sID), nLogedInGroupID, ref nStatus);
         if (nPPVModuleMediaFilesID != 0)
         {
-                UpdatePPVModulesMediaFilesIDDates(nPPVModuleMediaFilesID, sStartDate,sEndDate);
+            UpdatePPVModulesMediaFilesIDDates(nPPVModuleMediaFilesID, sStartDate, sEndDate);
         }
         return "";
     }
@@ -314,33 +319,34 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         if (nCommerceGroupID == 0)
             nCommerceGroupID = nLogedInGroupID;
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetPPVModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-        Logger.Logger.Log("Pricing WS", "User is : " + sWSUserName + " Pass is : " + sWSPass, "PricingWS");
+        log.Debug("Pricing WS - User is : " + sWSUserName + " Pass is : " + sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
         string sWSURL = GetWSURL();
         if (sWSURL != "")
             m.Url = sWSURL;
         TvinciPricing.PPVModuleContainer[] oModules = m.GetPPVModuleListForAdmin(sWSUserName, sWSPass, int.Parse(Session["media_file_id"].ToString()), string.Empty, string.Empty, string.Empty);
         Int32 nCount = oModules.Length;
-        Logger.Logger.Log("Pricing WS", "Count is " + nCount.ToString(), "PricingWS");
+        log.Debug("Pricing WS - Count is " + nCount.ToString());
         object[] resultData = new object[nCount];
         string mainLanguage = GetMainLang(nCommerceGroupID);
         for (int i = 0; i < nCount; i++)
         {
             string sID = oModules[i].m_oPPVModule.m_sObjectCode;
-            string sTitle = (!string.IsNullOrEmpty(oModules[i].m_oPPVModule.m_sObjectVirtualName))? oModules[i].m_oPPVModule.m_sObjectVirtualName : sID;
+            string sTitle = (!string.IsNullOrEmpty(oModules[i].m_oPPVModule.m_sObjectVirtualName)) ? oModules[i].m_oPPVModule.m_sObjectVirtualName : sID;
             bool inList = oModules[i].m_bIsBelong;
-            string startDate = (oModules[i].m_dStartDate==null) ? "" : oModules[i].m_dStartDate.Value.ToString("dd/MM/yyyy");
+            string startDate = (oModules[i].m_dStartDate == null) ? "" : oModules[i].m_dStartDate.Value.ToString("dd/MM/yyyy");
             string endDate = (oModules[i].m_dEndDate == null) ? "" : oModules[i].m_dEndDate.Value.ToString("dd/MM/yyyy");
             string sDescription = "";
             if (oModules[i].m_oPPVModule.m_sDescription != null)
             {
                 for (int j = 0; j < oModules[i].m_oPPVModule.m_sDescription.Length; j++)
                 {
-                    if (oModules[i].m_oPPVModule.m_sDescription[j].m_sLanguageCode3 == mainLanguage) {
+                    if (oModules[i].m_oPPVModule.m_sDescription[j].m_sLanguageCode3 == mainLanguage)
+                    {
                         sDescription += oModules[i].m_oPPVModule.m_sDescription[j].m_sValue;
                     }
-                    
-               }
+
+                }
             }
             var data = new
             {
@@ -357,7 +363,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         DualListPPVM.Add("Data", resultData);
         DualListPPVM.Add("pageName", "adm_media_files_ppvmodules.aspx");
         DualListPPVM.Add("withCalendar", true);
-        Logger.Logger.Log("Pricing WS", resultData.ToJSON(), "PricingWS");
+        log.Debug("Pricing WS - " + resultData.ToJSON());
         return DualListPPVM.ToJSON();
     }
 

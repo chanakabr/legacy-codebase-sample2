@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_bs_bug_close : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -46,7 +49,7 @@ public partial class adm_bs_bug_close : System.Web.UI.Page
                 updateQuery.Execute();
                 updateQuery.Finish();
                 updateQuery = null;
-                PageUtils.SendBugMail(nBugID, "Close", "BagReport.html" , true);
+                PageUtils.SendBugMail(nBugID, "Close", "BagReport.html", true);
                 //PageUtils.SendBugMail(nBugID, "Close", "BagReportToClient.html", true);
                 return;
             }
@@ -105,13 +108,13 @@ public partial class adm_bs_bug_close : System.Web.UI.Page
             if (Session["action"] != null && Session["action"].ToString() == "watch")
                 Response.Write(PageUtils.GetPreHeader() + ": Bugs System: Project: " + PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(Session["project_id"].ToString())).ToString() + ": Bug: " + PageUtils.GetTableSingleVal("bs_project_bugs", "NAME", int.Parse(Session["bs_bug_id"].ToString())).ToString() + " (Status: " + GetCurrentStatsus() + ") Close Details");
             else if (Session["action"] != null && Session["action"].ToString() == "fix")
-                    Response.Write(PageUtils.GetPreHeader() + ": Bugs System: Project: " + PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(Session["project_id"].ToString())).ToString() + ": Bug: " + PageUtils.GetTableSingleVal("bs_project_bugs", "NAME", int.Parse(Session["bs_bug_id"].ToString())).ToString() + " (Status: " + GetCurrentStatsus() + ") Fix Details");
+                Response.Write(PageUtils.GetPreHeader() + ": Bugs System: Project: " + PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(Session["project_id"].ToString())).ToString() + ": Bug: " + PageUtils.GetTableSingleVal("bs_project_bugs", "NAME", int.Parse(Session["bs_bug_id"].ToString())).ToString() + " (Status: " + GetCurrentStatsus() + ") Fix Details");
             else
                 Response.Write(PageUtils.GetPreHeader() + ": Bugs System: Project: " + PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(Session["project_id"].ToString())).ToString() + ": Bug: " + PageUtils.GetTableSingleVal("bs_project_bugs", "NAME", int.Parse(Session["bs_bug_id"].ToString())).ToString() + " (Status: " + GetCurrentStatsus() + ") Close Form");
         }
         catch (Exception ex)
         {
-
+            log.Error("", ex);
         }
     }
 
@@ -165,7 +168,7 @@ public partial class adm_bs_bug_close : System.Web.UI.Page
             dr_status.SetValue("8");
         theRecord.AddRecord(dr_status);
 
-        
+
 
         bool bRemoveConfirm = false;
         if (Session["action"].ToString() == "watch")

@@ -14,9 +14,12 @@ using ExcelFeeder;
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_batch_upload_upload : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -36,7 +39,7 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
         m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
 
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        
+
         if (!ThreadDict.ContainsKey(nGroupID))
         {
             FileUpload1.Visible = true;
@@ -134,6 +137,7 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
                 LblUploadStatus.ForeColor = System.Drawing.Color.Red;
                 LblUploadStatus.Text = "Failed Upload";
                 LblUploadStatus.Visible = true;
+                log.Error("", ex);
             }
         }
         else

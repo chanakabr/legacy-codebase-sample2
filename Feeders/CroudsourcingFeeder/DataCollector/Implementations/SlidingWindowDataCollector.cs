@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using ApiObjects;
 using ApiObjects.CrowdsourceItems;
@@ -8,6 +9,7 @@ using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.Implementations;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
+using KLogMonitor;
 using Tvinci.Core.DAL;
 using OrderBy = ApiObjects.SearchObjects.OrderBy;
 
@@ -15,7 +17,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
     public class SlidingWindowDataCollector : BaseDataCollector
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public SlidingWindowDataCollector(int assetId, int groupId)
             : base(assetId, groupId, eCrowdsourceType.SlidingWindow)
         {
@@ -52,7 +54,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Crowdsource", string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector: {0} - Error collecting items - Exception: \n {1}", CollectorType, ex.Message), ex);
                 return null;
             }
         }
@@ -152,9 +154,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             }
             catch (Exception ex)
             {
-
-                Logger.Logger.Log("Crowdsource",
-                    string.Format("Collector:{0} - Error normalizing singular item. mediaId {1} - Exception: \n {2}", CollectorType, item.Id, ex.Message), "Crowdsourcing");
+                log.Error("Crowdsource - " + string.Format("Collector:{0} - Error normalizing singular item. mediaId {1} - Exception: \n {2}", CollectorType, item.Id, ex.Message), ex);
                 return null;
             }
         }
@@ -166,7 +166,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             Dictionary<string, string> minPeriods;
             if (CachingManager.CachingManager.Exist("MinPeriods"))
             {
-                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string,string>;
+                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
             }
             else
             {

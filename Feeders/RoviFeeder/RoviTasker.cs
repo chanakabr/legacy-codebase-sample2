@@ -9,12 +9,15 @@ using TVinciShared;
 using XSLT_transform_handlar;
 using System.Configuration;
 using System.Xml.Serialization;
+using KLogMonitor;
+using System.Reflection;
 
 
 namespace RoviFeeder
 {
     public class RoviTasker : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int GROUP_ID = 163;
 
         private string m_lastDate = string.Empty;     // m_lastDate - last invoke date time
@@ -44,25 +47,25 @@ namespace RoviFeeder
             switch (m_IngestID)
             {
                 case FeederImplEnum.CMT:
-                {
-                    m_feeder = new RoviCMTFeeder(m_url, m_fromID, m_groupID);
-                    break;
-                }
+                    {
+                        m_feeder = new RoviCMTFeeder(m_url, m_fromID, m_groupID);
+                        break;
+                    }
                 case FeederImplEnum.MOVIE:
-                {
-                    m_feeder = new RoviMovieFeeder(m_url, m_fromID, m_groupID);
-                    break;
-                }
+                    {
+                        m_feeder = new RoviMovieFeeder(m_url, m_fromID, m_groupID);
+                        break;
+                    }
                 case FeederImplEnum.EPISODE:
-                {
-                    m_feeder = new RoviEpisodeFeeder(m_url, m_fromID, m_groupID);
-                    break;
-                }
+                    {
+                        m_feeder = new RoviEpisodeFeeder(m_url, m_fromID, m_groupID);
+                        break;
+                    }
                 case FeederImplEnum.SERIES:
-                {
-                    m_feeder = new RoviSeriesFeeder(m_url, m_fromID, m_groupID);
-                    break;
-                }
+                    {
+                        m_feeder = new RoviSeriesFeeder(m_url, m_fromID, m_groupID);
+                        break;
+                    }
             }
 
             //m_url = "https://choice-ce.nowtilus.tv/services/tvinci/v1.1/content/movies";
@@ -78,7 +81,7 @@ namespace RoviFeeder
 
         protected override bool DoTheTaskInner()
         {
-            Logger.Logger.Log("Start task", string.Format("Group:{0}, LastDate:{1}, Url:{2}, UniqueKey:{3}, m_IngestID:{4} ", m_groupID, m_lastDate, m_url, m_uniqueKey, m_IngestID.ToString()), "ROVIFeeder");
+            log.Debug("Start task - " + string.Format("Group:{0}, LastDate:{1}, Url:{2}, UniqueKey:{3}, m_IngestID:{4} ", m_groupID, m_lastDate, m_url, m_uniqueKey, m_IngestID.ToString()));
 
             DateTime d = DateTime.UtcNow;
 
@@ -101,7 +104,7 @@ namespace RoviFeeder
             updateQuery.Finish();
             updateQuery = null;
 
-            Logger.Logger.Log("Ending task", " Parameters: " + parameters, "ROVIFeeder");
+            log.Debug("Ending task - Parameters: " + parameters);
 
             return ret;
         }

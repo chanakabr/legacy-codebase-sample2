@@ -763,7 +763,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
-                //TO DO ADD LOGGER
+                log.Error("", ex);
                 return new List<LanguageObj>();
             }
         }
@@ -800,6 +800,7 @@ namespace EpgFeeder
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<FieldTypeEntity>();
             }
         }
@@ -1181,10 +1182,7 @@ namespace EpgFeeder
                 }
                 catch (Exception ex)
                 {
-                    #region Logging
-                    //insert Logs
-
-                    #endregion
+                    log.Error("", ex);
                 }
                 finally
                 {

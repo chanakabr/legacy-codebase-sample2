@@ -7,24 +7,25 @@ using System.Collections;
 using System.IO;
 using TVinciShared;
 using System.Data.OleDb;
-using Logger;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
     public class FilmoFinancialReport : BaseFinancialReport
     {
-       // private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private Hashtable hCollectionsCounter;
 
         public FilmoFinancialReport(DateTime dStartDate, DateTime dEndDate, Int32 nGroupID, Int32 nRHEntityID)
             : base(dStartDate, dEndDate, nGroupID, nRHEntityID)
-        {  
-            hCollectionsCounter = new Hashtable();         
+        {
+            hCollectionsCounter = new Hashtable();
         }
 
         public override string GetReport()
         {
-            Logger.Logger.Log("FinancialReport", "GroupID=" + m_nGroupID + "RightHolder=" + m_nRHEntityID + " startDate=" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") + " endDate=" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"), "FinancialReport");
+            log.Debug("FinancialReport - GroupID=" + m_nGroupID + "RightHolder=" + m_nRHEntityID + " startDate=" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") + " endDate=" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"));
 
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<finacialReport>");
@@ -121,7 +122,7 @@ namespace Financial
             }
             selectQuery.Finish();
             selectQuery = null;
-                        
+
             //Get Holder Name 
             string sGroupName = GetGroupName();
             sRet.Append("<holder name=\"" + ProtocolsFuncs.XMLEncode(sGroupName, true) + "\">");
@@ -148,7 +149,7 @@ namespace Financial
             GetGifts(ref sRet);
             sRet.Append("</Gifts>");
 
-            sRet.Append("<PrePaids amount=\""+dPrePaidSum+"\">");
+            sRet.Append("<PrePaids amount=\"" + dPrePaidSum + "\">");
             foreach (DictionaryEntry de in hPrePaidCounter)
             {
                 GiftObject go = (GiftObject)de.Value;
@@ -320,8 +321,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("FinancialReport", "GroupID=" + m_nGroupID + " exception: " + ex.Message, "FinancialReport");
+                log.Error("FinancialReport - GroupID=" + m_nGroupID + " exception: " + ex.Message, ex);
             }
         }
 
@@ -357,7 +357,7 @@ namespace Financial
                             go = (GiftObject)hCollectionsCounter[nItemID];
                         }
 
-                        sRet.Append("<collection item_id=\"" + nItemID + "\" item_name=\"" + ProtocolsFuncs.XMLEncode(sItemName, true) + "\" amount=\"" + Math.Round(dTotal, 2).ToString().Replace(",", ".") + "\" count=\"" + go.nCounter + "\"/>");                       
+                        sRet.Append("<collection item_id=\"" + nItemID + "\" item_name=\"" + ProtocolsFuncs.XMLEncode(sItemName, true) + "\" amount=\"" + Math.Round(dTotal, 2).ToString().Replace(",", ".") + "\" count=\"" + go.nCounter + "\"/>");
                     }
                 }
                 selectQuery2.Finish();
@@ -365,16 +365,14 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("FinancialReport", "GroupID=" + m_nGroupID + " exception: " + ex.Message, "FinancialReport");
+                log.Error("FinancialReport - GroupID=" + m_nGroupID + " exception: " + ex.Message, ex);
             }
         }
 
         public string GetReportForRH()
         {
-            //_logger.Info(string.Format("{0} {1} : {2}, {3} : {4}, {5} : {6}, {7} :{8}", "FilmoFinancialReport", "GroupID", m_nGroupID, "RightHolder", m_nRHEntityID, "startDate", m_dStartDate.ToString(), "endDate", m_dEndDate.ToString()));
-            Logger.Logger.Log("FinancialReport", "FilmoFinancialReport " + "GroupID=" + m_nGroupID + " RightHolder:" + m_nRHEntityID.ToString() + " startDate:" + m_dStartDate.ToString() + " endDate:" + m_dEndDate.ToString(), "FinancialReport");
-          
+            log.Debug("FinancialReport - FilmoFinancialReport " + "GroupID=" + m_nGroupID + " RightHolder:" + m_nRHEntityID.ToString() + " startDate:" + m_dStartDate.ToString() + " endDate:" + m_dEndDate.ToString());
+
             StringBuilder sRet = new StringBuilder();
 
             string sEntites = FinancialEntitiesByParentEntity();
@@ -474,8 +472,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("FinancialReport", "GroupID=" + m_nGroupID + " exception: " + ex.Message, "FinancialReport");
+                log.Debug("FinancialReport - GroupID=" + m_nGroupID + " exception: " + ex.Message, ex);
                 sColls = new StringBuilder();
             }
             return sColls;
@@ -518,7 +515,7 @@ namespace Financial
 
             return sRet;
         }
-             
+
         /*Count Subscription For Filmo*/
         public override void CountSubsItems()
         {
@@ -736,8 +733,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("FinancialReport", "GroupID=" + m_nGroupID + " exception: " + ex.Message, "FinancialReport");
+                log.Error("FinancialReport + GroupID=" + m_nGroupID + " exception: " + ex.Message, ex);
             }
             return sRet.ToString();
         }

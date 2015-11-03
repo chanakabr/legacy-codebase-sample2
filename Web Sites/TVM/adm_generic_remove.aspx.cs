@@ -12,9 +12,12 @@ using TVinciShared;
 using TvinciImporter;
 using System.Collections.Generic;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_generic_remove : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected Int32 m_nID;
@@ -191,72 +194,73 @@ public partial class adm_generic_remove : System.Web.UI.Page
                     break;
                 case "groups_device_families_limitation_modules":
                     //get parent_limit_module_id ==> than remove it                   
-                        object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", m_nID);
-                        if (oDlmID != null)
-                        {
-                            int dlmID = int.Parse(oDlmID.ToString());
-                            domainWS = new DomainsWS.module();                          
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                            sWSURL = GetWSURL("domains_ws");
-                            if (sWSURL != "")
-                                domainWS.Url = sWSURL;
-                            try
-                            {
-                                DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, dlmID);
-                                Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code), "RemoveDLM");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), "RemoveDLM");
-                            }
-                        }                 
-                    break;
-
-                case "groups_device_limitation_modules":
-                    // delete from cache this DLM object                       
-                    domainWS = new DomainsWS.module();
-
+                    object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", m_nID);
+                    if (oDlmID != null)
+                    {
+                        int dlmID = int.Parse(oDlmID.ToString());
+                        domainWS = new DomainsWS.module();
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = GetWSURL("domains_ws");
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
                         {
-                            DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, m_nID);
-                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code), "RemoveDLM");
+                            DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, dlmID);
+                            log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), "RemoveDLM");
+                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), ex);
                         }
+                    }
+                    break;
+
+                case "groups_device_limitation_modules":
+                    // delete from cache this DLM object                       
+                    domainWS = new DomainsWS.module();
+
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                    sWSURL = GetWSURL("domains_ws");
+                    if (sWSURL != "")
+                        domainWS.Url = sWSURL;
+                    try
+                    {
+                        DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, m_nID);
+                        log.Debug("RemoveDLM " + string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
+                    }
                     break;
                 default:
                     break;
             }
         }
 
-        // If confirmed - remove object from cache according to its key
-        if (m_bConfirm && !string.IsNullOrEmpty(this.cacheKey))
-        {
-            string ip = "1.1.1.1";
-            string userName = "";
-            string password = "";
+        // Will be done in confirm
+        //// If confirmed - remove object from cache according to its key
+        //if (m_bConfirm && !string.IsNullOrEmpty(this.cacheKey))
+        //{
+        //    string ip = "1.1.1.1";
+        //    string userName = "";
+        //    string password = "";
 
-            int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
-            TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-            string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        //    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+        //    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+        //    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
 
-            if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
-            {
-                List<string> keys = new List<string>();
-                keys.Add(cacheKey);
+        //    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
+        //    {
+        //        List<string> keys = new List<string>();
+        //        keys.Add(cacheKey);
 
-                apiWS.API client = new apiWS.API();
-                client.Url = url;
+        //        apiWS.API client = new apiWS.API();
+        //        client.Url = url;
 
-                client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
-            }
-        }
+        //        client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+        //    }
+        //}
 
         if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");

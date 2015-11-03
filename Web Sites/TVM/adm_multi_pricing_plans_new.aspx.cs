@@ -8,9 +8,12 @@ using TVinciShared;
 using System.Configuration;
 using TvinciImporter;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -196,11 +199,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nSuscriptionID.ToString() + " : " + ex.Message, "subscriptions_notifier");
+                    log.Error("exception - " + nSuscriptionID.ToString() + " : " + ex.Message, ex);
                 }
                 if (nSuscriptionID != 0)
                 {
-                    Logger.Logger.Log("MultiUM", "Subscription " + nSuscriptionID.ToString() + " Found", "MultiUM");
+                    log.Debug("MultiUM - Subscription " + nSuscriptionID.ToString() + " Found");
                     string priceCode = string.Empty;
                     string firstUsageModuleCode = string.Empty;
                     int nExtDisountID = 0;
@@ -212,21 +215,21 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                     umSelectQuery += " order by sum.order_num asc";
                     if (umSelectQuery.Execute("query", true) != null)
                     {
-                        Logger.Logger.Log("MultiUM", "Enter query", "MultiUM");
+                        log.Debug("MultiUM - Enter query");
 
                         int count = umSelectQuery.Table("query").DefaultView.Count;
                         if (count > 0)
                         {
                             priceCode = umSelectQuery.Table("query").DefaultView[0].Row["pricing_id"].ToString();
-                            Logger.Logger.Log("MultiUM", "Found price code " + priceCode.ToString(), "MultiUM");
+                            log.Debug("MultiUM - Found price code " + priceCode.ToString());
                             firstUsageModuleCode = umSelectQuery.Table("query").DefaultView[0].Row["id"].ToString();
                             nExtDisountID = int.Parse(umSelectQuery.Table("query").DefaultView[0].Row["ext_discount_id"].ToString());
-                            Logger.Logger.Log("MultiUM", "Found usage Module " + firstUsageModuleCode, "MultiUM");
+                            log.Debug("MultiUM - Found usage Module " + firstUsageModuleCode);
                         }
                     }
                     else
                     {
-                        Logger.Logger.Log("MultiUM", "Not Enter query", "MultiUM");
+                        log.Debug("MultiUM - Not Enter query");
                     }
                     umSelectQuery.Finish();
                     umSelectQuery = null;
@@ -263,11 +266,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                     if (sSubName.Length > 0)
                     {
                         int idToUpdateInLucene = DBManipulator.BuildOrUpdateFictivicMedia("Package", sSubName, nSuscriptionID, LoginManager.GetLoginGroupID(), Session[OLD_MPP_NAME_SESSION_KEY] != null ? Session[OLD_MPP_NAME_SESSION_KEY].ToString() : string.Empty);
-                        UpdateMediaUserTypes(idToUpdateInLucene, newSutIDS); 
+                        UpdateMediaUserTypes(idToUpdateInLucene, newSutIDS);
                         if (Session[OLD_MPP_NAME_SESSION_KEY] != null && Session[OLD_MPP_NAME_SESSION_KEY].ToString().Length > 0) // when updating media need to update in lucene as well. when creating the lucene update occurs on adm_media_new.aspx.cs
                         {
                             ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
-                        }                       
+                        }
                     }
                 }
 
@@ -391,7 +394,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", mediaID);
             updateQuery.Execute();
             updateQuery.Finish();
-            updateQuery = null;            
+            updateQuery = null;
         }
     }
 
@@ -444,8 +447,8 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_user_types");
         insertQuery.SetConnectionKey("pricing_connection");
 
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", subID); 
-        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("user_type_id", "=", utID);     
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", subID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("user_type_id", "=", utID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         insertQuery.Execute();
         insertQuery.Finish();
@@ -532,7 +535,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         if (!alsoUnActive)
         {
             selectQuery += " and sut.is_active = 1 and sut.status = 1";
-        }     
+        }
 
         if (selectQuery.Execute("query", true) != null)
         {
@@ -542,7 +545,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 for (int i = 0; i < count; i++)
                 {
                     int sutID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[i].Row["user_type_id"]);
-                    sutList.Add(sutID);              
+                    sutList.Add(sutID);
                 }
             }
         }
@@ -596,12 +599,12 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         {
             changeItemStatusPricePlans(sID);
         }
-        
+
         return "";
     }
 
     public void changeItemStatusPricePlans(string sID)
-    {        
+    {
         if (Session["sub_usage_modules"] != null && Session["sub_usage_modules"] is List<UMObj>)
         {
             List<UMObj> umObjList = Session["sub_usage_modules"] as List<UMObj>;
@@ -637,11 +640,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             }
 
             Session["sub_usage_modules"] = umObjList;
-        }        
+        }
     }
 
     public void changeItemStatusUserTypes(string sID)
-    {                       
+    {
         if (Session["sub_user_types"] != null && Session["sub_user_types"] is List<int>)
         {
             List<int> sutList = Session["sub_user_types"] as List<int>;
@@ -654,17 +657,17 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
             if (isAddNeeded)
             {
-                sutList.Add(sutIDClient);                
+                sutList.Add(sutIDClient);
             }
 
             Session["sub_user_types"] = sutList;
-        }        
+        }
     }
 
     public string initDualObj()
     {
         Dictionary<string, object> dualLists = new Dictionary<string, object>();
-        Dictionary<string, object> userTypes = new Dictionary<string,object>();
+        Dictionary<string, object> userTypes = new Dictionary<string, object>();
         Dictionary<string, object> pricingPlans = new Dictionary<string, object>();
 
         userTypes.Add("name", "DualListUserTypes");
@@ -694,7 +697,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
     public void initPricingPlans(ref object[] resultData)
     {
-        List<object> pricePlans = new List<object>();     
+        List<object> pricePlans = new List<object>();
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -710,10 +713,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         if (Session["subscription_id"] != null && !string.IsNullOrEmpty(Session["subscription_id"].ToString()))
         {
             subIMsIDs = BuildSubscriptionUMs(int.Parse(Session["subscription_id"].ToString()), nCommerceGroupID, false);
-        }        
+        }
         if (selectQuery.Execute("query", true) != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;            
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             for (int i = 0; i < nCount; i++)
             {
                 string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
@@ -761,7 +764,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
     public void initUserTypes(ref object[] resultData)
     {
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();        
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         string sTitle = "";
         int nID = 0;
         List<int> userTypesIDs = null;
@@ -770,13 +773,13 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("users_connection");
         selectQuery += "select ID,Description from users_types(nolock) where is_active=1 and status=1 and ";
-        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nLogedInGroupID, "");    
+        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nLogedInGroupID, "");
 
         if (Session["subscription_id"] != null && !string.IsNullOrEmpty(Session["subscription_id"].ToString()))
         {
             userTypesIDs = BuildSubscriptionUserTypes(int.Parse(Session["subscription_id"].ToString()), nLogedInGroupID, false);
         }
-       
+
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -799,7 +802,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 }
             }
             if (Session["subscription_id"] != null && Session["sub_user_types"] != null)
-            {             
+            {
                 List<int> sutList = Session["sub_user_types"] as List<int>;
                 foreach (int sutID in sutList)
                 {
@@ -827,7 +830,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
     {
         try
         {
-            string sTemp = "";           
+            string sTemp = "";
             string sMainLang = "";
             string sCode3 = "";
             Int32 nMainLangID = GetMainLang(ref sMainLang, ref sCode3);
