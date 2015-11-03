@@ -10,7 +10,6 @@ using ApiObjects.SearchObjects;
 using Catalog.Response;
 using EpgBL;
 using KLogMonitor;
-using Logger;
 using Tvinci.Core.DAL;
 
 namespace Catalog.Request

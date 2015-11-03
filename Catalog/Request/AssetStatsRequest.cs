@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Reflection;
-using Logger;
 using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;

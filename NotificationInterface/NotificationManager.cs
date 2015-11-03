@@ -6,7 +6,6 @@ using System.Data;
 using DAL;
 using System.Web.Script.Serialization;
 using System.Threading.Tasks;
-using Logger;
 using System.Reflection;
 using NotificationObj;
 using System.Linq;

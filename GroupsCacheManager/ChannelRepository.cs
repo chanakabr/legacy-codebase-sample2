@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using KLogMonitor;
-using Logger;
 using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager

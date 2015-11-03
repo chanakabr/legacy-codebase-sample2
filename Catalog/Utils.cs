@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVinciShared;
-using Logger;
 using System.Reflection;
 using System.Configuration;
 using System.Security.Cryptography;

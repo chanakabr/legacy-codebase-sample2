@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects;
 using DalCB;
-using Logger;
 using ApiObjects.Epg;
 using KLogMonitor;
 using System.Reflection;

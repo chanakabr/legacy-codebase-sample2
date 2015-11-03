@@ -8,7 +8,6 @@ using ApiObjects;
 using Catalog.Response;
 using EpgBL;
 using KLogMonitor;
-using Logger;
 
 namespace Catalog.Request
 {

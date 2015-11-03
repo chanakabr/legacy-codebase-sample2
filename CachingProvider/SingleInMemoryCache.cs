@@ -8,7 +8,6 @@ using System.Security.Principal;
 using System.Security.AccessControl;
 using KLogMonitor;
 using System.Reflection;
-using Logger;
 
 namespace CachingProvider
 {
@@ -181,9 +180,9 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                //Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
+                //log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
+                log.Error("AddWithVersion", ex);
                 return false;
             }
         }

@@ -8,7 +8,6 @@ using System.ServiceModel;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
-using Logger;
 using TVinciShared;
 using DAL;
 using Tvinci.Core.DAL;

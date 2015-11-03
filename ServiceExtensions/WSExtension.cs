@@ -11,7 +11,6 @@ using System.ServiceModel.Web;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
-using Logger;
 
 namespace ServiceExtensions
 {
@@ -270,33 +269,6 @@ namespace ServiceExtensions
 
         public override void ProcessMessage(SoapMessage message)
         {
-            //if (message is SoapClientMessage)
-            //{
-
-            //}
-            //string soapType = "Server";
-            //if (message is SoapClientMessage)
-            //{
-            //    soapType = "message";
-            //}
-            //try
-            //{
-            //    long newPos = 0;
-            //    long oldPos = 0;
-            //    if (message.Stage != SoapMessageStage.BeforeDeserialize && message.Stage != SoapMessageStage.AfterDeserialize && newStream != null)
-            //    {
-            //        newPos = newStream.Position;
-            //    }
-            //    if (message.Stage != SoapMessageStage.BeforeDeserialize && message.Stage != SoapMessageStage.AfterDeserialize && oldStream != null)
-            //    {
-            //        oldPos = oldStream.Position;
-            //    }
-
-            //}
-            //catch (Exception ex)
-            //{
-            //}
-
             if (GetTraceable(message))
             {
                 try
@@ -350,25 +322,25 @@ namespace ServiceExtensions
         {
             try
             {
-                BaseLog logObject = CreateLogObject(message);
-                logObject.Type = eLogType.SoapResponse;
+                //BaseLog logObject = CreateLogObject(message);
+                //logObject.Type = eLogType.SoapResponse;
 
-                var soapString = logObject.Type.ToString();
-                var header = Thread.CurrentThread.Name + " " + soapString + " " + message.MethodInfo.Name + " ";
+                //var soapString = logObject.Type.ToString();
+                //var header = Thread.CurrentThread.Name + " " + soapString + " " + message.MethodInfo.Name + " ";
 
 
-                if (message.Exception != null)
-                {
-                    Log(header, traceStream, logObject, message.Exception);
-                }
-                else
-                {
-                    if (logObject != null)
-                    {
-                        Log(header, traceStream, logObject);
+                //if (message.Exception != null)
+                //{
+                //    Log(header, traceStream, logObject, message.Exception);
+                //}
+                //else
+                //{
+                //    if (logObject != null)
+                //    {
+                //        Log(header, traceStream, logObject);
 
-                    }
-                }
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -381,17 +353,17 @@ namespace ServiceExtensions
         {
             try
             {
-                BaseLog logObject = CreateLogObject(message);
+                //BaseLog logObject = CreateLogObject(message);
 
-                // Copy(oldStream, newStream);
+                //// Copy(oldStream, newStream);
 
-                if (logObject != null)
-                {
-                    string soapString = logObject.Type.ToString();
-                    var header = Thread.CurrentThread.Name + " " + soapString + " " + message.MethodInfo.Name + " ";
+                //if (logObject != null)
+                //{
+                //    string soapString = logObject.Type.ToString();
+                //    var header = Thread.CurrentThread.Name + " " + soapString + " " + message.MethodInfo.Name + " ";
 
-                    Log(header, traceStream, logObject);
-                }
+                //    Log(header, traceStream, logObject);
+                //}
             }
             catch (Exception ex)
             {
@@ -400,33 +372,33 @@ namespace ServiceExtensions
         }
 
 
-        private BaseLog CreateLogObject(SoapMessage message)
-        {
-            try
-            {
-                BaseLog logObject = null;
+        //private BaseLog CreateLogObject(SoapMessage message)
+        //{
+        //    try
+        //    {
+        //        BaseLog logObject = null;
 
-                if (message != null)
-                {
-                    logObject = new BaseLog();
-                    logObject.TimeSpan = 0;
-                    logObject.Method = message.MethodInfo.Name;
+        //        if (message != null)
+        //        {
+        //            logObject = new BaseLog();
+        //            logObject.TimeSpan = 0;
+        //            logObject.Method = message.MethodInfo.Name;
 
-                    logObject.Id = Thread.CurrentThread.Name;
-                    logObject.ObjectCreationDate = GetObjectCreationDate();
-                    //logObject.UserAgent = HttpContext.Current.Request.UserAgent;
-                    //logObject.IP = HttpContext.Current.Request.UserHostAddress;
-                    logObject.Type = (message is SoapServerMessage) ? eLogType.SoapRequest : eLogType.SoapResponse;
-                }
+        //            logObject.Id = Thread.CurrentThread.Name;
+        //            logObject.ObjectCreationDate = GetObjectCreationDate();
+        //            //logObject.UserAgent = HttpContext.Current.Request.UserAgent;
+        //            //logObject.IP = HttpContext.Current.Request.UserHostAddress;
+        //            logObject.Type = (message is SoapServerMessage) ? eLogType.SoapRequest : eLogType.SoapResponse;
+        //        }
 
-                return logObject;
-            }
-            catch (Exception ex)
-            {
-                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
-                return null;
-            }
-        }
+        //        return logObject;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
+        //        return null;
+        //    }
+        //}
 
         private DateTime GetObjectCreationDate()
         {
@@ -452,48 +424,48 @@ namespace ServiceExtensions
             }
         }
 
-        void Log(string header, Stream stream, BaseLog logObject, Exception e = null)
-        {
-            try
-            {
-                var sb = new StringBuilder();
-                var w = new StringWriter(sb);
+        //void Log(string header, Stream stream, BaseLog logObject, Exception e = null)
+        //{
+        //    try
+        //    {
+        //        var sb = new StringBuilder();
+        //        var w = new StringWriter(sb);
 
-                stream.Position = 0;
-                Copy(stream, w);
-                var msg = sb.ToString();
-                try
-                {
-                    //Since we're looking at SOAP, parse the XML so it gets formatted nicely.
-                    var log = msg.Trim().ToString();
-                    if (e == null)
-                    {
-                        logObject.Info(log, true);
-                    }
-                    else
-                    {
-                        logObject.Error(e.Message, true);
-                    }
-                }
-                catch (Exception ex) //message is not valid xml
-                {
-                    if (e == null)
-                    {
-                        logObject.Info(ex.Message, true);
+        //        stream.Position = 0;
+        //        Copy(stream, w);
+        //        var msg = sb.ToString();
+        //        try
+        //        {
+        //            //Since we're looking at SOAP, parse the XML so it gets formatted nicely.
+        //            var log = msg.Trim().ToString();
+        //            if (e == null)
+        //            {
+        //                logObject.Info(log, true);
+        //            }
+        //            else
+        //            {
+        //                logObject.Error(e.Message, true);
+        //            }
+        //        }
+        //        catch (Exception ex) //message is not valid xml
+        //        {
+        //            if (e == null)
+        //            {
+        //                logObject.Info(ex.Message, true);
 
-                    }
-                    else
-                    {
-                        logObject.Error(header + msg + e.Message, true);
-                    }
-                }
-                stream.Position = 0;
-            }
-            catch (Exception ex)
-            {
-                log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
-            }
-        }
+        //            }
+        //            else
+        //            {
+        //                logObject.Error(header + msg + e.Message, true);
+        //            }
+        //        }
+        //        stream.Position = 0;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error("SOapExtension - Soap Exception :" + ex.Message, ex);
+        //    }
+        //}
 
         void Copy(Stream from, TextWriter to)
         {

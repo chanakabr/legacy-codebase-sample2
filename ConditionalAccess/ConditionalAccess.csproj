@@ -700,10 +700,6 @@
       <Project>{e56da89e-efe0-4077-ab1b-fe00389d5a02}</Project>
       <Name>LLNWMediaVault</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
       <Name>M1BL</Name>

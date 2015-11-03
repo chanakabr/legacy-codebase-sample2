@@ -14,7 +14,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using KLogMonitor;
 using System.Reflection;
-using Logger;
 
 namespace ServiceExtensions
 {
@@ -32,9 +31,9 @@ namespace ServiceExtensions
 
             MessageState messageState = new MessageState(ref request);
 
-            BaseLog oldLog = createLoggerObject(messageState.ID, messageState.MethodName, eLogType.WcfRequest, messageState.CreationDate, ref messageStr);
+            //BaseLog oldLog = createLoggerObject(messageState.ID, messageState.MethodName, eLogType.WcfRequest, messageState.CreationDate, ref messageStr);
 
-            log.Info(messageStr);
+            //log.Info(messageStr);
 
             return messageState;
         }
@@ -59,22 +58,22 @@ namespace ServiceExtensions
 
             }
 
-            BaseLog log = createLoggerObject(messageID, methodName, eLogType.WcfResponse, creationDate, ref messageStr);
+            //BaseLog log = createLoggerObject(messageID, methodName, eLogType.WcfResponse, creationDate, ref messageStr);
 
-            log.Info(messageStr, true);
+            //log.Info(messageStr, true);
         }
 
-        private BaseLog createLoggerObject(string threadID, string methodName, eLogType logType, DateTime utcTime, ref string message)
-        {
-            return new BaseLog(utcTime)
-            {
-                TimeSpan = 0,
-                Method = methodName,
-                Id = threadID,
-                Type = logType,
-                Message = message
-            };
-        }
+        //private BaseLog createLoggerObject(string threadID, string methodName, eLogType logType, DateTime utcTime, ref string message)
+        //{
+        //    return new BaseLog(utcTime)
+        //    {
+        //        TimeSpan = 0,
+        //        Method = methodName,
+        //        Id = threadID,
+        //        Type = logType,
+        //        Message = message
+        //    };
+        //}
 
         private void getMessageStr(ref Message msg, out string msgStr)
         {

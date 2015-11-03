@@ -10,7 +10,6 @@ using Catalog.Cache;
 using Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
-using Logger;
 using Tvinci.Core.DAL;
 
 namespace Catalog.Request

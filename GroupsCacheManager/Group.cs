@@ -8,7 +8,6 @@ using System.Threading;
 using ApiObjects;
 using DAL;
 using KLogMonitor;
-using Logger;
 using Newtonsoft.Json;
 using Tvinci.Core.DAL;
 

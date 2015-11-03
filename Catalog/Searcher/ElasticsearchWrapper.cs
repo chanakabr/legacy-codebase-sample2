@@ -10,7 +10,6 @@ using ElasticSearch.Common;
 using ApiObjects;
 using System.Collections;
 using System.Collections.Concurrent;
-using Logger;
 using Catalog.Cache;
 using GroupsCacheManager;
 using Catalog.Response;

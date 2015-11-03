@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects.Statistics;
 using Couchbase;
 using Couchbase.Extensions;
 using CouchbaseManager;
-using Logger;
+using KLogMonitor;
 using Newtonsoft.Json;
 
 namespace DalCB
 {
     public class StatisicsDal_CouchBase
-    {        
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_STATISTICS_DESGIN = Utils.GetValFromConfig("cb_statistics_design");
-        
+
         CouchbaseClient m_oClient;
-        
+
         private int m_nGroupID;
 
         public StatisicsDal_CouchBase(int nGroupID)
@@ -53,9 +55,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("GetBuzzAverScore: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("GetBuzzAverScore", ex);
             }
 
             return oRes;
@@ -70,9 +70,7 @@ namespace DalCB
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("GetBuzzAverScore: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("GetBuzzAverScore", ex);
             }
 
             return oRes;
