@@ -232,12 +232,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
-      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
-      <Name>QueueWrapper</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
