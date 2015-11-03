@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace QueueWrapper
     public abstract class BaseQueue : IQueueable
     {
         #region Private Members
+
+        private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private IQueueImpl m_QueueImpl;
 
@@ -90,6 +93,9 @@ namespace QueueWrapper
 
             catch (Exception ex)
             {
+                log.ErrorFormat("InsertQueueMessage routingKey {0}, - excutionDate {1}, error: {2}", routingKey, 
+                    excutionDate.ToString(), 
+                    ex.Message);
             }
 
         }
