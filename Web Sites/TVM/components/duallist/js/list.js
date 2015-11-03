@@ -98,6 +98,10 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent) 
                         infoIcon.setAttribute('href', 'javascript:;');
                         listLiItem.appendChild(infoIcon);
                     }
+                    //if the Calendar is not used the width of ppvm-text should be 100% of the list
+                    else {
+                        listLiItem.childNodes[0].style.width = "100%";
+                    }
 
                     $(listLiItem).hide();
                     if (type == 'add') {
