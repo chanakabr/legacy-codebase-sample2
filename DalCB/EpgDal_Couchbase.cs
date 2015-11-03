@@ -8,7 +8,6 @@ using CouchbaseManager;
 using System.Configuration;
 using ApiObjects;
 using Newtonsoft.Json;
-using Logger;
 using KLogMonitor;
 using System.Reflection;
 

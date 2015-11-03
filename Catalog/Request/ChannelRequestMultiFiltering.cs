@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using TVinciShared;
 using System.Runtime.Serialization;
-using Logger;
 using System.Reflection;
 using System.Net;
 using System.Xml.Serialization;

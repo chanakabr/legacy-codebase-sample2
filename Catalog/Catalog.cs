@@ -23,7 +23,6 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
-using KlogMonitorHelper;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
@@ -32,6 +31,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using CachingHelpers;
 using AdapterControllers;
+using KlogMonitorHelper;
 
 namespace Catalog
 {

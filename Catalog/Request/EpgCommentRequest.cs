@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using KLogMonitor;
-using Logger;
 using Tvinci.Core.DAL;
 
 namespace Catalog.Request

@@ -12,7 +12,6 @@ using System.Data;
 using System.Threading;
 using DAL;
 using ApiObjects;
-using Logger;
 using System.Reflection;
 using System.ServiceModel.Channels;
 using System.ServiceModel;
@@ -4589,58 +4588,53 @@ namespace TvinciImporter
 
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
-                using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                WSCatalog.IserviceClient wsCatalog = null;
+
+                try
                 {
-                    WSCatalog.IserviceClient wsCatalog = null;
+                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
 
-                    try
+                    if (lMediaIds != null && lMediaIds.Count > 0 && nParentGroupID > 0)
                     {
-                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
+                        string sWSURL = GetCatalogUrl(nParentGroupID);
 
-                        if (lMediaIds != null && lMediaIds.Count > 0 && nParentGroupID > 0)
+                        if (!string.IsNullOrEmpty(sWSURL))
                         {
-                            string sWSURL = GetCatalogUrl(nParentGroupID);
+                            string[] arrAddresses = sWSURL.Split(';');
+                            int[] arrMediaIds = lMediaIds.ToArray();
 
-                            if (!string.IsNullOrEmpty(sWSURL))
+                            foreach (string sEndPointAddress in arrAddresses)
                             {
-                                string[] arrAddresses = sWSURL.Split(';');
-                                int[] arrMediaIds = lMediaIds.ToArray();
-
-                                foreach (string sEndPointAddress in arrAddresses)
+                                try
                                 {
-                                    try
+                                    wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                    if (wsCatalog != null)
                                     {
-                                        wsCatalog = GetCatalogClient(sEndPointAddress);
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
 
-                                        if (wsCatalog != null)
-                                        {
-                                            isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
-
-                                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                            log.Debug("UpdateIndex - " + string.Format("{0} res {1}", sEndPointAddress, sInfo));
-                                            updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
-
-                                            wsCatalog.Close();
-                                        }
+                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+                                        wsCatalog.Close();
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message));
-                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message), ex);
                                 }
                             }
                         }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    log.Error("", ex);
+                }
+                finally
+                {
+                    if (wsCatalog != null)
                     {
-                        updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
-                    }
-                    finally
-                    {
-                        if (wsCatalog != null)
-                        {
-                            wsCatalog.Close();
-                        }
+                        wsCatalog.Close();
                     }
                 }
             }
@@ -4672,56 +4666,53 @@ namespace TvinciImporter
             {
                 WSCatalog.IserviceClient wsCatalog = null;
 
-                using (BaseLog updateChannelLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                try
                 {
-                    try
+                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
+
+                    if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                     {
-                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
-
-                        if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
+                        string sWSURL = GetCatalogUrl(nParentGroupID);
+                        if (!string.IsNullOrEmpty(sWSURL))
                         {
-                            string sWSURL = GetCatalogUrl(nParentGroupID);
-                            if (!string.IsNullOrEmpty(sWSURL))
+                            string[] arrAddresses = sWSURL.Split(';');
+                            int[] arrChannelIds = lChannelIds.ToArray();
+
+                            foreach (string sEndPointAddress in arrAddresses)
                             {
-                                string[] arrAddresses = sWSURL.Split(';');
-                                int[] arrChannelIds = lChannelIds.ToArray();
-
-                                foreach (string sEndPointAddress in arrAddresses)
+                                try
                                 {
-                                    try
+                                    wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                    if (wsCatalog != null)
                                     {
-                                        wsCatalog = GetCatalogClient(sEndPointAddress);
+                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
 
-                                        if (wsCatalog != null)
-                                        {
-                                            isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
+                                        string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        log.DebugFormat("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress);
 
-                                            string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                            updateChannelLog.Info(string.Format("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress));
-
-                                            wsCatalog.Close();
-                                        }
-
+                                        wsCatalog.Close();
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        updateChannelLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message));
-                                    }
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message), ex);
                                 }
                             }
+                        }
 
-                        }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    log.Error("process failed", ex);
+                }
+                finally
+                {
+                    if (wsCatalog != null)
                     {
-                        updateChannelLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
-                    }
-                    finally
-                    {
-                        if (wsCatalog != null)
-                        {
-                            wsCatalog.Close();
-                        }
+                        wsCatalog.Close();
                     }
                 }
             }
@@ -4797,64 +4788,61 @@ namespace TvinciImporter
             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
-                using (BaseLog updateIndexLog = new BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+                WSCatalog.IserviceClient wsCatalog = null;
+
+                try
                 {
-                    WSCatalog.IserviceClient wsCatalog = null;
-
-                    try
+                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
+                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    if (lepgIds != null && lepgIds.Count > 0 && nParentGroupID > 0)
                     {
-                        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
-                        wsCatalog = GetWCFSvc("WS_Catalog");
-                        if (lepgIds != null && lepgIds.Count > 0 && nParentGroupID > 0)
+                        string sWSURL = GetCatalogUrl(nParentGroupID);
+
+                        if (!string.IsNullOrEmpty(sWSURL))
                         {
-                            string sWSURL = GetCatalogUrl(nParentGroupID);
+                            string[] arrAddresses = sWSURL.Split(';');
+                            int[] arrEPGIds = new int[lepgIds.Count];
+                            int nArrayIndex = 0;
 
-                            if (!string.IsNullOrEmpty(sWSURL))
+                            foreach (ulong item in lepgIds)
                             {
-                                string[] arrAddresses = sWSURL.Split(';');
-                                int[] arrEPGIds = new int[lepgIds.Count];
-                                int nArrayIndex = 0;
+                                arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
+                                nArrayIndex++;
+                            }
 
-                                foreach (ulong item in lepgIds)
+                            foreach (string sEndPointAddress in arrAddresses)
+                            {
+                                try
                                 {
-                                    arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
-                                    nArrayIndex++;
+                                    wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                    if (wsCatalog != null)
+                                    {
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
+
+                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+
+                                        wsCatalog.Close();
+                                    }
                                 }
-
-                                foreach (string sEndPointAddress in arrAddresses)
+                                catch (Exception ex)
                                 {
-                                    try
-                                    {
-                                        wsCatalog = GetCatalogClient(sEndPointAddress);
-
-                                        if (wsCatalog != null)
-                                        {
-                                            isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
-
-                                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                            updateIndexLog.Info(string.Format("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress));
-
-                                            wsCatalog.Close();
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        updateIndexLog.Error(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message));
-                                    }
+                                    log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
                                 }
                             }
                         }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    log.Error("process failed", ex);
+                }
+                finally
+                {
+                    if (wsCatalog != null)
                     {
-                        updateIndexLog.Error(string.Format("{0} process failed due to the following error: {1}", MethodInfo.GetCurrentMethod().Name, ex.Message));
-                    }
-                    finally
-                    {
-                        if (wsCatalog != null)
-                        {
-                            wsCatalog.Close();
-                        }
+                        wsCatalog.Close();
                     }
                 }
             }

@@ -11,7 +11,6 @@ using System.Xml;
 using ApiObjects;
 using KLogMonitor;
 using KlogMonitorHelper;
-using Logger;
 
 namespace EpgBL
 {
@@ -93,54 +92,50 @@ namespace EpgBL
 
         public override ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
+            DateTime now = DateTime.UtcNow;
+            int nTotalPrograms = Math.Abs(nPrevTop) + Math.Abs(nNextTop) + 1;
+            int nTotalMinutes = 0;
+            if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
-                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
-                DateTime now = DateTime.UtcNow;
-                int nTotalPrograms = Math.Abs(nPrevTop) + Math.Abs(nNextTop) + 1;
-                int nTotalMinutes = 0;
-                if (lChannelIDs != null && lChannelIDs.Count > 0)
+                int nChannelCount = lChannelIDs.Count;
+
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
+                //Start MultiThread Call
+                Task[] tasks = new Task[nChannelCount];
+                for (int i = 0; i < nChannelCount; i++)
                 {
-                    int nChannelCount = lChannelIDs.Count;
+                    int nChannel = lChannelIDs[i];
 
-                    // save monitor and logs context data
-                    ContextData contextData = new ContextData();
+                    tasks[i] = Task.Factory.StartNew(
+                         (obj) =>
+                         {
+                             // load monitor and logs context data
+                             contextData.Load();
 
-                    //Start MultiThread Call
-                    Task[] tasks = new Task[nChannelCount];
-                    for (int i = 0; i < nChannelCount; i++)
-                    {
-                        int nChannel = lChannelIDs[i];
-
-                        tasks[i] = Task.Factory.StartNew(
-                             (obj) =>
+                             try
                              {
-                                 // load monitor and logs context data
-                                 contextData.Load();
-
-                                 try
+                                 int taskChannelID = (int)obj;
+                                 if (dChannelEpgList.ContainsKey(taskChannelID))
                                  {
-                                     int taskChannelID = (int)obj;
-                                     if (dChannelEpgList.ContainsKey(taskChannelID))
-                                     {
-                                         List<EPGChannelProgrammeObject> lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), now, nTotalMinutes, nTotalPrograms);
-                                         if (lRes != null && lRes.Count > 0)
-                                             dChannelEpgList[taskChannelID].AddRange(lRes);
-                                     }
+                                     List<EPGChannelProgrammeObject> lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), now, nTotalMinutes, nTotalPrograms);
+                                     if (lRes != null && lRes.Count > 0)
+                                         dChannelEpgList[taskChannelID].AddRange(lRes);
                                  }
-                                 catch (Exception ex)
-                                 {
-                                     log.Message = string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace);
-                                     log.Error(log.Message, false);
-                                 }
-                             }, nChannel);
-                    }
-
-                    //Wait for all parallels tasks to finish:
-                    Task.WaitAll(tasks);
+                             }
+                             catch (Exception ex)
+                             {
+                                 log.Error(string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace), ex);
+                             }
+                         }, nChannel);
                 }
-                return dChannelEpgList;
+
+                //Wait for all parallels tasks to finish:
+                Task.WaitAll(tasks);
             }
+            return dChannelEpgList;
         }
 
         public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
@@ -201,56 +196,52 @@ namespace EpgBL
         //get all EPgs in the given range, including Epgs that are partially overlapping
         public override ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate)
         {
-            using (Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true))
+            ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
+
+            if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
-                ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> dChannelEpgList = EpgBL.Utils.createDic(lChannelIDs);
+                int nChannelCount = lChannelIDs.Count;
 
-                if (lChannelIDs != null && lChannelIDs.Count > 0)
+                // save monitor and logs context data
+                ContextData contextData = new ContextData();
+
+                //Start MultiThread Call
+                Task[] tasks = new Task[nChannelCount];
+                for (int i = 0; i < nChannelCount; i++)
                 {
-                    int nChannelCount = lChannelIDs.Count;
+                    int nChannel = lChannelIDs[i];
 
-                    // save monitor and logs context data
-                    ContextData contextData = new ContextData();
+                    tasks[i] = Task.Factory.StartNew(
+                         (obj) =>
+                         {
+                             // load monitor and logs context data
+                             contextData.Load();
 
-                    //Start MultiThread Call
-                    Task[] tasks = new Task[nChannelCount];
-                    for (int i = 0; i < nChannelCount; i++)
-                    {
-                        int nChannel = lChannelIDs[i];
-
-                        tasks[i] = Task.Factory.StartNew(
-                             (obj) =>
+                             try
                              {
-                                 // load monitor and logs context data
-                                 contextData.Load();
-
-                                 try
+                                 int taskChannelID = (int)obj;
+                                 if (dChannelEpgList.ContainsKey(taskChannelID))
                                  {
-                                     int taskChannelID = (int)obj;
-                                     if (dChannelEpgList.ContainsKey(taskChannelID))
+                                     int nTotalMinutes = (int)(toDate - fromDate).TotalMinutes;
+                                     if (nTotalMinutes > 0)
                                      {
-                                         int nTotalMinutes = (int)(toDate - fromDate).TotalMinutes;
-                                         if (nTotalMinutes > 0)
-                                         {
-                                             List<EPGChannelProgrammeObject> lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), fromDate, nTotalMinutes, 0);
-                                             if (lRes != null && lRes.Count > 0)
-                                                 dChannelEpgList[taskChannelID].AddRange(lRes);
-                                         }
+                                         List<EPGChannelProgrammeObject> lRes = GetEPGChannelPrograms(taskChannelID.ToString(), taskChannelID.ToString(), fromDate, nTotalMinutes, 0);
+                                         if (lRes != null && lRes.Count > 0)
+                                             dChannelEpgList[taskChannelID].AddRange(lRes);
                                      }
                                  }
-                                 catch (Exception ex)
-                                 {
-                                     log.Message = string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace);
-                                     log.Error(log.Message, false);
-                                 }
-                             }, nChannel);
-                    }
-
-                    //Wait for all parallels tasks to finish:
-                    Task.WaitAll(tasks);
+                             }
+                             catch (Exception ex)
+                             {
+                                 log.Error(string.Format("GetMultiChannelProgramsDic had an exception : ex={0} in {1}", ex.Message, ex.StackTrace), ex);
+                             }
+                         }, nChannel);
                 }
-                return dChannelEpgList;
+
+                //Wait for all parallels tasks to finish:
+                Task.WaitAll(tasks);
             }
+            return dChannelEpgList;
         }
 
 

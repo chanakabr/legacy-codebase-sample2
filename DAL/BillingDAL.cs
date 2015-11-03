@@ -1082,6 +1082,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<PaymentGateway>();
             }
             return res;
@@ -1146,6 +1147,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<PaymentGateway>();
             }
             return res;
@@ -1168,6 +1170,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -1190,6 +1193,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return null;
             }
 
@@ -1209,6 +1213,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -1244,6 +1249,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<PaymentGatewayBase>();
             }
             return res;
@@ -1286,6 +1292,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<PaymentGatewayBase>();
             }
             return res;
@@ -1385,6 +1392,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -1416,6 +1424,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -1449,6 +1458,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -1470,6 +1480,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }

@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using DAL;
 using KLogMonitor;
-using Logger;
 using NotificationObj;
 
 namespace NotificationInterface

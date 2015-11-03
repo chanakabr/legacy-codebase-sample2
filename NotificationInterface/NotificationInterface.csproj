@@ -45,6 +45,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>
+    <Reference Include="KlogMonitorHelper">
+      <HintPath>..\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\net40\Newtonsoft.Json.dll</HintPath>
@@ -277,14 +280,6 @@
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj">
-      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
-      <Name>KlogMonitorHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\NotificationObj\NotificationObj.csproj">
       <Project>{8ed93100-feca-4aeb-9e33-7b2761fefe72}</Project>

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Logger;
 using ApiObjects;
 using EpgBL;
 using Catalog.Response;

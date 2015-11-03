@@ -56,10 +56,6 @@
     <Compile Include="UploadQueueHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>

@@ -5,7 +5,6 @@ using System.Text;
 using ODBCWrapper;
 using TVinciShared;
 using System.Runtime.Serialization;
-using Logger;
 using System.Reflection;
 using System.Net;
 using System.Xml.Serialization;

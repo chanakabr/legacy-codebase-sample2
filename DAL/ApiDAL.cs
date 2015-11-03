@@ -2208,6 +2208,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return null;
             }
 
@@ -2227,6 +2228,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return false;
             }
         }
@@ -2310,6 +2312,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<OSSAdapterBase>();
             }
             return res;   
@@ -2359,6 +2362,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -2380,6 +2384,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -2400,6 +2405,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -2455,6 +2461,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<OSSAdapter>();
             }
             return res;

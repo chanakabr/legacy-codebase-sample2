@@ -20,7 +20,7 @@ namespace ServiceExtensions
 {
     public class MessageInspector : IDispatchMessageInspector
     {
-        //private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public object AfterReceiveRequest(ref Message request,
           System.ServiceModel.IClientChannel channel,
@@ -37,9 +37,8 @@ namespace ServiceExtensions
             MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF);
 
             // log response
-            //string replyMessage = string.Empty;
-            //if (reply != null)
-            //    log.Debug("RESPONSE STRING:" + replyMessage.ToString());
+            if (reply != null)
+                log.Debug("RESPONSE STRING:" + reply.ToString());
         }
     }
 }

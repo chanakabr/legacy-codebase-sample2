@@ -5,7 +5,6 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
-using Logger;
 using System.Reflection;
 using TVinciShared;
 using System.Data;

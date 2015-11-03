@@ -7,7 +7,6 @@ using Couchbase;
 using CouchbaseManager;
 using Enyim.Caching.Memcached;
 using KLogMonitor;
-using Logger;
 
 
 namespace CachingProvider
@@ -43,7 +42,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error - "+ string.Format("Unable to create OOP cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("Error - " + string.Format("Unable to create OOP cache. Ex={0};\nCall stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
             return cache;
@@ -79,7 +78,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace),ex);
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace), ex);
             }
 
             return baseModule;
@@ -114,15 +113,13 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("Get with CasResult: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("CasResult", ex);
             }
 
             return baseModule;
         }
 
-        // Add - insert the value + key to cache only if the key dosen't exsits already
+        // Add - insert the value + key to cache only if the key doesn't exists already
         //(does nothing (returns false) if there is already a value for that key )
         public override bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
@@ -145,9 +142,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("AddWithVersion", ex);
                 return false;
             }
         }
@@ -170,9 +165,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("AddWithVersion", ex);
                 return false;
             }
         }
@@ -198,9 +191,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("AddWithVersion", ex);
                 return false;
             }
         }
@@ -223,9 +214,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
-                log.Error(log.Message, false);
+                log.Error("", ex);
                 return false;
             }
         }

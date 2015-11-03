@@ -6,7 +6,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using Catalog.Response;
 using KLogMonitor;
-using Logger;
 
 namespace Catalog.Request
 {

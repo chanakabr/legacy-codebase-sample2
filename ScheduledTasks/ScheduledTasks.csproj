@@ -91,10 +91,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{72228EF8-6AFA-4C0C-9C8A-59EDDAC688FB}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>

@@ -12,7 +12,6 @@ using Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
-using Logger;
 using TVinciShared;
 
 namespace Catalog.Request
