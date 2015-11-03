@@ -97,7 +97,7 @@ public partial class adm_channels_media : System.Web.UI.Page
     {
         bool isAutoChannel = channelType == 1 ? true : false; // 1 = Auto channel 2 = maual channel
 
-        theTable += "select m.id as m_id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
+        theTable += "select m.id as id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
         if (!isAutoChannel)
         {
             theTable += ",cm.id as cm_id,cm.status,cm.order_num";
