@@ -67,11 +67,12 @@ public partial class adm_export_tasks : System.Web.UI.Page
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         theTable += "and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
-        theTable += "and";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+        //theTable += "and";
+       // theTable += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
         theTable += " order by id";
 
         theTable.AddHiddenField("is_active");
+        theTable.AddActivationField("is_active");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
 
