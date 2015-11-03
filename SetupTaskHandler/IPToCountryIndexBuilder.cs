@@ -84,6 +84,7 @@ namespace SetupTaskHandler
                     }
                 }
 
+                result = true;
             }
             catch (Exception ex)
             {
@@ -92,7 +93,6 @@ namespace SetupTaskHandler
                 result = false;
             }
 
-            result = true;
 
             return result;
         }
@@ -103,10 +103,13 @@ namespace SetupTaskHandler
 
             long ipFrom = ODBCWrapper.Utils.ExtractValue<long>(row, "IP_FROM");
             long ipTo = ODBCWrapper.Utils.ExtractValue<long>(row, "IP_TO");
-            int country = ODBCWrapper.Utils.ExtractInteger(row, "COUNTRY_ID");
+            int countryId = ODBCWrapper.Utils.ExtractInteger(row, "COUNTRY_ID");
+            string code = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_CD2");
+            string name = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_NAME");
 
             result = string.Concat("{",
-                string.Format("\"ip_from\": {0}, \"ip_to\": {1}, \"country_id\": {2}", ipFrom, ipTo, country),
+                string.Format("\"ip_from\": {0}, \"ip_to\": {1}, \"country_id\": {2}, \"code\": \"{3}\", \"name\": \"{4}\" ", 
+                                ipFrom,             ipTo,           countryId,          code,           name),
                 "}");
 
             return result;

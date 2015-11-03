@@ -27,7 +27,12 @@ namespace SetupTaskHandler
 
                 bool success = false;
 
-                switch (request.Mission)
+                if (request.Mission == null || !request.Mission.HasValue)
+                {
+                    throw new Exception("Setup task received invalid task");
+                }
+
+                switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
                     {
