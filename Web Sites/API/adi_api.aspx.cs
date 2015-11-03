@@ -9,15 +9,19 @@ using ADIFeeder;
 using System.Text;
 using TVinciShared;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adi_api : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         TVinciShared.WS_Utils.InitTcmConfig();
 
         string sXML = GetFormParameters();
-        Logger.Logger.Log("ADI_API", "Start request - input is " + sXML, "ADI_API");
+        log.Debug("ADI_API - Start request - input is " + sXML);
         XmlDocument theDoc = new XmlDocument();
         string responseSTR = string.Empty;
         try
@@ -58,7 +62,7 @@ public partial class adi_api : System.Web.UI.Page
                         string desc = GetItemParameterVal(ref theNode, "message");
                         string coguid = GetItemParameterVal(ref theNode, "co_guid");
                         string tvmid = GetItemParameterVal(ref theNode, "tvm_id");
-                        
+
                         responseSTR = GetResponse(status, desc, coguid, tvmid);
                     }
                     catch
@@ -76,8 +80,9 @@ public partial class adi_api : System.Web.UI.Page
         catch (Exception ex)
         {
             responseSTR = GetResponse(false, ex.Message);
+            log.Error("", ex);
         }
-        Logger.Logger.Log("ADI_API", "For input " + sXML + " response is " + responseSTR, "ADI_API");
+        log.Debug("ADI_API - For input " + sXML + " response is " + responseSTR);
         Response.ContentType = "text/xml";
         Response.ClearHeaders();
         Response.Clear();

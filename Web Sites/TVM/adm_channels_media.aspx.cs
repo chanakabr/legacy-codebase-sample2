@@ -10,9 +10,12 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_channels_media : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -361,6 +364,7 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error(string.Empty, ex);
             mediaIDs = "0";
         }
 

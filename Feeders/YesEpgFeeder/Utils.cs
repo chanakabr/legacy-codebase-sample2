@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
@@ -9,6 +10,7 @@ using ApiObjects.Epg;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EpgBL;
+using KLogMonitor;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 
@@ -16,6 +18,7 @@ namespace YesEpgFeeder
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly int MaxDescriptionSize = 1024;
         public static readonly int MaxNameSize = 255;
 
@@ -27,7 +30,7 @@ namespace YesEpgFeeder
             {
                 List<FieldTypeEntity> AllFieldTypeMapping = new List<FieldTypeEntity>();
                 List<FieldTypeEntity> AllFieldType = new List<FieldTypeEntity>();
-               
+
                 DataSet ds = EpgDal.GetEpgMappingFields(new List<int>(), nGroupID);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
@@ -51,6 +54,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return new List<FieldTypeEntity>();
             }
         }
@@ -96,7 +100,7 @@ namespace YesEpgFeeder
             BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(ParentGroupID);
             List<DateTime> lDates = new List<DateTime>() { dDate };
 
-            Logger.Logger.Log("Delete Program on Date", string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", ParentGroupID, channelID), "YesEpgFeeder");
+            log.Debug("Delete Program on Date - " + string.Format("ParentGroup ID = {0}; Deleting Programs  that belong to channel {1}", ParentGroupID, channelID));
 
             oEpgBL.RemoveGroupPrograms(lDates, channelID);
             #endregion
@@ -124,14 +128,13 @@ namespace YesEpgFeeder
                 int currentStatus = 1;
 
                 int recordUpdates = CatalogDAL.DeleteAllEpgDetailsByChannelDates(fromDate, toDate, channelID, updateStatus, currentStatus);
-                             
-                Logger.Logger.Log("DeleteScheduleProgramByDate",
-                    string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2} recordUpdates ={3}", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss"), recordUpdates), "YesEpgFeeder");
-                
+
+                log.Debug("DeleteScheduleProgramByDate - " + string.Format("success delete schedule program EPG_CHANNEL_ID '{0}' between date {1} and {2} recordUpdates ={3}", channelID, fromDate.ToString("yyyy-MM-dd HH:mm:ss"), toDate.ToString("yyyy-MM-dd HH:mm:ss"), recordUpdates));
+
             }
             catch (Exception ex)
-            {                
-                Logger.Logger.Log("DeleteScheduleProgramByDate", string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), "YesEpgFeeder");
+            {
+                log.Error("DeleteScheduleProgramByDate - " + string.Format("error delete schedule program EPG_CHANNEL_ID '{0}' between date {1} , error message: {2}", channelID, date.ToString(), ex.Message), ex);
             }
         }
 
@@ -149,7 +152,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("DeleteDocFromES", string.Format("channelID = {0},ex = {1}", channelID, ex.Message), "YesEpgFeeder");
+                log.Error("DeleteDocFromES - " + string.Format("channelID = {0},ex = {1}", channelID, ex.Message), ex);
                 return false;
             }
         }
@@ -188,9 +191,9 @@ namespace YesEpgFeeder
             return sQuery;
 
         }
-        
+
         internal static bool UpdateEpgIndex(List<ulong> ulProgram, int ParentGroupID, eAction eAction)
-        {   
+        {
             bool result = false;
             try
             {
@@ -199,7 +202,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("EpgFeeder", string.Format("failed update EpgIndex ex={0}", ex.Message), "YesEpgFeeder");
+                log.Error("EpgFeeder - " + string.Format("failed update EpgIndex ex={0}", ex.Message), ex);
                 return false;
             }
         }
@@ -219,18 +222,19 @@ namespace YesEpgFeeder
             }
             catch (Exception exp)
             {
+                log.Error(string.Empty, exp);
             }
             return dt;
         }
 
-              /*create EpgCB object by all the values from XML*/
+        /*create EpgCB object by all the values from XML*/
         internal static EpgCB generateEPGCB(string epg_url, string description, string name, int channelID, string EPGGuid, DateTime dProgStartDate, DateTime dProgEndDate, XmlNode node, int GroupID, int ParentGroupID, List<FieldTypeEntity> lFieldTypeEntity)
-        {      
-      
+        {
+
             EpgCB newEpgItem = new EpgCB();
             try
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("EpgIdentifier '{0}' ", EPGGuid), "YesEpgFeeder");
+                log.Debug("generateEPGCB - " + string.Format("EpgIdentifier '{0}' ", EPGGuid));
 
                 newEpgItem.ChannelID = channelID;
                 newEpgItem.Name = string.Format("{0}", name);
@@ -244,7 +248,7 @@ namespace YesEpgFeeder
                 newEpgItem.CreateDate = DateTime.UtcNow;
                 newEpgItem.isActive = true;
                 newEpgItem.Status = 1;
-                
+
                 newEpgItem.Metas = Utils.GetEpgProgramMetas(lFieldTypeEntity);
                 // When We stop insert to DB , we still need to insert new tags to DB !!!!!!!
                 newEpgItem.Tags = Utils.GetEpgProgramTags(lFieldTypeEntity);
@@ -264,11 +268,11 @@ namespace YesEpgFeeder
                         newEpgItem.PicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
                     }
                 }
-                #endregion              
+                #endregion
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("generateEPGCB", string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), "YesEpgFeeder");
+                log.Error("generateEPGCB - " + string.Format("could not generate Program Schedule in channelID '{0}' ,start date {1} end date {2}  , error message: {2}", channelID, dProgStartDate, dProgEndDate, exp.Message), exp);
             }
             return newEpgItem;
         }
@@ -336,7 +340,7 @@ namespace YesEpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID), "YesEpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
@@ -470,10 +474,7 @@ namespace YesEpgFeeder
                 }
                 catch (Exception ex)
                 {
-                    #region Logging
-                    //insert Logs
-
-                    #endregion
+                    log.Error(string.Empty, ex);
                 }
                 finally
                 {
@@ -504,7 +505,7 @@ namespace YesEpgFeeder
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
-                    Logger.Logger.Log("UpdateMetasPerEPG", string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID), "YesEpgFeeder");
+                    log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
                 metaField = null;
             }
@@ -548,7 +549,7 @@ namespace YesEpgFeeder
                 }
                 else
                 {
-                    Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "YesEpgFeeder");
+                    log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 

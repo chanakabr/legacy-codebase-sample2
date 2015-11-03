@@ -9,9 +9,12 @@ using System.Data;
 using System.Text;
 using System.IO;
 using System.Data.OleDb;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_tvp_translations_batch : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -105,7 +108,7 @@ public partial class adm_tvp_translations_batch : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("Excel Feeder Error", "Error opening Excel file " + ex.Message, "ExcelFeeder");
+            log.Error("Excel Feeder Error - Error opening Excel file " + ex.Message, ex);
             return null;
         }
     }
@@ -177,7 +180,7 @@ public partial class adm_tvp_translations_batch : System.Web.UI.Page
                 LblUploadStatus.ForeColor = System.Drawing.Color.Red;
                 LblUploadStatus.Text = "File must be Excel type !";
                 LblUploadStatus.Visible = true;
-                */ 
+                */
             }
 
         }
@@ -187,7 +190,7 @@ public partial class adm_tvp_translations_batch : System.Web.UI.Page
             LblUploadStatus.ForeColor = System.Drawing.Color.Red;
             LblUploadStatus.Text = "No File To Upload";
             LblUploadStatus.Visible = true;
-            */ 
+            */
         }
     }
 

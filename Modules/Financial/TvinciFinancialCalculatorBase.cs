@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
-using Logger;
 using System.Xml;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
-
-
     public class TvinciFinancialCalculatorBase : FinancialCalculator
     {
-
-        //private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Hashtable m_hWeightIDToWeightVal;
         protected Hashtable m_hMediaFileToPPVM;
@@ -29,12 +27,12 @@ namespace Financial
 
         public override void Calculate()
         {
-            Logger.Logger.Log("Calculate", " GroupID:" + m_nGroupID.ToString() + " startDate:" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") + " endDate:" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"), "Calculate");
+            log.Debug("Calculate -  GroupID:" + m_nGroupID.ToString() + " startDate:" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") + " endDate:" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"));
 
             bool bClean = ClearOldRecords();
             if (!bClean)
                 return;
-            
+
             //Start Calculate
             /*
              * Old Ver.
@@ -47,7 +45,7 @@ namespace Financial
             CalculateSubscriptions();
 
             CalculateCollections();
-            
+
 
             //For Test only
             //string res = FDRToString();
@@ -76,8 +74,7 @@ namespace Financial
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    //_logger.Info(string.Format("{0} : {1} {2}", "CalculatePPV", nCount, "rows return"));
-                    Logger.Logger.Log("CalculatePPV", nCount.ToString() + " rows returned", "Calculate");
+                    log.Debug("CalculatePPV - " + nCount.ToString() + " rows returned");
 
                     for (int i = 0; i < nCount; i++)
                     {
@@ -145,8 +142,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //_logger.Error(ex.Message, ex);
-                                Logger.Logger.Log("CalculatePPV", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                                log.Error("CalculatePPV -  groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                             }
                         }
 
@@ -164,8 +160,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculatePPV", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("CalculatePPV  groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
 
@@ -188,7 +183,7 @@ namespace Financial
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     //_logger.Info(string.Format("{0} : {1} {2}", "CalculatePPVWithPrePaid", nCount, "Rows returned"));
-                    Logger.Logger.Log("CalculatePPVWithPrePaid", nCount.ToString() + " Rows Returned", "Calculate");
+                    log.Debug("CalculatePPVWithPrePaid - " + nCount.ToString() + " Rows Returned");
 
                     for (int i = 0; i < nCount; i++)
                     {
@@ -276,8 +271,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //_logger.Error(ex.Message,ex);
-                                Logger.Logger.Log("CalculatePPVWithPrePaid", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                                log.Error("CalculatePPVWithPrePaid groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                             }
                         }
 
@@ -295,8 +289,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculatePPVWithPrePaid", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("CalculatePPVWithPrePaid groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
 
@@ -324,7 +317,7 @@ namespace Financial
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     //_logger.Info(string.Format("{0} : {1} {2}", "CalculatePPVWithFullCoupon", nCount, "Rows returned"));
-                    Logger.Logger.Log("CalculatePPVWithFullCoupon", nCount.ToString() + " Rows Returned", "Calculate");
+                    log.Debug("CalculatePPVWithFullCoupon - " + nCount.ToString() + " Rows Returned");
 
                     for (int i = 0; i < nCount; i++)
                     {
@@ -406,8 +399,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //_logger.Error(ex.Message,ex);
-                                Logger.Logger.Log("CalculatePPVWithFullCoupon", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                                log.Error("CalculatePPVWithFullCoupon groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                                 continue;
                             }
                         }
@@ -431,8 +423,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //                _logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculatePPVWithFullCoupon", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("CalculatePPVWithFullCoupon groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
 
@@ -455,7 +446,7 @@ namespace Financial
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     //_logger.Info(string.Format("{0} : {1} {2}","CalculateCollections", nCount, "Rows returned"));
-                    Logger.Logger.Log("CalculateCollections", nCount.ToString() + " Rows returned", "Calculate");
+                    log.Debug("CalculateCollections - " + nCount.ToString() + " Rows returned");
 
                     for (int i = 0; i < nCount; i++)
                     {
@@ -522,8 +513,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //                                _logger.Error(ex.Message,ex);
-                                Logger.Logger.Log("CalculateCollection", " groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, "Calculate");
+                                log.Error("CalculateCollection - groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, ex);
                             }
                         }
 
@@ -610,8 +600,7 @@ namespace Financial
                                 }
                                 catch (Exception ex)
                                 {
-                                    //_logger.Error(ex.Message,ex);
-                                    Logger.Logger.Log("CalculateCollection", " groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, "Calculate");
+                                    log.Error("CalculateCollection - groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, ex);
                                     CalcContract(null, fpo);
                                 }
                             }
@@ -626,8 +615,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message,ex);
-                Logger.Logger.Log("CalculateCollection", " groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, "Calculate");
+                log.Error("CalculateCollection - groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, ex);
             }
         }
 
@@ -736,8 +724,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculateSubscriptions", " groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, "Calculate");
+                log.Error("CalculateSubscriptions - groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, ex);
             }
         }
 
@@ -767,8 +754,7 @@ namespace Financial
                 {
                     Int32 nCount = selectBTQuery.Table("query").DefaultView.Count;
                     Int32 nBillingTransactionID = 0;
-                    //_logger.Info(string.Format("{0} : {1} {2}", "TvinciFinancialCalculatorBase.CalculateSubscriptions", nCount, "Rows returned (billing_transactions)"));
-                    Logger.Logger.Log("CalculateSubscriptions", nCount.ToString() + " Rows returned (billing_transactions)", "Calculate");
+                    log.Debug("CalculateSubscriptions - " + nCount.ToString() + " Rows returned (billing_transactions)");
 
                     for (int i = 0; i < nCount; i++)
                     {
@@ -811,8 +797,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //_logger.Error(ex.Message, ex);
-                                Logger.Logger.Log("CalculateSubscriptions", " groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, "Calculate");
+                                log.Error("CalculateSubscriptions -  groupId: " + m_nGroupID.ToString() + " exception:" + ex.Message, ex);
                             }
                         }
 
@@ -841,8 +826,7 @@ namespace Financial
                 if (selectSPQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectSPQuery.Table("query").DefaultView.Count;
-                    //_logger.Info(string.Format("{0} : {1} {2}", "TvinciFinancialCalculatorBase.CalculateSubscriptions", nCount, "Rows returned (subscriptions_purchases)"));
-                    Logger.Logger.Log("CalculateSubscriptions", nCount.ToString() + " Rows returned (subscriptions_purchases) ", "Calculate");
+                    log.Debug("CalculateSubscriptions - " + nCount.ToString() + " Rows returned (subscriptions_purchases) ");
 
 
                     int nCollectionMetadata = 0;
@@ -891,8 +875,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                //_logger.Error(ex.Message, ex);
-                                Logger.Logger.Log("CalculateSubscriptions", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                                log.Error("CalculateSubscriptions - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                             }
                         }
                         //Call get All Related media files
@@ -905,8 +888,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculateSubscriptions", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("CalculateSubscriptions - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
 
         }
@@ -998,7 +980,7 @@ namespace Financial
                         catch (Exception ex)
                         {
                             //_logger.Error(ex.Message, ex);
-                            Logger.Logger.Log("GetAllMediasChannel", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                            log.Error("GetAllMediasChannel - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                             CalcContract(null, fpo);
                         }
                     }
@@ -1008,8 +990,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("GetAllMediasChannel", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("GetAllMediasChannel - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
 
@@ -1052,8 +1033,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("GetGiftUserListForSub", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("GetGiftUserListForSub - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
             return nGifts;
         }
@@ -1096,7 +1076,7 @@ namespace Financial
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("GetGiftUserListForSub", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                        log.Error("GetGiftUserListForSub - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                     }
 
                     if (string.IsNullOrEmpty(sCoupon))
@@ -1143,8 +1123,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("GetSubCustomdata", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("GetSubCustomdata - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
             return sCustomdata;
         }
@@ -1194,8 +1173,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("GetCouponCodeForUserWithSub", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("GetCouponCodeForUserWithSub - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
             return nCouponCode;
         }
@@ -1218,7 +1196,7 @@ namespace Financial
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    Logger.Logger.Log("CalculatePPV", nCount.ToString() + " rows returned", "Calculate");
+                    log.Debug("CalculatePPV - " + nCount.ToString() + " rows returned");
                     for (int i = 0; i < nCount; i++)
                     {
                         FinancialPurchaseObject fpo = new FinancialPurchaseObject();
@@ -1246,7 +1224,7 @@ namespace Financial
                         {
                             if (Utils.GetIntSafeVal(ref selectQuery, "BILLING_STATUS", i) != 0)
                             {
-                                Logger.Logger.Log("CalculatePPV", string.Format("BILLING_STATUS!=0 purchaseID:{0}", fpo.m_nId), "Calculate");
+                                log.Debug("CalculatePPV - " + string.Format("BILLING_STATUS!=0 purchaseID:{0}", fpo.m_nId));
                                 continue;
                             }
 
@@ -1282,7 +1260,7 @@ namespace Financial
                             try
                             {
                                 theDoc.LoadXml(sCustomData);
-                                
+
                                 //handle Coupon uses
                                 XmlNode couponNode = theDoc.SelectSingleNode("customdata/cc");
                                 if (couponNode != null && couponNode.FirstChild != null)
@@ -1313,7 +1291,7 @@ namespace Financial
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("CalculatePPV", "sCustomData:" + sCustomData + " exception: " + ex.Message, "Calculate");
+                                log.Error("CalculatePPV - sCustomData:" + sCustomData + " exception: " + ex.Message, ex);
                                 continue;
                             }
                         }
@@ -1350,8 +1328,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("CalculatePPV", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("CalculatePPV - groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
     }

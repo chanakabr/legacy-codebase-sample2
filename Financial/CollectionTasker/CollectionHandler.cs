@@ -7,12 +7,14 @@ using ConditionalAccess;
 using ConditionalAccess.TvinciPricing;
 using System.Configuration;
 using System.Security.Cryptography;
+using KLogMonitor;
+using System.Reflection;
 
 namespace CollectionTasker
 {
     public class CollectionHandler : ScheduledTasks.BaseTask
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private Int32 m_nGroupID;
         private Int32 m_SubscriptionsPurchasesID;
         private Hashtable m_hSubIdToMetadataID;
@@ -43,8 +45,8 @@ namespace CollectionTasker
 
         protected override bool DoTheTaskInner()
         {
-            Logger.Logger.Log("Collection Handler start", "GroupID=" + m_nGroupID + " start SubPurchasesID=" + m_SubscriptionsPurchasesID, "CollectionHandler");
-            
+            log.Debug("Collection Handler start - GroupID=" + m_nGroupID + " start SubPurchasesID=" + m_SubscriptionsPurchasesID);
+
             Int32 nSubPurID = m_SubscriptionsPurchasesID;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -115,7 +117,7 @@ namespace CollectionTasker
             updateQuery1.Finish();
             updateQuery1 = null;
 
-            Logger.Logger.Log("Collection Handler finish", "GroupID=" + m_nGroupID + " Last SubPurchasesID=" + m_SubscriptionsPurchasesID, "CollectionHandler");
+            log.Debug("Collection Handler finish - GroupID=" + m_nGroupID + " Last SubPurchasesID=" + m_SubscriptionsPurchasesID);
 
             return true;
         }
@@ -137,7 +139,7 @@ namespace CollectionTasker
 
             if (theSub == null)
             {
-                Logger.Logger.Log("Null Subscription", "GroupID=" + m_nGroupID + " theSub=" + sCode, "CollectionHandler");
+                log.Debug("Null Subscription - GroupID=" + m_nGroupID + " theSub=" + sCode);
                 return 0;
             }
 
@@ -158,7 +160,7 @@ namespace CollectionTasker
                 return 0;
             }
 
-            Logger.Logger.Log("Collection", "GroupID=" + m_nGroupID + " SubscriptionID=" + theSub.m_sObjectCode, "CollectionHandler");
+            log.Debug("Collection - GroupID=" + m_nGroupID + " SubscriptionID=" + theSub.m_sObjectCode);
 
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<collection>");
@@ -204,7 +206,7 @@ namespace CollectionTasker
                         Int32 nPPV = 0;
 
                         Object oPPV = ODBCWrapper.Utils.GetTableSingleVal("ppv_modules_media_files", "ppv_module_id", "media_file_id", "=", nMediaFileID, "pricing_connection");
-                        
+
                         if (oPPV != null && oPPV != DBNull.Value)
                             nPPV = int.Parse(oPPV.ToString());
 

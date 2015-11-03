@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Logger;
 using System.Collections;
 using System.Xml;
 using System.Data;
 using System.Threading;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
     public class MCFinancialCalculator : TvinciFinancialCalculatorBase
     {
-        private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const int nPackage = 20;
         private Int32 m_nBillingTransactionID = 0;
@@ -30,8 +31,8 @@ namespace Financial
 
         public override void Calculate()
         {
-            Logger.Logger.Log("TvinciFinancialCalculatorBase - Calculate", " Start at:" + DateTime.Now.ToString() + " GroupId: " + m_nGroupID.ToString() + " startDate:" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") +
-                " endDate:" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"), "Calculate");
+            log.Debug("TvinciFinancialCalculatorBase - Calculate Start at:" + DateTime.Now.ToString() + " GroupId: " + m_nGroupID.ToString() + " startDate:" + m_dStartDate.ToString("yyyy-MM-dd HH:mm") +
+                " endDate:" + m_dEndDate.ToString("yyyy-MM-dd HH:mm"));
             int nLastBillingTransactionId = 0;
 
             //For Test
@@ -75,8 +76,7 @@ namespace Financial
                 selectQuery = null;
 
 
-                //_logger.Info(string.Format("{0} : {1} {2}", "Total ", nCount, " rows return"));
-                Logger.Logger.Log("TvinciFinancialCalculatorBase - Calculate", "Total : " + nCount.ToString() + " rows return", "Calculate");
+                log.Debug("TvinciFinancialCalculatorBase - Calculate Total : " + nCount.ToString() + " rows return");
                 if (dt == null || dt.DefaultView.Table == null || nCount == 0)
                     return;
                 bool bUpdate = UpdateFinancialRevenuesn(dt, ref nLastBillingTransactionId);
@@ -137,13 +137,12 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("TvinciFinancialCalculatorBase - Calculate", "groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                log.Error("TvinciFinancialCalculatorBase - Calculate groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
 
             //For Test only
             //string res = FDRToString();
-                        
+
             UpdateGroupedRevenues();
             if (m_bNew && nLastBillingTransactionId > 0)
             {
@@ -161,7 +160,7 @@ namespace Financial
                     FinancialPurchaseObject fpo = new FinancialPurchaseObject();
                     fpo.m_nId = ODBCWrapper.Utils.GetIntSafeVal(dr["id"]);
                     nLastBillingTransactionId = fpo.m_nId;     // save transactionId for local use    
-                    
+
                     //Update fpo CurrenyID
                     fpo.m_sCurrencyCD = ODBCWrapper.Utils.GetSafeStr(dr["currency_code"]);
                     if (!m_hCurrencyCDToCurrencyID.Contains(fpo.m_sCurrencyCD))
@@ -184,17 +183,17 @@ namespace Financial
                     fpo.m_nBillingMethod = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_METHOD"]);
                     fpo.m_nBillingProvider = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_PROVIDER"]);
                     fpo.m_nPaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(dr["transaction_payment_number"]);
-                   
+
                     //Get the Catalogue Price
                     if (fpo.m_nItemID != 0) //PPV
-                    {   
+                    {
                         CalculatePPV(fpo, dr);
                     }
                     else if (fpo.m_nRelSub > 0) //Subscription
                     {
-                        DateTime date = DateTime.Now;                        
+                        DateTime date = DateTime.Now;
                         CalculateSubscription(fpo, dr); //MultiThread Methode
-                        Logger.Logger.Log("End subscription", string.Format("totalSeconds={0}, subscriptionID={1} ", (DateTime.Now - date).TotalSeconds, fpo.m_nRelSub), "subscriptionLogger");
+                        log.Debug("End subscription - " + string.Format("totalSeconds={0}, subscriptionID={1} ", (DateTime.Now - date).TotalSeconds, fpo.m_nRelSub));
                     }
                     if (m_LDataRows.Count >= 1000) // every 1000 
                         AddDataRowsToTable();
@@ -205,7 +204,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception (UpdateFinancialRevenuesn)", string.Format(" ex:{0}",  ex.Message), "MCFinancialCalculator");
+                log.Error("Exception (UpdateFinancialRevenuesn) - " + string.Format(" ex:{0}", ex.Message), ex);
                 return false;
             }
             return true;
@@ -229,8 +228,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("TvinciFinancialCalculatorBase - Calculate","group_id: "+ m_nGroupID.ToString()+ " exception: " + ex.Message, "Calculate");
+                log.Error("TvinciFinancialCalculatorBase - Calculate - group_id: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
             }
         }
 
@@ -280,8 +278,7 @@ namespace Financial
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error(ex.Message, ex);
-                    Logger.Logger.Log("MCFinancialCalculator - CalculatePPV", "groupId: " + m_nGroupID.ToString()+" exception: " + ex.Message, "Calculate");
+                    log.Error("MCFinancialCalculator - CalculatePPV groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                 }
             }
 
@@ -332,8 +329,7 @@ namespace Financial
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error(ex.Message, ex);
-                    Logger.Logger.Log("MCFinancialCalculator - CalculatePPV", "groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                    log.Error("MCFinancialCalculator - CalculatePPV groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                 }
             }
         }
@@ -347,7 +343,7 @@ namespace Financial
 
             string sCustomData = Utils.GetStrSafeVal(ref selectQuery, "customdata", i);
             if (!string.IsNullOrEmpty(sCustomData))
-            {               
+            {
                 try
                 {
                     XmlDocument theDoc = new XmlDocument();
@@ -363,8 +359,7 @@ namespace Financial
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error(ex.Message, ex);
-                    Logger.Logger.Log("MCFinancialCalculator - CalculateSubscription", " groupId: " +m_nGroupID.ToString()+" exception: " + ex.Message, "Calculate");                
+                    log.Error("MCFinancialCalculator - CalculateSubscription  groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                 }
             }
             //Get all played media files for subscription             
@@ -465,8 +460,7 @@ namespace Financial
                     }
                     catch (Exception ex)
                     {
-                        //_logger.Error(ex.Message, ex);
-                        Logger.Logger.Log("MCFinancialCalculator - CalculateSubscription"," groupId: " +m_nGroupID.ToString()+ " exception: " + ex.Message, "Calculate");   
+                        log.Error("MCFinancialCalculator - CalculateSubscription groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                         CalcContract(null, fpo);
                     }
                 }
@@ -499,8 +493,7 @@ namespace Financial
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error(ex.Message, ex);
-                    Logger.Logger.Log("MCFinancialCalculator - CalculateSubscription", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                    log.Error("MCFinancialCalculator - CalculateSubscription  groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                 }
             }
             //Get all played media files for subscription             
@@ -636,8 +629,7 @@ namespace Financial
                 }
                 catch (Exception ex)
                 {
-                    //_logger.Error(ex.Message, ex);
-                    Logger.Logger.Log("MCFinancialCalculator - CalculateSubscription", " groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, "Calculate");
+                    log.Error("MCFinancialCalculator - CalculateSubscription  groupId: " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                     CalcContract(null, fpo);
                 }
             }
@@ -652,7 +644,7 @@ namespace Financial
             ManualResetEvent handle = (ManualResetEvent)vals[3];
 
             bool bUpdate = CalcContracForMediaFile(owner, discount, fpo);
-            
+
             handle.Set();
         }
 
@@ -678,12 +670,9 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("TvinciFinancialCalculatorBase - CalcContracForMediaFile", string.Format("exception = {0}", ex.Message), "Calculate");
+                log.Error("TvinciFinancialCalculatorBase - CalcContracForMediaFile - " + string.Format("exception = {0}", ex.Message));
                 return false;
             }
         }
-
-
-
     }
 }

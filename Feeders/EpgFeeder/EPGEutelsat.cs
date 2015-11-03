@@ -68,7 +68,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return true;
         }
 
@@ -94,7 +96,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
 
@@ -130,7 +134,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception ex)
-            { }
+            {
+                log.Error("", ex);
+            }
 
             //return programIds;
             return dateWithChannelIds;
@@ -794,7 +800,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
     }

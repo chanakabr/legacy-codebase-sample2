@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_group_regions_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -21,7 +24,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
         Int32 nMenuID = 0;
-        
+
         if (!IsPostBack)
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
@@ -74,7 +77,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
                     {
                         if (Session["media_ids"] != null && Session["media_ids"] is Dictionary<int, string>)
                         {
-                            
+
                             regionId = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("linear_channels_regions", "id", "external_id", "=", extrernalId).ToString());
                             if (regionId != 0)
                             {
@@ -91,7 +94,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
-            
+
             if (Request.QueryString["region_id"] != null &&
                 Request.QueryString["region_id"].ToString() != "")
             {
@@ -107,7 +110,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             else
                 Session["region_id"] = 0;
         }
-       
+
     }
 
     private void InsertRegionMedias(Dictionary<int, string> mediaIds, int regionId)
@@ -150,7 +153,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select " + sField + " from " + sTable + " where ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", regionId);
-        selectQuery += " and is_active=1 and status=1"; 
+        selectQuery += " and is_active=1 and status=1";
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -181,7 +184,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
 
         DataRecordLongTextField dr_Name = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_Name.Initialize("Name", "adm_table_header_nbg", "FormInput", "", false);
-        
+
         DataRecordLongTextField dr_ExternalID = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_ExternalID.Initialize("External ID", "adm_table_header_nbg", "FormInput", "", false);
 
@@ -200,7 +203,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         theRecord.AddRecord(dr_Name);
         theRecord.AddRecord(dr_ExternalID);
 
-        
+
 
         string sTable = theRecord.GetTableHTML("adm_group_regions_new.aspx?submited=1");
 
@@ -215,7 +218,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
             regionId = int.Parse(Session["region_id"].ToString());
         }
 
-       
+
         Dictionary<string, object> DualListPPVM = new Dictionary<string, object>();
         DualListPPVM.Add("FirstListTitle", "Current Region Channels");
         DualListPPVM.Add("SecondListTitle", "Available Channels");
@@ -236,7 +239,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
                     regionChannels = regionChannelsSelectQuery.Table("query");
                 }
                 regionChannelsSelectQuery.Finish();
-                regionChannelsSelectQuery = null; 
+                regionChannelsSelectQuery = null;
             }
             Int32 nCount = channelsSelectQuery.Table("query").DefaultView.Count;
             object[] resultData = new object[nCount];
@@ -258,7 +261,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
                         Title = sTitle,
                         InList = true,
                         ChannelNumber = drChannel["channel_number"] is System.DBNull ? string.Empty : drChannel["channel_number"]
-                        
+
                     };
                     resultData[i] = data;
                 }
@@ -277,7 +280,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
 
 
             DualListPPVM.Add("Data", resultData);
-            Logger.Logger.Log("Pricing WS", resultData.ToJSON(), "PricingWS");
+            log.Debug("Pricing WS - " + resultData.ToJSON());
             return DualListPPVM.ToJSON();
         }
 
@@ -454,7 +457,7 @@ public partial class adm_group_regions_new : System.Web.UI.Page
         bInsert = insertQuery.Execute();
         insertQuery.Finish();
         insertQuery = null;
-        
+
         //Update index 
         ImporterImpl.UpdateIndex(new List<int>() { mediaID }, groupId, ApiObjects.eAction.Update);
     }
@@ -462,10 +465,10 @@ public partial class adm_group_regions_new : System.Web.UI.Page
     protected void UpdateMediaRegions(Int32 id, Int32 status, int mediaId, int regionId, string channelNumber, int groupId)
     {
         bool bUpdate = false;
-        
+
 
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_regions");
-        
+
         int number = 0;
         if (int.TryParse(channelNumber, out number))
         {

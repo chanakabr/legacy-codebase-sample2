@@ -13,9 +13,14 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
 using System.Xml.Linq;
+using KLogMonitor;
+using System.Reflection;
+
 
 public partial class FBTest : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
 
@@ -72,7 +77,7 @@ public partial class FBTest : System.Web.UI.Page
         //                    string logInState = string.Empty;
         //                    object oUS = selectQuery.Table("query").DefaultView[i].Row["user_state"];
         //                    int userStateInt = 0;
-                            
+
         //                    if (oUS != null && oUS != System.DBNull.Value)
         //                    {
         //                        userStateInt = int.Parse(selectQuery.Table("query").DefaultView[i].Row["user_state"].ToString());
@@ -157,7 +162,7 @@ public partial class FBTest : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("Notifier", "SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, "MSNFeeder");
+            log.Error("Notifier - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ex);
             if (oWebResponse != null)
                 oWebResponse.Close();
             if (receiveStream != null)
@@ -201,7 +206,7 @@ public partial class FBTest : System.Web.UI.Page
             sb.Append(System.Text.Encoding.UTF8.GetString(serverResponseByte, 0, bytesRead));
         }
 
-        
+
 
         string challengeVal = string.Empty;
         byte[] ChallengeByte = Convert.FromBase64String(challengeVal);
@@ -285,7 +290,7 @@ public class JSONHelper
         MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
         ms.Position = 0;
         DataContractJsonSerializer serialiser = new DataContractJsonSerializer(obj.GetType());
-       
+
         obj = (T)serialiser.ReadObject(ms);
         ms.Close();
         return obj;
@@ -377,7 +382,7 @@ public class FBFriend
     {
         m_name = name;
         m_id = id;
-        
+
     }
 
     [DataMember]
@@ -390,7 +395,7 @@ public class FBFriend
         set
         {
             m_id = value;
-            
+
         }
     }
 

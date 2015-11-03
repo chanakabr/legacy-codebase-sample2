@@ -14,9 +14,12 @@ using TvinciImporter;
 using System.Threading;
 using Notifiers;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_media_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -44,7 +47,7 @@ public partial class adm_media_new : System.Web.UI.Page
                     // Update record in Catalog (see the flow inside Update Index
                     int nGroupId = LoginManager.GetLoginGroupID();
                     bool result = false;
-                    result = ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update);                    
+                    result = ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update);
                     ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);//Notification    
                 }
 
@@ -72,7 +75,7 @@ public partial class adm_media_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nID.ToString() + " : " + ex.Message, "media_notifier");
+                    log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
                 }
 
                 return;
@@ -187,9 +190,9 @@ public partial class adm_media_new : System.Web.UI.Page
         string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from media_tags_types where status=1 and TagFamilyID IS NULL and group_id " + sGroups;
-        
+
         //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
-        
+
         selectQuery += "order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
@@ -280,7 +283,7 @@ public partial class adm_media_new : System.Web.UI.Page
                     {
                         string sName = oName.ToString();
                         string sField = "META" + i.ToString() + "_DOUBLE";
-                        DataRecordShortDoubleField dr_name = new DataRecordShortDoubleField(true, 12 , 12);
+                        DataRecordShortDoubleField dr_name = new DataRecordShortDoubleField(true, 12, 12);
                         dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
                         theRecord.AddRecord(dr_name);
                     }
@@ -367,7 +370,7 @@ public partial class adm_media_new : System.Web.UI.Page
         DataRecordShortTextField dr_entry_id = new DataRecordShortTextField("ltr", true, 30, 128);
         dr_entry_id.Initialize("Entry Identifier", "adm_table_header_nbg", "FormInput", "ENTRY_ID", false);
         theRecord.AddRecord(dr_entry_id);
-        
+
         DataRecordShortTextField dr_epg_guid = new DataRecordShortTextField("ltr", true, 30, 128);
         dr_epg_guid.Initialize("EPG Guid(connection to the EPG)", "adm_table_header_nbg", "FormInput", "EPG_IDENTIFIER", false);
         theRecord.AddRecord(dr_epg_guid);
@@ -395,7 +398,7 @@ public partial class adm_media_new : System.Web.UI.Page
         if (oDefPR != DBNull.Value && oDefPR != null)
             sDefPR = oDefPR.ToString();
 
-        DataRecordDropDownField dr_watch_permissions = new DataRecordDropDownField("watch_permissions_types", "NAME", "id", "", null , 60 , true);
+        DataRecordDropDownField dr_watch_permissions = new DataRecordDropDownField("watch_permissions_types", "NAME", "id", "", null, 60, true);
         sQuery = "select name as txt,id as id from watch_permissions_types where status=1 and group_id= " + LoginManager.GetLoginGroupID().ToString();
         dr_watch_permissions.SetSelectsQuery(sQuery);
         dr_watch_permissions.Initialize("Watch Permission Rule", "adm_table_header_nbg", "FormInput", "WATCH_PERMISSION_TYPE_ID", false);
@@ -422,7 +425,7 @@ public partial class adm_media_new : System.Web.UI.Page
         dr_device_rules.Initialize("Device rule", "adm_table_header_nbg", "FormInput", "device_rule_id", false);
         theRecord.AddRecord(dr_device_rules);
 
-        
+
 
         AddStrFields(ref theRecord);
         AddIntFields(ref theRecord);

@@ -8,9 +8,13 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class monitoring : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -33,13 +37,13 @@ public partial class monitoring : System.Web.UI.Page
             selectQuery.Finish();
             selectQuery = null;
             if (bOK == true)
-               Response.Write("OK");
+                Response.Write("OK");
             else
-               Response.Write("FAIL");
+                Response.Write("FAIL");
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("xceptions", ex.Message + " " + ex.StackTrace, "monitoring");
+            log.Error("exceptions - " + ex.Message + " " + ex.StackTrace, ex);
             throw (ex);
         }
     }

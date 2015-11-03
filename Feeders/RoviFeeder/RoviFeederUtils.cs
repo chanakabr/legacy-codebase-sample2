@@ -3,21 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using KLogMonitor;
 
 namespace RoviFeeder
 {
     public class RoviFeederUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static Dictionary<int, string> GetPresentationsDict(string sVodListUrl)
         {
             Dictionary<int, string> dPresentationUrls = new Dictionary<int, string>();
-            
+
             try
-            {                
+            {
                 //string roviVodUrl = ContentURL;
 
                 if (string.IsNullOrEmpty(sVodListUrl))
@@ -66,7 +70,7 @@ namespace RoviFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("exception in GetPresentationsDict {0}", ex.Message), "RoviFeeder");
+                log.Error("Error - " + string.Format("exception in GetPresentationsDict {0}", ex.Message), ex);
             }
 
             return dPresentationUrls;
@@ -127,8 +131,8 @@ namespace RoviFeeder
         {
             try
             {
-                Logger.Logger.Log("Start", string.Format("{0}, {1}, {2}", status.ToString(), sURL, logMsg), "RoviIngestNotification");
-                
+                log.Debug("Start - " + string.Format("{0}, {1}, {2}", status.ToString(), sURL, logMsg));
+
                 Notification.RoviNowtilusVodApi notificationClass = new Notification.RoviNowtilusVodApi();
                 notificationClass.RequestType = "STATUS";
                 notificationClass.Status = new Notification.RoviNowtilusVodApiStatus();
@@ -145,13 +149,13 @@ namespace RoviFeeder
                 }
 
                 string response = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(sURL, theNotificationXML, new Dictionary<string, string>() { });
-                Logger.Logger.Log("Finish", string.Format("{0}", response), "RoviIngestNotification");
+                log.Debug("Finish - " + string.Format("{0}", response));
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", string.Format("{0}", ex.Message), "RoviIngestNotification");
+                log.Error("Exception - " + string.Format("{0}", ex.Message), ex);
             }
-            
+
             return true;
         }
     }

@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
+using KLogMonitor;
 
 /// <summary>
 /// Summary description for ASXHttpModule
 /// </summary>
 public class ASXHttpModule : IHttpModule
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     public ASXHttpModule()
     {
         //
@@ -18,7 +22,7 @@ public class ASXHttpModule : IHttpModule
     public void Init(HttpApplication context)
     {
         context.BeginRequest += new EventHandler(Context_BeginRequest);
-        context.PreRequestHandlerExecute += new EventHandler (Application_AuthenticateRequest);
+        context.PreRequestHandlerExecute += new EventHandler(Application_AuthenticateRequest);
     }
 
     public void Dispose()
@@ -31,7 +35,7 @@ public class ASXHttpModule : IHttpModule
         HttpApplication application = sender as HttpApplication;
         if (application.Request.Url.ToString().ToUpper().EndsWith(".ASX") == true)
         {
-            Logger.Logger.Log("rrr", "inside", "ttt");
+            log.Debug("rrr - inside");
             string sQuery = application.Request.Url.Query;
             context.Server.Transfer("asx_handler.aspx?" + sQuery);
         }

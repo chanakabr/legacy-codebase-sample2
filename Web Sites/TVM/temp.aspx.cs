@@ -14,15 +14,19 @@ using Dundas.Olap.Data.AdomdNet;
 using Dundas.Olap.Data;
 using System.Xml;
 using System.IO;
+using KLogMonitor;
+using System.Reflection;
 
 
 public partial class temp : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     public void GetMainMenu()
     {
         Int32 nMenuID = 0;
         //Response.Write(TVinciShared.Menu.GetMainMenu(12, true, ref nMenuID));
-        
+
     }
 
     private void CreateExcel(int groupID)
@@ -69,7 +73,7 @@ public partial class temp : System.Web.UI.Page
                 int guid = int.Parse(usersSelectQuery.Table("usersQuery").DefaultView[i].Row["ID"].ToString());
                 string userName = usersSelectQuery.Table("usersQuery").DefaultView[i].Row["USERNAME"].ToString();
                 string email = usersSelectQuery.Table("usersQuery").DefaultView[i].Row["EMAIL_ADD"].ToString();
-                
+
                 tmpRow["UserName"] = userName;
                 tmpRow["E-mail"] = email;
                 dt.Rows.InsertAt(tmpRow, dt.Rows.Count);
@@ -81,7 +85,7 @@ public partial class temp : System.Web.UI.Page
             }
 
         }
-        
+
 
         //Response.Write("Before excel");
         //GridView gv = new GridView();
@@ -128,7 +132,7 @@ public partial class temp : System.Web.UI.Page
                 insertQuery = null;
             }
         }
-        
+
         selectQuery.Finish();
         selectQuery = null;
     }
@@ -228,7 +232,7 @@ public partial class temp : System.Web.UI.Page
         return nRet;
     }
 
-    protected Int32 DuplicateFirstBranch(string sNewName , Int32 nMenuID, string sOldVal, string sNewVal)
+    protected Int32 DuplicateFirstBranch(string sNewName, Int32 nMenuID, string sOldVal, string sNewVal)
     {
         Int32 nMaxID = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -255,7 +259,7 @@ public partial class temp : System.Web.UI.Page
         return nMaxID;
     }
 
-    protected Int32 DuplicateBranch(Int32 nOldMenuID, Int32 nNewMenuID , string sOldVal, string sNewVal)
+    protected Int32 DuplicateBranch(Int32 nOldMenuID, Int32 nNewMenuID, string sOldVal, string sNewVal)
     {
         Int32 nMaxID = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -284,7 +288,7 @@ public partial class temp : System.Web.UI.Page
         return nMaxID;
     }
 
-    protected void AddMenuParameter(Int32 nMenuID, string sParameterName, string sParameterVal , bool bParent)
+    protected void AddMenuParameter(Int32 nMenuID, string sParameterName, string sParameterVal, bool bParent)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from admin_menu where ";
@@ -321,10 +325,10 @@ public partial class temp : System.Web.UI.Page
         }
         selectQuery.Finish();
         selectQuery = null;
-        
+
     }
 
-    protected void dupliacteMediaStore(Int32 nOldParent , string sNewMSName , string sOldPlatform , string sNewPlatform)
+    protected void dupliacteMediaStore(Int32 nOldParent, string sNewMSName, string sOldPlatform, string sNewPlatform)
     {
         Int32 nNewParent = DuplicateFirstBranch(sNewMSName, nOldParent, sOldPlatform, sNewPlatform);
         DuplicateBranch(nOldParent, nNewParent, sOldPlatform, sNewPlatform);
@@ -332,164 +336,10 @@ public partial class temp : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        
-        //dupliacteMediaStore(115, "Cellular", "platform=1", "platform=2");
-        //dupliacteMediaStore(115, "IPad", "platform=1", "platform=3");
-        //dupliacteMediaStore(115, "Connected TV", "platform=1", "platform=4");
-        //dupliacteMediaStore(115, "Setop Box", "platform=1", "platform=5");
-        //dupliacteMediaStore(115, "XBOX", "platform=1", "platform=6");
-        //dupliacteMediaStore(115, "WII", "platform=1", "platform=7");
-        
-        //AddMenuParameter(115, "platform", "1", false);
-        
-        //LoadUsers();
-        //SynchronizePics(104);
-        //SynchronizePics(93);
-        //SynchronizePics(112);
-        //CreateExcel(93);
-        //SetNewPicSize(117, 135, 76, true);
         int groupID = int.Parse(Request.QueryString["GroupID"]);
         string width = Request.QueryString["w"];
         string height = Request.QueryString["h"];
         SetPicToNewSize(groupID, false, width, height, @"C:\ode\TVM\Web Sites\TVM\pics\tele5");
-        //SetAllPicSize(groupID, true, width, height);
-        //Response.Write(DoesRemotePicExists("http://tvinci.panthercustomer.com/200710101138_144X81.jpg").ToString());
-        //return;
-        //Logger.Logger.Log("aadsasd", "asdasdasd", "asdasd", "sadasd");
-        /*
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select id from accounts where status=1";
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                Int32 nAccountID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
-                AddPermitionsToAccount(nAccountID);
-            }
-        }
-        
-        selectQuery.Finish();
-        selectQuery = null;
-        
-        
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("admin_accounts_permissions");
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_PERMIT", "=", 1);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EDIT_PERMIT", "=", 1);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NEW_PERMIT", "=", 1);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REMOVE_PERMIT", "=", 1);
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PUBLISH_PERMIT", "=", 1);
-        updateQuery += "where account_id in (select id from accounts where group_id=1)";
-        updateQuery.Execute();
-        updateQuery.Finish();
-        updateQuery = null;
-        //return;
-        */
-        //SeperateMediaTexts();
-        /*
-        string sTmp = "";
-        try
-        {
-            string[] sFiles = System.IO.Directory.GetFiles("D:\\hshome\\tvinci-admin\\admin.tvinci.com\\pics", "*");;
-
-            Int32 nCount = sFiles.Length;
-            for (int i = 0; i < nCount; i++)
-            {
-                string[] sSep = { "\\" };
-                string sBaseFileName = sFiles[i].Split(sSep, StringSplitOptions.RemoveEmptyEntries)[sFiles[i].Split(sSep, StringSplitOptions.RemoveEmptyEntries).Length - 1];
-                sTmp = sBaseFileName;
-                if (sBaseFileName.StartsWith("0") == true || sBaseFileName.StartsWith("1") == true || sBaseFileName.StartsWith("2") == true || sBaseFileName.StartsWith("3") == true)
-                {
-                    if (sBaseFileName.IndexOf("_") != -1)
-                    {
-                        sTmp = sBaseFileName.Substring(0, sBaseFileName.IndexOf("_"));
-                        sTmp += sBaseFileName.Substring(sBaseFileName.IndexOf("."));
-                    }
-                }
-                    
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select g.PICS_REMOTE_BASE_URL,g.DEFAULT_PIC_ID,g.ADMIN_LOGO,p.id from pics p,groups g where g.id=p.group_id and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("p.base_url", "=", sTmp);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount1 > 0)
-                    {
-                        string sPicremoteURL = "";
-                        if (selectQuery.Table("query").DefaultView[0].Row["PICS_REMOTE_BASE_URL"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["PICS_REMOTE_BASE_URL"] != DBNull.Value &&
-                            selectQuery.Table("query").DefaultView[0].Row["PICS_REMOTE_BASE_URL"].ToString() != "")
-                            sPicremoteURL = selectQuery.Table("query").DefaultView[0].Row["PICS_REMOTE_BASE_URL"].ToString();
-                        Int32 nPicID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                        Int32 nDefaultPic = 0;
-                        Int32 nAdminPic = 0;
-                        if (selectQuery.Table("query").DefaultView[0].Row["DEFAULT_PIC_ID"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["DEFAULT_PIC_ID"] != DBNull.Value &&
-                            selectQuery.Table("query").DefaultView[0].Row["DEFAULT_PIC_ID"].ToString() != "")
-                            nDefaultPic = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DEFAULT_PIC_ID"].ToString());
-                        if (selectQuery.Table("query").DefaultView[0].Row["ADMIN_LOGO"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["ADMIN_LOGO"] != DBNull.Value &&
-                            selectQuery.Table("query").DefaultView[0].Row["ADMIN_LOGO"].ToString() != "")
-                            nAdminPic = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ADMIN_LOGO"].ToString());
-                        if (nPicID != nAdminPic && nPicID != nDefaultPic && sPicremoteURL != "" && sPicremoteURL.StartsWith("http://admin.tvinci.com/pics") == false)
-                            System.IO.File.Delete(sFiles[i]);
-                    }
-                    else
-                        System.IO.File.Delete(sFiles[i]);
-                }
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Logger.Log("sdsd", ex.Message + "||" + ex.StackTrace + "||" + sTmp, "exc");
-        }
-        */
-        /*
-        Response.Write("ASP User: " + System.Security.Principal.WindowsIdentity.GetCurrent().Name);
-        Response.Write("<br/>");
-
-        try
-        {
-            Page p = new Page();
-
-            AdomdNetDataProvider prov = new AdomdNetDataProvider();
-            p.Controls.Add(prov);
-
-            prov.CacheType = SchemaCacheType.None;
-            prov.ConnectionString = "Data Source=msd101.1host.co.il; Provider=msolap;Catalog=TvinciMedia;";
-            prov.Open();
-            Logger.Logger.Log("temp", "sdfsdfsdf", "temp");
-            Response.Write("Connected");
-        }
-        catch (Exception ex)
-        {
-            Response.Write("Failed connecting. Error:" + ex.Message);
-        }
-        */
-        //Response.Write(CookieUtils.GetCookie("tvinci_api"));
-        //IpToCountry();
-        //Response.Write("<br/>" + Server.MapPath("Logs"));
-        //SetNewPicSize(66, 460, 260, true);
-        //SeperateMediaTexts();
-        //SetNewPicSize(105, 480, 270, true);
-        //SetNewPicSize(104, 480, 270, true);
-        //SetNewPicSize(93, 480, 270, true);
-        /*
-        SetNewPicSize(105, 112, 63, true);
-        SetNewPicSize(105, 112, 164, true);
-        SetNewPicSize(105, 140, 207, true);
-        SetNewPicSize(105, 144, 81, true);
-        SetNewPicSize(105, 200, 112, true);
-        SetNewPicSize(105, 300, 170, true);
-        SetNewPicSize(105, 640, 360, true);
-        SetNewPicSize(105, 848, 477, true);
-        SetNewPicSize(105, 980, 330, true);
-         */
-        //SetNewPicSize(86, 149, 89, true);
-        //NanaTipoFeeder.Feeder.ActualWork();
-//        DoesRemotePicExists("http://vod.orange.co.il/vodimages/210808100503_full.jpg");
     }
 
     static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
@@ -810,7 +660,7 @@ public partial class temp : System.Web.UI.Page
             return true;
         return false;
     }
-    
+
     protected void SynchronizePics(Int32 nGroupID)
     {
         object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
@@ -861,7 +711,7 @@ public partial class temp : System.Web.UI.Page
 
                 if (System.IO.File.Exists(sTnPic) == false)
                 {
-                    
+
                     Response.Write(sTnPic + " needs to be created and uploaded)<br/>");
                 }
                 else if (DoesRemotePicExists(sTnRemotePic) == false)
@@ -955,20 +805,20 @@ public partial class temp : System.Web.UI.Page
             try
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                
+
                 for (int i = 0; i < nCount; i++)
                 {
-                    
+
                     nMediaID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
                     Int32 nGroupID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString());
-                        //ProtocolsFuncs.SeperateMediaTexts(nMediaID);
-                        ProtocolsFuncs.SeperateMediaMainTags(nMediaID);
-                        ProtocolsFuncs.SeperateMediaTranslateTags(nMediaID);
-                        Response.Write("Media: " + nMediaID.ToString() + " (" + nGroupID.ToString() + " - " + (i + 1).ToString() + "/" + nCount.ToString() + ") Finished <br/>");
-                        Response.Flush();
-                        System.Threading.Thread.Sleep(30);
+                    //ProtocolsFuncs.SeperateMediaTexts(nMediaID);
+                    ProtocolsFuncs.SeperateMediaMainTags(nMediaID);
+                    ProtocolsFuncs.SeperateMediaTranslateTags(nMediaID);
+                    Response.Write("Media: " + nMediaID.ToString() + " (" + nGroupID.ToString() + " - " + (i + 1).ToString() + "/" + nCount.ToString() + ") Finished <br/>");
+                    Response.Flush();
+                    System.Threading.Thread.Sleep(30);
                     //if (i == 3)
-                        //break;
+                    //break;
                 }
             }
             catch (Exception ex)
@@ -992,7 +842,7 @@ public partial class temp : System.Web.UI.Page
             int count = selectQuery.Table("query").DefaultView.Count;
             if (count > 0)
             {
-                retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString(); 
+                retVal = selectQuery.Table("query").DefaultView[0].Row["base_url"].ToString();
             }
         }
         selectQuery.Finish();
@@ -1031,7 +881,7 @@ public partial class temp : System.Web.UI.Page
             {
                 if (!pic.ToLower().Contains("thumbs.db") && !pic.ToLower().Contains("full"))
                 {
-                    
+
                     FileInfo fi = new FileInfo(pic);
                     string fileName = GetPicNameByDescription(fi.Name);
                     string sUploadedFileExt = "";
@@ -1111,13 +961,6 @@ public partial class temp : System.Web.UI.Page
 
                     if (System.IO.File.Exists(sBasePic) == true && sEndName != "tn")
                     {
-
-                        //MagickNet.Magick.Init();
-                        //MagickNet.Image img = new MagickNet.Image(sBasePic);
-                        //img.Quality = 90;
-                        //img.Resize(new System.Drawing.Size(int.Parse(sWidth), int.Parse(sHeight)));
-                        //img.Write(sTmpImage1);
-                        //MagickNet.Magick.Term();
                         if (!DoesRemotePicExists(sPicRemoteURL))
                         {
                             TVinciShared.ImageUtils.ResizeImageAndSave(sBasePic, sTmpImage1, int.Parse(width), int.Parse(height), bCrop);
@@ -1127,99 +970,24 @@ public partial class temp : System.Web.UI.Page
                         {
                             Response.Write("Pic " + sTmpImage1 + " Already exists");
                         }
-                        ////TVinciShared.ImageUtils.ResizeImageAndSave(sBasePic, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop);
-                        //////TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                        //Response.Write(sUploadedFile + " uploaded OK<br/>");
-                        //Logger.Logger.Log("Pic Resize", "Pic " + sTmpImage1 + " resized and uploaded", "PicResize");
-
                     }
                     else
                     {
                         Response.Write(sUploadedFile + " full pic does not exist<br/>");
-                        //Logger.Logger.Log("Pic Resize", "Pic " + sTmpImage1 + " not uploaded", "PicResize");
                     }
                 }
                 catch (Exception ex)
                 {
                     Response.Write(sUploadedFile + " uploaded Fail " + ex.Message + " || " + ex.StackTrace + "<br/>");
-                    Logger.Logger.Log("Pic Resize", "Exception " + sTmpImage1 + " not uploaded " + ex.Message, "PicResize");
+                    log.Error("Pic Resize - Exception " + sTmpImage1 + " not uploaded " + ex.Message, ex);
                 }
-                //string sRemoteFullPic = sPicsBasePath + "/" + sPicBaseName + "_" + "full" + sUploadedFileExt;
-                //string sNewFullPath = ImageUtils.DownloadWebImage(sRemoteFullPic);
-                //ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-                //selectQuery1 += "select * from media_pics_sizes where status=1 and ";
-                //selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-                //if (selectQuery1.Execute("query", true) != null)
-                //{
-                //    Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
-                //    for (int nI = 0; nI < nCount1; nI++)
-                //    {
-                //        string sWidth = selectQuery1.Table("query").DefaultView[nI].Row["WIDTH"].ToString();
-                //        string sHeight = selectQuery1.Table("query").DefaultView[nI].Row["HEIGHT"].ToString();
-
-                //        string sEndName = sWidth + "X" + sHeight.ToString();
-                        
-                //        string sTmpImage1 = sBasePath + "\\pics\\NoveNetGemPics\\" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-                //        string sBasePic = sBasePath + "\\pics\\" + sPicBaseName + "_full" + sUploadedFileExt;
-                //        string sPicRemoteURL = sPicsBasePath + "/" + sPicBaseName + "_" + sEndName + sUploadedFileExt;
-                        
-                //        try
-                //        {
-
-                //            if (System.IO.File.Exists(sBasePic) == true && sEndName != "tn")
-                //            {
-                                
-                //                    //MagickNet.Magick.Init();
-                //                    //MagickNet.Image img = new MagickNet.Image(sBasePic);
-                //                    //img.Quality = 90;
-                //                    //img.Resize(new System.Drawing.Size(int.Parse(sWidth), int.Parse(sHeight)));
-                //                    //img.Write(sTmpImage1);
-                //                    //MagickNet.Magick.Term();
-                //                    if (!DoesRemotePicExists(sPicRemoteURL))
-                //                    {
-                //                        TVinciShared.ImageUtils.ResizeImageAndSave(sBasePic, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop);
-                //                        Response.Write("Pic " + sTmpImage1 + " Resized");
-                //                    }
-                //                    else
-                //                    {
-                //                        Response.Write("Pic " + sTmpImage1 + " Already exists");
-                //                    }
-                //                    ////TVinciShared.ImageUtils.ResizeImageAndSave(sBasePic, sTmpImage1, int.Parse(sWidth), int.Parse(sHeight), bCrop);
-                //                    //////TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                //                    //Response.Write(sUploadedFile + " uploaded OK<br/>");
-                //                    //Logger.Logger.Log("Pic Resize", "Pic " + sTmpImage1 + " resized and uploaded", "PicResize");
-                                
-                //            }
-                //            else
-                //            {
-                //                Response.Write(sUploadedFile + " full pic does not exist<br/>");
-                //                //Logger.Logger.Log("Pic Resize", "Pic " + sTmpImage1 + " not uploaded", "PicResize");
-                //            }
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            Response.Write(sUploadedFile + " uploaded Fail " + ex.Message + " || " + ex.StackTrace + "<br/>");
-                //            Logger.Logger.Log("Pic Resize", "Exception " + sTmpImage1 + " not uploaded " + ex.Message, "PicResize");
-                //        }
-                       
-                //    }
-                    
-                //}
-                //selectQuery1.Finish();
-                //selectQuery1 = null;
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-        //while (FTPUploader.m_nNumberOfRuningUploads > 0)
-        //{
-        //    System.Threading.Thread.Sleep(1000);
-        //    Response.Write(FTPUploader.m_nNumberOfRuningUploads.ToString() + " Pics are still uploading<br/>");
-        //    Response.Flush();
-        //}
     }
-    
-    protected void SetNewPicSize(Int32 nGroupID, Int32 nWidth, Int32 nHight , bool bCrop)
+
+    protected void SetNewPicSize(Int32 nGroupID, Int32 nWidth, Int32 nHight, bool bCrop)
     {
         object oPicsFTP = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP", nGroupID);
         object oPicsFTPUN = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_FTP_USERNAME", nGroupID);
@@ -1254,7 +1022,7 @@ public partial class temp : System.Web.UI.Page
             for (int i = 0; i < nCount; i++)
             {
                 string sUploadedFile = selectQuery.Table("query").DefaultView[i].Row["BASE_URL"].ToString();
-                
+
                 string sUploadedFileExt = "";
                 int nExtractPos = sUploadedFile.LastIndexOf(".");
                 string sPicBaseName = "";
@@ -1494,7 +1262,7 @@ public partial class temp : System.Web.UI.Page
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
-                nRet= int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
         }
         selectQuery.Finish();
         selectQuery = null;
@@ -1549,9 +1317,9 @@ public partial class temp : System.Web.UI.Page
         reader.Dispose();
     }
 
-    
 
-    protected Int32 GetCountryID(string sCountryCD2 , string sFullName)
+
+    protected Int32 GetCountryID(string sCountryCD2, string sFullName)
     {
         Int32 nRet = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1570,12 +1338,12 @@ public partial class temp : System.Web.UI.Page
         if (nRet == 0)
         {
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("countries");
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CD2" , "=" , sCountryCD2);
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_NAME" , "=" , sFullName);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CD2", "=", sCountryCD2);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_NAME", "=", sFullName);
             insertQuery.Execute();
             insertQuery.Finish();
             insertQuery = null;
-            return GetCountryID(sCountryCD2 , sFullName);
+            return GetCountryID(sCountryCD2, sFullName);
         }
         return nRet;
     }

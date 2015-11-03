@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_users_list_excel : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
@@ -47,7 +51,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         string sFreeText = txtFree.Text;
 
         int gap_between_user_ids = WS_Utils.GetTcmIntValue("gap_between_user_ids");
-       
+
         DataSet ds = DAL.UsersDal.Get_UsersListByBulk(nGroupID, sFreeText, gap_between_user_ids, page);
 
         if (ds != null && ds.Tables != null && ds.Tables.Count >= 1)
@@ -96,8 +100,8 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         HttpContext.Current.Response.Write(stringWrite.ToString());
         HttpContext.Current.Response.End();
 
-    } 
-   
+    }
+
 
 
     protected void GetTotalRecords()
@@ -125,7 +129,8 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            HttpContext.Current.Response.Write("0"); 
+            log.Error("", ex);
+            HttpContext.Current.Response.Write("0");
         }
     }
 
@@ -133,16 +138,16 @@ public partial class adm_users_list_excel : System.Web.UI.Page
     {
         try
         {
-             int nBulk = WS_Utils.GetTcmIntValue("gap_between_user_ids");
-             HttpContext.Current.Response.Write(nBulk.ToString());
+            int nBulk = WS_Utils.GetTcmIntValue("gap_between_user_ids");
+            HttpContext.Current.Response.Write(nBulk.ToString());
         }
         catch (Exception)
         {
-            HttpContext.Current.Response.Write("0"); 
+            HttpContext.Current.Response.Write("0");
         }
     }
 
-    private DataTable BuildUserGapTable(ref int  nTotalRecord)
+    private DataTable BuildUserGapTable(ref int nTotalRecord)
     {
         try
         {
@@ -160,7 +165,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
-                {  
+                {
                     numOfIDs = int.Parse(selectQuery.Table("query").DefaultView[0].Row["numOfIDs"].ToString());
                     nTotalRecord = numOfIDs;
                 }
@@ -178,12 +183,13 @@ public partial class adm_users_list_excel : System.Web.UI.Page
 
             for (int i = 0; i < numOfBulks; i++)
             {
-                dt.Rows.Add(i+1, (i * nBulk).ToString() + " - " + ((i + 1) * nBulk).ToString());
+                dt.Rows.Add(i + 1, (i * nBulk).ToString() + " - " + ((i + 1) * nBulk).ToString());
             }
             return dt;
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             return new DataTable();
         }
     }

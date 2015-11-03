@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_bs_form : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -48,7 +51,9 @@ public partial class adm_bs_form : System.Web.UI.Page
             Response.Write(PageUtils.GetPreHeader() + ": Bugs System: New");
         }
         catch (Exception ex)
-        { }
+        {
+            log.Error("", ex);
+        }
     }
 
     protected void GetMainMenu()

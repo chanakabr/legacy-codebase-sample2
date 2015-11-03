@@ -5,7 +5,8 @@ using System.Text;
 using System.Collections;
 using TVinciShared;
 using System.Xml;
-using Logger;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
@@ -163,11 +164,11 @@ namespace Financial
             m_nCouponCode = 0;
         }
     }
-       
+
     public abstract class FinancialCalculator
     {
 
-        //private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Hashtable m_hContractsFamilies;
         protected Hashtable m_hTaxes;
@@ -208,7 +209,7 @@ namespace Financial
         }
 
 
-   
+
         public bool ClearOldRecords()
         {
             //Clean DB from relevants dates
@@ -242,17 +243,17 @@ namespace Financial
         public abstract void Calculate();
 
         protected void CalcContract(BaseContract contract, FinancialPurchaseObject fpo)
-        {  
-            
+        {
+
             if (contract == null)
             {
                 //No Contract !!!
-                Logger.Logger.Log("CalcContract", "No Contract: " + FpoToStr(fpo), "Calculate");
+                log.Debug("CalcContract - No Contract: " + FpoToStr(fpo));
                 AddPriceToContainer(-1, fpo.m_dDiscountPrice, fpo, -1);
                 return;
             }
 
-            Logger.Logger.Log("CalcContract", string.Format("Contract:{0}, Date:{1}, Price:{2}, Type:{3}", contract.m_nContractID, fpo.m_dDate, fpo.m_dDiscountPrice, fpo.m_eItemType.ToString()), "Calculate");
+            log.Debug("CalcContract - " + string.Format("Contract:{0}, Date:{1}, Price:{2}, Type:{3}", contract.m_nContractID, fpo.m_dDate, fpo.m_dDiscountPrice, fpo.m_eItemType.ToString()));
 
             TvinciPricing.CouponsGroup theCoupon = null;
             if (fpo.m_nCouponCode > 0)
@@ -283,13 +284,10 @@ namespace Financial
                 tax.m_dInPrice = dInPrice;
                 tax.m_dRevenuePrice = tbc.Calculate(dInPrice);
                 tax.m_dOutPrice = tax.m_dInPrice - tax.m_dRevenuePrice;
-                                
-                //_logger.Info(string.Format("{0} : {1}", "Tax Contract", CoToStr(tax, tbc)));
-                //Logger.Logger.Log("FinancialCalculator - CalcContract", " Tax Contract: " + CoToStr(tax, tbc), "Calculate");
 
                 AddPriceToContainer(tbc.m_nFinancialEntityID, tax.m_dRevenuePrice, fpo, tbc.m_nContractID);
             }
-            
+
             #region New Calculate Processor Revenue
             CalcObject processor = new CalcObject();
             processor.m_dInPrice = fpo.m_dDiscountPrice; //total amount for this transaction for all processors
@@ -330,30 +328,13 @@ namespace Financial
 
                     processor.m_dRevenuePrice += tempProcessor.m_dRevenuePrice; // sum total amount for Revenue Price per contract processors
 
-                    //_logger.Info(string.Format("{0} : {1}","CalcContract.Processor Contract", CoToStr(tempProcessor, pc)));
-                    Logger.Logger.Log("FinancialCalculator - CalcContract", " CalcContract.Processor Contract: " + CoToStr(tempProcessor, pc), "Calculate");
+                    log.Debug("FinancialCalculator - CalcContract  CalcContract.Processor Contract: " + CoToStr(tempProcessor, pc));
 
                     AddPriceToContainer(pc.m_nFinancialEntityID, tempProcessor.m_dRevenuePrice, fpo, pc.m_nContractID);
                 }
             }
             processor.m_dOutPrice = processor.m_dInPrice - processor.m_dRevenuePrice; // calculate total out price amount for all processors
 
-            #endregion
-
-            #region old code
-            //Old Calculate Processor Revenue
-            //CalcObject processor = new CalcObject();
-            //BaseContract pbc = m_oBaseFinancial.GetValidProcessorCotract(fpo.m_dDiscountPrice, fpo.m_nCurrencyID, fpo.m_sCountryName, fpo.m_dDate, fpo.m_eRelatedTo);
-            //if (pbc != null)
-            //{
-            //    processor.m_dInPrice = fpo.m_dDiscountPrice;
-            //    processor.m_dRevenuePrice = pbc.Calculate(fpo.m_dDiscountPrice);
-            //    processor.m_dOutPrice = processor.m_dInPrice - tax.m_dRevenuePrice;
-
-            //    Logger.Logger.Log("Processor Contract", CoToStr(processor, pbc), "FinancialCalculator");
-
-            //    AddPriceToContainer(pbc.m_nFinancialEntityID, processor.m_dRevenuePrice, fpo, pbc.m_nContractID);
-            //}
             #endregion
 
             //CalcObject - holds Tax-And-Processor
@@ -390,12 +371,11 @@ namespace Financial
                         coContract.m_dInPrice = dPrice;
                         coContract.m_dRevenuePrice = dCalRev;
                         coContract.m_dOutPrice = dPrice - dCalRev;
-                                                
+
                         //_logger.Info(string.Format("{0} : {1}","Contract", CoToStr(coContract, contract)));
-                        Logger.Logger.Log("FinancialCalculator - CalcContract", " Contract: " + CoToStr(coContract, contract), "Calculate");
-                        AddPriceToContainer(0, fpo.m_dDiscountPrice - (taxAndprocessor.m_dRevenuePrice + coContract.m_dRevenuePrice), fpo, 0);                        
-                       // _logger.Info(string.Format("{0} {1} {2} : {3}={4}", "GroupId", m_nGroupID,"Contract","amount",coContract.m_dOutPrice));
-                        Logger.Logger.Log("FinancialCalculator - CalcContract", " GroupId: " + m_nGroupID.ToString() + " Contract " + " amount:"+coContract.m_dOutPrice.ToString(), "Calculate");
+                        log.Debug("FinancialCalculator - CalcContract -  Contract: " + CoToStr(coContract, contract));
+                        AddPriceToContainer(0, fpo.m_dDiscountPrice - (taxAndprocessor.m_dRevenuePrice + coContract.m_dRevenuePrice), fpo, 0);
+                        log.Debug("FinancialCalculator - CalcContract - GroupId: " + m_nGroupID.ToString() + " Contract " + " amount:" + coContract.m_dOutPrice.ToString());
                         break;
                     }
             }
@@ -428,10 +408,10 @@ namespace Financial
 
         protected Int32 GetFDRIndex(Int32 nEntityID, FinancialPurchaseObject fpo, Int32 nContractID)
         {
-            
+
             Int32 nCount = m_LDataRows.Count;
 
-            for (int i = nCount-1; i>-1; i--)
+            for (int i = nCount - 1; i > -1; i--)
             {
                 FinancialDataRow fdr = m_LDataRows[i];
 
@@ -469,22 +449,11 @@ namespace Financial
 
                 if (list != null && list.Count > 0)
                 {
-                    //foreach (ContentOwnerContract con in list)
-                    //{
-                    //    if (contracts.Contains(con.m_nContractID))
-                    //    {
-                    //        Logger.Logger.Log("Circle", string.Format("contract:{0}, fpo:{1}", contract.m_nContractID, FpoToStr(fpo)), "Calculate");
-                    //        return;
-                    //    }
-                    //}
-
-                    //var res = list.Where(x => contracts.Contains(x.m_nContractID)).ToList().Count;
-
                     List<int> listIds = list.Select(x => x.m_nContractID).ToList<int>();
                     int matches = contracts.Intersect(listIds).ToList().Count;
                     if (matches > 0)
                     {
-                        Logger.Logger.Log("Circle", string.Format("contract:{0}, fpo:{1}", contract.m_nContractID, FpoToStr(fpo)), "Calculate");
+                        log.Debug("Circle - " + string.Format("contract:{0}, fpo:{1}", contract.m_nContractID, FpoToStr(fpo)));
                         return;
                     }
 
@@ -548,7 +517,7 @@ namespace Financial
             {
                 //Case Discount On Right Holder
                 double diff = fpo.m_dCataloguePrice - fpo.m_dDiscountPrice;
-                
+
                 if (m_oBaseFinancial.IsContractOwnerIsRightHolder((ContentOwnerContract)contract))
                 {
                     //Right Holder
@@ -892,12 +861,11 @@ namespace Financial
                 }
                 selectQuery.Finish();
                 selectQuery = null;
-                
+
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("FinancialCalculator - CountTransaction", "group_id = "+m_nGroupID.ToString()+" exception: "+ex.Message, "Calculate");
+                log.Error("FinancialCalculator - CountTransaction - group_id = " + m_nGroupID.ToString() + " exception: " + ex.Message, ex);
                 countTransaction = -1;
             }
             return countTransaction;

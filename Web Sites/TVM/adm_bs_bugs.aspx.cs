@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_bs_bugs : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -76,7 +79,7 @@ public partial class adm_bs_bugs : System.Web.UI.Page
         return sCSVFile;
     }
 
-    protected bool IsAccountPermittedToAction(string sAction , Int32 nAcoountID)
+    protected bool IsAccountPermittedToAction(string sAction, Int32 nAcoountID)
     {
         bool bRet = false;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -85,7 +88,7 @@ public partial class adm_bs_bugs : System.Web.UI.Page
         selectQuery += "and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ACCOUNT_ID", "=", nAcoountID);
         selectQuery += "and is_active=1";
-        if (selectQuery.Execute("query" , true) != null)
+        if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
@@ -113,7 +116,7 @@ public partial class adm_bs_bugs : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                
+                log.Error("", ex);
             }
             theTable += ")";
         }
@@ -205,8 +208,8 @@ public partial class adm_bs_bugs : System.Web.UI.Page
 
     }
 
-    public string GetPageContent(string sOrderBy, string sPageNum , string search_status , string search_assigned , 
-        string search_savirity , string search_department , string search_free)
+    public string GetPageContent(string sOrderBy, string sPageNum, string search_status, string search_assigned,
+        string search_savirity, string search_department, string search_free)
     {
         if (search_status != "")
             Session["search_status"] = search_status.Replace("'", "''");

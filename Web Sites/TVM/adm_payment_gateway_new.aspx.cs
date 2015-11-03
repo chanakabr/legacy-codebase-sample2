@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_payment_gateway_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
-    protected string m_sSubMenu;    
+    protected string m_sSubMenu;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -36,7 +39,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                 }
 
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-                if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"])) 
+                if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]))
                 {
                     if (IsExternalIDExists(coll["1_val"], pgid))
                     {
@@ -60,20 +63,17 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                         try
                         {
                             Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
-                            Logger.Logger.Log("SetPaymentGatewayConfiguration", string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code), "SetPaymentGatewayConfiguration");
+                            log.Debug("SetPaymentGatewayConfiguration - " + string.Format("payment gateway ID:{0}, status:{1}", nID, status.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                            log.Error("Exception - " + string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), ex);
                         }
-
                         return;
                     }
                 }
-    
-           
             }
-            
+
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
@@ -118,7 +118,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
 
         DBRecordWebEditor theRecord = new DBRecordWebEditor("payment_gateway", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("billing_connection");
-        
+
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
         theRecord.AddRecord(dr_name);
@@ -159,7 +159,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_renewal_start.Initialize("Renewal Start Offset (Minutes)", "adm_table_header_nbg", "FormInput", "renewal_start_minutes", false);
         theRecord.AddRecord(dr_renewal_start);
 
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);        
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
 
@@ -167,7 +167,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
         dr_groups.SetValue(group_id.ToString());
         theRecord.AddRecord(dr_groups);
-        
+
         string sTable = theRecord.GetTableHTML("adm_payment_gateway_new.aspx?submited=1");
 
         return sTable;
@@ -199,7 +199,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                 res = true;
                 int pgeid = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
                 string pgname = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
-                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}, name:{1}", pgeid, pgname), "payment_gateway");
+                log.Debug("IsExternalIDExists - " + string.Format("id:{0}, name:{1}", pgeid, pgname));
             }
         }
         selectQuery.Finish();

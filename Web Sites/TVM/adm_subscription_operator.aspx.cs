@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using System.Configuration;
 using TVinciShared;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_subscription_operators : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -173,10 +176,10 @@ public partial class adm_subscription_operators : System.Web.UI.Page
         {
             if (nStatus == 0)
             {
-                int subID           = int.Parse(Session["subscription_id"].ToString());
-                string sSubGroupID  = ODBCWrapper.Utils.GetTableSingleVal("groups_operators", "Sub_Group_ID", "id", "=", sID).ToString();
-                string sSubName     = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "NAME", "id", "=", subID, "pricing_connection").ToString();
-                int fictivicID      = DBManipulator.BuildFictivicMedia("Package", sSubName, subID, int.Parse(sSubGroupID));
+                int subID = int.Parse(Session["subscription_id"].ToString());
+                string sSubGroupID = ODBCWrapper.Utils.GetTableSingleVal("groups_operators", "Sub_Group_ID", "id", "=", sID).ToString();
+                string sSubName = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "NAME", "id", "=", subID, "pricing_connection").ToString();
+                int fictivicID = DBManipulator.BuildFictivicMedia("Package", sSubName, subID, int.Parse(sSubGroupID));
 
                 UpdateSubscriptionOperatorID(nSubscriptionOperatorID, 1, nLogedInGroupID, nOperatorID, nSubscriptionID);
             }
@@ -203,7 +206,7 @@ public partial class adm_subscription_operators : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("exception", Session["subscription_id"].ToString() + " : " + ex.Message, "subscriptions_notifier");
+            log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message, ex);
         }
 
         return "";
@@ -237,7 +240,7 @@ public partial class adm_subscription_operators : System.Web.UI.Page
         if (nCommerceGroupID == 0)
             nCommerceGroupID = nLogedInGroupID;
         selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        Logger.Logger.Log("Subscriptions group ids", PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""), "AdminSubs");
+        log.Debug("Subscriptions group ids - " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""));
         //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
         if (selectQuery.Execute("query", true) != null)
         {
@@ -261,15 +264,15 @@ public partial class adm_subscription_operators : System.Web.UI.Page
                     sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
                  */
                 if (IsChannelBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"true\" />";
+                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"true\" />";
                 else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"false\" />";
+                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-        
-        
+
+
         sRet += "</root>";
         return sRet;
     }

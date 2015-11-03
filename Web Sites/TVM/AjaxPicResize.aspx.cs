@@ -7,12 +7,16 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.IO;
 using Uploader;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class AjaxPicResize : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
-        Logger.Logger.Log("AjaxPicResize", "Begin Ajax Pic Resize", "AjaxPicResize");
+        log.Debug("AjaxPicResize - Begin Ajax Pic Resize");
 
         string sRet = "Fail";
         string picWidth = Request.QueryString["w"];
@@ -20,7 +24,7 @@ public partial class AjaxPicResize : System.Web.UI.Page
         string group_id = Request.QueryString["gid"];
         bool bCrop = false;
         bool.TryParse(Request.QueryString["c"], out bCrop);
-        
+
         int nGroupID = int.Parse(group_id);
 
         object oPicsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
@@ -43,7 +47,7 @@ public partial class AjaxPicResize : System.Web.UI.Page
         if (selectQuery.Execute("query", true) != null)
         {
             int count = selectQuery.Table("query").DefaultView.Count;
-            Logger.Logger.Log("AjaxPicResize", "Found " + count + " Pics", "AjaxPicResize");
+            log.Debug("AjaxPicResize - Found " + count + " Pics");
             if (count > 0)
             {
                 string sDirectory = string.Format("{0}/pics/{1}/{2}X{3}/", HttpContext.Current.Server.MapPath(""), group_id, picWidth, picHeight);
@@ -53,7 +57,7 @@ public partial class AjaxPicResize : System.Web.UI.Page
                 }
                 for (int i = 0; i < count; i++)
                 {
-                    Logger.Logger.Log("AjaxPicResize", "Progress " + i.ToString() + " : " + count, "AjaxPicResize");
+                    log.Debug("AjaxPicResize - Progress " + i.ToString() + " : " + count);
                     string baseURL = selectQuery.Table("query").DefaultView[i].Row["base_url"].ToString();
                     string sUploadedFileExt = "";
                     int nExtractPos = baseURL.LastIndexOf(".");
@@ -64,15 +68,14 @@ public partial class AjaxPicResize : System.Web.UI.Page
                         sPicBaseName = baseURL.Substring(0, nExtractPos);
                     }
                     if (!string.IsNullOrEmpty(sPicBaseName))
-                    {                        
+                    {
                         string sFullPicPath = string.Format("{0}{1}_full{2}", sPicsBasePath, sPicBaseName, sUploadedFileExt);
-                        Logger.Logger.Log("AjaxPicResize", "Download Web Image " + sFullPicPath, "AjaxPicResize");
+                        log.Debug("AjaxPicResize - Download Web Image " + sFullPicPath);
                         string sDownloadImage = ImageUtils.DownloadWebImage(sFullPicPath);
-                        Logger.Logger.Log("AjaxPicResize", "Download Web Image " + sFullPicPath + " Returned " + sDownloadImage, "AjaxPicResize");
-                        
+                        log.Debug("AjaxPicResize - Download Web Image " + sFullPicPath + " Returned " + sDownloadImage);
+
                         if (!string.IsNullOrEmpty(sDownloadImage))
                         {
-                            
                             string sOrigDirectory = string.Format("{0}/pics/", HttpContext.Current.Server.MapPath(""));
                             string sResizePath = string.Format("{0}{1}_{2}X{3}{4}", sDirectory, sPicBaseName, picWidth, picHeight, sUploadedFileExt);
                             string sOrigPath = string.Format("{0}{1}_full{2}", sOrigDirectory, sPicBaseName, sUploadedFileExt);
@@ -80,18 +83,14 @@ public partial class AjaxPicResize : System.Web.UI.Page
 
                         }
                     }
-
                 }
 
-                Logger.Logger.Log("AjaxPicResize", "Start FTP Upload from " + sDirectory, "AjaxPicResize");
+                log.Debug("AjaxPicResize - Start FTP Upload from " + sDirectory);
 
                 DBManipulator.UploadDirectoryToGroup(nGroupID, sDirectory);
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-
     }
-
-    
 }

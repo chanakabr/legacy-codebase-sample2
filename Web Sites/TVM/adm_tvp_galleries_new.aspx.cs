@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_tvp_galleries_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -68,7 +71,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
                     sMainDescription = Request.Form[nIter.ToString() + "_val"].ToString();
                     nIter++;
                 }
-                
+
                 string sSubDescription = "";
                 if (IsFieldAvailable("GROUP_HAS_SUB_DESCRIPTION", "tvp_connection_" + nGroupID.ToString() + "_" + Session["platform"].ToString()) == true)
                 {
@@ -230,7 +233,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
         insertQuery = null;
     }
 
-    static protected bool IsFieldAvailable(string sField , string sCollKey)
+    static protected bool IsFieldAvailable(string sField, string sCollKey)
     {
         Int32 nOK = 0;
         Int32 nTemplateID = int.Parse(HttpContext.Current.Session["template_id"].ToString());
@@ -393,7 +396,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
         Response.Write(m_sSubMenu);
     }
 
-    protected string GetCurrentValue(string sField, string sTable , Int32 nGalleryID, Int32 nLangID , string sConnKey)
+    protected string GetCurrentValue(string sField, string sTable, Int32 nGalleryID, Int32 nLangID, string sConnKey)
     {
         string sRet = "";
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -593,7 +596,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("sdfsdF", ex.Message + "||" + ex.StackTrace, "dfdfdf");
+            log.Error("sdfsdF " + ex.Message + "||" + ex.StackTrace, ex);
             return "";
         }
     }

@@ -7,12 +7,14 @@ using System.Xml.Serialization;
 using Tvinci.Parsers.TvinciVASTParser;
 using System.IO;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 namespace VASTParser
 {
     public class VASTParser
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected string m_playerID;
         protected string m_hostName;
         protected string m_category = "default";
@@ -45,13 +47,13 @@ namespace VASTParser
 
         public VASTParser()
         {
-            
-           
+
+
         }
 
 
 
-        
+
 
         private Linear GetAdVideoLinearNode(ref Impression_type impression)
         {
@@ -155,7 +157,7 @@ namespace VASTParser
                     adElement.SetAttribute("height", ct.height);
                     string sHTMLSource = ct.HTMLResource.Replace(".swf", string.Format(".swf?clickTAG={0}", ct.CompanionClickThrough));
                     XmlCDataSection cDataSec = xmlDoc.CreateCDataSection(sHTMLSource);
-                    
+
                     adElement.AppendChild(cDataSec);
                     adElement.SetAttribute("clickthrough", ct.CompanionClickThrough);
                     if (ct.TrackingEvents != null & ct.TrackingEvents.TrackingCollection != null && ct.TrackingEvents.TrackingCollection.Count > 0)
@@ -173,7 +175,7 @@ namespace VASTParser
         {
             //ToDo - return real URL by real player key
             string url = @"http://admatcher.videostrip.com/?categories=default&puid=23941324&host=ximon.nl&fmt=vast20";
-            string retXml =  WS_Utils.SendXMLHttpReq(url, string.Empty, string.Empty);
+            string retXml = WS_Utils.SendXMLHttpReq(url, string.Empty, string.Empty);
             return retXml;
         }
 
@@ -185,7 +187,7 @@ namespace VASTParser
 
         public void SetXml(string xmlStr)
         {
-           
+
             //m_xmlDoc.Load(xmlStr);
             XmlSerializer xs = new XmlSerializer(typeof(VAST));
             object result = xs.Deserialize(new StringReader(xmlStr));
@@ -212,7 +214,7 @@ namespace VASTParser
 
                 if (linearNode != null)
                 {
-                   
+
                     MediaFile mf = linearNode.MediaFiles[0];
                     XmlDocument xmlDoc = new XmlDocument();
                     XmlElement root = xmlDoc.CreateElement("package");
@@ -230,7 +232,7 @@ namespace VASTParser
                     //XmlElement endTagElement = xmlDoc.CreateElement("endTag");
                     XmlElement companionElement = xmlDoc.CreateElement("companionBanner");
                     CompanionAds compType = GetCompanionAds();
-                    
+
                     XmlSerializer xs = new XmlSerializer(typeof(CompanionAds));
                     XmlWriterSettings xws = new XmlWriterSettings();
                     xws.OmitXmlDeclaration = true;
@@ -260,6 +262,7 @@ namespace VASTParser
                             }
                             catch (Exception ex)
                             {
+                                log.Error(string.Empty, ex);
                                 int i = 0;
                             }
 
@@ -313,8 +316,8 @@ namespace VASTParser
                     }
 
                     itemElement.AppendChild(clickTagElement);
-                    
-                    
+
+
                     videoElement.AppendChild(itemElement);
                     root.AppendChild(videoElement);
                     retVal = xmlDoc.OuterXml;

@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.OleDb;
+using KLogMonitor;
+using System.Reflection;
 
 namespace FilmoFeeder
 {
     public class Feeder : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected string m_sVideosDirectory;
         protected string m_sPersonsDirectory;
         public Feeder(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
@@ -20,7 +23,7 @@ namespace FilmoFeeder
             {
                 m_sVideosDirectory = splited[0].ToString();
                 m_sPersonsDirectory = splited[1].ToString();
-            } 
+            }
         }
 
         public static ScheduledTasks.BaseTask GetInstance(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
@@ -33,7 +36,7 @@ namespace FilmoFeeder
             return ActualWork(m_sVideosDirectory, m_sPersonsDirectory);
         }
 
-        static protected bool GetVideoFiles(string sPath , DateTime dLastCall)
+        static protected bool GetVideoFiles(string sPath, DateTime dLastCall)
         {
             bool bOK = true;
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(sPath);
@@ -88,7 +91,7 @@ namespace FilmoFeeder
             selectQuery.Finish();
             selectQuery = null;
 
-            bOK = GetVideoFiles(sVideosDirectory , dLastCall);
+            bOK = GetVideoFiles(sVideosDirectory, dLastCall);
             if (bOK == true)
             {
                 bOK = GetPersonFiles(sPersonsDirectory, dLastCall);
@@ -329,7 +332,7 @@ namespace FilmoFeeder
                         */
                         if (sCDNCodeTrailer != "")
                         {
-                            sRet += "<file handling_type=\"CLIP\" type=\"Trailer\" billing_type=\"None\" quality=\"HIGH\" cdn_name=\"CDNetworks-main2\" cdn_code=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sCDNCodeTrailer.Replace(".mxf" , ""), true) + "\"/>";
+                            sRet += "<file handling_type=\"CLIP\" type=\"Trailer\" billing_type=\"None\" quality=\"HIGH\" cdn_name=\"CDNetworks-main2\" cdn_code=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sCDNCodeTrailer.Replace(".mxf", ""), true) + "\"/>";
                         }
                         if (sCDNCodeMain != "")
                         {
@@ -353,7 +356,7 @@ namespace FilmoFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || " + ex.StackTrace, "FilmoFeeder");
+                log.Error("Exception", ex);
                 return false;
             }
         }
@@ -449,7 +452,7 @@ namespace FilmoFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || " + ex.StackTrace, "FilmoFeeder");
+                log.Error("Exception", ex);
                 return false;
             }
         }
@@ -486,7 +489,7 @@ namespace FilmoFeeder
                     {
                         ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
                         directQuery += " update media set CO_GUID='207_'+name where ";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("name" , "=" , sName);
+                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("name", "=", sName);
                         directQuery += " and group_id=111 and MEDIA_TYPE_ID=207";
                         directQuery.Execute();
                         directQuery.Finish();
@@ -497,7 +500,7 @@ namespace FilmoFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", ex.Message + " || " + ex.StackTrace, "FilmoFeeder");
+                log.Error("Exception", ex);
                 return false;
             }
         }

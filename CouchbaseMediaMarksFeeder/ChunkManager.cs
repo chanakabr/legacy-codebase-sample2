@@ -12,7 +12,7 @@ namespace CouchbaseMediaMarksFeeder
 {
     /*
      * 1. This class is thread-safe (unless you temper with it)
-     */ 
+     */
     internal class ChunkManager : IDisposable
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -99,7 +99,7 @@ namespace CouchbaseMediaMarksFeeder
                 isInitialized = false;
                 if (!CatalogDAL.Drop_SiteGuidsTableForUMMMigration())
                 {
-                    Logger.Logger.Log("Error", "Failed to drop umms_site_guids table in the DB.", "ChunkManager");
+                    log.Error("Error - Failed to drop umms_site_guids table in the DB.");
                 }
             }
         }

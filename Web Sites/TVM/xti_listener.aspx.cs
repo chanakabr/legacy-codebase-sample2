@@ -11,9 +11,13 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using System.Xml;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class xti_listener : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string GetFiles()
     {
         Int32 nCount = Request.Files.Count;
@@ -48,7 +52,7 @@ public partial class xti_listener : System.Web.UI.Page
         return sToEncode;
     }
 
-    protected void UpdateXTI(Int32 nTransID , Int32 nXTIID)
+    protected void UpdateXTI(Int32 nTransID, Int32 nXTIID)
     {
         ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
         directQuery += "update xti set waiting_syncs=waiting_syncs+1 ";
@@ -68,8 +72,8 @@ public partial class xti_listener : System.Web.UI.Page
         Int32 nRet = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select id from xti where ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(caller_ip))" , "=" , sIP.Trim());
-        if (selectQuery.Execute("query" , true) != null)
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(caller_ip))", "=", sIP.Trim());
+        if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             if (nCount > 0)
@@ -103,7 +107,7 @@ public partial class xti_listener : System.Web.UI.Page
         {
             string sXML = GetFiles();
             string sIP = TVinciShared.PageUtils.GetCallerIP();
-            Logger.Logger.Log("Alert", sIP + "||" + sXML, "xti");
+            log.Debug("Alert - " + sIP + "||" + sXML);
             Int32 nXTIId = GetXTIIdByIP(sIP);
             if (nXTIId == 0)
                 sBaseResponse = "<response><status description=\"IP not recognized\"/></response>";
@@ -129,9 +133,9 @@ public partial class xti_listener : System.Web.UI.Page
         catch (Exception ex)
         {
             sBaseResponse = "<response><error description=\"" + XMLEncode(ex.Message, true) + "\"/></response>";
-            Logger.Logger.Log("Exception", ex.Message, "xti");
+            log.Error("Exception - " + ex.Message, ex);
         }
-        Logger.Logger.Log("Response", sBaseResponse, "xti");
+        log.Debug("Response - " + sBaseResponse);
         Response.ClearHeaders();
         Response.Clear();
         Response.ContentType = "text/xml";

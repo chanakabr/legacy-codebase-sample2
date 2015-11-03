@@ -6,12 +6,14 @@ using System.Net;
 using System.IO;
 using System.Xml;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 namespace ElisaFeeder
 {
     public class ElisaFeeder : ScheduledTasks.BaseTask
     {
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private Int32 nGroupID;
         private string sUrl;
 
@@ -19,7 +21,7 @@ namespace ElisaFeeder
             : base(nTaskID, nIntervalInSec, engrameters)
         {
             sUrl = "http://pasture.saunalahti.fi/tvinci.xml";
-                    
+
             if (!string.IsNullOrEmpty(engrameters))
             {
                 sUrl = engrameters;
@@ -36,7 +38,7 @@ namespace ElisaFeeder
             bool retValReg = true;
             bool retValVir = true;
 
-            Logger.Logger.Log("Elisa Feeder Start", "Start feed", "ElisaFeeder");
+            log.Debug("Elisa Feeder Start - Start feed");
             try
             {
                 // For Real
@@ -47,7 +49,7 @@ namespace ElisaFeeder
                 //testDoc.Load((System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase).ToString() + "\\Elisa partial XML new 4.xml").Replace("file://", ""));
                 //string sXml = testDoc.InnerXml;
 
-                Logger.Logger.Log("Elisa XML: ", "HttpWebRequest response is :" + sXml, "ElisaFeeder");
+                log.Debug("Elisa XML: HttpWebRequest response is :" + sXml);
 
                 string notifyXml = string.Empty;
 
@@ -59,13 +61,13 @@ namespace ElisaFeeder
                 Int32 nRegularGroupID = 135;
                 Int32 nVirtualGroupID = 136;
 
-                Logger.Logger.Log("Elisa Group ID: ", nRegularGroupID.ToString(), "ElisaFeeder");
+                log.Debug("Elisa Group ID: " + nRegularGroupID.ToString());
                 if (nRegularGroupID != 0)
                 {
                     retValReg = TvinciImporter.ImporterImpl.DoTheWorkInner(sRegularXml, nRegularGroupID, string.Empty, ref notifyXml, false);
                 }
 
-                Logger.Logger.Log("Elisa Group ID: ", nVirtualGroupID.ToString(), "ElisaFeeder");
+                log.Debug("Elisa Group ID: " + nVirtualGroupID.ToString());
                 if (nVirtualGroupID != 0)
                 {
                     retValVir = TvinciImporter.ImporterImpl.DoTheWorkInner(sVirtualXml, nVirtualGroupID, string.Empty, ref notifyXml, false);
@@ -77,7 +79,7 @@ namespace ElisaFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Elisa HttpWebRequest ERROR", ex.Message, "ElisaFeeder");
+                log.Error("Elisa HttpWebRequest ERROR " + ex.Message, ex);
             }
 
             return (retValReg & retValVir);
@@ -176,12 +178,12 @@ namespace ElisaFeeder
                                 }
                                 else
                                 {
-                                    Logger.Logger.Log("HP Thumbnail ERROR", sThumb, "AbertisFeeder", "Abertis Feeder missing thumbnail " + sThumb);
+                                    log.Error("HP Thumbnail ERROR " + sThumb + " AbertisFeeder Abertis Feeder missing thumbnail " + sThumb);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("HP Thumbnail ERROR", sThumb + " " + ex.Message, "AbertisFeeder", "Abertis Feeder missing thumbnail " + sThumb);
+                                log.Error("HP Thumbnail ERROR - " + sThumb + " AbertisFeeder Abertis Feeder missing thumbnail " + sThumb, ex);
                                 retVal = false;
                             }
                             finally
@@ -198,7 +200,7 @@ namespace ElisaFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("HP Thumbnail XML ERROR", ex.Message, "AbertisFeeder");
+                log.Error("HP Thumbnail XML ERROR - " + ex.Message);
                 retVal = false;
             }
             return retVal;

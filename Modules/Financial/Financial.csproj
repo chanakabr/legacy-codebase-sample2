@@ -43,6 +43,10 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\..\TvmCore\External\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -168,10 +172,6 @@
     <ProjectReference Include="..\..\..\TvmCore\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>

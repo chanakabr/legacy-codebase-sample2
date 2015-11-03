@@ -61,10 +61,6 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
-      <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
       <Name>M1BL</Name>

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_external_channels_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -182,7 +185,7 @@ public partial class adm_external_channels_new : System.Web.UI.Page
                 result = true;
                 int newChannelId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
                 string name = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", 0);
-                Logger.Logger.Log("IsExternalIDExists", string.Format("id:{0}, name:{1}", newChannelId, name), "recommendation_engines");
+                log.Debug("IsExternalIDExists - " + string.Format("id:{0}, name:{1}", newChannelId, name));
             }
         }
 

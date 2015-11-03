@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_group_rule_settings : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -97,14 +100,14 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
         object groupId = LoginManager.GetLoginGroupID();
 
         int tableID = GetGroupRuleID(ODBCWrapper.Utils.GetIntSafeVal(groupId));
-        
+
         object t = null;
 
         string backPage = "adm_group_rule_settings.aspx?search_save=1";
         DBRecordWebEditor theRecord;
         if (tableID > 0) // a new record
         {
-            t = tableID;            
+            t = tableID;
         }
 
         theRecord = new DBRecordWebEditor("group_rule_settings", "adm_table_pager", backPage, "", "ID", t, backPage, "");
@@ -143,22 +146,23 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
         int groupRuleId = 0;
         try
         {
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select ID from group_rule_settings where status=1 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ID from group_rule_settings where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
+            if (selectQuery.Execute("query", true) != null)
             {
-                groupRuleId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "ID");                
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    groupRuleId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "ID");
+                }
             }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+            selectQuery.Finish();
+            selectQuery = null;
         }
         catch (Exception ex)
         {
+            log.Error(string.Empty, ex);
             groupRuleId = 0;
         }
         return groupRuleId;

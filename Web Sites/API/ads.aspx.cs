@@ -7,9 +7,13 @@ using System.Web.UI.WebControls;
 using System.Text;
 using System.Xml;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class ads : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -22,7 +26,7 @@ public partial class ads : System.Web.UI.Page
                 sPlayerUN = Request.QueryString["u"].ToString();
             if (Request.QueryString["dv"] != null)
                 sDevice = Request.QueryString["dv"].ToString();
-            
+
             string sPlayerPass = "";
             if (Request.QueryString["p"] != null)
                 sPlayerPass = Request.QueryString["p"].ToString();
@@ -46,7 +50,7 @@ public partial class ads : System.Web.UI.Page
             Int32 nCountryID = PageUtils.GetIPCountry2();
             Int32 nDeviceID = 0;
             if (sDevice.Trim() != "" && nGroupID != 0)
-                nDeviceID = TVinciShared.ProtocolsFuncs.GetDeviceIdFromName(sDevice, nGroupID); 
+                nDeviceID = TVinciShared.ProtocolsFuncs.GetDeviceIdFromName(sDevice, nGroupID);
             string sRelTagsIDs = GetRelevantTagsIDs(nMediaID, nGroupID);
             if (sResponseType == "redirect")
             {
@@ -78,7 +82,7 @@ public partial class ads : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("exception", ex.Message, "proxy");
+            log.Error("exception", ex);
         }
     }
 
@@ -100,7 +104,7 @@ public partial class ads : System.Web.UI.Page
         return nRet;
     }
 
-    static protected Int32 GetPlayerID(string sPlayerUN , string sPlayerPass)
+    static protected Int32 GetPlayerID(string sPlayerUN, string sPlayerPass)
     {
         Int32 nID = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -121,17 +125,17 @@ public partial class ads : System.Web.UI.Page
         return nID;
     }
 
-    protected static string GetAdXML(Int32 nGroupID, string sRelTagIDs, string sFileQuality, string sFileFormat , 
-        string sPlayerUN , string sPlayerPass , Int32 nCountryID , Int32 nDeviceID)
+    protected static string GetAdXML(Int32 nGroupID, string sRelTagIDs, string sFileQuality, string sFileFormat,
+        string sPlayerUN, string sPlayerPass, Int32 nCountryID, Int32 nDeviceID)
     {
         StringBuilder sRet = new StringBuilder();
-        
+
         Int32 nMediaFileID = 0;
         Int32 nMediaID = 0;
 
         Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sFileQuality);
         Int32 nFormatID = ProtocolsFuncs.GetFileTypeID(sFileFormat, nGroupID);
-        Int32 nPlayerID = GetPlayerID(sPlayerUN , sPlayerPass);
+        Int32 nPlayerID = GetPlayerID(sPlayerUN, sPlayerPass);
         if (sRelTagIDs != "")
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -159,10 +163,10 @@ public partial class ads : System.Web.UI.Page
                         if (HttpContext.Current.Session["tvinci_api"] != null && HttpContext.Current.Session["tvinci_api"].ToString() != "")
                             sXML += " tvinci_guid=\"" + HttpContext.Current.Session["tvinci_api"].ToString() + "\"";
                         sXML += "/></root>";
-                        
+
                         XmlDocument theDoc = new XmlDocument();
                         theDoc.LoadXml(sXML);
-                       
+
                         Int32 nLang = GetMainLang(nGroupID);
                         Int32 nWatcherID = 0;
                         if (HttpContext.Current.Session["tvinci_watcher"] != null &&
@@ -171,7 +175,7 @@ public partial class ads : System.Web.UI.Page
 
                         XmlNode elem = null;
                         sRet.Append("<response type=\"ad_system\">");
-                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMediaID, "media", nGroupID, nLang, true, nWatcherID, false, false, nPlayerID, ref elem, true , true , false , nCountryID , nDeviceID));
+                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMediaID, "media", nGroupID, nLang, true, nWatcherID, false, false, nPlayerID, ref elem, true, true, false, nCountryID, nDeviceID));
                         sRet.Append("</response>");
                         break;
                     }
@@ -218,7 +222,7 @@ public partial class ads : System.Web.UI.Page
 
                         XmlNode elem = null;
                         sRet.Append("<response type=\"ad_system\">");
-                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMediaID, "media", nGroupID, nLang, true, nWatcherID, false, false, nPlayerID, ref elem, true , true , false , nCountryID , nDeviceID));
+                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMediaID, "media", nGroupID, nLang, true, nWatcherID, false, false, nPlayerID, ref elem, true, true, false, nCountryID, nDeviceID));
                         sRet.Append("</response>");
                         break;
                     }
@@ -245,7 +249,7 @@ public partial class ads : System.Web.UI.Page
         string sURL = "";
         Int32 nMediaFileID = 0;
         Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sFileQuality);
-        Int32 nFormatID = ProtocolsFuncs.GetFileTypeID(sFileFormat, nGroupID);    
+        Int32 nFormatID = ProtocolsFuncs.GetFileTypeID(sFileFormat, nGroupID);
         if (sRelTagIDs != "")
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -261,7 +265,7 @@ public partial class ads : System.Web.UI.Page
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                for (int i =0; i < nCount; i++)
+                for (int i = 0; i < nCount; i++)
                 {
                     nMediaFileID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
                     Int32 nMaxSession = int.Parse(selectQuery.Table("query").DefaultView[i].Row["MAX_SESSION_VIEWS"].ToString());
@@ -333,7 +337,7 @@ public partial class ads : System.Web.UI.Page
         return sURL;
     }
 
-    protected static string GetRelevantTagsIDs(Int32 nMediaID , Int32 nGroupID)
+    protected static string GetRelevantTagsIDs(Int32 nMediaID, Int32 nGroupID)
     {
         StringBuilder sRet = new StringBuilder();
         string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
@@ -357,7 +361,7 @@ public partial class ads : System.Web.UI.Page
                 sRet.Append(")");
         }
         selectQuery.Finish();
-        selectQuery = null;        
+        selectQuery = null;
         return sRet.ToString();
     }
 }

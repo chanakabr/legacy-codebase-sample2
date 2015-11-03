@@ -67,6 +67,7 @@ namespace GracenoteFeeder
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 return new List<FieldTypeEntity>();
             }
         }
@@ -321,6 +322,7 @@ namespace GracenoteFeeder
             }
             catch (Exception exp)
             {
+                log.Error("", exp);
             }
             return dt;
         }
@@ -644,10 +646,7 @@ namespace GracenoteFeeder
                 }
                 catch (Exception ex)
                 {
-                    #region Logging
-                    //insert Logs
-
-                    #endregion
+                    log.Error("", ex);
                 }
                 finally
                 {
