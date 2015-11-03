@@ -47,7 +47,7 @@ namespace QueueWrapper
                     {
                         string[] keys = routingKey.Split('\\');
                         if (!string.IsNullOrEmpty(keys[0]))
-                            InsertQueueMessage(celeryData.GroupId, sMessage, keys[0], celeryData.ETA.GetValueOrDefault());
+                            InsertQueueMessage(celeryData.GroupId, sMessage, keys[0], celeryData.ETA.Value);
                     }
                 }
             }
