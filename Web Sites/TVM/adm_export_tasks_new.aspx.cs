@@ -40,12 +40,25 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
                     int.TryParse(Session["export_task_id"].ToString(), out taskid);
                 }
 
+                int frequencyMinVal = TVinciShared.WS_Utils.GetTcmIntValue("export_frequency_min_value");
+                
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-                if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]))
+                long frequency;
+                if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]) && !string.IsNullOrEmpty(coll["5_val"]))
                 {
                     if (IsExternalKeyExists(coll["1_val"], taskid))
                     {
                         Session["error_msg"] = "External Id must be unique";
+                        flag = true;
+                    }
+                    else if (!long.TryParse(coll["5_val"], out frequency))
+                    {
+                        Session["error_msg"] = "Frequency must be a number";
+                        flag = true;
+                    }
+                    else if (frequency < frequencyMinVal)
+                    {
+                        Session["error_msg"] = "Frequency must be at least " + frequencyMinVal;
                         flag = true;
                     }
                     else
@@ -149,7 +162,7 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
         theRecord.AddRecord(dr_export_type);
 
         DataRecordShortTextField dr_frequency = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_frequency.Initialize("Frequency", "adm_table_header_nbg", "FormInput", "frequency", true);
+        dr_frequency.Initialize("Frequency (minutes)", "adm_table_header_nbg", "FormInput", "frequency", true);
         theRecord.AddRecord(dr_frequency);
 
         DataRecordShortTextField dr_notificationUrl = new DataRecordShortTextField("ltr", true, 60, 128);
