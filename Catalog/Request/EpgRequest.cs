@@ -114,7 +114,7 @@ namespace Catalog.Request
         {
             EpgSearchObj res = new EpgSearchObj();
             res.m_bSearchOnlyDatesAndChannels = true;
-            res.m_oEpgChannelIDs = m_nChannelIDs.Select(item => (long)item).ToList<long>();
+            res.m_oEpgChannelIDs = m_nChannelIDs.Distinct().Select(item => (long)item).ToList<long>();
             res.m_nGroupID = m_nGroupID;
             res.m_nPageSize = m_nPageSize;
             res.m_nPageIndex = m_nPageIndex;
