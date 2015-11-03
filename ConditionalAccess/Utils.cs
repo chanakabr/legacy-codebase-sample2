@@ -3237,7 +3237,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-
+                log.Error(string.Empty, ex);
             }
             return mediaFilesStatus;
         }
