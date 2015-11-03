@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_external_channels_new.aspx.cs" Inherits="adm_external_channels_new" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_export_tasks_new.aspx.cs" Inherits="adm_export_tasks_new" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,18 +15,22 @@
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
-<script type="text/javascript">
-	function GetPageTable(orderBy, pageNum) {
-		RS.Execute("adm_external_channels_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
-	}
-	function create_csv() {
-		RS.Execute("adm_external_channels_new.aspx", "GetTableCSV", callback_create_csv, errorCallback);
-	}
+<script language="JavaScript" src="js/querystring.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+<script type="text/javascript">   
+    function GetPageTable(orderBy, pageNum) {
+        RS.Execute("adm_export_tasks_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+    }
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
 <form id="form1" name="form1" action="" method="post" runat=server>
-	<div class="floating_div" id="tag_collections_div"></div>
+    <div id="tag_collections_div" class="floating_div"></div>
+    <div id="calendarDiv" class="floating_div"></div>
+    <input type="file" runat=server id="file_marker" name="file_marker" style="width: 0px; height: 0px; display: none;" />
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
 		<!-- top banner -->
 		<tr>
@@ -36,36 +40,37 @@
 						<td valign="top"><img src="images/admin-tvinci.gif" alt="" /></td>
 						<td width="100%" valign="top" class="align0">
 							<table class="adm_logOutTbl">
-								<tr>
-									<td class="logo">
-										<img src="<% TVinciShared.PageUtils.GetAdminLogo(); %>" alt="" />
-									</td>
-									<td style=" padding: 5px 0 0 5px; vertical-align: top;" class="Right">
-										<table>
-											<tr>
-												<td style="text-align: left; padding-bottom: 5px;">
-													<span class="small_header">Group:</span>
-													<span class="small_text"><% TVinciShared.PageUtils.GetGroupName(); %></span> 
-												</td>
-											</tr>
-											<tr>
-												<td style=" text-align: left; padding-bottom: 5px;">
-													<span class="small_header">User: </span>
-													<span class="small_text"><% TVinciShared.PageUtils.GetLoginName(); %></span> 
-												</td>
-											</tr>
-											<tr>
-												<td class="align0" valign="middle"><a href="logout.aspx" class="logout"></a></td>
-											</tr>
-										</table>
-									</td>
-								</tr>
+							    <tr>
+							        <td class="logo">
+							            <img src="<% TVinciShared.PageUtils.GetAdminLogo(); %>" alt="" />
+							        </td>
+							        <td style=" padding: 5px 0 0 5px; vertical-align: top;" class="Right">
+							            <table>
+							                <tr>
+							                    <td style="text-align: left; padding-bottom: 5px;">
+							                        <span class="small_header">Group:</span>
+							                        <span class="small_text"><% TVinciShared.PageUtils.GetGroupName(); %></span> 
+							                    </td>
+							                </tr>
+							                <tr>
+							                    <td style=" text-align: left; padding-bottom: 5px;">
+							                        <span class="small_header">User: </span>
+							                        <span class="small_text"><% TVinciShared.PageUtils.GetLoginName(); %></span> 
+							                    </td>
+							                </tr>
+							                <tr>
+							                    <td class="align0" valign="middle"><a href="logout.aspx" class="logout"></a></td>
+							                </tr>
+							            </table>
+							        </td>
+							    </tr>
 							</table>
 						</td>
 					</tr>
 				</table>
 			</td>
 		</tr>
+		<!-- all working area -->
 		<tr>
 			<td>
 				<table cellpadding=0 cellspacing=0>
@@ -79,9 +84,13 @@
 								<% GetMainMenu(); %>
 							</table>
 						</td>
+						<!-- empty area -->
 						<td style="width:10px; white-space:nowrap;" nowrap>&nbsp;</td>
+						<!-- main working area -->
 						<td style="width:800px;" valign=top nowrap>
+							<!-- working area -->
 							<table style="border-collapse:collapse;">
+								<!-- header -->
 								<tr>
 									<td class="adm_main_header"><h3><% GetHeader(); %></h3></td>
 								</tr>
@@ -92,21 +101,9 @@
 										<table>
 											<tr>
 												<td nowrap="nowrap" class="selectorList"><ul><% GetSubMenu(); %></ul></td>
-											</tr>
+											</tr>											
 										</table>
 									</td>
-								</tr>
-								<tr>
-									<td>
-										<div>
-											<table>
-												<tr>
-													<td>	
-													</td>
-												</tr>
-											</table>
-										</div>
-									 </td>  
 								</tr>
 								<!-- content -->
 								<% TVinciShared.PageUtils.GetErrorMsg(1); %>

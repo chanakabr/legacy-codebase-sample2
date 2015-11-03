@@ -1,10 +1,12 @@
 /* This describes a single list, the duallist, well.. uses two of these */
-var List = function (listId, listTitle, pageName, withCalendar) {
+var List = function (listId, listTitle, pageName, withCalendar, dualListParent) {
     var listComponentId = listId;
-    var listComponentTitle = listTitle;
+    var listComponentTitle = listTitle;    
     var listWrapper, listItems, listItemsArray, quickSearchInput;
+    var listParent = dualListParent;
 
     var init = function () {
+
         createListLayout();
         bindEvents();
     };
@@ -96,6 +98,10 @@ var List = function (listId, listTitle, pageName, withCalendar) {
                         infoIcon.setAttribute('href', 'javascript:;');
                         listLiItem.appendChild(infoIcon);
                     }
+                    //if the Calendar is not used the width of ppvm-text should be 100% of the list
+                    else {
+                        listLiItem.childNodes[0].style.width = "100%";
+                    }
 
                     $(listLiItem).hide();
                     if (type == 'add') {
@@ -104,7 +110,7 @@ var List = function (listId, listTitle, pageName, withCalendar) {
                         $(listLiItem).show(800).effect("slide", { direction: "right" }, 800);
                     }
 
-                    $(listItems).prepend($(listLiItem));
+                    $(listItems).append($(listLiItem));
                     new Info(items[i].Info, listLiItem);
 
                     // adding the calendar component
@@ -117,7 +123,7 @@ var List = function (listId, listTitle, pageName, withCalendar) {
                         }
                     }
                     if (toChangeStatus) {
-                        changeItemStatus(items[i].ID, pageName);
+                        changeItemStatus(items[i].ID, pageName, listParent);
                     }
                 }
             }

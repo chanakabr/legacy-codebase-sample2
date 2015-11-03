@@ -203,45 +203,53 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
             return "";
         }
 
-        string sRet = "";
-        sRet += "Current Channels";
-        sRet += "~~|~~";
-        sRet += "Available Channels";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Current Channels");
+        dualList.Add("SecondListTitle", "Available Channels");
+
+        object[] resultData = null;
+        List<object> fileTypes = new List<object>();
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from groups_media_type where is_active=1 and status=1 and ";
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
         if (nCommerceGroupID == 0)
             nCommerceGroupID = LoginManager.GetLoginGroupID();
-        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");        
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             for (int i = 0; i < nCount; i++)
             {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                string sID  = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
                 string sGroupID = selectQuery.Table("query").DefaultView[i].Row["GROUP_ID"].ToString();
-                string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
                 string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
+                string sTitle = "";
+                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null && selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
+                {
+                    sTitle = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
+                }
                 sTitle += "(" + sGroupName.ToString() + ")";
-                string sDescription = sTitle;
-                if (IsChannelBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sDescription + "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sDescription + "\" inList=\"false\" />";
+                var data = new
+                {
+                    ID = sID,
+                    Title = sTitle,
+                    Description = sTitle,
+                    InList = IsChannelBelong(int.Parse(sID))
+                };
+                fileTypes.Add(data);
             }
         }
         selectQuery.Finish();
         selectQuery = null;
 
+        resultData = new object[fileTypes.Count];
+        resultData = fileTypes.ToArray();
 
-        sRet += "</root>";
-        return sRet;
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_subscription_file_types.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 
     protected bool IsChannelBelong(Int32 nFileTypeID)

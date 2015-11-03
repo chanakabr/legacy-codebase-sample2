@@ -33,7 +33,7 @@ public partial class adm_my_group : System.Web.UI.Page
                 DBManipulator.DoTheWork();
                 Int32 nGroupID = LoginManager.GetLoginGroupID();
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                groupManager.UpdateRegionalization(nGroupID);
+                groupManager.UpdateGroup(nGroupID);
             }
         }
     }
@@ -296,6 +296,8 @@ public partial class adm_my_group : System.Web.UI.Page
 
         DataRecordDropDownField dr_recommendation_engine = new DataRecordDropDownField("recommendation_engines", "name", "id", "group_id", t, 60, true);
         dr_recommendation_engine.Initialize("Default Recommendation Engine", "adm_table_header_nbg", "FormInput", "SELECTED_RECOMMENDATION_ENGINE", false);
+        string recommendationEnginesQuery = "select name as txt,id as id from recommendation_engines where status=1 and group_id= " + t.ToString();
+        dr_recommendation_engine.SetSelectsQuery(recommendationEnginesQuery);
         theRecord.AddRecord(dr_recommendation_engine);
 
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");

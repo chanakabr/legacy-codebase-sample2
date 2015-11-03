@@ -29,6 +29,8 @@ public partial class adm_generic_remove : System.Web.UI.Page
     protected string m_sRepresentField;
     protected string m_sRepresentName;
     protected string m_sDB;
+    protected string cacheKey;
+
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -60,6 +62,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, m_nSubMenu, true);
             m_sRepresentField = Request.QueryString["rep_field"].ToString();
             m_sRepresentName = Request.QueryString["rep_name"].ToString();
+            cacheKey = Convert.ToString(Request.QueryString["cache_key"]);
 
             if (m_sBasePageURL != "")
             {
@@ -131,7 +134,6 @@ public partial class adm_generic_remove : System.Web.UI.Page
                 }
             }
         }
-
         else
         {
 
@@ -235,6 +237,30 @@ public partial class adm_generic_remove : System.Web.UI.Page
                     break;
             }
         }
+
+        // Will be done in confirm
+        //// If confirmed - remove object from cache according to its key
+        //if (m_bConfirm && !string.IsNullOrEmpty(this.cacheKey))
+        //{
+        //    string ip = "1.1.1.1";
+        //    string userName = "";
+        //    string password = "";
+
+        //    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+        //    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+        //    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+        //    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
+        //    {
+        //        List<string> keys = new List<string>();
+        //        keys.Add(cacheKey);
+
+        //        apiWS.API client = new apiWS.API();
+        //        client.Url = url;
+
+        //        client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+        //    }
+        //}
 
         if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");

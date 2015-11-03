@@ -94,9 +94,14 @@ public partial class adm_external_channels : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
+        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+        //string.Format("{0}_external_channel_{1}_{2}", version, parentGroupId, channelId)
+
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable += "SELECT ec.ID, ec.Name, ec.EXTERNAL_IDENTIFIER AS 'External Identifier', ec.FILTER_EXPRESSION as 'Filter Expression', ";
-        theTable += "ec.recommendation_engine_id as 'Recommendation Engine', ec.IS_ACTIVE, ec.STATUS FROM external_channels ec ";
+        theTable += "ec.recommendation_engine_id as 'Recommendation Engine', ec.IS_ACTIVE, ec.STATUS, ";
+        theTable += "'" + version + "_external_channel_' + '" + groupId + "' + '_' + " + "CONVERT(varchar(10),ec.ID) as 'cache_key' ";
+        theTable += "FROM external_channels ec ";
         theTable += "WHERE ec.status <> 2 ";
 
         if (Session["search_free"] != null && Session["search_free"].ToString() != "")
@@ -122,7 +127,7 @@ public partial class adm_external_channels : System.Web.UI.Page
         theTable.AddOrderByColumn("Name", "ec.NAME");
 
         theTable.AddHiddenField("is_active");
-
+        theTable.AddHiddenField("cache_key");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -147,6 +152,7 @@ public partial class adm_external_channels : System.Web.UI.Page
             linkColumn.AddQueryStringValue("sub_menu", "2");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -160,6 +166,7 @@ public partial class adm_external_channels : System.Web.UI.Page
             linkColumn.AddQueryStringValue("sub_menu", "2");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -173,6 +180,7 @@ public partial class adm_external_channels : System.Web.UI.Page
             linkColumn.AddQueryStringValue("sub_menu", "2");
             linkColumn.AddQueryStringValue("rep_field", "NAME");
             linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
             theTable.AddLinkColumn(linkColumn);
         }
     }

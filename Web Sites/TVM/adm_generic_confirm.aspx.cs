@@ -29,6 +29,8 @@ public partial class adm_generic_confirm : System.Web.UI.Page
     protected string m_sRepresentField;
     protected string m_sRepresentName;
     protected string m_sDB;
+    protected string cacheKey;
+
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -56,6 +58,8 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, m_nSubMenu, true);
             m_sRepresentField = Request.QueryString["rep_field"].ToString();
             m_sRepresentName = Request.QueryString["rep_name"].ToString();
+            cacheKey = Convert.ToString(Request.QueryString["cache_key"]);
+
             if (Request.QueryString["db"] != null)
                 m_sDB = Request.QueryString["db"].ToString();
             else
@@ -114,6 +118,22 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 bool result = false;
                                 result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
                             }
+
+                            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
+                            if (m_bConfirm == true)
+                            {
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+                            }
+                            else
+                            {
+                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+                            }
+                            updateQuery += "where";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+                            updateQuery.Execute();
+                            updateQuery.Finish();
+                            updateQuery = null;
                         }
                         //Delete from ElasticSearch
                     }
@@ -171,6 +191,10 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             bIsPublished = true;
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
         }
+        if (m_sTable.ToLower() == "media")
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+        }
         updateQuery += "where";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
         updateQuery += "and";
@@ -188,6 +212,11 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         }
         else
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        // if media is deleted - update it's update_date too.
+        if (m_sTable.ToLower() == "media")
+        {
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+        }
         updateQuery1 += "where";
         updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
         updateQuery1 += "and";
@@ -347,11 +376,34 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             }
         }
 
+        // If user confirmed - let's remove the key of the object from the cache
+        if (m_bConfirm && !string.IsNullOrEmpty(this.cacheKey))
+        {
+            string ip = "1.1.1.1";
+            string userName = "";
+            string password = "";
+
+            int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+            TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
+            string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+            if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
+            {
+                List<string> keys = new List<string>();
+                keys.Add(cacheKey);
+
+                apiWS.API client = new apiWS.API();
+                client.Url = url;
+
+                client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+            }
+        }
+
         if (bIsPublished == true)
         {
             ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery2.SetConnectionKey(m_sDB);
-            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.UtcNow);
             updateQuery2 += "where";
             updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
             updateQuery2.Execute();
@@ -359,9 +411,9 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             updateQuery2 = null;
         }
         if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
-            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1&confirmed_id=" + m_nID + "'</script>");
         else
-            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+            Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1&confirmed_id=" + m_nID + "'</script>");
     }
 
     private string GetWSURL(string sKey)
@@ -456,7 +508,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         {
             ODBCWrapper.UpdateQuery updateQuery2 = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery2.SetConnectionKey(m_sDB);
-            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.Now);
+            updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("publish_date", "=", DateTime.UtcNow);
             updateQuery2 += "where";
             updateQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
             updateQuery2.Execute();

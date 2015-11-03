@@ -111,6 +111,8 @@ public partial class adm_categories_channels : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
+        string sGroups = PageUtils.GetAllGroupTreeStr(nGroupID);
+
         Int32 nCategoryID = 0;
         if (Session["category_id"] != null && Session["category_id"].ToString() != "" && Session["category_id"].ToString() != "0")
             nCategoryID = int.Parse(Session["category_id"].ToString());
@@ -119,8 +121,7 @@ public partial class adm_categories_channels : System.Web.UI.Page
         theTable += "where c.is_active=1 and cc.channel_id=c.id and lct.id=c.CHANNEL_TYPE and cc.status=1 and c.status=1 and lcs.id=c.status ";
         theTable += "and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("cc.category_id", "=", int.Parse(Session["category_id"].ToString()));
-        theTable += "and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("c.group_id", "=", nGroupID);
+        theTable += "and c.group_id " + sGroups;
         theTable += " )q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
         if (sOrderBy != "")
         {

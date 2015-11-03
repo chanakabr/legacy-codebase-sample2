@@ -18,12 +18,12 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
         if (!IsPostBack)
-        {   
+        {
             Session["channel_id"] = 0;
             if (Request.QueryString["channel_id"] != null && Request.QueryString["channel_id"].ToString() != "0" && Request.QueryString["channel_id"].ToString() != "")
             {
                 Session["channel_id"] = int.Parse(Request.QueryString["channel_id"].ToString());
-            }         
+            }
 
             if (Request.QueryString["lastPage"] != null && Request.QueryString["lastPage"] != "")
             {
@@ -64,7 +64,7 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         }
         else
         {
-            // save media type id values to associate with cjannel (after get channelId)
+            // save media type id values to associate with channel (after get channelId)
             List<int> mediaTypeList = new List<int>();
             if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
             {
@@ -97,63 +97,50 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
 
     public string initDualObj()
     {
-
-        string sRet = "";
-        sRet += "Media Types included in Channels";
-        sRet += "~~|~~";
-        sRet += "Available Media Types";
-        sRet += "~~|~~";
-        sRet += "<root>";
-        int channelID = 0;
-        if (Session["channel_id"] != null && !string.IsNullOrEmpty(Session["channel_id"].ToString()))
+        if (string.IsNullOrEmpty(Session["channel_id"].ToString()) || Session["channel_id"] == "0")
         {
-            channelID = Int32.Parse(Session["channel_id"].ToString());
+            LoginManager.LogoutFromSite("index.html");
+            return "";
         }
 
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Media Types included in Channels");
+        dualList.Add("SecondListTitle", "Available Media Types");
 
-        List<KeyValuePair<string, string>> mediaTypeByGroup = null;
-        List<KeyValuePair<string, string>> mediaTypeByChannel = null;
+        int channelID = Convert.ToInt32(Session["channel_id"]);
 
-        BuildMediaType(channelID, LoginManager.GetLoginGroupID(), ref mediaTypeByGroup, ref mediaTypeByChannel);
+        object[] resultData = null;
 
-        if (mediaTypeByGroup != null && mediaTypeByGroup.Count > 0)
-        {
-            foreach (KeyValuePair<string, string> kvp in mediaTypeByGroup)
-            {
-                sRet += "<item id=\"" + kvp.Key + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(kvp.Value, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"false\" />";
-            }
-        }
+        BuildMediaTypeObjectArray(channelID, LoginManager.GetLoginGroupID(), ref resultData);
 
-        if (mediaTypeByChannel != null && mediaTypeByChannel.Count > 0)
-        {
-            foreach (KeyValuePair<string, string> kvp in mediaTypeByChannel)
-            {
-                sRet += "<item id=\"" + kvp.Key + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(kvp.Value, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true) + "\" inList=\"true\" />";
-            }
-        }
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_channel_media_types_popup_selector.aspx");
+        dualList.Add("withCalendar", false);
 
-        sRet += "</root>";
-        return sRet;
+        return dualList.ToJSON();
     }
 
-    private void BuildMediaType(int channelID, int groupID, ref List<KeyValuePair<string, string>> mediaTypeByGroup, ref List<KeyValuePair<string, string>> mediaTypeByChannel)
+    private void BuildMediaTypeObjectArray(int channelID, int groupID, ref object[] resultData)
     {
         DataSet ds = TvmDAL.Get_ChannelMediaTypes(groupID, channelID);
         if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
         {
             DataTable mediaTypeByGroupDT = ds.Tables[0];
             DataTable mediaTypeByChannelDT = ds.Tables[1];
-            mediaTypeByGroup = new List<KeyValuePair<string, string>>();
-            mediaTypeByChannel = new List<KeyValuePair<string, string>>();
+            List<object> mediaTypes = new List<object>();
 
             if (mediaTypeByGroupDT != null && mediaTypeByGroupDT.Rows != null && mediaTypeByGroupDT.Rows.Count > 0)
             {
-                mediaTypeByGroup = new List<KeyValuePair<string, string>>();
                 foreach (DataRow dr in mediaTypeByGroupDT.Rows)
                 {
-                    string sID = ODBCWrapper.Utils.GetSafeStr(dr, "ID");
-                    string sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                    mediaTypeByGroup.Add(new KeyValuePair<string, string>(sID, sName));
+                    var data = new
+                    {
+                        ID = ODBCWrapper.Utils.ExtractString(dr, "ID"),
+                        Title = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
+                        Description = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
+                        InList = false
+                    };
+                    mediaTypes.Add(data);
                 }
             }
 
@@ -161,11 +148,19 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
             {
                 foreach (DataRow dr in mediaTypeByChannelDT.Rows)
                 {
-                    string sID = ODBCWrapper.Utils.GetSafeStr(dr, "ID");
-                    string sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                    mediaTypeByChannel.Add(new KeyValuePair<string, string>(sID, sName));
+                    var data = new
+                    {
+                        ID = ODBCWrapper.Utils.ExtractString(dr, "ID"),
+                        Title = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
+                        Description = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
+                        InList = true
+                    };
+                    mediaTypes.Add(data);
                 }
             }
+            resultData = new object[mediaTypes.Count];
+            resultData = mediaTypes.ToArray();
+
         }
     }
 

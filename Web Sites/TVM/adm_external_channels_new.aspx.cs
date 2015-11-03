@@ -141,6 +141,8 @@ public partial class adm_external_channels_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_recommendation_engine = new DataRecordDropDownField("recommendation_engines", "name", "id", "group_id", group_id, 60, true);
         dr_recommendation_engine.Initialize("Recommendation Engine Provider", "adm_table_header_nbg", "FormInput", "RECOMMENDATION_ENGINE_ID", false);
+        string recommendationEnginesQuery = "select name as txt,id as id from recommendation_engines where status=1 and group_id= " + group_id.ToString();
+        dr_recommendation_engine.SetSelectsQuery(recommendationEnginesQuery);
         theRecord.AddRecord(dr_recommendation_engine);
 
         DataRecordLongTextField dr_filter_expression = new DataRecordLongTextField("ltr", true, 60, 3);

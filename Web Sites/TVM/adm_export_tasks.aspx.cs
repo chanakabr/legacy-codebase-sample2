@@ -6,7 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 
-public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
+public partial class adm_export_tasks : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
@@ -59,38 +59,33 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
-        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
         Int32 groupID = LoginManager.GetLoginGroupID();
-        // string.Format("{0}_recommendation_engine_{1}", version, adapterId)
 
-        theTable += "select adapter.id as 'ID', adapter.name as 'Name', adapter.group_id, adapter.is_active, adapter.status as STATUS, adapter.adapter_url as 'Adapter URL'";
-        theTable += ",case g.[SELECTED_RECOMMENDATION_ENGINE] when adapter.id then 'Yes' else 'No' end as 'Is Default'";
-        theTable += ",adapter.external_identifier as 'External ID', ";
-        theTable += "'" + version + "_recommendation_engine_' + CONVERT(varchar(10),adapter.ID) as 'cache_key' ";
-        theTable += "from recommendation_engines adapter ";
-        theTable += "left join groups g on adapter.group_id = g.id";
+        theTable += "select	bet.id as 'ID', bet.name as 'Name', bet.external_key as 'External Key', lbedt.description as 'Data Type', bet.filter as 'Filter', lbeet.description as 'Export Type', bet.frequency as 'Frequency', bet.Notification_url as 'Notification URL', bet.group_id, bet.status, bet.is_active ";
+        theTable += "FROM bulk_export_tasks bet inner join lu_bulk_export_export_types lbeet on bet.EXPORT_TYPE = lbeet.id inner join lu_bulk_export_data_types lbedt on bet.DATA_TYPE = lbedt.ID ";
         theTable += "where";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.group_id", "=", groupID);
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         theTable += "and";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("adapter.status", "<>", 2);
-        theTable += "order by id";
-        theTable.SetConnectionKey("main_connection_string");
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        theTable += "and";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+        theTable += " order by id";
 
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
-        theTable.AddHiddenField("cache_key");
-        theTable.AddActivationField("is_active");
-
-        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_recommendation_engine_adapter_settings.aspx", "Params", "");
-        linkColumnKeParams.AddQueryStringValue("adapter_id", "field=id");
-        linkColumnKeParams.AddQueryCounterValue("select count(*) as val from recommendation_engines_settings where ( status=1 or status = 4 )  and recommendation_engine_id=", "field=id");
-        theTable.AddLinkColumn(linkColumnKeParams);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_recommendation_engine_adapter_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("adapter_id", "field=id");
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_export_tasks_vod_types.aspx", "VOD Types", "Data Type=VOD");
+            linkColumn1.AddQueryStringValue("task_id", "field=id");
+            theTable.AddLinkColumn(linkColumn1);
+        }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_export_tasks_new.aspx", "Edit", "");
+            linkColumn1.AddQueryStringValue("export_task_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
 
@@ -98,13 +93,12 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "recommendation_engines");
+            linkColumn.AddQueryStringValue("table", "bulk_export_tasks");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
-            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -112,27 +106,25 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "recommendation_engines");
+            linkColumn.AddQueryStringValue("table", "bulk_export_tasks");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
-            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "recommendation_engines");
+            linkColumn.AddQueryStringValue("table", "bulk_export_tasks");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "6");
             linkColumn.AddQueryStringValue("sub_menu", "1");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
-            linkColumn.AddQueryStringValue("cache_key", "field=cache_key");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
     }
@@ -142,8 +134,7 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", 
-            "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOrderBy);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
@@ -154,6 +145,6 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": " + "Recommendation Engine");
+        Response.Write(PageUtils.GetPreHeader() + ": " + "Export Tasks");
     }
 }
