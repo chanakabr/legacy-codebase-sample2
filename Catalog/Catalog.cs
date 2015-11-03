@@ -4770,9 +4770,9 @@ namespace Catalog
                     {
                         try
                         {
-                            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(request.m_sUserIP);
+                            string coutnryCode = ElasticSearch.Utilities.IpToCountry.GetCountryCodeByIp(request.m_sUserIP);
 
-                            dictionary["client_location"] = countryId.ToString();
+                            dictionary["client_location"] = coutnryCode;
                         }
                         catch (Exception ex)
                         {

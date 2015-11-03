@@ -2464,7 +2464,19 @@ namespace DAL
     
         public static DataTable Get_IPToCountryTable()
         {
-            return ODBCWrapper.Utils.GetCompleteTable("ip_to_country");
+            DataTable table = null;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_IP_To_Country");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                table = dataSet.Tables[0];
+            }
+
+            return table;
         }
 
         public static List<int> GetAllCountries()

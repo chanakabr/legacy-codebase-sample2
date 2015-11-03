@@ -19,7 +19,40 @@ namespace ElasticSearch.Utilities
         /// <returns></returns>
         public static int GetCountryByIp(string ip)
         {
-            int country = 0;
+            int result = 0;
+
+            object id = GetCountryByIp(ip, "country_id");
+
+            result = Convert.ToInt32(id);
+
+            return result;
+        }
+
+        public static string GetCountryNameByIp(string ip)
+        {
+            string result = string.Empty;
+
+            object name = GetCountryByIp(ip, "name");
+
+            result = Convert.ToString(name);
+
+            return result;
+        }
+
+        public static string GetCountryCodeByIp(string ip)
+        {
+            string result = string.Empty;
+
+            object name = GetCountryByIp(ip, "code");
+
+            result = Convert.ToString(name);
+
+            return result;
+        }
+
+        public static object GetCountryByIp(string ip, string fieldName)
+        {
+            object result = null;
 
             // Build query for getting coutnry
             FilteredQuery query = new FilteredQuery(true);
@@ -28,7 +61,7 @@ namespace ElasticSearch.Utilities
             query.PageIndex = 0;
             query.PageSize = 1;
             query.ReturnFields.Clear();
-            query.ReturnFields.Add("\"country_id\"");
+            query.ReturnFields.Add(string.Format("\"{0}\"", fieldName));
 
             QueryFilter filter = new QueryFilter();
 
@@ -38,7 +71,7 @@ namespace ElasticSearch.Utilities
             {
                 string[] splitted = ip.Split('.');
                 ipValue =
-                    (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + 
+                    (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 +
                         Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
             }
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
@@ -84,11 +117,11 @@ namespace ElasticSearch.Utilities
                 if (totalItems > 0)
                 {
                     // get country from first (and hopefully only) result
-                    country = (int)jsonObj.SelectToken("hits.hits").First().SelectToken("fields.country_id");
+                    result = jsonObj.SelectToken("hits.hits").First().SelectToken(string.Format("fields.{0}", fieldName));
                 }
             }
 
-            return country;
+            return result;
         }
     }
 }
