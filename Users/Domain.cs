@@ -336,6 +336,7 @@ namespace Users
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return null;
             }
         }

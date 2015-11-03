@@ -83,7 +83,7 @@ namespace KlogMonitorHelper
                     if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
                         HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // no need to log exception
                     log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString));
@@ -96,7 +96,7 @@ namespace KlogMonitorHelper
                         string password = nameValueCollection["sWSPassword"];
                         HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, username, password);
                     }
-                    catch (Exception ex2)
+                    catch (Exception)
                     {
                         // no need to log exception
                         log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestString));

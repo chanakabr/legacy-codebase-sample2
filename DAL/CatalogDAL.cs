@@ -11,11 +11,14 @@ using Newtonsoft.Json;
 using DAL;
 using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Core.DAL
 {
     public class CatalogDAL : BaseDal
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
         private const int RETRY_LIMIT = 5;
@@ -2921,7 +2924,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-
+                log.Error(string.Empty, ex);
             }
             return ds;
         }
@@ -3067,6 +3070,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return null;
             }
 
@@ -3086,6 +3090,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -3135,6 +3140,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
             }
 
             return ossAdapterRes;
@@ -3169,6 +3175,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<RecommendationEngine>();
             }
             return res;
@@ -3191,6 +3198,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -3212,6 +3220,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -3232,6 +3241,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
@@ -3287,6 +3297,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<RecommendationEngine>();
             }
             return res;
@@ -3341,6 +3352,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 res = new List<ExternalChannel>();
             }
             return res;
@@ -3456,6 +3468,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return false;
             }
         }
