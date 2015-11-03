@@ -104,7 +104,7 @@ namespace EPG_XDTVTransform
             }
             catch (Exception exc)
             {
-
+                log.Error(string.Empty, exc);
             }
             return result;
         }
