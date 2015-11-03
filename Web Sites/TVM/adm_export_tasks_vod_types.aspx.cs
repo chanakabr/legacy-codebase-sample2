@@ -8,9 +8,12 @@ using TVinciShared;
 using System.Configuration;
 using System.Globalization;
 using System.Data;
+using log4net;
+using System.Reflection;
 
 public partial class adm_export_tasks_vod_types : System.Web.UI.Page
 {
+    private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected DataTable mediaTypes;
@@ -117,9 +120,9 @@ public partial class adm_export_tasks_vod_types : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("Error", string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", taskId, ex), "adm_export_tasks_vod_types");
+            log.Error("Error - " + string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", taskId, ex), ex);
         }
-        
+
 
         return "";
     }
