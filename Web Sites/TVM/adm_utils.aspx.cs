@@ -500,6 +500,31 @@ public partial class adm_utils : System.Web.UI.Page
                         }
                     }
                     break;
+                case "bulk_export_tasks":
+                    if (eAction == eAction.Update)
+                    {
+                        //send message to rabbit
+                        try
+                        {
+                            // insert new message to tasks queue (for celery)
+                            apiWS.API m = new apiWS.API();
+                            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                            if (sWSURL != "")
+                                m.Url = sWSURL;
+                            sWSUserName = "";
+                            sWSPass = "";
+
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+                            m.EnqueueExportTask(sWSUserName, sWSPass, nId);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Error - " + string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", nId, ex), ex);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
