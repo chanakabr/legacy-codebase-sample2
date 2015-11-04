@@ -11,7 +11,7 @@ namespace QueueWrapper
     {
         bool Enqueue(QueueObject record, string sRouteKey);
 
-        bool Enqueue(int groupId, string record, string sRouteKey, DateTime runDate);
+        bool Enqueue(int groupId, string record, string sRouteKey, DateTime? runDate, string type);
         /// <summary>
         /// 
         /// </summary>

@@ -8,6 +8,8 @@ namespace ApiObjects
         public string MessageData { get; set; }
         public string RoutingKey { get; set; }
         public DateTime ExcutionDate { get; set; }
+        public string Type{ get; set; }
+
 
         public MessageQueue()
         {

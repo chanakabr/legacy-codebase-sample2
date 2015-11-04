@@ -29,7 +29,7 @@ namespace ApiObjects
                 if (!string.IsNullOrEmpty(eta))
                     return DateTime.ParseExact(eta, CELERY_DATE_FORMAT, System.Globalization.CultureInfo.CurrentCulture);
                 else
-                    return DateTime.Now;
+                    return null;
             }
             set
             {

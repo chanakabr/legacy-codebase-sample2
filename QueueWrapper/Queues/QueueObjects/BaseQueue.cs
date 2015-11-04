@@ -45,9 +45,7 @@ namespace QueueWrapper
 
                     if (celeryData != null)
                     {
-                        string[] keys = routingKey.Split('\\');
-                        if (!string.IsNullOrEmpty(keys[0]))
-                            InsertQueueMessage(celeryData.GroupId, sMessage, keys[0], celeryData.ETA.Value);
+                        InsertQueueMessage(celeryData.GroupId, sMessage, routingKey, celeryData.ETA, this.GetType().ToString());
                     }
                 }
             }
@@ -55,7 +53,7 @@ namespace QueueWrapper
             return bIsEnqueueSucceeded;
         }
        
-        public virtual bool Enqueue(int groupId, string record, string routingKey, DateTime runDate)
+        public virtual bool Enqueue(int groupId, string record, string routingKey, DateTime? runDate, string type)
         {
             bool bIsEnqueueSucceeded = false;
 
@@ -68,25 +66,27 @@ namespace QueueWrapper
 
                 if (bIsEnqueueSucceeded)
                 {
-                    string[] keys = routingKey.Split('\\');
-                    if (!string.IsNullOrEmpty(keys[0]))
-                        InsertQueueMessage(groupId, record, keys[0], runDate);
+                    InsertQueueMessage(groupId, record, routingKey, runDate, type);
                 }
             }
 
             return bIsEnqueueSucceeded;
         }
 
-        private void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime excutionDate)
+        private void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime? excutionDate, string type)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_QueueMessage");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_QueueMessage_NEW");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@messageData", messageData);
-                sp.AddParameter("@routingKey", routingKey);                
-                sp.AddParameter("@excutionDate", excutionDate);
+                sp.AddParameter("@routingKey", routingKey);
+                if (excutionDate.HasValue)
+                {
+                    sp.AddParameter("@excutionDate", excutionDate.Value);
+                }
+                sp.AddParameter("@type", type);
 
                 DataSet ds = sp.ExecuteDataSet();
             }
