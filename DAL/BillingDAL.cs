@@ -1319,6 +1319,18 @@ namespace DAL
                     paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
                     int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                     paymentGateway.IsDefault = isDefault == 1 ? true : false;
+                    paymentGateway.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                    paymentGateway.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval");
+                    paymentGateway.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries");
+                    paymentGateway.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                    paymentGateway.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                    paymentGateway.TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url");
+                    paymentGateway.StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url");
+                    paymentGateway.RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url");
+                    paymentGateway.Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status");
+                    paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
+                    paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
+                    paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
                 }
 
             }
