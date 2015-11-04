@@ -184,12 +184,13 @@ public partial class adm_ppv_modules_file_types : System.Web.UI.Page
             return "";
         }
 
-        string sRet = "";
-        sRet += "Current File Types";
-        sRet += "~~|~~";
-        sRet += "Available File Types";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Current File Types");
+        dualList.Add("SecondListTitle", "Available File Types");
+
+        object[] resultData = null;
+        List<object> ppvModulesFileTypes = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from groups_media_type where is_active=1 and status=1 and ";
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
@@ -211,18 +212,32 @@ public partial class adm_ppv_modules_file_types : System.Web.UI.Page
                 string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
                 sTitle += "(" + sGroupName.ToString() + ")";
                 string sDescription = sTitle;
+                bool isInList = false;
                 if (IsFileTypeBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sDescription + "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sDescription + "\" inList=\"false\" />";
+                {
+                    isInList = true;
+                }
+                var data = new
+                {
+                    ID = sID,
+                    Title = sTitle,
+                    Description = sDescription,
+                    InList = isInList
+                };
+                ppvModulesFileTypes.Add(data);                    
             }
         }
         selectQuery.Finish();
         selectQuery = null;
 
+        resultData = new object[ppvModulesFileTypes.Count];
+        resultData = ppvModulesFileTypes.ToArray();
 
-        sRet += "</root>";
-        return sRet;
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_ppv_modules_file_types.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 
     protected bool IsFileTypeBelong(Int32 nFileTypeID)

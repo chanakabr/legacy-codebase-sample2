@@ -35,7 +35,7 @@
 <!-- end dual list -->
 
 </head>
-<body class="admin_body" onload="initDuallistObj('adm_subscription_channels.aspx'">
+<body class="admin_body" onload="initDuallistObj('adm_subscription_channels.aspx')">
 <form id="form1" name="form1" action="" method="post" runat="server">
     <div class="floating_div" id="tag_collections_div"></div>
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
