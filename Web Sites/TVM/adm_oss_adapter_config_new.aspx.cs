@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_oss_adapter_config_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -49,11 +52,11 @@ public partial class adm_oss_adapter_config_new : System.Web.UI.Page
                     try
                     {
                         apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, ossAdapterId);
-                        Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oass adapter id:{0}, status:{1}", ossAdapterId, status.Code), "SetOSSAdapterConfiguration");
+                        log.Debug("SetOSSAdapterConfiguration - " + string.Format("oass adapter id:{0}, status:{1}", ossAdapterId, status.Code));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception", string.Format("oass adapter id:{0}, ex msg:{1}, ex st: {2} ", ossAdapterId, ex.Message, ex.StackTrace), "SetOSSAdapterConfiguration");
+                        log.Debug("Exception - " + string.Format("oass adapter id:{0}, ex msg:{1}, ex st: {2} ", ossAdapterId, ex.Message, ex.StackTrace), ex);
                     }
                 }
 
@@ -103,7 +106,7 @@ public partial class adm_oss_adapter_config_new : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         Int32 groupID = LoginManager.GetLoginGroupID();
-        
+
         object t = null; ;
         if (Session["oss_adapter_config_id"] != null && Session["oss_adapter_config_id"].ToString() != "" && int.Parse(Session["oss_adapter_config_id"].ToString()) != 0)
             t = Session["oss_adapter_config_id"];
@@ -129,7 +132,7 @@ public partial class adm_oss_adapter_config_new : System.Web.UI.Page
         dr_oss_adapter_id.SetValue(Session["oss_adapter_id"].ToString());
         theRecord.AddRecord(dr_oss_adapter_id);
 
-       
+
 
         string sTable = theRecord.GetTableHTML("adm_oss_adapter_config_new.aspx?submited=1");
         return sTable;

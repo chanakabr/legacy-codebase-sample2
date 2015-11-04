@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_media_translate : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -33,7 +36,7 @@ public partial class adm_media_translate : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
                 Int32 nID = DBManipulator.DoTheWork();
-                ProtocolsFuncs.SeperateMediaTranslateTexts(int.Parse(Session["media_id"].ToString()), 
+                ProtocolsFuncs.SeperateMediaTranslateTexts(int.Parse(Session["media_id"].ToString()),
                     int.Parse(Session["lang_id"].ToString()));
 
                 try
@@ -46,7 +49,7 @@ public partial class adm_media_translate : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", Session["media_id"].ToString() + " : " + ex.Message, "media_notifier");
+                    log.Error("exception - " + Session["media_id"].ToString() + " : " + ex.Message, ex);
                 }
 
                 return;
@@ -138,14 +141,14 @@ public partial class adm_media_translate : System.Web.UI.Page
             Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media", "group_id", int.Parse(Session["media_id"].ToString())).ToString());
             ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
             selectQuery1 += "select l.name,l.id from group_extra_languages gel,lu_languages l where gel.language_id=l.id and l.status=1 and gel.status=1 and  ";
-            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("l.id" , "<>" , nMainLangID);
+            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("l.id", "<>", nMainLangID);
             selectQuery1 += "and";
             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("gel.group_id", "=", nOwnerGroupID);
             selectQuery1 += " order by l.name";
             if (selectQuery1.Execute("query", true) != null)
             {
                 Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
-                for (int i =0; i < nCount1; i++)
+                for (int i = 0; i < nCount1; i++)
                 {
                     Int32 nLangID = int.Parse(selectQuery1.Table("query").DefaultView[i].Row["id"].ToString());
                     string nLangName = selectQuery1.Table("query").DefaultView[i].Row["name"].ToString();
@@ -156,7 +159,7 @@ public partial class adm_media_translate : System.Web.UI.Page
                     sTemp += "adm_media_translate.aspx?media_id=" + Session["media_id"].ToString() + "&lang_id=" + nLangID.ToString();
                     sTemp += "\"><span>";
                     sTemp += nLangName;
-                    sTemp += "</span></a></li>";                    
+                    sTemp += "</span></a></li>";
                 }
                 if (nCount1 == 0)
                     sTemp = "";

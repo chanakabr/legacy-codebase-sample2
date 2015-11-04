@@ -129,7 +129,7 @@ namespace ElasticSearchFeeder
             }
             catch (Exception ex)
             {
-                //TO DO ADD LOGGER
+                log.Error("", ex);
                 return new List<LanguageObj>();
             }
         }

@@ -13,9 +13,12 @@ using TVinciShared;
 using TvinciImporter;
 using System.Collections.Generic;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_utils : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     //static string locker = "";
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -42,7 +45,7 @@ public partial class adm_utils : System.Web.UI.Page
         string sRet = sObjectID + "~|~";
         string[] sSplit = sPicsIds.Split(';');
         Int32 nRowCounter = 0;
-        for (int i =0; i < sSplit.Length; i++)
+        for (int i = 0; i < sSplit.Length; i++)
         {
             if (sSplit[i] != null && sSplit[i].ToString() != "")
             {
@@ -79,7 +82,7 @@ public partial class adm_utils : System.Web.UI.Page
         return sRet;
     }
 
-    public string ChangeVid(string sObjectID, string sPicsIds , string sTable)
+    public string ChangeVid(string sObjectID, string sPicsIds, string sTable)
     {
         string sRet = sObjectID + "~|~";
         string[] sSplit = sPicsIds.Split(';');
@@ -125,14 +128,15 @@ public partial class adm_utils : System.Web.UI.Page
 
     public string ChangeOnOffStateRow(string sTableName,
         string sFieldName, string sIndexField, string sIndexVal,
-        string sRequestedStatus, string sOnStr, string sOffStr , string sConnKey)
+        string sRequestedStatus, string sOnStr, string sOffStr, string sConnKey)
     {
         string sRet = string.Empty;
+
 
         if (sTableName == "Epg")
         {
             Int32 nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
-            
+
             EpgBL.TvinciEpgBL oEpgBL = new EpgBL.TvinciEpgBL(nParentGroupID);
             EpgCB epgCB = oEpgBL.GetEpgCB(ulong.Parse(sIndexVal));
             if (epgCB != null)
@@ -151,7 +155,7 @@ public partial class adm_utils : System.Web.UI.Page
                     sRet += " class='adm_table_link_div' >";
                     sRet += sOffStr;
                     sRet += "</a>";
-                }                
+                }
                 else // res = false or !epg.isActive
                 {
                     sRet += "<b>" + sOffStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",1 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
@@ -164,7 +168,7 @@ public partial class adm_utils : System.Web.UI.Page
             sTableName = "epg_channels_schedule";
         }
         else
-        {            
+        {
             sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
             if (int.Parse(sRequestedStatus) == 1)
             {
@@ -255,7 +259,7 @@ public partial class adm_utils : System.Web.UI.Page
         return sRet;
     }
 
-    public string ChangeOrderNumRow(string sTable, string sID, string sFieldName , string sDelta , string sConnKey)
+    public string ChangeOrderNumRow(string sTable, string sID, string sFieldName, string sDelta, string sConnKey)
     {
         Int32 nDelta = 0;
         nDelta = int.Parse(sDelta);
@@ -300,11 +304,11 @@ public partial class adm_utils : System.Web.UI.Page
             {
                 bool result = false;
                 result = ImporterImpl.UpdateChannelIndex(nGroupID, new List<int>() { nChannelID }, eAction.Update);
-                Logger.Logger.Log("ChangeOrderNumRow", string.Format("cahnnel:{0}, media:{1}, orderNum:{2}, res:{3}", nChannelID, nMediaID, nOrderNum, result), "UpdateChannel");
+                log.Debug("ChangeOrderNumRow - " + string.Format("cahnnel:{0}, media:{1}, orderNum:{2}, res:{3}", nChannelID, nMediaID, nOrderNum, result));
             }
         }
 
-        string sCurrentVal = ODBCWrapper.Utils.GetTableSingleVal(sTable, sFieldName, int.Parse(sID) , sConnKey).ToString();
+        string sCurrentVal = ODBCWrapper.Utils.GetTableSingleVal(sTable, sFieldName, int.Parse(sID), sConnKey).ToString();
         string sRet = sFieldName + "_" + sID.ToString() + "~~|~~";
         sRet += "<td valign=\"top\" nowrap id=\"" + sFieldName + "_" + sID.ToString() + "\" align=\"center\" nowrap=\"nowrap\" style=\"margin: 0 0 0 0; padding: 0 0 0 0;\">";
         sRet += "<table cellpadding=\"0\" cellspacing=\"0\">";
@@ -315,7 +319,7 @@ public partial class adm_utils : System.Web.UI.Page
         sRet += "</tr>";
         sRet += "</table>";
         sRet += "</td>";
-        
+
         return sRet;
     }
 
@@ -323,7 +327,7 @@ public partial class adm_utils : System.Web.UI.Page
     {
         string sURL = "";
         string sXML = "";
-        Int32 nLanguageID= 0;
+        Int32 nLanguageID = 0;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select g.LANGUAGE_ID,g.media_notify_url from groups g,media m where g.id=m.group_id and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", nMediaID);
@@ -353,8 +357,8 @@ public partial class adm_utils : System.Web.UI.Page
         ApiObjects.MediaInfoObject theInfo = null;
         ApiObjects.MediaStatistics theMediaStatistics = null;
         ApiObjects.MediaPersonalStatistics thePersonalStatistics = null;
-        sXML += TVinciShared.ProtocolsFuncs.GetMediaInfoInner(nMediaID, nLanguageID, true, 0, true, ref tNode, false, false, false, ref theInfo , 
-            ref thePersonalStatistics , ref theMediaStatistics);
+        sXML += TVinciShared.ProtocolsFuncs.GetMediaInfoInner(nMediaID, nLanguageID, true, 0, true, ref tNode, false, false, false, ref theInfo,
+            ref thePersonalStatistics, ref theMediaStatistics);
         sXML += "</media_info>";
         sXML += "</notification>";
 
@@ -369,7 +373,7 @@ public partial class adm_utils : System.Web.UI.Page
         return ChangeActiveStateRow(sTable, sID, sStatus, "");
     }
 
-    public string ChangeActiveStateRow(string sTable, string sID, string sStatus , string sConnectionKey)
+    public string ChangeActiveStateRow(string sTable, string sID, string sStatus, string sConnectionKey)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         Int32 nRowGroupID = 0;
@@ -393,7 +397,7 @@ public partial class adm_utils : System.Web.UI.Page
             bBelongs = false;
         if (nRowGroupID != 0 && nRowGroupID != nGroupID)
         {
-            PageUtils.DoesGroupIsParentOfGroup(nGroupID, nRowGroupID , ref bBelongs);
+            PageUtils.DoesGroupIsParentOfGroup(nGroupID, nRowGroupID, ref bBelongs);
         }
         else
             bBelongs = true;
@@ -417,7 +421,7 @@ public partial class adm_utils : System.Web.UI.Page
             updateQuery = null;
 
             // Update Media / Channel in Lucene
-            Logger.Logger.Log("ChangeActiveStateRow", "table:" + sTable + ", ID:" + sID, "LuceneUpdate");
+            log.Debug("ChangeActiveStateRow - table:" + sTable + ", ID:" + sID);
 
             eAction eAction;
             bool result = false;
@@ -467,16 +471,16 @@ public partial class adm_utils : System.Web.UI.Page
                             try
                             {
                                 DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, dlmID);
-                                Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code), "RemoveDLM");
+                                log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
                             }
                             catch (Exception ex)
                             {
-                                Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace));
                             }
                         }
                     }
                     break;
-                case "groups_device_limitation_modules":             
+                case "groups_device_limitation_modules":
                     // delete from cache this DLM object    
                     if (eAction == eAction.Delete)
                     {
@@ -488,11 +492,36 @@ public partial class adm_utils : System.Web.UI.Page
                         try
                         {
                             DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, nId);
-                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", nId, resp.Code), "RemoveDLM");
+                            log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", nId, resp.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", nId, ex.Message, ex.StackTrace), "RemoveDLM");
+                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", nId, ex.Message, ex.StackTrace), ex);
+                        }
+                    }
+                    break;
+                case "bulk_export_tasks":
+                    if (eAction == eAction.Update)
+                    {
+                        //send message to rabbit
+                        try
+                        {
+                            // insert new message to tasks queue (for celery)
+                            apiWS.API m = new apiWS.API();
+                            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                            if (sWSURL != "")
+                                m.Url = sWSURL;
+                            sWSUserName = "";
+                            sWSPass = "";
+
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+                            m.EnqueueExportTask(sWSUserName, sWSPass, nId);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Error - " + string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", nId, ex), ex);
                         }
                     }
                     break;
@@ -542,7 +571,7 @@ public partial class adm_utils : System.Web.UI.Page
         return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
-    public string GetCollectionFill(string sMiddleTable, string sCollTable, string sTextField, string sStart , string sCollCss , string sExtraQuery , string sCurrentSelect , string sHeader , string sConnKey)
+    public string GetCollectionFill(string sMiddleTable, string sCollTable, string sTextField, string sStart, string sCollCss, string sExtraQuery, string sCurrentSelect, string sHeader, string sConnKey)
     {
         sTextField = sTextField.Trim();
         sTextField = sTextField.Replace(" ", "+' '+");
@@ -561,7 +590,7 @@ public partial class adm_utils : System.Web.UI.Page
                 selectQuery += "," + sMiddleTable + " mc ";
             if (sMiddleTable.ToLower().Trim() == "pics_tags")
                 selectQuery += ",pics p";
-            
+
             selectQuery += " where ";
             string sGroups = PageUtils.GetFullGroupsStr(nGroupID, sConnKey);
             if (sCollTable.ToLower().Trim() == "tags")
@@ -577,7 +606,7 @@ public partial class adm_utils : System.Web.UI.Page
                 selectQuery += " or p.group_id is null or p.group_id=0) and ";
             }
             selectQuery += sLike + " and ";
-            
+
             selectQuery += " (c.group_id " + sGroups + " ";
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
             selectQuery += " or c.group_id is null or c.group_id=0) and ";

@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using System.Configuration;
 using TVinciShared;
 using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_subscription_channels : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -189,7 +192,7 @@ public partial class adm_subscription_channels : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("exception", Session["subscription_id"].ToString() + " : " + ex.Message, "subscriptions_notifier");
+            log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message, ex);
         }
 
         return "";
@@ -224,8 +227,6 @@ public partial class adm_subscription_channels : System.Web.UI.Page
         if (nCommerceGroupID == 0)
             nCommerceGroupID = nLogedInGroupID;
         selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        Logger.Logger.Log("Subscriptions group ids", PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""), "AdminSubs");
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -240,13 +241,6 @@ public partial class adm_subscription_channels : System.Web.UI.Page
 
                 string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
                 sTitle += "(" + sGroupName.ToString() + ")";
-
-                /*
-                string sDescription = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
-                    sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
-                 */
 
                 bool isInList = false;
                 if (IsChannelBelong(int.Parse(sID)) == true)

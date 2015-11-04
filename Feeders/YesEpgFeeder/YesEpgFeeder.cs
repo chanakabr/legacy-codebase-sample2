@@ -11,25 +11,28 @@ using ApiObjects.Epg;
 using EpgBL;
 using Tvinci.Core.DAL;
 using DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace YesEpgFeeder
 {
-    public class YesEpgFeederObj :  ScheduledTasks.BaseTask
+    public class YesEpgFeederObj : ScheduledTasks.BaseTask
     {
-        #region CONST      
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        #region CONST
         private const char spliter = '|';
         private const string LogFileName = "YesEpgFeeder";
         private const string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
         #endregion
 
-        #region members        
+        #region members
 
-        public int FeederType { get; set;} // type Feeder = 1 , Notification = 2
+        public int FeederType { get; set; } // type Feeder = 1 , Notification = 2
         public int GroupID { get; set; }
         public string StartTime { get; set; } // format YYYY-MM-DDThh:mm:ssZ
-        public int Duration  { get; set; }
-        public string Language { get; set; }        
-        public string ChannelID {get; set; }
+        public int Duration { get; set; }
+        public string Language { get; set; }
+        public string ChannelID { get; set; }
         public List<string> lChannelIds { get; set; }
 
         private string URL { get; set; }
@@ -39,7 +42,7 @@ namespace YesEpgFeeder
         #endregion
 
         #region Initialize
-        
+
         public YesEpgFeederObj(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {
@@ -63,7 +66,7 @@ namespace YesEpgFeeder
                 {
                     StartTime = item[2];
                 }
-                Duration =  ODBCWrapper.Utils.GetIntSafeVal(item[3]);
+                Duration = ODBCWrapper.Utils.GetIntSafeVal(item[3]);
                 Language = item[4];
                 if (item.Count() >= 6)
                 {
@@ -84,7 +87,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("InitParamter", string.Format("fail to split the parameters ex={0}", ex.Message), "YesFeeder");
+                log.Error("InitParamter - " + string.Format("fail to split the parameters ex={0}", ex.Message), ex);
                 throw ex;
             }
         }
@@ -109,15 +112,15 @@ namespace YesEpgFeeder
                 {
                     // get list of all channels 
                     GetChannelIds();
-                    
+
                     foreach (string sChannel in lChannelIds)
                     {
                         URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
                         ChannelID = sChannel;
-                        SaveChannelByXML(); 
+                        SaveChannelByXML();
                     }
                     // Update last time invoke parameter only on Feeder Type                    
-                    string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID , "NOW", Duration, Language);
+                    string parameters = string.Format("{0}|{1}|{2}|{3}|{4}", 1, GroupID, "NOW", Duration, Language);
 
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("scheduled_tasks");
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PARAMETERS", "=", parameters);
@@ -132,7 +135,7 @@ namespace YesEpgFeeder
                     if (lChannelIds == null || lChannelIds.Count == 0)
                     {
                         // get list of all channels 
-                        GetChannelIds();                       
+                        GetChannelIds();
                     }
 
                     foreach (string sChannel in lChannelIds)
@@ -145,7 +148,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", string.Format("group:{0}, ex:{1}", GroupID, ex.Message), LogFileName);
+                log.Error("Error - " + string.Format("group:{0}, ex:{1}", GroupID, ex.Message), ex);
             }
             return true;
         }
@@ -175,8 +178,7 @@ namespace YesEpgFeeder
             }
             else
             {
-                Logger.Logger.Log("No xml return from httpRequest", string.Format("group:{0}, URL:{1}, ChannelID={2}, StartTime={3}, Duration={4}, Language={5}", GroupID, URL, ChannelID, StartTime, Duration, Language),
-                   LogFileName);
+                log.Debug("No xml return from httpRequest - " + string.Format("group:{0}, URL:{1}, ChannelID={2}, StartTime={3}, Duration={4}, Language={5}", GroupID, URL, ChannelID, StartTime, Duration, Language));
             }
         }
 
@@ -264,7 +266,7 @@ namespace YesEpgFeeder
                     DateTime dProgStartDate = DateTime.ParseExact(start_date, format, null);
                     DateTime dProgEndDate = DateTime.ParseExact(end_date, format, null);
 
-                    EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID,scid /*EPGGuid*/, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
+                    EpgCB newEpgItem = Utils.generateEPGCB(epg_url, description, name, channelID, scid /*EPGGuid*/, dProgStartDate, dProgEndDate, node, GroupID, ParentGroupID, FieldEntityMapping);
 
                     #endregion
                     if (!epgDic.ContainsKey(scid))
@@ -311,13 +313,13 @@ namespace YesEpgFeeder
                 }
                 //start Upload proccess Queue
                 UploadQueue.UploadQueueHelper.SetJobsForUpload(GroupID);
-                
+
                 //write to log all the non exists channels 
                 foreach (KeyValuePair<string, int> item in dExistChannel)
                 {
                     if (item.Value == 0)
                     {
-                        Logger.Logger.Log("SaveChannel", string.Format("ChannelID = {0} , do nothing", item.Key), LogFileName + "NotExist");
+                        log.Debug("SaveChannel - " + string.Format("ChannelID = {0} , do nothing", item.Key));
                     }
                 }
 
@@ -325,8 +327,8 @@ namespace YesEpgFeeder
             }
             catch (Exception exp)
             {
-                Logger.Logger.Log("SaveChannel", string.Format("failed group:{0},  URL:{1} ,ChannelID={2},StartTime={3}, Duration={4}, Language={5}, ex:{6}",
-                                                                    GroupID, URL, ChannelID, StartTime, Duration, Language, exp.Message), LogFileName);
+                log.Error("SaveChannel - " + string.Format("failed group:{0},  URL:{1} ,ChannelID={2},StartTime={3}, Duration={4}, Language={5}, ex:{6}",
+                                                                    GroupID, URL, ChannelID, StartTime, Duration, Language, exp.Message), exp);
                 return false;
             }
             finally
@@ -338,26 +340,26 @@ namespace YesEpgFeeder
         {
             try
             {
-                
+
                 if (dExistChannel.ContainsKey(channel_id))
                 {
                     return dExistChannel[channel_id];
                 }
 
-                int channelID = GetExistChannel(channel_id);               
-                
+                int channelID = GetExistChannel(channel_id);
+
                 if (!dExistChannel.ContainsKey(channel_id))
                 {
                     dExistChannel.Add(channel_id, channelID);
                 }
                 else
                 {
-                    dExistChannel[channel_id] =  channelID;
+                    dExistChannel[channel_id] = channelID;
                 }
-                
+
                 return channelID;
             }
-            catch 
+            catch
             {
                 return 0;
             }
@@ -368,16 +370,16 @@ namespace YesEpgFeeder
             Dictionary<string, KeyValuePair<string, string>> dict = new Dictionary<string, KeyValuePair<string, string>>();
             try
             {
-                DataTable dt =  EpgDal.Get_parental_rating();
+                DataTable dt = EpgDal.Get_parental_rating();
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        string parental_rating = ODBCWrapper.Utils.GetSafeStr(dr, "parental_rating");                       
+                        string parental_rating = ODBCWrapper.Utils.GetSafeStr(dr, "parental_rating");
                         string parental_dvb = ODBCWrapper.Utils.GetSafeStr(dr, "parental_dvb"); //parental
                         string desc = ODBCWrapper.Utils.GetSafeStr(dr, "desc"); // rating
 
-                         KeyValuePair<string, string> kvp = new KeyValuePair<string,string>(parental_dvb, desc);
+                        KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(parental_dvb, desc);
                         if (dict.ContainsKey(parental_rating))
                         {
                             dict[parental_rating] = (kvp);
@@ -386,13 +388,14 @@ namespace YesEpgFeeder
                         {
                             dict.Add(parental_rating, kvp);
                         }
-                        
+
                     }
                 }
                 return dict;
             }
             catch (Exception ex)
             {
+                log.Error(string.Empty, ex);
                 return null;
             }
         }
@@ -442,7 +445,7 @@ namespace YesEpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgsDBBatches", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", GroupID, exc.Message), LogFileName);
+                log.Error("InsertEpgsDBBatches - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", GroupID, exc.Message), exc);
                 return;
             }
         }
@@ -489,7 +492,7 @@ namespace YesEpgFeeder
             }
             catch (Exception exc)
             {
-                Logger.Logger.Log("InsertEpgs", string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", GroupID, exc.Message), LogFileName);
+                log.Error("InsertEpgs - " + string.Format("Exception in inserting EPGs in group: {0}. exception: {1} ", GroupID, exc.Message), exc);
                 return;
             }
         }
@@ -522,30 +525,30 @@ namespace YesEpgFeeder
             }
         }
 
-       
+
 
         private XmlDocument getXmlTVChannel()
         {
             XmlDocument xmlDoc;
             try
             {
-/*
-                 sXml = string.Empty;
+                /*
+                                 sXml = string.Empty;
 
-                StreamReader streamReader = new StreamReader("c:\\yesText.txt");
-                sXml = streamReader.ReadToEnd();
-                streamReader.Close();
-                */
+                                StreamReader streamReader = new StreamReader("c:\\yesText.txt");
+                                sXml = streamReader.ReadToEnd();
+                                streamReader.Close();
+                                */
 
 
-              GetYestUrl();
+                GetYestUrl();
 
-                Logger.Logger.Log("getXmlTVChannel", string.Format("GetYestUrl:{0}", URL), LogFileName);
+                log.Debug("getXmlTVChannel - " + string.Format("GetYestUrl:{0}", URL));
 
                 string sXml = TVinciShared.WS_Utils.SendXMLHttpReq(URL, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, "GET");
 
-            //    sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
-              
+                //    sXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xml><request totalFound=\"237\" countReturned=\"237\" countRequested=\"2000\" startRequested=\"0\" /><schedules regionId=\"Israel\"><evt><ept>איך פגשתי את אמא 8 - פרק 10</ept><dss>מערכת היחסים המתפתחת בין בארני לפטריס מותירה את רובין עם שאלותלגבי הסיבה האמיתית לקיומה של אותה מערכת יחסים. בינתיים, אימו של מארשל חוזרת לצאת עם גברים, אלא שמארשל אינו מרוצה מהגבר איתו היא החליטה לצאת.</dss><scid>786534</scid><et>0</et><sdt>2014-08-17T02:10:00.000Z</sdt><edt>2014-08-17T02:35:00.000Z</edt><d>25</d><flags /><pid>program-389771-498198</pid><peid>program-389771-498198</peid><rtv>R14</rtv><epn>10</epn><gs><g>Comedy</g><g>Series</g><g>General Entertainment</g><g>Entertainment</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt><evt><ept>המטורפים - רובין וויליאמס</ept><dss><![CDATA[רובין וויליאמס חוזר לטלוויזיה לראשונה מאז ימי \"מורקומינדי\" ומככב ביחד עם שרה מישל גלר (\"באפי ציידת הערפדים\") בקומדיה הנצפית ביותר בארה\"ב. סיימון הוא בעליו האקסצנטרי של משרד פרסום ולצידו- השותפה האחראית שלו, בתוסידני.]]></dss><scid>786540</scid><et>0</et><sdt>2014-08-17T02:35:00.000Z</sdt><edt>2014-08-17T03:00:00.000Z</edt><d>25</d><flags /><pid>program-467546-584111</pid><peid>program-467546-584111</peid><rtv>R14</rtv><epn>1</epn><gs><g>General Entertainment</g><g>Comedy</g><g>Series</g></gs><seid>YESP</seid><cns><cn>15</cn></cns></evt></schedules></xml>";
+
                 xmlDoc = new XmlDocument();
                 Encoding encoding = Encoding.UTF8;
 
@@ -566,26 +569,26 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("getXmlTVChannel", string.Format("Exception:{0}", ex.Message), LogFileName);
+                log.Error("getXmlTVChannel - " + string.Format("Exception:{0}", ex.Message), ex);
                 return null;
             }
         }
 
 
         private void GetYestUrl()
-        {            
-            URL = string.Format("{0}/schedules?", URL);            
+        {
+            URL = string.Format("{0}/schedules?", URL);
             URL = string.Format("{0}regionId={1}", URL, Region);
-            URL = string.Format("{0}&startTime={1}",URL, StartTime);
+            URL = string.Format("{0}&startTime={1}", URL, StartTime);
             if (!string.IsNullOrEmpty(ChannelID))
             {
                 URL = string.Format("{0}&filters=cn:equals:{1}", URL, ChannelID);
             }
-            URL = string.Format("{0}&locale={1}", URL , Language);
-            if (Duration> 0)
+            URL = string.Format("{0}&locale={1}", URL, Language);
+            if (Duration > 0)
             {
-                URL = string.Format("{0}&duration={1}", URL ,Duration.ToString());
-            }            
+                URL = string.Format("{0}&duration={1}", URL, Duration.ToString());
+            }
         }
 
         private int GetExistMedia(int EPG_IDENTIFIER)
@@ -593,15 +596,17 @@ namespace YesEpgFeeder
             Int32 res = 0;
             try
             {
-                res = EpgDal.GetExistMedia(GroupID, EPG_IDENTIFIER);              
+                res = EpgDal.GetExistMedia(GroupID, EPG_IDENTIFIER);
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error(string.Empty, exp);
+            }
             return res;
         }
 
         private int GetExistChannel(string sChannelID)
-        {           
+        {
             Int32 res = 0;
             if (!string.IsNullOrEmpty(sChannelID))
             {
@@ -611,7 +616,7 @@ namespace YesEpgFeeder
                 }
                 catch (Exception exp)
                 {
-                    Logger.Logger.Log("GetExistChannel", string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), LogFileName);
+                    log.Error("GetExistChannel - " + string.Format("could not get Get Exist Channel  by ID {0}, error message: {1}", sChannelID, exp.Message), exp);
                 }
             }
             return res;
@@ -652,7 +657,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetMetasValues", string.Format("failed with metaValues for node = {0}", ex.Message), LogFileName);
+                log.Error("GetMetasValues - " + string.Format("failed with metaValues for node = {0}", ex.Message), ex);
             }
         }
 
@@ -660,7 +665,7 @@ namespace YesEpgFeeder
         private void GetTagsValues(XmlNode node, ref List<FieldTypeEntity> FieldEntityMapping, Dictionary<string, KeyValuePair<string, string>> dParentalRating)
         {
             try
-            {  
+            {
                 for (int i = 0; i < FieldEntityMapping.Count; i++)
                 {
                     if (FieldEntityMapping[i].FieldType == FieldTypes.Tag)
@@ -710,7 +715,7 @@ namespace YesEpgFeeder
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetTagsValues", string.Format("failed with tagValues for node = {0}", ex.Message), LogFileName);
+                log.Error("GetTagsValues - " + string.Format("failed with tagValues for node = {0}", ex.Message), ex);
             }
         }
     }

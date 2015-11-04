@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_billing_settings : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -103,7 +106,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
     {
         apiWS.API m = new apiWS.API();
         string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
-        
+
         if (sWSURL != "")
             m.Url = sWSURL;
         string sWSUserName = "";
@@ -169,6 +172,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             res = false;
         }
         return res;
@@ -196,6 +200,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             billingSettingId = 0;
         }
         return billingSettingId;

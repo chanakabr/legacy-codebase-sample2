@@ -233,7 +233,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return strMeta.ToString();
         }
 
@@ -269,7 +271,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
 
@@ -295,7 +299,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
 
@@ -321,7 +327,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
 
@@ -352,7 +360,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return true;
         }
 
@@ -392,7 +402,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception ex)
-            { }
+            {
+                log.Error("", ex);
+            }
 
             return dateWithChannelIds;
         }

@@ -6,9 +6,12 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Configuration;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_subscription_file_types : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -178,7 +181,7 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("exception", Session["subscription_id"].ToString() + " : " + ex.Message, "subscriptions_notifier");
+            log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message);
         }
 
         return "";

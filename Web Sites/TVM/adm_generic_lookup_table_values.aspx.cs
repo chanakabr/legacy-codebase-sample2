@@ -13,9 +13,12 @@ using System.IO;
 using System.Collections;
 using System.Data;
 using System.Data.OleDb;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_generic_lookup_table_values : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected const int ROW_COUNT = 1000;
@@ -25,7 +28,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
-            Response.Redirect("login.html");       
+            Response.Redirect("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
 
@@ -38,14 +41,14 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         if (Request.QueryString["lookup_id"] != null && Request.QueryString["lookup_id"].ToString() != "")
         {
             Session["lookup_id"] = int.Parse(Request.QueryString["lookup_id"].ToString());
-           
-           
+
+
 
         }
         else
             Session["lookup_id"] = 0;
-        
-       
+
+
         string key = string.Format("{0}_{1}", nGroupID, Session["lookup_id"]);
         if (!ThreadDict.ContainsKey(key))
         {
@@ -65,7 +68,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
                 {
-                    nRet1 = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "rowcount", 0); 
+                    nRet1 = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "rowcount", 0);
                     ld = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "lastdate", 0);
                 }
             }
@@ -122,7 +125,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 {
                     String path = Server.MapPath(string.Empty);
 
-                    path = GetWSURL("lookup_generic_upload");                   
+                    path = GetWSURL("lookup_generic_upload");
                     path = System.IO.Path.Combine(path, nGroupID.ToString());
 
                     // Determine whether the directory exists.
@@ -168,6 +171,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 LblUploadStatus.ForeColor = System.Drawing.Color.Red;
                 LblUploadStatus.Text = "Failed Upload";
                 LblUploadStatus.Visible = true;
+                log.Error("", ex);
             }
         }
         else
@@ -201,14 +205,14 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
             DateTime dateNow = DateTime.UtcNow;
             while (haveRows)
             {
-                DataTable dt = CreateDataTable(ds.Tables[0], startIndex,groupID, lookupType, dateNow, out haveRows);
+                DataTable dt = CreateDataTable(ds.Tables[0], startIndex, groupID, lookupType, dateNow, out haveRows);
                 if (dt != null)
                 {
                     bool success = DAL.TvmDAL.insertValueToLookupTable(dt);
                 }
                 else
                 {
-                    haveRows = false;                  
+                    haveRows = false;
                 }
                 startIndex += ROW_COUNT;
             }
@@ -235,6 +239,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error("", ex);
             moreRows = false;
             return null;
         }
@@ -246,7 +251,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
     private bool FillTableWithData(DataTable resultTable, DataTable tempDT, int groupID, int lookupType, DateTime dateNow, int startIndex)
     {
 
-        bool moreRows = true;  
+        bool moreRows = true;
         for (int i = startIndex; i < startIndex + ROW_COUNT; i++)
         {
             if (tempDT != null && tempDT.Rows != null && tempDT.Rows.Count > i)
@@ -271,7 +276,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         }
         return moreRows;
     }
-        
+
     private DataSet GetExcelWorkSheet(string pathName, string fileName, int workSheetNumber)
     {
         try
@@ -294,7 +299,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Logger.Logger.Log("GetExcelWorkSheet Error - Lookup Table", "Error opening Excel file " + ex.Message, "LookupTable");
+            log.Error("GetExcelWorkSheet Error - Lookup Table - Error opening Excel file " + ex.Message, ex);
             return null;
         }
     }
@@ -318,7 +323,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         HttpContext.Current.Response.End();
         return "";
     }
-    
+
     protected void ExportExcel(object sender, EventArgs e)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
@@ -352,7 +357,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
-                    for (int i = 0; i < nCount1; i++ )
+                    for (int i = 0; i < nCount1; i++)
                     {
                         string key = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "key", i);
                         string val = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "value", i);
@@ -389,10 +394,11 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 HttpContext.Current.Response.Write(stringWrite.ToString());
                 HttpContext.Current.Response.End();
 
-                
+
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 LblUploadStatus.ForeColor = System.Drawing.Color.Red;
                 LblUploadStatus.Text = "Failed To Export Data";
                 LblUploadStatus.Visible = true;
@@ -406,6 +412,6 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         }
     }
 
-    
+
 
 }

@@ -8,9 +8,12 @@ using TVinciShared;
 using System.Configuration;
 using System.Globalization;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_external_channels_enrichments : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected DataTable allEnrichments;
@@ -130,7 +133,7 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
 
         object channelEnrichmentsObject = PageUtils.GetTableSingleVal("external_channels", "enrichments", channelId);
         long channelEnrichments = 0;
-        
+
         if (channelEnrichmentsObject != DBNull.Value)
         {
             channelEnrichments = Convert.ToInt64(channelEnrichmentsObject);
@@ -220,7 +223,6 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
         if (allEnrichments != null)
         {
             int count = allEnrichments.Rows.Count;
-            //Logger.Logger.Log("Pricing WS", "Count is " + count.ToString(), "PricingWS");
             resultData = new object[count];
 
             for (int i = 0; i < count; i++)
@@ -265,7 +267,7 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
         dualList.Add("pageName", "adm_external_channels_enrichments.aspx");
         dualList.Add("withCalendar", false);
 
-        Logger.Logger.Log("External Channels", resultData.ToJSON(), "External Channels");
+        log.Debug("External Channels - " + resultData.ToJSON());
 
         return dualList.ToJSON();
     }
@@ -302,9 +304,9 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
     {
         DataTable table = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        
+
         selectQuery += "select id, name, value from external_channels_enrichments where is_active = 1";
-        
+
         if (selectQuery.Execute("query", true) != null)
         {
             table = selectQuery.Table("query");

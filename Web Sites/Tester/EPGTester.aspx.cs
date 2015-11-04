@@ -11,9 +11,13 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class EPGTester : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     List<string> FilePathList = new List<string>();
     const string LogFileName = "EPGMediaCorp";
     string sPath_successPath;
@@ -24,12 +28,12 @@ public partial class EPGTester : System.Web.UI.Page
     NetworkCredential NetCredential;
     protected override void OnInit(EventArgs e)
     {
-         base.OnInit(e);
-         btnTestEPG.Click += new EventHandler(btnTestEPG_Click);
-         btnMediaCorpEPG.Click += new EventHandler(btnMediaCorpEPG_Click);
-         btnMediaCorpxmltvEPG.Click += new EventHandler(btnMediaCorpxmltvEPG_Click);
-         btnMediaCorpXMLNodeEPG.Click += new EventHandler(btnMediaCorpXMLNodeEPG_Click);
-         btnYesEPG.Click += new EventHandler(btnYesEPG_Click);
+        base.OnInit(e);
+        btnTestEPG.Click += new EventHandler(btnTestEPG_Click);
+        btnMediaCorpEPG.Click += new EventHandler(btnMediaCorpEPG_Click);
+        btnMediaCorpxmltvEPG.Click += new EventHandler(btnMediaCorpxmltvEPG_Click);
+        btnMediaCorpXMLNodeEPG.Click += new EventHandler(btnMediaCorpXMLNodeEPG_Click);
+        btnYesEPG.Click += new EventHandler(btnYesEPG_Click);
     }
 
     void btnYesEPG_Click(object sender, EventArgs e)
@@ -71,14 +75,10 @@ public partial class EPGTester : System.Web.UI.Page
                     FilePathList.Add(arrfilename[arrfilename.Length - 1]);
                 }
             }
-
-
         }
-
         catch (Exception exp)
         {
-            Logger.Logger.Log("MediaCorp_EPG_LoadFile", string.Format("there an error occurred during the Load Files process,  Error : {0}", exp.Message), LogFileName);
-
+            log.Error("MediaCorp_EPG_LoadFile - " + string.Format("there an error occurred during the Load Files process,  Error : {0}", exp.Message), exp);
         }
         finally
         {
@@ -95,12 +95,8 @@ public partial class EPGTester : System.Web.UI.Page
                 reader.Close();
             }
         }
-
-
-
-
-
     }
+
     private Stream GetFTPStreamFile(string sFileName, out FtpWebResponse response)
     {
         Stream stream = null;
@@ -121,7 +117,7 @@ public partial class EPGTester : System.Web.UI.Page
         }
         catch (Exception exp)
         {
-            Logger.Logger.Log("Media Corp: EPG FTP Stream ", string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error : {1}", sFileName, exp.Message), LogFileName, "EPG MediaCorp - Get stream file faild.");
+            log.Error("Media Corp: EPG FTP Stream " + string.Format("there an error occurred during the Get FTP Stream file process, Stream file '{0}' , Error : {1}", sFileName, exp.Message), exp);
             response = null;
 
         }
@@ -158,25 +154,25 @@ public partial class EPGTester : System.Web.UI.Page
             //
             //
             //create xml document to load FTP file
-            
+
             StringReader xr = new StringReader(xmlDoc.InnerXml);
             XmlTextReader reader = new XmlTextReader(xr);
 
             XmlNodeList xmlnodelist = xmlDoc.GetElementsByTagName("program");
 
             List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
-            List<FieldTypeEntity> tempFieldMapping =   GetMapingFields();
+            List<FieldTypeEntity> tempFieldMapping = GetMapingFields();
 
             foreach (XmlNode node in xmlnodelist)
             {
                 foreach (FieldTypeEntity item in tempFieldMapping)
                 {
-                    
+
                     FieldTypeEntity newItem = item;
 
                     foreach (string XmlRefName in item.XmlReffName)
                     {
-                        foreach(XmlNode multinode in node.SelectNodes(XmlRefName))
+                        foreach (XmlNode multinode in node.SelectNodes(XmlRefName))
                             newItem.Value.Add(multinode.InnerXml);
                     }
                     FieldEntityMapping.Add(newItem);
@@ -185,8 +181,8 @@ public partial class EPGTester : System.Web.UI.Page
 
             #region Insert Basic Field Value
             var BasicFieldEntity = from item in FieldEntityMapping
-                                   where item.FieldType == FieldTypes.Basic && item.XmlReffName.Capacity>0
-                            select item;
+                                   where item.FieldType == FieldTypes.Basic && item.XmlReffName.Capacity > 0
+                                   select item;
 
             ODBCWrapper.InsertQuery insertBasicProgQuery = new ODBCWrapper.InsertQuery("epg_channels_schedule");
             foreach (var item in BasicFieldEntity)
@@ -265,8 +261,8 @@ public partial class EPGTester : System.Web.UI.Page
 
             if (stream != null)
                 stream.Close();
-            
-            
+
+
         }
         finally
         {
@@ -290,7 +286,7 @@ public partial class EPGTester : System.Web.UI.Page
     protected int GetExistEPGTagID(string value, int EPGTagTypeId)
     {
         int res = 0;
-        ODBCWrapper.DataSetSelectQuery selectQuery  = new ODBCWrapper.DataSetSelectQuery();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += " select * from EPG_tags";
         selectQuery += "Where";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", 148);
@@ -304,20 +300,21 @@ public partial class EPGTester : System.Web.UI.Page
         if (selectQuery.Execute("query", true) != null)
         {
             int count = selectQuery.Table("query").DefaultView.Count;
-           // res = PageUt
+            // res = PageUt
         }
         return res;
     }
-    
+
     public enum FieldTypes
-    { 
+    {
         Unknown,
         Basic,
         Meta,
         Tag
-        
+
     }
-    public struct FieldTypeEntity{
+    public struct FieldTypeEntity
+    {
         public string ID;
         public string Name;
         public List<string> XmlReffName;
@@ -409,15 +406,15 @@ public partial class EPGTester : System.Web.UI.Page
                 foreach (DataRowView dr in selectQueryFieldMapping.Table("query").DefaultView)
                 {
                     FieldTypes type = (FieldTypes)Enum.Parse(typeof(FieldTypes), ODBCWrapper.Utils.GetSafeStr(dr["type"]));
-                    
+
                     var fieldentity = (from n in res
                                        where n.FieldType == type && n.ID == ODBCWrapper.Utils.GetSafeStr(dr["field_id"])
-                               select n).First();
+                                       select n).First();
 
 
                     fieldentity.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(dr["external_ref"]));
-                   
-                             
+
+
                 }
             }
         }
@@ -430,7 +427,7 @@ public partial class EPGTester : System.Web.UI.Page
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "148|EPGxmlTv|WebURL|http://localhost/tester/EPG/MediaCorp.xml");
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "148|EPGxmlTv|WebURL|http://localhost/tester/EPG/mediacorp24092012.xml");
         EpgFeeder.EpgFeederObj test = new EpgFeeder.EpgFeederObj(1, 2, "148|EPGxmlTv|WebURL|http://localhost/tester/EPG/mediacorp03102012.xml");
-        
+
         bool res = test.DoTheTask();
         this.Page.Response.Write("EPG Schedule Finish : " + res.ToString());
     }
@@ -488,8 +485,8 @@ public partial class EPGTester : System.Web.UI.Page
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/UK_bleb_05112012.xml");
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/fr_05112012.xml");
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/UK_bleb_22112012.xml");
-        
-        
+
+
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/fr_22112012.xml");
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/uk_02122012.xml");
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/fr_02122012.xml");
@@ -504,9 +501,9 @@ public partial class EPGTester : System.Web.UI.Page
         //EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/uk_16012013.xml");
         //************EpgFeeder.EpgFeeder test = new EpgFeeder.EpgFeeder(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/uk_29012013.xml");
         EpgFeeder.EpgFeederObj test = new EpgFeeder.EpgFeederObj(1, 2, "126|EPGxmlTv|WebURL|http://localhost/tester/EPG/fr_29012013.xml");
- 
-        
-        
+
+
+
         bool res = test.DoTheTask();
         this.Page.Response.Write("EPG Schedule Finish : " + res.ToString());
 
@@ -525,5 +522,5 @@ public partial class EPGTester : System.Web.UI.Page
     }
 
 
-  
+
 }

@@ -6,9 +6,12 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_ppv_module_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -206,11 +209,12 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             }
             selectQuery1.Finish();
             selectQuery1 = null;
-            Logger.Logger.Log("Languages", sTemp, "Languages");
+            log.Debug("Languages - " + sTemp);
             return sTemp;
         }
-        catch
+        catch (Exception ex)
         {
+            log.Error("", ex);
             HttpContext.Current.Response.Redirect("login.html");
             return "";
         }
@@ -218,14 +222,14 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
 
     protected void GetLangMenu()
     {
-        Logger.Logger.Log("Languages Response", m_sLangMenu, "Languages");
+        log.Debug("Languages Response - " + m_sLangMenu);
 
         Response.Write(m_sLangMenu);
     }
 
     protected void GetMainMenu()
     {
-        Logger.Logger.Log("Languages Response", "GetMainMenu", "Languages");
+        log.Debug("Languages Response - GetMainMenu");
         Response.Write(m_sMenu);
     }
 
@@ -428,7 +432,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
             dr_coupons_group.SetFieldType("string");
             System.Data.DataTable CouponsGroupDT = GetBaseDT();
-            
+
             TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);
             if (oCouponsGroup != null)
             {

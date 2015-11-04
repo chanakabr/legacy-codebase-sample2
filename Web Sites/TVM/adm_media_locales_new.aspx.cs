@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_media_locales_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -46,7 +49,7 @@ public partial class adm_media_locales_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", Session["media_id"].ToString() + " : " + ex.Message, "media_notifier");
+                    log.Error("exception - " + Session["media_id"].ToString() + " : " + ex.Message, ex);
                 }
 
                 return;
@@ -117,7 +120,7 @@ public partial class adm_media_locales_new : System.Web.UI.Page
         dr_country.SetOrderBy("ID");
         theRecord.AddRecord(dr_country);
 
-        DataRecordDropDownField dr_language = new DataRecordDropDownField("lu_languages", "NAME", "ID", "" , null, 60, false);
+        DataRecordDropDownField dr_language = new DataRecordDropDownField("lu_languages", "NAME", "ID", "", null, 60, false);
         dr_language.Initialize("Language", "adm_table_header_nbg", "FormInput", "language_id", false);
         dr_language.SetOrderBy("name");
         theRecord.AddRecord(dr_language);

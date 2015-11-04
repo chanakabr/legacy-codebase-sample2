@@ -27,7 +27,6 @@ public partial class tvinci : System.Web.UI.Page
         //ca.SubscriptionsPricesContainer[] cont = m.GetSubscriptionsPrices("conditionalaccess", "11111", subs, "30");
         CCRenewer.Renewer r = new CCRenewer.Renewer(0, 0, "93||1");
         r.DoTheJob();
-        //Logger.Logger.Log("sdfsdf", "sdfsdfsdfsdf", "ttt");
         /*
         tv_api.API t = new tv_api.API();
         t.Url = "http://localhost:1120/api.asmx";

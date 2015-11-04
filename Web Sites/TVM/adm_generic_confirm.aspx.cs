@@ -12,9 +12,12 @@ using TVinciShared;
 using TvinciImporter;
 using ApiObjects;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_generic_confirm : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected Int32 m_nID;
@@ -252,7 +255,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             string sWSPass = "";
             string sWSURL;
 
-            Logger.Logger.Log("Remove", "Table: " + m_sTable + " Id:" + m_nID.ToString(), "LuceneUpdate");
+            log.Debug("Remove - Table: " + m_sTable + " Id:" + m_nID.ToString());
 
             //Remove Media / Channel from Lucene 
             bool result = false;
@@ -290,11 +293,11 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         try
                         {
                             DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, dlmID);
-                            Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code), "RemoveDLM");
+                            log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), "RemoveDLM");
+                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), ex);
                         }
                     }
                     break;
@@ -307,11 +310,11 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                     try
                     {
                         DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, m_nID);
-                        Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code), "RemoveDLM");
+                        log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), "RemoveDLM");
+                        log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
                     }
                     break;
                 case "payment_gateway_config":
@@ -330,11 +333,11 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         try
                         {
                             Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, paymentGatewayId);
-                            Logger.Logger.Log("delete PG configuration", string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code), "SetPaymentGatewayConfiguration");
+                            log.Debug("delete PG configuration - " + string.Format("payment gateway ID:{0}, status:{1}", paymentGatewayId, status.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), "SetPaymentGatewayConfiguration");
+                            log.Error("Exception - " + string.Format("payment gateway ID:{0}, ex msg:{1}, ex st: {2} ", paymentGatewayId, ex.Message, ex.StackTrace), ex);
                         }
                     }
                     break;
@@ -359,15 +362,15 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         try
                         {
                             apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, ossAdapterId);
-                            Logger.Logger.Log("SetOSSAdapterConfiguration", string.Format("oss adapter id:{0}, status:{1}", ossAdapterId, status.Code), "SetOSSAdapterConfiguration");
+                            log.Debug("SetOSSAdapterConfiguration - " + string.Format("oss adapter id:{0}, status:{1}", ossAdapterId, status.Code));
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("Exception", string.Format("oss adapter id :{0}, ex msg:{1}, ex st: {2} ", ossAdapterId, ex.Message, ex.StackTrace), "SetOSSAdapterConfiguration");
+                            log.Error("Exception - " + string.Format("oss adapter id :{0}, ex msg:{1}, ex st: {2} ", ossAdapterId, ex.Message, ex.StackTrace), ex);
                         }
                     }
                     break;
-                
+
                 default:
                     break;
             }

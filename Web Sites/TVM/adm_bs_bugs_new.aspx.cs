@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -10,10 +11,12 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_bs_bugs_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -97,7 +100,9 @@ public partial class adm_bs_bugs_new : System.Web.UI.Page
                 Response.Write(PageUtils.GetPreHeader() + ": Bugs System: " + PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(Session["project_id"].ToString())).ToString() + ": New");
         }
         catch (Exception ex)
-        { }
+        {
+            log.Error("", ex);
+        }
     }
 
     protected void GetMainMenu()
@@ -143,7 +148,7 @@ public partial class adm_bs_bugs_new : System.Web.UI.Page
             t = Session["bs_bug_id"];
         string sBack = "adm_bs_bugs.aspx?search_save=1&project_id=" + Session["project_id"].ToString();
         DBRecordWebEditor theRecord = new DBRecordWebEditor("bs_project_bugs", "adm_table_pager", sBack, "", "ID", t, sBack, "project_id");
-        
+
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Short Description", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_name);

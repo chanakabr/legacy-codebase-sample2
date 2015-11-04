@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using DAL;
 using System.Data;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -73,11 +76,11 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
                                 try
                                 {
                                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", limitID, resp.Code));
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), ex);
                                 }
                             }
                         }
@@ -567,11 +570,11 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
                 try
                 {
                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", limitID, resp.Code));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), ex);
                 }
             }
 

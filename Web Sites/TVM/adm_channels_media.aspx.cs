@@ -10,9 +10,12 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_channels_media : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -94,7 +97,7 @@ public partial class adm_channels_media : System.Web.UI.Page
     {
         bool isAutoChannel = channelType == 1 ? true : false; // 1 = Auto channel 2 = maual channel
 
-        theTable += "select m.id as m_id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
+        theTable += "select m.id as id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
         if (!isAutoChannel)
         {
             theTable += ",cm.id as cm_id,cm.status,cm.order_num";
@@ -361,6 +364,7 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error(string.Empty, ex);
             mediaIDs = "0";
         }
 

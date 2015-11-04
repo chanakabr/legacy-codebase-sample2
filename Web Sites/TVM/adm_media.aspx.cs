@@ -10,13 +10,16 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
 using TvinciImporter;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_media : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
-    
+
     // Handle error messages from package propagations (Eutelsat) 
     protected void Page_PreRender(object sender, EventArgs e)
     {
@@ -32,20 +35,20 @@ public partial class adm_media : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        Logger.Logger.Log("MediaPage", "MediaPage", "TempLogin");
+        log.Debug("MediaPage - MediaPage");
         if (LoginManager.CheckLogin() == false)
         {
-            Logger.Logger.Log("False Login", "Login Is False", "TempLogin");
+            log.Debug("False Login - Login Is False");
             Response.Redirect("login.html");
         }
         if (LoginManager.IsPagePermitted() == false)
         {
-            Logger.Logger.Log("Page Not Permitted", "Page Not Permitted", "TempLogin");
+            log.Debug("Page Not Permitted - Page Not Permitted");
             LoginManager.LogoutFromSite("login.html");
         }
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
         {
-            Logger.Logger.Log("AMS", "AMS", "TempLogin");
+            log.Debug("AMS - AMS");
             return;
         }
         if (!IsPostBack)
@@ -55,7 +58,7 @@ public partial class adm_media : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
             if (Request.QueryString["search_save"] != null)
             {
-                Session["search_save"] = "1";              
+                Session["search_save"] = "1";
             }
             else
                 Session["search_save"] = null;
@@ -102,7 +105,7 @@ public partial class adm_media : System.Web.UI.Page
         }
     }
 
-    protected void InsertStrMetaToTable(ref DBTableWebEditor theTable , Int32 nGroupID , bool bWithQ)
+    protected void InsertStrMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += " select * from groups where ";
@@ -160,7 +163,7 @@ public partial class adm_media : System.Web.UI.Page
         }
         selectQuery.Finish();
         selectQuery = null;
-        
+
     }
 
     protected void InsertDoubleMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
@@ -201,11 +204,11 @@ public partial class adm_media : System.Web.UI.Page
         selectQuery = null;
     }
 
-    protected void AddCommentFields(ref DBTableWebEditor theTable , Int32 nGroupID)
+    protected void AddCommentFields(ref DBTableWebEditor theTable, Int32 nGroupID)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from comment_types where status=1 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id" , "=" , nGroupID);
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
         selectQuery += " order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
@@ -240,8 +243,8 @@ public partial class adm_media : System.Web.UI.Page
             theTable += ",tags t,media_tags mt ";
         if (Session["search_only_unapproved_comments"] != null && Session["search_only_unapproved_comments"].ToString() != "")
             theTable += ",media_comments mc ";
-        
-        
+
+
         theTable += "where m.status<>2 and lcs.id=m.status ";
         if (Session["search_tag"] != null && Session["search_tag"].ToString() != "")
         {
@@ -266,25 +269,25 @@ public partial class adm_media : System.Web.UI.Page
                 theTable += " OR ";
                 theTable += ODBCWrapper.Parameter.NEW_PARAM("m.ID", "=", n);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META1_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META1_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META2_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META2_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META3_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META3_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META4_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META4_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META5_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META5_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META6_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META6_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META7_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META7_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META8_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META8_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META9_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META9_DOUBLE", "=", d);
                 theTable += " OR ";
-                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META10_DOUBLE" , "=" , d);
+                theTable += ODBCWrapper.Parameter.NEW_PARAM("m.META10_DOUBLE", "=", d);
             }
             theTable += ")";
         }
@@ -298,7 +301,7 @@ public partial class adm_media : System.Web.UI.Page
             theTable += " and ";
             theTable += ODBCWrapper.Parameter.NEW_PARAM("m.MEDIA_TYPE_ID", "=", int.Parse(Session["search_tag_type"].ToString()));
         }
-        
+
         theTable += "and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("m.group_id", "=", nGroupID);
         theTable += " )q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
@@ -351,7 +354,7 @@ public partial class adm_media : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
-        AddCommentFields(ref theTable , nGroupID);
+        AddCommentFields(ref theTable, nGroupID);
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_cube.aspx", "Statistics", "");
             linkColumn1.AddQueryStringValue("media_id", "field=id");
@@ -510,7 +513,7 @@ public partial class adm_media : System.Web.UI.Page
         }
     }
     */
-    public string GetPageContent(string sOrderBy, string sPageNum, string search_tag, string search_free, string search_on_off, 
+    public string GetPageContent(string sOrderBy, string sPageNum, string search_tag, string search_free, string search_on_off,
         string search_only_unapproved_comments, string search_tag_type)
     {
         if (search_tag != "")

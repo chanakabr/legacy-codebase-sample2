@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_epg_tags_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -22,7 +25,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-               // DBManipulator.DoTheWork();
+                // DBManipulator.DoTheWork();
                 int nEpgTagTypelID = 0;
                 if (Session["epg_tag_id"] != null && Session["epg_tag_id"].ToString() != "" && int.Parse(Session["epg_tag_id"].ToString()) != 0)
                     nEpgTagTypelID = int.Parse(Session["epg_tag_id"].ToString());
@@ -91,40 +94,40 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
                                 TagName = sVal;
                             }
                         }
-                      
+
                     }
                 }
                 else if (sType == "int" && coll[nCounter.ToString() + "_field"] != null)
+                {
+                    string sExtID = coll[nCounter.ToString() + "_field"].ToString();
+                    if (sExtID != "")
                     {
-                        string sExtID = coll[nCounter.ToString() + "_field"].ToString();
-                        if (sExtID != "")
+                        if (coll[nCounter.ToString() + "_val"] != null)
                         {
-                            if (coll[nCounter.ToString() + "_val"] != null)
+                            sVal = coll[nCounter.ToString() + "_val"].ToString();
+                            if (!string.IsNullOrEmpty(sVal))
                             {
-                                sVal = coll[nCounter.ToString() + "_val"].ToString();
-                                if (!string.IsNullOrEmpty(sVal))
+                                if (sExtID.ToLower() == "is_active")
                                 {
-                                    if (sExtID.ToLower() == "is_active")
-                                    {
-                                        isActive = int.Parse(sVal);
-                                    }
-                                    if (sExtID.ToLower() == "group_id")
-                                    {
-                                        groupID = int.Parse(sVal);
-                                    }
-                                    if (sExtID.ToLower() == "order_num")
-                                    {
-                                        orderNum = int.Parse(sVal);
-                                    }
-                                    if (sExtID.ToLower() == "tag_type_flag")
-                                    {
-                                        tagTypeFlag = int.Parse(sVal);
-                                    }
+                                    isActive = int.Parse(sVal);
+                                }
+                                if (sExtID.ToLower() == "group_id")
+                                {
+                                    groupID = int.Parse(sVal);
+                                }
+                                if (sExtID.ToLower() == "order_num")
+                                {
+                                    orderNum = int.Parse(sVal);
+                                }
+                                if (sExtID.ToLower() == "tag_type_flag")
+                                {
+                                    tagTypeFlag = int.Parse(sVal);
                                 }
                             }
-
                         }
+
                     }
+                }
                 else if (sType == "multi" && coll[nCounter.ToString() + "_extra_field_val"] != null)
                 {
                     string sExtID = coll[nCounter.ToString() + "_extra_field_val"].ToString();
@@ -149,6 +152,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            log.Error(string.Empty, ex);
             return false;
         }
     }
@@ -202,7 +206,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         theRecord.AddRecord(dr_IsActive);
 
         // tags values        
-        DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_tags_types_defaults", "epg_tag_type_id", "epg_tag_id", true, "ltr", 60, "tags");        
+        DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_tags_types_defaults", "epg_tag_type_id", "epg_tag_id", true, "ltr", 60, "tags");
         dr_tags.Initialize("Values", "adm_table_header_nbg", "FormInput", "Value", false);
         dr_tags.SetCollectionLength(8);
         string s_epg_tag_type_id = "0";
@@ -210,8 +214,8 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
         {
             s_epg_tag_type_id = t.ToString();
         }
-            dr_tags.SetExtraWhere("epg_tag_type_id=" + s_epg_tag_type_id);
-        
+        dr_tags.SetExtraWhere("epg_tag_type_id=" + s_epg_tag_type_id);
+
         theRecord.AddRecord(dr_tags);
 
         DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
@@ -221,7 +225,7 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_tag_flag = new DataRecordDropDownField("lu_tag_type_flag", "DESCRIPTION", "id", "", null, 60, true);
         dr_tag_flag.SetNoSelectStr("---");
-        dr_tag_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "tag_type_flag", false);     
+        dr_tag_flag.Initialize("Tag Type Flag", "adm_table_header_nbg", "FormInput", "tag_type_flag", false);
         theRecord.AddRecord(dr_tag_flag);
 
         string sTable = theRecord.GetTableHTML("adm_epg_tags_new.aspx?submited=1");

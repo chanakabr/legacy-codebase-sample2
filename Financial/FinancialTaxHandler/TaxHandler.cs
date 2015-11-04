@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using KLogMonitor;
 
 
 namespace FinancialTaxHandler
 {
     public class TaxHandler : ScheduledTasks.BaseTask
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         static protected object o = new object();
         public TaxHandler(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
@@ -36,9 +39,9 @@ namespace FinancialTaxHandler
             return DoTheJob();
         }
 
-        static protected FinancialUtils.FinancialPayment[] GetContractID(Int32 nGroupID, Int32 nCountryID, Int32 nDeviceID, Int32 nLangID, 
-            double dPaid, Int32 nCurrencyCodeID , Int32 nTransactionNumberThisMonth , double dTotalPaidThisMonth ,
-            DateTime dTransactionDate, bool bIsLicense, bool bIsSub, Int32 nEntityType , Int32 nBillingProcessorID , Int32 nBillingMethodID)
+        static protected FinancialUtils.FinancialPayment[] GetContractID(Int32 nGroupID, Int32 nCountryID, Int32 nDeviceID, Int32 nLangID,
+            double dPaid, Int32 nCurrencyCodeID, Int32 nTransactionNumberThisMonth, double dTotalPaidThisMonth,
+            DateTime dTransactionDate, bool bIsLicense, bool bIsSub, Int32 nEntityType, Int32 nBillingProcessorID, Int32 nBillingMethodID)
         {
             FinancialUtils.FinancialPayment[] ret = new FinancialUtils.FinancialPayment[0];
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -61,7 +64,7 @@ namespace FinancialTaxHandler
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("fe.BILLING_METHOD_ID", "=", nBillingMethodID);
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("fe.BILLING_PROCESSOR_ID", "=", nBillingProcessorID);
-                
+
             }
             if (bIsSub != bIsLicense)
             {
@@ -72,13 +75,13 @@ namespace FinancialTaxHandler
             }
             //if (nTransactionNumberThisMonth > 0)
             //{
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("t.MIN_NUMBER_OF_TRANSACTIONS", ">=", nTransactionNumberThisMonth);
-                selectQuery += " and (t.MAX_NUMBER_OF_TRANSACTIONS=0 or";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("t.MAX_NUMBER_OF_TRANSACTIONS", "<", nTransactionNumberThisMonth);
-                selectQuery += ")";
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("t.MIN_NUMBER_OF_TRANSACTIONS", ">=", nTransactionNumberThisMonth);
+            selectQuery += " and (t.MAX_NUMBER_OF_TRANSACTIONS=0 or";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("t.MAX_NUMBER_OF_TRANSACTIONS", "<", nTransactionNumberThisMonth);
+            selectQuery += ")";
             //}
-            
+
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -124,7 +127,7 @@ namespace FinancialTaxHandler
                         dCalc = dMAX_AMOUNT;
                     double dFinalPrice = dCalc;
 
-                    ret[ret.Length - 1].Initialize(nContractID, nFEID, dCalc, dFinalPrice, nCurrencyCodeID, "" , nGroupID , dPaid , nBillingProcessorID , nBillingMethodID);
+                    ret[ret.Length - 1].Initialize(nContractID, nFEID, dCalc, dFinalPrice, nCurrencyCodeID, "", nGroupID, dPaid, nBillingProcessorID, nBillingMethodID);
                     /*
                     double dAFF_REGISTER_FIX_PRICE = FinancialUtils.Utils.GetDoubleSafeVal(ref selectQuery, "AFF_REGISTER_FIX_PRICE", i);
                     double dAFF_SUB_FIX_PRICE = FinancialUtils.Utils.GetDoubleSafeVal(ref selectQuery, "AFF_SUB_FIX_PRICE", i);
@@ -149,12 +152,12 @@ namespace FinancialTaxHandler
             return ret;
         }
 
-        static public Int32 GetCountOfMonthProcessorMethodTransactions(DateTime dTransactionDate, Int32 nBillingProcessorID, 
-            Int32 nBillingMethodID , string sCurrencyCode)
+        static public Int32 GetCountOfMonthProcessorMethodTransactions(DateTime dTransactionDate, Int32 nBillingProcessorID,
+            Int32 nBillingMethodID, string sCurrencyCode)
         {
             Int32 nCo = 0;
             dTransactionDate = dTransactionDate.AddMonths(-1);
-            DateTime dStart = new DateTime(dTransactionDate.Year , dTransactionDate.Month , 1 ,0 , 0 , 0).AddMonths(1);
+            DateTime dStart = new DateTime(dTransactionDate.Year, dTransactionDate.Month, 1, 0, 0, 0).AddMonths(1);
             DateTime dEnd = dStart.AddMonths(1);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select count(*) as 'co' from billing_transactions_financial_payments (nolock) where  ";
@@ -210,7 +213,7 @@ namespace FinancialTaxHandler
                     Int32 nID = FinancialUtils.Utils.GetIntSafeVal(ref selectQuery, "ID", i);
                     double dPaid = FinancialUtils.Utils.GetDoubleSafeVal(ref selectQuery, "TOTAL_PRICE", i);
                     Int32 nGroupID = FinancialUtils.Utils.GetIntSafeVal(ref selectQuery, "GROUP_ID", i);
-                    
+
                     string sCurrencyCode = FinancialUtils.Utils.GetStrSafeVal(ref selectQuery, "CURRENCY_CODE", i);
                     string sCountryCode = FinancialUtils.Utils.GetStrSafeVal(ref selectQuery, "COUNTRY_CODE", i);
                     string sDevice = FinancialUtils.Utils.GetStrSafeVal(ref selectQuery, "DEVICE_NAME", i);
@@ -235,7 +238,7 @@ namespace FinancialTaxHandler
                     double dTotalPaidThisMonth = 0.0;
 
                     FinancialUtils.FinancialPayment[] thePayments = GetContractID(nGroupID, nCountryID, nDeviceID, nLangID, dPaid, nCurrencyCodeID,
-                        nTransactionNumberThisMonth, dTotalPaidThisMonth, dTransactionDate, false, false, 4 , nBillingProcessorID , nBillingMethodID);
+                        nTransactionNumberThisMonth, dTotalPaidThisMonth, dTransactionDate, false, false, 4, nBillingProcessorID, nBillingMethodID);
                     Int32 nPaymentsCount = thePayments.Length;
                     for (int j = 0; j < nPaymentsCount; j++)
                     {
@@ -256,7 +259,7 @@ namespace FinancialTaxHandler
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_PROCESSOR_ID", "=", thePayments[j].m_nBillingProcessorID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_METHOD_ID", "=", thePayments[j].m_nBillingMethodID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_DATE", "=", dTransactionDate);
-                        
+
                         insertQuery.Execute();
                         insertQuery.Finish();
                         insertQuery = null;
@@ -306,8 +309,8 @@ namespace FinancialTaxHandler
                     Int32 nTransactionNumberThisMonth = 0;
                     double dTotalPaidThisMonth = 0.0;
 
-                    FinancialUtils.FinancialPayment[] thePayments = GetContractID(nGroupID, nCountryID, nDeviceID, nLangID, dPaid, nCurrencyCodeID , 
-                        nTransactionNumberThisMonth , dTotalPaidThisMonth , dTransactionDate , false , false , 3 , 0 , 0);
+                    FinancialUtils.FinancialPayment[] thePayments = GetContractID(nGroupID, nCountryID, nDeviceID, nLangID, dPaid, nCurrencyCodeID,
+                        nTransactionNumberThisMonth, dTotalPaidThisMonth, dTransactionDate, false, false, 3, 0, 0);
                     Int32 nPaymentsCount = thePayments.Length;
                     for (int j = 0; j < nPaymentsCount; j++)
                     {
@@ -368,7 +371,7 @@ namespace FinancialTaxHandler
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Exception", "On function: DoTheTaskInner: " + ex.Message + " || " + ex.StackTrace, "FinancialSync");
+                log.Error("Exception - On function: DoTheTaskInner ", ex);
                 return false;
             }
         }

@@ -9,14 +9,17 @@ using TVinciShared;
 using System.Collections;
 using System.Data;
 using System.Diagnostics;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_batch_upload_update : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
     protected void Page_Load(object sender, EventArgs e)
-    {        
+    {
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
         if (LoginManager.IsPagePermitted() == false)
@@ -53,7 +56,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         if (Session["channels_ids"] == null)
         {
             Session["channels_ids"] = new Hashtable();
-        }      
+        }
         if (sAction.ToLower().Equals("add") && !((Hashtable)Session["channels_ids"]).ContainsKey(sID))
         {
             ((Hashtable)Session["channels_ids"]).Add(sID, sID);
@@ -61,7 +64,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
         else if (sAction.ToLower().Equals("remove") && ((Hashtable)Session["channels_ids"]).ContainsKey(sID))
         {
-             ((Hashtable)Session["channels_ids"]).Remove(sID);
+            ((Hashtable)Session["channels_ids"]).Remove(sID);
         }
 
         return "";
@@ -69,9 +72,9 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
     public string initDualObj()
     {
-        
+
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        
+
         if (Session["channels_ids"] != null)
             Session["channels_ids"] = null;
 
@@ -83,7 +86,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         sRet += "<root>";
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from channels where status=1 and channel_type<>3 and watcher_id=0 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID); 
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID);
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -100,19 +103,19 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
                 sTitle += "(" + sGroupName.ToString() + ")";
 
                 string sDescription = "";
-                
-                sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"false\" />";
+
+                sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-        
-        
+
+
         sRet += "</root>";
         return sRet;
     }
 
-    
+
 
 
     protected void GetExcel(object sender, EventArgs e)
@@ -124,7 +127,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
 
         Int32[] nMedias = GetAllMediasID();
-        
+
         if (nMedias == null || nMedias.Length == 0)
             return;
 
@@ -132,7 +135,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
         DataTable resultTable = excelGenerator.GetExcelTableEdit(nMedias);
 
-        string style = @"<style> td { mso-number-format:\@; text-align:left; } </style> "; 
+        string style = @"<style> td { mso-number-format:\@; text-align:left; } </style> ";
 
         GridView gv = new GridView();
 
@@ -198,8 +201,8 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         }
 
         gv.Rows[0].Font.Bold = true;
-            
-        
+
+
         HttpContext.Current.Response.Clear();
         HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
         HttpContext.Current.Response.Charset = "UTF-8";
@@ -215,17 +218,17 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
     }
 
     private Int32[] GetAllMediasID()
-    { 
+    {
         Hashtable hChannelsIDS = (Hashtable)Session["channels_ids"];
         // cast all channels ke to list 
         List<string> sChannelsIDS = hChannelsIDS.Keys.OfType<string>().ToList();
         List<int> ChannelsIDS = sChannelsIDS.Select(x => int.Parse(x)).ToList();
         int[] mediaIDs = GetMediaIdsFromCatalog(ChannelsIDS);
-        return mediaIDs;     
+        return mediaIDs;
     }
 
-    private int[]  GetMediaIdsFromCatalog(List<int> ChannelsIDS)
-    {       
+    private int[] GetMediaIdsFromCatalog(List<int> ChannelsIDS)
+    {
         try
         {
             int[] assetIds;
@@ -244,11 +247,12 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
             apiWS.API client = new apiWS.API();
             client.Url = sWSURL;
 
-            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, ChannelsIDS.ToArray(), null, false, string.Empty,false, true);
+            assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, ChannelsIDS.ToArray(), null, false, string.Empty, false, true);
             return assetIds;
         }
         catch (Exception ex)
         {
+            log.Error(string.Empty, ex);
             return null;
         }
 

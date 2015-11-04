@@ -116,6 +116,7 @@ namespace GracenoteFeeder
             }
             catch (Exception exp)
             {
+                log.Error("", exp);
             }
             return res;
         }

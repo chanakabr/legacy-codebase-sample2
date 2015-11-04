@@ -7,13 +7,14 @@ using System.Configuration;
 using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.IO.Compression;
-using Logger;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
     public class Utils
     {
-        //private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         static public double GetDoubleSafeVal(ref ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
@@ -304,7 +305,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);               
+                log.Error(string.Empty, ex);
                 zipOutput.Finish();
                 zipOutput.Close();
                 zipOutput = null;

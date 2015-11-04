@@ -6,8 +6,9 @@ using System.IO;
 using TVinciShared;
 using System.Data;
 using System.Collections;
-using Logger;
 using ICSharpCode.SharpZipLib.Zip;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Financial
 {
@@ -25,7 +26,7 @@ namespace Financial
         BreakDownReport = 2,
         UnKNOWN = 3,
         Zip = 4
-        
+
     }
 
     public class GiftObject
@@ -44,12 +45,12 @@ namespace Financial
 
     public class BaseFinancialReport
     {
-        //private static readonly ILogger4Net _logger = Log4NetManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Hashtable hParentEntityTotals;
         protected Hashtable ht;
 
-        protected Hashtable hPPVCounter;        
+        protected Hashtable hPPVCounter;
         protected Hashtable hSubsCounter;
         protected Hashtable hPrePaidCounter;
 
@@ -74,7 +75,7 @@ namespace Financial
             hParentEntityTotals = new Hashtable();
             ht = new Hashtable();
             hPPVCounter = new Hashtable();
-            
+
             hSubsCounter = new Hashtable();
             hPrePaidCounter = new Hashtable();
 
@@ -92,7 +93,7 @@ namespace Financial
 
             m_nRHEntityID = nRHEntityID;
         }
-        
+
         public void CreateReport(string serverPath)
         {
             string[] sfilesEnntries = new string[2];
@@ -121,7 +122,7 @@ namespace Financial
 
             AddFile(serverPath);
             string sReportType = "Financial_Report";
-            sfilesEnntries[0] = string.Format("{0}_{1}_{2}.{3}",sReportType, m_nGroupID.ToString(), sFileName, m_sFileExt);
+            sfilesEnntries[0] = string.Format("{0}_{1}_{2}.{3}", sReportType, m_nGroupID.ToString(), sFileName, m_sFileExt);
 
             m_oReport = GetRowDataReport();
             m_eReportType = ReportType.BreakDownReport;
@@ -164,7 +165,7 @@ namespace Financial
             }
             selectQuery.Finish();
             selectQuery = null;
-           
+
             string savePath = System.IO.Path.Combine(path, zipName);
 
             FTPUploader t = new FTPUploader(savePath, sFTP, sFTPUN, sFTPPass);
@@ -213,15 +214,15 @@ namespace Financial
 
             string savePath = System.IO.Path.Combine(path, uniqueFileName);
 
-            try 
+            try
             {
                 System.IO.File.WriteAllText(savePath, (string)m_oReport);
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("Error", "GroupID=" + m_nGroupID + " startDate=" + m_dStartDate.ToString("yyyy-MM-dd") + " endDate=" + m_dEndDate.ToString("yyyy-MM-dd") + " Error="+ex.Message, "FinancialReport");
+                log.Error("Error - GroupID=" + m_nGroupID + " startDate=" + m_dStartDate.ToString("yyyy-MM-dd") + " endDate=" + m_dEndDate.ToString("yyyy-MM-dd") + " Error=" + ex.Message, ex);
                 return;
-            }           
+            }
 
             //string sFTPUN = string.Empty;
             //string sFTPPass = string.Empty;
@@ -248,7 +249,7 @@ namespace Financial
         }
 
 
-       
+
 
         private void DeleteOldReport()
         {
@@ -268,10 +269,9 @@ namespace Financial
 
         public virtual string GetReport()
         {
-            //_logger.Info(string.Format("{0} {1} : {2}, {3} : {4}, {5} : {6}, {7} : {8}","BaseFinancialReport", "GroupID=", m_nGroupID, "RightHolder", m_nRHEntityID, "startDate", m_dStartDate.ToString(), "endDate", m_dEndDate.ToString()));
-            Logger.Logger.Log("BaseFinancialReport ", " GroupID="+ m_nGroupID.ToString() + " RightHolder:"+ m_nRHEntityID.ToString() +" startDate:"+m_dStartDate.ToString()+" endDate:"+m_dEndDate.ToString(), "FinancialReport");
-             
-            
+            log.Debug("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + " RightHolder:" + m_nRHEntityID.ToString() + " startDate:" + m_dStartDate.ToString() + " endDate:" + m_dEndDate.ToString());
+
+
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<finacialReport>");
             sRet.Append("<totals>");
@@ -280,7 +280,7 @@ namespace Financial
 
             CountPPVItems();
             CountSubsItems();
-           
+
             double dPrePaidSum = CountPrePaidItems();
 
             double sum = 0.0;
@@ -342,13 +342,13 @@ namespace Financial
                             //ppv
                             sRet.Append("<PPV>");
                             GetPPVByHolderName(ref sRet, sEntites);
-                            sRet.Append("</PPV>");                           
+                            sRet.Append("</PPV>");
 
                             //subscriptions
                             sRet.Append("<subscriptions>");
-                            GetSubscriptionByHolderName(ref sRet,sEntites);
+                            GetSubscriptionByHolderName(ref sRet, sEntites);
                             sRet.Append("</subscriptions>");
-                          
+
                         }
                     }
                     selectQuery1.Finish();
@@ -362,17 +362,17 @@ namespace Financial
             //Get Holder Name 
             string sGroupName = GetGroupName();
             sRet.Append("<holder name=\"" + ProtocolsFuncs.XMLEncode(sGroupName, true) + "\">");
-            
+
             //PPV
             sRet.Append("<PPV>");
             GetPPVByGroupName(ref sRet);
             sRet.Append("</PPV>");
-                    
+
             //subscriptions
             sRet.Append("<subscriptions>");
             GetSubscriptionByGroupName(ref sRet);
             sRet.Append("</subscriptions>");
-           
+
             sRet.Append("</holder>");
             sRet.Append("</contentHolders>");
 
@@ -417,13 +417,12 @@ namespace Financial
             }
             catch (Exception ex)
             {
-               // _logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + " RightHolder:" + m_nRHEntityID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + " RightHolder:" + m_nRHEntityID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
         public virtual void GetGifts(ref StringBuilder sRet)
-        {           
+        {
             try
             {
                 foreach (DictionaryEntry de in hPPVCounter)
@@ -499,13 +498,12 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
         protected void GetSubscriptionByHolderName(ref StringBuilder sRet, string sEntites)
-        {            
+        {
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -543,8 +541,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -590,8 +587,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -638,13 +634,12 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Info(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
         protected void GetPPVByGroupName(ref StringBuilder sRet)
-        {           
+        {
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -678,7 +673,7 @@ namespace Financial
                             go = (GiftObject)hPPVCounter[nItemID];
                         }
 
-                        sRet.Append("<ppv item_id=\"" + nItemID + "\" item_name=\"" + ProtocolsFuncs.XMLEncode(sItemName, true) + "\" amount=\"" + Math.Round(dTotal, 2).ToString().Replace(",", ".") + "\" count=\"" + go.nCounter + "\"/>");                        
+                        sRet.Append("<ppv item_id=\"" + nItemID + "\" item_name=\"" + ProtocolsFuncs.XMLEncode(sItemName, true) + "\" amount=\"" + Math.Round(dTotal, 2).ToString().Replace(",", ".") + "\" count=\"" + go.nCounter + "\"/>");
                     }
                 }
                 selectQuery.Finish();
@@ -686,8 +681,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -711,8 +705,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Info(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
                 sGroupName = string.Empty;
             }
 
@@ -755,20 +748,18 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
                 sEntites = string.Empty;
             }
             return sEntites;
         }
-         
+
         public virtual string GetReportForRH()
         {
-            //_logger.Info(string.Format("{0} {1} : {2}, {3} : {4}, {5} : {6}, {7} :{8}", "BaseFinancialReport", "GroupID", m_nGroupID, "RightHolder", m_nRHEntityID, "startDate", m_dStartDate.ToString(), "endDate", m_dEndDate.ToString()));
-            Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + " RightHolder:" + m_nRHEntityID.ToString() + " startDate:", m_dStartDate.ToString() + " endDate:", m_dEndDate.ToString(), "FinancialReport");
+            log.Debug("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + " RightHolder:" + m_nRHEntityID.ToString() + " startDate:" + m_dStartDate.ToString() + " endDate:" + m_dEndDate.ToString());
 
             StringBuilder sRet = new StringBuilder();
-            
+
             string sEntites = FinancialEntitiesByParentEntity();
 
             if (string.IsNullOrEmpty(sEntites))
@@ -785,7 +776,7 @@ namespace Financial
 
             CountPPVItems();
             CountSubsItems();
-            
+
             //Sum Revenues For PPV
             double sum = 0.0;
             Int32 counter = 0;
@@ -802,7 +793,7 @@ namespace Financial
             GetSumRevenuesSubscription(sEntites, ref sum, ref counter, out sSubs);
             sRet.Append("<subscriptions amount=\"" + Math.Round(sum, 2).ToString() + "\" count=\"" + counter + "\">");
             sRet.Append(sSubs.ToString());
-            sRet.Append("</subscriptions>");           
+            sRet.Append("</subscriptions>");
 
 
             sRet.Append("</finacialReport>");
@@ -859,9 +850,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
-
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -932,8 +921,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -965,12 +953,11 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
             return dTotal;
         }
-        
+
         protected void CountPPVItems()
         {
             try
@@ -1048,8 +1035,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
@@ -1115,8 +1101,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport-GetTotalPPV ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport-GetTotalPPV - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
                 sRet = new StringBuilder();
             }
             return sRet.ToString();
@@ -1205,17 +1190,16 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport- CountSubsItems", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport- CountSubsItems - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
         }
 
         protected string GetTotalSubs(ref double dSum, ref Int32 nCounter)
-        {           
+        {
             dSum = 0.0;
             nCounter = 0;
             StringBuilder sRet = new StringBuilder();
-            
+
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1268,8 +1252,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport- GetTotalSubs", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport- GetTotalSubs GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
             }
 
             return sRet.ToString();
@@ -1360,8 +1343,7 @@ namespace Financial
             }
             catch (Exception ex)
             {
-                //_logger.Error(ex.Message, ex);
-                Logger.Logger.Log("BaseFinancialReport- CountPrePaidItems ", " GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, "FinancialReport");
+                log.Error("BaseFinancialReport- CountPrePaidItems - GroupID=" + m_nGroupID.ToString() + "exception: " + ex.Message, ex);
                 dSum = 0.0;
             }
 
@@ -1446,7 +1428,7 @@ namespace Financial
 
             return sRet.ToString();
         }
-        
+
         protected string GetTotals()
         {
             StringBuilder sRet = new StringBuilder();

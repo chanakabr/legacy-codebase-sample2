@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Xml;
 using VASTParser;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class vast_gateway : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected string GetSafeQueryString(string sKey)
     {
@@ -57,7 +60,7 @@ public partial class vast_gateway : System.Web.UI.Page
                 Response.Clear();
                 Response.Expires = -1;
                 Response.ContentType = "text/xml";
-                Logger.Logger.Log("Vast XML", "Vast response xml is " + sXml, "VastGateway");
+                log.Debug("Vast XML - Vast response xml is " + sXml);
                 Response.Write(retXml);
 
             }
@@ -104,7 +107,7 @@ public partial class vast_gateway : System.Web.UI.Page
                 }
                 else
                 {
-                   companionAdXml = TVinciShared.ProtocolsFuncs.GetErrorMessage("Unknown protocol type");
+                    companionAdXml = TVinciShared.ProtocolsFuncs.GetErrorMessage("Unknown protocol type");
                 }
             }
             Response.Clear();
@@ -112,6 +115,6 @@ public partial class vast_gateway : System.Web.UI.Page
             Response.ContentType = "text/xml";
             Response.Write(companionAdXml.ToString());
         }
-        
+
     }
 }

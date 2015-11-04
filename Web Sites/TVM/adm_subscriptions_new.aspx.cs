@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
 using TvinciImporter;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_subscriptions_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -212,7 +215,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", nSuscriptionID.ToString() + " : " + ex.Message, "subscriptions_notifier");
+                    log.Error("exception - " + nSuscriptionID.ToString() + " : " + ex.Message, ex);
                 }
 
                 if (nSuscriptionID != 0)
@@ -236,7 +239,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                     {
                         int idToUpdateInLucene = DBManipulator.BuildOrUpdateFictivicMedia("Package", sSubName, nSuscriptionID, LoginManager.GetLoginGroupID(), Session[OLD_SUB_NAME_SESSION_KEY] != null ? Session[OLD_SUB_NAME_SESSION_KEY].ToString() : string.Empty);
                         if (Session[OLD_SUB_NAME_SESSION_KEY] != null && Session[OLD_SUB_NAME_SESSION_KEY].ToString().Length > 0) // when updating media need to update in lucene as well. when creating the lucene update occurs on adm_media_new.aspx.cs
-                            ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);                           
+                            ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
                     }
                 }
 
@@ -245,7 +248,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
 
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
-            
+
             if (Request.QueryString["lang_id"] != null &&
                Request.QueryString["lang_id"].ToString() != "")
             {
@@ -302,7 +305,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
             sTemp += "</span></a></li>";
 
             ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery1 += "select l.name,l.id from group_extra_languages gel with (nolock) ,lu_languages l with (nolock) " + 
+            selectQuery1 += "select l.name,l.id from group_extra_languages gel with (nolock) ,lu_languages l with (nolock) " +
                             "where gel.language_id=l.id and l.status=1 and gel.status=1 and  ";
             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("gel.group_id", "=", nGroupID);
             selectQuery1 += " order by l.name";
@@ -451,7 +454,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
         return dT.Copy();
     }
 
-    
+
 
     protected System.Data.DataTable GetLimitsDT()
     {
@@ -476,7 +479,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        
+
         object t = null;
         if (Session["subscription_id"] != null && Session["subscription_id"].ToString() != "" && int.Parse(Session["subscription_id"].ToString()) != 0)
             t = Session["subscription_id"];
@@ -484,7 +487,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
         string sBack = "adm_subscriptions.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("subscriptions", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("pricing_connection");
-        
+
         string sMainLang = "";
         string sMainCode = "";
         if (int.Parse(Session["lang_id"].ToString()) == GetMainLang(ref sMainLang, ref sMainCode))
@@ -493,7 +496,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
             dr_domain.Initialize("Code", "adm_table_header_nbg", "FormInput", "Name", true);
             theRecord.AddRecord(dr_domain);
 
-            DataRecordDropDownField dr_sub_price_codes = new DataRecordDropDownField("discount_codes", "code", "id", "", null , 60 , false);
+            DataRecordDropDownField dr_sub_price_codes = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
             dr_sub_price_codes.SetFieldType("string");
             System.Data.DataTable priceCodesDT = GetBaseDT();
             string sWSUserName = "";
@@ -583,7 +586,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
             DataRecordDropDownField dr_discExternal = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
             dr_discExternal.SetFieldType("string");
             dr_discExternal.SetNoSelectStr("---");
-           
+
             System.Data.DataTable discCodesExternalDT = GetBaseDT();
             sWSUserName = "";
             sWSPass = "";
@@ -734,9 +737,9 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
         DataRecordDropDownField dr_device_limits = new DataRecordDropDownField("groups_device_limitation_modules", "Name", "id", "group_id", PageUtils.GetUpperGroupID(LoginManager.GetLoginGroupID()), 60, false);
         dr_device_limits.SetSelectsDT(GetLimitsDT());
         dr_device_limits.Initialize("Device Limit", "adm_table_header_nbg", "FormInput", "device_limit_id", false);
-        
+
         theRecord.AddRecord(dr_device_limits);
-        
+
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
@@ -744,8 +747,8 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
         theRecord.AddRecord(dr_groups);
 
         DataRecordDropDownField dr_block_rules = new DataRecordDropDownField("subscriptions", "NAME", "id", "", null, 60, true);
-        string sQuery = "select gbt.name as txt, gbt.id as id from TVinci..geo_block_types gbt with (nolock), lu_content_status lcs with (nolock) " + 
-            "where gbt.status=lcs.id and gbt.geo_rule_type=3 and gbt.status=1 and gbt.is_active=1 and gbt.group_id = " + 
+        string sQuery = "select gbt.name as txt, gbt.id as id from TVinci..geo_block_types gbt with (nolock), lu_content_status lcs with (nolock) " +
+            "where gbt.status=lcs.id and gbt.geo_rule_type=3 and gbt.status=1 and gbt.is_active=1 and gbt.group_id = " +
             LoginManager.GetLoginGroupID().ToString();
         dr_block_rules.SetSelectsQuery(sQuery);
         dr_block_rules.Initialize("Countries rule", "adm_table_header_nbg", "FormInput", "geo_commerce_block_id", false);

@@ -7,9 +7,12 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using DAL;
 using System.Collections.Specialized;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_limitation_modules_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -80,11 +83,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                                 try
                                 {
                                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, parentLimitID);
-                                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", parentLimitID, resp.Code), "RemoveDLM");
+                                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", parentLimitID, resp.Code));
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", parentLimitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", parentLimitID, ex.Message, ex.StackTrace), ex);
                                 }
                             }
                             finally
@@ -121,7 +124,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-
+                    log.Error(string.Empty, ex);
                 }
                 Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
                 if (nLogedInGroupID != nOwnerGroupID && !PageUtils.IsTvinciUser())
@@ -134,7 +137,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             {
                 //if (Session["limit_id"] == null || Session["limit_id"].ToString().Length == 0)
                 //{
-                    Session["limit_id"] = 0;
+                Session["limit_id"] = 0;
                 //}
             }
 
@@ -146,7 +149,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             {
                 //if (Session["parent_limit_id"] == null || Session["parent_limit_id"].ToString().Length == 0)
                 //{
-                    Session["parent_limit_id"] = 0;
+                Session["parent_limit_id"] = 0;
                 //}
             }
 
@@ -165,7 +168,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
         if (ruleType == "3" && ruleVal != "0")
             return false;
         else
-            return true;        
+            return true;
     }
 
     static public string GetWSURL(string sKey)
@@ -268,7 +271,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
 
     public string initDualObj()
     {
-        Dictionary<string, object> dualList = new Dictionary<string, object>();        
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
         dualList.Add("FirstListTitle", "Device Families");
         dualList.Add("SecondListTitle", "Available Device Families");
 
@@ -443,7 +446,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 umObjList.Sort();
             }
 
-            Session["device_families"] = umObjList;                        
+            Session["device_families"] = umObjList;
 
             if (Session["parent_limit_id"] != null && Session["parent_limit_id"].ToString().Length > 0)
             {
@@ -463,11 +466,11 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 try
                 {
                     DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, limitID);
-                    Logger.Logger.Log("RemoveDLM", string.Format("Dlm:{0}, res:{1}", limitID, resp.Code), "RemoveDLM");
+                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", limitID, resp.Code));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("Exception", string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), "RemoveDLM");
+                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", limitID, ex.Message, ex.StackTrace), ex);
                 }
             }
         }

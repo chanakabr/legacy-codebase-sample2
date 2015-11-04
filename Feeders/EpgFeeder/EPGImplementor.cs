@@ -1173,19 +1173,6 @@ namespace EpgFeeder
         //call Lucene and update the channel 
         protected void BuildEpgByChannel(Int32 channelID, DateTime minStartDate, DateTime maxStartDate)
         {
-            //try
-            //{
-            //    Lucene.LuceneServiceClient service = new Lucene.LuceneServiceClient();
-            //    string sWSURL = GetWSURL("LuceneWCF");
-            //    if (sWSURL != "")
-            //        service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-            //    service.BuildEpgByChannel(ODBCWrapper.Utils.GetIntSafeVal(s_GroupID), channelID, minStartDate, maxStartDate);
-            //}
-            //catch (Exception ex)
-            //{
-            //    string msg = string.Format("faild to update lucene ex={0} , channelID={1}, Between dates {2}-{3}", ex.Message, channelID, minStartDate, maxStartDate);
-            //    Logger.Logger.Log("BuildEpgByChannel", msg, "EpgFeeder");
-            //}
         }
 
         static protected string GetWSURL(string sUrl)
@@ -1613,75 +1600,6 @@ namespace EpgFeeder
             }
         }
 
-        //protected void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags,
-        //    ref DataTable dtEpgTagsValues, Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
-        //{         
-        //    KeyValuePair<string, int> kvp  = new KeyValuePair<string,int>();
-
-        //    foreach (string sTagName in epg.Tags.Keys)
-        //    {
-        //        List<FieldTypeEntity> tagField = FieldEntityMappingTags.Where(x => x.Name == sTagName).ToList();//get the tag_type_ID
-        //        int nTagTypeID = 0;
-
-        //        if (tagField != null && tagField.Count > 0)
-        //        {
-        //            nTagTypeID = tagField[0].ID;
-        //        }
-        //        else
-        //        {
-        //            Logger.Logger.Log("UpdateExistingTagValuesPerEPG", string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", sTagName, epg.EpgID), "EpgFeeder"); 
-        //            continue;//missing tag definition in DB (in FieldEntityMapping)                        
-        //        }
-
-        //        foreach (string sTagValue in epg.Tags[sTagName])
-        //        {
-        //            if (sTagValue != "")
-        //            {
-        //                kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
-
-        //                if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
-        //                {
-        //                    List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue).ToList();
-        //                    if (list != null && list.Count > 0)
-        //                    {
-        //                        //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
-        //                        FillEpgExtraDataTable(ref dtEpgTags, false, "", epg.EpgID, list[0].Value, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-        //                    }
-        //                    else//tha tag value does not exist in the DB
-        //                    {
-        //                        //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
-        //                        if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0) //check if need to add check for list not being null
-        //                        {
-        //                            newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
-        //                        }
-        //                        else //need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
-        //                        {
-        //                            FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-        //                            List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
-        //                            newTagValueEpgs.Add(kvp, lEpgGUID);
-        //                        }
-        //                    }
-        //                }
-        //                else //this tag type does not have any values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
-        //                {
-        //                    //check if it was not already added to the newTagValueEpgs
-        //                    if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count == 0)
-        //                    {
-        //                        FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-        //                        List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
-        //                        newTagValueEpgs.Add(kvp, lEpgGUID);
-        //                    }
-        //                    else ////the newTagValueEpgs has this tag + value: only need to update that this  specific EPG is using it
-        //                    {
-        //                        newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
-        //                    }
-        //                }
-        //            }
-        //            tagField = null;
-        //        }
-        //    }
-        //}
-
         protected void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
         {
             List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
@@ -1747,10 +1665,7 @@ namespace EpgFeeder
                 }
                 catch (Exception ex)
                 {
-                    #region Logging
-                    //insert Logs
-
-                    #endregion
+                    log.Error("", ex);
                 }
                 finally
                 {

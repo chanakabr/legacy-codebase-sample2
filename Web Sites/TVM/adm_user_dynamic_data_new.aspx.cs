@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_user_dynamic_data_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -64,7 +67,7 @@ public partial class adm_user_dynamic_data_new : System.Web.UI.Page
                 }
                 catch (Exception ex)
                 {
-                    Logger.Logger.Log("exception", Session["user_id"].ToString() + " : " + ex.Message, "users_notifier");
+                    log.Error("exception - " + Session["user_id"].ToString() + " : " + ex.Message, ex);
                 }
 
                 return;

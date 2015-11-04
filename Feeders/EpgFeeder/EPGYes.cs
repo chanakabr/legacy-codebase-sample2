@@ -84,6 +84,7 @@ namespace EpgFeeder
             }
             catch (Exception exp)
             {
+                log.Error("", exp);
                 return false;
             }
             return true;
@@ -117,7 +118,9 @@ namespace EpgFeeder
                 }
             }
             catch (Exception ex)
-            { }
+            {
+                log.Error("", ex);
+            }
         }
 
         public override List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates(Int32 groupID, string sChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
@@ -240,7 +243,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
         private DateTime ParseEPGStrToDate(string dateStr)
@@ -277,7 +282,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
         private Int32 GetMediaIDByChannelID(Int32 EPG_IDENTIFIER)
@@ -302,7 +309,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
         private void ProcessOneXmlFile(XmlDocument xmlDoc)
@@ -496,7 +505,9 @@ namespace EpgFeeder
                 selectQuery = null;
             }
             catch (Exception exp)
-            { }
+            {
+                log.Error("", exp);
+            }
             return res;
         }
 

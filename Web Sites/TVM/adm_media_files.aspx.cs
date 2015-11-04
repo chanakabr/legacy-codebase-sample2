@@ -9,9 +9,12 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_media_files : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -25,24 +28,24 @@ public partial class adm_media_files : System.Web.UI.Page
 
         if (string.IsNullOrEmpty(Request.QueryString["media_file_id"]))
         {
-            Logger.Logger.Log("Session key", "Media_File_Removed", "media_file_temp");
+            log.Debug("Session key - Media_File_Removed");
             Session["media_file_id"] = null;
             //Session.Remove("media_file_id");
 
         }
         else
         {
-            Logger.Logger.Log("Session key", "Media file mot null " + Request.QueryString["media_file_id"], "media_file_temp");
+            log.Debug("Session key - Media file not null " + Request.QueryString["media_file_id"]);
         }
         if (!IsPostBack)
         {
             Int32 nMenuID = 0;
-            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID , "adm_media.aspx");
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_media.aspx");
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
             //if (Request.QueryString["search_save"] != null)
-                //Session["search_save"] = "1";
+            //Session["search_save"] = "1";
             //else
-                //Session["search_save"] = null;
+            //Session["search_save"] = null;
 
             if (Request.QueryString["media_id"] != null &&
                 Request.QueryString["media_id"].ToString() != "")
@@ -66,7 +69,7 @@ public partial class adm_media_files : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ":" + PageUtils.GetTableSingleVal("media" , "NAME" , int.Parse(Session["media_id"].ToString())).ToString() + " Content Files ");
+        Response.Write(PageUtils.GetPreHeader() + ":" + PageUtils.GetTableSingleVal("media", "NAME", int.Parse(Session["media_id"].ToString())).ToString() + " Content Files ");
     }
 
     protected void GetMainMenu()
@@ -141,8 +144,8 @@ public partial class adm_media_files : System.Web.UI.Page
         theTable.AddTechDetails("media_files");
         theTable.AddEditorRemarks("media_files");
         theTable.AddHiddenField("EDITOR_REMARKS");
-        
-        if (LoginManager.IsActionPermittedOnPage("adm_media.aspx" , LoginManager.PAGE_PERMISION_TYPE.EDIT))
+
+        if (LoginManager.IsActionPermittedOnPage("adm_media.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_files_new.aspx", "Edit", "");
             linkColumn1.AddQueryStringValue("media_file_id", "field=id");
@@ -197,7 +200,7 @@ public partial class adm_media_files : System.Web.UI.Page
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOrderBy);
 
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy , false);
+        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy, false);
         Session["ContentPage"] = "adm_media.aspx";
         Session["LastContentPage"] = "adm_media_files.aspx?search_save=1";
         Session["order_by"] = sOldOrderBy;
