@@ -77,7 +77,7 @@ namespace QueueWrapper
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_QueueMessage_NEW");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_QueueMessage");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@messageData", messageData);
