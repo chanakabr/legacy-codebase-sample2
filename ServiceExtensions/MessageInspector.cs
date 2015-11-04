@@ -37,8 +37,8 @@ namespace ServiceExtensions
             MonitorLogsHelper.FinalizeMonitorLogsData(KLogEnums.AppType.WCF);
 
             // log response
-            if (reply != null)
-                log.Debug("RESPONSE STRING:" + reply.ToString());
+            //if (reply != null)
+                //log.Debug("RESPONSE STRING:" + reply.ToString());
         }
     }
 }
