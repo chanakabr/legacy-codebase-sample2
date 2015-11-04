@@ -130,7 +130,7 @@ namespace AdapterControllers
                     enrichmentsList.ToArray(),
                     unixTimestamp,
                     System.Convert.ToBase64String(
-                        AdapterUtils.AesEncrypt(engine.SharedSecret, AdapterUtils.HashSHA1(signature))));
+                        EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
                 LogAdapterResponse(adapterResponse, "GetChannelRecommendation");
 
@@ -156,7 +156,7 @@ namespace AdapterControllers
                         enrichmentsList.ToArray(),
                         unixTimestamp,
                         System.Convert.ToBase64String(
-                            AdapterUtils.AesEncrypt(engine.SharedSecret, AdapterUtils.HashSHA1(signature))));
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
                     LogAdapterResponse(adapterResponse, "GetChannelRecommendation"); 
 
@@ -316,7 +316,7 @@ namespace AdapterControllers
                         }).ToArray() : null,
                         groupId,
                         unixTimestamp,
-                        System.Convert.ToBase64String(AdapterUtils.AesEncrypt(engine.SharedSecret, AdapterUtils.HashSHA1(signature))));
+                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
                     if (adapterResponse != null)
                         log.DebugFormat("Recommendations Engine Adapter Send Configuration Result = {0}", adapterResponse);

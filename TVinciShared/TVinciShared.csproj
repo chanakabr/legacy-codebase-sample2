@@ -104,7 +104,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdapterUtils.cs" />
     <Compile Include="CacheServerNotifier.cs" />
     <Compile Include="CBTableWebEditor.cs" />
     <Compile Include="CertificateTruster.cs" />
