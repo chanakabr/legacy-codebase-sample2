@@ -158,6 +158,8 @@ namespace Catalog
             // save monitor and logs context data
             ContextData contextData = new ContextData();
 
+            List<int> nonExistingMediaIDs = new List<int>();
+
             //complete media id details 
             for (int i = nStartIndex; i < nEndIndex; i++)
             {
@@ -172,11 +174,18 @@ namespace Catalog
                     {
                         int taskMediaID = (int)obj;
 
-                        dMediaObj[taskMediaID] = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup);
+                        var currentMedia = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup);
+                        dMediaObj[taskMediaID] = currentMedia;
+
+                        // If couldn't get media details for this media - probably it doesn't exist, and it shouldn't appear in ES index
+                        if (currentMedia == null)
+                        {
+                            nonExistingMediaIDs.Add(taskMediaID);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex.Message, ex);
+                        log.ErrorFormat("Failed in GetMediaDetails. Group ID = {0}, media id = {1}.", groupId, obj, ex);
                     }
                 }, nMedia);
             }
@@ -198,8 +207,16 @@ namespace Catalog
 
                 foreach (int nMedia in mediaIds)
                 {
-                    mediaObjects.Add(dMediaObj[nMedia]);
+                    var currentMedia = dMediaObj[nMedia];
+
+                    mediaObjects.Add(currentMedia);
                 }
+            }
+
+            // If there are any media that we couldn't find via stored procedure - delete them off from ES index
+            if (nonExistingMediaIDs != null && nonExistingMediaIDs.Count > 0)
+            {
+                Catalog.Update(nonExistingMediaIDs, groupId, eObjectType.Media, eAction.Delete);
             }
 
             return mediaObjects;
@@ -213,6 +230,7 @@ namespace Catalog
         private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup)
         {
             bool result = true;
+
             try
             {
                 MediaObj oMediaObj = new MediaObj();
@@ -238,7 +256,13 @@ namespace Catalog
                 if (ds.Tables.Count >= 6)
                 {
                     bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang);
-                    if (isMedia) //only if we found basic details for media - media in status = 1 , and active if necessary
+
+                    // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
+                    if (!isMedia) 
+                    {
+                        return null;
+                    }
+                    else
                     {
                         oMediaObj.m_lPicture = GetAllPic(ds.Tables[1], ref result);
                         if (!result)
@@ -281,14 +305,10 @@ namespace Catalog
                             }
 
                             oMediaObj.m_dLastWatchedDate = dtLastWatch;
-
                         }
                     }
-                    else
-                    {
-                        return null;
-                    }
                 }
+
                 return oMediaObj;
             }
             catch (Exception ex)

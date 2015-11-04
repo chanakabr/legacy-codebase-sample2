@@ -128,6 +128,8 @@ namespace ApiObjects.Response
         ConflictedParams = 5014,
         PurchaseSettingsTypeInvalid = 5015,
         ExportTaskNotFound = 5016,
+        ExportNotificationUrlRequired = 5017,
+        ExportFrequencyMinValue = 5018,
 
 
         // Billing 6000 - 6999

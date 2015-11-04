@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using QueueWrapper;
 using KLogMonitor;
 using System.Reflection;
 
@@ -114,22 +113,6 @@ namespace Logger
             }
 
             string sMessageToWrite = loggingEvent.MessageObject.ToString();
-
-            bool bIsPublishSucceeded = false;
-
-            if (!string.IsNullOrEmpty(this.HostName) && !string.IsNullOrEmpty(this.Username) && !string.IsNullOrEmpty(this.Password) && !string.IsNullOrEmpty(this.Port)
-                && !string.IsNullOrEmpty(this.RoutingKey) && !string.IsNullOrEmpty(this.Exchange))
-            {
-                bIsPublishSucceeded = RabbitConnection.Instance.Publish(
-                    new RabbitConfigurationData(this.Exchange, this.Queue, this.RoutingKey, this.HostName, this.Password, this.ExchangeType, this.VirtualHost, this.Username, this.Port),
-                    sMessageToWrite);
-            }
-
-            if (!bIsPublishSucceeded)
-            {
-                string countError = RabbitConnection.Instance.GetQueueFailCounter() == RabbitConnection.Instance.GetQueueFailCountLimit() ? "Reached the limit of queue failures" : string.Format("Num of writing failures: {0}", RabbitConnection.Instance.GetQueueFailCounter());
-                log.Error("AMQP Write Fail - " + string.Format("{0}, msg: {1}", countError, sMessageToWrite));
-            }
         }
     }
 }

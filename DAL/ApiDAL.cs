@@ -2757,5 +2757,44 @@ namespace DAL
             return dataSet;
         }
         #endregion
+
+        public static List<MessageQueue> GetQueueMessages(int groupId, DateTime baseDate, List<string> keys)
+        {
+            List<MessageQueue> res = new List<MessageQueue>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_QueueMessages");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@baseDate", baseDate);
+                sp.AddIDListParameter<string>("@routingKey", keys, "STR");
+
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        MessageQueue messageRecovery = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            messageRecovery = new MessageQueue();
+                            messageRecovery.Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            messageRecovery.MessageData = ODBCWrapper.Utils.GetSafeStr(dr, "MESSAGE_DATA");
+                            messageRecovery.RoutingKey = ODBCWrapper.Utils.GetSafeStr(dr, "ROUTING_KEY");
+                            messageRecovery.ExcutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE");
+
+                            res.Add(messageRecovery);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new List<MessageQueue>();
+            }
+            return res;  
+        }
     }
 }

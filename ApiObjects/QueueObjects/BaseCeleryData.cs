@@ -22,19 +22,33 @@ namespace ApiObjects
         public string eta;
         public string expires;
 
-        public DateTime ETA
+        public DateTime? ETA
         {
+            get
+            {
+                if (!string.IsNullOrEmpty(eta))
+                    return DateTime.ParseExact(eta, CELERY_DATE_FORMAT, System.Globalization.CultureInfo.CurrentCulture);
+                else
+                    return null;
+            }
             set
             {
-                this.eta = value.ToString(CELERY_DATE_FORMAT);
+                this.eta = value.Value.ToString(CELERY_DATE_FORMAT);
             }
         }
 
-        public DateTime Expires
+        public DateTime? Expires
         {
+            get
+            {
+                if (!string.IsNullOrEmpty(expires))
+                    return DateTime.ParseExact(expires, CELERY_DATE_FORMAT, System.Globalization.CultureInfo.CurrentCulture);
+                else
+                    return null;
+            }
             set
             {
-                this.expires = value.ToString(CELERY_DATE_FORMAT);
+                this.expires = value.Value.ToString(CELERY_DATE_FORMAT);
             }
         }
 

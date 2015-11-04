@@ -111,6 +111,7 @@
     <Compile Include="Billing\VerifyReceiptRequest.cs" />
     <Compile Include="BulkExport\BulkExportTask.cs" />
     <Compile Include="BulkExport\BulkExportTasksResponse.cs" />
+    <Compile Include="MessageQueue.cs" />
     <Compile Include="ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannelResponseList.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
