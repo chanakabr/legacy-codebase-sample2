@@ -225,12 +225,13 @@ public partial class adm_subscription_operators : System.Web.UI.Page
             return "";
         }
 
-        string sRet = "";
-        sRet += "Operators included in subscription";
-        sRet += "~~|~~";
-        sRet += "Available Operators";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Operators included in subscription");
+        dualList.Add("SecondListTitle", "Available operators");
+
+        object[] resultData = null;
+        List<object> subscriptionOperators = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from groups_operators where is_active=1 and status=1 and type=1 and ";
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
@@ -261,17 +262,40 @@ public partial class adm_subscription_operators : System.Web.UI.Page
                     sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
                  */
                 if (IsChannelBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"true\" />";
+                {
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sDescription,
+                        InList = true
+                    };
+                    subscriptionOperators.Add(data);
+                }                    
                 else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"false\" />";
+                {
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = false
+                    };
+                    subscriptionOperators.Add(data);
+                }
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-        
-        
-        sRet += "</root>";
-        return sRet;
+
+        resultData = new object[subscriptionOperators.Count];
+        resultData = subscriptionOperators.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_subscription_operator.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 
     protected bool IsChannelBelong(Int32 nOperatorID)
@@ -305,4 +329,5 @@ public partial class adm_subscription_operators : System.Web.UI.Page
             return false;
         }
     }
+
 }

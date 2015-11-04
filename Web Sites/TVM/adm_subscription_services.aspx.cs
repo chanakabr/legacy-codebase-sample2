@@ -161,12 +161,13 @@ public partial class adm_subscription_services : System.Web.UI.Page
 
     public string initDualObj()
     {
-        string sRet = "";
-        sRet += "Current Sevices";
-        sRet += "~~|~~";
-        sRet += "Available Services";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Device Families");
+        dualList.Add("SecondListTitle", "Available Device Families");
+
+        object[] resultData = null;
+        List<object> premiumServices = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery groupServicesSelectQuery = new ODBCWrapper.DataSetSelectQuery();
         groupServicesSelectQuery.SetConnectionKey("CONNECTION_STRING");
         groupServicesSelectQuery += "select gs.SERVICE_ID as SERVICE_ID, s.DESCRIPTION as DESCRIPTION from groups_services as gs join lu_services as s on s.id = gs.service_id where s.status=1 and gs.status = 1 and gs.is_active = 1 and ";
@@ -194,9 +195,27 @@ public partial class adm_subscription_services : System.Web.UI.Page
                     string sTitle = ODBCWrapper.Utils.GetStrSafeVal(groupServicesSelectQuery, "DESCRIPTION", i);
                     DataRow drService = subscriptionServicesSelectQuery.Table("query").Select(string.Format("SERVICE_ID = {0}", sID)).FirstOrDefault();
                     if (drService != null)
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"true\" />";
+                    {
+                        var data = new
+                        {
+                            ID = sID,
+                            Title = sTitle,
+                            Description = sTitle,
+                            InList = true
+                        };
+                        premiumServices.Add(data);
+                    }
                     else
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"false\" />";
+                    {
+                        var data = new
+                        {
+                            ID = sID,
+                            Title = sTitle,
+                            Description = sTitle,
+                            InList = false
+                        };
+                        premiumServices.Add(data);
+                    }
                 }
             }
             subscriptionServicesSelectQuery.Finish();
@@ -205,11 +224,14 @@ public partial class adm_subscription_services : System.Web.UI.Page
         groupServicesSelectQuery.Finish();
         groupServicesSelectQuery = null;
 
+        resultData = new object[premiumServices.Count];
+        resultData = premiumServices.ToArray();
 
-        sRet += "</root>";
-        return sRet;
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_subscription_services.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
+
 }
-
-
-

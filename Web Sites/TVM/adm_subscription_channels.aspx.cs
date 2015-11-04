@@ -211,12 +211,13 @@ public partial class adm_subscription_channels : System.Web.UI.Page
             return "";
         }
 
-        string sRet = "";
-        sRet += "Channels included in subscription";
-        sRet += "~~|~~";
-        sRet += "Available Channels";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Channels included in subscription");
+        dualList.Add("SecondListTitle", "Available Channels");
+
+        object[] resultData = null;
+        List<object> subscriptionChannels = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
@@ -240,24 +241,40 @@ public partial class adm_subscription_channels : System.Web.UI.Page
                 string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
                 sTitle += "(" + sGroupName.ToString() + ")";
 
-                string sDescription = "";
                 /*
+                string sDescription = "";
                 if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
                     selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
                     sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
                  */
+
+                bool isInList = false;
                 if (IsChannelBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle , true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription , true) + "\" inList=\"false\" />";
+                {
+                    isInList = true;
+                }
+
+                var data = new
+                {
+                    ID = sID,
+                    Title = sTitle,
+                    Description = sTitle,
+                    InList = isInList
+                };
+                subscriptionChannels.Add(data);
             }
         }
         selectQuery.Finish();
         selectQuery = null;
-        
-        
-        sRet += "</root>";
-        return sRet;
+
+        resultData = new object[subscriptionChannels.Count];
+        resultData = subscriptionChannels.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_subscription_channels.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 
     protected bool IsChannelBelong(Int32 nChannelID)

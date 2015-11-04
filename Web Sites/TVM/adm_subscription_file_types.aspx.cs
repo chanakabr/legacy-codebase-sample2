@@ -201,8 +201,8 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         }
 
         Dictionary<string, object> dualList = new Dictionary<string, object>();
-        dualList.Add("FirstListTitle", "Current Channels");
-        dualList.Add("SecondListTitle", "Available Channels");
+        dualList.Add("FirstListTitle", "Current File Types");
+        dualList.Add("SecondListTitle", "Available File Types");
 
         object[] resultData = null;
         List<object> fileTypes = new List<object>();

@@ -215,16 +215,16 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
             return "";
         }
 
-        string sRet = "";
-        sRet += "Current Media Concurrency Rules";
-        sRet += "~~|~~";
-        sRet += "Available Media Concurrency Rules";
-        sRet += "~~|~~";
-
-        string sIP = "1.1.1.1";
         Int32 nMCGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
         if (nMCGroupID == 0)
             nMCGroupID = nLogedInGroupID;
+
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Device Families");
+        dualList.Add("SecondListTitle", "Available Device Families");
+
+        object[] resultData = null;
+        List<object> concurrencyRules = new List<object>();
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select ID, NAME from media_concurrency_rules where status=1 and ";
@@ -232,26 +232,47 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
         selectQuery += "order by name";
         if (selectQuery.Execute("query", true) != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            sRet += "<root>";
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;            
             for (int i = 0; i < nCount; i++)
             {
                 string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
                 string sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
                 if (IsBelongToRule(int.Parse(Session["limit_module_id"].ToString()), int.Parse(sID), 1) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" inList=\"true\" />";
+                {
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = true
+                    };
+                    concurrencyRules.Add(data);
+                }
                 else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" inList=\"false\" />";
+                {
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = false
+                    };
+                    concurrencyRules.Add(data);
+                }
+
             }
-            sRet += "</root>";
         }
         selectQuery.Finish();
         selectQuery = null;
 
-        return sRet;
+        resultData = new object[concurrencyRules.Count];
+        resultData = concurrencyRules.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_limitation_media_concurrency_rules.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 
-   
-
-  
 }
