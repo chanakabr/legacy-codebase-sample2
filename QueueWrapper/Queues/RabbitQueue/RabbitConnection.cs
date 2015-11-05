@@ -19,13 +19,32 @@ namespace QueueWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private int FAIL_COUNT_LIMIT = 3;
+        #region Data Members
 
+        private int failCountLimit = 3;
         private IConnection m_Connection;
         private IModel m_Model;
         private ReaderWriterLockSlim m_lock;
         private int m_FailCounter;
         private int m_FailCounterLimit;
+
+        #endregion
+
+        #region Get Methods
+
+        public int GetQueueFailCounter()
+        {
+            return m_FailCounter;
+        }
+
+        public int GetQueueFailCountLimit()
+        {
+            return m_FailCounterLimit;
+        }
+
+        #endregion
+
+        #region Ctor and initialization
 
         private RabbitConnection()
         {
@@ -33,7 +52,10 @@ namespace QueueWrapper
 
         public static RabbitConnection Instance
         {
-            get { return Nested.Instance; }
+            get
+            {
+                return Nested.Instance;
+            }
         }
 
         class Nested
@@ -47,12 +69,16 @@ namespace QueueWrapper
                     Instance.m_lock = new ReaderWriterLockSlim();
                     Instance.m_FailCounter = 0;
 
-                    int failCounterLimit = Instance.FAIL_COUNT_LIMIT;  // A random value was chosen here. It is only for a case on which we can't read value neither from TCM nor from AppSettings
+                    // A random value was chosen here. It is only for a case on which we can't read value neither from TCM nor from AppSettings
+                    int failCounterLimit = Instance.failCountLimit;
+
                     try
                     {
                         string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
                         bool isParseSucceeded = false;
-                        if (string.IsNullOrEmpty(sFailCountLimit)) // If reading from TCM failed, try to read from extra.config. Else, convert to int
+
+                        // If reading from TCM failed, try to read from extra.config. Else, convert to int
+                        if (string.IsNullOrEmpty(sFailCountLimit))
                         {
                             isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
                         }
@@ -64,7 +90,7 @@ namespace QueueWrapper
                         // If any reading failed, set the failCounterLimit as the constant
                         if (!isParseSucceeded)
                         {
-                            failCounterLimit = Instance.FAIL_COUNT_LIMIT;
+                            failCounterLimit = Instance.failCountLimit;
                         }
                     }
                     catch (Exception ex)
@@ -81,15 +107,9 @@ namespace QueueWrapper
             internal static readonly RabbitConnection Instance = new RabbitConnection();
         }
 
-        public int GetQueueFailCounter()
-        {
-            return m_FailCounter;
-        }
+        #endregion
 
-        public int GetQueueFailCountLimit()
-        {
-            return m_FailCounterLimit;
-        }
+        #region Main Methods
 
         public bool Ack(RabbitConfigurationData configuration, string sAckId)
         {
@@ -105,7 +125,10 @@ namespace QueueWrapper
                     {
                         ulong a = ulong.Parse(sAckId);
 
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                        {
+                            Database = configuration.Exchange
+                        })
                         {
                             m_Model.BasicAck(ulong.Parse(sAckId), false);
                         }
@@ -121,37 +144,54 @@ namespace QueueWrapper
             return bResult;
         }
 
-        public bool Publish(RabbitConfigurationData configuration, string sMessage)
+        /// <summary>
+        /// Publishes a message to the Rabbit queue
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public bool Publish(RabbitConfigurationData configuration, string message)
         {
             bool isPublishSucceeded = false;
-            if (m_FailCounter < m_FailCounterLimit) // Check if we reached the writing limit
-            {
-                bool bIsInstanceExist = false;
-                bIsInstanceExist = this.GetInstance(configuration, QueueAction.Publish);
 
-                if (m_Connection != null && bIsInstanceExist)
+            // Check if we reached the writing limit
+            if (m_FailCounter < m_FailCounterLimit)
+            {
+                bool instanecExists = false;
+                instanecExists = this.GetInstance(configuration, QueueAction.Publish);
+
+                if (m_Connection != null && instanecExists)
                 {
                     try
                     {
                         this.m_Model = m_Connection.CreateModel();
+
                         if (this.m_Model != null)
                         {
-                            var body = Encoding.UTF8.GetBytes(sMessage.ToString());
+                            var body = Encoding.UTF8.GetBytes(message.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
-                            if (configuration.setContentType)
-                                properties.ContentType = "application/json";
 
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
+                            // should be "application/json"
+                            if (!string.IsNullOrEmpty(configuration.ContentType))
+                            {
+                                properties.ContentType = configuration.ContentType;
+                            }
+
+                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                            {
+                                Database = configuration.Exchange
+                            })
                             {
                                 m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                             }
+
                             isPublishSucceeded = true;
                             ResetFailCounter();
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.Error("", ex);
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
@@ -160,6 +200,53 @@ namespace QueueWrapper
 
             return isPublishSucceeded;
         }
+
+        /// <summary>
+        /// Reads a message from the queue
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="sAckId"></param>
+        /// <returns></returns>
+        public string Subscribe(RabbitConfigurationData configuration, ref string sAckId)
+        {
+            string sMessage = string.Empty;
+
+            this.GetInstance(configuration, QueueAction.Subscribe);
+
+            if (m_Connection != null)
+            {
+                try
+                {
+                    if (this.m_Model != null)
+                    {
+
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                        {
+                            Database = configuration.Exchange
+                        })
+                        {
+                            BasicGetResult bgr = m_Model.BasicGet(configuration.QueueName, false);
+                            if (bgr != null && bgr.Body != null && bgr.Body.Length > 0)
+                            {
+                                byte[] body = bgr.Body;
+                                sMessage = Encoding.UTF8.GetString(body);
+                                sAckId = bgr.DeliveryTag.ToString();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("", ex);
+                }
+            }
+
+            return sMessage;
+        }
+
+        #endregion
+
+        #region Private Methods
 
         private void ResetFailCounter()
         {
@@ -199,39 +286,6 @@ namespace QueueWrapper
             }
         }
 
-        public string Subscribe(RabbitConfigurationData configuration, ref string sAckId)
-        {
-            string sMessage = string.Empty;
-
-            this.GetInstance(configuration, QueueAction.Subscribe);
-
-            if (m_Connection != null)
-            {
-                try
-                {
-                    if (this.m_Model != null)
-                    {
-
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
-                        {
-                            BasicGetResult bgr = m_Model.BasicGet(configuration.QueueName, false);
-                            if (bgr != null && bgr.Body != null && bgr.Body.Length > 0)
-                            {
-                                byte[] body = bgr.Body;
-                                sMessage = Encoding.UTF8.GetString(body);
-                                sAckId = bgr.DeliveryTag.ToString();
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("", ex);
-                }
-            }
-
-            return sMessage;
-        }
 
         private bool GetInstance(RabbitConfigurationData configuration, QueueAction action)
         {
@@ -249,19 +303,33 @@ namespace QueueWrapper
                         mutex.WaitOne(-1);
                         if (this.m_Connection == null)
                         {
-                            var factory = new ConnectionFactory() { HostName = configuration.Host, Password = configuration.Password, UserName = configuration.Username };
+                            var factory = new ConnectionFactory()
+                            {
+                                HostName = configuration.Host,
+                                Password = configuration.Password,
+                                UserName = configuration.Username,
+                            };
+
+                            int port;
+
+                            if (int.TryParse(configuration.Port, out port))
+                            {
+                                factory.Port = port;
+                            }
 
                             this.m_Connection = factory.CreateConnection();
+
                             if (action.Equals(QueueAction.Subscribe) || action.Equals(QueueAction.Ack))
                             {
                                 this.m_Model = this.m_Connection.CreateModel();
                             }
+
                             bIsGetInstanceSucceeded = true;
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.Error("", ex);
+                        log.Error("Failed creating instance of Rabbit Connection.", ex);
                         m_Connection = null;
                         m_Model = null;
                         IncreaseFailCounter();
@@ -280,6 +348,10 @@ namespace QueueWrapper
             return bIsGetInstanceSucceeded;
         }
 
+        #endregion
+
+        #region Dispose
+
         public void Dispose()
         {
             Close();
@@ -297,6 +369,8 @@ namespace QueueWrapper
                 this.m_Model.Close();
                 this.m_Model = null;
             }
-        }
+        } 
+
+        #endregion
     }
 }
