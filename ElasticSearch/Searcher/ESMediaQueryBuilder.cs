@@ -111,11 +111,13 @@ namespace ElasticSearch.Searcher
                 userTypeTerm.Value.Add(oSearchObject.m_nUserTypeID.ToString());
             }
 
-            ESTerms mediaTypesTerms = new ESTerms(true);
+            IESTerm mediaTypesTerm = null;
             if (!string.IsNullOrEmpty(oSearchObject.m_sMediaTypes) && !oSearchObject.m_sMediaTypes.Equals("0"))
             {
+                mediaTypesTerm = new ESTerms(true);
+
                 log.Debug("Info - media type = " + oSearchObject.m_sMediaTypes);
-                mediaTypesTerms.Key = "media_type_id";
+                (mediaTypesTerm as ESTerms).Key = "media_type_id";
                 string[] mediaTypeArr = oSearchObject.m_sMediaTypes.Split(';');
                 string trimed;
                 foreach (string mediaType in mediaTypeArr)
@@ -125,12 +127,19 @@ namespace ElasticSearch.Searcher
                         trimed = mediaType.Trim();
                         if (trimed.Equals("0"))
                         {
-                            mediaTypesTerms.Value.Clear();
+                            (mediaTypesTerm as ESTerms).Value.Clear();
                             break;
                         }
-                        mediaTypesTerms.Value.Add(mediaType.Trim());
+                        (mediaTypesTerm as ESTerms).Value.Add(mediaType.Trim());
                     }
                 }
+            }
+
+            // If there is no media type term, at least check that it is positive
+            if (mediaTypesTerm == null || (mediaTypesTerm as ESTerms).Value.Count == 0)
+            {
+                mediaTypesTerm = new ESRange(true);
+                (mediaTypesTerm as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, "0"));
             }
 
             ESTerms deviceRulesTerms = new ESTerms(true) { Key = "device_rule_id" };
@@ -158,7 +167,7 @@ namespace ElasticSearch.Searcher
             filterParent.AddChild(endDateRange);
             filterParent.AddChild(mediaTerm);
             filterParent.AddChild(userTypeTerm);
-            filterParent.AddChild(mediaTypesTerms);
+            filterParent.AddChild(mediaTypesTerm);
             filterParent.AddChild(deviceRulesTerms);
 
             if (QueryType == eQueryType.EXACT)
@@ -237,7 +246,11 @@ namespace ElasticSearch.Searcher
 
             BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
 
-            ESTerm groupTerm = new ESTerm(true) { Key = "group_id", Value = m_nGroupID.ToString() };
+            ESTerm groupTerm = new ESTerm(true)
+            {
+                Key = "group_id",
+                Value = m_nGroupID.ToString()
+            };
 
             ESTerms permittedWatcFilter = new ESTerms(true);
             if (!string.IsNullOrEmpty(oSearchObject.m_sPermittedWatchRules))
@@ -253,7 +266,11 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
+            ESTerm isActiveTerm = new ESTerm(true)
+            {
+                Key = "is_active",
+                Value = "1"
+            };
 
             string sNow = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sMax = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
@@ -302,7 +319,13 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            ESTerms deviceRulesTerms = new ESTerms(true) { Key = "device_rule_id" };
+            ESRange positiveMediaTypeRange = new ESRange(true);
+            positiveMediaTypeRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, "0"));
+            
+            ESTerms deviceRulesTerms = new ESTerms(true)
+            {
+                Key = "device_rule_id"
+            };
             if (bAddDeviceRuleID)
             {
                 deviceRulesTerms.Value.Add("0");
@@ -374,6 +397,7 @@ namespace ElasticSearch.Searcher
             filterParent.AddChild(mediaTerm);
             filterParent.AddChild(userTypeTerm);
             filterParent.AddChild(mediaTypesTerms);
+            filterParent.AddChild(positiveMediaTypeRange);
             filterParent.AddChild(deviceRulesTerms);
 
             if (QueryType == eQueryType.EXACT)
