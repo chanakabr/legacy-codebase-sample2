@@ -826,8 +826,8 @@ namespace ExcelGenerator
                     string sIsDefaultLanguage = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "IS_DEFAULT_LANGUAGE", i);
 
                     DateTime dFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", i);
-                    DateTime dFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", i);
-
+                    DateTime? dFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(selectQuery.Table("query").DefaultView[i].Row, "END_DATE");
+                    
                     string sAltCDNCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ALT_STREAMING_CODE", i);
                     string sAltCDNName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ASCN", i);
                     string sAltFileCoGuid = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "alt_co_guid", i);
@@ -864,7 +864,8 @@ namespace ExcelGenerator
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["is_default_language"], 0, sExtra)] = sIsDefaultLanguage;
 
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_start_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileStartDate.ToString("dd/MM/yyyy HH:mm:ss");
-                    mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_end_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileEndDate.ToString("dd/MM/yyyy HH:mm:ss");
+                    if (dFileEndDate.HasValue)
+                        mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["file_end_date(dd/mm/yyyy hh:mm:ss)"], 0, sExtra)] = dFileEndDate.Value.ToString("dd/MM/yyyy HH:mm:ss");
 
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["alt_cdn_name"], 0, sExtra)] = sAltCDNName;
                     mediaRow[GetHeaderName(CellType.FILE, (int)hFiles["alt_cdn_code"], 0, sExtra)] = sAltCDNCode;
