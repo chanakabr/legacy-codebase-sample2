@@ -99,6 +99,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (group == null)
             {
+                log.ErrorFormat("Couldn't get group {0}", this.groupID);
                 return false;
             }
 

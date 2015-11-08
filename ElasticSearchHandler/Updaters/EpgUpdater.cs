@@ -94,6 +94,7 @@ namespace ElasticSearchHandler.Updaters
 
                 if (group == null)
                 {
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
                     return false;
                 }
 
@@ -168,7 +169,7 @@ namespace ElasticSearchHandler.Updaters
                                 foreach (var invalidResult in invalidResults)
                                 {
                                     log.Error("Error - " + string.Format(
-                                        "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};serializedObj={3};",
                                         groupId, EPG, invalidResult.docID, invalidResult.document));
                                 }
 
