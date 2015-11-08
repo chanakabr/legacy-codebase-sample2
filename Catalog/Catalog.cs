@@ -4931,5 +4931,43 @@ namespace Catalog
 
             return definitions;
         }
+
+        public static bool RebuildGroup(int nGroupId, bool rebuild)
+        {
+            bool res = false;
+            try
+            {
+                log.DebugFormat("RebuildGroup:{0}, rebuild:{1}", nGroupId, rebuild);
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                res = groupManager.RemoveGroup(nGroupId);
+                log.DebugFormat("RemoveGroup:{0}, res:{1}", nGroupId, res);
+                if (rebuild)
+                {
+                    Group group = groupManager.GetGroup(nGroupId);
+                    res = group != null;
+                    log.DebugFormat("GetGroup:{0}, res:{1}", nGroupId, res);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("RebuildGroup:{0}, ex:{1}", nGroupId, ex.Message), ex);
+            }
+
+            return res;
+        }
+
+        public static string GetGroup(int nGroupId)
+        {
+            string sGroup = string.Empty;
+            log.DebugFormat("GetGroup:{0}", nGroupId);
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            Group group = groupManager.GetGroup(nGroupId);
+            if (group != null)
+            {
+                sGroup = Newtonsoft.Json.JsonConvert.SerializeObject(group);
+            }
+
+            return sGroup;
+        }
     }
 }
