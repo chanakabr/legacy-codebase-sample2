@@ -9,22 +9,12 @@ namespace QueueWrapper
 {
     public abstract class BaseQueue : IQueueable
     {
-        #region Private Members
-
         private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private IQueueImpl m_QueueImpl;
 
-        #endregion
-
-        #region CTOR
-
         public BaseQueue()
         { }
-
-        #endregion
-
-        #region IQueuable
 
         public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey)
         {
@@ -45,35 +35,38 @@ namespace QueueWrapper
 
                     if (celeryData != null)
                     {
-                        InsertQueueMessage(celeryData.GroupId, sMessage, routingKey, celeryData.ETA, this.GetType().ToString());
+                        InsertOrUpdateQueueMessage(celeryData.GroupId, sMessage, routingKey, celeryData.ETA, this.GetType().ToString());
                     }
                 }
             }
 
             return bIsEnqueueSucceeded;
         }
-       
-        public virtual bool Enqueue(int groupId, string record, string routingKey, DateTime? runDate, string type)
+
+        public virtual bool RecoverMessages(int groupId, string record, string routingKey, DateTime? runDate, string type)
         {
             bool bIsEnqueueSucceeded = false;
 
             if (!string.IsNullOrEmpty(record))
             {
                 if (this.Implementation != null)
-                {
                     bIsEnqueueSucceeded = this.Implementation.Enqueue(record, routingKey);
-                }
 
-                if (bIsEnqueueSucceeded)
+                if (!bIsEnqueueSucceeded)
                 {
-                    InsertQueueMessage(groupId, record, routingKey, runDate, type);
+                    log.ErrorFormat("Error while trying to insert message to queue. groupId {0}, record {1}, routingKey {2}, runDate {3}, type {4}",
+                        groupId,                                        // {0}
+                        record != null ? record : string.Empty,         // {1}
+                        routingKey != null ? routingKey : string.Empty, // {2}
+                        runDate != null ? runDate : DateTime.MinValue,  // {3}
+                        type != null ? type : string.Empty);            // {4}
                 }
             }
 
             return bIsEnqueueSucceeded;
         }
 
-        private void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime? excutionDate, string type)
+        private void InsertOrUpdateQueueMessage(int groupId, string messageData, string routingKey, DateTime? excutionDate, string type)
         {
             try
             {
@@ -93,8 +86,8 @@ namespace QueueWrapper
 
             catch (Exception ex)
             {
-                log.ErrorFormat("InsertQueueMessage routingKey {0}, - excutionDate {1}, error: {2}", routingKey, 
-                    excutionDate.ToString(), 
+                log.ErrorFormat("InsertQueueMessage routingKey {0}, - excutionDate {1}, error: {2}", routingKey,
+                    excutionDate.ToString(),
                     ex.Message);
             }
 
@@ -113,17 +106,10 @@ namespace QueueWrapper
             return objectReturned;
         }
 
-        #endregion
-
-        #region Getters
-
         internal IQueueImpl Implementation
         {
             get { return this.m_QueueImpl; }
             set { this.m_QueueImpl = value; }
         }
-
-        #endregion
-
     }
 }

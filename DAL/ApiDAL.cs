@@ -1573,19 +1573,19 @@ namespace DAL
                                 switch (assetType)
                                 {
                                     case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
+                                        {
+                                            currentRule.epgTagValues.Add(value);
+                                            break;
+                                        }
                                     case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
+                                        {
+                                            currentRule.mediaTagValues.Add(value);
+                                            break;
+                                        }
                                     default:
-                                    {
-                                        break;
-                                    }
+                                        {
+                                            break;
+                                        }
                                 }
                             }
                         }
@@ -1923,19 +1923,19 @@ namespace DAL
                             switch (assetType)
                             {
                                 case eAssetTypes.EPG:
-                                {
-                                    currentRule.epgTagValues.Add(value);
-                                    break;
-                                }
+                                    {
+                                        currentRule.epgTagValues.Add(value);
+                                        break;
+                                    }
                                 case eAssetTypes.MEDIA:
-                                {
-                                    currentRule.mediaTagValues.Add(value);
-                                    break;
-                                }
+                                    {
+                                        currentRule.mediaTagValues.Add(value);
+                                        break;
+                                    }
                                 default:
-                                {
-                                    break;
-                                }
+                                    {
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -1972,7 +1972,7 @@ namespace DAL
             {
                 return result;
             }
-            
+
             if (ip != "127.0.0.1")
             {
                 string[] splitted = ip.Split('.');
@@ -2056,28 +2056,28 @@ namespace DAL
                     switch (assetType)
                     {
                         case eAssetTypes.EPG:
-                        {
-                            epgTags.Add(new TagPair()
                             {
-                                key = name,
-                                value = value
-                            });
+                                epgTags.Add(new TagPair()
+                                {
+                                    key = name,
+                                    value = value
+                                });
 
-                            break;
-                        }
+                                break;
+                            }
                         case eAssetTypes.MEDIA:
-                        {
-                            mediaTags.Add(new TagPair()
                             {
-                                key = name,
-                                value = value
-                            });
-                            break;
-                        }
+                                mediaTags.Add(new TagPair()
+                                {
+                                    key = name,
+                                    value = value
+                                });
+                                break;
+                            }
                         default:
-                        {
-                            break;
-                        }
+                            {
+                                break;
+                            }
                     }
                 }
             }
@@ -2104,7 +2104,7 @@ namespace DAL
 
         public static OSSAdapter GetOSSAdapterInternalID(int groupID, string externalIdentifier)
         {
-            OSSAdapter ossAdapterRes = null; 
+            OSSAdapter ossAdapterRes = null;
 
             try
             {
@@ -2112,7 +2112,7 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@external_identifier", externalIdentifier);
-                                                        
+
                 DataSet ds = sp.ExecuteDataSet();
 
                 ossAdapterRes = CreateOSSAdapter(ds);
@@ -2127,7 +2127,7 @@ namespace DAL
 
         public static OSSAdapter InsertOSSAdapter(int groupID, OSSAdapter ossAdapter)
         {
-            OSSAdapter ossAdapterRes = null; 
+            OSSAdapter ossAdapterRes = null;
 
             try
             {
@@ -2158,7 +2158,7 @@ namespace DAL
 
         private static OSSAdapter CreateOSSAdapter(DataSet ds)
         {
-            OSSAdapter ossAdapterRes = null; 
+            OSSAdapter ossAdapterRes = null;
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
@@ -2214,7 +2214,7 @@ namespace DAL
 
             return resultTable;
         }
-        
+
         public static bool DeleteOSSAdapter(int groupID, int ossAdapterId)
         {
             try
@@ -2235,7 +2235,7 @@ namespace DAL
 
         public static OSSAdapter SetOSSAdapter(int groupID, OSSAdapter ossAdapter)
         {
-            OSSAdapter ossAdapterRes = null; 
+            OSSAdapter ossAdapterRes = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapter");
@@ -2247,7 +2247,7 @@ namespace DAL
                 sp.AddParameter("@shared_secret", ossAdapter.SharedSecret);
                 sp.AddParameter("@adapter_url", ossAdapter.AdapterUrl);
                 sp.AddParameter("@isActive", ossAdapter.IsActive);
-                
+
                 DataSet ds = sp.ExecuteDataSet();
 
                 ossAdapterRes = CreateOSSAdapter(ds);
@@ -2315,10 +2315,10 @@ namespace DAL
                 log.Error(string.Empty, ex);
                 res = new List<OSSAdapterBase>();
             }
-            return res;   
+            return res;
         }
 
-        public static OSSAdapter GetOSSAdapter(int groupID, int ossAdapterId, int? isActive= null, int status =1)
+        public static OSSAdapter GetOSSAdapter(int groupID, int ossAdapterId, int? isActive = null, int status = 1)
         {
             OSSAdapter ossAdapterRes = null;
             try
@@ -2332,17 +2332,17 @@ namespace DAL
                 {
                     sp.AddParameter("@isActive", isActive.Value);
                 }
-                
+
                 DataSet ds = sp.ExecuteDataSet();
 
                 ossAdapterRes = CreateOSSAdapter(ds);
-            
+
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
-            return ossAdapterRes;  
+            return ossAdapterRes;
         }
 
         public static bool InsertOSSAdapterSettings(int groupID, int ossAdapterId, List<OSSAdapterSettings> settings)
@@ -2438,7 +2438,7 @@ namespace DAL
                             ossAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
                             int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             ossAdapter.IsActive = is_Active == 1 ? true : false;
-                            
+
                             if (dtConfig != null)
                             {
                                 DataRow[] drpc = dtConfig.Select("oss_adapter_id =" + ossAdapter.ID);
@@ -2467,8 +2467,8 @@ namespace DAL
             return res;
         }
 
-        #endregion 
-    
+        #endregion
+
         public static DataTable Get_IPToCountryTable()
         {
             DataTable table = null;
@@ -2558,11 +2558,11 @@ namespace DAL
                     }
                 }
             }
-            return ruleIds;       
+            return ruleIds;
         }
 
         #region Bulk Export
-        public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, 
+        public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, string version, bool isActive)
         {
             BulkExportTask task = null;
@@ -2758,7 +2758,7 @@ namespace DAL
         }
         #endregion
 
-        public static List<MessageQueue> GetQueueMessages(int groupId, DateTime baseDate, List<string> keys)
+        public static List<MessageQueue> GetQueueMessages(int groupId, DateTime baseDate, List<string> messageDataTypes)
         {
             List<MessageQueue> res = new List<MessageQueue>();
             try
@@ -2767,8 +2767,7 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@baseDate", baseDate);
-                sp.AddIDListParameter<string>("@routingKey", keys, "STR");
-
+                sp.AddIDListParameter<string>("@type", messageDataTypes, "STR");
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -2779,11 +2778,14 @@ namespace DAL
                         MessageQueue messageRecovery = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            messageRecovery = new MessageQueue();
-                            messageRecovery.Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            messageRecovery.MessageData = ODBCWrapper.Utils.GetSafeStr(dr, "MESSAGE_DATA");
-                            messageRecovery.RoutingKey = ODBCWrapper.Utils.GetSafeStr(dr, "ROUTING_KEY");
-                            messageRecovery.ExcutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE");
+                            messageRecovery = new MessageQueue()
+                            {
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                                MessageData = ODBCWrapper.Utils.GetSafeStr(dr, "MESSAGE_DATA"),
+                                RoutingKey = ODBCWrapper.Utils.GetSafeStr(dr, "ROUTING_KEY"),
+                                ExcutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE"),
+                                Type = ODBCWrapper.Utils.GetSafeStr(dr, "TYPE")
+                            };
 
                             res.Add(messageRecovery);
                         }
@@ -2792,9 +2794,9 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                res = new List<MessageQueue>();
+                log.Error("Error while getting the message list for recovery", ex);
             }
-            return res;  
+            return res;
         }
     }
 }
