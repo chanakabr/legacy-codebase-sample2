@@ -45,6 +45,13 @@ namespace QueueWrapper
 
         public virtual bool RecoverMessages(int groupId, string record, string routingKey, DateTime? runDate, string type)
         {
+            string logString = string.Format("Parameters: groupId {0}, record {1}, routingKey {2}, runDate {3}, type {4}",
+                        groupId,                                        // {0}
+                        record != null ? record : string.Empty,         // {1}
+                        routingKey != null ? routingKey : string.Empty, // {2}
+                        runDate != null ? runDate : DateTime.MinValue,  // {3}
+                        type != null ? type : string.Empty);            // {4}
+
             bool bIsEnqueueSucceeded = false;
 
             if (!string.IsNullOrEmpty(record))
@@ -53,14 +60,9 @@ namespace QueueWrapper
                     bIsEnqueueSucceeded = this.Implementation.Enqueue(record, routingKey);
 
                 if (!bIsEnqueueSucceeded)
-                {
-                    log.ErrorFormat("Error while trying to insert message to queue. groupId {0}, record {1}, routingKey {2}, runDate {3}, type {4}",
-                        groupId,                                        // {0}
-                        record != null ? record : string.Empty,         // {1}
-                        routingKey != null ? routingKey : string.Empty, // {2}
-                        runDate != null ? runDate : DateTime.MinValue,  // {3}
-                        type != null ? type : string.Empty);            // {4}
-                }
+                    log.Error("Error while trying to insert message to queue. " + logString);
+                else
+                    log.Debug("Message inserted to queue. " + logString);
             }
 
             return bIsEnqueueSucceeded;
