@@ -503,11 +503,11 @@ namespace ConditionalAccess
          protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID,int domainID, TvinciPricing.Subscription relevantSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
             TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, 
-            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy,  ref TvinciBilling.module wsBillingService)
+            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy,  ref TvinciBilling.module wsBillingService, string billingGuid = null)
         {
             bool res = base.HandleChargeUserForMediaFileBillingSuccess(sWSUsername,sWSPassword, sSiteGUID, domainID, relevantSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, sCustomData, thePPVModule, lMediaFileID,
-                ref lBillingTransactionID, ref lPurchaseID, isDummy, ref wsBillingService);
+                ref lBillingTransactionID, ref lPurchaseID, isDummy, ref wsBillingService, billingGuid);
 
             if (res && lPurchaseID > 0 && lBillingTransactionID > 0)
             {
