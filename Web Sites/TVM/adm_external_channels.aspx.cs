@@ -128,6 +128,7 @@ public partial class adm_external_channels : System.Web.UI.Page
 
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("cache_key");
+        theTable.AddTextColumn("External Identifier");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {

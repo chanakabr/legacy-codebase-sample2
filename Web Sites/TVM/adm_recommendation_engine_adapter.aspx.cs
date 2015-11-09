@@ -81,6 +81,7 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("cache_key");
         theTable.AddActivationField("is_active");
+        theTable.AddTextColumn("External ID");
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_recommendation_engine_adapter_settings.aspx", "Params", "");
         linkColumnKeParams.AddQueryStringValue("adapter_id", "field=id");
