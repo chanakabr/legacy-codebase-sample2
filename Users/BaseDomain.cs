@@ -1055,7 +1055,29 @@ namespace Users
                 bool tempIsMaster = false;
                 int tempOperatorID = 0;
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
-                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
+                int domainID = 0;
+                try 
+	            {
+                    // Get user from cache by siteGUID
+                    User user = null;
+                    UsersCache usersCache = UsersCache.Instance();
+                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid));                    
+                    if (user != null)
+                    {
+                        domainID = user.m_domianID;
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    log.Error("Failed getting user from cache", ex);
+                }
+
+                if(domainID==0)
+                {
+                    domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
+                }
+
                 if (domainID < 1 || domainID == (int)lDomainID)
                     return null;
                 res = oDomainCache.GetDomain(domainID, m_nGroupID);
@@ -1279,7 +1301,18 @@ namespace Users
             Domain domain = null;
             try
             {
-                var domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
+                User user = null;
+                UsersCache usersCache = UsersCache.Instance();
+                user = usersCache.GetUser(int.Parse(siteGuid));
+                int domainId;
+                if (user != null)
+                {
+                    domainId = user.m_domianID;
+                }
+                else
+                {
+                    domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
+                }                
                 DomainsCache domainsCache = DomainsCache.Instance();
                 domain = domainsCache.GetDomain(domainId, groupId);
             }

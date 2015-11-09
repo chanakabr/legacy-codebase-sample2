@@ -561,7 +561,21 @@ namespace Users
                 return eRetVal;
             }
 
-            int nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
+            int nUserDomainID;
+            // Try to get user from cache
+            User user = null;
+            UsersCache usersCache = UsersCache.Instance();
+            user = usersCache.GetUser(nUserID);
+
+            if (user != null)
+            {
+                nUserDomainID = user.m_domianID;
+            }
+            else
+            {
+                nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
+            }     
+
             if (nUserDomainID <= 0)
             {
                 eRetVal = DomainResponseStatus.UserNotExistsInDomain;
@@ -619,6 +633,10 @@ namespace Users
                     // remove domain from cache 
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(nDomainID);
+
+                    // remove user from cache
+                    usersCache.RemoveUser(nUserID);
+
                 }
                 else
                 {
@@ -924,8 +942,13 @@ namespace Users
                 eDomainResponseStatus = DomainResponseStatus.Error;
             }
 
-            if (eDomainResponseStatus == DomainResponseStatus.OK)  //remove domain from cache
+            if (eDomainResponseStatus == DomainResponseStatus.OK)  //remove domain & user from cache
             {
+                //Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nUserID);
+
+                //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bCached = oDomainCache.RemoveDomain(nDomainID);
                 if (!bCached)
@@ -943,6 +966,9 @@ namespace Users
             DomainResponseObject response = SubmitAddUserToDomainRequest(nGroupID, nUserID, sMasterUsername, out nDomainID);
             if (nDomainID != 0)
             {
+                //Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nUserID);
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRemove = oDomainCache.RemoveDomain(nDomainID);
             }
@@ -1173,6 +1199,11 @@ namespace Users
 
             if (rowsAffected > 0)
             {
+                // Remove both users from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nCurrentMasterID);
+                usersCache.RemoveUser(nNewMasterID);
+
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
@@ -2028,7 +2059,6 @@ namespace Users
                 return DomainResponseStatus.DomainSuspended;
             }
 
-
             // If domain has no users, insert new Master user
             int status = 1;
             int isActive = 1;
@@ -2045,6 +2075,11 @@ namespace Users
                     m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
                     eDomainResponseStatus = DomainResponseStatus.OK;
                     bRemove = true;
+
+                    //Remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(nUserID);
+
                     return DomainResponseStatus.OK;
                 }
 
@@ -2065,7 +2100,7 @@ namespace Users
                 return DomainResponseStatus.ActionUserNotMaster;
             }
 
-            // Check if user already exists in domain and Its Status (active or pending)            
+            // Check if user already exists in domain and Its Status (active or pending)
             DataTable dtUser = DomainDal.GetUserInDomain(nGroupID, nDomainID, nUserID);
 
             int? userStatus = null;
@@ -2122,6 +2157,10 @@ namespace Users
                     }
                 }
 
+                //Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nUserID);
+
                 return eDomainResponseStatus;
             }
 
@@ -2161,6 +2200,10 @@ namespace Users
                 m_totalNumOfUsers = m_UsersIDs.Count;
                 bRemove = true;
                 eDomainResponseStatus = DomainResponseStatus.OK;
+
+                //Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nUserID);
             }
             else
             {
@@ -2254,16 +2297,30 @@ namespace Users
             string sNewFirstName = string.Empty;
             string sNewEmail = string.Empty;
 
-            using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID))
+            // Try getting user from cache
+            User user = null;
+            UsersCache usersCache = UsersCache.Instance();
+            user = usersCache.GetUser(nUserID);
+            
+            if(user != null)
             {
-                if (dtUserBasicData != null)
+                sNewUsername = user.m_oBasicData.m_sUserName;
+                sNewFirstName = user.m_oBasicData.m_sFirstName;
+                sNewEmail = user.m_oBasicData.m_sEmail;
+            }
+            else
+            {
+                using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID))
                 {
-                    int nCount = dtUserBasicData.DefaultView.Count;
-                    if (nCount > 0)
+                    if (dtUserBasicData != null)
                     {
-                        sNewUsername = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
-                        sNewFirstName = dtUserBasicData.DefaultView[0].Row["FIRST_NAME"].ToString();
-                        sNewEmail = dtUserBasicData.DefaultView[0].Row["EMAIL_ADD"].ToString();
+                        int nCount = dtUserBasicData.DefaultView.Count;
+                        if (nCount > 0)
+                        {
+                            sNewUsername = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
+                            sNewFirstName = dtUserBasicData.DefaultView[0].Row["FIRST_NAME"].ToString();
+                            sNewEmail = dtUserBasicData.DefaultView[0].Row["EMAIL_ADD"].ToString();
+                        }
                     }
                 }
             }
