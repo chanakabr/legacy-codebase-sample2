@@ -618,17 +618,16 @@ namespace DAL
                         if (sCustomData.IndexOf(string.Format("<ppvm>{0}</ppvm>", p_sPPVCode)) > 0)
                         {
                             res = true;
-                            DataRow drSource = dt.Rows[0];
 
-                            p_nPPVID = ODBCWrapper.Utils.GetIntSafeVal(drSource["ID"]);
-                            p_sSubCode = ODBCWrapper.Utils.GetSafeStr(drSource["subscription_code"]);
-                            p_sPPCode = ODBCWrapper.Utils.GetSafeStr(drSource["rel_pp"]);
-                            p_sPurchasedBySiteGuid = ODBCWrapper.Utils.GetSafeStr(drSource["SITE_USER_GUID"]);
-                            p_nPurchasedAsMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(drSource["MEDIA_FILE_ID"]);
+                            p_nPPVID = ODBCWrapper.Utils.GetIntSafeVal(dr["ID"]);
+                            p_sSubCode = ODBCWrapper.Utils.GetSafeStr(dr["subscription_code"]);
+                            p_sPPCode = ODBCWrapper.Utils.GetSafeStr(dr["rel_pp"]);
+                            p_sPurchasedBySiteGuid = ODBCWrapper.Utils.GetSafeStr(dr["SITE_USER_GUID"]);
+                            p_nPurchasedAsMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
                             //cancellation window 
-                            p_nWaiver = ODBCWrapper.Utils.GetIntSafeVal(drSource, "WAIVER");
-                            p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(drSource, "CREATE_DATE");
-                            p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(drSource, "START_DATE");
+                            p_nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
+                            p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+                            p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
                         }
                     }
                 }
