@@ -16,25 +16,25 @@ namespace QueueWrapper
         public string Port { get; set; }
         public string VirtualHost { get; set; }
         public string Username { get; set; }
-        public bool setContentType { get; set; }
+        public string ContentType { get; set; }
 
-        public RabbitConfigurationData(string sExchange, string sQueueName, string sRoutingKey, string sHost, string sPassword, string sExchangeType, string sVirtualPort, string sUsername, string sPort)
+        public RabbitConfigurationData(string exchange, string queueName, string sRoutingKey, 
+            string host, string password, string exchangeType, string virtualPort, string username, string port, string contentType = "")
         {
-            this.Exchange = sExchange;
-            this.QueueName = sQueueName;
+            this.Exchange = exchange;
+            this.QueueName = queueName;
             this.RoutingKey = sRoutingKey;
-            this.Host = sHost;
-            this.Password = sPassword;
-            this.ExchangeType = sExchangeType;
-            this.Username = sUsername;
-            this.Port = sPort;
-            this.VirtualHost = sVirtualPort;
-            this.setContentType = false;
+            this.Host = host;
+            this.Password = password;
+            this.ExchangeType = exchangeType;
+            this.Username = username;
+            this.Port = port;
+            this.VirtualHost = virtualPort;
+            this.ContentType = contentType;
         }
 
         public RabbitConfigurationData()
         {
-            this.setContentType = false;
         }
     }
 }

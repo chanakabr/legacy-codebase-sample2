@@ -224,6 +224,7 @@ namespace TVinciShared
         protected int m_nIgnoreDeleteId;
         protected int m_nIgnoreActiveId;
 
+        protected System.Collections.Generic.Dictionary<string, bool> stringColumns;
 
         static public void GetSearchFree(string sHeader, string sInputID, string sDir)
         {
@@ -431,6 +432,7 @@ namespace TVinciShared
             m_sConnectionKey = "";
             m_nIgnoreDeleteId = ignoreDeleteId;
             m_nIgnoreActiveId = ignoreActiveId;
+            stringColumns = new System.Collections.Generic.Dictionary<string, bool>();
         }
 
         public void SetConnectionKey(string sKey)
@@ -519,6 +521,28 @@ namespace TVinciShared
         public void AddMultiValuesColumn(DataTableMultiValuesColumn theColumn)
         {
             m_MultiValuesColumns.Add(m_MultiValuesColumns.Count.ToString(), theColumn);
+        }
+
+        public void AddTextColumn(string fieldName)
+        {
+            if (!string.IsNullOrEmpty(fieldName))
+            {
+                stringColumns.Add(fieldName.ToUpper(), true);
+            }
+        }
+
+        public void AddTextColumns(System.Collections.Generic.IEnumerable<string> fieldNames)
+        {
+            if (fieldNames != null)
+            {
+                foreach (string field in fieldNames)
+                {
+                    if (!string.IsNullOrEmpty(field))
+                    {
+                        stringColumns.Add(field.ToUpper(), true);
+                    }
+                }
+            }
         }
 
         public static DBTableWebEditor operator +(DBTableWebEditor p, object sOraStr)
@@ -1270,7 +1294,13 @@ namespace TVinciShared
                         {
                             sVal = sVal.Substring(0, 50) + "...";
                         }
-                        sVal = PageUtils.ReWriteTableValue(sVal);
+
+                        // If the page defined this column as a string column: DO NOT reformat it as a number
+                        if (!stringColumns.ContainsKey(sName.ToUpper()))
+                        {
+                            sVal = PageUtils.ReWriteTableValue(sVal);
+                        }
+
                         sTable.Append("<td ");
                         if (sVal.Length < 22)
                             sTable.Append(" nowrap=\"nowrap\" ");
