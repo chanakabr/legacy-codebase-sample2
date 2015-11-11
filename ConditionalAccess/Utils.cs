@@ -1527,7 +1527,8 @@ namespace ConditionalAccess
             Utils.GetWSCredentials(nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
             
             // check if file is avilable             
-            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1]{nMediaFileID});
+            Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode);
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
                 theReason = PriceReason.NotForPurchase;
@@ -3098,18 +3099,22 @@ namespace ConditionalAccess
 
 
          // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles)
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode)
         {
-            Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int,MediaFileStatus>();
+            Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int, MediaFileStatus>();
+            mediaFilesProductCode = new Dictionary<int, string>();
             try
             {
+                string productCode = string.Empty;
                 MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+                
                 //initialize all status as OK 
                 foreach (int mf in nMediaFiles)
                 {
                     if (!mediaFilesStatus.ContainsKey(mf))
                     {
                         mediaFilesStatus.Add(mf, eMediaFileStatus);
+                        mediaFilesProductCode.Add(mf, productCode);
                     }
                 }
 
@@ -3125,6 +3130,7 @@ namespace ConditionalAccess
                     DateTime mediaEndDate , mediaFileEndDate;
                     DateTime mediaFinalEndDate;
                     DateTime dbCurrentDate;
+                    
                    
                     if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
                     {
@@ -3144,6 +3150,16 @@ namespace ConditionalAccess
                             mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
                             mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
                             mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
+                            productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
+
+                            if (!mediaFilesProductCode.ContainsKey(mediaFileID))
+                            {
+                                mediaFilesProductCode.Add(mediaFileID, productCode);
+                            }
+                            else
+                            {
+                                mediaFilesProductCode[mediaFileID] = productCode;
+                            }
 
                             if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
                             {
