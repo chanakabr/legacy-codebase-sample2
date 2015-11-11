@@ -61,7 +61,7 @@ public partial class adm_export_tasks : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select	bet.id as 'ID', bet.name as 'Name', bet.external_key as 'External Key', lbedt.description as 'Data Type', bet.filter as 'Filter', lbeet.description as 'Export Type', bet.frequency as 'Frequency', bet.Notification_url as 'Notification URL', bet.group_id, bet.status, bet.is_active ";
+        theTable += "select	bet.id as 'ID', bet.name as 'Name', bet.external_key as 'Alias ', lbedt.description as 'Data Type', bet.filter as 'Filter', lbeet.description as 'Export Type', bet.frequency as 'Frequency', bet.Notification_url as 'Notification URL', bet.group_id, bet.status, bet.is_active ";
         theTable += "FROM bulk_export_tasks bet inner join lu_bulk_export_export_types lbeet on bet.EXPORT_TYPE = lbeet.id inner join lu_bulk_export_data_types lbedt on bet.DATA_TYPE = lbedt.ID ";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
