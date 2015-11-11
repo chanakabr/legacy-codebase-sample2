@@ -1,76 +1,182 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Web;
 using System.Configuration;
+using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
-using System.Data.SqlClient;
-using System.Text.RegularExpressions;
 
 namespace ODBCWrapper
 {
     public class Connection
     {
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public delegate string GetConnectionStringDelegate();
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #region Fields
-        public string CustomConnectionString { get; set; }
-        public static GetConnectionStringDelegate GetDefaultConnectionStringMethod { get; set; }
-        public GetConnectionStringDelegate GetConnectionStringMethod { get; set; }
-
-        private SqlConnection m_conn = null;
-        #endregion
-
-        private string getConnectionString()
-        {
-            if (!string.IsNullOrEmpty(CustomConnectionString))
-            {
-                return CustomConnectionString;
-            }
-
-            if (GetConnectionStringMethod != null)
-            {
-                return GetConnectionStringMethod();
-            }
-            else if (GetDefaultConnectionStringMethod != null)
-            {
-                return GetDefaultConnectionStringMethod();
-            }
-
-            throw new Exception("One of the mothods must be assigned before use");
-        }
-
-        #region Constructor
-        static Connection()
-        {
-            GetDefaultConnectionStringMethod = defaultConnectionString;
-        }
-        #endregion
 
         public Connection()
-            : this(null)
         {
-
         }
 
-        public Connection(GetConnectionStringDelegate getConnectionStringMethod)
+        private SqlConnection m_conn = null;
+
+        static private string m_sConnectionStr = "";
+        protected object m_crit_sec = new object();
+
+        static public void ClearConnection()
         {
-            GetConnectionStringMethod = getConnectionStringMethod;
+            m_sConnectionStr = "";
         }
 
-        private static string defaultConnectionString()
+        //TODO : add connection string for WRITABLE 
+        static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
-            return string.Concat("Driver={SQL Server};Server=", HttpContext.Current.Application["MSSQL_SERVER_NAME"].ToString(),
-            ";Database=", HttpContext.Current.Application["DB_NAME"].ToString(),
-            ";Uid=", HttpContext.Current.Application["UN"].ToString(),
-            ";Pwd=", HttpContext.Current.Application["PS"].ToString(),
-            ";");
+            string sRet = "";
+
+            if (Utils.GetTcmConfigValue(sKey) != string.Empty)
+            {
+                sRet = Utils.GetTcmConfigValue(sKey).Replace("Driver={SQL Server};", "");
+                if (sRet.IndexOf(";Trusted_Connection=False") == -1)
+                    sRet += ";Trusted_Connection=False";
+            }
+
+            // support 2012-AlwaysOn
+            bool useAlwaysOn = true;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("UseAlwaysOn")))
+                    bool.TryParse(Utils.GetTcmConfigValue("UseAlwaysOn"), out useAlwaysOn);
+            }
+            catch (Exception) { }
+
+            if (useAlwaysOn)
+            {
+                if (!sRet.EndsWith(";")) sRet += ";";
+                if (!sRet.ToLower().Contains("multisubnetfailover")) sRet += "MultiSubNetFailover=Yes;";
+                if (!sRet.ToLower().Contains("applicationintent")) sRet += "ApplicationIntent=ReadWrite;";
+            }
+            else
+            {
+                if (sRet.ToLower().Contains("multisubnetfailover")) sRet = Regex.Replace(sRet, "MultiSubNetFailover=Yes", string.Empty, RegexOptions.IgnoreCase);
+                if (sRet.ToLower().Contains("applicationintent")) sRet = Regex.Replace(sRet, "ApplicationIntent=ReadWrite", string.Empty, RegexOptions.IgnoreCase);
+                sRet = sRet.TrimEnd(';');
+                sRet += ';';
+            }
+
+            return sRet;
         }
 
-        #region Public Methods
+
+        static public string GetConnectionString(string sKey, bool bIsWritable)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                sKey = "CONNECTION_STRING";
+            return GetConnectionStringByKey(sKey, bIsWritable);
+        }
+
+
+        static private bool StartConnectionStr()
+        {
+            string s = GetConnectionString("", false);
+            if (s != "")
+            {
+                m_sConnectionStr = s;
+                return true;
+            }
+            if (Utils.GetTcmConfigValue("MSSQL_SERVER_NAME") != string.Empty)
+            {
+                m_sConnectionStr = "Driver={SQL Server};Server=";
+                m_sConnectionStr += Utils.GetTcmConfigValue("MSSQL_SERVER_NAME");
+                m_sConnectionStr += ";Database=";
+                m_sConnectionStr += Utils.GetTcmConfigValue("DB_NAME");
+                m_sConnectionStr += ";Uid=";
+                m_sConnectionStr += Utils.GetTcmConfigValue("UN");
+                m_sConnectionStr += ";Pwd=";
+                m_sConnectionStr += Utils.GetTcmConfigValue("PS");
+                m_sConnectionStr += ";";
+                return true;
+            }
+            //Access mdb files
+            if (HttpContext.Current.Application["DB_NAME"] != null && HttpContext.Current.Application["MSSQL_SERVER_NAME"] == null)
+            {
+                string sMapPath = "";
+                string sLocalPath = HttpContext.Current.Server.MapPath(sMapPath);
+                sLocalPath += "\\db\\" + HttpContext.Current.Application["DB_NAME"].ToString();
+                m_sConnectionStr = "Driver={Microsoft Access Driver (*.mdb)};Dbq=";
+                m_sConnectionStr += sLocalPath;
+                m_sConnectionStr += ";Uid=;Pwd=;";
+                return true;
+            }
+            else if (HttpContext.Current.Session != null && HttpContext.Current.Session["DB_NAME"] != null && HttpContext.Current.Session["MSSQL_SERVER_NAME"] == null)
+            {
+                string sMapPath = "";
+                string sLocalPath = HttpContext.Current.Server.MapPath(sMapPath);
+                sLocalPath += "\\db\\" + HttpContext.Current.Session["DB_NAME"].ToString();
+                m_sConnectionStr = "Driver={Microsoft Access Driver (*.mdb)};Dbq=";
+                m_sConnectionStr += sLocalPath;
+                m_sConnectionStr += ";Uid=;Pwd=;";
+                return true;
+            }
+            //sql server files
+
+            if (HttpContext.Current.Application["MSSQL_SERVER_NAME"] != null)
+            {
+                m_sConnectionStr = "Driver={SQL Server};Server=";
+                m_sConnectionStr += HttpContext.Current.Application["MSSQL_SERVER_NAME"].ToString();
+                m_sConnectionStr += ";Database=";
+                m_sConnectionStr += HttpContext.Current.Application["DB_NAME"].ToString();
+                m_sConnectionStr += ";Uid=";
+                m_sConnectionStr += HttpContext.Current.Application["UN"].ToString();
+                m_sConnectionStr += ";Pwd=";
+                m_sConnectionStr += HttpContext.Current.Application["PS"].ToString();
+                m_sConnectionStr += ";";
+                return true;
+            }
+            else if (HttpContext.Current.Session != null && HttpContext.Current.Session["MSSQL_SERVER_NAME"] != null)
+            {
+                m_sConnectionStr = "Driver={SQL Server};Server=";
+                m_sConnectionStr += HttpContext.Current.Session["MSSQL_SERVER_NAME"].ToString();
+                m_sConnectionStr += ";Database=";
+                m_sConnectionStr += HttpContext.Current.Session["DB_NAME"].ToString();
+                m_sConnectionStr += ";Uid=";
+                m_sConnectionStr += HttpContext.Current.Session["UN"].ToString();
+                m_sConnectionStr += ";Pwd=";
+                m_sConnectionStr += HttpContext.Current.Session["PS"].ToString();
+                m_sConnectionStr += ";";
+                return true;
+            }
+
+            //odbc
+            if (HttpContext.Current.Application["DSN"] != null)
+            {
+                m_sConnectionStr = "DSN=";
+                m_sConnectionStr += HttpContext.Current.Application["DSN"].ToString();
+                m_sConnectionStr += ";Uid=";
+                m_sConnectionStr += HttpContext.Current.Application["UN"].ToString();
+                m_sConnectionStr += ";Pwd=";
+                m_sConnectionStr += HttpContext.Current.Application["PS"].ToString();
+                m_sConnectionStr += ";";
+                return true;
+            }
+            else if (HttpContext.Current.Session != null && HttpContext.Current.Session["DSN"] != null)
+            {
+                m_sConnectionStr = "DSN=";
+                m_sConnectionStr += HttpContext.Current.Session["DSN"].ToString();
+                m_sConnectionStr += ";Uid=";
+                m_sConnectionStr += HttpContext.Current.Session["UN"].ToString();
+                m_sConnectionStr += ";Pwd=";
+                m_sConnectionStr += HttpContext.Current.Session["PS"].ToString();
+                m_sConnectionStr += ";";
+                return true;
+            }
+            return true;
+        }
+
         public void Finish()
         {
+            //lock(m_sConnectionStr)
+            //{
             try
             {
                 if (m_conn != null)
@@ -85,77 +191,105 @@ namespace ODBCWrapper
             }
             catch (Exception ex)
             {
-                string message = "While closing connection Exception occurred: " + ex.Message;
-                logger.Error(message, ex);
+                string sMes = "While closing connection Exception occurred: " + ex.Message;
+                log.Error(sMes, ex);
+            }
+            //}
+        }
+
+        public void GetConnection(ref SqlConnection conn)
+        {
+            lock (m_sConnectionStr)
+            {
+                if (m_conn != null && m_conn.State == ConnectionState.Open)
+                {
+                    conn = m_conn;
+                }
+                else
+                {
+                    if (m_sConnectionStr == "")
+                    {
+                        StartConnectionStr();
+                    }
+                    try
+                    {
+                        if (m_conn == null)
+                            m_conn = new Connection().OpenConnection(m_sConnectionStr);
+                    }
+                    catch (Exception ex)
+                    {
+                        string sMes = "While opening connection Exception occurred: " + ex.Message;
+                        log.Error(sMes, ex);
+                        return;
+                    }
+                    conn = m_conn;
+                }
             }
         }
 
-        public SqlConnection GetConnection()
+        public void GetConnection(ref SqlCommand conn)
         {
-            if (this.m_conn == null)
+            lock (m_sConnectionStr)
             {
-                string ConnStr = getConnectionString();
-                if (string.IsNullOrEmpty(ConfigurationManager.AppSettings["UseSQL2008"]) || !bool.Parse(ConfigurationManager.AppSettings["UseSQL2008"]))
+                if (m_conn != null && m_conn.State == ConnectionState.Open)
                 {
-                    if (ConnStr.ToLower().Contains("driver={sql server};"))
-                    {
-                        ConnStr = Regex.Replace(ConnStr, "driver={sql server};", string.Empty, RegexOptions.IgnoreCase);
-                    }
-                    if (!ConnStr.EndsWith(";"))
-                    {
-                        ConnStr = ConnStr + ";";
-                    }
-                    if (!ConnStr.ToLower().Contains("multisubnetfailover"))
-                    {
-                        ConnStr = ConnStr + "MultiSubNetFailover=Yes;";
-                    }
-                    if (!ConnStr.ToLower().Contains("applicationintent"))
-                    {
-                        ConnStr = ConnStr + "ApplicationIntent=ReadWrite;";
-                    }
+                    conn.Connection = m_conn;
                 }
-                if (string.IsNullOrEmpty(ConnStr))
+                else
                 {
-                    throw new Exception("Member 'GetConnectionStringMethod' returned with empty string as connection string");
+                    if (m_sConnectionStr == "")
+                    {
+                        StartConnectionStr();
+                    }
+                    try
+                    {
+                        if (m_conn == null)
+                        {
+                            m_conn = new Connection().OpenConnection(m_sConnectionStr);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        string sMes = "While opening connection Exception occurred (" + m_sConnectionStr + "): " + ex.Message;
+                        log.Error(sMes, ex);
+                        return;
+                    }
+                    conn.Connection = m_conn;
                 }
-                this.m_conn = new SqlConnection(ConnStr);
             }
-            if (this.m_conn.State != ConnectionState.Open)
-            {
-                this.m_conn.Open();
-            }
-            using (new SqlDataAdapter())
+        }
+
+        public SqlConnection OpenConnection(string sConnectionString)
+        {
+            SqlConnection con = new SqlConnection(sConnectionString);
+            using (SqlDataAdapter da = new SqlDataAdapter())
             {
                 using (SqlCommand command = new SqlCommand())
                 {
                     try
                     {
-                        //Logger.Logger.Log("connection", this.m_conn.ConnectionString, "ODBC_Connections");
-                        command.CommandType = CommandType.StoredProcedure;
+                        con.Open();
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.CommandText = "SP_Reset_Connection";
-                        command.Connection = this.m_conn;
-                        command.ExecuteNonQuery();
+                        command.Connection = con;
+
+                        SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                        {
+                            int res = command.ExecuteNonQuery();
+                        }
                     }
-                    catch (Exception exception)
+                    catch (Exception ex)
                     {
-                        //Logger.Logger.Log("Connection", exception.ToString(), "ODBC_Net");
-                        SqlConnection.ClearPool(m_conn);
+                        log.Error("Error while opening connection to DB", ex);
+
+                        // clear current connection pool
+                        System.Data.SqlClient.SqlConnection.ClearPool(con);
                     }
                 }
             }
-            return this.m_conn;
 
+            return con;
         }
-
-        public void GetConnection(ref SqlConnection conn)
-        {
-            conn = GetConnection();
-        }
-
-        public void GetConnection(ref SqlCommand conn)
-        {
-            conn.Connection = GetConnection();
-        }
-        #endregion
     }
 }

@@ -1,6 +1,8 @@
 using System;
-using System.Reflection;
+using System.Data.SqlClient;
+using System.Data;
 using KLogMonitor;
+using System.Reflection;
 
 namespace ODBCWrapper
 {
@@ -9,59 +11,107 @@ namespace ODBCWrapper
     /// </summary>
     public class InsertQuery : DirectQuery
     {
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public InsertQuery()
+            : base()
+        {
+        }
 
         public InsertQuery(string sTableName)
         {
             SetTable(sTableName);
+            m_bIsWritable = true;
         }
 
         ~InsertQuery() { }
 
         public void SetTable(string sTableName)
         {
-            m_sOraStr = "insert into " + sTableName + " ";
+            m_sOraStr = new System.Text.StringBuilder("insert into ").Append(sTableName).Append(" ");
             sInsertStructure = "(";
             sInsertValues = "(";
         }
 
-        protected override bool AddParameter(string sParName, string sType, object sParVal)
+        /// <summary>
+        /// Inserts bulk of rows to a specific table(which its name represent by sTableName param) at the db
+        /// at one time, the bulk of rows is taken from dtData param.
+        /// the dtData datatable structure must match the structure of the destination table at the db.
+        /// </summary>
+        /// <param name="sTableName"></param>
+        /// <param name="dtData"></param>
+        public void InsertBulk(string sTableName, DataTable dtData)
+        {
+            if (dtData != null && dtData.Rows.Count > 0)
+            {
+                int numRows = dtData.Rows.Count;
+                string connString = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+                SqlBulkCopy bulkCopy = new SqlBulkCopy(connString)
+                {
+                    DestinationTableName = sTableName,
+                    BatchSize = numRows,
+                    BulkCopyTimeout = 360
+                };
+
+                foreach (DataColumn col in dtData.Columns)
+                {
+                    bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+                }
+                bulkCopy.WriteToServer(dtData);
+            }
+        }
+
+        protected override bool AddParameter(string parameterName, string type, object value)
         {
             if (sInsertStructure != "(")
                 sInsertStructure += ",";
-            sInsertStructure += sParName;
+            sInsertStructure += parameterName;
 
             if (sInsertValues != "(")
                 sInsertValues += ",";
-            sInsertValues += "?";
-            m_hashTable[table_ind] = sParVal;
+            sInsertValues += "@P" + table_ind.ToString();
+
+            if (value == null)
+                value = DBNull.Value;
+
+            m_hashTable[table_ind] = value;
             table_ind++;
             return true;
         }
 
         protected override bool Execute(string oraStr)
         {
-            m_sOraStr = oraStr;
-            m_sOraStr += sInsertStructure;
-            m_sOraStr += ") ";
-            m_sOraStr += "VALUES ";
-            m_sOraStr += sInsertValues;
-            m_sOraStr += ")";
-            oraStr = m_sOraStr;
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            m_sOraStr.Append(sInsertStructure);
+            m_sOraStr.Append(") ");
+            m_sOraStr.Append("VALUES ");
+            m_sOraStr.Append(sInsertValues);
+            m_sOraStr.Append(")");
+            oraStr = m_sOraStr.ToString();
             int_Execute();
-            try
-            {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr, QueryType = KLogEnums.eDBQueryType.INSERT })
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                m_sErrorMsg = ex.Message;
-                string message = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
-                logger.Error(message, ex);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            if (sConn == "")
                 return false;
+            using (SqlConnection con = new SqlConnection(sConn))
+            {
+                try
+                {
+                    con.Open();
+                    SetLockTimeOut(con);
+                    command.Connection = con;
+
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
+                    return false;
+                }
             }
             return true;
         }
@@ -75,7 +125,7 @@ namespace ODBCWrapper
                     ((Parameter)sOraStr).m_sParVal);
             }
             else
-                p.m_sOraStr += " " + sOraStr;
+                p.m_sOraStr.Append(" ").Append(sOraStr);
             return p;
         }
 

@@ -1,8 +1,7 @@
 using System;
-using System.Data.Odbc;
+using System.Data.SqlClient;
 using System.Reflection;
 using KLogMonitor;
-using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -11,12 +10,13 @@ namespace ODBCWrapper
     /// </summary>
     public class SelectQuery : Query
     {
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public SelectQuery()
         {
             m_myReader = null;
             command = null;
+            m_bIsWritable = false;
         }
 
         ~SelectQuery() { }
@@ -120,24 +120,39 @@ namespace ODBCWrapper
         }
         public override bool Execute()
         {
-            return Execute(m_sOraStr);
+            return Execute(m_sOraStr.ToString());
         }
 
         private bool Execute(string oraStr)
         {
-            m_sOraStr = oraStr;
+            bool bRet = true;
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
             int_Execute();
-            try
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            if (sConn == "")
+                bRet = false;
+            using (SqlConnection con = new SqlConnection(sConn))
             {
-                m_myReader = command.ExecuteReader();
+                try
+                {
+                    con.Open();
+                    SetLockTimeOut(con);
+                    command.Connection = con;
+
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    {
+                        m_myReader = command.ExecuteReader();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
+                    bRet = false;
+                }
             }
-            catch (Exception ex)
-            {
-                string message = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
-                logger.Error(message, ex);
-                return false;
-            }
-            return true;
+            return bRet;
         }
 
         public static SelectQuery operator +(SelectQuery p, object sOraStr)
@@ -149,7 +164,7 @@ namespace ODBCWrapper
                     ((Parameter)sOraStr).m_sParVal);
             }
             else
-                p.m_sOraStr += " " + sOraStr;
+                p.m_sOraStr.Append(" ").Append(sOraStr);
             return p;
         }
 

@@ -9,7 +9,8 @@ namespace ODBCWrapper
 	{
 		public UpdateQuery(string sTableName)
 		{
-			m_sOraStr = "update " + sTableName + " set ";
+			m_sOraStr = new System.Text.StringBuilder("update ").Append(sTableName).Append(" set ");
+            m_bIsWritable = true;
 		}
 
 		~UpdateQuery(){}
@@ -23,23 +24,23 @@ namespace ODBCWrapper
 					((Parameter)sOraStr).m_sParVal);
 			}
 			else
-				p.m_sOraStr += " " +sOraStr;
+				p.m_sOraStr.Append(" ").Append(sOraStr);
 			return p;
 		}
 
-		protected override bool AddParameter(string sParName , string sType , object sParVal)
+		protected override bool AddParameter(string parameterName, string type , object value)
 		{
-			if (m_sOraStr.ToUpper().IndexOf("WHERE") > 0)
-				return base.AddParameter(sParName , sType , sParVal);
-			if (sType == "")
-				sType = "=";
+			if (m_sOraStr.ToString().ToUpper().IndexOf("WHERE") > 0)
+                return base.AddParameter(parameterName, type, value);
+			if (type == "")
+				type = "=";
 			if (table_ind > 0)
 			{
-				m_sOraStr += ",";
-				return base.AddParameter(sParName , sType , sParVal);
+				m_sOraStr.Append(",");
+                return base.AddParameter(parameterName, type, value);
 			}
 			else
-				return base.AddParameter(sParName , sType , sParVal);
+                return base.AddParameter(parameterName, type, value);
 		}
 	}
 }
