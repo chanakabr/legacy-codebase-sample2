@@ -126,7 +126,7 @@ public partial class adm_multi_pricing_plans : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        theTable.AddActivationField("subscriptions");
+        theTable.AddActivationField("subscriptions", "adm_subscriptions.aspx");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderNumField("subscriptions", "id", "order_num", "Priority");
         /*

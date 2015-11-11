@@ -947,12 +947,26 @@ function grayOut(vis, options)
 	}
 }
 
-function ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey) {
+//function ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey, sPage) {
+//    if (theTableName != null && theTableName != 'undefined' && theTableName == 'comment_filters') {
+//        RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
+//    }
+//    debugger;
+//    //RS.Execute("adm_utils.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
+//    ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey);
+
+//    RS.Execute(sPage, "UpdateMediaStatusInES", theID, requestedStatus);
+//}
+
+function ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey, sPage) {
     if (theTableName != null && theTableName != 'undefined' && theTableName == 'comment_filters') {
         RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
     }
+    debugger;
+    RS.Execute("adm_utils.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, sPage, callback_ChangeActiveStateRow, errorCallback);
 
-    RS.Execute("adm_utils.aspx", "ChangeActiveStateRow" , theTableName , theID , requestedStatus , sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
+    if (sPage != null && sPage != "")
+        RS.Execute(sPage, "UpdateOnOffStatus", theTableName, theID, requestedStatus);
 }
 
 //function ChangeActiveStateRow(theTableName, theID, requestedStatus) {
@@ -966,10 +980,10 @@ function ChangeOrderNumRow(theTableName , theID , theFieldName , deltaNum , conn
 
 function ChangeOnOffStateRow(theTableName ,theFieldName, theIndexField , theIndexVal , requestedStatus ,theOnStr,theOffStr , connKey) {
     if (theTableName != null && theTableName != 'undefined' && theTableName == 'comment_filters') {
-	    RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theIndexVal, requestedStatus, connKey, callback_ChangeActiveStateRow, errorCallback);
+        RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theIndexVal, requestedStatus, connKey, callback_ChangeActiveStateRow, errorCallback);
     }
     else
-	RS.Execute("adm_utils.aspx", "ChangeOnOffStateRow" , theTableName , theFieldName , theIndexField , theIndexVal , requestedStatus , theOnStr , theOffStr  , connKey, callback_ChangeActiveStateRow, errorCallback);    
+        RS.Execute("adm_utils.aspx", "ChangeOnOffStateRow", theTableName, theFieldName, theIndexField, theIndexVal, requestedStatus, theOnStr, theOffStr, connKey, callback_ChangeActiveStateRow, errorCallback);
 }
 
 function CheckEnter()

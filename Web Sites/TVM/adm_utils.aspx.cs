@@ -322,58 +322,13 @@ public partial class adm_utils : System.Web.UI.Page
 
         return sRet;
     }
-
-    protected void NotifyMediaActivationChange(Int32 nMediaID, Int32 nStatus)
-    {
-        string sURL = "";
-        string sXML = "";
-        Int32 nLanguageID = 0;
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select g.LANGUAGE_ID,g.media_notify_url from groups g,media m where g.id=m.group_id and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.id", "=", nMediaID);
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-            {
-                object oNURL = selectQuery.Table("query").DefaultView[0].Row["media_notify_url"];
-                if (oNURL != DBNull.Value && oNURL != null)
-                    sURL = oNURL.ToString();
-                nLanguageID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["LANGUAGE_ID"].ToString());
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-        if (sURL == "")
-            return;
-        //sXML
-        sXML = "<notification type=\"";
-        if (nStatus == 0)
-            sXML += "unpublish";
-        if (nStatus == 1)
-            sXML += "publish";
-        sXML += "\"><media_info media_id=\"" + nMediaID.ToString() + "\">";
-        System.Xml.XmlNode tNode = null;
-        ApiObjects.MediaInfoObject theInfo = null;
-        ApiObjects.MediaStatistics theMediaStatistics = null;
-        ApiObjects.MediaPersonalStatistics thePersonalStatistics = null;
-        sXML += TVinciShared.ProtocolsFuncs.GetMediaInfoInner(nMediaID, nLanguageID, true, 0, true, ref tNode, false, false, false, ref theInfo,
-            ref thePersonalStatistics, ref theMediaStatistics);
-        sXML += "</media_info>";
-        sXML += "</notification>";
-
-        Notifier t = new Notifier(sURL, sXML);
-        ThreadStart job = new ThreadStart(t.Notify);
-        Thread thread = new Thread(job);
-        thread.Start();
-    }
-
+    
     public string ChangeActiveStateRow(string sTable, string sID, string sStatus)
     {
         return ChangeActiveStateRow(sTable, sID, sStatus, "");
     }
 
-    public string ChangeActiveStateRow(string sTable, string sID, string sStatus, string sConnectionKey)
+    public string ChangeActiveStateRow(string sTable, string sID, string sStatus, string sConnectionKey, string sPage = "")
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         Int32 nRowGroupID = 0;
@@ -423,141 +378,20 @@ public partial class adm_utils : System.Web.UI.Page
             // Update Media / Channel in Lucene
             log.Debug("ChangeActiveStateRow - table:" + sTable + ", ID:" + sID);
 
-            eAction eAction;
-            bool result = false;
-            int nAction = int.Parse(sStatus);
-            int nId = int.Parse(sID);
-            List<int> idsToUpdate = new List<int>();
-            if (nId != 0)
-            {
-                idsToUpdate.Add(nId);
-            }
-
-            if (nAction == 0)
-            {
-                eAction = eAction.Delete;
-            }
-            else // status sent is 1
-            {
-                eAction = eAction.Update;
-            }
-            DomainsWS.module p;
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            string sWSURL;
-            switch (sTable.ToLower())
-            {
-                case "media":
-                    result = ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction);
-                    break;
-                case "channels":
-                    result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
-                    break;
-                case "groups_device_families_limitation_modules":
-                    //get parent_limit_module_id ==> than remove it
-                    if (eAction == eAction.Delete)
-                    {
-                        object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", nId);
-                        if (oDlmID != null)
-                        {
-                            int dlmID = int.Parse(oDlmID.ToString());
-                            p = new DomainsWS.module();
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                            sWSURL = GetWSURL("domains_ws");
-
-                            if (sWSURL != "")
-                                p.Url = sWSURL;
-                            try
-                            {
-                                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, dlmID);
-                                log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace));
-                            }
-                        }
-                    }
-                    break;
-                case "groups_device_limitation_modules":
-                    // delete from cache this DLM object    
-                    if (eAction == eAction.Delete)
-                    {
-                        p = new DomainsWS.module();
-                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = GetWSURL("domains_ws");
-                        if (sWSURL != "")
-                            p.Url = sWSURL;
-                        try
-                        {
-                            DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, nId);
-                            log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", nId, resp.Code));
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", nId, ex.Message, ex.StackTrace), ex);
-                        }
-                    }
-                    break;
-                case "bulk_export_tasks":
-                    if (eAction == eAction.Update)
-                    {
-                        //send message to rabbit
-                        try
-                        {
-                            // insert new message to tasks queue (for celery)
-                            apiWS.API m = new apiWS.API();
-                            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
-
-                            if (sWSURL != "")
-                                m.Url = sWSURL;
-                            sWSUserName = "";
-                            sWSPass = "";
-
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
-
-                            m.EnqueueExportTask(sWSUserName, sWSPass, nId);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Error - " + string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", nId, ex), ex);
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-
-
-            if (sTable == "media")
-            {
-                NotifyMediaActivationChange(int.Parse(sID), int.Parse(sStatus));
-                Notifiers.BaseMediaNotifier t = null;
-                Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-                if (t != null)
-                    t.NotifyChange(sID);
-            }
-            if (sTable == "subscriptions")
-            {
-                Notifiers.BaseSubscriptionNotifier t = null;
-                Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-                if (t != null)
-                    t.NotifyChange(sID);
-            }
-
             string sRet = "activation_" + sID.ToString() + "~~|~~";
+
+            string pageParam = string.IsNullOrEmpty(sPage) ? "" : ", '" + sPage + "'";
+
             if (int.Parse(sStatus) == 1)
             {
-                sRet += "<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",0,'" + sConnectionKey + "');\" ";
+                sRet += "<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",0,'" + sConnectionKey + "'" + pageParam + ");\" ";
                 sRet += " class='adm_table_link_div' >";
                 sRet += "Off";
                 sRet += "</a>";
             }
             else
             {
-                sRet += "<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",1,'" + sConnectionKey + "');\" ";
+                sRet += "<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",1,'" + sConnectionKey + "'" + pageParam + ");\" ";
                 sRet += " class='adm_table_link_div' >";
                 sRet += "On";
                 sRet += "</a>";

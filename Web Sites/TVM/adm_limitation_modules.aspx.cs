@@ -4,12 +4,17 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using ApiObjects;
+using KLogMonitor;
+using TvinciImporter;
 using TVinciShared;
+using System.Reflection;
 
 public partial class adm_limitation_modules : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -82,7 +87,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        theTable.AddActivationField("groups_device_families_limitation_modules");
+        theTable.AddActivationField("groups_device_families_limitation_modules", "ad-_limitation_modules.aspx");
         theTable.AddHiddenField("is_active");
 
         //DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_device_management.aspx", "Device Families", "");
@@ -146,5 +151,46 @@ public partial class adm_limitation_modules : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + " : Device Families");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int nId = int.Parse(sID);
+        List<int> idsToUpdate = new List<int>();
+        if (nId != 0)
+        {
+            idsToUpdate.Add(nId);
+        }
+
+        DomainsWS.module p;
+        string sIP = "1.1.1.1";
+        string sWSUserName = "";
+        string sWSPass = "";
+        string sWSURL;
+
+        //get parent_limit_module_id ==> than remove it
+        if (sStatus == "0")
+        {
+            object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", nId);
+            if (oDlmID != null)
+            {
+                int dlmID = int.Parse(oDlmID.ToString());
+                p = new DomainsWS.module();
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+
+                if (!string.IsNullOrEmpty(sWSURL))
+                    p.Url = sWSURL;
+                try
+                {
+                    DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, dlmID);
+                    log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace));
+                }
+            }
+        }           
     }
 }

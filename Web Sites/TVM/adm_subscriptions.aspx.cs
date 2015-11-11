@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using ApiObjects;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_subscriptions : System.Web.UI.Page
@@ -135,7 +137,7 @@ public partial class adm_subscriptions : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        theTable.AddActivationField("subscriptions");
+        theTable.AddActivationField("subscriptions", "adm_subscriptions.aspx");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderNumField("subscriptions", "id", "order_num", "Priority");
         /*
@@ -245,5 +247,13 @@ public partial class adm_subscriptions : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": Subscriptions");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        Notifiers.BaseSubscriptionNotifier t = null;
+        Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
+        if (t != null)
+            t.NotifyChange(sID);
     }
 }

@@ -4,10 +4,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
+using System.Reflection;
 
 public partial class adm_user_limitation_modules : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -75,7 +78,7 @@ public partial class adm_user_limitation_modules : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        theTable.AddActivationField("groups_device_limitation_modules");
+        theTable.AddActivationField("groups_device_limitation_modules", "adm_user_limitation_modules.aspx");
         theTable.AddHiddenField("is_active");
 
         //DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_user_management.aspx", "User Limitations", "");
@@ -147,5 +150,35 @@ public partial class adm_user_limitation_modules : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + " : User Limitations");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int nId = int.Parse(sID);
+        
+        DomainsWS.module p;
+        string sIP = "1.1.1.1";
+        string sWSUserName = "";
+        string sWSPass = "";
+        string sWSURL;
+                
+        // delete from cache this DLM object    
+        if (sStatus == "0")
+        {
+            p = new DomainsWS.module();
+            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+            if (sWSURL != "")
+                p.Url = sWSURL;
+            try
+            {
+                DomainsWS.Status resp = p.RemoveDLM(sWSUserName, sWSPass, nId);
+                log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", nId, resp.Code));
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", nId, ex.Message, ex.StackTrace), ex);
+            }
+        }               
     }
 }

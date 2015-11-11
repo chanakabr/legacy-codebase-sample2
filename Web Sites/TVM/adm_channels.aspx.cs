@@ -9,6 +9,9 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using TvinciImporter;
+using System.Collections.Generic;
+using ApiObjects;
 
 public partial class adm_channels : System.Web.UI.Page
 {
@@ -131,7 +134,7 @@ public partial class adm_channels : System.Web.UI.Page
         theTable.AddHiddenField("order_num");
         theTable.AddEditorRemarks("channels");
         theTable.AddHiddenField("EDITOR_REMARKS");
-        theTable.AddActivationField("channels");
+        theTable.AddActivationField("channels", "adm_channels.aspx");
         theTable.AddHiddenField("is_active");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
@@ -228,5 +231,17 @@ public partial class adm_channels : System.Web.UI.Page
         string sRet = "<IFRAME SRC=\"admin_tree_player.aspx";
         sRet += "\" WIDTH=\"800px\" HEIGHT=\"300px\" FRAMEBORDER=\"0\"></IFRAME>";
         Response.Write(sRet);
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        Int32 nGroupID = LoginManager.GetLoginGroupID();
+        List<int> idsToUpdate = new List<int>();
+
+        eAction eAction;
+        int nAction = int.Parse(sStatus);
+        eAction = (nAction == 0) ? eAction = eAction.Delete : eAction = eAction.Update;
+
+        bool result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
     }
 }

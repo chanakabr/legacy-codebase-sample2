@@ -5,9 +5,12 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
+using System.Reflection;
+using KLogMonitor;
 
 public partial class adm_export_tasks : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -70,7 +73,7 @@ public partial class adm_export_tasks : System.Web.UI.Page
         theTable += " order by id";
 
         theTable.AddHiddenField("is_active");
-        theTable.AddActivationField("bulk_export_tasks");
+        theTable.AddActivationField("bulk_export_tasks", "adm_export_tasks.aspx");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
 
@@ -145,5 +148,40 @@ public partial class adm_export_tasks : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": " + "Export Tasks");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int nAction = int.Parse(sStatus);
+        
+        int nId = int.Parse(sID);
+        
+        string sWSUserName = "";
+        string sWSPass = "";
+        string sWSURL;
+
+        if (nAction != 0)
+        {
+            //send message to rabbit
+            try
+            {
+                // insert new message to tasks queue (for celery)
+                apiWS.API m = new apiWS.API();
+                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                if (sWSURL != "")
+                    m.Url = sWSURL;
+                sWSUserName = "";
+                sWSPass = "";
+
+                TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "EnqueueExportTask", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+                m.EnqueueExportTask(sWSUserName, sWSPass, nId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("EnqueueExportTask in ws_api failed, taskId = {0}, ex = {1}", nId, ex), ex);
+            }
+        }         
     }
 }
