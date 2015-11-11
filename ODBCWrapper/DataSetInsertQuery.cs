@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -11,7 +10,6 @@ namespace ODBCWrapper
 		public DataSetInsertQuery(string sTableName)
 		{
 			SetTable(sTableName);
-            m_bIsWritable = true;
 		}
 
 		~DataSetInsertQuery(){}
@@ -19,32 +17,28 @@ namespace ODBCWrapper
 		public void SetTable(string sTableName)
 		{
 			m_sTableName = sTableName;
-			m_sOraStr = new System.Text.StringBuilder("insert into ").Append(sTableName).Append(" ");
+			m_sOraStr = "insert into " + sTableName + " ";
 		}
 
-		protected override bool AddParameter(string parameterName , string type , object value)
+		protected override bool AddParameter(string sParName , string sType , object sParVal)
 		{
 			if (m_sInsertStructure != "(")
 				m_sInsertStructure += ",";
-			m_sInsertStructure += parameterName;
+			m_sInsertStructure += sParName;
 
 			if (m_sInsertValues != "(")
 				m_sInsertValues += ",";
-            m_sInsertValues += "@P" + table_ind.ToString();
-
-            if (value == null)
-                value = DBNull.Value;
-
-			m_hashTable[table_ind] = value;
+			m_sInsertValues += "?";
+			m_hashTable[table_ind] = sParVal;
 			table_ind++;
 			return true;
 		}
 
 		protected override void FillQueryString(string oraStr)
 		{
-			m_sOraStr = new System.Text.StringBuilder(oraStr);
-			m_sOraStr.Append(m_sInsertStructure).Append(") ");
-			m_sOraStr.Append("VALUES ").Append(m_sInsertValues).Append(")");
+			m_sOraStr = oraStr;
+			m_sOraStr += m_sInsertStructure + ") ";
+			m_sOraStr += "VALUES " + m_sInsertValues + ")";
 		}
 
 		public static DataSetInsertQuery operator +(DataSetInsertQuery p, object sOraStr)

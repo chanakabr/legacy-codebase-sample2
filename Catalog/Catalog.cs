@@ -1251,53 +1251,59 @@ namespace Catalog
                 var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
 
                 // Validate webservice response
-                if (serviceResponse != null && serviceResponse.status != null && serviceResponse.status.Code == 0)
+                if (serviceResponse == null || serviceResponse.status == null)
                 {
-                    Group group = new GroupManager().GetGroup(groupId);
+                    throw new Exception(string.Format(
+                        "Error when getting user parental rule tags from WS_API - response from WS is null! ......... user_id = {0}, group_id = {1}",
+                        siteGuid, groupId));
+                }
 
-                    // Media: Convert TagPair array to our dictionary
-                    if (serviceResponse.mediaTags != null)
+                if (serviceResponse.status.Code != 0)
+                {
+                    throw new Exception(string.Format(
+                        "Error when getting user parental rule tags from WS_API. code ={0}, message = {1}, user_id = {2}, group_id = {3}",
+                        serviceResponse.status.Code, serviceResponse.status.Message,
+                        siteGuid, groupId));
+                }
+
+                Group group = new GroupManager().GetGroup(groupId);
+
+                // Media: Convert TagPair array to our dictionary
+                if (serviceResponse.mediaTags != null)
+                {
+                    foreach (var tag in serviceResponse.mediaTags)
                     {
-                        foreach (var tag in serviceResponse.mediaTags)
+                        string tagName = group.m_oGroupTags[tag.id];
+
+                        if (!mediaTags.ContainsKey(tagName))
                         {
-                            string tagName = group.m_oGroupTags[tag.id];
-
-                            if (!mediaTags.ContainsKey(tagName))
-                            {
-                                mediaTags[tagName] = new List<string>();
-                            }
-
-                            if (tag.value != null)
-                            {
-                                mediaTags[tagName].Add(tag.value);
-                            }
+                            mediaTags[tagName] = new List<string>();
                         }
-                    }
 
-                    // EPG: Convert TagPair array to our dictionary
-                    if (serviceResponse.epgTags != null)
-                    {
-                        foreach (var tag in serviceResponse.epgTags)
+                        if (tag.value != null)
                         {
-                            string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
-
-                            if (!epgTags.ContainsKey(tagName))
-                            {
-                                epgTags[tagName] = new List<string>();
-                            }
-
-                            if (tag.value != null)
-                            {
-                                epgTags[tagName].Add(tag.value);
-                            }
+                            mediaTags[tagName].Add(tag.value);
                         }
                     }
                 }
-                else
+
+                // EPG: Convert TagPair array to our dictionary
+                if (serviceResponse.epgTags != null)
                 {
-                    throw new Exception(string.Format(
-                        "Error when getting user parental rule tags from WS_API. user_id = {0}, group_id = {1}",
-                        siteGuid, groupId));
+                    foreach (var tag in serviceResponse.epgTags)
+                    {
+                        string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
+
+                        if (!epgTags.ContainsKey(tagName))
+                        {
+                            epgTags[tagName] = new List<string>();
+                        }
+
+                        if (tag.value != null)
+                        {
+                            epgTags[tagName].Add(tag.value);
+                        }
+                    }
                 }
             }
         }
