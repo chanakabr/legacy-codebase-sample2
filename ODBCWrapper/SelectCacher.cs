@@ -26,10 +26,9 @@ namespace ODBCWrapper
         static protected string m_sLocker = "";
         static public Int32 GetCachedSec()
         {
-            if (ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
-                ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
+            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty) 
             {
-                return int.Parse(ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString());
+                return int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
             }
             if (HttpContext.Current != null)
             {
@@ -47,10 +46,9 @@ namespace ODBCWrapper
 
         static public System.Data.DataTable GetCachedDataTable(string sCachStr)
         {
-            if (ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
-                ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
+            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty)
             {
-                return GetCachedDataTable(sCachStr, int.Parse(ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString()));
+                return GetCachedDataTable(sCachStr, int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC")));
             }
             if (HttpContext.Current != null)
             {
@@ -69,63 +67,48 @@ namespace ODBCWrapper
 
         static public void ClearCache()
         {
-            System.Collections.IDictionaryEnumerator CacheEnum = HttpRuntime.Cache.GetEnumerator();
+
+            System.Collections.IDictionaryEnumerator CacheEnum = null;
+            CacheEnum = HttpRuntime.Cache.GetEnumerator();
             while (CacheEnum.MoveNext())
             {
                 string key = CacheEnum.Key.ToString();
                 HttpRuntime.Cache.Remove(key); 
             }
         }
-
-
-
-        static public System.Data.DataTable GetCachedDataTable(string sCachStr , Int32 nCachSec)
+        
+        static public System.Data.DataTable GetCachedDataTable(string sCachStr, Int32 nCachSec)
         {
             try
             {
                 if (nCachSec <= 0)
                     return null;
                 if (HttpRuntime.Cache[sCachStr] != null)
-                {
-                    if (((SelectCachWraper)(HttpRuntime.Cache[sCachStr])).m_dUpdateDate.AddSeconds(nCachSec) > DateTime.Now)
-                        return ((SelectCachWraper)(HttpRuntime.Cache[sCachStr])).m_dDataTable.Copy();
-                    else
-                    {
-                        //lock (m_sLocker)
-                        //{
-                            HttpRuntime.Cache.Remove(sCachStr);
-                        //}
-                    }
-                    return null;
-                }
+                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
+                    //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
                 else
                     return null;
             }
             catch
             {
-                ClearCache();
                 return null;
             }
         }
-
+        
         static public void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable)
-        {            
-            //lock (m_sLocker)
-            //{
-                try
-                {
-                    SelectCachWraper d = new SelectCachWraper();
-                    d.m_dDataTable = dDataTable.Copy();
-                    d.m_dUpdateDate = DateTime.Now;
-                    d.m_sQueryStr = sCachStr;
-                    HttpRuntime.Cache.Remove(sCachStr);
-                    HttpRuntime.Cache.Add(sCachStr, d, null, System.Web.Caching.Cache.NoAbsoluteExpiration, TimeSpan.FromMinutes(60), System.Web.Caching.CacheItemPriority.Default, null);
-                }
-                catch
-                {
-                    ClearCache();
-                }
-            //}
+        {
+            try
+            {
+                Int32 nCacheSec = GetCachedSec();
+                if (nCacheSec == 0)
+                    return;
+                CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), nCacheSec, System.Web.Caching.CacheItemPriority.Default, 0, true);
+                //HttpRuntime.Cache.Add(sCachStr, dDataTable.Copy(), null, DateTime.Now.AddHours(nCacheSec), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+            }
+            catch
+            {
+                ClearCache();
+            }
         }
     }
 }
