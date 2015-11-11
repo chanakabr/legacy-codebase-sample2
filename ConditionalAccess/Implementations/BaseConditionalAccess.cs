@@ -7408,8 +7408,9 @@ namespace ConditionalAccess
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
 
-                // get details about files + media (validity about files)                
-                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles);
+                // get details about files + media (validity about files)    
+                Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles, ref mediaFilesProductCode);
 
                 //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
                 List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
@@ -7493,7 +7494,7 @@ namespace ConditionalAccess
                                     allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
                                     ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
 
-                                sProductCode = oModules[i].m_sProductCode;
+                                sProductCode = mediaFilesProductCode[nMediaFileID];
 
                                 var tempItemPriceContainer = new ItemPriceContainer();
                                 tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
