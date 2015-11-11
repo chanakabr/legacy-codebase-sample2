@@ -130,7 +130,8 @@ namespace ApiObjects.Response
         ExportTaskNotFound = 5016,
         ExportNotificationUrlRequired = 5017,
         ExportFrequencyMinValue = 5018,
-
+        AliasMustBeUnique = 5019, 
+        AliasRequired = 5020,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -175,7 +176,7 @@ namespace ApiObjects.Response
         HouseholdRequired = 6044,
         PaymentGatewayAdapterFailReasonUnknown = 6045,
         NoPartnerConfigurationToUpdate = 6046,
-        NoConfigurationValueToUpdate = 6047,         
+        NoConfigurationValueToUpdate = 6047,
 
         // social 7000 - 7999
         Conflict = 7000,
