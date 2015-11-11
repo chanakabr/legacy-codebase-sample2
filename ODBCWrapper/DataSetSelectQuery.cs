@@ -7,10 +7,20 @@ namespace ODBCWrapper
 	/// </summary>
 	public class DataSetSelectQuery: DataSetQuery
 	{
-		public DataSetSelectQuery()
+		public DataSetSelectQuery(string connectionString) 
 		{
-            m_bIsWritable = false;
+            base.CustomConnectionString = connectionString;
 		}
+
+        public DataSetSelectQuery() : this(string.Empty)
+        {
+        }
+
+        public void SetConnectionString(string connStr)
+        {
+            base.CustomConnectionString = connStr;
+        }
+
 
 		~DataSetSelectQuery(){}
 
@@ -23,7 +33,7 @@ namespace ODBCWrapper
 					((Parameter)sOraStr).m_sParVal);
 			}
 			else
-				p.m_sOraStr.Append(" ").Append(sOraStr);
+				p.m_sOraStr += " " +sOraStr;
 			return p;
 		}
 

@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 using System.Reflection;
 using KLogMonitor;
 
@@ -10,78 +9,38 @@ namespace ODBCWrapper
     /// </summary>
     public class DirectQuery : Query
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public DirectQuery()
         {
-            m_bIsWritable = true;
         }
 
         public override bool Execute()
         {
-            return Execute(m_sOraStr.ToString());
+            return Execute(m_sOraStr);
         }
 
         ~DirectQuery() { }
 
-        public bool SetLockTimeOut(ref SqlConnection con)
+        protected virtual bool Execute(string oraStr)
         {
-            if (m_nLockTimeOut == -1)
-                return true;
             m_sErrorMsg = "";
-            m_sOraStr = new System.Text.StringBuilder("SET LOCK_TIMEOUT ").Append(m_nLockTimeOut.ToString());
+            m_sOraStr = oraStr;
             int_Execute();
-
+            oraStr = m_sOraStr;
             try
             {
-                if (con.State != System.Data.ConnectionState.Open)
-                    con.Open();
-                command.Connection = con;
-
-                SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr })
                 {
                     command.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
+                m_sErrorMsg = ex.Message;
                 string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
-                log.Error(sMes, ex);
+                logger.Error(sMes, ex);
                 return false;
-            }
-            return true;
-        }
-
-        protected virtual bool Execute(string oraStr)
-        {
-            m_sErrorMsg = "";
-            m_sOraStr = new System.Text.StringBuilder(oraStr);
-            int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
-            if (sConn == "")
-                return false;
-            using (SqlConnection con = new SqlConnection(sConn))
-            {
-                oraStr = m_sOraStr.ToString();
-                try
-                {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    command.Connection = con;
-
-                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
-                    log.Error(sMes, ex);
-                    return false;
-                }
             }
             return true;
         }
@@ -95,7 +54,7 @@ namespace ODBCWrapper
                     ((Parameter)sOraStr).m_sParVal);
             }
             else
-                p.m_sOraStr.Append(" ").Append(sOraStr);
+                p.m_sOraStr += " " + sOraStr;
             return p;
         }
     }

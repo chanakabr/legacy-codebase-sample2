@@ -1,11 +1,12 @@
 using System;
-using System.Data.SqlClient;
+using System.Data.Odbc;
 using System.Web;
 using System.Web.SessionState;
 using System.Configuration;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -14,17 +15,17 @@ namespace ODBCWrapper
     /// </summary>
     public class DataSetQuery : Query
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected DataSetQuery()
         {
             m_myDataSet = new System.Data.DataSet();
-            m_myDataSet.RemotingFormat = System.Data.SerializationFormat.Binary;
             command = null;
 
-            if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("ODBC_CACH_SEC")))
+            if (ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
+                ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
             {
-                m_nCachedSec = int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
+                m_nCachedSec = int.Parse(ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString());
             }
             else if (HttpContext.Current != null && HttpContext.Current.Session != null)
             {
@@ -35,7 +36,7 @@ namespace ODBCWrapper
             }
             else
                 m_nCachedSec = 60;
-            m_bIsWritable = false;
+
         }
 
         public override void Finish()
@@ -53,12 +54,12 @@ namespace ODBCWrapper
 
         public virtual System.Data.DataTable Execute(string sVirtualTableName, bool bForceQuery)
         {
-            return ExecuteQuery(m_sOraStr.ToString(), sVirtualTableName, bForceQuery);
+            return ExecuteQuery(m_sOraStr, sVirtualTableName, bForceQuery);
         }
 
         public override bool Execute()
         {
-            System.Data.DataTable t = ExecuteQuery(m_sOraStr.ToString(), "temp", true);
+            System.Data.DataTable t = ExecuteQuery(m_sOraStr, "temp", true);
             if (t == null)
                 return false;
             m_myDataSet.Tables["temp"].Clear();
@@ -67,7 +68,7 @@ namespace ODBCWrapper
 
         protected virtual void FillQueryString(string oraStr)
         {
-            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            m_sOraStr = oraStr;
         }
 
         protected virtual System.Data.DataTable ExecuteQuery(string oraStr, string sVirtualTableName, bool bForceQuery)
@@ -90,42 +91,32 @@ namespace ODBCWrapper
             System.Data.DataTable dCached = SelectCacher.GetCachedDataTable(sCachStr, m_nCachedSec);
             if (dCached == null)
             {
-                string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
-                if (sConn == "")
-                    return null;
                 int_Execute();
-                using (SqlConnection con = new SqlConnection(sConn))
+                oraStr = m_sOraStr;
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                adapter.SelectCommand = command;
+
+                try
                 {
-                    con.Open();
-                    SetLockTimeOut(con);
-                    command.Connection = con;
-                    oraStr = m_sOraStr.ToString();
-                    SqlDataAdapter adapter = new SqlDataAdapter();
-                    adapter.SelectCommand = command;
-                    try
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = KLogEnums.eDBQueryType.UPDATE })
                     {
-                        SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
-                        {
-                            DataTable dataTable = new DataTable(sVirtualTableName);
-                            dataTable.BeginLoadData();
-                           adapter.Fill(dataTable);
-                            dataTable.EndLoadData();
-                            m_myDataSet.EnforceConstraints = false;
-                            m_myDataSet.Tables.Add(dataTable);
-                        }
-                        // adapter.Fill(m_myDataSet, sVirtualTableName);
+                        DataTable dataTable = new DataTable(sVirtualTableName);
+                        dataTable.BeginLoadData();
+                        adapter.Fill(dataTable);
+                        dataTable.EndLoadData();
+                        m_myDataSet.EnforceConstraints = false;
+                        m_myDataSet.Tables.Add(dataTable);
                     }
-                    catch (Exception ex)
-                    {
-                        string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
-                        log.Error(sMes, ex);
-                        adapter = null;
-                        Finish();
-                        return null;
-                    }
-                    adapter = null;
                 }
+                catch (Exception ex)
+                {
+                    string message = "While running : '" + m_sLastExecutedOraStr + "' Exception occurred.";
+                    logger.Error(message, ex);
+                    adapter = null;
+                    Finish();
+                    return null;
+                }
+                adapter = null;
                 if (this.GetType() == System.Type.GetType("ODBCWrapper.DataSetInsertQuery"))
                 {
                     m_myDataSet.Tables.Add(sVirtualTableName);
@@ -146,7 +137,7 @@ namespace ODBCWrapper
         {
             m_sInsertStructure = "(";
             m_sInsertValues = "(";
-            m_sOraStr = new System.Text.StringBuilder();
+            m_sOraStr = "";
         }
 
         public System.Data.DataTable Table(string sVirtualTableName)
