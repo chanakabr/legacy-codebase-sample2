@@ -88,7 +88,7 @@ namespace SetupTaskHandler
             }
             catch (Exception ex)
             {
-                log.Error("Failed building ip to country index. reason = {0}", ex);
+                log.ErrorFormat("Failed building ip to country index. reason = {0}", ex);
 
                 result = false;
             }

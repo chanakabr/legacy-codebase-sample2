@@ -19,7 +19,7 @@ namespace SetupTaskHandler
             set;
         }
 
-        [JsonProperty("setup_task")]
+        [JsonProperty("setup_task_type")]
         public eSetupTask? Mission
         {
             get;
