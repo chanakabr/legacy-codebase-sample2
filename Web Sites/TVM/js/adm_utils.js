@@ -947,22 +947,11 @@ function grayOut(vis, options)
 	}
 }
 
-//function ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey, sPage) {
-//    if (theTableName != null && theTableName != 'undefined' && theTableName == 'comment_filters') {
-//        RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
-//    }
-//    debugger;
-//    //RS.Execute("adm_utils.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
-//    ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey);
-
-//    RS.Execute(sPage, "UpdateMediaStatusInES", theID, requestedStatus);
-//}
-
 function ChangeActiveStateRow(theTableName, theID, requestedStatus, sConnectionKey, sPage) {
     if (theTableName != null && theTableName != 'undefined' && theTableName == 'comment_filters') {
         RS.Execute("adm_comments_filter.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, callback_ChangeActiveStateRow, errorCallback);
     }
-    debugger;
+    
     RS.Execute("adm_utils.aspx", "ChangeActiveStateRow", theTableName, theID, requestedStatus, sConnectionKey, sPage, callback_ChangeActiveStateRow, errorCallback);
 
     if (sPage != null && sPage != "")
