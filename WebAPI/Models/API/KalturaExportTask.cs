@@ -23,12 +23,12 @@ namespace WebAPI.Models.API
         public long Id { get; set; }
 
         /// <summary>
-        /// External key for the task used to solicit an export using API
+        /// Alias for the task used to solicit an export using API
         /// </summary>
-        [DataMember(Name = "external_key")]
-        [JsonProperty("external_key")]
-        [XmlElement(ElementName = "external_key")]
-        public string ExternalKey { get; set; }
+        [DataMember(Name = "alias")]
+        [JsonProperty("alias")]
+        [XmlElement(ElementName = "alias")]
+        public string Alias { get; set; }
 
         /// <summary>
         /// Task display name

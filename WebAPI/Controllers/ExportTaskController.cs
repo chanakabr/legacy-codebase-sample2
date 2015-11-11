@@ -23,6 +23,10 @@ namespace WebAPI.Controllers
         /// Adds a new bulk export task
         /// </summary>
         /// <param name="task">The task model to add</param>
+        /// <remarks>
+        /// Possible status codes:   
+        /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019, Alias is required = 5020 
+        /// </remarks>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -35,7 +39,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl,
+                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl,
                     task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive != null ? task.IsActive.Value : true);
             }
             catch (ClientException ex)
@@ -50,6 +54,10 @@ namespace WebAPI.Controllers
         /// Updates an existing bulk export task by task identifier
         /// </summary>
         /// <param name="task">The task model to update</param>
+        /// <remarks>
+        /// Possible status codes:   
+        /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
+        /// </remarks>
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
@@ -66,7 +74,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.ExternalKey, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
+                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
                     task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive);
             }
             catch (ClientException ex)
@@ -135,6 +143,7 @@ namespace WebAPI.Controllers
         /// Returns bulk export tasks by tasks identifiers
         /// </summary>
         /// <param name="filter">Bulk export tasks filter</param>
+        /// 
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]

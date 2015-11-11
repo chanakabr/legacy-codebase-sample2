@@ -180,7 +180,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<BulkExportTask, KalturaExportTask>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.ExternalKey, opt => opt.MapFrom(src => src.ExternalKey))
+                .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.ExternalKey))
                 .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertExportDataType(src.DataType)))
                 .ForMember(dest => dest.ExportType, opt => opt.MapFrom(src => ConvertExportType(src.ExportType)))
                 .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.Filter))
