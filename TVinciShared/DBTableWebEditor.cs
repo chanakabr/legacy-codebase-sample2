@@ -223,6 +223,7 @@ namespace TVinciShared
         protected Int32 m_nQueryCount;
         protected int m_nIgnoreDeleteId;
         protected int m_nIgnoreActiveId;
+        protected string m_sPage;
 
         protected System.Collections.Generic.Dictionary<string, bool> stringColumns;
 
@@ -457,10 +458,11 @@ namespace TVinciShared
             m_sEditorRemarksTable = sEditorRemarksTable;
         }
 
-        public void AddActivationField(string sActivationTable)
+        public void AddActivationField(string sActivationTable, string sPage = "")
         {
             m_bWithActivation = true;
             m_sActivationTable = sActivationTable;
+            m_sPage = sPage;
         }
 
         public void AddOrderNumField(string sOrderNumTable, string sOrderNumFieldName, string sOrderNumFiledToChange, string sOrderNumFiledHeader)
@@ -1483,16 +1485,17 @@ namespace TVinciShared
                     sTable.Append("<td nowrap id=\"activation_" + nID.ToString() + "\">");
                     if (nID == 0 || nID != m_nIgnoreActiveId)
                     {
+                        string pageParam = string.IsNullOrEmpty(m_sPage) ? "" : ", '" + m_sPage + "'";
                         if (nActive == 1)
                         {
-                            sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "');\" ");
+                            sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "'" + pageParam +");\" ");
                             sTable.Append(" class='adm_table_link_div' >");
                             sTable.Append("Off");
                             sTable.Append("</a>");
                         }
                         if (nActive == 0)
                         {
-                            sTable.Append("<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",1,'" + m_sConnectionKey + "');\" ");
+                            sTable.Append("<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",1,'" + m_sConnectionKey + "'" + pageParam + ");\" ");
                             sTable.Append(" class='adm_table_link_div' >");
                             sTable.Append("On");
                             sTable.Append("</a>");
