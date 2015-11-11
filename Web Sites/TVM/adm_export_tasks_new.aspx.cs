@@ -139,7 +139,7 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordShortTextField dr_external_key = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_external_key.Initialize("External Key", "adm_table_header_nbg", "FormInput", "external_key", true);
+        dr_external_key.Initialize("Alias", "adm_table_header_nbg", "FormInput", "external_key", true);
         theRecord.AddRecord(dr_external_key);
 
         DataRecordDropDownField dr_data_type = new DataRecordDropDownField("lu_bulk_export_data_types", "NAME", "id", "", null, 60, false);

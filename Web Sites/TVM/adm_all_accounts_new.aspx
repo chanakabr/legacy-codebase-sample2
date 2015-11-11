@@ -34,7 +34,7 @@ _video<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_all_accounts_n
 			<td nowrap class="adm_top_banner">
 				<table cellpadding=0 cellspacing=0 >
 					<tr>
-						<td valign="top"><img src="images/admin-tvinci.gif" alt="" /></td>
+						<td valign="middle"><img src="images/admin-tvinci.gif" alt="" /></td>
 						<td width="100%" valign="top" class="align0">
 							<table class="adm_logOutTbl">
 							    <tr>
