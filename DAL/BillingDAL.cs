@@ -1947,8 +1947,8 @@ namespace DAL
                 result.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
                 result.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
                 result.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                int isDefault = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_default");
-                result.IsDefault = isDefault == 1 ? true : false;
+                int DefaultPaymentGateway = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY");
+                result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
             }
 
             return result;
