@@ -4713,12 +4713,29 @@ namespace Catalog
 
 			var externalChannelsCache = ExternalChannelCache.Instance();
 
-			ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.channelID);
+            // If no internal ID provided - get the internal ID by the external identifier
+            if (string.IsNullOrEmpty(request.internalChannelID))
+            {
+                int internalId = CatalogDAL.GetExternalChannelIdByExternalIdentifier(request.m_nGroupID, request.externalChannelID);
+
+                if (internalId > 0)
+                {
+                    request.internalChannelID = internalId.ToString();
+                }
+                else
+                {
+                    status.Code = (int)eResponseStatus.ExternalChannelNotExist;
+                    status.Message = string.Format("External Channel with the external identifier {0} was not found.", request.externalChannelID);
+                    return status;
+                }
+            }
+
+			ExternalChannel externalChannel = externalChannelsCache.GetChannel(request.m_nGroupID, request.internalChannelID);
 
 			if (externalChannel == null || externalChannel.ID <= 0)
 			{
 				status.Code = (int)eResponseStatus.ExternalChannelNotExist;
-				status.Message = string.Format("External Channel with the ID {0} was not found.", request.channelID);
+				status.Message = string.Format("External Channel with the ID {0} was not found.", request.internalChannelID);
 				return status;
 			}
 
@@ -4969,20 +4986,20 @@ namespace Catalog
 					case ExternalChannelEnrichment.NPVRSupport:
 					{
 						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.channelID, (int)enrichment, enrichment.ToString());
+							request.internalChannelID, (int)enrichment, enrichment.ToString());
 						break;
 					}
 					case ExternalChannelEnrichment.Catchup:
 					{
 						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.channelID, (int)enrichment, enrichment.ToString());
+							request.internalChannelID, (int)enrichment, enrichment.ToString());
 
 						break;
 					}
 					case ExternalChannelEnrichment.Parental:
 					{
 						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.channelID, (int)enrichment, enrichment.ToString());
+							request.internalChannelID, (int)enrichment, enrichment.ToString());
 
 						break;
 					}
@@ -5007,14 +5024,14 @@ namespace Catalog
 					case ExternalChannelEnrichment.AtHome:
 					{
 						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.channelID, (int)enrichment, enrichment.ToString());
+							request.internalChannelID, (int)enrichment, enrichment.ToString());
 
 						break;
 					}
 					default:
 					{
 						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.channelID, (int)enrichment, enrichment.ToString());
+							request.internalChannelID, (int)enrichment, enrichment.ToString());
 
 						break;
 					}
@@ -5070,7 +5087,7 @@ namespace Catalog
 			CatalogCache catalogCache = CatalogCache.Instance();
 
 			int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-			int channelId = int.Parse(request.channelID);
+			int channelId = int.Parse(request.internalChannelID);
 
 			groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
 

@@ -33,9 +33,9 @@ namespace Catalog.Request
 
         #region Ctor
 
-        public ExternalChannelRequest(string externalChannelId, int groupID,
+        public ExternalChannelRequest(string channelId, string externalIdentifier, int groupID,
             int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string deviceId, string deviceType, string filterQuery = "")
-            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, externalChannelId)
+            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier)
         {
             this.deviceId = deviceId;
             this.deviceType = deviceType;
@@ -51,7 +51,7 @@ namespace Catalog.Request
 
             if (externalRequest == null)
             {
-                externalRequest = new ExternalChannelRequest(this.channelID, this.m_nGroupID, this.m_nPageSize, this.m_nPageIndex,
+                externalRequest = new ExternalChannelRequest(this.internalChannelID, this.externalChannelID, this.m_nGroupID, this.m_nPageSize, this.m_nPageIndex,
                     this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.deviceId, this.deviceType);
             }
 

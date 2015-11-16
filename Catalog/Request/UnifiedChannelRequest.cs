@@ -19,8 +19,17 @@ namespace Catalog.Request
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        /// <summary>
+        /// ID as shown in Kaltura's DB
+        /// </summary>
         [DataMember]
-        public string channelID;
+        public string internalChannelID;
+
+        /// <summary>
+        /// External identifier
+        /// </summary>
+        [DataMember]
+        public string externalChannelID;
 
         [DataMember]
         public eChannelType type;
@@ -35,10 +44,12 @@ namespace Catalog.Request
 
         #region Ctor
 
-        public UnifiedChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string filterQuery = "", string channelId = "")
+        public UnifiedChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, 
+            Filter filter, string filterQuery = "", string internalChannelId = "", string externalChannelId = "")
             : base(pageSize, pageIndex, userIP, groupID, filter, signature, signString)
         {
-            this.channelID = channelId;
+            this.internalChannelID = internalChannelId;
+            this.externalChannelID = externalChannelId;
         }
 
         #endregion

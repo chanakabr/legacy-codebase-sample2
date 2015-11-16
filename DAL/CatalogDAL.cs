@@ -3413,6 +3413,19 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
+        public static int GetExternalChannelIdByExternalIdentifier(int groupId, string externalIdentifier)
+        {
+            int result = 0;
+
+            object resultObject = ODBCWrapper.Utils.GetTableSingleVal("external_channels", "ID", "external_identifier", "=", externalIdentifier);
+
+            if (resultObject != DBNull.Value)
+            {
+                result = Convert.ToInt32(result);
+            }
+
+            return result;
+        }
 
         public static ExternalChannel GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
