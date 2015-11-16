@@ -125,6 +125,8 @@
     <Compile Include="BaseObject.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\ExternalChannelRequest.cs" />
+    <Compile Include="Request\InternalChannelRequest.cs" />
+    <Compile Include="Request\UnifiedChannelRequest.cs" />
     <Compile Include="Response\AssetStatsResponse.cs" />
     <Compile Include="BaseEpg.cs" />
     <Compile Include="Request\BaseProtocolRequest.cs" />
