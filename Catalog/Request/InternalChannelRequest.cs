@@ -16,12 +16,6 @@ namespace Catalog.Request
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        /// <summary>
-        /// Valid KSQL expression. If provided – the filter is applied on the collection response
-        /// </summary>
-        [DataMember]
-        public string filterQuery;
-
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj order;
 
@@ -31,7 +25,7 @@ namespace Catalog.Request
 
         public InternalChannelRequest(string innerChannelId, int groupID,
             int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string filterQuery, ApiObjects.SearchObjects.OrderObj order)
-            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, innerChannelId)
+            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, innerChannelId)
         {
             this.filterQuery = filterQuery;
             this.order = order;

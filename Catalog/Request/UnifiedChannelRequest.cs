@@ -25,11 +25,17 @@ namespace Catalog.Request
         [DataMember]
         public eChannelType type;
 
+        /// <summary>
+        /// Valid KSQL expression. If provided – the filter is applied on the collection response
+        /// </summary>
+        [DataMember]
+        public string filterQuery;
+
         #endregion
 
         #region Ctor
 
-        public UnifiedChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string channelId = "")
+        public UnifiedChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string filterQuery = "", string channelId = "")
             : base(pageSize, pageIndex, userIP, groupID, filter, signature, signString)
         {
             this.channelID = channelId;

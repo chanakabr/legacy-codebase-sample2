@@ -4759,7 +4759,7 @@ namespace Catalog
 			ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
 			// If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
-			if (string.IsNullOrEmpty(externalChannel.FilterExpression))
+			if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
 			{
 				var allRecommendations = recommendations.Select(result =>
 					new UnifiedSearchResult()
@@ -4776,29 +4776,73 @@ namespace Catalog
 			// If there is, go to ES and perform further filter
 			else
 			{
-				externalChannel.FilterExpression = HttpUtility.HtmlDecode(externalChannel.FilterExpression);
-
 				// Build boolean phrase tree based on filter expression
-				BooleanPhraseNode filterTree = null;
-				status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref filterTree);
+				BooleanPhraseNode channelFilterTree = null;
+                BooleanPhraseNode requestFilterTree = null;
+                BooleanPhraseNode filterTree = null;
 
-				if (status.Code != (int)eResponseStatus.OK)
-				{
-					return status;
-				}
+                // Parse filter expression of the external channel
+                if (!string.IsNullOrEmpty(externalChannel.FilterExpression))
+                {
+                    externalChannel.FilterExpression = HttpUtility.HtmlDecode(externalChannel.FilterExpression);
 
-				// Group have user types per media  +  siteGuid != empty
-				if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
-					Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
-				{
-					if (request.m_oFilter == null)
-					{
-						request.m_oFilter = new Filter();
-					}
+                    status = BooleanPhraseNode.ParseSearchExpression(externalChannel.FilterExpression, ref channelFilterTree);
 
-					//call ws_users to get userType                  
-					request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
-				}
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        return status;
+                    }
+                }
+
+                // Parse filter expression of the client request
+                if (!string.IsNullOrEmpty(request.filterQuery))
+                {
+                    request.filterQuery = HttpUtility.HtmlDecode(request.filterQuery);
+
+                    status = BooleanPhraseNode.ParseSearchExpression(request.filterQuery, ref requestFilterTree);
+
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        return status;
+                    }
+                }
+
+                // Connect the two filter's with an AND, if they both exist.
+                // If only one exists, use only it.
+                if (channelFilterTree != null)
+                {
+                    if (requestFilterTree != null)
+                    {
+                        List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>()
+                        {
+                            channelFilterTree,
+                            requestFilterTree
+                        };
+
+                        filterTree = new BooleanPhrase(nodes, eCutType.And);
+                    }
+                    else
+                    {
+                        filterTree = channelFilterTree;
+                    }
+                }
+                else if (requestFilterTree != null)
+                {
+                    filterTree = requestFilterTree;
+                }
+
+                // Group have user types per media  +  siteGuid != empty
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                {
+                    if (request.m_oFilter == null)
+                    {
+                        request.m_oFilter = new Filter();
+                    }
+
+                    //call ws_users to get userType                  
+                    request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
+                }
 
 				UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request, externalChannel, filterTree);
 
