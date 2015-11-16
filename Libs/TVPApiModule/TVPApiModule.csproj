@@ -114,6 +114,7 @@
     <Compile Include="CatalogLoaders\APIEPGLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchContentLoader.cs" />
     <Compile Include="CatalogLoaders\APIEPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\APIInternalChannelLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIPeopleWhoLikedLoader.cs" />

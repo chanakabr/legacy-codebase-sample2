@@ -4,39 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
-using TVPApiModule.Manager;
 
 namespace TVPApiModule.CatalogLoaders
 {
-    public class APIRecommendationsLoader : APIUnifiedSearchLoader
+    public class APIInternalChannelLoader : APIUnifiedSearchLoader
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
         #region Data Members
 
-        protected string deviceType;
         protected string internalChannelId;
         protected string externalChannelId;
-        protected string utcOffset;
+
         #endregion
 
         #region Ctor
 
-        public APIRecommendationsLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
-            string localeLanguage, List<string> with, string udid, 
-            string deviceType, string externalChannelId, string utcOffset, string filterQuery)
+        public APIInternalChannelLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
+            string localeLanguage, List<string> with, string externalChannelId, string filterQuery)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
             this.SiteGuid = siteGuid;
             this.DomainId = domainId;
-            this.DeviceId = udid;
-
-            this.deviceType = deviceType;
             this.externalChannelId = externalChannelId;
-            this.utcOffset = utcOffset;
             this.Filter = filterQuery;
         }
 
@@ -47,13 +39,11 @@ namespace TVPApiModule.CatalogLoaders
         protected override void BuildSpecificRequest()
         {
             // build request
-            m_oRequest = new ExternalChannelRequest()
+            m_oRequest = new InternalChannelRequest()
             {
-                type = eChannelType.External,
+                type = eChannelType.Internal,
                 m_sSignature = SignatureKey,
                 m_sSignString = m_sSignString,
-                deviceId = DeviceId,
-                deviceType = deviceType,
                 domainId = DomainId,
                 internalChannelID = internalChannelId,
                 externalChannelID = externalChannelId,
@@ -63,7 +53,6 @@ namespace TVPApiModule.CatalogLoaders
                 m_oFilter = m_oFilter,
                 m_sSiteGuid = SiteGuid,
                 m_sUserIP = m_sUserIP,
-                utcOffset = utcOffset,
                 filterQuery = this.Filter
             };
         }
@@ -74,9 +63,9 @@ namespace TVPApiModule.CatalogLoaders
             // ps = PageSize
             // pi = PageIndex
             // sg = SiteGuid
-            // ec = External Channel ID
+            // ec = internal Channel ID
             // f = filter query
-            string key = string.Format("Recommendations_g={0}_ps={1}_pi={2}_sg={3}_ec={4}_f={5}", GroupID, PageSize, PageIndex, SiteGuid, externalChannelId, this.Filter);
+            string key = string.Format("Internal_Channel_g={0}_ps={1}_pi={2}_sg={3}_ic={4}_f={5}", GroupID, PageSize, PageIndex, SiteGuid, internalChannelId, this.Filter);
 
             return key;
         }

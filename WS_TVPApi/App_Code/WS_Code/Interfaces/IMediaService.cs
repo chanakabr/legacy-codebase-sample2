@@ -283,5 +283,8 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetRecommendations(InitializationObject initObj, string external_channel, string utc_offset, List<string> with, int page_index, int? page_size);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj, string channel_identifier, string source, string filter, string utc_offset, List<string> with, int page_index, int? page_size);
     }
 }

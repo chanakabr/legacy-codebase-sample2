@@ -3727,9 +3727,124 @@ namespace TVPApiServices
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
                     
                     response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index, 
-                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, external_channel, utc_offset)
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, external_channel, utc_offset, string.Empty)
                     {
                     }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Get assets of a channel - internal or external")]
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj,
+            string alias, 
+            string source,
+            string filter, 
+            string utc_offset,
+            List<string> with, int page_index, int? page_size)
+        {
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetRecommendations", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    string upperSource = string.Empty;
+
+                    if (!string.IsNullOrEmpty(source))
+                    {
+                        upperSource = source.ToUpper();
+                    }
+
+                    // Currently we support only external channels
+                    //if (upperSource != "INT" && upperSource != "EXT")
+                    if (upperSource != "EXT")
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("Currently, source can be only EXT");
+                        return response;
+                    }
+
+                    if (page_size == null)
+                    {
+                        page_size = 10;
+                    }
+                    else if (page_size > 20)
+                    {
+                        page_size = 20;
+                    }
+                    else if (page_size < 5)
+                    {
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 20");
+                        return response;
+                    }
+
+                    HashSet<string> validWithValues = new HashSet<string>() { "stats", "files" };
+
+                    // validate with - make sure it contains only "stats" and/or "files"
+                    if (with != null)
+                    {
+                        foreach (var currentValue in with)
+                        {
+                            if (!validWithValues.Contains(currentValue))
+                            {
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                                return response;
+                            }
+                        }
+                    }
+
+                    if (upperSource == "EXT")
+                    {
+                        if (!string.IsNullOrEmpty(utc_offset))
+                        {
+                            double utcOffsetDouble;
+
+                            if (!double.TryParse(utc_offset, out utcOffsetDouble))
+                            {
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
+                                return response;
+                            }
+                            else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                            {
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
+                                return response;
+                            }
+                        }
+
+                        string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+
+                        response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
+                            initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, filter)
+                        {
+                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    }
+                    else if (upperSource == "INT")
+                    {
+                        response = new APIInternalChannelLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
+                            initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, alias, filter)
+                        {
+                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    }
                 }
                 catch (Exception ex)
                 {
