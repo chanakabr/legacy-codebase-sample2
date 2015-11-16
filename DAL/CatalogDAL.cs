@@ -3421,7 +3421,7 @@ namespace Tvinci.Core.DAL
 
             if (resultObject != DBNull.Value)
             {
-                result = Convert.ToInt32(result);
+                result = Convert.ToInt32(resultObject);
             }
 
             return result;
