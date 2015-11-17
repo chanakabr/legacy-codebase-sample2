@@ -713,7 +713,7 @@ namespace WebAPI.Clients
                 deviceId = udid,
                 deviceType = deviceType,
                 domainId = domainId,
-                externalChannelId = externalChannelId,
+                internalChannelID = externalChannelId,
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
