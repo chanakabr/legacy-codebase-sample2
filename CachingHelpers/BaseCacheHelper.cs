@@ -168,6 +168,8 @@ namespace CachingHelpers
                 }
                 else
                 {
+                    log.DebugFormat("Couldn't get cache key {0}. Trying with version.", cacheKey);
+
                     bool inserted = false;
                     bool createdNew = false;
                     var mutexSecurity = Utils.CreateMutex();
@@ -185,16 +187,21 @@ namespace CachingHelpers
                             }
                             else
                             {
+                                log.DebugFormat("Couldn't get cache key {0} with version. Building value.", cacheKey);
+
                                 T tempValue = BuildValue(parameters);
 
                                 for (int i = 0; i < 3 && !inserted; i++)
                                 {
                                     //try insert to Cache
                                     versionModule.result = tempValue;
+
                                     inserted = this.cacheService.SetWithVersion<T>(cacheKey, versionModule, cacheTime);
 
                                     if (inserted)
                                     {
+                                        log.DebugFormat("Inserted value to key {0}.", cacheKey);
+
                                         value = tempValue;
                                     }
                                 }
