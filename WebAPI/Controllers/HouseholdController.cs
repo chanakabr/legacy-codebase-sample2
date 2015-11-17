@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:         
-        /// Domain not exists = 1006, Payment gateway not exist = 6008, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Domain not exists = 1006, Payment gateway not exist = 6008, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
