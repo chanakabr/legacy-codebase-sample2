@@ -900,6 +900,10 @@ namespace Users
             eDomainResponseStatus = AddUserToDomain(nGroupID, nDomainID, nUserID, nMasterUserGuid, userType, out bRemove);
             if (bRemove)    //remove domain from Cache
             {
+                //Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(nUserID);
+                //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(nDomainID);
             }
@@ -2075,10 +2079,6 @@ namespace Users
                     m_totalNumOfUsers = m_UsersIDs.Count - m_DefaultUsersIDs.Count;
                     eDomainResponseStatus = DomainResponseStatus.OK;
                     bRemove = true;
-
-                    //Remove user from cache
-                    UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(nUserID);
 
                     return DomainResponseStatus.OK;
                 }

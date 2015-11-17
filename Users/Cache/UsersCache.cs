@@ -41,7 +41,7 @@ namespace Users
 
         #region OutOfProcessCache           
         private ICachingService cache = null;
-        private readonly double cacheTT;
+        private readonly double cacheTTL;
         private string userKeyCache = "user_";        
         #endregion
 
@@ -62,7 +62,7 @@ namespace Users
         {
             // create an instance of user to external cache (by CouchBase)
             cache = CouchBaseCache<User>.GetInstance("CACHE");            
-            cacheTT = GetDocTTLSettings();     //set ttl time for document            
+            cacheTTL = GetDocTTLSettings();     //set ttl time for document            
         }
 
         #endregion
@@ -85,7 +85,7 @@ namespace Users
 
         #region Public methods
 
-        // try getting the user from the cache, if the user isn't there then create it. insert to cache only if shouldInsertToCache is true
+        // try getting the user from the cache
         internal User GetUser(int userID)
         {
             User userObject = null;
@@ -116,10 +116,10 @@ namespace Users
 
                 string key = string.Format("{0}{1}", userKeyCache, user.m_sSiteGUID);
 
-                //insert to cache
+                //insert user to cache
                 for (int i = 0; i < 3 && !isInsertSuccess; i++)
                 {
-                    isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTT);
+                    isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTTL);
                 }
 
                 if (!isInsertSuccess)
@@ -144,8 +144,8 @@ namespace Users
             {
                 string key = string.Format("{0}{1}", userKeyCache, userID);
 
-                //remove domain from cache
-                for (int i = 0; i < 3; i++)
+                //remove user from cache
+                for (int i = 0; i < 3 && !isRemoveSuccess; i++)
                 {
                     BaseModuleCache cacheModule = cache.Remove(key);
                     if (cacheModule != null && cacheModule.result != null)

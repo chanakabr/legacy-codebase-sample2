@@ -339,7 +339,7 @@ namespace Users
             int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, arrGroupIDs);
 
             User masterUser = new User();
-            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID);
+            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID, false);
 
             if (masterUserID <= 0 || !bInit || !masterUser.m_isDomainMaster)
             {
@@ -1058,7 +1058,7 @@ namespace Users
                 int domainID = 0;
                 try 
 	            {
-                    // Get user from cache by siteGUID
+                    // try getting user from cache
                     User user = null;
                     UsersCache usersCache = UsersCache.Instance();
                     user = usersCache.GetUser(Convert.ToInt32(lSiteGuid));                    
@@ -1301,6 +1301,7 @@ namespace Users
             Domain domain = null;
             try
             {
+                // try getting user from cache
                 User user = null;
                 UsersCache usersCache = UsersCache.Instance();
                 user = usersCache.GetUser(int.Parse(siteGuid));

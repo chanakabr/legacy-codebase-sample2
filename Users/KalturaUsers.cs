@@ -379,14 +379,14 @@ namespace Users
             return retVal;
         }
 
-        public override UserResponseObject GetUserData(string siteGuid)
+        public override UserResponseObject GetUserData(string siteGuid, bool shouldSaveInCache = true)
         {
             try
             {
                 Int32 userId = int.Parse(siteGuid);
                 User user = new User();
 
-                user.Initialize(userId, GroupId);
+                user.Initialize(userId, GroupId, shouldSaveInCache);
 
                 if (newsLetterImpl != null)
                 {

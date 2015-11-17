@@ -46,7 +46,7 @@ namespace Users
         public abstract UserResponseObject GetUserByFacebookID(string sFacebookID, Int32 nGroupID);
         public abstract UserResponseObject GetUserByCoGuid(string sCoGuid, int operatorID);
         public abstract UserResponseObject GetUserByUsername(string sUsername, Int32 nGroupID);
-        public abstract UserResponseObject GetUserData(string sSiteGUID);
+        public abstract UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true);
         public abstract List<UserBasicData> GetUsersBasicData(long[] nSiteGUIDs);
         public abstract List<UserResponseObject> GetUsersData(string[] sSiteGUIDs);
         public abstract List<UserBasicData> SearchUsers(string[] sTerms, string[] sFields, bool bIsExact);
@@ -402,7 +402,7 @@ namespace Users
 
             if (uro == null)
             {
-                uro = GetUserData(sSiteGUID);
+                uro = GetUserData(sSiteGUID, false);
             }
 
             if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null
