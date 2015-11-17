@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
                 var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
                 
                 // check if the user performing the action is domain master
-                if (domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
+                if (domain == null || domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
                 {
                     throw new ForbiddenException();
                 }
@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
                 var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
                 
                 // check if the user performing the action is domain master
-                if (domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
+                if (domain == null || domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
                 {
                     throw new ForbiddenException();
                 }

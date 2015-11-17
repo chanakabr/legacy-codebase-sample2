@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                     household_id = (int) domain.Id;
         
                 // check if the user performing the action is domain master
-                if (domain.MasterUsers.Where(u => u.Id == masterUserId).FirstOrDefault() == null)
+                if (domain == null || domain.MasterUsers.Where(u => u.Id == masterUserId).FirstOrDefault() == null)
                 {
                     throw new ForbiddenException();
                 }
