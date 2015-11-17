@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id">User identifier</param>
         /// <remarks>Possible status codes: 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
-        /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
+        /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027, Forbidden = 500004</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(string user_id)
