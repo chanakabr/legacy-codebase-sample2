@@ -221,7 +221,7 @@ namespace Catalog.Request
             }
         }
 
-        private bool IsSlidingWindow(GroupsCacheManager.Channel channel)
+        public static bool IsSlidingWindow(GroupsCacheManager.Channel channel)
         {
             bool bResult = false;
 
@@ -233,7 +233,7 @@ namespace Catalog.Request
             return bResult;
         }
 
-        private List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
+        public static List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
         {
             List<int> result;
             DateTime now = DateTime.UtcNow;
@@ -272,7 +272,7 @@ namespace Catalog.Request
             return result;
         }
 
-        protected void OrderMediasByOrderNum(ref List<int> medias, GroupsCacheManager.Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
+        public static void OrderMediasByOrderNum(ref List<int> medias, GroupsCacheManager.Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
             if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
