@@ -217,6 +217,14 @@ namespace Catalog
             {
                 return (ExternalChannelRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is UnifiedChannelRequest)
+            {
+                return (UnifiedChannelRequest)m_oBaseRequest;
+            }
+            if (m_oBaseRequest is InternalChannelRequest)
+            {
+                return (InternalChannelRequest)m_oBaseRequest;
+            }
 
             return null;
         }

@@ -116,6 +116,11 @@ namespace ElasticSearch.Common
 
             bRes = (nStatus == 200) ? true : false;
 
+            if (!bRes)
+            {
+                log.ErrorFormat("Error when building index {0}. Response is: {1}", sIndex, sResponse);
+            }
+
             return bRes;
         }
 

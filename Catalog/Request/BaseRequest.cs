@@ -52,11 +52,16 @@ namespace Catalog.Request
     [KnownType(typeof(MediaLastPositionRequest))]
     [KnownType(typeof(MediaLastPositionResponse))]
     [KnownType(typeof(CategoryRequest))]
+    [KnownType(typeof(UnifiedChannelRequest))]
+    [KnownType(typeof(InternalChannelRequest))]
+    [KnownType(typeof(ExternalChannelRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
     [ServiceKnownType(typeof(DomainLastPositionRequest))]
     [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
     [ServiceKnownType(typeof(ExternalChannelRequest))]
+    [ServiceKnownType(typeof(UnifiedChannelRequest))]
+    [ServiceKnownType(typeof(InternalChannelRequest))]
     [DataContract]
     public class BaseRequest
     {
