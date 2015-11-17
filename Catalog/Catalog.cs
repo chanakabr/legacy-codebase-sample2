@@ -4739,6 +4739,8 @@ namespace Catalog
 				return status;
 			}
 
+            log.DebugFormat("GetExternalChannelAssets - external channel is: {0}", Newtonsoft.Json.JsonConvert.SerializeObject(externalChannel));
+
 			// Build dictionary of enrichments for recommendation engine adapter
 			Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);
 
