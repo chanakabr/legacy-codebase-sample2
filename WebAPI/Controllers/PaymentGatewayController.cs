@@ -129,9 +129,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
-        /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
-        /// PaymentGatewaySelectionIsDisabled = 6028, Forbidden = 500004
+        /// User does not exist = 2000, User not in domain = 1005, User with no domain = 2024, User suspended = 2001, Domain not exists = 1006
+        /// Payment gateway id is required = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
+        /// Payment gateway selection is disabled = 6028, Forbidden = 500004
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">Household Identifier</param>
