@@ -130,13 +130,13 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
-        /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
+        /// Payment Gateway Id is Required = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// PaymentGatewaySelectionIsDisabled = 6028, ServiceForbidden = 500004
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
         /// <param name="household_id">Household Identifier</param>
         [Route("delete"), HttpPost]     
-        public bool Delete(int payment_gateway_id, string household_id)
+        public bool Delete(int payment_gateway_id, long household_id)
         {
             bool response = false;
 
