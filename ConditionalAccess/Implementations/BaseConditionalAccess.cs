@@ -13958,8 +13958,10 @@ namespace ConditionalAccess
             return status;
         }
 
-        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate)
+        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool updated)
         {
+            updated = false;
+
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,       // {0}
@@ -13990,6 +13992,8 @@ namespace ConditionalAccess
                 log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
                 return false;
             }
+
+            updated = true;
 
             // get product ID
             long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
