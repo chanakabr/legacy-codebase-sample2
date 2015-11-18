@@ -53,7 +53,8 @@ namespace TVPApiModule.CatalogLoaders
                 m_oFilter = m_oFilter,
                 m_sSiteGuid = SiteGuid,
                 m_sUserIP = m_sUserIP,
-                filterQuery = this.Filter
+                filterQuery = this.Filter,
+                order = this.Order
             };
         }
 

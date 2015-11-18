@@ -25,7 +25,6 @@ namespace TVPApiModule.CatalogLoaders
 
 
         public List<int> AssetTypes { get; set; }
-        public Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy OrderBy { get; set; }
         public OrderObj Order { get; set; }
         public string Filter { get; set; }
         public string Query { get; set; }
