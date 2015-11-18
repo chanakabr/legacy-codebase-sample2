@@ -298,7 +298,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool DeleteHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, string householdID)
+        public bool DeleteHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdID)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -306,7 +306,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int house_hold_id = int.Parse(householdID);
+                    int house_hold_id = (int)householdID;
                     response = Billing.DeleteHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, siteGuid, house_hold_id);
                 }
             }
