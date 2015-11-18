@@ -13942,7 +13942,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate)
+        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool shouldUpdateTaskStatus)
         {
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}",
@@ -13972,6 +13972,7 @@ namespace ConditionalAccess
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                shouldUpdateTaskStatus = false;
                 return false;
             }
 
@@ -13982,10 +13983,10 @@ namespace ConditionalAccess
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
 
             // validate renewal did not already happened
-            if (ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE") == TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(nextEndDate))
+            if (endDate != TVinciShared.DateUtils.UnixTimeStampToDateTime(nextEndDate))
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase last end date is same as next the new end date. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, data: {1}", purchaseId, logString);
                 return true;
             }
 
