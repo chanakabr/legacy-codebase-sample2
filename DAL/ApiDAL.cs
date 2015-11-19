@@ -2783,7 +2783,7 @@ namespace DAL
                                 Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                                 MessageData = ODBCWrapper.Utils.GetSafeStr(dr, "MESSAGE_DATA"),
                                 RoutingKey = ODBCWrapper.Utils.GetSafeStr(dr, "ROUTING_KEY"),
-                                ExcutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE"),
+                                ExecutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE"),
                                 Type = ODBCWrapper.Utils.GetSafeStr(dr, "TYPE")
                             };
 
