@@ -14000,7 +14000,7 @@ namespace ConditionalAccess
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
 
             // validate renewal did not already happened
-            if (TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) != nextEndDate)
+            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}", 
