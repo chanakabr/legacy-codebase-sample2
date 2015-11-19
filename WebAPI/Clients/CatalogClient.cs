@@ -687,7 +687,7 @@ namespace WebAPI.Clients
             return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
         }
 
-        public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string externalChannelId, 
+        public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId, 
             string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             KalturaOrder? orderBy, List<KalturaCatalogWith> with,
             string deviceType = null, string utcOffset = null)
@@ -713,7 +713,7 @@ namespace WebAPI.Clients
                 deviceId = udid,
                 deviceType = deviceType,
                 domainId = domainId,
-                externalChannelId = externalChannelId,
+                internalChannelID = channelId,
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
@@ -730,7 +730,7 @@ namespace WebAPI.Clients
             // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("external_channel_id={0}_pi={1}_pz={2}_g={3}_l={4}_o_{5}",
-                externalChannelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
+                channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
