@@ -3449,10 +3449,6 @@ namespace TVPApiServices
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
                     order.m_eOrderDir = OrderDir.DESC;
                     break;
-                case "oldest":
-                    order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
-                    order.m_eOrderDir = OrderDir.DESC;
-                    break;
                 case "relevancy":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
                     order.m_eOrderDir = OrderDir.DESC;
