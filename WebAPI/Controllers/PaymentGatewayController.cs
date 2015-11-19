@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User With No Domain = 2024, User Suspended = 2001, Domain Not Exists = 1006
+        ///   User Does Not Exist = 2000, User Not In Domain = 1005, User Suspended = 2001, Domain Not Exists = 1006
         /// Payment Gateway Identifier is Missing = 6005, Payment gateway not exist = 6008, Household not set to payment gateway = 6027
         /// PaymentGatewaySelectionIsDisabled = 6028, ServiceForbidden = 500004
         /// </remarks>
@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
                 var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
                 
                 // check if the user performing the action is domain master
-                if (domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
+                if (domain == null || domain.MasterUsers == null || domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
                 {
                     throw new ForbiddenException();
                 }
