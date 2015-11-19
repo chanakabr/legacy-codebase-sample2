@@ -42,6 +42,7 @@ namespace Users
         #region OutOfProcessCache           
         private ICachingService cache = null;
         private readonly double cacheTTL;
+        private readonly bool shouldUseCache;
         private string userKeyCache = "user_";        
         #endregion
 
@@ -61,8 +62,9 @@ namespace Users
         private UsersCache()
         {
             // create an instance of user to external cache (by CouchBase)
-            cache = CouchBaseCache<User>.GetInstance("CACHE");            
-            cacheTTL = GetDocTTLSettings();     //set ttl time for document            
+            cache = CouchBaseCache<User>.GetInstance("CACHE");
+            cacheTTL = GetDocTTLSettings();     //set ttl time for document
+            shouldUseCache = TVinciShared.WS_Utils.GetTcmBoolValue("UseCache"); ;
         }
 
         #endregion
@@ -91,9 +93,12 @@ namespace Users
             User userObject = null;
             try
             {
-                string sKey = string.Format("{0}{1}", userKeyCache, userID);
-                // try getting the userID from the cache, the result is not relevant since we return null if no user is found
-                bool isSuccess = this.cache.GetJsonAsT<User>(sKey, out userObject);
+                if (shouldUseCache)
+                {
+                    string sKey = string.Format("{0}{1}", userKeyCache, userID);
+                    // try getting the userID from the cache, the result is not relevant since we return null if no user is found
+                    bool isSuccess = this.cache.GetJsonAsT<User>(sKey, out userObject);
+                }
 
                 return userObject;
             }
@@ -109,25 +114,32 @@ namespace Users
             bool isInsertSuccess = false;
             try
             {
-                if (user == null)
+                if (shouldUseCache)
                 {
-                    return false;
+                    if (user == null)
+                    {
+                        return false;
+                    }
+
+                    string key = string.Format("{0}{1}", userKeyCache, user.m_sSiteGUID);
+
+                    //insert user to cache
+                    for (int i = 0; i < 3 && !isInsertSuccess; i++)
+                    {
+                        isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTTL);
+                    }
+
+                    if (!isInsertSuccess)
+                    {
+                        log.Error(string.Format("Failed inserting user {0} to cache", user.m_sSiteGUID));
+                    }
+
+                    return isInsertSuccess;
                 }
-
-                string key = string.Format("{0}{1}", userKeyCache, user.m_sSiteGUID);
-
-                //insert user to cache
-                for (int i = 0; i < 3 && !isInsertSuccess; i++)
+                else
                 {
-                    isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTTL);
+                    return true;
                 }
-
-                if (!isInsertSuccess)
-                {
-                    log.Error(string.Format("Failed inserting user {0} to cache", user.m_sSiteGUID));
-                }
-
-                return isInsertSuccess;
 
             }
             catch (Exception ex)
@@ -142,24 +154,31 @@ namespace Users
             bool isRemoveSuccess = false;
             try
             {
-                string key = string.Format("{0}{1}", userKeyCache, userID);
-
-                //remove user from cache
-                for (int i = 0; i < 3 && !isRemoveSuccess; i++)
+                if (shouldUseCache)
                 {
-                    BaseModuleCache cacheModule = cache.Remove(key);
-                    if (cacheModule != null && cacheModule.result != null)
+                    string key = string.Format("{0}{1}", userKeyCache, userID);
+
+                    //remove user from cache
+                    for (int i = 0; i < 3 && !isRemoveSuccess; i++)
                     {
-                        isRemoveSuccess = (bool)cacheModule.result;
+                        BaseModuleCache cacheModule = cache.Remove(key);
+                        if (cacheModule != null && cacheModule.result != null)
+                        {
+                            isRemoveSuccess = (bool)cacheModule.result;
+                        }
                     }
-                }
 
-                if (!isRemoveSuccess)
+                    if (!isRemoveSuccess)
+                    {
+                        log.Error(string.Format("Failed removing user {0} from cache", userID.ToString()));
+                    }
+
+                    return isRemoveSuccess;
+                }
+                else
                 {
-                    log.Error(string.Format("Failed removing user {0} from cache", userID.ToString()));
+                    return true;
                 }
-
-                return isRemoveSuccess;
             }
             catch (Exception ex)
             {
