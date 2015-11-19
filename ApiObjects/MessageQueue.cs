@@ -7,7 +7,7 @@ namespace ApiObjects
         public int Id { get; set; }
         public string MessageData { get; set; }
         public string RoutingKey { get; set; }
-        public DateTime ExcutionDate { get; set; }
+        public DateTime ExecutionDate { get; set; }
         public string Type{ get; set; }
 
 

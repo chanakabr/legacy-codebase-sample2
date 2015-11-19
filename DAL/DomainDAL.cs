@@ -1942,7 +1942,10 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@userID", siteGuid);
 
-            var res = (long)sp.ExecuteReturnValue();
+            var res = sp.ExecuteReturnValue();
+            if (res == null)
+                return 0;
+
             return (int)res;
         }
     }
