@@ -20,6 +20,8 @@ namespace WebAPI.Models.Catalog
 
         votes,
 
-        newest        
+        newest,
+
+        oldest_first
     }
 }

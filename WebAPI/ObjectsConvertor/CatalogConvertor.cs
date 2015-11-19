@@ -226,6 +226,10 @@ namespace WebAPI.ObjectsConvertor
                     result.m_eOrderBy = OrderBy.RELATED;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
+                case KalturaOrder.oldest_first:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
             }
             return result;
         }
