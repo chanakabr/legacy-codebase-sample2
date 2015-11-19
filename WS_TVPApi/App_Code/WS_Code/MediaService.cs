@@ -3675,7 +3675,7 @@ namespace TVPApiServices
             string source,
             string filter, 
             string utc_offset,
-            string order_by,
+            //string order_by,
             List<string> with, int page_index, int? page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
@@ -3745,6 +3745,7 @@ namespace TVPApiServices
 
                     #region Order
 
+                    string order_by = null;
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj order = null;
 
                     if (string.IsNullOrEmpty(order_by))
