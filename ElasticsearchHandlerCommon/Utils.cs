@@ -96,6 +96,15 @@ namespace ElasticsearchTasksCommon
                 DataSet dataSet = dataSetTask.Result;
 
                 Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
+
+                // get media update dates
+                storedProcedure = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
+                storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+                storedProcedure.AddIDListParameter("@MediaID", new List<int>() { mediaID }, "ID");
+                storedProcedure.AddIDListParameter("@SubGroupTree", group.m_nSubGroup, "ID");
+                DataSet updateDates = storedProcedure.ExecuteDataSet();
+
+                OverrideMediaUpdateDates(ref mediaTranslations, updateDates);
             }
             catch (Exception ex)
             {
@@ -103,6 +112,30 @@ namespace ElasticsearchTasksCommon
             }
 
             return mediaTranslations;
+        }
+
+        private static void OverrideMediaUpdateDates(ref Dictionary<int, Dictionary<int, Media>> translatedMedias, DataSet dataSet)
+        {
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                if (dataSet.Tables[0].Rows.Count > 0)
+                {
+                    int id;
+                    foreach (DataRow row in dataSet.Tables[0].Rows)
+                    {
+                        id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        if (translatedMedias.ContainsKey(id) && translatedMedias[id] != null && !string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
+                        {
+                            DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
+                            foreach (var media in translatedMedias[id].Values)
+                            {
+                                if (media != null)
+                                    media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
