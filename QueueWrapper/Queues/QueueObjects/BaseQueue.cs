@@ -76,15 +76,12 @@ namespace QueueWrapper
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            DateTime currentDate = DateTime.UtcNow;
             Guid queueGuid;
 
             while (limitRetries >= 0)
             {
                 queueGuid = Guid.NewGuid();
                 string docKey = GetGroupQueueMessageDocKey(groupId, queueGuid.ToString());
-
-                var data = m_oClient.GetWithCas<string>(docKey);
 
                 MessageQueue mq = new MessageQueue()
                 {
@@ -95,7 +92,7 @@ namespace QueueWrapper
                     Type = type
                 };
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None), data.Cas);
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None));
 
                 if (!res.Result)
                 {
