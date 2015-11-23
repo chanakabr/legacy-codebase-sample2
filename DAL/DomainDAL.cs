@@ -1946,7 +1946,7 @@ namespace DAL
             if (res == null)
                 return 0;
 
-            return (int)res;
+            return Convert.ToInt32(res);
         }
     }
 }
