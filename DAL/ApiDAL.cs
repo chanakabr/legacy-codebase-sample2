@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Configuration;
-using ApiObjects;
+﻿using ApiObjects;
+using ApiObjects.BulkExport;
 using ApiObjects.MediaMarks;
 using CouchbaseManager;
-using Newtonsoft.Json;
-using System.Threading;
 using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects.BulkExport;
+using System.Threading;
 
 namespace DAL
 {
@@ -19,6 +17,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_queue_messages_design");
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -2760,43 +2759,32 @@ namespace DAL
 
         public static List<MessageQueue> GetQueueMessages(int groupId, DateTime baseDate, List<string> messageDataTypes)
         {
-            List<MessageQueue> res = new List<MessageQueue>();
+            List<MessageQueue> messageQueues = new List<MessageQueue>();
+          
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
+
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_QueueMessages");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@baseDate", baseDate);
-                sp.AddIDListParameter<string>("@type", messageDataTypes, "STR");
-
-                DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                foreach (string messageDataType in messageDataTypes)
                 {
-                    DataTable dtResult = ds.Tables[0];
-                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
-                    {
-                        MessageQueue messageRecovery = null;
-                        foreach (DataRow dr in dtResult.Rows)
-                        {
-                            messageRecovery = new MessageQueue()
-                            {
-                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
-                                MessageData = ODBCWrapper.Utils.GetSafeStr(dr, "MESSAGE_DATA"),
-                                RoutingKey = ODBCWrapper.Utils.GetSafeStr(dr, "ROUTING_KEY"),
-                                ExecutionDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "EXCUTION_DATE"),
-                                Type = ODBCWrapper.Utils.GetSafeStr(dr, "TYPE")
-                            };
+                    // get views
+                    messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages")
+                                                  .StartKey(new object[] { DateTimeToUnixTimestamp(baseDate), messageDataType.ToLower() })
+                                                  .Stale(Couchbase.StaleMode.False).ToList());
 
-                            res.Add(messageRecovery);
-                        }
-                    }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("Error while getting the message list for recovery", ex);
+                log.Error("Error while get Queue Messages", ex);
             }
-            return res;
+
+            return messageQueues;
+        }
+
+        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
         }
     }
 }
