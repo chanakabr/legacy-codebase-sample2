@@ -2761,14 +2761,14 @@ namespace DAL
         {
             List<MessageQueue> messageQueues = new List<MessageQueue>();
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
 
             try
             {
                 foreach (string messageDataType in messageDataTypes)
                 {
                     // get views
-                    messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages")
+                    messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
                                                   .StartKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(baseDate) })
                                                   .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
                                                   .Stale(Couchbase.StaleMode.False).ToList());

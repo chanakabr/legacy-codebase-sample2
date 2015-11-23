@@ -73,7 +73,7 @@ namespace QueueWrapper
 
         protected void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime excutionDate, string type)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Guid queueGuid;
@@ -86,7 +86,7 @@ namespace QueueWrapper
                 MessageQueue mq = new MessageQueue()
                 {
                     ExecutionDate = DateTimeToUnixTimestamp(excutionDate),
-                    Id = queueGuid,
+                    Id = docKey,
                     MessageData = messageData,
                     RoutingKey = routingKey,
                     Type = type
@@ -106,7 +106,7 @@ namespace QueueWrapper
 
         private string GetGroupQueueMessageDocKey(int groupId, string id)
         {
-            return string.Format("MeesageRecovery_Group_{0}_Id_{1}", groupId, id);
+            return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
         }
 
         private long DateTimeToUnixTimestamp(DateTime dateTime)
