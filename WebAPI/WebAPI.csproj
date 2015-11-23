@@ -50,6 +50,14 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -834,6 +842,8 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaGroupPermission.cs" />
     <Compile Include="Models\General\KalturaLongValue.cs" />
     <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />
@@ -849,11 +859,14 @@
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\General\KalturaClientConfiguration.cs" />
+    <Compile Include="Models\General\KalturaPermission.cs" />
+    <Compile Include="Models\General\KalturaPermissionItem.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />
     <Compile Include="Models\General\KalturaStringValueArray.cs" />
+    <Compile Include="Models\General\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
