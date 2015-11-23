@@ -73,10 +73,9 @@ namespace QueueWrapper
 
         protected void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime excutionDate, string type)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            DateTime currentDate = DateTime.UtcNow;
             Guid queueGuid;
 
             while (limitRetries >= 0)
@@ -84,18 +83,16 @@ namespace QueueWrapper
                 queueGuid = Guid.NewGuid();
                 string docKey = GetGroupQueueMessageDocKey(groupId, queueGuid.ToString());
 
-                var data = m_oClient.GetWithCas<string>(docKey);
-
                 MessageQueue mq = new MessageQueue()
                 {
                     ExecutionDate = DateTimeToUnixTimestamp(excutionDate),
-                    Id = queueGuid,
+                    Id = docKey,
                     MessageData = messageData,
                     RoutingKey = routingKey,
                     Type = type
                 };
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None), data.Cas);
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None));
 
                 if (!res.Result)
                 {
@@ -109,7 +106,7 @@ namespace QueueWrapper
 
         private string GetGroupQueueMessageDocKey(int groupId, string id)
         {
-            return string.Format("MeesageRecovery_Group_{0}_Id_{1}", groupId, id);
+            return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
         }
 
         private long DateTimeToUnixTimestamp(DateTime dateTime)

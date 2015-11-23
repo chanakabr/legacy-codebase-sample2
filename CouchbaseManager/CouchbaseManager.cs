@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace CouchbaseManager
 {
-    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIAL = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6, CACHE = 7 }
+    public enum eCouchbaseBucket { DEFAULT = 0, NOTIFICATION = 1, SOCIAL = 2, SOCIALFRIENDS = 3, EPG = 4, MEDIAMARK = 5, STATISTICS = 6, CACHE = 7, SCHEDULED_TASKS = 8 }
 
     public class CouchbaseManager
     {
@@ -84,6 +84,7 @@ namespace CouchbaseManager
                 case eCouchbaseBucket.STATISTICS:
                 case eCouchbaseBucket.DEFAULT:
                 case eCouchbaseBucket.MEDIAMARK:
+                case eCouchbaseBucket.SCHEDULED_TASKS:
                     var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
                     oRes = new CouchbaseClient(socialBucketSection);
                     break;

@@ -7,7 +7,7 @@ namespace ApiObjects
     public class MessageQueue
     {
         [JsonProperty("Id")]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         [JsonProperty("MessageData")]
         public string MessageData { get; set; }
         [JsonProperty("RoutingKey")]
