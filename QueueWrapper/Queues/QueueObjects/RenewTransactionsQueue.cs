@@ -8,10 +8,12 @@ namespace QueueWrapper
 {
     public class RenewTransactionsQueue : BaseQueue
     {
+        
         public RenewTransactionsQueue()
             : base()
         {
             this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
+            storeForRecovery = true;
         }
 
         public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)

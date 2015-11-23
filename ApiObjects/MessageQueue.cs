@@ -1,20 +1,25 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace ApiObjects
 {
+    [Serializable]
     public class MessageQueue
     {
-        public int Id { get; set; }
+        [JsonProperty("Id")]
+        public Guid Id { get; set; }
+        [JsonProperty("MessageData")]
         public string MessageData { get; set; }
+        [JsonProperty("RoutingKey")]
         public string RoutingKey { get; set; }
-        public DateTime ExecutionDate { get; set; }
-        public string Type{ get; set; }
-
+        [JsonProperty("ExecutionDate")]
+        public long ExecutionDate { get; set; }
+        [JsonProperty("Type")]
+        public string Type { get; set; }
 
         public MessageQueue()
         {
 
         }
     }
-
 }
