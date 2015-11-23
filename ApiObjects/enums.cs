@@ -397,4 +397,20 @@ namespace ApiObjects
         OK = 0,
         NoConfigurationForHousehold = 1
     }
+
+    [Serializable]
+    public enum ePermissionItemType
+    {
+        Action = 0,
+        Parameter = 1
+    }
+
+    [Serializable]
+    public enum ePermissionType
+    {
+        Simple = 0,
+        Group = 1
+    }
+
+
 }

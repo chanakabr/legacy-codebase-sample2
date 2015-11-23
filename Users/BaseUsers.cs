@@ -1305,5 +1305,25 @@ namespace Users
             }
             return response;
         }
+
+        public IdsResponse GetUserRoleIds(int groupId, string userId)
+        {
+            IdsResponse response = new IdsResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                List<int> roleIds = UsersDal.Get_UserRoleIds(groupId, userId);
+                if (roleIds != null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("FilterFavoriteMediaIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
+            }
+            return response;
+        }
     }
 }

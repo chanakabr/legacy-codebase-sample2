@@ -222,6 +222,11 @@
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\KalturaException.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
+    <Compile Include="Roles\ApiActionPermissionItem.cs" />
+    <Compile Include="Roles\Role.cs" />
+    <Compile Include="Roles\GroupPermission.cs" />
+    <Compile Include="Roles\Permission.cs" />
+    <Compile Include="Roles\PermissionItem.cs" />
     <Compile Include="Rules\GenericRule.cs" />
     <Compile Include="Rules\GenericRuleResponse.cs" />
     <Compile Include="Rules\ParentalRulesTagsResponse.cs" />
