@@ -34,13 +34,5 @@ namespace WebAPI.Models.General
         [XmlArray(ElementName = "permissionItems", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPermissionItem> PermissionItems { get; set; }
-
-        /// <summary>
-        /// Permission partner identifier
-        /// </summary>
-        [DataMember(Name = "partnerId")]
-        [JsonProperty("partnerId")]
-        [XmlElement(ElementName = "partnerId")]
-        public int PartnerId { get; set; }
     }
 }

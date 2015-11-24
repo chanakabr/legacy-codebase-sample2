@@ -351,6 +351,12 @@
     <Content Include="Web References\Api\ExternalChannelResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\BulkExportTaskResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RolesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -716,6 +722,9 @@
     <Content Include="Web References\Users\FavoriteResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Users\IdsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -804,6 +813,7 @@
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
+    <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
     <Compile Include="Models\API\KalturaExportTask.cs" />
     <Compile Include="Models\API\KalturaExportDataType.cs" />

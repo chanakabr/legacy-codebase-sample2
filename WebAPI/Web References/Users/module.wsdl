@@ -1660,6 +1660,28 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetUserRoleIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserRoleIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserRoleIdsResult" type="tns:IdsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IdsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ids" type="tns:ArrayOfInt" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
@@ -1680,6 +1702,7 @@
       <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
       <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
+      <s:element name="IdsResponse" nillable="true" type="tns:IdsResponse" />
     </s:schema>
     <s:schema targetNamespace="http://users.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -2149,6 +2172,12 @@
   </wsdl:message>
   <wsdl:message name="FilterFavoriteMediaIdsSoapOut">
     <wsdl:part name="parameters" element="tns:FilterFavoriteMediaIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserRoleIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserRoleIds" />
+  </wsdl:message>
+  <wsdl:message name="GetUserRoleIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserRoleIdsResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2705,6 +2734,14 @@
   <wsdl:message name="GetUsersHttpPostOut">
     <wsdl:part name="Body" element="tns:UsersResponse" />
   </wsdl:message>
+  <wsdl:message name="GetUserRoleIdsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserRoleIdsHttpPostOut">
+    <wsdl:part name="Body" element="tns:IdsResponse" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -3010,6 +3047,10 @@
       <wsdl:input message="tns:FilterFavoriteMediaIdsSoapIn" />
       <wsdl:output message="tns:FilterFavoriteMediaIdsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserRoleIds">
+      <wsdl:input message="tns:GetUserRoleIdsSoapIn" />
+      <wsdl:output message="tns:GetUserRoleIdsSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3251,6 +3292,10 @@
     <wsdl:operation name="GetUsers">
       <wsdl:input message="tns:GetUsersHttpPostIn" />
       <wsdl:output message="tns:GetUsersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserRoleIds">
+      <wsdl:input message="tns:GetUserRoleIdsHttpPostIn" />
+      <wsdl:output message="tns:GetUserRoleIdsHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -3932,6 +3977,15 @@
     </wsdl:operation>
     <wsdl:operation name="FilterFavoriteMediaIds">
       <soap:operation soapAction="http://users.tvinci.com/FilterFavoriteMediaIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserRoleIds">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserRoleIds" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4626,6 +4680,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserRoleIds">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserRoleIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5156,6 +5219,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUsers">
       <http:operation location="/GetUsers" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserRoleIds">
+      <http:operation location="/GetUserRoleIds" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

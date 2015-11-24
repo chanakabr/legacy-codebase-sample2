@@ -176,6 +176,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region Export Tasks
+
             //Bulk export task 
             Mapper.CreateMap<BulkExportTask, KalturaExportTask>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -188,6 +190,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.NotificationUrl, opt => opt.MapFrom(src => src.NotificationUrl))
                 .ForMember(dest => dest.VodTypes, opt => opt.MapFrom(src => src.VodTypes))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+            #endregion
+
+            #region Roles and Permissions
+
+            Mapper.CreateMap<PermissionItem, KalturaPermissionItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            Mapper.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+
+            Mapper.CreateMap<Permission, KalturaPermission>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => src.PermissionItems));
+
+            Mapper.CreateMap<GroupPermission, KalturaGroupPermission>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => src.PermissionItems))
+              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
+
+            Mapper.CreateMap<Role, KalturaUserRole>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.Permissions));
+
+            #endregion
         }
 
         private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalChannelEnrichment[] list)

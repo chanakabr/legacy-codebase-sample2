@@ -181,6 +181,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback FilterFavoriteMediaIdsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUserRoleIdsOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -446,6 +448,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event FilterFavoriteMediaIdsCompletedEventHandler FilterFavoriteMediaIdsCompleted;
+        
+        /// <remarks/>
+        public event GetUserRoleIdsCompletedEventHandler GetUserRoleIdsCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3200,6 +3205,39 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserRoleIds", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public IdsResponse GetUserRoleIds(string sWSUserName, string sWSPassword, string userId) {
+            object[] results = this.Invoke("GetUserRoleIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId});
+            return ((IdsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserRoleIdsAsync(string sWSUserName, string sWSPassword, string userId) {
+            this.GetUserRoleIdsAsync(sWSUserName, sWSPassword, userId, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserRoleIdsAsync(string sWSUserName, string sWSPassword, string userId, object userState) {
+            if ((this.GetUserRoleIdsOperationCompleted == null)) {
+                this.GetUserRoleIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserRoleIdsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserRoleIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId}, this.GetUserRoleIdsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserRoleIdsOperationCompleted(object arg) {
+            if ((this.GetUserRoleIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserRoleIdsCompleted(this, new GetUserRoleIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3807,29 +3845,29 @@ namespace WebAPI.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class UsersResponse {
+    public partial class IdsResponse {
         
-        private Status respField;
+        private Status statusField;
         
-        private UserResponseObject[] usersField;
+        private int[] idsField;
         
         /// <remarks/>
-        public Status resp {
+        public Status Status {
             get {
-                return this.respField;
+                return this.statusField;
             }
             set {
-                this.respField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public UserResponseObject[] users {
+        public int[] Ids {
             get {
-                return this.usersField;
+                return this.idsField;
             }
             set {
-                this.usersField = value;
+                this.idsField = value;
             }
         }
     }
@@ -3863,6 +3901,39 @@ namespace WebAPI.Users {
             }
             set {
                 this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UsersResponse {
+        
+        private Status respField;
+        
+        private UserResponseObject[] usersField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserResponseObject[] users {
+            get {
+                return this.usersField;
+            }
+            set {
+                this.usersField = value;
             }
         }
     }
@@ -6618,6 +6689,32 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((FavoriteResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetUserRoleIdsCompletedEventHandler(object sender, GetUserRoleIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserRoleIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserRoleIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public IdsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((IdsResponse)(this.results[0]));
             }
         }
     }

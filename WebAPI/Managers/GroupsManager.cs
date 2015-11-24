@@ -120,9 +120,13 @@ namespace WebAPI.ClientManagers
                 throw new Exception();
             }
 
+            // get group languages
             var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
             if (languages != null)
                 group.Languages = Mapper.Map<List<Language>>(languages);
+
+            // get group roles
+            group.Roles = ClientsManager.ApiClient().GetGroupRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
 
             return group;
         }

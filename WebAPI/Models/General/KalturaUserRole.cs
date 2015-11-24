@@ -27,14 +27,6 @@ namespace WebAPI.Models.General
         public string Name { get; set; }
 
         /// <summary>
-        /// User role partner identifier
-        /// </summary>
-        [DataMember(Name = "partnerId")]
-        [JsonProperty("partnerId")]
-        [XmlElement(ElementName = "partnerId")]
-        public int PartnerId { get; set; }
-
-        /// <summary>
         /// List of permissions associated with the user role
         /// </summary>
         [DataMember(Name = "permissions")]

@@ -10,9 +10,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.API;
-using AutoMapper;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 
@@ -1949,6 +1947,45 @@ namespace WebAPI.Clients
             tasks = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaExportTask>>(response.Tasks);
 
             return tasks;
+        }
+
+        internal List<KalturaUserRole> GetGroupRoles(string username, string password)
+        {
+            List<KalturaUserRole> roles = new List<KalturaUserRole>();
+            RolesResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetGroupRoles(username, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.UserRoles);
+
+            return roles;
+        }
+
+        public List<KalturaUserRole> GetGroupRoles(int groupId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+            return GetGroupRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
         }
     }
 }

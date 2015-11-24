@@ -80,5 +80,8 @@ namespace WebAPI.Managers.Models
 
         [JsonIgnore]
         public List<Language> Languages { get; set; }
+
+        [JsonIgnore]
+        public List<WebAPI.Models.General.KalturaUserRole> Roles { get; set; }
     }
 }
