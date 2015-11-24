@@ -482,6 +482,574 @@ namespace DAL
             
             return sp.ExecuteReturnValue<bool>();
         }
+
+        // Start of code added by lior
+
+        #region Constants
+
+        private const string GET_USERS_QUERY = "select distinct id, username from accounts where status=1  order by username";
+        private const string USER_ALLOWED_PERMISSION_QUERY = "select distinct menu_id, menu_text, menu_href from admin_accounts_permissions ap join admin_menu menu on (menu.ID=ap.menu_id) where ap.status=1 and account_id = {0} order by menu_text";
+        private const string USER_NOT_ALLOWED_PERMISSION_QUERY = "select distinct menu.id menu_id, menu_text, menu_href from admin_menu menu left join admin_accounts_permissions ap  on (menu.ID=ap.menu_id) where menu.id not in (select distinct menu_id from admin_accounts_permissions where status=1 and account_id = {0}) order by menu_text";
+        private const string GET_USER_SPECIFIC_MENU_STATUS_QUERY = "select top(1) status from admin_accounts_permissions where account_id={0} and menu_id={1} order by status desc";
+        private const string GET_GROUPS_QUERY = "select distinct moto_text from accounts where moto_text IS not null or moto_text<>'' order by moto_text";
+        private const string GET_USERS_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text='{0}' order by username";
+        private const string GET_USERS_NOT_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text is null or moto_text<>'{0}' order by username";
+        private const string GET_MENUS_QUERY = "select distinct id, menu_text from admin_menu order by menu_text";
+        private const string GET_MENUS_TO_ADD_QUREY = "select distinct menu_id from admin_accounts_permissions where account_id={0} and status=1 and menu_id not in (select menu_id	from admin_accounts_permissions	where account_id={1} and status=1)";
+
+        #endregion
+
+        public static DataTable GetAllUsers()
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += GET_USERS_QUERY;
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("usersQuery", true) != null)
+                {
+                    dt = selectQuery.Table("usersQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static string GetUser(int id)
+        {
+            string user = string.Empty;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format("select username from accounts where status=1 and id={0}", id);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("userQuery", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("userQuery");
+                    if (dt != null && dt.Rows.Count == 1)
+                    {
+                        user = Utils.GetSafeStr(dt.Rows[0], "username");
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetUsersAllowedMenus(int userID)
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(USER_ALLOWED_PERMISSION_QUERY, userID);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("userAllowedQuery", true) != null)
+                {
+                    dt = selectQuery.Table("userAllowedQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetUsersNotAllowedMenus(int userID)
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(USER_NOT_ALLOWED_PERMISSION_QUERY, userID);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("userNotAllowedQuery", true) != null)
+                {
+                    dt = selectQuery.Table("userNotAllowedQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetAllGroups()
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += GET_GROUPS_QUERY;
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("groupsQuery", true) != null)
+                {
+                    dt = selectQuery.Table("groupsQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetAllUsersInGroup(string groupName)
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(GET_USERS_IN_GROUP_QUERY, groupName);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("usersIngroupQuery", true) != null)
+                {
+                    dt = selectQuery.Table("usersIngroupQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetAllUsersNotInGroup(string groupName)
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(GET_USERS_NOT_IN_GROUP_QUERY, groupName);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("usersIngroupQuery", true) != null)
+                {
+                    dt = selectQuery.Table("usersIngroupQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetAllMenus()
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += GET_MENUS_QUERY;
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("menusQuery", true) != null)
+                {
+                    dt = selectQuery.Table("menusQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetMenusToAdd(int sourceUserID, int destinationUserID)
+        {
+            DataTable dt = null;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(GET_MENUS_TO_ADD_QUREY, sourceUserID, destinationUserID);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("menusToAddQuery", true) != null)
+                {
+                    dt = selectQuery.Table("menusToAddQuery");
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return null;
+        }
+
+        public static bool AddMenuToUser(int userID, int menuID, bool shouldCheckStatus = true)
+        {
+            bool isSuccessful = false;
+            int currentMenuStatus = -1;
+            try
+            {
+                //Check if user already has a row that needs to be updated or insert a new row
+                if (shouldCheckStatus)
+                {
+                    currentMenuStatus = GetUserMenuStatus(userID, menuID);
+                }
+
+                //Insert new row in admin_accounts_permissions
+                if (currentMenuStatus == -1)
+                {
+                    InsertQuery insertQuery = null;
+                    insertQuery = new InsertQuery("admin_accounts_permissions");
+                    insertQuery += Parameter.NEW_PARAM("view_permit", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("edit_permit", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("new_permit", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("remove_permit", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("publish_permit", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("status", "=", 1);
+                    insertQuery += Parameter.NEW_PARAM("account_id", "=", userID);
+                    insertQuery += Parameter.NEW_PARAM("menu_id", "=", menuID);
+
+                    if (insertQuery.Execute())
+                    {
+                        isSuccessful = true;
+                    }
+
+                    insertQuery.Finish();
+                    insertQuery = null;
+                }
+                //Update row status to 1
+                else if (currentMenuStatus == 0)
+                {
+                    UpdateQuery updateQuery = null;
+                    updateQuery = new UpdateQuery("admin_accounts_permissions");
+                    updateQuery += Parameter.NEW_PARAM("status", "=", 1);
+                    updateQuery += " where ";
+                    updateQuery += Parameter.NEW_PARAM("account_id", "=", userID);
+                    updateQuery += " and ";
+                    updateQuery += Parameter.NEW_PARAM("menu_id", "=", menuID);
+                    if (updateQuery.Execute())
+                    {
+                        isSuccessful = true;
+                    }
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return isSuccessful;
+        }
+
+        public static bool RemoveMenuFromUser(int userID, int menuID, bool shouldCheckStatus = true)
+        {
+            bool isSuccessful = false;
+            int currentMenuStatus = 1;
+            try
+            {
+                //Check if user already has a row that needs to be updated or insert a new row
+                if (shouldCheckStatus)
+                {
+                    currentMenuStatus = GetUserMenuStatus(userID, menuID);
+                }
+
+                //update row status to 0
+                if (currentMenuStatus == 1)
+                {
+                    UpdateQuery updateQuery = null;
+                    updateQuery = new UpdateQuery("admin_accounts_permissions");
+                    updateQuery += Parameter.NEW_PARAM("status", "=", 0);
+                    updateQuery += " where ";
+                    updateQuery += Parameter.NEW_PARAM("account_id", "=", userID);
+                    updateQuery += " and ";
+                    updateQuery += Parameter.NEW_PARAM("menu_id", "=", menuID);
+                    if (updateQuery.Execute())
+                    {
+                        isSuccessful = true;
+                    }
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return isSuccessful;
+        }
+
+        public static bool AddMenuToGroup(string groupName, int menuID)
+        {
+            bool isSuccessful = false;
+            int countUsersAdded = 0;
+            try
+            {
+                DataTable dt = GetAllUsersInGroup(groupName);
+                if (dt != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int userID = 0;
+                        if (int.TryParse(dr["id"].ToString(), out userID))
+                        {
+                            if (AddMenuToUser(userID, menuID))
+                            {
+                                countUsersAdded++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if (countUsersAdded == dt.Rows.Count)
+                    {
+                        isSuccessful = true;
+                    }
+                    else
+                    {
+                        //TODO: write log? or remove menu from all users?
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return isSuccessful;
+        }
+
+        public static bool RemoveMenuFromGroup(string groupName, int menuID)
+        {
+            bool isSuccessful = false;
+            int countUsersRemoved = 0;
+            try
+            {
+                DataTable dt = GetAllUsersInGroup(groupName);
+                if (dt != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int userID = 0;
+                        if (int.TryParse(dr["id"].ToString(), out userID))
+                        {
+                            if (RemoveMenuFromUser(userID, menuID))
+                            {
+                                countUsersRemoved++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if (countUsersRemoved == dt.Rows.Count)
+                    {
+                        isSuccessful = true;
+                    }
+                    else
+                    {
+                        //TODO: write log? or add menu to all users?
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return isSuccessful;
+        }
+
+        public static bool AddUserToGroup(string groupName, int userID)
+        {
+            bool isSuccessful = false;
+            UpdateQuery updateQuery = null;
+            try
+            {
+                updateQuery = new UpdateQuery("accounts");
+                updateQuery += Parameter.NEW_PARAM("moto_text", "=", groupName);
+                updateQuery += " where ";
+                updateQuery += Parameter.NEW_PARAM("id", "=", userID);
+                if (updateQuery.Execute())
+                {
+                    isSuccessful = true;
+                }
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+            return isSuccessful;
+        }
+
+        public static bool RemoveUserFromGroup(int userID)
+        {
+            bool isSuccessful = false;
+            UpdateQuery updateQuery = null;
+            try
+            {
+                updateQuery = new UpdateQuery("accounts");
+                updateQuery += Parameter.NEW_PARAM("moto_text", "=", DBNull.Value);
+                updateQuery += " where ";
+                updateQuery += Parameter.NEW_PARAM("id", "=", userID);
+                if (updateQuery.Execute())
+                {
+                    isSuccessful = true;
+                }
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+            return isSuccessful;
+        }
+
+        public static bool CopyUserPermissions(int sourceUserID, int destinationUserID)
+        {
+            bool isSuccessful = false;
+            int countMenusAdded = 0;
+            try
+            {
+                DataTable dt = GetMenusToAdd(sourceUserID, destinationUserID);
+                if (dt != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int menuID = 0;
+                        if (int.TryParse(dr["menu_id"].ToString(), out menuID))
+                        {
+                            if (AddMenuToUser(destinationUserID, menuID))
+                            {
+                                countMenusAdded++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if (countMenusAdded == dt.Rows.Count)
+                    {
+                        isSuccessful = true;
+                    }
+                    else
+                    {
+                        //TODO: write log?
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return isSuccessful;
+        }
+
+        public static int GetUserMenuStatus(int userID, int menuID)
+        {
+            int returnValue = -1;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format(GET_USER_SPECIFIC_MENU_STATUS_QUERY, userID, menuID);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("userSpecificStatusQuery", true) != null)
+                {
+                    returnValue = Utils.GetIntSafeVal(selectQuery.Table("userSpecificStatusQuery").Rows[0], "status");                    
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            catch (Exception ex)
+            {
+                CatchException(ex);
+            }
+
+            return returnValue;
+        }
+
+        public static void CatchException(Exception e)
+        {
+            // TODO: write to log
+        } 
+
+        // End of code added by lior
+
     }
     
 }
