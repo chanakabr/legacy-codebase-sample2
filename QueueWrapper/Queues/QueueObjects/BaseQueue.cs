@@ -12,6 +12,7 @@ namespace QueueWrapper
     {
         private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const int RECOVERY_TTL_MONTH = 2;
 
         private IQueueImpl m_QueueImpl;
 
@@ -92,9 +93,9 @@ namespace QueueWrapper
                     Type = type
                 };
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None));
+                var res = m_oClient.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None), excutionDate.AddMonths(RECOVERY_TTL_MONTH));
 
-                if (!res.Result)
+                if (!res.Success)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;

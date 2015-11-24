@@ -2757,27 +2757,27 @@ namespace DAL
         }
         #endregion
 
-        public static List<MessageQueue> GetQueueMessages(int groupId, DateTime baseDate, List<string> messageDataTypes)
+        public static List<MessageQueue> GetQueueMessages(int groupId, long baseDateEpochSec, List<string> messageDataTypes)
         {
             List<MessageQueue> messageQueues = new List<MessageQueue>();
 
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
 
-            try
+            foreach (string messageDataType in messageDataTypes)
             {
-                foreach (string messageDataType in messageDataTypes)
+                try
                 {
                     // get views
                     messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
-                                                  .StartKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(baseDate) })
+                                                  .StartKey(new object[] { messageDataType.ToLower(), baseDateEpochSec })
                                                   .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
                                                   .Stale(Couchbase.StaleMode.False).ToList());
 
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while get Queue Messages", ex);
+                catch (Exception ex)
+                {
+                    log.Error("Error while get Queue Messages", ex);
+                }
             }
 
             return messageQueues;

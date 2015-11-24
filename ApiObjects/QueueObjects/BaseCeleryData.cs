@@ -1,4 +1,5 @@
 ﻿using ApiObjects.MediaIndexingObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace ApiObjects
         public string eta;
         public string expires;
 
+        [JsonIgnore]
         public DateTime? ETA
         {
             get
@@ -37,6 +39,7 @@ namespace ApiObjects
             }
         }
 
+        [JsonIgnore]
         public DateTime? Expires
         {
             get
