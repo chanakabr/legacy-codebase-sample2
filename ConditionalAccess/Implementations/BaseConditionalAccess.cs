@@ -1923,7 +1923,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    if (oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
+                    if (oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK &&
+                        oDomain.m_DomainStatus != TvinciDomains.DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
                         if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
                         {
@@ -11311,108 +11312,121 @@ namespace ConditionalAccess
                 // Start with getting domain info - both for validation and to get domain's users
                 TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
 
+
                 // Check if the domain is OK
-                if (oDomain == null || oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK)
+                if (oDomain == null)
                 {
-                    if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
-                    {
-                        oResult.Code = (int)eResponseStatus.DomainSuspended;
-                        oResult.Message = "Domain suspended";
-                    }
-                    else
-                    {
-                        oResult.Code = (int)eResponseStatus.DomainNotExists;
-                        oResult.Message = "Domain doesn't exist";
-                    }
+                    oResult.Code = (int)eResponseStatus.DomainNotExists;
+                    oResult.Message = "Domain doesn't exist";
+                    log.Error("Domain doesn't exist");
                 }
                 else
                 {
-                    int[] arrUserIDs = oDomain.m_UsersIDs;
-
-                    DataTable dtUserPurchases = null;
-                    DataRow drUserPurchase = null;
-                    string sPurchasingSiteGuid = string.Empty;
-
-                    // Check if within cancellation window
-                    bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases);
-
-                    // Check if the user purchased the asset at all
-                    if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
+                    if (oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK &&
+                        oDomain.m_DomainStatus != TvinciDomains.DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        oResult.Code = (int)eResponseStatus.InvalidPurchase;
-                        oResult.Message = "There is not a valid purchase for this user and asset ID";
-                    }
-                    // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
-                    else if (bCancellationWindow || p_bIsForce)
-                    {
-                        drUserPurchase = dtUserPurchases.Rows[0];
-                        sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
-                        int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "NUM_OF_USES");
-
-                        // If user already consumed service - cannot be cancelled without force
-                        if (nNumOfUses > 0 && !p_bIsForce)
+                        if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
                         {
-                            oResult.Code = (int)eResponseStatus.ContentAlreadyConsumed;
-                            oResult.Message = "Service could not be cancelled because content was already consumed";
+                            oResult.Code = (int)eResponseStatus.DomainSuspended;
+                            oResult.Message = "Domain suspended";
                         }
                         else
                         {
-                            // Cancel NOW - according to type
-                            switch (p_enmTransactionType)
-                            {
-                                case eTransactionType.PPV:
-                                    {
-                                        bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                        break;
-                                    }
-                                case eTransactionType.Subscription:
-                                    {
-                                        bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                        break;
-                                    }
-                                case eTransactionType.Collection:
-                                    {
-                                        bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        break;
-                                    }
-                            }
-
-                            if (bResult)
-                            {
-                                // Update domain with last domain DLM
-                                UpdateDLM(p_nDomainID, 0);
-
-                                // Report to user log
-                                WriteToUserLog(sPurchasingSiteGuid,
-                                    string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
-                                    p_nAssetID));
-                                //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-
-                                oResult.Code = (int)eResponseStatus.OK;
-                                oResult.Message = "Service successfully cancelled";
-
-                                if (drUserPurchase != null)
-                                {
-                                    DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
-
-                                    EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
-                                }
-                            }
-                            else
-                            {
-                                oResult.Code = (int)eResponseStatus.Error;
-                                oResult.Message = "Cancellation failed";
-                            }
+                            oResult.Code = (int)eResponseStatus.DomainNotExists;
+                            oResult.Message = "Domain doesn't exist";
                         }
+                        log.Error("Domain status: " + oDomain.m_DomainStatus.ToString());
                     }
                     else
                     {
-                        oResult.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
-                        oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
+
+                        int[] arrUserIDs = oDomain.m_UsersIDs;
+
+                        DataTable dtUserPurchases = null;
+                        DataRow drUserPurchase = null;
+                        string sPurchasingSiteGuid = string.Empty;
+
+                        // Check if within cancellation window
+                        bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases);
+
+                        // Check if the user purchased the asset at all
+                        if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
+                        {
+                            oResult.Code = (int)eResponseStatus.InvalidPurchase;
+                            oResult.Message = "There is not a valid purchase for this user and asset ID";
+                        }
+                        // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+                        else if (bCancellationWindow || p_bIsForce)
+                        {
+                            drUserPurchase = dtUserPurchases.Rows[0];
+                            sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
+                            int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "NUM_OF_USES");
+
+                            // If user already consumed service - cannot be cancelled without force
+                            if (nNumOfUses > 0 && !p_bIsForce)
+                            {
+                                oResult.Code = (int)eResponseStatus.ContentAlreadyConsumed;
+                                oResult.Message = "Service could not be cancelled because content was already consumed";
+                            }
+                            else
+                            {
+                                // Cancel NOW - according to type
+                                switch (p_enmTransactionType)
+                                {
+                                    case eTransactionType.PPV:
+                                        {
+                                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            break;
+                                        }
+                                    case eTransactionType.Subscription:
+                                        {
+                                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            break;
+                                        }
+                                    case eTransactionType.Collection:
+                                        {
+                                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            break;
+                                        }
+                                }
+
+                                if (bResult)
+                                {
+                                    // Update domain with last domain DLM
+                                    UpdateDLM(p_nDomainID, 0);
+
+                                    // Report to user log
+                                    WriteToUserLog(sPurchasingSiteGuid,
+                                        string.Format("user :{0} CancelServiceNow for {1} item :{2}", p_nDomainID, Enum.GetName(typeof(eTransactionType), p_enmTransactionType),
+                                        p_nAssetID));
+                                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                                    oResult.Code = (int)eResponseStatus.OK;
+                                    oResult.Message = "Service successfully cancelled";
+
+                                    if (drUserPurchase != null)
+                                    {
+                                        DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+
+                                        EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
+                                    }
+                                }
+                                else
+                                {
+                                    oResult.Code = (int)eResponseStatus.Error;
+                                    oResult.Message = "Cancellation failed";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            oResult.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
+                            oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
+                        }
                     }
                 }
             }
@@ -14247,7 +14261,8 @@ namespace ConditionalAccess
             return status;
         }
 
-        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate)
+
+        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool shouldUpdateTaskStatus)
         {
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}",
@@ -14277,6 +14292,7 @@ namespace ConditionalAccess
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                shouldUpdateTaskStatus = false;
                 return false;
             }
 
@@ -14287,10 +14303,11 @@ namespace ConditionalAccess
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
 
             // validate renewal did not already happened
-            if (ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE") == TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(nextEndDate))
+            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase last end date is same as next the new end date. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}", 
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate),logString);
                 return true;
             }
 

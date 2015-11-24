@@ -1314,6 +1314,8 @@ namespace Users
                 {
                     domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
                 }                
+                if (domainId == 0)
+                    return null;
                 DomainsCache domainsCache = DomainsCache.Instance();
                 domain = domainsCache.GetDomain(domainId, groupId);
             }

@@ -441,6 +441,11 @@ namespace GroupsCacheManager
                         isUpdated = true;
                     }
                 }
+
+                if (!isUpdated)
+                {
+                    log.ErrorFormat("Failed upating group {0} in cache", groupID);
+                }
             }
             catch (Exception ex)
             {
