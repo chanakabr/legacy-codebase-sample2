@@ -281,9 +281,9 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.Objects.Responses.AutocompleteResponse Autocomplete(InitializationObject initObj, List<int> filter_types, string query, string order_by, List<string> with, int? page_size);
 
-        [OperationContract]
-        TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj, string channel_identifier, string source, string filter, string utc_offset, 
-            //string order_by, 
-            List<string> with, int page_index, int? page_size);
+        //[OperationContract]
+        //TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj, string channel_identifier, string source, string filter, string utc_offset,
+        //    string order_by, 
+        //    List<string> with, int page_index, int? page_size);
     }
 }
