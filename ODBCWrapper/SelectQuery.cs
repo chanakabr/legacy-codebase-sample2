@@ -2,6 +2,7 @@ using System;
 using System.Data.Odbc;
 using System.Reflection;
 using KLogMonitor;
+using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -152,11 +153,11 @@ namespace ODBCWrapper
             return p;
         }
 
-        public static implicit operator OdbcDataReader(SelectQuery m)
+        public static implicit operator SqlDataReader(SelectQuery m)
         {
             return m.m_myReader;
         }
 
-        protected OdbcDataReader m_myReader;
+        protected SqlDataReader m_myReader;
     }
 }

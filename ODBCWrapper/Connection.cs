@@ -1,10 +1,11 @@
 using System;
 using System.Data;
-using System.Data.Odbc;
 using System.Web;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace ODBCWrapper
 {
@@ -18,7 +19,7 @@ namespace ODBCWrapper
         public static GetConnectionStringDelegate GetDefaultConnectionStringMethod { get; set; }
         public GetConnectionStringDelegate GetConnectionStringMethod { get; set; }
 
-        private OdbcConnection m_conn = null;
+        private SqlConnection m_conn = null;
         #endregion
 
         private string getConnectionString()
@@ -89,34 +90,69 @@ namespace ODBCWrapper
             }
         }
 
-        public OdbcConnection GetConnection()
+        public SqlConnection GetConnection()
         {
-            if (m_conn == null)
+            if (this.m_conn == null)
             {
-                string connectionString = getConnectionString();
-
-                if (string.IsNullOrEmpty(connectionString))
+                string ConnStr = getConnectionString();
+                if (string.IsNullOrEmpty(ConfigurationManager.AppSettings["UseSQL2008"]) || !bool.Parse(ConfigurationManager.AppSettings["UseSQL2008"]))
+                {
+                    if (ConnStr.ToLower().Contains("driver={sql server};"))
+                    {
+                        ConnStr = Regex.Replace(ConnStr, "driver={sql server};", string.Empty, RegexOptions.IgnoreCase);
+                    }
+                    if (!ConnStr.EndsWith(";"))
+                    {
+                        ConnStr = ConnStr + ";";
+                    }
+                    if (!ConnStr.ToLower().Contains("multisubnetfailover"))
+                    {
+                        ConnStr = ConnStr + "MultiSubNetFailover=Yes;";
+                    }
+                    if (!ConnStr.ToLower().Contains("applicationintent"))
+                    {
+                        ConnStr = ConnStr + "ApplicationIntent=ReadWrite;";
+                    }
+                }
+                if (string.IsNullOrEmpty(ConnStr))
                 {
                     throw new Exception("Member 'GetConnectionStringMethod' returned with empty string as connection string");
                 }
-
-                m_conn = new OdbcConnection(connectionString);
+                this.m_conn = new SqlConnection(ConnStr);
             }
-
-            if (m_conn.State != ConnectionState.Open)
+            if (this.m_conn.State != ConnectionState.Open)
             {
-                m_conn.Open();
+                this.m_conn.Open();
             }
+            using (new SqlDataAdapter())
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    try
+                    {
+                        //Logger.Logger.Log("connection", this.m_conn.ConnectionString, "ODBC_Connections");
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.CommandText = "SP_Reset_Connection";
+                        command.Connection = this.m_conn;
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception exception)
+                    {
+                        //Logger.Logger.Log("Connection", exception.ToString(), "ODBC_Net");
+                        SqlConnection.ClearPool(m_conn);
+                    }
+                }
+            }
+            return this.m_conn;
 
-            return m_conn;
         }
 
-        public void GetConnection(ref OdbcConnection conn)
+        public void GetConnection(ref SqlConnection conn)
         {
             conn = GetConnection();
         }
 
-        public void GetConnection(ref OdbcCommand conn)
+        public void GetConnection(ref SqlCommand conn)
         {
             conn.Connection = GetConnection();
         }

@@ -3,6 +3,7 @@ using System.Data.Odbc;
 using System.Collections;
 using KLogMonitor;
 using System.Reflection;
+using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -122,7 +123,7 @@ namespace ODBCWrapper
                 m_sOraStr = m_sOraStr.ToLower().Replace("selecttmp ", "select ");
                 
             }
-			command = new OdbcCommand(m_sOraStr);
+			command = new SqlCommand(m_sOraStr);
             command.CommandType = m_CommandType;
 
 			if (m_nTimeout != 0)
@@ -131,7 +132,7 @@ namespace ODBCWrapper
 			{
 				for (int i=0; i < table_ind; i++)
 				{
-					OdbcParameter par = new OdbcParameter(table_ind.ToString() , m_hashTable[i] );
+					SqlParameter par = new SqlParameter("@P" + i.ToString() , m_hashTable[i] );
 					command.Parameters.Add(par);
 					m_hashTable[i] = null;
 				}
@@ -159,7 +160,7 @@ namespace ODBCWrapper
             {
                 m_sOraStr += " " + sParName;
                 m_sOraStr += sType;
-                m_sOraStr += "?";
+                m_sOraStr += "@P" + table_ind;
             }
 
 			m_hashTable[table_ind] = sParVal;
@@ -195,7 +196,7 @@ namespace ODBCWrapper
 		//protected ODBCWrapper.Connection m_conn = null;
 		protected bool isOwnConnection = true;
 
-		protected OdbcCommand command;
+		protected SqlCommand command;
 		protected ODBCWrapper.Connection m_conn;
 		protected object m_crit_sec = new object();
 		protected string m_sOraStr = "";
