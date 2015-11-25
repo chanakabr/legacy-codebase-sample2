@@ -2757,7 +2757,7 @@ namespace DAL
         }
         #endregion
 
-        public static List<MessageQueue> GetQueueMessages(int groupId, long baseDateEpochSec, List<string> messageDataTypes)
+        public static List<MessageQueue> GetQueueMessages(int groupId, long baseDateSec, List<string> messageDataTypes)
         {
             List<MessageQueue> messageQueues = new List<MessageQueue>();
 
@@ -2769,7 +2769,7 @@ namespace DAL
                 {
                     // get views
                     messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
-                                                  .StartKey(new object[] { messageDataType.ToLower(), baseDateEpochSec })
+                                                  .StartKey(new object[] { messageDataType.ToLower(), baseDateSec })
                                                   .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
                                                   .Stale(Couchbase.StaleMode.False).ToList());
 
