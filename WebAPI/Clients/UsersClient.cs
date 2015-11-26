@@ -560,7 +560,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null | response.Status == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -598,7 +598,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null | response.Status == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -632,7 +632,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null | response.Status == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -665,7 +665,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null | response.Status == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -682,5 +682,38 @@ namespace WebAPI.Clients
 
             return roleIds;
         }
+
+        internal bool AddRoleToUser(int groupId, string userId, long roleId)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.AddRoleToUser(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, roleId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Users.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
     }
 }

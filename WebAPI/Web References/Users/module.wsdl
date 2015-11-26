@@ -1687,6 +1687,23 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="long" type="s:long" />
         </s:sequence>
       </s:complexType>
+      <s:element name="AddRoleToUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="roleId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddRoleToUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddRoleToUserResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
@@ -2183,6 +2200,12 @@
   </wsdl:message>
   <wsdl:message name="GetUserRoleIdsSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserRoleIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddRoleToUserSoapIn">
+    <wsdl:part name="parameters" element="tns:AddRoleToUser" />
+  </wsdl:message>
+  <wsdl:message name="AddRoleToUserSoapOut">
+    <wsdl:part name="parameters" element="tns:AddRoleToUserResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2747,6 +2770,15 @@
   <wsdl:message name="GetUserRoleIdsHttpPostOut">
     <wsdl:part name="Body" element="tns:LongIdsResponse" />
   </wsdl:message>
+  <wsdl:message name="AddRoleToUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="roleId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddRoleToUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -3056,6 +3088,10 @@
       <wsdl:input message="tns:GetUserRoleIdsSoapIn" />
       <wsdl:output message="tns:GetUserRoleIdsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="AddRoleToUser">
+      <wsdl:input message="tns:AddRoleToUserSoapIn" />
+      <wsdl:output message="tns:AddRoleToUserSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3301,6 +3337,10 @@
     <wsdl:operation name="GetUserRoleIds">
       <wsdl:input message="tns:GetUserRoleIdsHttpPostIn" />
       <wsdl:output message="tns:GetUserRoleIdsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddRoleToUser">
+      <wsdl:input message="tns:AddRoleToUserHttpPostIn" />
+      <wsdl:output message="tns:AddRoleToUserHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -3991,6 +4031,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserRoleIds">
       <soap:operation soapAction="http://users.tvinci.com/GetUserRoleIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddRoleToUser">
+      <soap:operation soapAction="http://users.tvinci.com/AddRoleToUser" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4694,6 +4743,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="AddRoleToUser">
+      <soap12:operation soapAction="http://users.tvinci.com/AddRoleToUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5233,6 +5291,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserRoleIds">
       <http:operation location="/GetUserRoleIds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddRoleToUser">
+      <http:operation location="/AddRoleToUser" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

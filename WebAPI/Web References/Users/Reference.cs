@@ -183,6 +183,8 @@ namespace WebAPI.Users {
         
         private System.Threading.SendOrPostCallback GetUserRoleIdsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddRoleToUserOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -451,6 +453,9 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         public event GetUserRoleIdsCompletedEventHandler GetUserRoleIdsCompleted;
+        
+        /// <remarks/>
+        public event AddRoleToUserCompletedEventHandler AddRoleToUserCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3234,6 +3239,41 @@ namespace WebAPI.Users {
             if ((this.GetUserRoleIdsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUserRoleIdsCompleted(this, new GetUserRoleIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/AddRoleToUser", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status AddRoleToUser(string sWSUserName, string sWSPassword, string userId, long roleId) {
+            object[] results = this.Invoke("AddRoleToUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        roleId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddRoleToUserAsync(string sWSUserName, string sWSPassword, string userId, long roleId) {
+            this.AddRoleToUserAsync(sWSUserName, sWSPassword, userId, roleId, null);
+        }
+        
+        /// <remarks/>
+        public void AddRoleToUserAsync(string sWSUserName, string sWSPassword, string userId, long roleId, object userState) {
+            if ((this.AddRoleToUserOperationCompleted == null)) {
+                this.AddRoleToUserOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddRoleToUserOperationCompleted);
+            }
+            this.InvokeAsync("AddRoleToUser", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        roleId}, this.AddRoleToUserOperationCompleted, userState);
+        }
+        
+        private void OnAddRoleToUserOperationCompleted(object arg) {
+            if ((this.AddRoleToUserCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddRoleToUserCompleted(this, new AddRoleToUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6715,6 +6755,32 @@ namespace WebAPI.Users {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((LongIdsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void AddRoleToUserCompletedEventHandler(object sender, AddRoleToUserCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddRoleToUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddRoleToUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }
