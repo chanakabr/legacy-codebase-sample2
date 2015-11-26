@@ -12,6 +12,7 @@ namespace QueueWrapper
     {
         private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const int RECOVERY_TTL_MONTH = 2;
 
         private IQueueImpl m_QueueImpl;
 
@@ -39,7 +40,7 @@ namespace QueueWrapper
 
                     if (celeryData != null && celeryData.ETA.HasValue)
                     {
-                        InsertQueueMessage(celeryData.GroupId, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
+                        InsertQueueMessage(celeryData.GroupId, celeryData.id, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
                     }
                 }
             }
@@ -71,17 +72,15 @@ namespace QueueWrapper
             return bIsEnqueueSucceeded;
         }
 
-        protected void InsertQueueMessage(int groupId, string messageData, string routingKey, DateTime excutionDate, string type)
+        protected void InsertQueueMessage(int groupId, string messageId, string messageData, string routingKey, DateTime excutionDate, string type)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Guid queueGuid;
 
             while (limitRetries >= 0)
             {
-                queueGuid = Guid.NewGuid();
-                string docKey = GetGroupQueueMessageDocKey(groupId, queueGuid.ToString());
+                string docKey = GetGroupQueueMessageDocKey(groupId, messageId);
 
                 MessageQueue mq = new MessageQueue()
                 {
@@ -92,9 +91,9 @@ namespace QueueWrapper
                     Type = type
                 };
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None));
+                var res = m_oClient.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None), excutionDate.AddMonths(RECOVERY_TTL_MONTH));
 
-                if (!res.Result)
+                if (!res.Success)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;

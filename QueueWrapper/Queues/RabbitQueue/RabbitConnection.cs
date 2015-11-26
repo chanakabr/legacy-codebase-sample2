@@ -213,6 +213,17 @@ namespace QueueWrapper
                         string msg = ex.Message;
                     }
                 }
+                else
+                {
+                    string host = string.Empty;
+                    
+                    if (configuration != null)
+                    {
+                        host = configuration.Host;
+                    }
+
+                    log.ErrorFormat("RabbitConnection: No instance/connection to host {0}", host);
+                }
             }
 
             return isPublishSucceeded;

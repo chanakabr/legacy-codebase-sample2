@@ -1,8 +1,10 @@
-﻿using ODBCWrapper;
+﻿using KLogMonitor;
+using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Tvinci.Core.DAL;
 
@@ -12,10 +14,12 @@ namespace DAL
     public class UtilsDal : BaseDal
     {
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
         private static void HandleException(Exception ex)
         {
+            log.ErrorFormat("UtilsDal failure. message = {0}, ST = {1}", ex.Message, ex.StackTrace, ex);
             //throw new NotImplementedException();
         }
 
@@ -435,8 +439,8 @@ namespace DAL
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        sWSUN = selectQuery.Table("querY").DefaultView[0].Row["USERNAME"].ToString();
-                        sWSPassword = selectQuery.Table("querY").DefaultView[0].Row["PASSWORD"].ToString();
+                        sWSUN = selectQuery.Table("query").DefaultView[0].Row["USERNAME"].ToString();
+                        sWSPassword = selectQuery.Table("query").DefaultView[0].Row["PASSWORD"].ToString();
                         res = true;
                     }
                 }
