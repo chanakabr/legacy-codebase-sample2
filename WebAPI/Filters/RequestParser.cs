@@ -137,8 +137,13 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
+                            // ks
                             if (reqParams["ks"] != null)
                                 InitKS(actionContext, reqParams["ks"].ToObject<string>());
+
+                            // additional user_id
+                            if (reqParams["user_id"] != null)
+                                HttpContext.Current.Items.Add("user_id", reqParams["user_id"]);
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();

@@ -53,25 +53,36 @@ namespace WebAPI.Controllers
             // anonymous user validation
             if (ks.UserId == "0")
             {
-                if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, new List<long>(){anonymousRoleId}, 
+                if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, new List<long>() { anonymousRoleId },
                     out allowedUsersGroup))
                     throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-                else
-                    return true;
+            }
+            else
+            {
+                // not anonymous user - get user's roles
+                List<long> roleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+
+                // no roles found for the user
+                if (roleIds == null && roleIds.Count == 0)
+                    throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+
+                // user not permitted
+                if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
+                    throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             }
 
-            // not anonymous user - get user's roles
-            List<long> roleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+            // allowed group users (additional user_id) handling:
+            // get user_id additional parameter
+            string userId = HttpContext.Current.Items["user_id"].ToString();
 
-            // no roles found for the user
-            if (roleIds == null && roleIds.Count == 0)
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+            // if exists and is in the allowed group users list - override the user id in ks (* = everyone is allowed)
+            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(allowedUsersGroup) && 
+                (allowedUsersGroup.Contains("*") || (allowedUsersGroup.Contains(userId))))
+            {
+                ks.UserId = userId;
+                KS.SaveOnRequest(ks);
+            }
 
-            // user not permitted
-            if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-
-            // TODO: allowed users
             return true;
         }
     }
