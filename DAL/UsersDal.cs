@@ -2053,7 +2053,27 @@ namespace DAL
             {
                 return null;
             }
-            return null; 
+            return roleIds; 
+        }
+
+        public static int Get_UserRole(int groupId, string userId, long roleId)
+        {
+            int rowCount;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_UserRole");
+                sp.AddParameter("@user_id", userId);
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@role_id", roleId);
+                rowCount = sp.ExecuteReturnValue<int>();
+
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+            return rowCount;
         }
     }
 }

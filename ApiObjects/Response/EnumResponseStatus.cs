@@ -68,6 +68,8 @@ namespace ApiObjects.Response
         ActivationTokenNotFound = 2026,
         UserAlreadyMasterApproved = 2027,
         LoginServerDown = 2028,
+        RoleAlreadyAssignedToUser = 2029,
+
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,

@@ -15,6 +15,8 @@ namespace Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const string ROLE_ALREADY_ASSIGNED_TO_USER_ERROR = "Role already assigned to user";
+
         public const int PIN_NUMBER_OF_DIGITS = 10;
         public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
         public const int PIN_MAX_NUMBER_OF_DIGITS = 10;
@@ -1321,7 +1323,31 @@ namespace Users
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("FilterFavoriteMediaIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
+                log.Error(string.Format("GetUserRoleIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
+            }
+            return response;
+        }
+
+        public ApiObjects.Response.Status AddRoleToUser(int groupId, string userId, long roleId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                int rowCount = UsersDal.Get_UserRole(groupId, userId, roleId);
+                if (rowCount == -1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyAssignedToUser, ROLE_ALREADY_ASSIGNED_TO_USER_ERROR);
+                }
+                else if (rowCount > 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("AddRoleToUser failed, ex = {0}, userId = {1}, roleId = {2} ", ex.Message, userId), ex);
             }
             return response;
         }
