@@ -100,7 +100,8 @@ namespace WebAPI.Controllers
 
                             response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
                                 pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
-                                filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(), filter.cutWith);
+                                filter.FilterTags == null ? null : filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(),
+                                filter.cutWith);
                         }
                         break;
                     case KalturaCatalogReferenceBy.epg_internal:
