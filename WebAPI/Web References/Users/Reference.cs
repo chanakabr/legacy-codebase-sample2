@@ -3206,12 +3206,12 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserRoleIds", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public IdsResponse GetUserRoleIds(string sWSUserName, string sWSPassword, string userId) {
+        public LongIdsResponse GetUserRoleIds(string sWSUserName, string sWSPassword, string userId) {
             object[] results = this.Invoke("GetUserRoleIds", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId});
-            return ((IdsResponse)(results[0]));
+            return ((LongIdsResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3845,11 +3845,11 @@ namespace WebAPI.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class IdsResponse {
+    public partial class LongIdsResponse {
         
         private Status statusField;
         
-        private int[] idsField;
+        private long[] idsField;
         
         /// <remarks/>
         public Status Status {
@@ -3862,7 +3862,7 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
-        public int[] Ids {
+        public long[] Ids {
             get {
                 return this.idsField;
             }
@@ -6711,10 +6711,10 @@ namespace WebAPI.Users {
         }
         
         /// <remarks/>
-        public IdsResponse Result {
+        public LongIdsResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((IdsResponse)(this.results[0]));
+                return ((LongIdsResponse)(this.results[0]));
             }
         }
     }

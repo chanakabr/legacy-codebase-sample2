@@ -206,20 +206,75 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Permission, KalturaPermission>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => src.PermissionItems));
+              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)));
 
             Mapper.CreateMap<GroupPermission, KalturaGroupPermission>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => src.PermissionItems))
+              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)))
               .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
 
             Mapper.CreateMap<Role, KalturaUserRole>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.Permissions));
+             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)));
 
             #endregion
+        }
+
+        private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
+        {
+            List<KalturaPermissionItem> result = null;
+
+            if (permissionItems != null && permissionItems.Length > 0)
+            {
+                result = new List<KalturaPermissionItem>();
+
+                KalturaPermissionItem item;
+
+                foreach (var permissionItem in permissionItems)
+                {
+                    if (permissionItem is ApiActionPermissionItem)
+                    {
+                        item = AutoMapper.Mapper.Map<KalturaApiActionPermissionItem>((ApiActionPermissionItem)permissionItem);
+                    }
+                    else
+                    {
+                        item = AutoMapper.Mapper.Map<KalturaPermissionItem>(permissionItem);
+                    }
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<KalturaPermission> ConvertPermissions(Permission[] permissions)
+        {
+            List<KalturaPermission> result = null;
+
+            if (permissions != null && permissions.Length > 0)
+            {
+                result = new List<KalturaPermission>();
+
+                KalturaPermission kalturaPermission;
+
+                foreach (var permission in permissions)
+                {
+                    if (permission is GroupPermission)
+                    {
+                        kalturaPermission = AutoMapper.Mapper.Map<KalturaGroupPermission>((GroupPermission)permission);
+                    }
+                    else
+                    {
+                        kalturaPermission = AutoMapper.Mapper.Map<KalturaPermission>(permission);
+                    }
+
+                    result.Add(kalturaPermission);
+                }
+            }
+
+            return result;
         }
 
         private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalChannelEnrichment[] list)

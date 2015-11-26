@@ -1977,7 +1977,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.UserRoles);
+            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
 
             return roles;
         }

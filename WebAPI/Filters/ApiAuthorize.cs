@@ -13,6 +13,7 @@ using Couchbase.Extensions;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -22,7 +23,11 @@ namespace WebAPI.Controllers
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
         public bool allowAnonymous { get; private set; }
+        
         private bool silent;
+        
+        // TODO: get from configuration
+        private long anonymousRoleId = 0;
 
         public ApiAuthorizeAttribute(bool AllowAnonymous = false, bool Silent = false)
             : base()
@@ -40,9 +45,33 @@ namespace WebAPI.Controllers
             else if (!ks.IsValid && !silent)
                 throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Expired KS");
 
-            if (!allowAnonymous && ks.UserId == "0")
+            string service = (string)actionContext.ActionArguments["service_name"];
+            string action = (string)actionContext.ActionArguments["action_name"];
+
+            string allowedUsersGroup = null;
+
+            // anonymous user validation
+            if (ks.UserId == "0")
+            {
+                if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, new List<long>(){anonymousRoleId}, 
+                    out allowedUsersGroup))
+                    throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+                else
+                    return true;
+            }
+
+            // not anonymous user - get user's roles
+            List<long> roleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+
+            // no roles found for the user
+            if (roleIds == null && roleIds.Count == 0)
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
 
+            // user not permitted
+            if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+
+            // TODO: allowed users
             return true;
         }
     }

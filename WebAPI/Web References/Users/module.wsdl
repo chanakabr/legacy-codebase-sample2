@@ -1672,14 +1672,19 @@
       <s:element name="GetUserRoleIdsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserRoleIdsResult" type="tns:IdsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserRoleIdsResult" type="tns:LongIdsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="IdsResponse">
+      <s:complexType name="LongIdsResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="Ids" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ids" type="tns:ArrayOfLong" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfLong">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="long" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
@@ -1702,7 +1707,7 @@
       <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
       <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
-      <s:element name="IdsResponse" nillable="true" type="tns:IdsResponse" />
+      <s:element name="LongIdsResponse" nillable="true" type="tns:LongIdsResponse" />
     </s:schema>
     <s:schema targetNamespace="http://users.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -2740,7 +2745,7 @@
     <wsdl:part name="userId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserRoleIdsHttpPostOut">
-    <wsdl:part name="Body" element="tns:IdsResponse" />
+    <wsdl:part name="Body" element="tns:LongIdsResponse" />
   </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">

@@ -21,6 +21,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using Couchbase.Extensions;
+using WebAPI.Managers;
 
 namespace WebAPI.Filters
 {

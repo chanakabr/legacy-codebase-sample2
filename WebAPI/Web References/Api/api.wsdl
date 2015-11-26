@@ -19,7 +19,7 @@
       </s:element>
       <s:complexType name="RolesResponse">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="UserRoles" type="tns:ArrayOfRole" />
+          <s:element minOccurs="0" maxOccurs="1" name="Roles" type="tns:ArrayOfRole" />
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>

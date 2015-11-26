@@ -14,6 +14,7 @@ using WebAPI.Models.General;
 using System.Reflection;
 using KLogMonitor;
 using WebAPI.Managers.Models;
+using WebAPI.Managers;
 
 namespace WebAPI.ClientManagers
 {
@@ -45,7 +46,7 @@ namespace WebAPI.ClientManagers
         }
 
         public static Group GetGroup(int groupId)
-        {            
+        {
             if (instance == null)
                 instance = new GroupsManager();
 
@@ -127,8 +128,14 @@ namespace WebAPI.ClientManagers
 
             // get group roles
             group.Roles = ClientsManager.ApiClient().GetGroupRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            
+            // build dictionary action permission items - roles with groups dictionary, for easy access
+            group.ActionPermissionItemsDictionary = RolesManager.BuildPermissionItemsDictionary(group.Roles);
 
             return group;
         }
+
+        
     }
+       
 }

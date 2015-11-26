@@ -722,7 +722,7 @@
     <Content Include="Web References\Users\FavoriteResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Users\IdsResponse.datasource">
+    <Content Include="Web References\Users\LongIdsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Users\module.disco" />

@@ -5323,17 +5323,17 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class RolesResponse {
         
-        private Role[] userRolesField;
+        private Role[] rolesField;
         
         private Status statusField;
         
         /// <remarks/>
-        public Role[] UserRoles {
+        public Role[] Roles {
             get {
-                return this.userRolesField;
+                return this.rolesField;
             }
             set {
-                this.userRolesField = value;
+                this.rolesField = value;
             }
         }
         

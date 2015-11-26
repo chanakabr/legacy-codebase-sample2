@@ -83,5 +83,8 @@ namespace WebAPI.Managers.Models
 
         [JsonIgnore]
         public List<WebAPI.Models.General.KalturaUserRole> Roles { get; set; }
+
+        [JsonIgnore]
+        public Dictionary<string, Dictionary<long, string>> ActionPermissionItemsDictionary { get; set; }
     }
 }

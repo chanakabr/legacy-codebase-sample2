@@ -645,10 +645,10 @@ namespace WebAPI.Clients
             return Mapper.Map<List<WebAPI.Models.Users.KalturaFavorite>>(response.Favorites);
         }
 
-        internal List<int> GetUserRoleIds(int groupId, string userId)
+        internal List<long> GetUserRoleIds(int groupId, string userId)
         {
-            List<int> roleIds = null;
-            IdsResponse response = null;
+            List<long> roleIds = null;
+            LongIdsResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
