@@ -2793,14 +2793,14 @@ namespace DAL
         public static List<Role> GetGroupRoles(int groupId)
         {
             List<Role> roles = new List<Role>();
-            Dictionary<long, Permission> permissions = new Dictionary<long, Permission>();
-            Dictionary<long, PermissionItem> permissionItems = new Dictionary<long, PermissionItem>();
+            Dictionary<long, List<Permission>> rolesPermissions = new Dictionary<long, List<Permission>>();
+            Dictionary<long, List<PermissionItem>> permissionPermissionItems = new Dictionary<long, List<PermissionItem>>();
 
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupRoles");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@group_id", groupId);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 3)
@@ -2812,23 +2812,14 @@ namespace DAL
                     Role role;
                     Permission permission;
                     PermissionItem permissionItem;
-                    if (rolesTable != null && rolesTable.Rows != null && rolesTable.Rows.Count > 0)
-                    {
-                        foreach (DataRow rolesRow in rolesTable.Rows)
-                        {
-                            role = new Role()
-                            {
-                                Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
-                                Permissions = new List<Permission>()
-                            };
-                            roles.Add(role);
-                        }
-                    }
+                    long permissionId;
+                    long roleId;
 
-                    if (permissionsTable != null && permissionsTable.Rows != null && permissionsTable.Rows.Count > 0)
+                    
+
+                    if (permissionItemsTable != null && permissionItemsTable.Rows != null && permissionItemsTable.Rows.Count > 0)
                     {
-                        foreach (DataRow permissionsRow in rolesTable.Rows)
+                        foreach (DataRow permissionsRow in permissionItemsTable.Rows)
                         {
                             ePermissionItemType permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                             switch (permissionItemType)
@@ -2853,19 +2844,26 @@ namespace DAL
                                 permissionItem.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "ID");
                                 permissionItem.Name = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "NAME");
                             }
-
-                            permissionItems.Add(ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID"), permissionItem);
+                            permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
+                            if (permissionPermissionItems.ContainsKey(permissionId))
+                            {
+                                permissionPermissionItems[permissionId].Add(permissionItem);
+                            }
+                            else
+                            {
+                                permissionPermissionItems.Add(permissionId, new List<PermissionItem>() {permissionItem});
+                            }
                         }
                     }
 
                     if (permissionsTable != null && permissionsTable.Rows != null && permissionsTable.Rows.Count > 0)
                     {
-                        foreach (DataRow permissionItemsRow in rolesTable.Rows)
+                        foreach (DataRow permissionItemsRow in permissionsTable.Rows)
                         {
                             ePermissionType permissionType = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "TYPE");
                             switch (permissionType)
                             {
-                                case ePermissionType.Simple:
+                                case ePermissionType.Normal:
                                     permission = new Permission();
                                     break;
                                 case ePermissionType.Group:
@@ -2883,29 +2881,32 @@ namespace DAL
                                 permission.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ID");
                                 permission.Name = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "NAME");
                                 permission.GroupId = groupId;
-                                permission.PermissionItems = new List<PermissionItem>();
+                                permission.PermissionItems = permissionPermissionItems[permission.Id];
                             }
-                            permissions.Add(ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID"), permission);
+
+                            roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
+                            if (rolesPermissions.ContainsKey(roleId))
+                            {
+                                rolesPermissions[roleId].Add(permission);
+                            }
+                            else
+                            {
+                                rolesPermissions.Add(roleId, new List<Permission>() { permission });
+                            }
                         }
                     }
 
-                    if (permissionItems != null && permissionItems.Count > 0 && permissions != null && permissions.Count > 0)
+                    if (rolesTable != null && rolesTable.Rows != null && rolesTable.Rows.Count > 0)
                     {
-                        foreach (var item in permissionItems)
+                        foreach (DataRow rolesRow in rolesTable.Rows)
                         {
-                            permission = permissions.Values.Where(p => p.Id == item.Key).FirstOrDefault();
-                            if (permission != null)
-                                permission.PermissionItems.Add(item.Value);
-                        }
-                    }
-
-                    if (permissions != null && permissions.Count > 0 && roles != null && roles.Count > 0)
-                    {
-                        foreach (var per in permissions)
-                        {
-                            role = roles.Where(r => r.Id == per.Key).FirstOrDefault();
-                            if (role != null)
-                                role.Permissions.Add(per.Value);
+                            role = new Role()
+                            {
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
+                            };
+                            role.Permissions = rolesPermissions[role.Id];
+                            roles.Add(role);
                         }
                     }
                 }

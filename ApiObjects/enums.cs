@@ -401,15 +401,15 @@ namespace ApiObjects
     [Serializable]
     public enum ePermissionItemType
     {
-        Action = 0,
-        Parameter = 1
+        Action = 1,
+        Parameter = 2
     }
 
     [Serializable]
     public enum ePermissionType
     {
-        Simple = 0,
-        Group = 1
+        Normal = 1,
+        Group = 2
     }
 
 

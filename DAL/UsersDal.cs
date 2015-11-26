@@ -2023,9 +2023,9 @@ namespace DAL
             return null;
         }
 
-        public static List<int> Get_UserRoleIds(int groupId, string userId)
+        public static List<long> Get_UserRoleIds(int groupId, string userId)
         {
-            List<int> roleIds = new List<int>();
+            List<long> roleIds = new List<long>();
 
             try
             {
@@ -2043,7 +2043,7 @@ namespace DAL
                         {
                             foreach (DataRow row in dt.Rows)
                             {
-                                roleIds.Add(ODBCWrapper.Utils.GetIntSafeVal(row["ROLE_ID"]));
+                                roleIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row["ROLE_ID"]));
                             }
                         }
                     } 

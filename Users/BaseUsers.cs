@@ -1306,15 +1306,15 @@ namespace Users
             return response;
         }
 
-        public IdsResponse GetUserRoleIds(int groupId, string userId)
+        public LongIdsResponse GetUserRoleIds(int groupId, string userId)
         {
-            IdsResponse response = new IdsResponse();
+            LongIdsResponse response = new LongIdsResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
-                List<int> roleIds = UsersDal.Get_UserRoleIds(groupId, userId);
-                if (roleIds != null)
+                response.Ids = UsersDal.Get_UserRoleIds(groupId, userId);
+                if (response.Ids != null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }

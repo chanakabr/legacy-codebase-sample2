@@ -219,6 +219,7 @@
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="RecommendationEngine.cs" />
     <Compile Include="RecommendationEngineSettings.cs" />
+    <Compile Include="Response\LongIdsResponse.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\KalturaException.cs" />
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
