@@ -404,7 +404,6 @@ namespace WebAPI.Clients
 
             if (channelResponse.m_nMedias != null && channelResponse.m_nMedias.Count > 0)
             {
-
                 result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, channelResponse.m_nMedias, request, CacheDuration, with);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
@@ -443,7 +442,6 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-
                 result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
@@ -485,6 +483,7 @@ namespace WebAPI.Clients
                 if (list != null)
                 {
                     result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                    result.TotalCount = epgProgramResponse.m_nTotalItems;
                 }
                 else
                 {
@@ -531,6 +530,7 @@ namespace WebAPI.Clients
                 if (list != null)
                 {
                     result.Objects = list.Select(a => (KalturaAssetInfo)a).ToList();
+                    result.TotalCount = epgProgramResponse.m_nTotalItems;
                 }
                 else
                 {

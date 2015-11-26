@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                                0, 1, ids, with.Select(x => x.type).ToList());
+                                0, 0, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                               0, 1, ids, with.Select(x => x.type).ToList());
+                               0, 0, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
