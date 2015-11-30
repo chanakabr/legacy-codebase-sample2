@@ -719,7 +719,7 @@ namespace Users
                     {
                         bRes = DomainResponseStatus.OK;
 
-                        if (m_minPeriodId != 0)
+                        if (m_minPeriodId != 0 && GetDeviceFrequency(sUDID) != 0)
                         {
                             SetDomainFlag(m_nDomainID, 1);
                         }
@@ -1275,6 +1275,25 @@ namespace Users
             if (m_oLimitationsManager.NextActionFreqDate > DateTime.UtcNow)
                 return DomainResponseStatus.LimitationPeriod;
             return DomainResponseStatus.OK;
+        }
+
+        private int GetDeviceFrequency(string sUDID)
+        {
+            // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
+            if (m_oDeviceFamiliesMapping != null)
+            {
+                DeviceContainer deviceFamily = GetDeviceFamilyByUDID(sUDID);
+
+                if (deviceFamily != null)
+                {
+                    if (deviceFamily.m_oLimitationsManager != null && deviceFamily.m_oLimitationsManager.Frequency != -1)
+                    {
+                        return deviceFamily.m_oLimitationsManager.Frequency;
+                    }
+                }
+            }
+
+            return m_oLimitationsManager.Frequency;
         }
 
         private DeviceContainer GetDeviceFamilyByUDID(string sUDID)
