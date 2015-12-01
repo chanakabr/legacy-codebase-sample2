@@ -1335,7 +1335,7 @@ namespace Users
 
             try
             {
-                int rowCount = UsersDal.Get_UserRole(groupId, userId, roleId);
+                int rowCount = UsersDal.Insert_UserRole(groupId, userId, roleId);
                 if (rowCount == -1)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyAssignedToUser, ROLE_ALREADY_ASSIGNED_TO_USER_ERROR);

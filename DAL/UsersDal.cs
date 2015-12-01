@@ -2056,7 +2056,7 @@ namespace DAL
             return roleIds; 
         }
 
-        public static int Get_UserRole(int groupId, string userId, long roleId)
+        public static int Insert_UserRole(int groupId, string userId, long roleId)
         {
             int rowCount;
 
