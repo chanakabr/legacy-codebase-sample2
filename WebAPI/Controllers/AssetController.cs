@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                                0, 1, ids, with.Select(x => x.type).ToList());
+                                0, 0, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
-                               0, 1, ids, with.Select(x => x.type).ToList());
+                               0, 0, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -288,8 +288,9 @@ namespace WebAPI.Controllers
         /// <param name="filter"> <![CDATA[
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or.
-        /// (maximum length of 1024 characters)]]></param>
+        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Search values are limited to 20 characters each.
+        /// (maximum length of entire filter is 1024 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
         /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
@@ -341,7 +342,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
         /// </summary>
-        /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored</param>
+        /// <param name="query">Search string to look for within the assets’ title only. Search is starts with. White spaces are not ignored. Limited to 20 characters</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array</param>
         /// <param name="filter_types">List of asset types to search within.
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system). 
