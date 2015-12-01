@@ -14,7 +14,7 @@ namespace Catalog.Request
 {
     [Serializable]
     [DataContract]
-    public class ExternalChannelRequest : UnifiedChannelRequest
+    public class ExternalChannelRequest : BaseChannelRequest
     {
         #region Data Members
 
@@ -45,7 +45,7 @@ namespace Catalog.Request
 
         #region Override Methods
 
-        protected override Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        protected override Status GetAssets(BaseChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             ExternalChannelRequest externalRequest = request as ExternalChannelRequest;
 

@@ -13,7 +13,7 @@ namespace Catalog.Request
 {
     [Serializable]
     [DataContract]
-    public class UnifiedChannelRequest : BaseRequest, IRequestImp
+    public class BaseChannelRequest : BaseRequest, IRequestImp
     {
         #region Data Members
 
@@ -44,7 +44,7 @@ namespace Catalog.Request
 
         #region Ctor
 
-        public UnifiedChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, 
+        public BaseChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, 
             Filter filter, string filterQuery = "", string internalChannelId = "", string externalChannelId = "")
             : base(pageSize, pageIndex, userIP, groupID, filter, signature, signString)
         {
@@ -62,7 +62,7 @@ namespace Catalog.Request
 
             try
             {
-                UnifiedChannelRequest request = baseRequest as UnifiedChannelRequest;
+                BaseChannelRequest request = baseRequest as BaseChannelRequest;
 
                 if (request == null)
                 {
@@ -157,7 +157,7 @@ namespace Catalog.Request
             return response;
         }
 
-        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        protected virtual Status GetAssets(BaseChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             totalItems = 0;
             searchResults = null;
