@@ -30,7 +30,13 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
-        private System.Threading.SendOrPostCallback GetGroupRolesOperationCompleted;
+        private System.Threading.SendOrPostCallback GetRolesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetPermissionsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback AddPermissionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback AddPermissionToRoleOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
@@ -327,7 +333,16 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public event GetGroupRolesCompletedEventHandler GetGroupRolesCompleted;
+        public event GetRolesCompletedEventHandler GetRolesCompleted;
+        
+        /// <remarks/>
+        public event GetPermissionsCompletedEventHandler GetPermissionsCompleted;
+        
+        /// <remarks/>
+        public event AddPermissionCompletedEventHandler AddPermissionCompleted;
+        
+        /// <remarks/>
+        public event AddPermissionToRoleCompletedEventHandler AddPermissionToRoleCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -714,33 +729,144 @@ namespace WebAPI.Api {
         public event MessageRecoveryCompletedEventHandler MessageRecoveryCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupRoles", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RolesResponse GetGroupRoles(string sWSUserName, string sWSPassword) {
-            object[] results = this.Invoke("GetGroupRoles", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetRoles", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RolesResponse GetRoles(string sWSUserName, string sWSPassword, long[] roleIds) {
+            object[] results = this.Invoke("GetRoles", new object[] {
                         sWSUserName,
-                        sWSPassword});
+                        sWSPassword,
+                        roleIds});
             return ((RolesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetGroupRolesAsync(string sWSUserName, string sWSPassword) {
-            this.GetGroupRolesAsync(sWSUserName, sWSPassword, null);
+        public void GetRolesAsync(string sWSUserName, string sWSPassword, long[] roleIds) {
+            this.GetRolesAsync(sWSUserName, sWSPassword, roleIds, null);
         }
         
         /// <remarks/>
-        public void GetGroupRolesAsync(string sWSUserName, string sWSPassword, object userState) {
-            if ((this.GetGroupRolesOperationCompleted == null)) {
-                this.GetGroupRolesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupRolesOperationCompleted);
+        public void GetRolesAsync(string sWSUserName, string sWSPassword, long[] roleIds, object userState) {
+            if ((this.GetRolesOperationCompleted == null)) {
+                this.GetRolesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRolesOperationCompleted);
             }
-            this.InvokeAsync("GetGroupRoles", new object[] {
+            this.InvokeAsync("GetRoles", new object[] {
                         sWSUserName,
-                        sWSPassword}, this.GetGroupRolesOperationCompleted, userState);
+                        sWSPassword,
+                        roleIds}, this.GetRolesOperationCompleted, userState);
         }
         
-        private void OnGetGroupRolesOperationCompleted(object arg) {
-            if ((this.GetGroupRolesCompleted != null)) {
+        private void OnGetRolesOperationCompleted(object arg) {
+            if ((this.GetRolesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetGroupRolesCompleted(this, new GetGroupRolesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.GetRolesCompleted(this, new GetRolesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPermissions", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PermissionsResponse GetPermissions(string sWSUserName, string sWSPassword, long[] permissionIds) {
+            object[] results = this.Invoke("GetPermissions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        permissionIds});
+            return ((PermissionsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPermissionsAsync(string sWSUserName, string sWSPassword, long[] permissionIds) {
+            this.GetPermissionsAsync(sWSUserName, sWSPassword, permissionIds, null);
+        }
+        
+        /// <remarks/>
+        public void GetPermissionsAsync(string sWSUserName, string sWSPassword, long[] permissionIds, object userState) {
+            if ((this.GetPermissionsOperationCompleted == null)) {
+                this.GetPermissionsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPermissionsOperationCompleted);
+            }
+            this.InvokeAsync("GetPermissions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        permissionIds}, this.GetPermissionsOperationCompleted, userState);
+        }
+        
+        private void OnGetPermissionsOperationCompleted(object arg) {
+            if ((this.GetPermissionsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPermissionsCompleted(this, new GetPermissionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddPermission", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PermissionResponse AddPermission(string sWSUserName, string sWSPassword, string name, long[] permissionItemsIds, ePermissionType type, string usersGroup, long updaterId) {
+            object[] results = this.Invoke("AddPermission", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        name,
+                        permissionItemsIds,
+                        type,
+                        usersGroup,
+                        updaterId});
+            return ((PermissionResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddPermissionAsync(string sWSUserName, string sWSPassword, string name, long[] permissionItemsIds, ePermissionType type, string usersGroup, long updaterId) {
+            this.AddPermissionAsync(sWSUserName, sWSPassword, name, permissionItemsIds, type, usersGroup, updaterId, null);
+        }
+        
+        /// <remarks/>
+        public void AddPermissionAsync(string sWSUserName, string sWSPassword, string name, long[] permissionItemsIds, ePermissionType type, string usersGroup, long updaterId, object userState) {
+            if ((this.AddPermissionOperationCompleted == null)) {
+                this.AddPermissionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddPermissionOperationCompleted);
+            }
+            this.InvokeAsync("AddPermission", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        name,
+                        permissionItemsIds,
+                        type,
+                        usersGroup,
+                        updaterId}, this.AddPermissionOperationCompleted, userState);
+        }
+        
+        private void OnAddPermissionOperationCompleted(object arg) {
+            if ((this.AddPermissionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddPermissionCompleted(this, new AddPermissionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddPermissionToRole", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status AddPermissionToRole(string sWSUserName, string sWSPassword, long roleId, long permissionId) {
+            object[] results = this.Invoke("AddPermissionToRole", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        roleId,
+                        permissionId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddPermissionToRoleAsync(string sWSUserName, string sWSPassword, long roleId, long permissionId) {
+            this.AddPermissionToRoleAsync(sWSUserName, sWSPassword, roleId, permissionId, null);
+        }
+        
+        /// <remarks/>
+        public void AddPermissionToRoleAsync(string sWSUserName, string sWSPassword, long roleId, long permissionId, object userState) {
+            if ((this.AddPermissionToRoleOperationCompleted == null)) {
+                this.AddPermissionToRoleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddPermissionToRoleOperationCompleted);
+            }
+            this.InvokeAsync("AddPermissionToRole", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        roleId,
+                        permissionId}, this.AddPermissionToRoleOperationCompleted, userState);
+        }
+        
+        private void OnAddPermissionToRoleOperationCompleted(object arg) {
+            if ((this.AddPermissionToRoleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddPermissionToRoleCompleted(this, new AddPermissionToRoleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5263,29 +5389,29 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/MessageRecovery", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status MessageRecovery(string sWSUserName, string sWSPassword, System.DateTime baseDate, string[] messageDataTypes) {
+        public Status MessageRecovery(string sWSUserName, string sWSPassword, long baseDateSec, string[] messageDataTypes) {
             object[] results = this.Invoke("MessageRecovery", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        baseDate,
+                        baseDateSec,
                         messageDataTypes});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void MessageRecoveryAsync(string sWSUserName, string sWSPassword, System.DateTime baseDate, string[] messageDataTypes) {
-            this.MessageRecoveryAsync(sWSUserName, sWSPassword, baseDate, messageDataTypes, null);
+        public void MessageRecoveryAsync(string sWSUserName, string sWSPassword, long baseDateSec, string[] messageDataTypes) {
+            this.MessageRecoveryAsync(sWSUserName, sWSPassword, baseDateSec, messageDataTypes, null);
         }
         
         /// <remarks/>
-        public void MessageRecoveryAsync(string sWSUserName, string sWSPassword, System.DateTime baseDate, string[] messageDataTypes, object userState) {
+        public void MessageRecoveryAsync(string sWSUserName, string sWSPassword, long baseDateSec, string[] messageDataTypes, object userState) {
             if ((this.MessageRecoveryOperationCompleted == null)) {
                 this.MessageRecoveryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnMessageRecoveryOperationCompleted);
             }
             this.InvokeAsync("MessageRecovery", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        baseDate,
+                        baseDateSec,
                         messageDataTypes}, this.MessageRecoveryOperationCompleted, userState);
         }
         
@@ -8550,17 +8676,17 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
@@ -8748,63 +8874,6 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sUsernameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
@@ -8828,63 +8897,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddUserMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sMasterUsernameField;
-        
-        private string m_sNewUsernameField;
-        
-        private string m_sNewFirstNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sMasterUsername {
-            get {
-                return this.m_sMasterUsernameField;
-            }
-            set {
-                this.m_sMasterUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewUsername {
-            get {
-                return this.m_sNewUsernameField;
-            }
-            set {
-                this.m_sNewUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewFirstName {
-            get {
-                return this.m_sNewFirstNameField;
-            }
-            set {
-                this.m_sNewFirstNameField = value;
             }
         }
     }
@@ -9090,13 +9102,15 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class WelcomeMailRequest : MailRequestObj {
+    public partial class AddUserMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sUsernameField;
+        private string m_sMasterUsernameField;
         
-        private string m_sPasswordField;
+        private string m_sNewUsernameField;
+        
+        private string m_sNewFirstNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -9109,22 +9123,89 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
+        public string m_sMasterUsername {
+            get {
+                return this.m_sMasterUsernameField;
+            }
+            set {
+                this.m_sMasterUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewUsername {
+            get {
+                return this.m_sNewUsernameField;
+            }
+            set {
+                this.m_sNewUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewFirstName {
+            get {
+                return this.m_sNewFirstNameField;
+            }
+            set {
+                this.m_sNewFirstNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sUsernameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string m_sUsername {
             get {
                 return this.m_sUsernameField;
             }
             set {
                 this.m_sUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPassword {
-            get {
-                return this.m_sPasswordField;
-            }
-            set {
-                this.m_sPasswordField = value;
             }
         }
     }
@@ -9236,6 +9317,51 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sRuleNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class WelcomeMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sUsernameField;
+        
+        private string m_sPasswordField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPassword {
+            get {
+                return this.m_sPasswordField;
+            }
+            set {
+                this.m_sPasswordField = value;
             }
         }
     }
@@ -12338,6 +12464,72 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PermissionResponse {
+        
+        private Permission permissionField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Permission Permission {
+            get {
+                return this.permissionField;
+            }
+            set {
+                this.permissionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PermissionsResponse {
+        
+        private Permission[] permissionsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Permission[] Permissions {
+            get {
+                return this.permissionsField;
+            }
+            set {
+                this.permissionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ApiActionPermissionItem : PermissionItem {
         
         private string serviceField;
@@ -12384,6 +12576,19 @@ namespace WebAPI.Api {
                 this.usersGroupField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum ePermissionType {
+        
+        /// <remarks/>
+        Normal,
+        
+        /// <remarks/>
+        Group,
     }
     
     /// <remarks/>
@@ -12467,17 +12672,17 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
-    public delegate void GetGroupRolesCompletedEventHandler(object sender, GetGroupRolesCompletedEventArgs e);
+    public delegate void GetRolesCompletedEventHandler(object sender, GetRolesCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetGroupRolesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class GetRolesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetGroupRolesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal GetRolesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
@@ -12487,6 +12692,84 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((RolesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void GetPermissionsCompletedEventHandler(object sender, GetPermissionsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPermissionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPermissionsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PermissionsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PermissionsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void AddPermissionCompletedEventHandler(object sender, AddPermissionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddPermissionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddPermissionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PermissionResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PermissionResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void AddPermissionToRoleCompletedEventHandler(object sender, AddPermissionToRoleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddPermissionToRoleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddPermissionToRoleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

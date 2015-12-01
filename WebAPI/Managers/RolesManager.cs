@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using WebAPI.ClientManagers;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 
 namespace WebAPI.Managers
@@ -88,13 +89,13 @@ namespace WebAPI.Managers
             usersGroup = null;
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string serviceActionKey = string.Format("{0}_{1}", service, action);
+            string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
 
             // get group's roles schema
             var actionPermissionItemsDictionary = GroupsManager.GetGroup(groupId).ActionPermissionItemsDictionary; 
 
             // if the permission for the action is not defined in the schema - return false
-            if (!actionPermissionItemsDictionary.ContainsKey(serviceActionKey.ToLower()))
+            if (!actionPermissionItemsDictionary.ContainsKey(serviceActionKey))
             {
                 return false;
             }

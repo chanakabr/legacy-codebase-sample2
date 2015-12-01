@@ -772,6 +772,7 @@
     <Compile Include="Controllers\PartnerConfigurationController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\PermissionController.cs" />
     <Compile Include="Controllers\RecommendationProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileController.cs" />
@@ -806,6 +807,7 @@
     <Compile Include="Controllers\PinController.cs" />
     <Compile Include="Controllers\ParentalRuleController.cs" />
     <Compile Include="Controllers\TransactionHistoryController.cs" />
+    <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -814,6 +816,7 @@
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
     <Compile Include="Models\API\KalturaExportTask.cs" />
     <Compile Include="Models\API\KalturaExportDataType.cs" />
@@ -828,6 +831,7 @@
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRecommendationProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
+    <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
@@ -869,14 +873,14 @@
     <Compile Include="Models\General\KalturaBooleanValue.cs" />
     <Compile Include="Models\General\KalturaOTTObject.cs" />
     <Compile Include="Models\General\KalturaClientConfiguration.cs" />
-    <Compile Include="Models\General\KalturaPermission.cs" />
-    <Compile Include="Models\General\KalturaPermissionItem.cs" />
+    <Compile Include="Models\API\KalturaPermission.cs" />
+    <Compile Include="Models\API\KalturaPermissionItem.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />
     <Compile Include="Models\General\KalturaStringValueArray.cs" />
-    <Compile Include="Models\General\KalturaUserRole.cs" />
+    <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>

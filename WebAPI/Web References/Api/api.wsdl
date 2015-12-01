@@ -2,18 +2,24 @@
 <wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
-      <s:element name="GetGroupRoles">
+      <s:element name="GetRoles">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="roleIds" type="tns:ArrayOfLong" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetGroupRolesResponse">
+      <s:complexType name="ArrayOfLong">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="long" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRolesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetGroupRolesResult" type="tns:RolesResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetRolesResult" type="tns:RolesResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -85,6 +91,77 @@
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetPermissions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="permissionIds" type="tns:ArrayOfLong" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPermissionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPermissionsResult" type="tns:PermissionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PermissionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Permissions" type="tns:ArrayOfPermission" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddPermission">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="permissionItemsIds" type="tns:ArrayOfLong" />
+            <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:ePermissionType" />
+            <s:element minOccurs="0" maxOccurs="1" name="usersGroup" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="updaterId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="ePermissionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Normal" />
+          <s:enumeration value="Group" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="AddPermissionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddPermissionResult" type="tns:PermissionResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PermissionResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Permission" type="tns:Permission" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddPermissionToRole">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="roleId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="permissionId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddPermissionToRoleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddPermissionToRoleResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -1462,6 +1539,17 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ChangedPinMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1493,13 +1581,26 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1543,36 +1644,12 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3589,11 +3666,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfLong">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="long" type="s:long" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetBulkExportTasksResponse">
         <s:complexType>
           <s:sequence>
@@ -3650,7 +3722,7 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="baseDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="baseDateSec" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="messageDataTypes" type="tns:ArrayOfString" />
           </s:sequence>
         </s:complexType>
@@ -3662,7 +3734,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="RolesResponse" nillable="true" type="tns:RolesResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -3683,7 +3755,6 @@
       <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
       <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
       <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
       <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
@@ -3711,11 +3782,29 @@
       </s:complexType>
     </s:schema>
   </wsdl:types>
-  <wsdl:message name="GetGroupRolesSoapIn">
-    <wsdl:part name="parameters" element="tns:GetGroupRoles" />
+  <wsdl:message name="GetRolesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRoles" />
   </wsdl:message>
-  <wsdl:message name="GetGroupRolesSoapOut">
-    <wsdl:part name="parameters" element="tns:GetGroupRolesResponse" />
+  <wsdl:message name="GetRolesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRolesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPermissionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPermissions" />
+  </wsdl:message>
+  <wsdl:message name="GetPermissionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPermissionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionSoapIn">
+    <wsdl:part name="parameters" element="tns:AddPermission" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionSoapOut">
+    <wsdl:part name="parameters" element="tns:AddPermissionResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionToRoleSoapIn">
+    <wsdl:part name="parameters" element="tns:AddPermissionToRole" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionToRoleSoapOut">
+    <wsdl:part name="parameters" element="tns:AddPermissionToRoleResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -4485,12 +4574,14 @@
   <wsdl:message name="MessageRecoverySoapOut">
     <wsdl:part name="parameters" element="tns:MessageRecoveryResponse" />
   </wsdl:message>
-  <wsdl:message name="GetGroupRolesHttpPostIn">
+  <wsdl:message name="AddPermissionToRoleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="roleId" type="s:string" />
+    <wsdl:part name="permissionId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetGroupRolesHttpPostOut">
-    <wsdl:part name="Body" element="tns:RolesResponse" />
+  <wsdl:message name="AddPermissionToRoleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5279,9 +5370,21 @@
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:portType name="APISoap">
-    <wsdl:operation name="GetGroupRoles">
-      <wsdl:input message="tns:GetGroupRolesSoapIn" />
-      <wsdl:output message="tns:GetGroupRolesSoapOut" />
+    <wsdl:operation name="GetRoles">
+      <wsdl:input message="tns:GetRolesSoapIn" />
+      <wsdl:output message="tns:GetRolesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissions">
+      <wsdl:input message="tns:GetPermissionsSoapIn" />
+      <wsdl:output message="tns:GetPermissionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddPermission">
+      <wsdl:input message="tns:AddPermissionSoapIn" />
+      <wsdl:output message="tns:AddPermissionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddPermissionToRole">
+      <wsdl:input message="tns:AddPermissionToRoleSoapIn" />
+      <wsdl:output message="tns:AddPermissionToRoleSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -5797,9 +5900,9 @@
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
-    <wsdl:operation name="GetGroupRoles">
-      <wsdl:input message="tns:GetGroupRolesHttpPostIn" />
-      <wsdl:output message="tns:GetGroupRolesHttpPostOut" />
+    <wsdl:operation name="AddPermissionToRole">
+      <wsdl:input message="tns:AddPermissionToRoleHttpPostIn" />
+      <wsdl:output message="tns:AddPermissionToRoleHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -6152,8 +6255,35 @@
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="GetGroupRoles">
-      <soap:operation soapAction="http://api.tvinci.com/GetGroupRoles" style="document" />
+    <wsdl:operation name="GetRoles">
+      <soap:operation soapAction="http://api.tvinci.com/GetRoles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissions">
+      <soap:operation soapAction="http://api.tvinci.com/GetPermissions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermission">
+      <soap:operation soapAction="http://api.tvinci.com/AddPermission" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermissionToRole">
+      <soap:operation soapAction="http://api.tvinci.com/AddPermissionToRole" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7316,8 +7446,35 @@
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="GetGroupRoles">
-      <soap12:operation soapAction="http://api.tvinci.com/GetGroupRoles" style="document" />
+    <wsdl:operation name="GetRoles">
+      <soap12:operation soapAction="http://api.tvinci.com/GetRoles" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissions">
+      <soap12:operation soapAction="http://api.tvinci.com/GetPermissions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermission">
+      <soap12:operation soapAction="http://api.tvinci.com/AddPermission" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermissionToRole">
+      <soap12:operation soapAction="http://api.tvinci.com/AddPermissionToRole" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8480,8 +8637,8 @@
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
-    <wsdl:operation name="GetGroupRoles">
-      <http:operation location="/GetGroupRoles" />
+    <wsdl:operation name="AddPermissionToRole">
+      <http:operation location="/AddPermissionToRole" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

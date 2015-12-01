@@ -82,7 +82,7 @@ namespace WebAPI.Managers.Models
         public List<Language> Languages { get; set; }
 
         [JsonIgnore]
-        public List<WebAPI.Models.General.KalturaUserRole> Roles { get; set; }
+        public List<WebAPI.Models.API.KalturaUserRole> Roles { get; set; }
 
         [JsonIgnore]
         public Dictionary<string, Dictionary<long, string>> ActionPermissionItemsDictionary { get; set; }

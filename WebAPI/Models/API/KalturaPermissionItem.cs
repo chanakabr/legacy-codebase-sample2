@@ -5,13 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Models.API
 {
-    public class KalturaPermission : KalturaOTTObject
+    public class KalturaPermissionItem : KalturaOTTObject
     {
         /// <summary>
-        /// Permission identifier
+        /// Permission item identifier
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
@@ -19,20 +20,11 @@ namespace WebAPI.Models.General
         public long Id { get; set; }
 
         /// <summary>
-        /// Permission name
+        /// Permission item name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
-
-        /// <summary>
-        /// List of permission items associated with the permission
-        /// </summary>
-        [DataMember(Name = "permissionItems")]
-        [JsonProperty("permissionItems")]
-        [XmlArray(ElementName = "permissionItems", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPermissionItem> PermissionItems { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
-
+using System.Linq;
 
 namespace WebAPI.Clients
 {
@@ -1949,7 +1949,7 @@ namespace WebAPI.Clients
             return tasks;
         }
 
-        internal List<KalturaUserRole> GetGroupRoles(string username, string password)
+        internal List<KalturaUserRole> GetRoles(string username, string password, long[] roleIds = null)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
@@ -1958,7 +1958,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetGroupRoles(username, password);
+                    response = Api.GetRoles(username, password, roleIds);
                 }
             }
             catch (Exception ex)
@@ -1982,10 +1982,167 @@ namespace WebAPI.Clients
             return roles;
         }
 
-        public List<KalturaUserRole> GetGroupRoles(int groupId)
+        public List<KalturaUserRole> GetRoles(int groupId, long[] roleIds = null)
         {
             Group group = GroupsManager.GetGroup(groupId);
-            return GetGroupRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            return GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password, roleIds);
+        }
+
+        internal List<KalturaPermission> GetPermissions(int groupId, long[] ids)
+        {
+            List<KalturaPermission> permissions = new List<KalturaPermission>();
+            PermissionsResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetPermissions(group.ApiCredentials.Username, group.ApiCredentials.Password, ids);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            permissions = AutoMapper.Mapper.Map<List<KalturaPermission>>(response.Permissions);
+
+            return permissions;
+        }
+
+        internal KalturaUserRole AddRole(int groupId, KalturaUserRole role)
+        {
+            KalturaUserRole userRole = new KalturaUserRole();
+            RolesResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //response = Api.AddRole(group.ApiCredentials.Username, group.ApiCredentials.Password, role.Name, role.Permissions);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles);
+
+            return role;
+        }
+
+        internal KalturaPermission AddPermission(int groupId, KalturaPermission permission)
+        {
+            KalturaPermission addedPermission = new KalturaPermission();
+            PermissionResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            ePermissionType type;
+            string usersGroup = null;
+
+            if (permission is KalturaGroupPermission)
+            {
+                type = ePermissionType.Group;
+                usersGroup = ((KalturaGroupPermission)permission).Group;
+            }
+            else
+            {
+                type = ePermissionType.Normal;
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name, 
+                        permission.PermissionItems != null ? permission.PermissionItems.Select(p => p.Id).ToArray() : null, type, usersGroup, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            addedPermission = AutoMapper.Mapper.Map<KalturaPermission>(response.Permission);
+
+            return addedPermission;
+        }
+
+        internal bool AddPermissionToRole(int groupId, long roleId, long permissionId)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.AddPermissionToRole(group.ApiCredentials.Username, group.ApiCredentials.Password, roleId, permissionId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
         }
     }
 }
