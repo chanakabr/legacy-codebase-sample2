@@ -76,6 +76,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
+            // User
+            Mapper.CreateMap<Users.User, KalturaOTTUser>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.m_oBasicData.m_sEmail))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_oBasicData.m_sAddress))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_oBasicData.m_sCity))
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_oBasicData.m_Country))
+                .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_oBasicData.m_sZip))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_oBasicData.m_sPhone))
+                .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_oBasicData.m_sFacebookID))
+                .ForMember(dest => dest.FacebookImage, opt => opt.MapFrom(src => src.m_oBasicData.m_sFacebookImage))
+                .ForMember(dest => dest.FacebookToken, opt => opt.MapFrom(src => src.m_oBasicData.m_sFacebookToken))
+                .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_oBasicData.m_sAffiliateCode))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_oBasicData.m_ExternalToken))
+                .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_oBasicData.m_UserType))
+                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_domianID))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_oDynamicData)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
+                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
+                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster));
+
             // SlimUser
             Mapper.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
