@@ -570,6 +570,15 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
+            string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
+            RefreshToken refreshToken = _client.Get<RefreshToken>(refreshTokenId);
+            if (refreshTokenId == null)
+            {
+                logger.ErrorFormat("UpdateUserInToken: refresh token not found.");
+                returnError(401);
+                return false;
+            }
+
             // get group configurations
             GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
             if (groupConfig == null)
@@ -579,17 +588,32 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
+            // change user id in both access and refresh tokens
             apiToken.SiteGuid = siteGuid;
+            refreshToken.SiteGuid = siteGuid;
 
             // access token is valid - extend refreshToken if extendable
             if (groupConfig.IsRefreshTokenExtendable)
             {
                 apiToken.RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+                refreshToken.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
             }
 
             // store the updated token
-            _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration));
+            if (!_client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            {
+                logger.ErrorFormat("UpdateUserInToken: access token was not saved in CB.");
+                returnError(500);
+                return null;
+            }
 
+            // store updated refresh token doc in CB
+            if (!_client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            {
+                logger.ErrorFormat("UpdateUserInToken: refresh token was not saved in CB.");
+                returnError(500);
+                return null;
+            }
 
             // return token response
             return Instance.GetTokenResponseObject(apiToken);
