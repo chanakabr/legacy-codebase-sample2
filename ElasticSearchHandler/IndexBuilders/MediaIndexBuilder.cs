@@ -12,6 +12,7 @@ using System.Data;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.Response;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -178,40 +179,53 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
 
-                MediaSearchObj oSearchObj;
-                string sQueryStr;
-                ESMediaQueryBuilder oQueryParser = new ESMediaQueryBuilder()
-                {
-                    QueryType = eQueryType.EXACT
-                };
-
-                List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
+                
+                List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
                     List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+
+                    ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
+                        {
+                            QueryType = eQueryType.EXACT
+                        };
+                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
                     foreach (Channel currentChannel in allChannels)
                     {
                         if (currentChannel == null || currentChannel.m_nIsActive != 1)
                             continue;
 
-                        oQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                        oSearchObj = BuildBaseChannelSearchObject(currentChannel);
-                        oQueryParser.oSearchObject = oSearchObj;
-                        sQueryStr = oQueryParser.BuildSearchQueryString(false);
+                        string channelQuery = string.Empty;
 
-                        lChannelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, sQueryStr));
-
-                        if (lChannelRequests.Count > 50)
+                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                         {
-                            api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
-                            lChannelRequests.Clear();
+                            UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel);
+
+                            unifiedQueryBuilder.SearchDefinitions = definitions;
+                            channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                        }
+                        else
+                        {
+                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+
+                            mediaQueryParser.oSearchObject = mediaSearchObject;
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(false);
+                        }
+
+                        channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
+
+                        if (channelRequests.Count > 50)
+                        {
+                            api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                            channelRequests.Clear();
                         }
                     }
 
-                    if (lChannelRequests.Count > 0)
+                    if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
+                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -633,6 +647,33 @@ namespace ElasticSearchHandler.IndexBuilders
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
             return searchObject;
+        }
+
+        private static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel)
+        {
+            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+
+            definitions.groupId = channel.m_nGroupID;
+            definitions.mediaTypes = channel.m_nMediaType.ToList();
+            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            definitions.order = new OrderObj();
+
+            definitions.shouldUseStartDate = false;
+            definitions.shouldUseFinalEndDate = false;
+
+            BooleanPhraseNode filterTree = null;
+            var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
+
+            if (parseStatus.Code != (int)eResponseStatus.OK)
+            {
+                throw new KalturaException(parseStatus.Message, parseStatus.Code);
+            }
+            else
+            {
+                definitions.filterPhrase = filterTree;
+            }
+
+            return definitions;
         }
 
         private static string GetPermittedWatchRules(int nGroupId)
