@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ODBCWrapper;
+using KLogMonitor;
 
 namespace DAL
 {
     public class TvmDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
                
         public static int GetSubscriptionsNotifierImpl(int nGroupID, int nModuleID)
         {
@@ -483,18 +486,18 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        // Start of code added by lior
+        #region Permissions Methods
 
         #region Constants
 
         private const string GET_USERS_QUERY = "select distinct id, username from accounts where status=1  order by username";
-        private const string USER_ALLOWED_PERMISSION_QUERY = "select distinct menu_id, menu_text, menu_href from admin_accounts_permissions ap join admin_menu menu on (menu.ID=ap.menu_id) where ap.status=1 and account_id = {0} order by menu_text";
-        private const string USER_NOT_ALLOWED_PERMISSION_QUERY = "select distinct menu.id menu_id, menu_text, menu_href from admin_menu menu left join admin_accounts_permissions ap  on (menu.ID=ap.menu_id) where menu.id not in (select distinct menu_id from admin_accounts_permissions where status=1 and account_id = {0}) order by menu_text";
-        private const string GET_USER_SPECIFIC_MENU_STATUS_QUERY = "select top(1) status from admin_accounts_permissions where account_id={0} and menu_id={1} order by status desc";
-        private const string GET_GROUPS_QUERY = "select distinct moto_text from accounts where moto_text IS not null or moto_text<>'' order by moto_text";
-        private const string GET_USERS_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text='{0}' order by username";
-        private const string GET_USERS_NOT_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text is null or moto_text<>'{0}' order by username";
-        private const string GET_MENUS_QUERY = "select distinct id, menu_text from admin_menu order by menu_text";
+        private const string USER_ALLOWED_PERMISSION_QUERY = "select distinct menu_id, menu_text, menu_href from admin_accounts_permissions ap join admin_menu menu on (menu.ID=ap.menu_id) where ap.status=1 and account_id = {0} order by menu_id";
+        private const string USER_NOT_ALLOWED_PERMISSION_QUERY = "select distinct menu.id menu_id, menu_text, menu_href from admin_menu menu left join admin_accounts_permissions ap  on (menu.ID=ap.menu_id) where menu.id not in (select distinct menu_id from admin_accounts_permissions where status=1 and account_id = {0}) order by menu_id";
+        private const string GET_USER_SPECIFIC_MENU_STATUS_QUERY = "select top(1) status from admin_accounts_permissions where account_id={0} and menu_id={1} and status=1 order by status desc";
+        private const string GET_GROUPS_QUERY = "select distinct moto_text from accounts where (moto_text is not null or moto_text<>'') and status=1 and is_active=1 order by moto_text";
+        private const string GET_USERS_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text='{0}' and status=1 and is_active=1 order by username";
+        private const string GET_USERS_NOT_IN_GROUP_QUERY = "select distinct id, username from accounts where (moto_text is null or moto_text<>'{0}') and status=1 and is_active=1 order by username";
+        private const string GET_MENUS_QUERY = "select distinct id, menu_text, menu_href from admin_menu where status=1 order by id";
         private const string GET_MENUS_TO_ADD_QUREY = "select distinct menu_id from admin_accounts_permissions where account_id={0} and status=1 and menu_id not in (select menu_id	from admin_accounts_permissions	where account_id={1} and status=1)";
 
         #endregion
@@ -520,7 +523,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetAllUsers", ex);
             }
 
             return null;
@@ -551,7 +554,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetUser", ex);
             }
 
             return null;
@@ -578,7 +581,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetUsersAllowedMenus", ex);
             }
 
             return null;
@@ -605,7 +608,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetUsersNotAllowedMenus", ex);
             }
 
             return null;
@@ -632,7 +635,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetAllGroups", ex);
             }
 
             return null;
@@ -659,7 +662,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetAllUsersInGroup", ex);
             }
 
             return null;
@@ -686,7 +689,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetAllUsersNotInGroup", ex);
             }
 
             return null;
@@ -713,7 +716,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetAllMenus", ex);
             }
 
             return null;
@@ -740,7 +743,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetMenusToAdd", ex);
             }
 
             return null;
@@ -797,10 +800,15 @@ namespace DAL
                     updateQuery.Finish();
                     updateQuery = null;
                 }
+                // row status is already 1
+                else
+                {
+                    isSuccessful = true;
+                }
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute AddMenuToUser", ex);
             }
 
             return isSuccessful;
@@ -835,10 +843,15 @@ namespace DAL
                     updateQuery.Finish();
                     updateQuery = null;
                 }
+                //row status is 0 or row doesn't exists
+                else
+                {
+                    isSuccessful = true;
+                }
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute RemoveMenuFromUser", ex);
             }
 
             return isSuccessful;
@@ -880,7 +893,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute AddMenuToGroup", ex);
             }
 
             return isSuccessful;
@@ -922,7 +935,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute RemoveMenuFromGroup", ex);
             }
 
             return isSuccessful;
@@ -947,7 +960,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute AddUserToGroup", ex);
             }
             return isSuccessful;
         }
@@ -971,7 +984,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute RemoveUserFromGroup", ex);
             }
             return isSuccessful;
         }
@@ -1012,7 +1025,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute CopyUserPermissions", ex);
             }
 
             return isSuccessful;
@@ -1037,18 +1050,13 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                CatchException(ex);
+                log.Error("Error occurred while trying to execute GetUserMenuStatus", ex);
             }
 
             return returnValue;
         }
 
-        public static void CatchException(Exception e)
-        {
-            // TODO: write to log
-        } 
-
-        // End of code added by lior
+        #endregion
 
     }
     
