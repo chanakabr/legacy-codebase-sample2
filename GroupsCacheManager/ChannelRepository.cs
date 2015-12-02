@@ -218,158 +218,40 @@ namespace GroupsCacheManager
             }
         }
 
+        /// <summary>
+        /// Selects the channel by channel ID and its parent group ID
+        /// </summary>
+        /// <param name="nChannelId"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
         public static Channel GetChannel(int nChannelId, Group group)
         {
-            #region - select channel by channelId, and the parent_group_id
+            Channel channel = null;
+            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
 
-            Channel oChannel = null;
-            int mediaType;
-            DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
             {
-                DataTable channelData = ds.Tables[0];
+                DataTable channelData = dataSet.Tables[0];
+                DataTable mediaTypesTable = null;
+
+                // If there is a table of media types
+                if (dataSet.Tables.Count > 1 && dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
+                {
+                    mediaTypesTable = dataSet.Tables[1];
+                }
 
                 if (channelData != null && channelData.Rows != null && channelData.Rows.Count > 0)
                 {
                     DataRow rowData = channelData.Rows[0];
 
-                    int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
-                    int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
-                    int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
-
-                    // If the channel belongs to the correct group and the channel is in correct status
-                    if ((group.m_nSubGroup.Contains(channelGroupId) || group.m_nParentGroupID == channelGroupId) &&
-                        (isActive == 1) && (status == 1))
-                    {
-                        oChannel = new Channel();
-
-                        if (oChannel.m_lChannelTags == null)
-                        {
-                            oChannel.m_lChannelTags = new List<ApiObjects.SearchObjects.SearchValue>();
-                        }
-
-                        oChannel.m_nIsActive = isActive;
-                        oChannel.m_nStatus = status;
-                        oChannel.m_nChannelID = nChannelId;
-                        oChannel.m_nGroupID = channelGroupId;
-
-                        oChannel.m_sName = ODBCWrapper.Utils.GetSafeStr(rowData["name"]);
-                        oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-                        mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
-                        oChannel.m_nMediaType = new List<int>();
-                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                        {
-                            DataTable mediaTypeDT = ds.Tables[1];
-                            List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + nChannelId).ToList();
-                            foreach (DataRow drMediaType in drs)
-                            {
-                                oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
-                            }
-                        }
-                        if (oChannel.m_nMediaType.Count == 0)
-                        {
-                            if (mediaType != -1)
-                            {
-                                oChannel.m_nMediaType.Add(mediaType);
-                            }
-                            else
-                            {
-                                oChannel.m_nMediaType.Add(0);
-                            }
-                        }
-
-                        oChannel.m_nParentGroupID = group.m_nParentGroupID;
-                        oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
-
-                        int nOrderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
-                        UpdateOrderByObjec(nOrderBy, ref oChannel, group);// initiate orderBy object 
-
-                        int nOrderDir = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
-                        oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
-                        oChannel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
-                        oChannel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
-
-                        int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
-
-                        if (nIsAnd == 1)
-                        {
-                            oChannel.m_eCutWith = ApiObjects.SearchObjects.CutWith.AND;
-                        }
-
-                        // If automatic channel, grab tags values
-                        if (oChannel.m_nChannelTypeID == 1)
-                        {
-                            // Matching meta values against meta mapping dictionary
-                            if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
-                            {
-                                Dictionary<string, string> mappedValuesForGroupId = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID];
-                                foreach (KeyValuePair<string, string> mapping in mappedValuesForGroupId)
-                                {
-                                    string sMetaParameter = mapping.Key;
-                                    string sMappedMetaParameter = mapping.Value;
-
-                                    bool bIsValidSearchValue = true;
-
-                                    if (sMetaParameter.Contains(META_DOUBLE_SUFFIX) || sMetaParameter.Contains(META_BOOL_SUFFIX))
-                                    {
-                                        int nUse = ODBCWrapper.Utils.GetIntSafeVal(rowData[META_USE_PREFIX + sMetaParameter]);
-
-                                        if (nUse == 0)
-                                        {
-                                            bIsValidSearchValue = false;
-                                        }
-                                    }
-
-                                    if (bIsValidSearchValue)
-                                    {
-                                        string oMeta = ODBCWrapper.Utils.GetSafeStr(rowData, sMetaParameter);
-                                        if (!string.IsNullOrEmpty(oMeta))
-                                        {
-                                            bool bIsAlreadyExist = false;
-                                            ApiObjects.SearchObjects.SearchValue searchedSearchValue = oChannel.m_lChannelTags.Find(o => o.m_sKey.Equals(sMappedMetaParameter));
-                                            if (searchedSearchValue == null)
-                                            {
-                                                ApiObjects.SearchObjects.SearchValue oNewSearchValue = new ApiObjects.SearchObjects.SearchValue();
-                                                CreateSearchValueObject(ref oNewSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
-                                                oChannel.m_lChannelTags.Add(oNewSearchValue);
-                                            }
-                                            else
-                                            {
-                                                bIsAlreadyExist = true;
-                                                CreateSearchValueObject(ref searchedSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Collect all tags
-                            GetChannelTags(oChannel, group);
-                        }
-                        else // Manual Channel
-                        {
-                            List<ManualMedia> lManualMedias;
-                            oChannel.m_lChannelTags = GetMediasForManualChannel(oChannel.m_nChannelID, out lManualMedias);
-                            if (lManualMedias != null)
-                            {
-                                oChannel.m_lManualMedias = lManualMedias.ToList();
-                            }
-                        }
-                        if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
-                        {
-                            UpdateOrderByObject(ref oChannel, group.m_oMetasValuesByGroupId[oChannel.m_nGroupID]);
-                        }
-                    }
+                    channel = CreateChannelByDataRow(group, mediaTypesTable, rowData);
                 }
             }
 
-            return oChannel;
-
-            #endregion
+            return channel;
         }
 
-        public static List<Channel> GetChannels(List<int> lChannelIds, Group group)
+        public static List<Channel> GetChannels(List<int> channelIds, Group group)
         {
             #region - select channel by channelId, and the parent_group_id
 
@@ -377,147 +259,27 @@ namespace GroupsCacheManager
 
             log.Debug("Getting channels for subscription");
 
-            DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(lChannelIds);
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds);
+            DataTable channelsData = dataSet.Tables[0];
+            DataTable mediaTypesTable = null;
+
+            // If there is a table of media types
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
             {
-                DataTable channelsData = ds.Tables[0];
-                if (channelsData.Rows != null && channelsData.Rows.Count > 0)
+                mediaTypesTable = dataSet.Tables[1];
+            }
+
+            if (channelsData != null && channelsData.Rows != null && channelsData.Rows.Count > 0)
+            {
+                channels = new List<Channel>();
+
+                foreach (DataRow rowData in channelsData.Rows)
                 {
-                    channels = new List<Channel>();
+                    Channel channel = CreateChannelByDataRow(group, mediaTypesTable, rowData);
 
-                    foreach (DataRow rowData in channelsData.Rows)
+                    if (channel != null)
                     {
-                        log.Debug("new channel");
-
-                        Channel oChannel = new Channel();
-                        int mediaType;
-                        if (oChannel.m_lChannelTags == null)
-                        {
-                            oChannel.m_lChannelTags = new List<SearchValue>();
-                        }
-
-                        oChannel.m_nChannelID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
-                        oChannel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
-                        oChannel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
-                        oChannel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
-                        oChannel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-                        mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
-                        oChannel.m_nMediaType = new List<int>();
-                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                        {
-                            DataTable mediaTypeDT = ds.Tables[1];
-                            List<DataRow> drs = ds.Tables[1].Select("CHANNEL_ID = " + oChannel.m_nChannelID).ToList();
-                            foreach (DataRow drMediaType in drs)
-                            {
-                                oChannel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
-                            }
-                        }
-                        if (oChannel.m_nMediaType.Count == 0)
-                        {
-                            if (mediaType != -1)
-                            {
-                                oChannel.m_nMediaType.Add(mediaType);
-                            }
-                            else
-                            {
-                                oChannel.m_nMediaType.Add(0);
-                            }
-                        }
-
-                        oChannel.m_nParentGroupID = group.m_nParentGroupID;
-                        oChannel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
-                        int nOrderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
-                        UpdateOrderByObjec(nOrderBy, ref oChannel, group);// initiate orderBy object 
-
-                        int nOrderDir = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
-                        oChannel.m_OrderObject.m_eOrderDir = (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), nOrderDir);
-
-                        int nIsAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
-                        log.Debug("Channel " + oChannel.m_nChannelID + " active: " + oChannel.m_nIsActive + " and status: " + oChannel.m_nStatus);
-                        if (oChannel.m_nIsActive == 1 && oChannel.m_nStatus == 1)
-                        {
-                            if (nIsAnd == 1)
-                            {
-                                oChannel.m_eCutWith = CutWith.AND;
-                            }
-
-                            // If automatic channel, grab tags values
-                            if (oChannel.m_nChannelTypeID == 1)
-                            {
-                                // Matching meta values against meta mapping dictionary
-                                if (group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
-                                {
-                                    log.Info("Got mapped value for group " + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
-                                    Dictionary<string, string> mappedValuesForGroupId = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID];
-
-                                    if (mappedValuesForGroupId == null || mappedValuesForGroupId.Count == 0)
-                                    {
-                                        log.Info("llll" + oChannel.m_nGroupID + " in channel " + oChannel.m_nChannelID);
-                                    }
-
-                                    foreach (KeyValuePair<string, string> mapping in mappedValuesForGroupId)
-                                    {
-                                        string sMetaParameter = mapping.Key;
-                                        string sMappedMetaParameter = mapping.Value;
-
-                                        bool bIsValidSearchValue = true;
-
-                                        if (sMetaParameter.Contains(META_DOUBLE_SUFFIX) || sMetaParameter.Contains(META_BOOL_SUFFIX))
-                                        {
-                                            int nUse = ODBCWrapper.Utils.GetIntSafeVal(rowData[META_USE_PREFIX + sMetaParameter]);
-
-                                            if (nUse == 0)
-                                            {
-                                                bIsValidSearchValue = false;
-                                            }
-                                        }
-
-                                        if (bIsValidSearchValue)
-                                        {
-                                            string oMeta = ODBCWrapper.Utils.GetSafeStr(rowData, sMetaParameter);
-                                            if (!string.IsNullOrEmpty(oMeta))
-                                            {
-                                                bool bIsAlreadyExist = false;
-                                                SearchValue searchedSearchValue = oChannel.m_lChannelTags.Find(o => o.m_sKey.Equals(sMappedMetaParameter));
-                                                if (searchedSearchValue == null)
-                                                {
-                                                    SearchValue oNewSearchValue = new SearchValue();
-                                                    CreateSearchValueObject(ref oNewSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
-                                                    oChannel.m_lChannelTags.Add(oNewSearchValue);
-                                                }
-                                                else
-                                                {
-                                                    bIsAlreadyExist = true;
-                                                    CreateSearchValueObject(ref searchedSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Collect all tags
-                                log.Info("Collecting tags in channel " + oChannel.m_nChannelID);
-
-                                GetChannelTags(oChannel, group);
-                                log.Info("Finished Collecting tags in channel " + oChannel.m_nChannelID);
-                            }
-                            else // Manual Channel
-                            {
-                                List<ManualMedia> lManualMedias;
-                                oChannel.m_lChannelTags = GetMediasForManualChannel(oChannel.m_nChannelID, out lManualMedias);
-                                if (lManualMedias != null)
-                                {
-                                    oChannel.m_lManualMedias = lManualMedias.ToList();
-                                }
-                            }
-
-                            // UpdateOrderByObject(ref oChannel, group);
-                            channels.Add(oChannel);
-                        }
-                        else
-                        {
-                            oChannel = null;
-                        }
+                        channels.Add(channel);
                     }
                 }
             }
@@ -525,6 +287,227 @@ namespace GroupsCacheManager
             return channels;
 
             #endregion
+        }
+
+        private static Channel CreateChannelByDataRow(Group group, DataTable mediaTypesTable, DataRow rowData)
+        {
+            log.Debug("new channel");
+
+            Channel channel = null;
+
+            if (channel.m_lChannelTags == null)
+            {
+                channel.m_lChannelTags = new List<SearchValue>();
+            }
+
+            channel.m_nChannelID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+
+            int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+            int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+
+            // If the channel belongs to the correct group and the channel is in correct status
+            if ((group.m_nSubGroup.Contains(channelGroupId) || group.m_nParentGroupID == channelGroupId) &&
+                (isActive == 1) && (status == 1))
+            {
+                channel = new Channel();
+
+                if (channel.m_lChannelTags == null)
+                {
+                    channel.m_lChannelTags = new List<ApiObjects.SearchObjects.SearchValue>();
+                }
+
+                channel.m_nIsActive = isActive;
+                channel.m_nStatus = status;
+                channel.m_nGroupID = channelGroupId;
+                channel.m_nParentGroupID = group.m_nParentGroupID;
+                channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+
+                ChannelType channelType = ChannelType.None;
+
+                if (Enum.IsDefined(typeof(ChannelType), channel.m_nChannelTypeID))
+                {
+                    channelType = (ChannelType)channel.m_nChannelTypeID;
+                }
+
+                #region Media Types
+
+                int mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+
+                channel.m_nMediaType = new List<int>();
+
+                if (mediaTypesTable != null)
+                {
+                    List<DataRow> mediaTypes = mediaTypesTable.Select("CHANNEL_ID = " + channel.m_nChannelID).ToList();
+
+                    foreach (DataRow drMediaType in mediaTypes)
+                    {
+                        channel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    }
+                }
+
+                if (channel.m_nMediaType.Count == 0)
+                {
+                    if (mediaType != -1)
+                    {
+                        channel.m_nMediaType.Add(mediaType);
+                    }
+                    else
+                    {
+                        channel.m_nMediaType.Add(0);
+                    }
+                } 
+
+                #endregion
+
+                #region Order
+
+                channel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
+                int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+
+                // initiate orderBy object 
+                UpdateOrderByObjec(orderBy, ref channel, group);
+
+                int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+                channel.m_OrderObject.m_eOrderDir =
+                    (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
+
+                #endregion
+
+                #region Is And
+
+                int isAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
+
+                log.Debug("Channel " + channel.m_nChannelID + " active: " + channel.m_nIsActive + " and status: " + channel.m_nStatus);
+
+                if (isAnd == 1)
+                {
+                    channel.m_eCutWith = CutWith.AND;
+                }
+
+                #endregion
+
+                switch (channelType)
+                {
+                    case ChannelType.None:
+                    break;
+                    case ChannelType.Automatic:
+                    {
+                        // If automatic channel, grab tags values
+                        #region Automatic
+                        // Matching meta values against meta mapping dictionary
+                        if (group.m_oMetasValuesByGroupId.ContainsKey(channel.m_nGroupID))
+                        {
+                            log.Info("Got mapped value for group " + channel.m_nGroupID + " in channel " + channel.m_nChannelID);
+                            Dictionary<string, string> mappedValuesForGroupId = group.m_oMetasValuesByGroupId[channel.m_nGroupID];
+
+                            if (mappedValuesForGroupId == null || mappedValuesForGroupId.Count == 0)
+                            {
+                                log.Info("llll" + channel.m_nGroupID + " in channel " + channel.m_nChannelID);
+                            }
+
+                            foreach (KeyValuePair<string, string> mapping in mappedValuesForGroupId)
+                            {
+                                string sMetaParameter = mapping.Key;
+                                string sMappedMetaParameter = mapping.Value;
+
+                                bool bIsValidSearchValue = true;
+
+                                if (sMetaParameter.Contains(META_DOUBLE_SUFFIX) || sMetaParameter.Contains(META_BOOL_SUFFIX))
+                                {
+                                    int nUse = ODBCWrapper.Utils.GetIntSafeVal(rowData[META_USE_PREFIX + sMetaParameter]);
+
+                                    if (nUse == 0)
+                                    {
+                                        bIsValidSearchValue = false;
+                                    }
+                                }
+
+                                if (bIsValidSearchValue)
+                                {
+                                    string oMeta = ODBCWrapper.Utils.GetSafeStr(rowData, sMetaParameter);
+                                    if (!string.IsNullOrEmpty(oMeta))
+                                    {
+                                        bool bIsAlreadyExist = false;
+                                        SearchValue searchedSearchValue = channel.m_lChannelTags.Find(o => o.m_sKey.Equals(sMappedMetaParameter));
+                                        if (searchedSearchValue == null)
+                                        {
+                                            SearchValue oNewSearchValue = new SearchValue();
+                                            CreateSearchValueObject(ref oNewSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
+                                            channel.m_lChannelTags.Add(oNewSearchValue);
+                                        }
+                                        else
+                                        {
+                                            bIsAlreadyExist = true;
+                                            CreateSearchValueObject(ref searchedSearchValue, sMappedMetaParameter, oMeta, bIsAlreadyExist, METAS);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Collect all tags
+                        log.Info("Collecting tags in channel " + channel.m_nChannelID);
+
+                        GetChannelTags(channel, group);
+                        log.Info("Finished Collecting tags in channel " + channel.m_nChannelID);
+
+                        break;
+
+                        #endregion
+                    }
+                    case ChannelType.Manual:
+                    {
+                        #region Manual
+
+                        List<ManualMedia> lManualMedias;
+                        channel.m_lChannelTags = GetMediasForManualChannel(channel.m_nChannelID, out lManualMedias);
+
+                        if (lManualMedias != null)
+                        {
+                            channel.m_lManualMedias = lManualMedias.ToList();
+                        }
+
+                        break;
+
+                        #endregion
+                    }
+                    case ChannelType.Watcher:
+                    {
+                        // ? Saw this in DB, don't know what it means...
+                        break;
+                    }
+                    case ChannelType.KSQL:
+                    {
+                        channel.filterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_QUERY");
+
+                        BooleanPhraseNode node = null;
+                        var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref node);
+
+                        if (parseStatus.Code != 0)
+                        {
+                            // What do we do in this situtation?
+                        }
+
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+
+                if (group.m_oMetasValuesByGroupId.ContainsKey(channel.m_nGroupID))
+                {
+                    UpdateOrderByObject(ref channel, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
+                }
+
+            }
+            else
+            {
+                channel = null;
+            }
+            return channel;
         }
 
         #endregion

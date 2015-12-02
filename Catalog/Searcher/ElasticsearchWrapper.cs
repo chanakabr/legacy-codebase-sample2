@@ -223,7 +223,8 @@ namespace Catalog
             return false;
         }
 
-        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
+        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, 
+            string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
             SearchResultsObj lSortedMedias = new SearchResultsObj();
 
@@ -1702,6 +1703,61 @@ namespace Catalog
 
         #endregion
 
+        #region Multiple Unified Search
+
+        public List<UnifiedSearchResult> MultipleUnifiedSearch(int groupId, List<UnifiedSearchDefinitions> unifiedSearchDefinitions, ref int totalItems)
+        {
+            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            string requestBody = new ESUnifiedQueryBuilder(null, groupId).BuildMultiSearchQueryString(unifiedSearchDefinitions);
+
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                int httpStatus = 0;
+
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, groupId);
+                string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+                if (httpStatus == STATUS_OK)
+                {
+                    #region Process ElasticSearch result
+
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        searchResultsList = new List<UnifiedSearchResult>();
+
+                        foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                        {
+                            searchResultsList.Add(new UnifiedSearchResult()
+                            {
+                                AssetId = doc.asset_id.ToString(),
+                                m_dUpdateDate = doc.update_date,
+                                AssetType = UnifiedSearchResult.ParseType(doc.type)
+                            });
+                        }
+                    }
+
+                    #endregion
+                }
+                else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
+                {
+                    throw new System.Web.HttpException(httpStatus, queryResultString);
+                }
+            }
+
+            return searchResultsList;
+        }
+
+        #endregion
         public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
             List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();

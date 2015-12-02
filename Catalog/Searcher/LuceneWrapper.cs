@@ -293,5 +293,10 @@ namespace Catalog
         {
             throw new NotImplementedException();
         }
+
+        public List<UnifiedSearchResult> MultipleUnifiedSearch(int groupId, List<UnifiedSearchDefinitions> unifiedSearchDefinitions, ref int totalItems)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

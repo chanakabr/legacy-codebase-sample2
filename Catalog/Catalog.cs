@@ -5101,9 +5101,9 @@ namespace Catalog
 			int pageIndex = 0;
 			int pageSize = 0;
 
-			// If this is an automatic channel, a sliding window or we have an additional filter - 
+			// If this is a manual channel, a sliding window or we have an additional filter - 
 			// the initial search will not be paged. Paging will be done later on
-			if (channel.m_nChannelTypeID == 2 || ChannelRequest.IsSlidingWindow(channel) || !string.IsNullOrEmpty(request.filterQuery))
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel) || !string.IsNullOrEmpty(request.filterQuery))
 			{
 				pageIndex = unifiedSearchDefinitions.pageIndex;
 				pageSize = unifiedSearchDefinitions.pageSize;
@@ -5161,9 +5161,9 @@ namespace Catalog
 
 			#endregion
 
-			#region Channel Type 2
+			#region Channel Type - Manual
 
-			if (channel.m_nChannelTypeID == 2)
+			if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
 			{
 				ChannelRequest.OrderMediasByOrderNum(ref assetIDs, channel, unifiedSearchDefinitions.order);
 
@@ -5240,7 +5240,6 @@ namespace Catalog
 
 			#region Media Types, Permitted Watch Rules, Language
 
-
 			definitions.mediaTypes = channel.m_nMediaType.ToList();
 
 			if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
@@ -5282,114 +5281,170 @@ namespace Catalog
 
 			#endregion
 
-			#region Channel Tags
+            // If this is a KSQL channel
+            if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+            {
+                BooleanPhraseNode filterTree = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
 
-			eCutType cutType = eCutType.And;
-			switch (channel.m_eCutWith)
-			{
-				case CutWith.WCF_ONLY_DEFAULT_VALUE:
-				break;
-				case CutWith.OR:
-				{
-					cutType = eCutType.Or;
-					break;
-				}
-				case CutWith.AND:
-				{
-					cutType = eCutType.And;
-					break;
-				}
-				default:
-				break;
-			}
+                if (parseStatus.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
+                }
+                else
+                {
+                    definitions.filterPhrase = filterTree;
+                }
 
-			BooleanPhrase channelTags = null;
+                #region Asset Types
 
-			if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
-			{
-				List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
+                definitions.shouldSearchEpg = false;
+                definitions.shouldSearchMedia = false;
 
-				foreach (SearchValue searchValue in channel.m_lChannelTags)
-				{
-					if (!string.IsNullOrEmpty(searchValue.m_sKey))
-					{
-						eCutType innerCutType = eCutType.And;
-						switch (channel.m_eCutWith)
-						{
-							case CutWith.WCF_ONLY_DEFAULT_VALUE:
-							break;
-							case CutWith.OR:
-							{
-								innerCutType = eCutType.Or;
-								break;
-							}
-							case CutWith.AND:
-							{
-								innerCutType = eCutType.And;
-								break;
-							}
-							default:
-							break;
-						}
+                // Special case - if no type was specified or "All" is contained, search all types
+                if (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)
+                {
+                    definitions.shouldSearchEpg = true;
+                    definitions.shouldSearchMedia = true;
+                }
+                
+                if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
+                {
+                    definitions.shouldSearchEpg = true;
+                }
 
-						List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
-						string key = searchValue.m_sKey;
+                // If there are items left in media types after removing 0, we are searching for media
+                if (definitions.mediaTypes.Count > 0)
+                {
+                    definitions.shouldSearchMedia = true;
+                }
 
-						if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
-						{
-							key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
-						}
+                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
 
-						foreach (var item in searchValue.m_lValue)
-						{
-							BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
-							innerNodes.Add(leaf);
-						}
+                // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+                foreach (var mediaType in definitions.mediaTypes)
+                {
+                    // If one of them doesn't exist, throw an exception that says the request is bad
+                    if (!mediaTypes.Contains(mediaType))
+                    {
+                        throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
+                    }
+                }
 
-						BooleanPhrase currentPhrase = new BooleanPhrase(innerNodes, innerCutType);
-					}
-				}
+                #endregion
+            }
+            else
+            {
 
-				channelTags = new BooleanPhrase(channelTagsNodes, cutType);
-			}
+            #region Channel Tags
 
-			// Connect the request's filter query with the channel's tags/metas definitions
+                eCutType cutType = eCutType.And;
+                switch (channel.m_eCutWith)
+                {
+                    case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                    break;
+                    case CutWith.OR:
+                    {
+                        cutType = eCutType.Or;
+                        break;
+                    }
+                    case CutWith.AND:
+                    {
+                        cutType = eCutType.And;
+                        break;
+                    }
+                    default:
+                    break;
+                }
 
-			BooleanPhraseNode root = null;
+                BooleanPhrase channelTags = null;
 
-			if (!string.IsNullOrEmpty(request.filterQuery))
-			{
-				string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
+                if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
+                {
+                    List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
 
-				// Build boolean phrase tree based on filter expression
-				BooleanPhraseNode filterTree = null;
-				var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+                    foreach (SearchValue searchValue in channel.m_lChannelTags)
+                    {
+                        if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                        {
+                            eCutType innerCutType = eCutType.And;
+                            switch (channel.m_eCutWith)
+                            {
+                                case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                                break;
+                                case CutWith.OR:
+                                {
+                                    innerCutType = eCutType.Or;
+                                    break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    innerCutType = eCutType.And;
+                                    break;
+                                }
+                                default:
+                                break;
+                            }
 
-				if (status.Code != (int)eResponseStatus.OK)
-				{
-					throw new KalturaException(status.Message, status.Code);
-				}
+                            List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
+                            string key = searchValue.m_sKey;
 
-				if (channelTags != null)
-				{
-					List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+                            if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
+                            {
+                                key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
+                            }
 
-					rootNodes.Add(channelTags);
-					rootNodes.Add(filterTree);
+                            foreach (var item in searchValue.m_lValue)
+                            {
+                                BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
+                                innerNodes.Add(leaf);
+                            }
 
-					root = new BooleanPhrase(rootNodes, eCutType.And);
-				}
-				else
-				{
-					root = filterTree;
-				}
-			}
-			else
-			{
-				root = channelTags;
-			}
+                            BooleanPhrase currentPhrase = new BooleanPhrase(innerNodes, innerCutType);
+                        }
+                    }
 
-			definitions.filterPhrase = root;
+                    channelTags = new BooleanPhrase(channelTagsNodes, cutType);
+                }
+
+                // Connect the request's filter query with the channel's tags/metas definitions
+
+                BooleanPhraseNode root = null;
+
+                if (!string.IsNullOrEmpty(request.filterQuery))
+                {
+                    string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
+
+                    // Build boolean phrase tree based on filter expression
+                    BooleanPhraseNode filterTree = null;
+                    var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new KalturaException(status.Message, status.Code);
+                    }
+
+                    if (channelTags != null)
+                    {
+                        List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+
+                        rootNodes.Add(channelTags);
+                        rootNodes.Add(filterTree);
+
+                        root = new BooleanPhrase(rootNodes, eCutType.And);
+                    }
+                    else
+                    {
+                        root = filterTree;
+                    }
+                }
+                else
+                {
+                    root = channelTags;
+                }
+
+                definitions.filterPhrase = root;
+            }
 
 			#endregion
 

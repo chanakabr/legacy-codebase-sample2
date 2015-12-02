@@ -727,7 +727,6 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetChannelDetails(List<int> nChannelId)
         {
-
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@ChannelsID", nChannelId, "Id");
