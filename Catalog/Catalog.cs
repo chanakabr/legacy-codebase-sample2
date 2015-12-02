@@ -1029,7 +1029,8 @@ namespace Catalog
 
 										if (!int.TryParse(single, out temporaryInteger))
 										{
-											throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
+											throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), 
+                                                (int)eResponseStatus.SyntaxError);
 										}
 									}
 
@@ -1046,7 +1047,8 @@ namespace Catalog
 							// If the search is contains or not contains, trim the search value to the size of the maximum NGram.
 							// Otherwise the search will not work completely 
 							if (maxNGram > 0 &&
-								(leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
+								(leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains 
+                                || leaf.operand == ComparisonOperator.WordStartsWith))
 							{
 								leaf.value = leaf.value.ToString().Truncate(maxNGram);
 							}

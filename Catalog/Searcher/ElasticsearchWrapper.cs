@@ -111,7 +111,7 @@ namespace Catalog
                             {
                                 lMediaIds =
                                     SortAssetsByStartDate(lMediaDocs, nIndex, oSearch.m_oOrder.m_eOrderDir,
-                                        oSearch.associationTags, oSearch.parentMediaTypes).Cast<int>().ToList();
+                                        oSearch.associationTags, oSearch.parentMediaTypes).Select(x => Convert.ToInt32(x)).ToList();
                             }
                             else
                             {
