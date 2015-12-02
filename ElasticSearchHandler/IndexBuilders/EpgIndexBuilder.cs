@@ -171,7 +171,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             // Only if it this channel is relevant to EPG, build its query
                             if (currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
                             {
-                                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, false);
+                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, false);
 
                                 unifiedQueryBuilder.SearchDefinitions = definitions;
                                 channelQuery = unifiedQueryBuilder.BuildSearchQueryString();

@@ -204,7 +204,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             if (currentChannel.m_nMediaType != null && 
                                 currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
                             {
-                                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, true);
+                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
                                 unifiedQueryBuilder.SearchDefinitions = definitions;
                                 channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
@@ -647,7 +647,7 @@ namespace ElasticSearchHandler.IndexBuilders
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
             searchObject.m_bUseStartDate = false;
