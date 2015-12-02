@@ -397,7 +397,7 @@ namespace DAL
                 for (int i = 0; i < nCount; i++)
                 {
                     int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
-                    int nUserType = int.Parse(ds.Tables[0].DefaultView[i].Row["is_master"].ToString());
+                    int nUserType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[i], "is_master");
 
                     dTypedUsers[nUserId] = nUserType;
                 }
@@ -1942,8 +1942,11 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@userID", siteGuid);
 
-            var res = (long)sp.ExecuteReturnValue();
-            return (int)res;
+            var res = sp.ExecuteReturnValue();
+            if (res == null)
+                return 0;
+
+            return Convert.ToInt32(res);
         }
     }
 }

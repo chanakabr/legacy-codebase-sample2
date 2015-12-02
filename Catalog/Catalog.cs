@@ -1029,7 +1029,8 @@ namespace Catalog
 
 										if (!int.TryParse(single, out temporaryInteger))
 										{
-											throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
+											throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), 
+                                                (int)eResponseStatus.SyntaxError);
 										}
 									}
 
@@ -1046,7 +1047,8 @@ namespace Catalog
 							// If the search is contains or not contains, trim the search value to the size of the maximum NGram.
 							// Otherwise the search will not work completely 
 							if (maxNGram > 0 &&
-								(leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains))
+								(leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains 
+                                || leaf.operand == ComparisonOperator.WordStartsWith))
 							{
 								leaf.value = leaf.value.ToString().Truncate(maxNGram);
 							}
@@ -4738,6 +4740,8 @@ namespace Catalog
 				status.Message = string.Format("External Channel with the ID {0} was not found.", request.internalChannelID);
 				return status;
 			}
+
+            log.DebugFormat("GetExternalChannelAssets - external channel is: {0}", Newtonsoft.Json.JsonConvert.SerializeObject(externalChannel));
 
 			// Build dictionary of enrichments for recommendation engine adapter
 			Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, externalChannel.Enrichments);

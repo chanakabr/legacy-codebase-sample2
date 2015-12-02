@@ -1365,7 +1365,11 @@ namespace TVinciShared
                 }
                 for (int i = 0; i < m_LinkColumns.Count; i++)
                 {
-                    Int32 nID = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString());
+                    Int32 nID = 0;
+                    if (!(m_theDataTable.DefaultView[pageIndx].Row.IsNull("ID")))
+                    {
+                        int.TryParse(m_theDataTable.DefaultView[pageIndx].Row["ID"].ToString(), out nID);
+                    }
                     string sURL = GetLinkURL(i, pageIndx);
                     string sTarget = GetLinkTarget(i, pageIndx);
                     string sInner = GetLinkInner(i, pageIndx);

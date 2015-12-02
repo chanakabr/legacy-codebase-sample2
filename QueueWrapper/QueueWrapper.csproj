@@ -39,6 +39,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase, Version=1.3.10.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\Couchbase-Net-Client-1.3.10\net35\Couchbase.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching, Version=1.3.10.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External\Couchbase-Net-Client-1.3.10\net35\Enyim.Caching.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor">
       <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>
@@ -92,9 +100,9 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

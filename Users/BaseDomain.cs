@@ -1301,6 +1301,7 @@ namespace Users
             Domain domain = null;
             try
             {
+
                 // try getting user from cache
                 User user = null;
                 UsersCache usersCache = UsersCache.Instance();
@@ -1314,6 +1315,10 @@ namespace Users
                 {
                     domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
                 }                
+
+                if (domainId == 0)
+                    return null;
+
                 DomainsCache domainsCache = DomainsCache.Instance();
                 domain = domainsCache.GetDomain(domainId, groupId);
             }

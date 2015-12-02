@@ -19,6 +19,6 @@ namespace QueueWrapper
         /// <returns>Queue Object</returns>
         T Dequeue<T>(string sQueueName, out string sAckId);
 
-        bool RecoverMessages(int groupId, string record, string routingKey, DateTime? runDate, string type);
+        bool RecoverMessages(int groupId, string record, string routingKey, string type);
     }
 }

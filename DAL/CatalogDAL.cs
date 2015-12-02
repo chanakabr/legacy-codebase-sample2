@@ -3386,7 +3386,7 @@ namespace Tvinci.Core.DAL
         {
             ExternalChannel result = null;
 
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("external_channels", channelId);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("external_channels", channelId, "", 0);
 
             if (row != null)
             {
