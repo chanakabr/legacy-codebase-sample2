@@ -64,9 +64,9 @@ namespace TVPApiModule.Objects.Authorization
             IsLongRefreshExpiration = isLongRefreshExpiration;
         }
 
-        public static string GetRefreshTokenId(string accessToken)
+        public static string GetRefreshTokenId(string refreshToken)
         {
-            return string.Format("refresh_{0}", accessToken);
+            return string.Format("refresh_{0}", refreshToken);
         }
     }
 }
