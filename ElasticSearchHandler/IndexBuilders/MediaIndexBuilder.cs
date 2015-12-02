@@ -200,10 +200,15 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                         {
-                            UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel);
+                            // If there is at least 1 media type, build its definitions
+                            if (currentChannel.m_nMediaType != null && 
+                                currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                            {
+                                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, true);
 
-                            unifiedQueryBuilder.SearchDefinitions = definitions;
-                            channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                unifiedQueryBuilder.SearchDefinitions = definitions;
+                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                            }
                         }
                         else
                         {
@@ -214,12 +219,15 @@ namespace ElasticSearchHandler.IndexBuilders
                             channelQuery = mediaQueryParser.BuildSearchQueryString(false);
                         }
 
-                        channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
-
-                        if (channelRequests.Count > 50)
+                        if (!string.IsNullOrEmpty(channelQuery))
                         {
-                            api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
-                            channelRequests.Clear();
+                            channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
+
+                            if (channelRequests.Count > 50)
+                            {
+                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                channelRequests.Clear();
+                            }
                         }
                     }
 
@@ -649,55 +657,6 @@ namespace ElasticSearchHandler.IndexBuilders
             return searchObject;
         }
 
-        private static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel)
-        {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-
-            definitions.groupId = channel.m_nGroupID;
-            definitions.mediaTypes = channel.m_nMediaType.ToList();
-            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
-            definitions.order = new OrderObj();
-
-            definitions.shouldUseStartDate = false;
-            definitions.shouldUseFinalEndDate = false;
-
-            BooleanPhraseNode filterTree = null;
-            var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
-
-            if (parseStatus.Code != (int)eResponseStatus.OK)
-            {
-                throw new KalturaException(parseStatus.Message, parseStatus.Code);
-            }
-            else
-            {
-                definitions.filterPhrase = filterTree;
-            }
-
-            return definitions;
-        }
-
-        private static string GetPermittedWatchRules(int nGroupId)
-        {
-            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
-            List<string> lWatchRulesIds = null;
-            if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
-            {
-                lWatchRulesIds = new List<string>();
-                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
-                {
-                    lWatchRulesIds.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow["RuleID"]));
-                }
-            }
-
-            string sRules = string.Empty;
-
-            if (lWatchRulesIds != null && lWatchRulesIds.Count > 0)
-            {
-                sRules = string.Join(" ", lWatchRulesIds);
-            }
-
-            return sRules;
-        }
 
         private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
             ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)

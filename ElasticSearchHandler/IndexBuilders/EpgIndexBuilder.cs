@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using EpgBL;
 using KLogMonitor;
 using System.Reflection;
+using ElasticSearch.Searcher;
+using ApiObjects.SearchObjects;
+using ApiObjects.Response;
+using System.Data;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -141,6 +145,66 @@ namespace ElasticSearchHandler.IndexBuilders
                 tempDate = tempDate.AddDays(1);
             }
 
+            #region insert channel queries
+
+            if (group.channelIDs != null)
+            {
+                log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
+
+
+                List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
+                try
+                {
+                    List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+
+                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
+
+                    foreach (Channel currentChannel in allChannels)
+                    {
+                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
+                            continue;
+
+                        string channelQuery = string.Empty;
+
+                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        {
+                            // Only if it this channel is relevant to EPG, build its query
+                            if (currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                            {
+                                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, false);
+
+                                unifiedQueryBuilder.SearchDefinitions = definitions;
+                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(channelQuery))
+                        {
+                            channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
+
+                            if (channelRequests.Count > 50)
+                            {
+                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                channelRequests.Clear();
+                            }
+                        }
+                    }
+
+                    if (channelRequests.Count > 0)
+                    {
+                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
+                }
+            }
+
+            #endregion
+
+            #region Switch Index
+
             log.DebugFormat("Finished populating epg index = {0}", newIndexName);
 
             bool indexExists = api.IndexExists(ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId));
@@ -161,6 +225,8 @@ namespace ElasticSearchHandler.IndexBuilders
                     api.DeleteIndices(oldIndices);
                 }
             }
+
+            #endregion
 
             return success;
         }
