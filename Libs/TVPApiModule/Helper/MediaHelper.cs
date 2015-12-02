@@ -832,7 +832,8 @@ namespace TVPApi
                 Platform = initObj.Platform,
                 GroupID = groupID,
                 SiteGuid = initObj.SiteGuid,
-                DomainID = initObj.DomainID
+                DomainID = initObj.DomainID,
+                DeviceUDID = initObj.UDID
             };
 
             dsItemInfo mediaInfo = channelLoader.Execute();

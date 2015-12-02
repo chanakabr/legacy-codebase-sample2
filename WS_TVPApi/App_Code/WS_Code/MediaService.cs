@@ -3392,7 +3392,8 @@ namespace TVPApiServices
                         {
                             Order = order,
                             SiteGuid = initObj.SiteGuid,
-                            DomainId = initObj.DomainID
+                            DomainId = initObj.DomainID,
+                            DeviceId = initObj.UDID
                         }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                 }
                 catch (Exception ex)
@@ -3566,7 +3567,8 @@ namespace TVPApiServices
                     {
                         Order = order,
                         SiteGuid = initObj.SiteGuid,
-                        DomainId = initObj.DomainID
+                        DomainId = initObj.DomainID,
+                        DeviceId = initObj.UDID
                     }.Execute();
 
                     if (executedRespone is AutocompleteResponse)
