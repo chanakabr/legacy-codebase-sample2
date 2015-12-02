@@ -25,6 +25,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Billing;
 using TVinciShared;
+using System.Threading.Tasks;
 
 namespace ConditionalAccess
 {
@@ -7781,42 +7782,40 @@ namespace ConditionalAccess
                 if (oModules != null && oModules.Length > 0)
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
-                    Dictionary<int, int> mediaFileTypesMapping = null;
-                    Dictionary<string, EntitlementObject> allEntitlements = null;
+                    Dictionary<string, EntitlementObject> entitlements = null;
                     Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
                     TvinciAPI.MeidaMaper[] mapper = null;
-                    List<int> allUsersInDomain = null;
-                    GetAllUsersInDomainAndMediaFileTypes(oModules, sUserGUID, out mediaFileTypesMapping, out allUsersInDomain);
+                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
+                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                    Dictionary<string, Utils.UserBundlePurchase> entitledSubscriptions = null;
+                    Dictionary<string, Utils.UserBundlePurchase> entitledCollections = null;
+                    Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings = null;
+                    Dictionary<int, List<Subscription>> channelsToSubscriptionMappings = null;
+                    Dictionary<int, List<Collection>> channelsToCollectionsMappings = null;
+                    Dictionary<int, Subscription> subscriptionsData = null;
+                    Dictionary<int, Collection> collectionsData = null;
+                    int domainID = 0;
 
-                    // get user data
-                    User user = new User();
-                    using (UsersService u = new UsersService())
+                    // check if user is valid
+                    if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
                     {
-                        UserResponseObject resp = u.GetUserData(wsUsersUsername, wsUsersPassword, sUserGUID, string.Empty);
-
-                        //get user entitlements and mediaFileID mappings
-                        if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
-                        {
-                            user = resp.m_user;
-                            //Get all user entitlements
-                            allEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(allUsersInDomain);
-                            //Get mappings of mediaFileIDs - MediaIDs
-                            mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
-                            if (mapper != null || mapper.Length > 0)
-                            {
-                                int[] mediaIDsToMap = new int[mapper.Length];
-                                for (int i = 0; i < mediaIDsToMap.Length; i++)
-                                {
-                                    mediaIDsToMap[i] = mapper[i].m_nMediaID;
-                                }
-
-                                //Get mappings of mediaID_groupFileType - mediaFileID
-                                mediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
-                            }
-                        }
+                        //Get all user PPV entitlements
+                        Utils.InitializeUserEntitlements(m_nGroupID, domainID, allUsersInDomain, nMediaFiles, sAPIUsername, sAPIPassword, ref entitlements, ref mapper, ref mediaIdGroupFileTypeMapper);
+                        //Get all user bundle entitlements
+                        Utils.InitializeUserBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, ref entitledSubscriptions, ref entitledCollections, sPricingUsername, sPricingPassword,
+                                                    ref fileTypeIdToSubscriptionMappings, ref subscriptionsData, ref collectionsData, ref channelsToSubscriptionMappings, ref channelsToCollectionsMappings);
                     }
 
-                    for (int i = 0; i < oModules.Length; i++)
+                    // set max amount of concurrent tasks
+                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    if (maxDegreeOfParallelism == 0)
+                    {
+                        maxDegreeOfParallelism = 5;
+                    }
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+
+                    // loop on all files
+                    Parallel.For(0, oModules.Length, options, i =>
                     {
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         int mediaID = 0;
@@ -7864,11 +7863,11 @@ namespace ConditionalAccess
                                 DateTime? dtEntitlementEndDate = null;
 
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
-                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
-                                    allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate,
-                                    allEntitlements, mediaIdGroupFileTypeMapper, user, mediaID);
+                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
+                                    sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
+                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, entitlements, mediaIdGroupFileTypeMapper, mediaID, userSuspendStatus,
+                                    false, entitledSubscriptions, entitledCollections, fileTypeIdToSubscriptionMappings, subscriptionsData, collectionsData, channelsToSubscriptionMappings,
+                                    channelsToCollectionsMappings);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
@@ -7926,7 +7925,7 @@ namespace ConditionalAccess
                                         }
                                     }
                                 }
-                            } // end for
+                            } // end for                            
 
                             if (ppvModules.Length > 0 && itemPriceCont.Count == 0 && !isUserSuspended)
                             {
@@ -7962,7 +7961,7 @@ namespace ConditionalAccess
                         }
 
                         ret[i] = mf;
-                    }
+                    });
                 }
                 else
                 {
@@ -14306,8 +14305,8 @@ namespace ConditionalAccess
             if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}", 
-                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate),logString);
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}",
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
                 return true;
             }
 

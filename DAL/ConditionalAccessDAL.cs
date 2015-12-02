@@ -636,7 +636,7 @@ namespace DAL
             }
 
             return res;
-        }        
+        }
 
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs, List<int> nFileTypes)
         {
@@ -1987,12 +1987,13 @@ namespace DAL
             return spLastBillingTransactions.ExecuteReturnValue<int>() > 0;
         }
 
-        public static Dictionary<string, EntitlementObject> Get_AllUsersEntitlements(List<int> lstUserIds)
+        public static Dictionary<string, EntitlementObject> Get_AllUsersEntitlements(int domainID, List<int> lstUserIds)
         {
             Dictionary<string, EntitlementObject> allEntitlments = new Dictionary<string, EntitlementObject>();
             DataTable dt = null;
             StoredProcedure spGet_AllUsersEntitlements = new ODBCWrapper.StoredProcedure("Get_AllUsersEntitlements");
             spGet_AllUsersEntitlements.AddIDListParameter<int>("@UserIDs", lstUserIds, "Id");
+            spGet_AllUsersEntitlements.AddParameter("@DomainID", domainID);
             dt = spGet_AllUsersEntitlements.Execute();
 
             if (dt != null && dt.Rows.Count > 0)
@@ -2000,7 +2001,7 @@ namespace DAL
                 int ppvmTagLength = 6;
                 foreach (DataRow dr in dt.Rows)
                 {
-                    int ppvCode = 0;                        
+                    int ppvCode = 0;
                     string customData = Utils.GetSafeStr(dr["CUSTOMDATA"]);
                     int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
                     int ppvTagStart = customData.IndexOf("<ppvm>") + ppvmTagLength;
@@ -2018,12 +2019,12 @@ namespace DAL
                     }
                 }
             }
-            
+
             return allEntitlments;
         }
 
         public static Dictionary<string, int> Get_AllMediaIdGroupFileTypesMappings(int[] mediaIDs)
-        {            
+        {
             Dictionary<string, int> mappings = new Dictionary<string, int>();
             DataTable dt = null;
             StoredProcedure spGet_AllMediaFilesMappings = new ODBCWrapper.StoredProcedure("Get_AllMediaFilesMappings");
@@ -2035,17 +2036,27 @@ namespace DAL
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    {
-                        int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
-                            string mediaID = Utils.GetSafeStr(dr["MEDIA_ID"]);
-                            string groupFileType = Utils.GetSafeStr(dr["GROUP_FILE_TYPE"]);
-                            string key = mediaID + "_" + groupFileType;
-                            mappings[key] = mediaFileID;                        
-                    }
+                    int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
+                    string mediaID = Utils.GetSafeStr(dr["MEDIA_ID"]);
+                    string groupFileType = Utils.GetSafeStr(dr["GROUP_FILE_TYPE"]);
+                    string key = mediaID + "_" + groupFileType;
+                    mappings[key] = mediaFileID;
                 }
             }
 
             return mappings;
         }
+
+        public static DataSet Get_AllBundlesInfoByUserIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
+        {
+            StoredProcedure spGet_AllBundlesInfoByUserIDsOrDomainID = new StoredProcedure("Get_AllBundlesInfoByUserIDsOrDomainID");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@DomainID", domainID);
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@Group_id", nGroupID);
+
+            return spGet_AllBundlesInfoByUserIDsOrDomainID.ExecuteDataSet();
+        }
+
     }
 }

@@ -877,12 +877,14 @@ namespace ConditionalAccess
         /// <summary>
         /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
         /// </summary>
-        private struct UserBundlePurchase
+        internal struct UserBundlePurchase
         {
             public string sBundleCode;
             public int nWaiver;
             public DateTime dtPurchaseDate;
             public DateTime dtEndDate;
+            public int nNumOfUses;
+            public int nMaxNumOfUses;
         }
 
         private static List<int> GetFinalCollectionCodes(Dictionary<int, bool> collsAfterPPVCreditValidation)
@@ -1981,8 +1983,11 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, Dictionary<string, EntitlementObject> allEntitlements = null,
-            Dictionary<string, int> mediaIdGroupFileTypeMappings = null, User userObject = null, int mediaID = 0)
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, Dictionary<string, EntitlementObject> entitlements = null,
+            Dictionary<string, int> mediaIdGroupFileTypeMappings = null, int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended,
+            bool shouldCheckUserStatus = true, Dictionary<string, UserBundlePurchase> entitledSubscriptions = null, Dictionary<string, UserBundlePurchase> entitledCollections = null,
+            Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings = null, Dictionary<int, Subscription> subscriptionsData = null, Dictionary<int, Collection> collectionsData = null,
+            Dictionary<int, List<Subscription>> channelsToSubscriptionMappings = null, Dictionary<int, List<Collection>> channelsToCollectionsMappings = null)
         {
             if (ppvModule == null)
             {
@@ -1990,22 +1995,16 @@ namespace ConditionalAccess
                 return null;
             }
 
-            TvinciUsers.DomainSuspentionStatus suspendStat = TvinciUsers.DomainSuspentionStatus.OK;
-            bool isUserValidRes = false;
-            // check if user is valid and get status
-            if (userObject == null)
+            bool isUserValidRes = true;
+            // get user status and validity if needed
+            if (shouldCheckUserStatus)
             {
                 int nDomainID = 0;
-                isUserValidRes = IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat);
-            }
-            // check if its not anonymous user and get status
-            else if (!string.IsNullOrEmpty(userObject.m_sSiteGUID))
-            {
-                isUserValidRes = true;
-                suspendStat = userObject.m_eSuspendState;
+                isUserValidRes = IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref userSuspendStatus);
             }
 
-            if (isUserValidRes && suspendStat == TvinciUsers.DomainSuspentionStatus.Suspended)
+            // check user status and validity
+            if (isUserValidRes && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
@@ -2034,15 +2033,15 @@ namespace ConditionalAccess
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes;
                     List<int> lstFileIDs;
                     // get list of mediaFileIDs
-                    if (mediaIdGroupFileTypeMappings == null)
+                    if (mediaIdGroupFileTypeMappings != null)
+                    {
+                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, mediaIdGroupFileTypeMappings);
+                    }
+                    else
                     {
                         bool isMultiMediaTypes = false;
                         List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvGroupFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
                         lstFileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
-                    }
-                    else
-                    {
-                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, mediaIdGroupFileTypeMappings);
                     }
 
                     relatedMediaFileIDs.AddRange(lstFileIDs);
@@ -2057,19 +2056,22 @@ namespace ConditionalAccess
                     int nWaiver = 0;
                     DateTime dPurchaseDate = DateTime.MinValue;
                     bool isEntitled = false;
-                    bool isPurchased = false;
-                    if (lstFileIDs.Count > 0 && allEntitlements != null)
+                    if (lstFileIDs.Count > 0)
                     {
-                        isEntitled = IsUserEntitled(lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
-                                                    ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, allEntitlements);
-                    }
-                    else if (lstFileIDs.Count > 0 && allEntitlements == null)
-                    {
-                        isPurchased = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
+                        if (entitlements != null)
+                        {
+                            isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
+                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, entitlements);
+                        }
+                        else
+                        {
+                            isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
                                                                                 ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate);
+                        }
                     }
+
                     // user or domain users have entitlements \ purchases
-                    if (isEntitled || isPurchased)
+                    if (isEntitled)
                     {
                         price.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
@@ -2141,14 +2143,27 @@ namespace ConditionalAccess
                     }
 
                     //check here if it is part of a purchased subscription or part of purchased collections
+
                     Subscription[] relevantValidSubscriptions = null;
                     Collection[] relevantValidCollections = null;
+
                     // dictionary(subscriptionCode, [nWaiver, dPurchaseDate, dEndDate])
                     Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
                     Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
-                    GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
-                        ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
+                    if (entitledSubscriptions != null && entitledCollections != null)
+                    {
+                        subsPurchase = entitledSubscriptions;
+                        collPurchase = entitledCollections;
+                        GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs, subsPurchase,
+                                            collPurchase, fileTypeIdToSubscriptionMappings, subscriptionsData, collectionsData, channelsToSubscriptionMappings, channelsToCollectionsMappings,
+                                            ref relevantValidSubscriptions, ref relevantValidCollections);
+                    }
+                    else
+                    {
+                        GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword,
+                                                            relatedMediaFileIDs, ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
+                    }
 
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
@@ -2415,6 +2430,7 @@ namespace ConditionalAccess
 
             return lDomainsUsers;
         }
+
         private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
         {
             return GetDomainsUsers(nDomainID, nGroupID, string.Empty, string.Empty, true);
@@ -3697,44 +3713,528 @@ namespace ConditionalAccess
             return res;
         }
 
-        private static bool IsUserEntitled(List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, Dictionary<string, EntitlementObject> allEntitlements)
+        private static bool IsUserEntitled(List<int> p_lstFileIds, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate,
+            Dictionary<string, EntitlementObject> entitlements)
         {
             bool res = false;
-            foreach (int mediaFileID in p_lstFileIds)
+            if (entitlements.Count > 0)
             {
-                string entitlementKey = mediaFileID + "_" + p_sPPVCode;
-                if( allEntitlements.ContainsKey(entitlementKey))
+                foreach (int mediaFileID in p_lstFileIds)
                 {
-                    EntitlementObject entitlement = allEntitlements[entitlementKey];
-                    p_nPPVID = entitlement.ID;
-                    p_sSubCode = entitlement.subscriptionCode;
-                    p_sPPCode = entitlement.relPP.ToString();
-                    p_nWaiver = entitlement.waiver;
-                    p_dtStartDate = entitlement.startDate;
-                    p_dCreateDate = entitlement.createDate;
-                    p_sPurchasedBySiteGuid = entitlement.purchasedBySiteGuid;
-                    p_nPurchasedAsMediaFileID = entitlement.purchasedAsMediaFileID;
-                    res = true;
-                    break;
+                    string entitlementKey = mediaFileID + "_" + p_sPPVCode;
+                    if (entitlements.ContainsKey(entitlementKey))
+                    {
+                        EntitlementObject entitlement = entitlements[entitlementKey];
+                        p_nPPVID = entitlement.ID;
+                        p_sSubCode = entitlement.subscriptionCode;
+                        p_sPPCode = entitlement.relPP.ToString();
+                        p_nWaiver = entitlement.waiver;
+                        p_dtStartDate = entitlement.startDate;
+                        p_dCreateDate = entitlement.createDate;
+                        p_sPurchasedBySiteGuid = entitlement.purchasedBySiteGuid;
+                        p_nPurchasedAsMediaFileID = entitlement.purchasedAsMediaFileID;
+                        res = true;
+                        break;
+                    }
                 }
             }
 
             return res;
         }
 
+        internal static void InitializeUserEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, int[] nMediaFiles, string sAPIUsername, string sAPIPassword,
+                                ref Dictionary<string, EntitlementObject> entitlements, ref TvinciAPI.MeidaMaper[] mapper, ref Dictionary<string, int> mediaIdGroupFileTypeMapper)
+        {
+            // Get all user entitlements
+            entitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
+            // Get mappings of mediaFileIDs - MediaIDs
+            mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
+            if (mapper != null || mapper.Length > 0)
+            {
+                int[] mediaIDsToMap = new int[mapper.Length];
+                for (int i = 0; i < mediaIDsToMap.Length; i++)
+                {
+                    mediaIDsToMap[i] = mapper[i].m_nMediaID;
+                }
+
+                // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
+                mediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
+            }
+        }
+
         private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, int> mediaIdGroupFileTypeMappings)
         {
             List<int> relatedFileTypes = new List<int>();
-            foreach (int groupFileID in ppvGroupFileTypes)
+            if (ppvGroupFileTypes != null && ppvGroupFileTypes.Length > 0 && mediaIdGroupFileTypeMappings.Count > 0)
             {
-                string mapKey = mediaID + "_" + groupFileID;
-                if (mediaIdGroupFileTypeMappings.ContainsKey(mapKey))
+                foreach (int groupFileTypeID in ppvGroupFileTypes)
                 {
-                    relatedFileTypes.Add(mediaIdGroupFileTypeMappings[mapKey]);
+                    string mapKey = mediaID + "_" + groupFileTypeID;
+                    if (mediaIdGroupFileTypeMappings.ContainsKey(mapKey))
+                    {
+                        relatedFileTypes.Add(mediaIdGroupFileTypeMappings[mapKey]);
+                    }
                 }
             }
             return relatedFileTypes;
+        }
+
+        internal static void GetAllUserBundles(string sSiteGuid, int nGroupID, int domainID, List<int> lstUserIDs, ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
+        {
+            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
+            if (IsBundlesDataSetValid(dataSet))
+            {
+                subsPurchase = new Dictionary<string, UserBundlePurchase>();
+                collPurchase = new Dictionary<string, UserBundlePurchase>();
+                // iterate over subscriptions
+                DataTable subs = dataSet.Tables[0];
+                int waiver = 0;
+                DateTime purchaseDate = DateTime.MinValue;
+                DateTime endDate = DateTime.MinValue;
+
+                if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
+                {
+                    for (int i = 0; i < subs.Rows.Count; i++)
+                    {
+                        int numOfUses = 0;
+                        int maxNumOfUses = 0;
+                        string bundleCode = string.Empty;
+                        int gracePeriodMinutes = 0;
+
+                        GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+
+                        // decide which is the correct end period
+                        if (endDate < DateTime.UtcNow)
+                            endDate = endDate.AddMinutes(gracePeriodMinutes);
+
+                        int subCode = 0;
+                        if (Int32.TryParse(bundleCode, out subCode) && subCode > 0)
+                        {
+                            if (!subsPurchase.ContainsKey(bundleCode))
+                            {
+                                subsPurchase.Add(bundleCode, new UserBundlePurchase()
+                                {
+                                    sBundleCode = bundleCode,
+                                    nWaiver = waiver,
+                                    dtPurchaseDate = purchaseDate,
+                                    dtEndDate = endDate,
+                                    nNumOfUses = numOfUses,
+                                    nMaxNumOfUses = maxNumOfUses
+                                });
+                            }
+                        }
+                    }
+                }
+
+                //iterate over collections
+                DataTable colls = dataSet.Tables[1];
+                if (colls != null && colls.Rows != null && colls.Rows.Count > 0)
+                {
+                    for (int i = 0; i < colls.Rows.Count; i++)
+                    {
+                        int numOfUses = 0;
+                        int maxNumOfUses = 0;
+                        string bundleCode = string.Empty;
+                        waiver = 0;
+                        purchaseDate = DateTime.MinValue;
+                        endDate = DateTime.MinValue;
+
+                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
+
+                        int collCode = 0;
+                        if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
+                        {
+                            if (!collPurchase.ContainsKey(bundleCode))
+                            {
+                                collPurchase.Add(bundleCode, new UserBundlePurchase()
+                                {
+                                    sBundleCode = bundleCode,
+                                    nWaiver = waiver,
+                                    dtPurchaseDate = purchaseDate,
+                                    dtEndDate = endDate
+                                });
+                            }
+                        }
+                        else
+                        {
+                            //log
+                        }
+                    }
+                }
+            }
+            else
+            {
+                #region Logging
+                StringBuilder sb = new StringBuilder("SP: ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs_NEW returned corrupted data. ");
+                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+
+                if (lstUserIDs != null && lstUserIDs.Count > 0)
+                {
+                    sb.Append(" User IDs: ");
+                    for (int i = 0; i < lstUserIDs.Count; i++)
+                    {
+                        sb.Append(String.Concat(lstUserIDs[i], ", "));
+                    }
+                }
+                else
+                {
+                    sb.Append(" User IDs is null or empty. ");
+                }
+
+                log.Error("Error - " + sb.ToString());
+                #endregion
+
+                throw new Exception("Error occurred in GetAllUserBundles. Refer to CAS.Utils log file");
+
+            }
+        }
+
+        internal static void InitializeUserBundles(string sUserGUID, int domainID, int m_nGroupID, List<int> allUsersInDomain, ref Dictionary<string, UserBundlePurchase> entitledSubscriptions,
+                                                    ref Dictionary<string, UserBundlePurchase> entitledCollections, string sPricingUsername, string sPricingPassword,
+                                                    ref Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, ref Dictionary<int, Subscription> subscriptionsData,
+                                                    ref Dictionary<int, Collection> collectionData, ref Dictionary<int, List<Subscription>> channelsToSubscriptionMappings,
+                                                    ref Dictionary<int, List<Collection>> channelsToCollectionsMappings)
+        {
+            GetAllUserBundles(sUserGUID, m_nGroupID, domainID, allUsersInDomain, ref entitledSubscriptions, ref entitledCollections);
+            fileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            channelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            subscriptionsData = new Dictionary<int, Subscription>();
+            collectionData = new Dictionary<int, Collection>();
+            channelsToCollectionsMappings = new Dictionary<int, List<Collection>>();
+            if (entitledSubscriptions != null && entitledSubscriptions.Count > 0)
+            {
+                TvinciPricing.mdoule pricingModule = new mdoule();
+                string pricingWSURL = Utils.GetWSURL("pricing_ws");
+                if (!string.IsNullOrEmpty(pricingWSURL))
+                {
+                    pricingModule.Url = pricingWSURL;
+                    TvinciPricing.SubscriptionsResponse subscriptionsResponse = pricingModule.GetSubscriptionsData(sPricingUsername, sPricingPassword, entitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
+                    {
+                        foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
+                        {
+                            // Insert to subscriptionData if subscriptionCode isn't already contained
+                            int subscriptionCode;
+                            if (int.TryParse(subscription.m_sObjectCode, out subscriptionCode) && !subscriptionsData.ContainsKey(subscriptionCode))
+                            {
+                                subscriptionsData.Add(subscriptionCode, subscription);
+                            }
+
+                            // Insert to channelsToSubscriptionMappings
+                            foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                            {
+                                int channelID;
+                                if (int.TryParse(bundleCode.m_sCode, out channelID) && channelsToSubscriptionMappings.ContainsKey(channelID))
+                                {
+                                    channelsToSubscriptionMappings[channelID].Add(subscription);
+                                }
+                                else if (channelID > 0)
+                                {
+                                    channelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                }
+                            }
+
+                            // Insert to fileTypeIdToSubscriptionMappings
+                            if (subscription.m_sFileTypes != null && subscription.m_sFileTypes.Count() > 0)
+                            {
+                                foreach (int fileTypeID in subscription.m_sFileTypes)
+                                {
+                                    if (fileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID))
+                                    {
+                                        fileTypeIdToSubscriptionMappings[fileTypeID].Add(subscription);
+                                    }
+                                    else
+                                    {
+                                        fileTypeIdToSubscriptionMappings.Add(fileTypeID, new List<Subscription>() { subscription });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (fileTypeIdToSubscriptionMappings.ContainsKey(0))
+                                {
+                                    fileTypeIdToSubscriptionMappings[0].Add(subscription);
+                                }
+                                else
+                                {
+                                    fileTypeIdToSubscriptionMappings.Add(0, new List<Subscription>() { subscription });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (entitledCollections != null && entitledCollections.Count > 0)
+            {
+                TvinciPricing.mdoule pricingModule = new mdoule();
+                string pricingWSURL = Utils.GetWSURL("pricing_ws");
+                if (!string.IsNullOrEmpty(pricingWSURL))
+                {
+                    pricingModule.Url = pricingWSURL;
+                    TvinciPricing.Collection[] collectionsArray = pricingModule.GetCollectionsData(sPricingUsername, sPricingPassword, entitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    if (collectionsArray != null && collectionsArray.Length > 0)
+                    {
+                        foreach (Collection collection in collectionsArray)
+                        {
+                            int collectionCode;
+                            if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !collectionData.ContainsKey(collectionCode))
+                            {
+                                collectionData.Add(collectionCode, collection);
+
+                                // Insert to channelsToSubscriptionMappings
+                                foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                                {
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && channelsToCollectionsMappings.ContainsKey(channelID))
+                                    {
+                                        channelsToCollectionsMappings[channelID].Add(collection);
+                                    }
+                                    else if (channelID > 0)
+                                    {
+                                        channelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void GetUserValidBundles(int mediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID, int[] fileTypes, List<int> allUserIDsInDomain, string sPricingUsername,
+                                                string sPricingPassword, List<int> relatedMediaFileIDs, Dictionary<string, UserBundlePurchase> subsPurchase, Dictionary<string, UserBundlePurchase> collPurchases,
+                                                Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, Dictionary<int, Subscription> subscriptionsData, Dictionary<int, Collection> collectionsData,
+                                                Dictionary<int, List<Subscription>> channelsToSubscriptionMappings, Dictionary<int, List<Collection>> channelsToCollectionsMappings,
+                                                ref Subscription[] relevantValidSubscriptions, ref Collection[] relevantValidCollections)
+        {
+            List<string> subsToBundleCreditDownloadedQuery = new List<string>();
+            List<string> colsToBundleCreditDownloadedQuery = new List<string>();
+            List<int> subsToGetFromSubsDictionary = new List<int>();
+            List<int> collsToGetFromDictionary = new List<int>();
+
+            if (fileTypeIdToSubscriptionMappings.Count > 0)
+            {
+                int allFileTypeIDs_key = 0;
+                List<UserBundlePurchase> subscriptionsToCheck = new List<UserBundlePurchase>();
+                foreach (int filetypeID in fileTypes)
+                {
+                    // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
+                    // given as input belongs to it.                
+
+                    // subscriptions with all fileTypes
+                    if (fileTypeIdToSubscriptionMappings.ContainsKey(allFileTypeIDs_key))
+                    {
+                        foreach (Subscription subscription in fileTypeIdToSubscriptionMappings[allFileTypeIDs_key])
+                        {
+                            subscriptionsToCheck.Add(subsPurchase[subscription.m_SubscriptionCode]);
+                        }
+                    }
+                    // subscriptions with the current fileTypeID
+                    if (fileTypeIdToSubscriptionMappings.ContainsKey(filetypeID))
+                    {
+                        foreach (Subscription subscription in fileTypeIdToSubscriptionMappings[filetypeID])
+                        {
+                            subscriptionsToCheck.Add(subsPurchase[subscription.m_SubscriptionCode]);
+                        }
+                    }
+                }
+
+                foreach (UserBundlePurchase bundle in subscriptionsToCheck)
+                {
+                    // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
+                    //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                    if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(bundle.nNumOfUses, bundle.nMaxNumOfUses))
+                    {
+                        subsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
+                    }
+                    else
+                    {
+                        // add to Catalog's BundlesContainingMediaRequest
+                        int subCode = 0;
+                        if (Int32.TryParse(bundle.sBundleCode, out subCode) && subCode > 0)
+                        {
+                            subsToGetFromSubsDictionary.Add(subCode);
+                        }
+                    }
+                }
+            }
+
+            foreach (UserBundlePurchase bundle in collPurchases.Values)
+            {
+                // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
+                //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
+                if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(bundle.nNumOfUses, bundle.nMaxNumOfUses))
+                {
+                    colsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
+                }
+                else
+                {
+                    // add to Catalog's BundlesContainingMediaRequest
+                    int collCode = 0;
+                    if (Int32.TryParse(bundle.sBundleCode, out collCode) && collCode > 0)
+                    {
+                        collsToGetFromDictionary.Add(collCode);
+                    }
+                }
+            }
+
+            // check if credit need to be downloaded for specific mediaFileID 
+            HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID, nGroupID, allUserIDsInDomain,
+                                                    relatedMediaFileIDs, sPricingUsername, sPricingPassword, ref subsToGetFromSubsDictionary, ref collsToGetFromDictionary);
+
+            // the subs / collections already purchased (no need to download credit)
+            if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase)
+            {
+                List<Subscription> relevantValidSubscriptionsList = new List<Subscription>();
+                List<Collection> relevantValidCollectionsList = new List<Collection>();
+                //get subscriptions data from dictionary instead of going to catalog
+                foreach (int subscriptionCode in subsToGetFromSubsDictionary)
+                {
+                    //get subscription from all subscriptions data dictionary
+                    relevantValidSubscriptionsList.Add(subscriptionsData[subscriptionCode]);
+                }
+
+                relevantValidSubscriptions = relevantValidSubscriptionsList.ToArray();
+
+                //get collections data from dictionary instead of going to catalog
+                foreach (int collectionCode in subsToGetFromSubsDictionary)
+                {
+                    //get subscription from all subscriptions data dictionary
+                    relevantValidCollectionsList.Add(collectionsData[collectionCode]);
+                }
+
+                relevantValidCollections = relevantValidCollectionsList.ToArray();
+            }
+            else // only if in the gap between end date to final end date - continue the check
+            {
+                // get distinct subs from subs list, same for collection
+
+                List<int> validatedColls = new List<int>();
+                List<int> channelsToCheck = new List<int>();
+                int[] validatedChannels = null;
+
+                foreach (int subsCode in subsToGetFromSubsDictionary.Distinct().ToList())
+                {
+                    foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
+                    {
+                        int channelID;
+                        if (int.TryParse(bundleCode.m_sCode, out channelID))
+                            channelsToCheck.Add(channelID);
+                    }
+                }
+
+                foreach (int collCode in collsToGetFromDictionary.Distinct().ToList())
+                {
+                    foreach (BundleCodeContainer bundleCode in collectionsData[collCode].m_sCodes)
+                    {
+                        int channelID;
+                        if (int.TryParse(bundleCode.m_sCode, out channelID))
+                            channelsToCheck.Add(channelID);
+                    }
+                }
+
+                if (channelsToCheck.Count > 0)
+                {
+                    ValidateMediaContainedInChannels(mediaID, nGroupID, channelsToCheck.Distinct().ToList(), ref validatedChannels);
+                }
+
+                if (validatedChannels != null)
+                {
+                    List<Subscription> relevantValidSubscriptionsList = new List<Subscription>();
+                    foreach (int channelID in validatedChannels)
+                    {
+                        //get subscriptions data from dictionary instead of going to catalog
+                        if (channelsToSubscriptionMappings.ContainsKey(channelID))
+                        {
+                            relevantValidSubscriptionsList.AddRange(channelsToSubscriptionMappings[channelID]);
+                        }
+
+                        // save validated collections, used for checking PPV_CreditNeedToDownloadedUsingCollection
+                        if (channelsToCollectionsMappings.ContainsKey(channelID))
+                        {
+                            foreach (Collection collection in channelsToCollectionsMappings[channelID])
+                            {
+                                int collectionCode;
+                                if (int.TryParse(collection.m_sObjectCode, out collectionCode))
+                                {
+                                    validatedColls.Add(collectionCode);
+                                }
+                            }
+                        }
+                    }
+                    relevantValidSubscriptions = relevantValidSubscriptionsList.ToArray();
+                }
+
+                // now validate bulk collections - PPV_CreditNeedToDownloadedUsingCollection
+
+                if (validatedColls != null && validatedColls.Count > 0)
+                {
+                    Dictionary<int, bool> collsAfterPPVCreditValidation = PPVBulkDoCreditNeedToDownloadedUsingCollections(nGroupID,
+                        nMediaFileID, allUserIDsInDomain, validatedColls, sPricingUsername, sPricingPassword);
+                    List<int> finalCollCodes = GetFinalCollectionCodes(collsAfterPPVCreditValidation);
+                    if (finalCollCodes != null && finalCollCodes.Count > 0)
+                    {
+                        List<Collection> relevantValidCollectionsList = new List<Collection>();
+                        //get collections data from dictionary instead of going to catalog
+                        foreach (int collectionCode in finalCollCodes)
+                        {
+                            //get subscription from all subscriptions data dictionary
+                            relevantValidCollectionsList.Add(collectionsData[collectionCode]);
+                        }
+
+                        relevantValidCollections = relevantValidCollectionsList.ToArray();
+                    }
+                }
+            }
+        }
+
+        private static WS_Catalog.ChannelsContainingMediaRequest InitializeCatalogChannelsRequest(int nGroupID, int nMediaID, List<int> channelsToCheck)
+        {
+            WS_Catalog.ChannelsContainingMediaRequest request = new WS_Catalog.ChannelsContainingMediaRequest();
+            request.m_nGroupID = nGroupID;
+            request.m_nMediaID = nMediaID;
+            request.m_oFilter = new WS_Catalog.Filter();
+            FillCatalogSignature(request);
+            request.m_lChannles = new int[channelsToCheck.Count];
+            for (int i = 0; i < channelsToCheck.Count; i++)
+            {
+                request.m_lChannles[i] = channelsToCheck[i];
+            }
+
+            return request;
+        }
+
+        private static void ValidateMediaContainedInChannels(int mediaID, int nGroupID, List<int> channelsToCheck, ref int[] validChannels)
+        {
+            WS_Catalog.ChannelsContainingMediaRequest request = InitializeCatalogChannelsRequest(nGroupID, mediaID, channelsToCheck);
+            WS_Catalog.IserviceClient client = null;
+
+            try
+            {
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.ChannelsContainingMediaResponse response = client.GetResponse(request) as WS_Catalog.ChannelsContainingMediaResponse;
+                if (response != null && response.m_lChannellList != null && response.m_lChannellList.Length > 0)
+                {
+                    validChannels = response.m_lChannellList;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed ValidateMediaContainedInChannels Request To Catalog", ex);
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
         }
 
     }
