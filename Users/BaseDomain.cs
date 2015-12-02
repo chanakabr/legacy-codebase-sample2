@@ -737,7 +737,16 @@ namespace Users
 
             // remove from cache
             if (SuspendSucceed)
+            {
+                // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (int userID in domain.m_UsersIDs)
+                {
+                    // Remove Users
+                    usersCache.RemoveUser(userID);
+                }
+            }
 
             // update result
             if (SuspendSucceed)
@@ -780,7 +789,16 @@ namespace Users
 
             // remove from cache
             if (ResumeSucceed)
+            {
+                // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (int userID in domain.m_UsersIDs)
+                {
+                    // Remove Users
+                    usersCache.RemoveUser(userID);
+                }
+            }
 
             // update result
             if (ResumeSucceed)
@@ -1314,8 +1332,10 @@ namespace Users
                 {
                     domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
                 }                
+
                 if (domainId == 0)
                     return null;
+
                 DomainsCache domainsCache = DomainsCache.Instance();
                 domain = domainsCache.GetDomain(domainId, groupId);
             }

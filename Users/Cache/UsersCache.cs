@@ -64,7 +64,7 @@ namespace Users
             // create an instance of user to external cache (by CouchBase)
             cache = CouchBaseCache<User>.GetInstance("CACHE");
             cacheTTL = GetDocTTLSettings();     //set ttl time for document
-            shouldUseCache = TVinciShared.WS_Utils.GetTcmBoolValue("UseCache"); ;
+            shouldUseCache = TVinciShared.WS_Utils.GetTcmBoolValue("UseUsersCache"); ;
         }
 
         #endregion
