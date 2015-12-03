@@ -32,7 +32,7 @@
     }
 </script>
 </head>
-<body class="admin_body" onload="GetPageTable('' , 0);ShowIframe();">
+<body class="admin_body" onload="GetPageTable('' , 0);">
 <form id="form1" name="form1" action="" method="post" runat=server>
 	<div class="floating_div" id="tag_collections_div"></div>
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
@@ -104,7 +104,7 @@
 										</table>
 									</td>
 								</tr>
-								<tr>
+								<%--<tr>
 								    <td>
 										<div>
 											<table>
@@ -116,7 +116,7 @@
 											</table>
 										</div>
 									 </td>  
-								</tr>
+								</tr>--%>
 								<!-- content -->
 								<tr>
 									<td class="formInputs">

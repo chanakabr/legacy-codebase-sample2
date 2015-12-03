@@ -15,89 +15,192 @@ using ApiObjects;
 
 public partial class adm_channels : System.Web.UI.Page
 {
-    protected string m_sMenu;
-    protected string m_sSubMenu;
-    protected string m_sSubSubMenu;
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (LoginManager.CheckLogin() == false)
-            Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted() == false)
-            LoginManager.LogoutFromSite("login.html");
-        if (AMS.Web.RemoteScripting.InvokeMethod(this))
-        {
-            Response.Expires = -1;
-            return;
-        }
-        if (!IsPostBack)
-        {
-            Int32 nMenuID = 0;
-            m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);
-            if (Request.QueryString["search_save"] != null)
-                Session["search_save"] = "1";
-            else
-                Session["search_save"] = null;
+	protected string m_sMenu;
+	protected string m_sSubMenu;
+	protected string m_sSubSubMenu;
+	protected void Page_Load(object sender, EventArgs e)
+	{
+		if (LoginManager.CheckLogin() == false)
+			Response.Redirect("login.html");
+		if (LoginManager.IsPagePermitted() == false)
+			LoginManager.LogoutFromSite("login.html");
+		if (AMS.Web.RemoteScripting.InvokeMethod(this))
+		{
+			Response.Expires = -1;
+			return;
+		}
+		if (!IsPostBack)
+		{
+			Int32 nMenuID = 0;
+			m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
+			m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);
+			if (Request.QueryString["search_save"] != null)
+				Session["search_save"] = "1";
+			else
+				Session["search_save"] = null;
 
-            System.Collections.SortedList sortedMenu = GetSubMenuList();
-            m_sSubSubMenu = TVinciShared.Menu.GetSubMenu(sortedMenu, -1, false);
-        }
-    }
+			System.Collections.SortedList sortedMenu = GetSubMenuList();
+			m_sSubSubMenu = TVinciShared.Menu.GetSubMenu(sortedMenu, -1, false);
+		}
+	}
 
-    protected System.Collections.SortedList GetSubMenuList()
-    {
-        System.Collections.SortedList sortedMenu = new SortedList();
-        string sButton = "Add A.Channel";
-        sButton += "|";
-        sButton += "adm_channels_new.aspx?channel_type=1";
-        sortedMenu[0] = sButton;
+	protected System.Collections.SortedList GetSubMenuList()
+	{
+		System.Collections.SortedList sortedMenu = new SortedList();
+		string sButton = "Add A.Channel";
+		sButton += "|";
+		sButton += "adm_channels_new.aspx?channel_type=1";
+		sortedMenu[0] = sButton;
 
-        sButton = "Add M.Channel";
-        sButton += "|";
-        sButton += "adm_channels_new.aspx?channel_type=2";
-        sortedMenu[1] = sButton;
-        return sortedMenu;
-    }
+		sButton = "Add M.Channel";
+		sButton += "|";
+		sButton += "adm_channels_new.aspx?channel_type=2";
+		sortedMenu[1] = sButton;
 
-    public void GetHeader()
-    {
-        Response.Write(PageUtils.GetPreHeader() + ": Channels");
-    }
+		sButton = "Add KSQL.Channel|adm_ksql_channel_new.aspx";
 
-    protected void GetMainMenu()
-    {
-        Response.Write(m_sMenu);
-    }
+		sortedMenu[2] = sButton;
 
-    protected void GetSubMenu()
-    {
-        Response.Write(m_sSubMenu);
-    }
+		return sortedMenu;
+	}
 
-    protected void GetSubSubMenu()
-    {
-        Response.Write(m_sSubSubMenu);
-    }
+	public void GetHeader()
+	{
+		Response.Write(PageUtils.GetPreHeader() + ": Channels");
+	}
 
-    public string GetTableCSV()
-    {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 20);
-        FillTheTableEditor(ref theTable, sOldOrderBy);
+	protected void GetMainMenu()
+	{
+		Response.Write(m_sMenu);
+	}
 
-        string sCSVFile = theTable.OpenCSV();
-        theTable.Finish();
-        theTable = null;
-        return sCSVFile;
-    }
+	protected void GetSubMenu()
+	{
+		Response.Write(m_sSubMenu);
+	}
 
-    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
-    {
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select q.EDITOR_REMARKS,q.order_num,q.is_active,q.status,q.s_id as 'ID',q.s_id as 'CID',p.base_url as 'Pic',q.NAME as 'Name',q.ADMIN_NAME as 'Uniqe Name',q.description as 'Description',q.is_rss as 'Enables feed',q.channel_type as 'Channel Type',s.name as 'Subscription',q.s_desc as 'State' from (select lct.description as 'channel_type',c.subscription_id,c.order_num as 'order_num',c.is_active as 'q_ia',c.PIC_ID as 'pic_id',CASE c.is_rss WHEN 0 then 'False' ELSE 'True' END as is_rss,c.status,c.NAME as 'NAME',c.ADMIN_NAME as 'ADMIN_NAME', c.DESCRIPTION as 'Description',c.id as 's_id',lcs.description as 's_desc',c.is_active,c.editor_remarks from lu_channel_type lct,channels c,lu_content_status lcs";
-        theTable += "where lct.id=c.CHANNEL_TYPE and c.status<>2 and lcs.id=c.status ";
+	protected void GetSubSubMenu()
+	{
+		Response.Write(m_sSubSubMenu);
+	}
+
+	public string GetTableCSV()
+	{
+		string sOldOrderBy = "";
+		if (Session["order_by"] != null)
+			sOldOrderBy = Session["order_by"].ToString();
+		DBTableWebEditor theTable = 
+			new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 20);
+		FillTheTableEditor(ref theTable, sOldOrderBy);
+
+		string sCSVFile = theTable.OpenCSV();
+		theTable.Finish();
+		theTable = null;
+		return sCSVFile;
+	}
+
+	protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
+	{
+        // example
+		/*	 
+			SELECT    q.editor_remarks, 
+					  q.order_num, 
+					  q.is_active, 
+					  q.status, 
+					  q.s_id         AS 'ID', 
+					  q.s_id         AS 'CID', 
+					  p.base_url     AS 'Pic', 
+					  q.NAME         AS 'Name', 
+					  q.admin_name   AS 'Uniqe Name', 
+					  q.description  AS 'Description', 
+					  q.is_rss       AS 'Enables feed', 
+					  q.channel_type AS 'Channel Type', 
+					  s.NAME         AS 'Subscription', 
+					  q.s_desc       AS 'State',
+					  q.channel_type_id as channel_type
+			FROM      ( 
+							 SELECT lct.description AS 'channel_type', 
+									c.subscription_id, 
+									c.order_num AS 'order_num', 
+									c.is_active AS 'q_ia', 
+									c.pic_id    AS 'pic_id', 
+									CASE c.is_rss 
+										   WHEN 0 THEN 'False' 
+										   ELSE 'True' 
+									END AS is_rss, 
+									c.status, 
+									c.NAME          AS 'NAME', 
+									c.admin_name    AS 'ADMIN_NAME', 
+									c.description   AS 'Description', 
+									c.id            AS 's_id', 
+									lcs.description AS 's_desc', 
+									c.is_active, 
+									c.editor_remarks,
+									c.CHANNEL_TYPE as channel_type_id
+							 FROM   lu_channel_type lct, 
+									channels c, 
+									lu_content_status lcs 
+							 WHERE  ( 
+										   lct.id=c.channel_type 
+									OR     c.channel_type = 4) 
+							 AND    c.status<>2 
+							 AND    lcs.id=c.status 
+							 AND    c.watcher_id=@0 
+							 AND    c.group_id=@1 )q 
+			LEFT JOIN pics p 
+			ON        p.id=q.pic_id 
+			AND       p.status IN (1,3,4) 
+			LEFT JOIN subscriptions s 
+			ON        s.id=q.subscription_id 
+			ORDER BY  q.order_num, 
+					  q.s_id DESC(0,216)
+		 */
+
+		Int32 nGroupID = LoginManager.GetLoginGroupID();
+
+        theTable += @"SELECT q.editor_remarks, 
+       q.order_num, 
+       q.is_active, 
+       q.status, 
+       q.s_id            AS 'ID', 
+       q.s_id            AS 'CID', 
+       p.base_url        AS 'Pic', 
+       q.NAME            AS 'Name', 
+       q.admin_name      AS 'Uniqe Name', 
+       q.description     AS 'Description', 
+       q.is_rss          AS 'Enables feed', 
+       q.channel_type    AS 'Channel Type', 
+       s.NAME            AS 'Subscription', 
+       q.s_desc          AS 'State', 
+       q.channel_type_id AS channel_type 
+FROM   (SELECT CASE c.channel_type 
+                 WHEN 4 THEN 'KSQL' 
+                 ELSE lct.description 
+               END             AS 'channel_type', 
+               c.subscription_id, 
+               c.order_num     AS 'order_num', 
+               c.is_active     AS 'q_ia', 
+               c.pic_id        AS 'pic_id', 
+               CASE c.is_rss 
+                 WHEN 0 THEN 'False' 
+                 ELSE 'True' 
+               END             AS is_rss, 
+               c.status, 
+               c.NAME          AS 'NAME', 
+               c.admin_name    AS 'ADMIN_NAME', 
+               c.description   AS 'Description', 
+               c.id            AS 's_id', 
+               lcs.description AS 's_desc', 
+               c.is_active, 
+               c.editor_remarks, 
+               c.channel_type  AS channel_type_id 
+        FROM   channels c 
+               LEFT JOIN lu_channel_type lct 
+                      ON(lct.id = c.channel_type) 
+               LEFT JOIN lu_content_status lcs 
+                      ON lcs.id = c.status 
+        WHERE  c.status <> 2 AND c.channel_type IN (1,2,3,4)";
+
         if (Session["search_free"] != null && Session["search_free"].ToString() != "")
         {
             string sLike = "like('%" + Session["search_free"].ToString().Replace("'", "''") + "%')";
@@ -113,135 +216,148 @@ public partial class adm_channels : System.Web.UI.Page
         }
         theTable += "and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("c.group_id", "=", nGroupID);
-        theTable += " )q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p") + " left join subscriptions s ON s.id=q.subscription_id";
+
+        theTable += @") q LEFT JOIN pics p 
+              ON p.id = q.pic_id and ";
+
+        theTable += PageUtils.GetStatusQueryPart("p");
+        theTable += @" LEFT JOIN subscriptions s 
+              ON s.id = q.subscription_id ";
+
         if (sOrderBy != "")
         {
             theTable += " order by ";
             theTable += sOrderBy;
         }
         else
+        {
             theTable += " order by q.order_num,q.s_id desc";
-        theTable.AddHiddenField("ID");
-        theTable.AddHiddenField("status");
-        theTable.AddOrderByColumn("Name", "q.NAME");
-        theTable.AddOrderByColumn("ID", "q.s_id");
-        theTable.AddOrderByColumn("State", "q.s_desc");
-        theTable.AddOrderByColumn("Channel Type", "q.channel_type");
-        theTable.AddOrderByColumn("Channel ID", "q.s_id");
-        theTable.AddImageField("Pic");
-        theTable.AddTechDetails("channels");
-        theTable.AddOrderNumField("channels", "id", "order_num", "Order Number");
-        theTable.AddHiddenField("order_num");
-        theTable.AddEditorRemarks("channels");
-        theTable.AddHiddenField("EDITOR_REMARKS");
-        theTable.AddActivationField("channels", "adm_channels.aspx");
-        theTable.AddHiddenField("is_active");
-
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_media.aspx", "Media", "");
-            linkColumn1.AddQueryStringValue("channel_id", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_statistics_views.aspx", "Statistics", "");
-            linkColumn1.AddQueryStringValue("channel_id", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("channel_id", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "channels");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "channels");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
-        }
+		theTable.AddHiddenField("ID");
+		theTable.AddHiddenField("status");
+		theTable.AddOrderByColumn("Name", "q.NAME");
+		theTable.AddOrderByColumn("ID", "q.s_id");
+		theTable.AddOrderByColumn("State", "q.s_desc");
+		theTable.AddOrderByColumn("Channel Type", "q.channel_type");
+		theTable.AddOrderByColumn("Channel ID", "q.s_id");
+		theTable.AddImageField("Pic");
+		theTable.AddTechDetails("channels");
+		theTable.AddOrderNumField("channels", "id", "order_num", "Order Number");
+		theTable.AddHiddenField("order_num");
+		theTable.AddEditorRemarks("channels");
+		theTable.AddHiddenField("EDITOR_REMARKS");
+		theTable.AddHiddenField("channel_type");
+		theTable.AddActivationField("channels", "adm_channels.aspx");
+		theTable.AddHiddenField("is_active");
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "channels");
-            linkColumn.AddQueryStringValue("confirm", "false");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
-        }
-    }
+		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+		{
+			DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_media.aspx", "Media", "");
+			linkColumn1.AddQueryStringValue("channel_id", "field=id");
+			linkColumn1.AddQueryStringValue("type_id", "field=channel_type");
+			theTable.AddLinkColumn(linkColumn1);
+		}
+		{
+			DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_statistics_views.aspx", "Statistics", "");
+			linkColumn1.AddQueryStringValue("channel_id", "field=id");
+			theTable.AddLinkColumn(linkColumn1);
+		}
+		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+		{
+			DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_new.aspx", "Edit", "");
+			linkColumn1.AddQueryStringValue("channel_id", "field=id");
+			linkColumn1.AddQueryStringValue("type_id", "field=channel_type");
+			theTable.AddLinkColumn(linkColumn1);
+		}
+		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+		{
+			DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
+			linkColumn.AddQueryStringValue("id", "field=id");
+			linkColumn.AddQueryStringValue("table", "channels");
+			linkColumn.AddQueryStringValue("confirm", "true");
+			linkColumn.AddQueryStringValue("main_menu", "6");
+			linkColumn.AddQueryStringValue("sub_menu", "2");
+			linkColumn.AddQueryStringValue("rep_field", "NAME");
+			linkColumn.AddQueryStringValue("rep_name", "ων");
+			theTable.AddLinkColumn(linkColumn);
+		}
 
-    public string GetPageContent(string sOrderBy, string sPageNum, string search_free, string search_channel_type)
-    {
-        if (search_free != "")
-            Session["search_free"] = search_free.Replace("'", "''");
-        else if (Session["search_save"] == null)
-            Session["search_free"] = "";
+		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+		{
+			DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
+			linkColumn.AddQueryStringValue("id", "field=id");
+			linkColumn.AddQueryStringValue("table", "channels");
+			linkColumn.AddQueryStringValue("confirm", "true");
+			linkColumn.AddQueryStringValue("main_menu", "6");
+			linkColumn.AddQueryStringValue("sub_menu", "2");
+			linkColumn.AddQueryStringValue("rep_field", "NAME");
+			linkColumn.AddQueryStringValue("rep_name", "ων");
+			theTable.AddLinkColumn(linkColumn);
+		}
 
-        if (search_channel_type != "-1")
-            Session["search_channel_type"] = search_channel_type;
-        else if (Session["search_save"] == null)
-            Session["search_channel_type"] = "";
+		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+		{
+			DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+			linkColumn.AddQueryStringValue("id", "field=id");
+			linkColumn.AddQueryStringValue("table", "channels");
+			linkColumn.AddQueryStringValue("confirm", "false");
+			linkColumn.AddQueryStringValue("main_menu", "6");
+			linkColumn.AddQueryStringValue("sub_menu", "2");
+			linkColumn.AddQueryStringValue("rep_field", "NAME");
+			linkColumn.AddQueryStringValue("rep_name", "ων");
+			theTable.AddLinkColumn(linkColumn);
+		}
+	}
 
-        if (sOrderBy != "")
-            Session["order_by"] = sOrderBy;
-        else if (Session["search_save"] == null)
-            Session["order_by"] = "";
-        else
-            sOrderBy = Session["order_by"].ToString();
+	public string GetPageContent(string sOrderBy, string sPageNum, string search_free, string search_channel_type)
+	{
+		if (search_free != "")
+			Session["search_free"] = search_free.Replace("'", "''");
+		else if (Session["search_save"] == null)
+			Session["search_free"] = "";
 
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
+		if (search_channel_type != "-1")
+			Session["search_channel_type"] = search_channel_type;
+		else if (Session["search_save"] == null)
+			Session["search_channel_type"] = "";
 
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 20);
-        FillTheTableEditor(ref theTable, sOrderBy);
+		if (sOrderBy != "")
+			Session["order_by"] = sOrderBy;
+		else if (Session["search_save"] == null)
+			Session["order_by"] = "";
+		else
+			sOrderBy = Session["order_by"].ToString();
 
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
-        theTable.Finish();
-        theTable = null;
-        return sTable;
-    }
+		string sOldOrderBy = "";
+		if (Session["order_by"] != null)
+			sOldOrderBy = Session["order_by"].ToString();
 
-    public void GetCahannelsIFrame()
-    {
-        string sRet = "<IFRAME SRC=\"admin_tree_player.aspx";
-        sRet += "\" WIDTH=\"800px\" HEIGHT=\"300px\" FRAMEBORDER=\"0\"></IFRAME>";
-        Response.Write(sRet);
-    }
+		DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 20);
+		FillTheTableEditor(ref theTable, sOrderBy);
 
-    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
-    {
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        List<int> idsToUpdate = new List<int>();
+		string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
+		theTable.Finish();
+		theTable = null;
+		return sTable;
+	}
 
-        eAction eAction;
-        int nAction = int.Parse(sStatus);
-        eAction = (nAction == 0) ? eAction = eAction.Delete : eAction = eAction.Update;
+	public void GetCahannelsIFrame()
+	{
+		string sRet = "<IFRAME SRC=\"admin_tree_player.aspx";
+		sRet += "\" WIDTH=\"800px\" HEIGHT=\"300px\" FRAMEBORDER=\"0\"></IFRAME>";
+		Response.Write(sRet);
+	}
 
-        bool result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
-    }
+	public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+	{
+		Int32 nGroupID = LoginManager.GetLoginGroupID();
+		List<int> idsToUpdate = new List<int>();
+
+		eAction eAction;
+		int nAction = int.Parse(sStatus);
+		eAction = (nAction == 0) ? eAction = eAction.Delete : eAction = eAction.Update;
+
+		bool result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+	}
 }

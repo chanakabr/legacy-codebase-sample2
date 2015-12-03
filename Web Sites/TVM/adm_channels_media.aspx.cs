@@ -28,6 +28,18 @@ public partial class adm_channels_media : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            // if this is a KSQL channel, go back
+            if (Request.QueryString["type_id"] != null)
+            {
+                string typeId = Request.QueryString["type_id"];
+
+                // if this is a KSQL channel
+                if (typeId == 4.ToString())
+                {
+                    Response.Redirect("adm_channels.aspx");
+                }
+            }
+
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);

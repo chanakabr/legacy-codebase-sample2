@@ -56,6 +56,19 @@ public partial class adm_channels_new : System.Web.UI.Page
                 }
                 return;
             }
+
+            // if this is a KSQL channel
+            if (Request.QueryString["type_id"] != null)
+            {
+                string typeId = Request.QueryString["type_id"];
+
+                // if this is a KSQL channel
+                if (typeId == 4.ToString())
+                {
+                    Response.Redirect(string.Format("adm_ksql_channel_new.aspx?channel_id={0}", Request.QueryString["channel_id"]));
+                }
+            }
+
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
             if (Request.QueryString["channel_id"] != null &&
