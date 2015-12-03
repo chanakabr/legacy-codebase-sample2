@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// user suspended = 2001, error saving payment gateway household = 6017, household already set to payment gateway = 6024, payment gateway selection is disabled = 6028,
+        /// user suspended = 2001, payment gateway id is required = 6005, error saving payment gateway household = 6017, household already set to payment gateway = 6024, payment gateway selection is disabled = 6028,
         /// payment gateway not valid = 6043
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
