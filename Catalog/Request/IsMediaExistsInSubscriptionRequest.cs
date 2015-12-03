@@ -143,7 +143,9 @@ namespace Catalog.Request
                         {
                             List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
                             int nOwnerGroup = groupInCache.m_nParentGroupID;
+
                             bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(nOwnerGroup, lChannelIDs, request.m_nMediaID);
+
                             if (bDoesMediaBelongToSubscription)
                             {
                                 response.m_bExists = true;

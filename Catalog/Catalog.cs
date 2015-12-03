@@ -5211,7 +5211,7 @@ namespace Catalog
 			return status;
 		}
 
-		private static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
+		public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
 		{
 			UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
