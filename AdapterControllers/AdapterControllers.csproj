@@ -88,25 +88,25 @@
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\RecommendationEngineAdapter\Service.wsdl" />
     <None Include="Service References\RecommendationEngineAdapter\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\RecommendationEngineAdapter\Service1.xsd">
+    <None Include="Service References\RecommendationEngineAdapter\Service1.wsdl" />
+    <None Include="Service References\RecommendationEngineAdapter\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\RecommendationEngineAdapter\Service2.xsd">
+    <None Include="Service References\RecommendationEngineAdapter\Service41.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\RecommendationEngineAdapter\Service3.xsd">
+    <None Include="Service References\RecommendationEngineAdapter\Service42.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service43.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\RecommendationEngineAdapter\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\RecommendationEngineAdapter\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RecommendationEngineAdapter\configuration91.svcinfo" />
@@ -119,6 +119,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RecommendationEngineAdapter\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

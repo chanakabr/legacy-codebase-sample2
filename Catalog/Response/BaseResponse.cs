@@ -37,6 +37,7 @@ namespace Catalog.Response
     [KnownType(typeof(DomainLastPositionResponse))]
     [KnownType(typeof(UnifiedSearchResponse))]
     [KnownType(typeof(AssetInfoResponse))]
+    [KnownType(typeof(MediaIdsStatusResponse))]
     public class BaseResponse
     {  
         [DataMember]

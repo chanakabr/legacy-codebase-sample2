@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
+using System.ServiceModel;
 
 namespace AdapterControllers
 {
@@ -189,6 +190,118 @@ namespace AdapterControllers
                     engine.ID,
                     externalChannel.ID
                     );
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return searchResults;
+        }
+
+        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, Int32 siteGuid, Int32 deviceId, 
+                                                                    string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments)
+        {
+            List<RecommendationResult> searchResults = new List<RecommendationResult>();
+
+            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
+            
+            if (engine == null)
+            {
+                throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
+            }
+            engine.AdapterUrl=@"http://localhost:81/readapter/service.svc";
+            if (string.IsNullOrEmpty(engine.AdapterUrl))
+            {
+                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
+
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+
+            //set unixTimestamp
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            //TODO: verify that signature is correct
+            string signature =
+                string.Concat(sSignature, unixTimestamp);
+
+            var enrichmentsList =
+                enrichments.Select(item => new RecommendationEngineAdapter.KeyValue()
+                {
+                    Key = item.Key,
+                    Value = item.Value
+                });
+
+            try
+            {
+                string enrichmentsString = string.Join(";", enrichmentsList.Select(item => string.Concat("Key: ", item.Key, ", Value: ", item.Value)));
+
+                log.DebugFormat("Sending related request to recommendation engine adapter. meida ID = {0}, engine = {1}, enrichments = {2}",
+                    nMediaID,
+                    engine.ID,
+                    enrichmentsString);
+
+                //call Adapter get channel recommendations
+                var adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
+                    nMediaID, nMediaTypeID, siteGuid, deviceId, language,
+                    enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                    unixTimestamp, 
+                    System.Convert.ToBase64String(
+                        EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+
+                LogAdapterResponse(adapterResponse, "GetRelatedRecommendation");
+
+                if (adapterResponse != null && adapterResponse.Status != null &&
+                    adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                {
+                    #region Send Configuration if not found
+
+                    string key = string.Format("RecommendationsEngine_Adapter_Locker_{0}", engine.ID);
+
+                    // Build dictionary for synchronized action
+                    Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ENGINE, engine},
+                        {PARAMETER_GROUP_ID, nGroupID}
+                    };
+
+                    configurationSynchronizer.DoAction(key, parameters);
+
+                    //call Adapter get related recommendations - after it is configured
+                    adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
+                        nMediaID, nMediaTypeID, siteGuid, deviceId, language,
+                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        unixTimestamp,
+                        System.Convert.ToBase64String(
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+
+                    LogAdapterResponse(adapterResponse, "GetRelatedRecommendation");
+
+                    #endregion
+                }
+
+                if (adapterResponse != null && adapterResponse.Status != null)
+                {
+                    // If something went wrong in the adapter, throw relevant exception
+                    if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+                    }
+                    else if (adapterResponse.Results != null)
+                    {
+                        searchResults =
+                            adapterResponse.Results.Select(result =>
+                                new RecommendationResult()
+                                {
+                                    id = result.AssetId,
+                                    type = (eAssetTypes)result.AssetType
+                                }).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in get related recommendations: error = {0} ", ex);
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 

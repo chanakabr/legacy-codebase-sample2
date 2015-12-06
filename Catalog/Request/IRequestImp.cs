@@ -39,7 +39,8 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(ChannelViewsRequest))]
         [ServiceKnownType(typeof(DomainLastPositionRequest))]
         [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
-        
+        [ServiceKnownType(typeof(MediaRelatedExternalRequest))]
+
         [OperationContract]
         BaseResponse GetResponse(BaseRequest oBaseRequest);
     }
