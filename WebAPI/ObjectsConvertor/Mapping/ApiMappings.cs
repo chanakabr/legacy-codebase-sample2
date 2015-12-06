@@ -190,7 +190,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
         }
 
-        private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalChannelEnrichment[] list)
+        private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalRecommendationEngineEnrichment[] list)
         {
             List<KalturaChannelEnrichmentHolder> result = null;
 
@@ -198,55 +198,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new List<KalturaChannelEnrichmentHolder>();
 
-                foreach (ExternalChannelEnrichment externalChannelEnrichment in list)
+                foreach (ExternalRecommendationEngineEnrichment ExternalRecommendationEngineEnrichment in list)
                 {
-                    result.Add(ConvertChannelEnrichment(externalChannelEnrichment));
+                    result.Add(ConvertChannelEnrichment(ExternalRecommendationEngineEnrichment));
                 }
             }
 
             return result;
         }
 
-        private static KalturaChannelEnrichmentHolder ConvertChannelEnrichment(ExternalChannelEnrichment type)
+        private static KalturaChannelEnrichmentHolder ConvertChannelEnrichment(ExternalRecommendationEngineEnrichment type)
         {
             KalturaChannelEnrichmentHolder result = null;
 
             switch (type)
             {
-                case ExternalChannelEnrichment.AtHome:
+                case ExternalRecommendationEngineEnrichment.AtHome:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
                     break;
-                case ExternalChannelEnrichment.Catchup:
+                case ExternalRecommendationEngineEnrichment.Catchup:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
                     break;
-                case ExternalChannelEnrichment.ClientLocation:
+                case ExternalRecommendationEngineEnrichment.ClientLocation:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
                     break;
-                case ExternalChannelEnrichment.DeviceId:
+                case ExternalRecommendationEngineEnrichment.DeviceId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceId };
                     break;
-                case ExternalChannelEnrichment.DeviceType:
+                case ExternalRecommendationEngineEnrichment.DeviceType:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceType };
                     break;
-                case ExternalChannelEnrichment.DTTRegion:
+                case ExternalRecommendationEngineEnrichment.DTTRegion:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DTTRegion };
                     break;
-                case ExternalChannelEnrichment.HouseholdId:
+                case ExternalRecommendationEngineEnrichment.HouseholdId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HouseholdId };
                     break;
-                case ExternalChannelEnrichment.Language:
+                case ExternalRecommendationEngineEnrichment.Language:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Language };
                     break;
-                case ExternalChannelEnrichment.NPVRSupport:
+                case ExternalRecommendationEngineEnrichment.NPVRSupport:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
                     break;
-                case ExternalChannelEnrichment.Parental:
+                case ExternalRecommendationEngineEnrichment.Parental:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
                     break;
-                case ExternalChannelEnrichment.UserId:
+                case ExternalRecommendationEngineEnrichment.UserId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
                     break;
-                case ExternalChannelEnrichment.UTCOffset:
+                case ExternalRecommendationEngineEnrichment.UTCOffset:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOffset };
                     break;
 
@@ -257,16 +257,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static ExternalChannelEnrichment[] ConvertEnrichments(List<KalturaChannelEnrichmentHolder> list)
+        private static ExternalRecommendationEngineEnrichment[] ConvertEnrichments(List<KalturaChannelEnrichmentHolder> list)
         {
-            List<ExternalChannelEnrichment> result = null;
+            List<ExternalRecommendationEngineEnrichment> result = null;
 
             if (list != null && list.Count > 0)
             {
-                result = new List<ExternalChannelEnrichment>();
+                result = new List<ExternalRecommendationEngineEnrichment>();
                 if (list != null && list.Count > 0)
                 {
-                    result = new List<ExternalChannelEnrichment>();
+                    result = new List<ExternalRecommendationEngineEnrichment>();
 
                     foreach (KalturaChannelEnrichmentHolder kalturaChannelEnrichmentHolder in list)
                     {
@@ -284,47 +284,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static ExternalChannelEnrichment ConvertChannelEnrichment(KalturaChannelEnrichment type)
+        private static ExternalRecommendationEngineEnrichment ConvertChannelEnrichment(KalturaChannelEnrichment type)
         {
-            ExternalChannelEnrichment result ;
+            ExternalRecommendationEngineEnrichment result ;
 
             switch (type)
             {
                 case KalturaChannelEnrichment.AtHome:
-                    result = ExternalChannelEnrichment.AtHome;
+                    result = ExternalRecommendationEngineEnrichment.AtHome;
                     break;
                 case KalturaChannelEnrichment.Catchup:
-                    result = ExternalChannelEnrichment.Catchup;
+                    result = ExternalRecommendationEngineEnrichment.Catchup;
                     break;
                 case KalturaChannelEnrichment.ClientLocation:
-                    result = ExternalChannelEnrichment.ClientLocation;
+                    result = ExternalRecommendationEngineEnrichment.ClientLocation;
                     break;
                 case KalturaChannelEnrichment.DeviceId:
-                    result = ExternalChannelEnrichment.DeviceId ;
+                    result = ExternalRecommendationEngineEnrichment.DeviceId ;
                     break;
                 case KalturaChannelEnrichment.DeviceType:
-                    result = ExternalChannelEnrichment.DeviceType;
+                    result = ExternalRecommendationEngineEnrichment.DeviceType;
                     break;
                 case KalturaChannelEnrichment.DTTRegion:
-                    result = ExternalChannelEnrichment.DTTRegion;
+                    result = ExternalRecommendationEngineEnrichment.DTTRegion;
                     break;
                 case KalturaChannelEnrichment.HouseholdId:
-                    result = ExternalChannelEnrichment.HouseholdId;
+                    result = ExternalRecommendationEngineEnrichment.HouseholdId;
                     break;
                 case KalturaChannelEnrichment.Language:
-                    result = ExternalChannelEnrichment.Language;
+                    result = ExternalRecommendationEngineEnrichment.Language;
                     break;
                 case KalturaChannelEnrichment.NPVRSupport:
-                    result = ExternalChannelEnrichment.NPVRSupport;
+                    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
                     break;
                 case KalturaChannelEnrichment.Parental:
-                    result = ExternalChannelEnrichment.Parental;
+                    result = ExternalRecommendationEngineEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
-                    result = ExternalChannelEnrichment.UserId;
+                    result = ExternalRecommendationEngineEnrichment.UserId;
                     break;
                 case KalturaChannelEnrichment.UTCOffset:
-                    result = ExternalChannelEnrichment.UTCOffset;
+                    result = ExternalRecommendationEngineEnrichment.UTCOffset;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown external channel enrichment");
