@@ -88,8 +88,6 @@ namespace Catalog.Request
                     return mediaResponse;
                 }
 
-                mediaResponse.Status = Catalog.GetExternalRelatedAssets(mediaRelatedRequest, out totalItems, out results);
-
 			    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
                 var allRecommendations = results.Select(result =>
