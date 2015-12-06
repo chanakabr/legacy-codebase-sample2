@@ -7,7 +7,7 @@ using System.Text;
 namespace ApiObjects.SearchObjects
 {
     [DataContract]
-    public class EpgSearchObj
+    public class EpgSearchObj :  BaseSearchObject
     {
         public bool m_bSearchOnlyDatesAndChannels;
         public bool m_bIsCurrent;

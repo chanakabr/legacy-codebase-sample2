@@ -246,6 +246,7 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
+    <Compile Include="SearchObjects\BaseSearchObject.cs" />
     <Compile Include="SearchObjects\BooleanLeaf.cs" />
     <Compile Include="SearchObjects\BooleanPhrase.cs" />
     <Compile Include="SearchObjects\BooleanPhraseNode.cs" />

@@ -187,7 +187,7 @@ namespace ElasticSearch.Searcher
             return fullQuery;
         }
 
-        private void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm)
         {
             ESPrefix epgPrefixTerm = new ESPrefix()
             {

@@ -7,7 +7,7 @@ using System.Text;
 namespace ApiObjects.SearchObjects
 {
     [DataContract]
-    public class UnifiedSearchDefinitions
+    public class UnifiedSearchDefinitions :  BaseSearchObject
     {
         #region Data Members
 
