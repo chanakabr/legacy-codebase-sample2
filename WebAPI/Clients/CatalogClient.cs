@@ -350,6 +350,40 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // build request
+            MediaRelatedExternalRequest request = new MediaRelatedExternalRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nMediaID = mediaId,
+                m_nMediaTypes = mediaTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
+                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
+
+            result = CatalogUtils.GetMediaWithStatus(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+
+            return result;
+        }
+
         public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with, List<KeyValue> filterTags,
             WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)

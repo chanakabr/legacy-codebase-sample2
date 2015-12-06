@@ -310,6 +310,31 @@ namespace WebAPI.Utils
             return result;
         }
 
+        public static KalturaAssetInfoListResponse GetMediaWithStatus(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // fire request
+            MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(client, request, out mediaIdsResponse, true, key)
+                || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                if (mediaIdsResponse == null)
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+
+                // general error
+                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+            }
+
+            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            {
+
+                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
+            return result;
+        }
+
         public static List<KalturaAssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
         {
             List<KalturaAssetInfo> result = null;

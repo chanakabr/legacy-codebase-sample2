@@ -434,5 +434,57 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Returns related media from external recommendation engine by media identifier<br />        
+        /// </summary>        
+        /// <param name="media_id">Media identifier</param>
+        /// <param name="media_types">Related media types list - possible values:
+        /// any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.</param>        
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="pager">Paging filter</param>
+        /// <param name="language">Language code</param>        
+        /// <remarks></remarks>
+        [Route("relatedExternal"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaAssetInfoListResponse relatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffet = 0,
+            List<KalturaCatalogWithHolder> with = null, string language = null)
+        {
+            KalturaAssetInfoListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (media_id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
+            }
+
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
+
+            if (filter_type_ids == null)
+                filter_type_ids = new List<KalturaIntegerValue>();
+
+            if (pager == null)
+                pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
+
+            string udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                    language, pager.PageIndex, pager.PageSize, media_id, filter_type_ids.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
