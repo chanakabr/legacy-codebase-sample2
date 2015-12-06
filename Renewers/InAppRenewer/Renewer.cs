@@ -14,14 +14,29 @@ namespace InAppRenewer
         static protected object o = new object();
         protected Int32 m_nGroupID;
         protected int m_nBillingProvider = 200;
+        protected int m_nMinutes = -120;
 
         public Renewer(Int32 nTaskID, Int32 nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {
             if (!string.IsNullOrEmpty(sParameters))
             {
-                m_nGroupID = int.Parse(sParameters);
+                string[] seperator = { "||" };
+                string[] splited = sParameters.Split(seperator, StringSplitOptions.None);
 
+                if (splited.Length > 0)
+                {
+                    m_nGroupID = int.Parse(splited[0]);
+
+                    if (splited.Length > 1)
+                    {
+                        m_nMinutes = int.Parse(splited[1]);
+                    }
+                }
+                else
+                {
+                    m_nGroupID = int.Parse(sParameters);
+                }
             }
             else
             {
@@ -84,8 +99,8 @@ namespace InAppRenewer
             string sList = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
-            selectQuery += "select top 10 * from subscriptions_purchases where IS_ACTIVE=1 and STATUS=1 and IS_RECURRING_STATUS=1 and RECURRING_RUNTIME_STATUS=0 and  ";
-            selectQuery += "end_date<GETDATE()";
+            selectQuery += "select top 10 * from subscriptions_purchases where IS_ACTIVE=1 and STATUS=1 and IS_RECURRING_STATUS=1 and RECURRING_RUNTIME_STATUS=0 and ";
+            selectQuery += string.Format("DATEADD(minute,{0},END_DATE) < GETDATE()", m_nMinutes);
             if (m_nGroupID != 0)
             {
                 selectQuery += "and";
@@ -202,7 +217,8 @@ namespace InAppRenewer
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
             updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECURRING_RUNTIME_STATUS", "=", 0);
-            updateQuery += " where RECURRING_RUNTIME_STATUS=1 and IS_ACTIVE=1 and STATUS=1 and IS_RECURRING_STATUS=1";
+            updateQuery += " where RECURRING_RUNTIME_STATUS=1 and IS_ACTIVE=1 and STATUS=1 and IS_RECURRING_STATUS=1 and";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
