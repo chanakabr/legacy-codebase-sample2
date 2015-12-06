@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using System.Data.SqlClient;
 
 namespace ODBCWrapper
 {
@@ -92,7 +93,7 @@ namespace ODBCWrapper
             {
                 int_Execute();
                 oraStr = m_sOraStr;
-                OdbcDataAdapter adapter = new OdbcDataAdapter();
+                SqlDataAdapter adapter = new SqlDataAdapter();
                 adapter.SelectCommand = command;
 
                 try
