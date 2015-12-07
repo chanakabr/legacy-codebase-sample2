@@ -2115,9 +2115,6 @@ namespace WebAPI.Catalog {
         private System.Collections.Generic.List<int> m_nMediaTypesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nUserIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2163,19 +2160,6 @@ namespace WebAPI.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nUserID {
-            get {
-                return this.m_nUserIDField;
-            }
-            set {
-                if ((this.m_nUserIDField.Equals(value) != true)) {
-                    this.m_nUserIDField = value;
-                    this.RaisePropertyChanged("m_nUserID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public int m_nUtcOffset {
             get {
                 return this.m_nUtcOffsetField;
@@ -2215,9 +2199,6 @@ namespace WebAPI.Catalog {
         private System.Collections.Generic.List<int> m_nMediaTypesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nUserIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2248,19 +2229,6 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
                     this.m_nMediaTypesField = value;
                     this.RaisePropertyChanged("m_nMediaTypes");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nUserID {
-            get {
-                return this.m_nUserIDField;
-            }
-            set {
-                if ((this.m_nUserIDField.Equals(value) != true)) {
-                    this.m_nUserIDField = value;
-                    this.RaisePropertyChanged("m_nUserID");
                 }
             }
         }
