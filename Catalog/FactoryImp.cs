@@ -225,6 +225,14 @@ namespace Catalog
             {
                 return (InternalChannelRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is MediaRelatedExternalRequest)
+            {
+                return new MediaRelatedExternalRequest((MediaRelatedExternalRequest)this.m_oBaseRequest);
+            }
+            if (m_oBaseRequest is MediaSearchExternalRequest)
+            {
+                return new MediaSearchExternalRequest((MediaSearchExternalRequest)this.m_oBaseRequest);
+            }
 
             return null;
         }

@@ -63,13 +63,23 @@ namespace GroupsCacheManager
             bool isRegionalizationEnabled;
             int defaultRegion;
             int defaultRecommendationEngine;
+            int relatedRecommendationEngine;
+            int searchRecommendationEngine;
+            int relatedRecommendationEngineEnrichments;
+            int searchRecommendationEngineEnrichments;
 
             CatalogDAL.GetGroupDefaultParameters(group.m_nParentGroupID,
-                out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine);
+                out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine,
+                out relatedRecommendationEngine, out searchRecommendationEngine,
+                out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments);
 
             group.isRegionalizationEnabled = isRegionalizationEnabled;
             group.defaultRegion = defaultRegion;
             group.defaultRecommendationEngine = defaultRecommendationEngine;
+            group.RelatedRecommendationEngine = relatedRecommendationEngine;
+            group.SearchRecommendationEngine = searchRecommendationEngine;
+            group.RelatedRecommendationEngineEnrichments = relatedRecommendationEngineEnrichments;
+            group.SearchRecommendationEngineEnrichments = searchRecommendationEngineEnrichments;
         }
 
         /// <summary>

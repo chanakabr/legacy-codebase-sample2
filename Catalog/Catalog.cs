@@ -2178,6 +2178,15 @@ namespace Catalog
 			return retActionID;
 		}
 
+        internal static int GetMediaTypeID(int nMediaId)
+        {
+            int retTypeID = 0;
+
+            retTypeID = CatalogDAL.Get_MediaTypeIdByMediaId(nMediaId);
+            
+            return retTypeID;
+        }
+
 		internal static string GetMediaPlayResponse(MediaPlayResponse response)
 		{
 			string retXml = string.Empty;
@@ -4911,21 +4920,220 @@ namespace Catalog
 			return status;
 		}
 
+        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList)
+		{
+            Status status = new Status();
+            totalItems = 0;
+            resultsList = new List<RecommendationResult>();
+
+            BaseResponse respone = new BaseResponse();
+
+            GroupManager groupManager = new GroupManager();
+            
+            Group group = groupManager.GetGroup(request.m_nGroupID);
+            if (group != null)
+            {
+                int recommendationEngineId = group.RelatedRecommendationEngine;
+
+                if (recommendationEngineId == 0)
+                {
+                    status.Message = "Recommendation Engine Not Exist";
+                    status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+                    return status;
+                }
+                                
+                int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
+                if (mediaTypeID == 0)
+                {
+                    status.Message = "Media doesn’t exist";
+                    status.Code = (int)eResponseStatus.BadSearchRequest;
+                    return status;
+                }
+                
+                List<ExternalRecommendationEngineEnrichment> enrichmentsToSend = new List<ExternalRecommendationEngineEnrichment>();
+
+                foreach (int currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
+                {
+                    if ((group.RelatedRecommendationEngineEnrichments & currentValue) > 0)
+                    {
+                        enrichmentsToSend.Add((ExternalRecommendationEngineEnrichment)currentValue);
+                    }
+                }
+
+                Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
+
+                int deviceId = 0;
+                int.TryParse(request.m_oFilter.m_sDeviceId, out deviceId);
+
+                List<RecommendationResult> recommendations = null;
+
+                try
+                {
+                    recommendations =
+                        RecommendationAdapterController.GetInstance().GetRelatedRecommendations(recommendationEngineId,
+                                                                                                request.m_nMediaID,
+                                                                                                mediaTypeID,
+                                                                                                request.m_nGroupID,
+                                                                                                request.m_nUserID,
+                                                                                                deviceId,
+                                                                                                request.m_oFilter.m_nLanguage.ToString(),
+                                                                                                request.m_nUtcOffset,
+                                                                                                request.m_sUserIP,
+                                                                                                request.m_sSignature,
+                                                                                                request.m_sSignString,
+                                                                                                request.m_nMediaTypes,
+                                                                                                request.m_nPageSize,
+                                                                                                request.m_nPageIndex,
+                                                                                                enrichments);
+                }
+                catch (KalturaException ex)
+                {
+                    if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.RecommendationEngineNotExist)
+                    {
+                        status.Message = "Recommendation Engine Not Exist";
+                        status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+                    }
+                    if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.AdapterUrlRequired)
+                    {
+                        status.Message = "Recommendation engine adapter has no URL";
+                        status.Code = (int)eResponseStatus.AdapterUrlRequired;
+                    }
+                    else
+                    {
+                        status.Message = "Adapter failed completing request";
+                        status.Code = (int)eResponseStatus.AdapterAppFailure;
+                    }
+                    return status;
+                }
+
+                resultsList = recommendations;
+                totalItems = recommendations.Count;
+
+                if (recommendations == null)
+                {
+                    status.Code = (int)(eResponseStatus.AdapterAppFailure);
+                    status.Message = "No recommendations received";
+                    return status;
+                }
+
+                if (recommendations.Count == 0)
+                {
+                    return status;
+                }
+            }
+            return status;
+        }
+
+		internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList)
+		{
+			Status status = new Status();
+			totalItems = 0;
+			resultsList = new List<RecommendationResult>();
+
+			BaseResponse respone = new BaseResponse();
+
+			GroupManager groupManager = new GroupManager();
+
+			Group group = groupManager.GetGroup(request.m_nGroupID);
+			if (group != null)
+			{
+				int recommendationEngineId = group.SearchRecommendationEngine;
+
+				if (recommendationEngineId == 0)
+				{
+					status.Message = "Recommendation Engine Not Exist";
+					status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					return status;
+				}
+
+				List<ExternalRecommendationEngineEnrichment> enrichmentsToSend = new List<ExternalRecommendationEngineEnrichment>();
+
+				foreach (int currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
+				{
+					if ((group.SearchRecommendationEngineEnrichments & currentValue) > 0)
+					{
+						enrichmentsToSend.Add((ExternalRecommendationEngineEnrichment)currentValue);
+					}
+				}
+
+				Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
+
+				int deviceId = 0;
+				int.TryParse(request.m_oFilter.m_sDeviceId, out deviceId);
+
+				List<RecommendationResult> recommendations = null;
+
+				try
+				{
+					recommendations =
+						RecommendationAdapterController.GetInstance().GetSearchRecommendations(recommendationEngineId,
+																								request.m_sQuery,
+																								request.m_nGroupID,
+																								request.m_nUserID,
+																								deviceId,
+																								request.m_oFilter.m_nLanguage.ToString(),
+																								request.m_nUtcOffset,
+																								request.m_sUserIP,
+																								request.m_sSignature,
+																								request.m_sSignString,
+																								request.m_nMediaTypes,
+																								request.m_nPageSize,
+																								request.m_nPageIndex,
+																								enrichments);
+				}
+				catch (KalturaException ex)
+				{
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.RecommendationEngineNotExist)
+					{
+						status.Message = "Recommendation Engine Not Exist";
+						status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					}
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.AdapterUrlRequired)
+					{
+						status.Message = "Recommendation engine adapter has no URL";
+						status.Code = (int)eResponseStatus.AdapterUrlRequired;
+					}
+					else
+					{
+						status.Message = "Adapter failed completing request";
+						status.Code = (int)eResponseStatus.AdapterAppFailure;
+					}
+					return status;
+				}
+
+				resultsList = recommendations;
+				totalItems = recommendations.Count;
+
+				if (recommendations == null)
+				{
+					status.Code = (int)(eResponseStatus.AdapterAppFailure);
+					status.Message = "No recommendations received";
+					return status;
+				}
+
+				if (recommendations.Count == 0)
+				{
+					return status;
+				}
+			}
+			return status;
+		}
+
 		/// <summary>
 		/// Builds a dictionary of enrichments for recommendation engine adapter
 		/// </summary>
 		/// <param name="request"></param>
 		/// <param name="list"></param>
 		/// <returns></returns>
-		private static Dictionary<string, string> GetEnrichments(ExternalChannelRequest request, List<ExternalChannelEnrichment> list)
+        private static Dictionary<string, string> GetEnrichments(BaseRequest request, List<ExternalRecommendationEngineEnrichment> list)
 		{
 			Dictionary<string, string> dictionary = new Dictionary<string, string>();
 
-			foreach (ExternalChannelEnrichment enrichment in list)
+            foreach (ExternalRecommendationEngineEnrichment enrichment in list)
 			{
 				switch (enrichment)
 				{
-					case ExternalChannelEnrichment.ClientLocation:
+                    case ExternalRecommendationEngineEnrichment.ClientLocation:
 					{
 						try
 						{
@@ -4941,32 +5149,57 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.UserId:
+                    case ExternalRecommendationEngineEnrichment.UserId:
 					{
 						dictionary["user_id"] = request.m_sSiteGuid;
 						break;
 					}
-					case ExternalChannelEnrichment.HouseholdId:
+                    case ExternalRecommendationEngineEnrichment.HouseholdId:
 					{
 						dictionary["household_id"] = request.domainId.ToString();
 						break;
 					}
-					case ExternalChannelEnrichment.DeviceId:
+                    case ExternalRecommendationEngineEnrichment.DeviceId:
 					{
-						dictionary["device_id"] = request.deviceId;
+                        if (request is ExternalChannelRequest)
+                        {
+                            dictionary["device_id"] = (request as ExternalChannelRequest).deviceId;
+                        }
+                        if (request is MediaRelatedExternalRequest)
+                        {
+                            dictionary["device_id"] = (request as MediaRelatedExternalRequest).m_nDeviceID.ToString();
+                        }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["device_id"] = (request as MediaSearchExternalRequest).m_nDeviceID.ToString();
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.DeviceType:
+                    case ExternalRecommendationEngineEnrichment.DeviceType:
 					{
-						dictionary["device_type"] = request.deviceType;
+                        if (request is ExternalChannelRequest)
+                        {
+                            dictionary["device_type"] = (request as ExternalChannelRequest).deviceType;
+                        }
+                        break;
+					}
+                    case ExternalRecommendationEngineEnrichment.UTCOffset:
+					{
+                        if (request is ExternalChannelRequest)
+                        {
+						    dictionary["utc_offset"] = (request as ExternalChannelRequest).utcOffset;
+                        }
+                        if (request is MediaRelatedExternalRequest)
+                        {
+                            dictionary["utc_offset"] = (request as MediaRelatedExternalRequest).m_nUtcOffset.ToString();
+                        }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["utc_offset"] = (request as MediaSearchExternalRequest).m_nUtcOffset.ToString();
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.UTCOffset:
-					{
-						dictionary["utc_offset"] = request.utcOffset;
-						break;
-					}
-					case ExternalChannelEnrichment.Language:
+                    case ExternalRecommendationEngineEnrichment.Language:
 					{
 						// If requested specific language - use it. Otherwise, group's default
 						LanguageObj objLang = null;
@@ -4987,27 +5220,35 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.NPVRSupport:
+                    case ExternalRecommendationEngineEnrichment.NPVRSupport:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.Catchup:
+                    case ExternalRecommendationEngineEnrichment.Catchup:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
-					case ExternalChannelEnrichment.Parental:
+                    case ExternalRecommendationEngineEnrichment.Parental:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
-
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.DTTRegion:
+                    case ExternalRecommendationEngineEnrichment.DTTRegion:
 					{
 						// External ID of region of current domain
 
@@ -5025,17 +5266,23 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.AtHome:
+                    case ExternalRecommendationEngineEnrichment.AtHome:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
 					default:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
