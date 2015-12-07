@@ -56,6 +56,7 @@ namespace Catalog.Request
     [KnownType(typeof(InternalChannelRequest))]
     [KnownType(typeof(ExternalChannelRequest))]
     [KnownType(typeof(MediaRelatedExternalRequest))]
+    [KnownType(typeof(MediaSearchExternalRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
     [ServiceKnownType(typeof(DomainLastPositionRequest))]

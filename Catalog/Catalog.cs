@@ -4945,7 +4945,7 @@ namespace Catalog
                 int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
                 if (mediaTypeID == 0)
                 {
-                    status.Message = "Media type doesn’t exist";
+                    status.Message = "Media doesn’t exist";
                     status.Code = (int)eResponseStatus.BadSearchRequest;
                     return status;
                 }
@@ -5024,6 +5024,101 @@ namespace Catalog
             return status;
         }
 
+		internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList)
+		{
+			Status status = new Status();
+			totalItems = 0;
+			resultsList = new List<RecommendationResult>();
+
+			BaseResponse respone = new BaseResponse();
+
+			GroupManager groupManager = new GroupManager();
+
+			Group group = groupManager.GetGroup(request.m_nGroupID);
+			if (group != null)
+			{
+				int recommendationEngineId = group.SearchRecommendationEngine;
+
+				if (recommendationEngineId == 0)
+				{
+					status.Message = "Recommendation Engine Not Exist";
+					status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					return status;
+				}
+
+				List<ExternalRecommendationEngineEnrichment> enrichmentsToSend = new List<ExternalRecommendationEngineEnrichment>();
+
+				foreach (int currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
+				{
+					if ((group.SearchRecommendationEngineEnrichments & currentValue) > 0)
+					{
+						enrichmentsToSend.Add((ExternalRecommendationEngineEnrichment)currentValue);
+					}
+				}
+
+				Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
+
+				int deviceId = 0;
+				int.TryParse(request.m_oFilter.m_sDeviceId, out deviceId);
+
+				List<RecommendationResult> recommendations = null;
+
+				try
+				{
+					recommendations =
+						RecommendationAdapterController.GetInstance().GetSearchRecommendations(recommendationEngineId,
+																								request.m_sQuery,
+																								request.m_nGroupID,
+																								request.m_nUserID,
+																								deviceId,
+																								request.m_oFilter.m_nLanguage.ToString(),
+																								request.m_nUtcOffset,
+																								request.m_sUserIP,
+																								request.m_sSignature,
+																								request.m_sSignString,
+																								request.m_nMediaTypes,
+																								request.m_nPageSize,
+																								request.m_nPageIndex,
+																								enrichments);
+				}
+				catch (KalturaException ex)
+				{
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.RecommendationEngineNotExist)
+					{
+						status.Message = "Recommendation Engine Not Exist";
+						status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					}
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.AdapterUrlRequired)
+					{
+						status.Message = "Recommendation engine adapter has no URL";
+						status.Code = (int)eResponseStatus.AdapterUrlRequired;
+					}
+					else
+					{
+						status.Message = "Adapter failed completing request";
+						status.Code = (int)eResponseStatus.AdapterAppFailure;
+					}
+					return status;
+				}
+
+				resultsList = recommendations;
+				totalItems = recommendations.Count;
+
+				if (recommendations == null)
+				{
+					status.Code = (int)(eResponseStatus.AdapterAppFailure);
+					status.Message = "No recommendations received";
+					return status;
+				}
+
+				if (recommendations.Count == 0)
+				{
+					return status;
+				}
+			}
+			return status;
+		}
+
 		/// <summary>
 		/// Builds a dictionary of enrichments for recommendation engine adapter
 		/// </summary>
@@ -5074,6 +5169,10 @@ namespace Catalog
                         {
                             dictionary["device_id"] = (request as MediaRelatedExternalRequest).m_nDeviceID.ToString();
                         }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["device_id"] = (request as MediaSearchExternalRequest).m_nDeviceID.ToString();
+                        }
 						break;
 					}
                     case ExternalRecommendationEngineEnrichment.DeviceType:
@@ -5093,6 +5192,10 @@ namespace Catalog
                         if (request is MediaRelatedExternalRequest)
                         {
                             dictionary["utc_offset"] = (request as MediaRelatedExternalRequest).m_nUtcOffset.ToString();
+                        }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["utc_offset"] = (request as MediaSearchExternalRequest).m_nUtcOffset.ToString();
                         }
 						break;
 					}

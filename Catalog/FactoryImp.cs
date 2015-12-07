@@ -229,6 +229,10 @@ namespace Catalog
             {
                 return new MediaRelatedExternalRequest((MediaRelatedExternalRequest)this.m_oBaseRequest);
             }
+            if (m_oBaseRequest is MediaSearchExternalRequest)
+            {
+                return new MediaSearchExternalRequest((MediaSearchExternalRequest)this.m_oBaseRequest);
+            }
 
             return null;
         }
