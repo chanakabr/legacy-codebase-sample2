@@ -2120,6 +2120,9 @@ namespace WebAPI.Catalog {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int m_nDeviceID {
             get {
@@ -2184,6 +2187,19 @@ namespace WebAPI.Catalog {
                 }
             }
         }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sLanguage {
+            get {
+                return this.m_sLanguageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sLanguageField, value) != true)) {
+                    this.m_sLanguageField = value;
+                    this.RaisePropertyChanged("m_sLanguage");
+                }
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -2203,6 +2219,9 @@ namespace WebAPI.Catalog {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sQueryField;
@@ -2255,6 +2274,19 @@ namespace WebAPI.Catalog {
                 if ((this.m_nUtcOffsetField.Equals(value) != true)) {
                     this.m_nUtcOffsetField = value;
                     this.RaisePropertyChanged("m_nUtcOffset");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sLanguage {
+            get {
+                return this.m_sLanguageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sLanguageField, value) != true)) {
+                    this.m_sLanguageField = value;
+                    this.RaisePropertyChanged("m_sLanguage");
                 }
             }
         }
