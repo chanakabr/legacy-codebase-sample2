@@ -5713,6 +5713,28 @@ namespace Catalog
 			return definitions;
 		}
 
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group)
+        {
+            InternalChannelRequest channelRequest = new InternalChannelRequest(
+                channel.m_nChannelID.ToString(),
+                string.Empty,
+                group.m_nParentGroupID,
+                request.m_nPageSize,
+                request.m_nPageIndex,
+                request.m_sUserIP,
+                request.m_sSignature,
+                request.m_sSignString,
+                request.m_oFilter,
+                string.Empty,
+                new OrderObj()
+                {
+                    
+                }
+                );
+
+            return BuildInternalChannelSearchObject(channel, channelRequest, group);
+        }
+
 		private static MediaSearchObj BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, int groupId, LanguageObj languageObj, List<string> lPermittedWatchRules)
 		{
 			int[] nDeviceRuleId = null;

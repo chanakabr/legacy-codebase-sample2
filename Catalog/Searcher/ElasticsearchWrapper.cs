@@ -344,7 +344,19 @@ namespace Catalog
             return lSortedMedias;
         }
 
-
+        /// <summary>
+        /// Takes several search objects, joins them together and searches the assets in ES indexes.
+        /// </summary>
+        /// <param name="subscriptionGroupId"></param>
+        /// <param name="searchObjects"></param>
+        /// <param name="languageId"></param>
+        /// <param name="useStartDate"></param>
+        /// <param name="mediaTypes"></param>
+        /// <param name="order"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalItems"></param>
+        /// <returns></returns>
         public List<UnifiedSearchResult> SearchSubscriptionAssets(int subscriptionGroupId, List<BaseSearchObject> searchObjects, int languageId, bool useStartDate,
             string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems)
         {

@@ -138,10 +138,10 @@ namespace Catalog.Request
                                 if (searcher != null)
                                 {
                                     // Getting all medias in Bundle
-                                    SearchResultsObj oSearchResult = 
-                                        searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, 
-                                        request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
-                                        request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
+                                    SearchResultsObj oSearchResult = null;
+                                        //searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, 
+                                        //request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
+                                        //request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
 
                                     if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
                                     {
