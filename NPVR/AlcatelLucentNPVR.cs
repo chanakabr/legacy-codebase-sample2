@@ -929,6 +929,16 @@ namespace NPVR
             {
                 Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID);
 
+                // choose the higher domain number  ( not the Parent domain) 
+                int epgGroupId = groupID;
+
+                if (picGroupTree != null & picGroupTree.Keys.Count > 0)
+                {
+                    epgGroupId  = picGroupTree.Keys.Max();
+                    Logger.Logger.Log("NPVRPics", string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count), "NPVRPics");
+                }
+
+
                 foreach (EntryJSON entry in aluResponse.entries)
                 {
                     RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
@@ -1018,11 +1028,12 @@ namespace NPVR
 
                     if (!string.IsNullOrEmpty(entry.Thumbnail) && picGroupTree != null && picGroupTree.Count > 0)
                     {
+                        
                         if (!entry.Thumbnail.ToLower().StartsWith("http://"))
                         {
-                            if (picGroupTree.ContainsKey(groupID))
+                            if (picGroupTree.ContainsKey(epgGroupId))
                             {
-                                SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[groupID]);
+                                SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[epgGroupId]);
                                 if (obj.EPG_PICTURES.Count > 0)
                                 {
                                     obj.PIC_URL = obj.EPG_PICTURES[0].Url;
@@ -1030,7 +1041,7 @@ namespace NPVR
                             }
                             else
                             {
-                                Logger.Logger.Log("NPVRPics", string.Format("picGroupTree[{0}]: not exists", groupID), "NPVRPics");
+                                Logger.Logger.Log("NPVRPics", string.Format("picGroupTree[{0}]: not exists", epgGroupId), "NPVRPics");
                             }
                         }
 
@@ -1059,49 +1070,53 @@ namespace NPVR
                 return;
             }
 
-            int rationId = 0;
-            string picName = string.Empty;
-            string suffix = string.Empty;
+            StringBuilder urlStr;
 
-            foreach (KeyValuePair<int, KeyValuePair<string, string>> pair in ratioDic)
+            foreach (EpgPicture pic in pictures)
             {
-                rationId = pair.Key;
-                picName = pair.Value.Key;
-                suffix = pair.Value.Value;
-
-                foreach (EpgPicture pic in pictures)
+                if (ratioDic.ContainsKey(pic.RatioId))
                 {
-                    if (pic.RatioId == rationId)
-                    {
-                        StringBuilder urlStr = new StringBuilder();
-                        urlStr.Append(pic.Url);
-                        urlStr.Append(picName);
-                        urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
-                        urlStr.Append(suffix);
+                    urlStr = new StringBuilder();
+                    urlStr.Append(pic.Url);
+                    urlStr.Append(ratioDic[pic.RatioId].Key);
+                    urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
+                    urlStr.Append(ratioDic[pic.RatioId].Value);
 
-                        obj.EPG_PICTURES.Add(new EpgPicture() { PicHeight = pic.PicHeight, PicID = pic.PicID, PicWidth = pic.PicWidth, 
-                            Ratio = pic.Ratio, RatioId = pic.RatioId, Url = urlStr.ToString() });
-                    }
+                    Logger.Logger.Log("SetEpgPictures ", string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key), "NPVRPics");                    
+
+                    obj.EPG_PICTURES.Add(new EpgPicture()
+                    {
+                        PicHeight = pic.PicHeight,
+                        PicID = pic.PicID,
+                        PicWidth = pic.PicWidth,
+                        Ratio = pic.Ratio,
+                        RatioId = pic.RatioId,
+                        Url = urlStr.ToString()
+                    });
                 }
             }
         }
 
         private Dictionary<int, KeyValuePair<string, string>> SetRatioList(string thumbnail)
         {
+            Logger.Logger.Log("SetRatioList ", string.Format("thumbnail={0}", thumbnail), "NPVRPics");
+
             string sep = ";";
             var pics = thumbnail.Split(sep.ToCharArray());   //sample of thumbnail-->  [rationid]=[basepic].[suffix];;
             var list = new Dictionary<int, KeyValuePair<string, string>>();
-            int ratioId = 0;
-
+            
             foreach (string pic in pics)
             {
+                Logger.Logger.Log("SetRatioList ", string.Format("pic={0}", pic), "NPVRPics");
                 if (!string.IsNullOrEmpty(pic))
                 {
                     var internalStr = pic.Split((new char[] { '=', '.' }));
                     if (internalStr.Length == 3)
                     {
+                        int ratioId = 0;
                         if (int.TryParse(internalStr[0], out ratioId))
                         {
+                            Logger.Logger.Log("SetRatioList ", string.Format("pic={0} ratioId={1}", pic, ratioId), "NPVRPics");
                             list.Add(ratioId, new KeyValuePair<string, string>(internalStr[1], internalStr[2]));
                         }
                     }
