@@ -2879,6 +2879,7 @@ namespace Tvinci.Core.DAL
                                 width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
                                 height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
                                 ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                                ratioId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ratio_id");
 
                                 EpgPicture picture = new EpgPicture();
                                 picture.Initialize(width, height, ratio, baseUrl);
