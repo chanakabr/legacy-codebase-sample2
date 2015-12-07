@@ -1,23 +1,19 @@
 ﻿using AutoMapper;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Web;
+using System.Reflection;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Models;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.General;
+using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Users;
 using WebAPI.Utils;
-using WebAPI.Exceptions;
-using WebAPI.Models.General;
-using KLogMonitor;
-using System.Reflection;
-using WebAPI.Models.Users;
-using System.ServiceModel;
-using System.Net;
-using WebAPI.Managers.Models;
-using WebAPI.Models.Catalog;
-using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {
@@ -78,6 +74,33 @@ namespace WebAPI.Clients
             return user;
         }
 
+        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, NameValueCollection nameValueCollection)
+        {
+            return Login(groupId, userName, password, deviceId, GetExtraParamsFromHeader(nameValueCollection));
+        }
+
+        private Dictionary<string, KalturaStringValue> GetExtraParamsFromHeader(System.Collections.Specialized.NameValueCollection nameValueCollection)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (nameValueCollection != null && nameValueCollection.Count > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var key in nameValueCollection.AllKeys)
+                {
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        result.Add(key, new KalturaStringValue() { value = nameValueCollection[key]});
+                    }
+                }
+            }
+
+            // Check this as well
+
+            nameValueCollection.AllKeys.ToDictionary<string, KalturaStringValue>(t => new KalturaStringValue() { value = nameValueCollection[t] });
+
+            return result;
+        }
 
         public Models.Users.KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
         {
