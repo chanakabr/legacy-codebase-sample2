@@ -3059,9 +3059,9 @@ namespace TVPApiServices
         #region Collections
 
         [WebMethod(EnableSession = true, Description = "Get Bundle Media")]
-        public List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
         {
-            List<Media> lstMedia = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
             string clientIp = SiteHelper.GetClientIP();
 
@@ -3076,21 +3076,23 @@ namespace TVPApiServices
                         m_eOrderDir = orderDir,
                         m_eOrderBy = orderBy
                     };
-                    APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType)
+                    APIBundleMediaLoader loader = 
+                        new APIBundleMediaLoader(bundleId, mediaType, orderObj,
+                            groupID, groupID, initObj.Platform, clientIp, string.Empty, pageIndex, pageSize, bundleType, initObj.DomainID, initObj.Locale.LocaleLanguage)
                         {
                             Culture = initObj.Locale.LocaleLanguage,
                             SiteGuid = initObj.SiteGuid,
                             DomainId = initObj.DomainID
                         };
-                    dsItemInfo returnedRows = loader.Execute() as dsItemInfo;
-                    if (returnedRows != null && returnedRows.Tables != null && returnedRows.Tables[0].Rows != null && returnedRows.Tables[0].Rows.Count > 0)
-                    {
-                        lstMedia = new List<Media>();
-                        foreach (dsItemInfo.ItemRow row in returnedRows.Item.Rows)
-                        {
-                            lstMedia.Add(new Media(row, initObj, groupID, false));
-                        }
-                    }
+                    response = loader.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    //if (returnedRows != null && returnedRows.Tables != null && returnedRows.Tables[0].Rows != null && returnedRows.Tables[0].Rows.Count > 0)
+                    //{
+                    //    lstMedia = new List<Media>();
+                    //    foreach (dsItemInfo.ItemRow row in returnedRows.Item.Rows)
+                    //    {
+                    //        lstMedia.Add(new Media(row, initObj, groupID, false));
+                    //    }
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -3102,7 +3104,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return lstMedia;
+            return response;
         }
 
         [WebMethod(EnableSession = true, Description = "Get Bundle Media")]
@@ -3671,7 +3673,7 @@ namespace TVPApiServices
             return response;
         }
 
-        /*
+        
         [WebMethod(EnableSession = true, Description = "Get assets of a channel - internal or external")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj,
             string alias, 
@@ -3834,7 +3836,6 @@ namespace TVPApiServices
 
             return response;
         }
-        */
 
         [WebMethod(EnableSession = true, Description = "Get assets from an external source")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetExternalAssets(InitializationObject initObj,
