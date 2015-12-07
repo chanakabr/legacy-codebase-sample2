@@ -32,6 +32,8 @@ namespace Catalog.Request
         public Int32 m_nUtcOffset;
         [DataMember]
         public List<Int32> m_nMediaTypes;
+        [DataMember]
+        public string m_sLanguage = null;
 
         public MediaSearchExternalRequest()
             : base()
@@ -39,7 +41,7 @@ namespace Catalog.Request
             m_nMediaTypes = new List<Int32>();
         }
 
-        public MediaSearchExternalRequest(Int32 nGroupID, int nUserID, string query, Filter filter, string sUserIP, Int32 utcOffset,
+        public MediaSearchExternalRequest(Int32 nGroupID, int nUserID, string query, Filter filter, string sUserIP, Int32 utcOffset, string language,
                                            string sSignature, string sSignString, List<Int32> filterTypeIDs = null, Int32 nPageSize = 5, Int32 nPageIndex = 0)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, filter, sSignature, sSignString)
         {
@@ -48,6 +50,7 @@ namespace Catalog.Request
             m_nUtcOffset = utcOffset;
             if (!int.TryParse(filter.m_sDeviceId, out m_nDeviceID))
                 m_nDeviceID = 0;
+            m_nMediaTypes = filterTypeIDs;
             m_nMediaTypes = filterTypeIDs;
         }
 
@@ -58,6 +61,7 @@ namespace Catalog.Request
             m_nUserID = m.m_nUserID;
             m_nUtcOffset = m.m_nUtcOffset;
             m_nDeviceID = m.m_nDeviceID;
+            m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = m.m_nMediaTypes;
         }
 
