@@ -186,9 +186,6 @@ namespace Catalog.Request
                                             oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                                         }
 
-                                        // Getting all medias in bundle   
-                                        List<SearchResult> lMediaRes = null;
-                                        //SearchResultsObj oSearchResults = 
                                         int totalItems = 0;
                                         var searchResults =
                                             searcher.SearchSubscriptionAssets(request.m_nGroupID, 
