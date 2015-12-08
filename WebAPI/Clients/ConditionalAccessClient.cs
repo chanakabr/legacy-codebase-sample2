@@ -324,7 +324,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
-                                                     int productId, KalturaTransactionType clientTransactionType, string coupon, string deviceName, int paymentGwId)
+                                                     int productId, KalturaTransactionType clientTransactionType, string coupon, string udid, int paymentGwId)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -341,7 +341,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, price,
-                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), deviceName, paymentGwId);
+                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGwId);
                 }
             }
             catch (Exception ex)
@@ -369,7 +369,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long household, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                           string deviceName, string purchaseToken, string paymentGatewayName)
+                                                           string udid, string purchaseToken, string paymentGatewayName)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -385,7 +385,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), deviceName, purchaseToken, paymentGatewayName);
+                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), udid, purchaseToken, paymentGatewayName);
                 }
             }
             catch (Exception ex)

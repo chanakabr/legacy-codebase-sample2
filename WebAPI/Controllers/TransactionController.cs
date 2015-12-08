@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
             KalturaTransaction response = new KalturaTransaction();
 
             int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             // validate purchase token
             if (string.IsNullOrEmpty(currency))
@@ -57,7 +58,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, string.Empty, 0);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, 0);
             }
             catch (ClientException ex)
             {
@@ -119,6 +120,7 @@ namespace WebAPI.Controllers
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
+            string udid = KSUtils.ExtractKSPayload(ks).UDID;
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_receipt))
@@ -131,7 +133,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
+                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, udid, purchase_receipt, payment_gateway_name);
             }
             catch (ClientException ex)
             {

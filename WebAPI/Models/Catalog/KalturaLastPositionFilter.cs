@@ -17,14 +17,6 @@ namespace WebAPI.Models.Catalog
     public class KalturaLastPositionFilter : KalturaOTTObject
     {
         /// <summary>
-        /// Device UDID
-        /// </summary>
-        [DataMember(Name = "udid")]
-        [JsonProperty(PropertyName = "udid")]
-        [XmlElement(ElementName = "udid")]
-        public string UDID { get; set; }
-
-        /// <summary>
         /// Assets identifier
         /// </summary>
         [DataMember(Name = "ids")]
