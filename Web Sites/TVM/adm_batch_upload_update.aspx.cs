@@ -30,6 +30,11 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         Int32 nMenuID = 0;
         m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
         m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+
+        if (!IsPostBack)
+        {
+            Session["channels_ids"] = null;
+        }
     }
 
     public void GetHeader()
@@ -53,70 +58,90 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
     public string changeItemStatus(string sID, string sAction)
     {
-        if (Session["channels_ids"] == null)
+        List<string> channels = new List<string>();
+
+        if (Session["channels_ids"] != null)
         {
-            Session["channels_ids"] = new Hashtable();
+            channels = (List<string>)Session["channels_ids"];
         }
-        if (sAction.ToLower().Equals("add") && !((Hashtable)Session["channels_ids"]).ContainsKey(sID))
+        if (!ExsitsItList(channels, sID))
         {
-            ((Hashtable)Session["channels_ids"]).Add(sID, sID);
+            channels.Add(sID);
+        }
+        else
+        {
+            channels.Remove(sID);
         }
 
-        else if (sAction.ToLower().Equals("remove") && ((Hashtable)Session["channels_ids"]).ContainsKey(sID))
-        {
-            ((Hashtable)Session["channels_ids"]).Remove(sID);
-        }
+        Session["channels_ids"] = channels;
 
         return "";
     }
 
     public string initDualObj()
     {
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Channels To Export");
+        dualList.Add("SecondListTitle", "Available Channels");
 
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        object[] resultData = null;
+        List<object> allChannels = new List<object>();
+
+        List<string> channels = new List<string>();
 
         if (Session["channels_ids"] != null)
-            Session["channels_ids"] = null;
-
-        string sRet = "";
-        sRet += "Channels To Export";
-        sRet += "~~|~~";
-        sRet += "Available Channels";
-        sRet += "~~|~~";
-        sRet += "<root>";
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from channels where status=1 and channel_type<>3 and watcher_id=0 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID);
-        if (selectQuery.Execute("query", true) != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
+            channels = (List<string>)Session["channels_ids"];
+        }
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = null;
+        try
+        {
+            Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ID, ADMIN_NAME from channels where status=1 and channel_type<>3 and watcher_id=0 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID);
+            if (selectQuery.Execute("query", true) != null)
             {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
-                string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"].ToString();
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string sID = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ID", i);
+                    string sTitle = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ADMIN_NAME", i);
 
-                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
-                sTitle += "(" + sGroupName.ToString() + ")";
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = ExsitsItList(channels, sID)
+                    };
+                    allChannels.Add(data);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
 
-                string sDescription = "";
+            resultData = new object[allChannels.Count];
+            resultData = allChannels.ToArray();
 
-                sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
+            dualList.Add("Data", resultData);
+            dualList.Add("pageName", "adm_batch_upload_update.aspx");
+            dualList.Add("withCalendar", false);
+
+        }
+        finally
+        {
+            if (selectQuery != null)
+            {
+                selectQuery.Finish();
+                selectQuery = null;
             }
         }
-        selectQuery.Finish();
-        selectQuery = null;
 
-
-        sRet += "</root>";
-        return sRet;
+        return dualList.ToJSON();
     }
-
-
-
 
     protected void GetExcel(object sender, EventArgs e)
     {
@@ -219,11 +244,16 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
     private Int32[] GetAllMediasID()
     {
-        Hashtable hChannelsIDS = (Hashtable)Session["channels_ids"];
         // cast all channels ke to list 
-        List<string> sChannelsIDS = hChannelsIDS.Keys.OfType<string>().ToList();
-        List<int> ChannelsIDS = sChannelsIDS.Select(x => int.Parse(x)).ToList();
-        int[] mediaIDs = GetMediaIdsFromCatalog(ChannelsIDS);
+        List<string> sChannelsIDS = (List<string>)Session["channels_ids"];
+
+        int[] mediaIDs = null;
+
+        if (sChannelsIDS != null && sChannelsIDS.Count > 0)
+        {
+            List<int> ChannelsIDS = sChannelsIDS.Select(x => int.Parse(x)).ToList();
+            mediaIDs = GetMediaIdsFromCatalog(ChannelsIDS);
+        }
         return mediaIDs;
     }
 
@@ -238,7 +268,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
             int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = GetWSURL("api_ws");
+            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
                 return null;
@@ -258,8 +288,17 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
     }
 
-    private string GetWSURL(string key)
+    private bool ExsitsItList(List<string> list, string val)
     {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
+        if (list != null)
+        {
+            foreach (string id in list)
+            {
+                if (id.Equals(val))
+                    return true;
+            }
+        }
+
+        return false;
     }
 }
