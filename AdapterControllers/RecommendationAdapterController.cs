@@ -196,7 +196,7 @@ namespace AdapterControllers
             return searchResults;
         }
 
-        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, Int32 deviceId, 
+        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId, 
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
                                                                     Int32 nPageIndex, Dictionary<string, string> enrichments)
         {
@@ -306,7 +306,7 @@ namespace AdapterControllers
             return searchResults;
         }
 
-        public List<RecommendationResult> GetSearchRecommendations(int recommendationEngineId, string query, Int32 nGroupID, string siteGuid, Int32 deviceId,
+        public List<RecommendationResult> GetSearchRecommendations(int recommendationEngineId, string query, Int32 nGroupID, string siteGuid, string deviceId,
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
                                                                     Int32 nPageIndex, Dictionary<string, string> enrichments)
         {
