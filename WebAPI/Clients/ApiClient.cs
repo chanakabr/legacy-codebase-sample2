@@ -10,9 +10,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.API;
-using AutoMapper;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 

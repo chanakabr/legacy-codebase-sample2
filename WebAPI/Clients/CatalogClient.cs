@@ -215,7 +215,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string language, int pageIndex, int? pageSize, eWatchStatus filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, eWatchStatus filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
@@ -227,6 +227,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
+                    m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language)
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
@@ -656,7 +657,7 @@ namespace WebAPI.Clients
         }
 
 
-        public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string language, int channelId)
+        public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string udid, string language, int channelId)
         {
             WebAPI.Models.Catalog.KalturaChannel result = null;
             ChannelObjRequest request = new ChannelObjRequest()
@@ -665,6 +666,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
+                    m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
                 m_sSiteGuid = siteGuid,
@@ -688,7 +690,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaOTTCategory GetCategory(int groupId, string siteGuid, int domainId, string language, int categoryId)
+        public KalturaOTTCategory GetCategory(int groupId, string siteGuid, int domainId, string udid, string language, int categoryId)
         {
             KalturaOTTCategory result = null;
             CategoryRequest request = new CategoryRequest()
@@ -697,6 +699,7 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
+                    m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                 },
                 m_sSiteGuid = siteGuid,

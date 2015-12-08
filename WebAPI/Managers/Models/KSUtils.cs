@@ -28,5 +28,10 @@ namespace WebAPI.Managers.Models
 
             return new WebAPI.Managers.Models.KS.KSData() { UDID = udid };
         }
+
+        internal static WebAPI.Managers.Models.KS.KSData ExtractKSPayload()
+        {
+            return ExtractKSPayload(KS.GetFromRequest());
+        }
     }
 }

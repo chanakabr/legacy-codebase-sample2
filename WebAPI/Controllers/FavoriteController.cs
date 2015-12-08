@@ -20,17 +20,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add media to user's favorite list
         /// </summary>        
-        /// <param name="udid">Device UDID</param>
         /// <param name="media_type">Media Type ID (according to media type IDs defined dynamically in the system).</param>
         /// <param name="media_id">Media id</param>
         /// <param name="extra_data">Extra data</param>        
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(string media_id, string media_type = null, string extra_data = null, string udid = null)
+        public bool Add(string media_id, string media_type = null, string extra_data = null)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             // parameters validation
             if (media_type.Trim().Length == 0)
@@ -80,6 +80,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
 
                 // call client
                 res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());

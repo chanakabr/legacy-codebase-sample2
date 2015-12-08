@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
             KalturaWatchHistoryAssetWrapper response = null;
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(),
+                response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
                     language, pager.PageIndex, pager.PageSize, filterStatusHelper, filter.days, filter.filter_types != null ?
                     filter.filter_types.Select(x => x.value).ToList() : null, filter.with.Select(x=> x.type).ToList());
             }
