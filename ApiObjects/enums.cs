@@ -398,19 +398,17 @@ namespace ApiObjects
         NoConfigurationForHousehold = 1
     }
 
-    [Serializable]
     public enum ePermissionItemType
     {
         Action = 1,
         Parameter = 2
     }
 
-    [Serializable]
     public enum ePermissionType
     {
         Normal = 1,
         Group = 2
     }
 
-
+    
 }

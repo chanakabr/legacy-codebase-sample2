@@ -2793,8 +2793,8 @@ namespace DAL
         public static List<Role> GetRoles(int groupId, List<long> roleIds)
         {
             List<Role> roles = new List<Role>();
-            Dictionary<long, List<Permission>> rolesPermissions = new Dictionary<long, List<Permission>>();
-            Dictionary<long, List<PermissionItem>> permissionPermissionItems = new Dictionary<long, List<PermissionItem>>();
+            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
             try
             {
@@ -2826,8 +2826,12 @@ namespace DAL
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
                             };
-                            role.Permissions = rolesPermissions[role.Id];
-                            roles.Add(role);
+
+                            if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
+                            {
+                                role.Permissions = rolesPermissions[role.Id].Values.ToList();
+                                roles.Add(role);
+                            }
                         }
                     }
                 }
@@ -2841,18 +2845,30 @@ namespace DAL
             return roles;
         }
 
-        private static Dictionary<long, List<Permission>> BuildPermissions(int groupId, Dictionary<long, List<PermissionItem>> permissionPermissionItems, DataTable permissionsTable)
+        private static Dictionary<long, Dictionary<long, Permission>> BuildPermissions(int groupId, Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems, DataTable permissionsTable)
         {
-            Dictionary<long, List<Permission>> rolesPermissions = new Dictionary<long, List<Permission>>();
+            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
 
             Permission permission;
             long roleId;
+            int retrievedGroupId;
+            bool isExcluded;
+            ePermissionType permissionType;
+
 
             if (permissionsTable != null && permissionsTable.Rows != null && permissionsTable.Rows.Count > 0)
             {
                 foreach (DataRow permissionItemsRow in permissionsTable.Rows)
                 {
-                    ePermissionType permissionType = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "TYPE");
+                    isExcluded = false;
+                    permissionType = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "TYPE");
+                    retrievedGroupId = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "GROUP_ID");
+
+                    if (groupId != 0)
+                    {
+                        isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;
+                    }
+
                     switch (permissionType)
                     {
                         case ePermissionType.Normal:
@@ -2873,17 +2889,26 @@ namespace DAL
                         permission.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ID");
                         permission.Name = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "NAME");
                         permission.GroupId = groupId;
-                        permission.PermissionItems = permissionPermissionItems[permission.Id];
-                    }
+                        if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
+                        {
+                            permission.PermissionItems = permissionPermissionItems[permission.Id].Values.ToList();
+                        }
 
-                    roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
-                    if (rolesPermissions.ContainsKey(roleId))
-                    {
-                        rolesPermissions[roleId].Add(permission);
-                    }
-                    else
-                    {
-                        rolesPermissions.Add(roleId, new List<Permission>() { permission });
+                        roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
+
+                        if (!rolesPermissions.ContainsKey(roleId))
+                        {
+                            rolesPermissions.Add(roleId, new Dictionary<long, Permission>());
+                        }
+
+                        if (isExcluded && rolesPermissions[roleId].ContainsKey(permission.Id))
+                        {
+                            rolesPermissions[roleId].Remove(permission.Id);
+                        }
+                        else if (!rolesPermissions[roleId].ContainsKey(permission.Id))
+                        {
+                            rolesPermissions[roleId].Add(permission.Id, permission);
+                        }
                     }
                 }
             }
@@ -2891,17 +2916,29 @@ namespace DAL
             return rolesPermissions;
         }
 
-        private static Dictionary<long, List<PermissionItem>> BuildPermissionItems(DataTable permissionItemsTable)
+        private static Dictionary<long, Dictionary<long, PermissionItem>> BuildPermissionItems(DataTable permissionItemsTable)
         {
-            Dictionary<long, List<PermissionItem>> permissionPermissionItems = new Dictionary<long, List<PermissionItem>>();
+            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
             PermissionItem permissionItem;
             long permissionId;
+            int groupId;
+            ePermissionItemType permissionItemType;
+            bool isExcluded;
+
 
             if (permissionItemsTable != null && permissionItemsTable.Rows != null && permissionItemsTable.Rows.Count > 0)
             {
                 foreach (DataRow permissionsRow in permissionItemsTable.Rows)
                 {
-                    ePermissionItemType permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
+                    isExcluded = false;
+                    permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
+                    groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
+
+                    if (groupId != 0)
+                    {
+                        isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
+                    }
+
                     switch (permissionItemType)
                     {
                         case ePermissionItemType.Action:
@@ -2923,15 +2960,23 @@ namespace DAL
                     {
                         permissionItem.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "ID");
                         permissionItem.Name = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "NAME");
-                    }
-                    permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
-                    if (permissionPermissionItems.ContainsKey(permissionId))
-                    {
-                        permissionPermissionItems[permissionId].Add(permissionItem);
-                    }
-                    else
-                    {
-                        permissionPermissionItems.Add(permissionId, new List<PermissionItem>() { permissionItem });
+
+
+                        permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
+
+                        if (!permissionPermissionItems.ContainsKey(permissionId))
+                        {
+                            permissionPermissionItems.Add(permissionId, new Dictionary<long, PermissionItem>());
+                        }
+
+                        if (isExcluded && permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id))
+                        {
+                            permissionPermissionItems[permissionId].Remove(permissionItem.Id);
+                        }
+                        else if (!permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id))
+                        {
+                            permissionPermissionItems[permissionId].Add(permissionItem.Id, permissionItem);
+                        }
                     }
                 }
             }
@@ -2942,8 +2987,8 @@ namespace DAL
         public static List<Permission> GetPermissions(int groupId, List<long> permissionIds)
         {
             List<Permission> permissions = new List<Permission>();
-            Dictionary<long, List<Permission>> rolesPermissions = new Dictionary<long, List<Permission>>();
-            Dictionary<long, List<PermissionItem>> permissionPermissionItems = new Dictionary<long, List<PermissionItem>>();
+            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
             try
             {
@@ -2963,8 +3008,8 @@ namespace DAL
 
                     rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
 
-                    if (rolesPermissions != null && rolesPermissions.Count > 0)
-                        permissions = rolesPermissions[0];
+                    if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null)
+                        permissions = rolesPermissions[0].Values.ToList();
                 }
             }
             catch (Exception ex)
@@ -2979,8 +3024,8 @@ namespace DAL
         public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         {
             Permission permission = new Permission();
-            Dictionary<long, List<Permission>> rolesPermissions = new Dictionary<long, List<Permission>>();
-            Dictionary<long, List<PermissionItem>> permissionPermissionItems = new Dictionary<long, List<PermissionItem>>();
+            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
             try
             {
@@ -3027,6 +3072,26 @@ namespace DAL
                 sp.AddParameter("@permission_id", permissionId);
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@role_id", roleId);
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while adding permission to role in DB, group id = {0}", groupId), ex);
+            }
+
+            return rowCount;
+        }
+
+        public static int InsertPermissionPermissionItem(int groupId, long permissionId, long permissionItemId)
+        {
+            int rowCount = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
+                sp.AddParameter("@permission_id", permissionId);
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@permission_item_id", permissionItemId);
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
