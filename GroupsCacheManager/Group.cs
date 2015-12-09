@@ -82,6 +82,30 @@ namespace GroupsCacheManager
         [JsonProperty("default_recommendation_engine")]
         public int defaultRecommendationEngine;
 
+        /// <summary>
+        /// The group's default recommendation engine
+        /// </summary>
+        [JsonProperty("related_recommendation_engine")]
+        public int RelatedRecommendationEngine;
+
+        /// <summary>
+        /// The group's default recommendation engine
+        /// </summary>
+        [JsonProperty("search_recommendation_engine")]
+        public int SearchRecommendationEngine;
+
+        /// <summary>
+        /// The group's default recommendation engine
+        /// </summary>
+        [JsonProperty("related_recommendation_engine_enrichments")]
+        public int RelatedRecommendationEngineEnrichments;
+
+        /// <summary>
+        /// The group's default recommendation engine
+        /// </summary>
+        [JsonProperty("search_recommendation_engine_enrichments")]
+        public int SearchRecommendationEngineEnrichments;
+
         #endregion
 
         #region CTOR

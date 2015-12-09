@@ -126,6 +126,8 @@
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\ExternalChannelRequest.cs" />
     <Compile Include="Request\InternalChannelRequest.cs" />
+    <Compile Include="Request\MediaRelatedExternalRequest.cs" />
+    <Compile Include="Request\MediaSearchExternalRequest.cs" />
     <Compile Include="Request\UnifiedChannelRequest.cs" />
     <Compile Include="Response\AssetStatsResponse.cs" />
     <Compile Include="BaseEpg.cs" />
@@ -156,6 +158,8 @@
     <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Response\ContainingMediaResponse.cs" />
+    <Compile Include="Response\MediaIdsStatusResponse.cs" />
+    <Compile Include="Response\UnifiedSearchExternalResponse.cs" />
     <Compile Include="Response\UnifiedSearchResult.cs" />
     <Compile Include="Response\UserWatchHistory.cs" />
     <Compile Include="Response\WatchHistoryResponse.cs" />
