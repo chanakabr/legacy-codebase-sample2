@@ -2106,9 +2106,6 @@ namespace WebAPI.Catalog {
     public partial class MediaRelatedExternalRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nDeviceIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nMediaIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2118,20 +2115,10 @@ namespace WebAPI.Catalog {
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sLanguageField;
+        private string m_sDeviceIDField;
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nDeviceID {
-            get {
-                return this.m_nDeviceIDField;
-            }
-            set {
-                if ((this.m_nDeviceIDField.Equals(value) != true)) {
-                    this.m_nDeviceIDField = value;
-                    this.RaisePropertyChanged("m_nDeviceID");
-                }
-            }
-        }
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int m_nMediaID {
@@ -2173,6 +2160,19 @@ namespace WebAPI.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDeviceID {
+            get {
+                return this.m_sDeviceIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDeviceIDField, value) != true)) {
+                    this.m_sDeviceIDField = value;
+                    this.RaisePropertyChanged("m_sDeviceID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string m_sLanguage {
             get {
                 return this.m_sLanguageField;
@@ -2193,32 +2193,19 @@ namespace WebAPI.Catalog {
     public partial class MediaSearchExternalRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nDeviceIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<int> m_nMediaTypesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sDeviceIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sLanguageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sQueryField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nDeviceID {
-            get {
-                return this.m_nDeviceIDField;
-            }
-            set {
-                if ((this.m_nDeviceIDField.Equals(value) != true)) {
-                    this.m_nDeviceIDField = value;
-                    this.RaisePropertyChanged("m_nDeviceID");
-                }
-            }
-        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<int> m_nMediaTypes {
@@ -2242,6 +2229,19 @@ namespace WebAPI.Catalog {
                 if ((this.m_nUtcOffsetField.Equals(value) != true)) {
                     this.m_nUtcOffsetField = value;
                     this.RaisePropertyChanged("m_nUtcOffset");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDeviceID {
+            get {
+                return this.m_sDeviceIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDeviceIDField, value) != true)) {
+                    this.m_sDeviceIDField = value;
+                    this.RaisePropertyChanged("m_sDeviceID");
                 }
             }
         }
@@ -4241,10 +4241,26 @@ namespace WebAPI.Catalog {
     public partial class UnifiedSearchResponse : WebAPI.Catalog.BaseResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string requestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResultsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Catalog.Status statusField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string requestId {
+            get {
+                return this.requestIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.requestIdField, value) != true)) {
+                    this.requestIdField = value;
+                    this.RaisePropertyChanged("requestId");
+                }
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResults {
@@ -4727,7 +4743,23 @@ namespace WebAPI.Catalog {
     public partial class MediaIdsStatusResponse : WebAPI.Catalog.MediaIdsResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string RequestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Catalog.Status StatusField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string RequestId {
+            get {
+                return this.RequestIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.RequestIdField, value) != true)) {
+                    this.RequestIdField = value;
+                    this.RaisePropertyChanged("RequestId");
+                }
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public WebAPI.Catalog.Status Status {

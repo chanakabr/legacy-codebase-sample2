@@ -133,6 +133,7 @@ namespace WebAPI.Clients
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;
+                result.RequestId = searchResponse.requestId;
             }
             return result;
         }
@@ -839,6 +840,8 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
+
+            result.RequestId = searchResponse.requestId;
 
             return result;
         }
