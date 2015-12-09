@@ -145,6 +145,9 @@ namespace AdapterControllers.RecommendationEngineAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string RequestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private AdapterControllers.RecommendationEngineAdapter.SearchResult[] ResultsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -157,6 +160,19 @@ namespace AdapterControllers.RecommendationEngineAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string RequestId {
+            get {
+                return this.RequestIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.RequestIdField, value) != true)) {
+                    this.RequestIdField = value;
+                    this.RaisePropertyChanged("RequestId");
+                }
             }
         }
         

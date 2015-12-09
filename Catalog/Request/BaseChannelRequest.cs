@@ -56,7 +56,7 @@ namespace Catalog.Request
 
         #region IRequestImp Members
 
-        public BaseResponse GetResponse(BaseRequest baseRequest)
+        public virtual BaseResponse GetResponse(BaseRequest baseRequest)
         {
             UnifiedSearchResponse response = new UnifiedSearchResponse();
 
@@ -167,7 +167,7 @@ namespace Catalog.Request
                 Message = "Web service failure"
             };
         }
-
+                
         #endregion
     }
 

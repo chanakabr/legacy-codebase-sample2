@@ -159,6 +159,7 @@
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Response\ContainingMediaResponse.cs" />
     <Compile Include="Response\MediaIdsStatusResponse.cs" />
+    <Compile Include="Response\UnifiedSearchExternalResponse.cs" />
     <Compile Include="Response\UnifiedSearchResult.cs" />
     <Compile Include="Response\UserWatchHistory.cs" />
     <Compile Include="Response\WatchHistoryResponse.cs" />
