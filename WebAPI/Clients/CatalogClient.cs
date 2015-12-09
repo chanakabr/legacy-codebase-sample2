@@ -134,6 +134,7 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
+
             return result;
         }
 
@@ -480,6 +481,84 @@ namespace WebAPI.Clients
                 result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, channelResponse.m_nMedias, request, CacheDuration, with);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
+            return result;
+        }
+
+        public KalturaAssetInfoListResponse GetChannelAssets(int groupId, string siteGuid, int domainId, string udid, string language, 
+            int pageIndex, int? pageSize,
+            List<KalturaCatalogWith> with,
+            int channelId, KalturaOrder? orderBy, string filterQuery)
+        {
+            KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            // build request
+            InternalChannelRequest request = new InternalChannelRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                order = order,
+                internalChannelID = channelId.ToString(),
+                filterQuery = filterQuery
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("channel_id={0}_pi={1}_pz={2}_g={3}_l={4}_o_{5}",
+                channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
+
+            // fire request
+            UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out channelResponse, true, key.ToString()))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (channelResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+            }
+
+            if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+
+                // build AssetInfoWrapper response
+                if (assetsInfo != null)
+                {
+                    result.Objects = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+
+                result.TotalCount = channelResponse.m_nTotalItems;
+            }
+
             return result;
         }
 

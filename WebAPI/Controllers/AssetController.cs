@@ -98,10 +98,14 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is channel");
                             }
 
-                            response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
-                                filter.FilterTags == null ? null : filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(),
-                                filter.cutWith);
+                            var withList = with.Select(x => x.type).ToList();
+                            response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                                pager.PageIndex, pager.PageSize, withList, channelID, order_by, string.Empty);
+
+                            //response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            //    pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
+                            //    filter.FilterTags == null ? null : filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(),
+                            //    filter.cutWith);
                         }
                         break;
                     case KalturaCatalogReferenceBy.epg_internal:
