@@ -4962,9 +4962,6 @@ namespace Catalog
 
                 Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
 
-                int deviceId = 0;
-                int.TryParse(request.m_oFilter.m_sDeviceId, out deviceId);
-
                 List<RecommendationResult> recommendations = null;
 
                 try
@@ -4975,7 +4972,7 @@ namespace Catalog
                                                                                                 mediaTypeID,
                                                                                                 request.m_nGroupID,
                                                                                                 request.m_sSiteGuid,
-                                                                                                deviceId,
+                                                                                                request.m_oFilter.m_sDeviceId,
                                                                                                 request.m_sLanguage,
                                                                                                 request.m_nUtcOffset,
                                                                                                 request.m_sUserIP,
@@ -5057,10 +5054,7 @@ namespace Catalog
 				}
 
 				Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
-
-				int deviceId = 0;
-				int.TryParse(request.m_oFilter.m_sDeviceId, out deviceId);
-
+				
 				List<RecommendationResult> recommendations = null;
 
 				try
@@ -5070,7 +5064,7 @@ namespace Catalog
 																								request.m_sQuery,
 																								request.m_nGroupID,
                                                                                                 request.m_sSiteGuid,
-																								deviceId,
+																								request.m_oFilter.m_sDeviceId,
                                                                                                 request.m_sLanguage,
 																								request.m_nUtcOffset,
 																								request.m_sUserIP,
@@ -5167,11 +5161,11 @@ namespace Catalog
                         }
                         if (request is MediaRelatedExternalRequest)
                         {
-                            dictionary["device_id"] = (request as MediaRelatedExternalRequest).m_nDeviceID.ToString();
+                            dictionary["device_id"] = (request as MediaRelatedExternalRequest).m_sDeviceID;
                         }
                         if (request is MediaSearchExternalRequest)
                         {
-                            dictionary["device_id"] = (request as MediaSearchExternalRequest).m_nDeviceID.ToString();
+                            dictionary["device_id"] = (request as MediaSearchExternalRequest).m_sDeviceID;
                         }
 						break;
 					}

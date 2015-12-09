@@ -25,7 +25,7 @@ namespace Catalog.Request
         [DataMember]
         public string m_sQuery;
         [DataMember]
-        public Int32 m_nDeviceID;
+        public string m_sDeviceID;
         [DataMember]
         public Int32 m_nUtcOffset;
         [DataMember]
@@ -45,9 +45,8 @@ namespace Catalog.Request
         {
             m_sQuery = query;
             m_sSiteGuid = sSiteGuid;
-            m_nUtcOffset = utcOffset;
-            if (!int.TryParse(filter.m_sDeviceId, out m_nDeviceID))
-                m_nDeviceID = 0;
+            m_nUtcOffset = utcOffset;            
+            m_sDeviceID = filter.m_sDeviceId;
             m_nMediaTypes = filterTypeIDs;
             m_nMediaTypes = filterTypeIDs;
         }
@@ -58,7 +57,7 @@ namespace Catalog.Request
             m_sQuery = m.m_sQuery;
             m_sSiteGuid = m.m_sSiteGuid;
             m_nUtcOffset = m.m_nUtcOffset;
-            m_nDeviceID = m.m_nDeviceID;
+            m_sDeviceID = m.m_sDeviceID;
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = m.m_nMediaTypes;
         }

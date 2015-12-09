@@ -285,10 +285,10 @@ namespace AdapterControllers.RecommendationEngineAdapter {
         AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string externalChannelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRelatedRecommendations", ReplyAction="http://tempuri.org/IService/GetRelatedRecommendationsResponse")]
-        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, string userId, int deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, string userId, string deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetSearchRecommendations", ReplyAction="http://tempuri.org/IService/GetSearchRecommendationsResponse")]
-        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetSearchRecommendations(int recommendationEngineId, string query, string userId, int deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetSearchRecommendations(int recommendationEngineId, string query, string userId, string deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/ShareFilteredResponse", ReplyAction="http://tempuri.org/IService/ShareFilteredResponseResponse")]
         void ShareFilteredResponse(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.SearchResult[] searchResults);
@@ -329,11 +329,11 @@ namespace AdapterControllers.RecommendationEngineAdapter {
             return base.Channel.GetChannelRecommendations(recommendationEngineId, externalChannelId, enrichments, timeStamp, signature);
         }
         
-        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, string userId, int deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature) {
+        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, string userId, string deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature) {
             return base.Channel.GetRelatedRecommendations(recommendationEngineId, mediaId, mediaTypeId, userId, deviceId, language, enrichments, filterTypeIds, utcOffset, pageIndex, pageSize, timeStamp, signature);
         }
         
-        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetSearchRecommendations(int recommendationEngineId, string query, string userId, int deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature) {
+        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetSearchRecommendations(int recommendationEngineId, string query, string userId, string deviceId, string language, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, int[] filterTypeIds, int utcOffset, int pageIndex, int pageSize, long timeStamp, string signature) {
             return base.Channel.GetSearchRecommendations(recommendationEngineId, query, userId, deviceId, language, enrichments, filterTypeIds, utcOffset, pageIndex, pageSize, timeStamp, signature);
         }
         
