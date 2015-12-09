@@ -56,7 +56,7 @@ namespace Catalog.Request
 
         #region IRequestImp Members
 
-        public BaseResponse GetResponse(BaseRequest baseRequest)
+        public virtual BaseResponse GetResponse(BaseRequest baseRequest)
         {
             UnifiedSearchResponse response = new UnifiedSearchResponse();
 
@@ -82,7 +82,7 @@ namespace Catalog.Request
                 int totalItems;
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 
-                response.status = this.GetAssets(request, out totalItems, out searchResults, out response.requestId);
+                response.status = this.GetAssets(request, out totalItems, out searchResults);
 
                 //response.status = Catalog.GetExternalChannelAssets(request, out totalItems, out searchResults);
 
@@ -157,11 +157,10 @@ namespace Catalog.Request
             return response;
         }
 
-        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
+        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             totalItems = 0;
             searchResults = null;
-            requestId = "";
             return new Status()
             {
                 Code = (int)eResponseStatus.Error,

@@ -36,6 +36,7 @@ namespace Catalog.Response
     [KnownType(typeof(BundlesContainingMediaResponse))]
     [KnownType(typeof(DomainLastPositionResponse))]
     [KnownType(typeof(UnifiedSearchResponse))]
+    [KnownType(typeof(UnifiedSearchExternalResponse))]    
     [KnownType(typeof(AssetInfoResponse))]
     [KnownType(typeof(MediaIdsStatusResponse))]
     public class BaseResponse
