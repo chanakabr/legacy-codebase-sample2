@@ -1273,37 +1273,45 @@ namespace Catalog
 				{
 					foreach (var tag in serviceResponse.mediaTags)
 					{
-						string tagName = group.m_oGroupTags[tag.id];
+                        // If the tag of the rule exists on this group (might happen if tag is deleted after rule is created)
+                        if (group.m_oGroupTags.ContainsKey(tag.id))
+                        {
+                            string tagName = group.m_oGroupTags[tag.id];
 
-						if (!mediaTags.ContainsKey(tagName))
-						{
-							mediaTags[tagName] = new List<string>();
-						}
+                            if (!mediaTags.ContainsKey(tagName))
+                            {
+                                mediaTags[tagName] = new List<string>();
+                            }
 
-						if (tag.value != null)
-						{
-							mediaTags[tagName].Add(tag.value);
-						}
+                            if (tag.value != null)
+                            {
+                                mediaTags[tagName].Add(tag.value);
+                            }
+                        }
 					}
 				}
 
 				// EPG: Convert TagPair array to our dictionary
 				if (serviceResponse.epgTags != null)
 				{
-					foreach (var tag in serviceResponse.epgTags)
-					{
-						string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
+                    foreach (var tag in serviceResponse.epgTags)
+                    {
+                        // If the tag of the rule exists on this group (might happen if tag is deleted after rule is created)
+                        if (group.m_oGroupTags.ContainsKey(tag.id))
+                        {
+                            string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
 
-						if (!epgTags.ContainsKey(tagName))
-						{
-							epgTags[tagName] = new List<string>();
-						}
+                            if (!epgTags.ContainsKey(tagName))
+                            {
+                                epgTags[tagName] = new List<string>();
+                            }
 
-						if (tag.value != null)
-						{
-							epgTags[tagName].Add(tag.value);
-						}
-					}
+                            if (tag.value != null)
+                            {
+                                epgTags[tagName].Add(tag.value);
+                            }
+                        }
+                    }
 				}
 			}
 		}
