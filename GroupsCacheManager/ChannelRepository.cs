@@ -303,7 +303,7 @@ namespace GroupsCacheManager
         {
             log.Debug("new channel");
 
-            Channel channel = null;
+            Channel channel = new Channel();
 
             if (channel.m_lChannelTags == null)
             {
