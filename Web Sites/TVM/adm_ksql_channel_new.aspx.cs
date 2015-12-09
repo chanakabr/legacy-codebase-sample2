@@ -446,6 +446,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
         DataRecordBrowserField dr_asset_types = new DataRecordBrowserField("OpenAssetTypeBrowser", "adm_ksql_channel_new.aspx");
         dr_asset_types.Initialize("Asset Type", "adm_table_header_nbg", "FormInput", "ID", false);
+        dr_asset_types.SetClassName("btn_assetTypes");
         theRecord.AddRecord(dr_asset_types);
 
         AddOrderBy(ref theRecord, true);
@@ -511,13 +512,13 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         else
         {
             // save media type id values to associate with cjannel (after get channelId)
-            List<int> mediaTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+            List<int> assetTypeList = new List<int>();
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                mediaTypeList = Session["media_type_ids"] as List<int>;
+                assetTypeList = Session["asset_type_ids"] as List<int>;
             }
-            mediaTypeList.Add(mediaTypeID);
-            Session["media_type_ids"] = mediaTypeList;
+            assetTypeList.Add(mediaTypeID);
+            Session["asset_type_ids"] = assetTypeList;
 
         }
         return "";

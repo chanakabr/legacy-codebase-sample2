@@ -253,7 +253,7 @@ FROM   (SELECT CASE c.channel_type
 
 		if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
 		{
-			DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_media.aspx", "Media", "");
+			DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_channels_media.aspx", "Asset", "");
 			linkColumn1.AddQueryStringValue("channel_id", "field=id");
 			linkColumn1.AddQueryStringValue("type_id", "field=channel_type");
 			theTable.AddLinkColumn(linkColumn1);

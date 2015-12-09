@@ -33,7 +33,7 @@ public partial class adm_channels_media : System.Web.UI.Page
             {
                 string typeId = Request.QueryString["type_id"];
 
-                // if this is a KSQL channel
+                // if this is a KSQL channel - return.
                 if (typeId == 4.ToString())
                 {
                     Response.Redirect("adm_channels.aspx");

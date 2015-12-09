@@ -100,11 +100,15 @@ public partial class adm_channels_media_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
+        object channelMediaId = null;
+
         if (Session["channel_media_id"] != null && Session["channel_media_id"].ToString() != "" && int.Parse(Session["channel_media_id"].ToString()) != 0)
-            t = Session["channel_media_id"];
+        {
+            channelMediaId = Session["channel_media_id"];
+        }
+
         string sBack = "adm_channels_media.aspx?channel_id=" + Session["channel_id"].ToString();
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels_media", "adm_table_pager", sBack, "", "ID", t, sBack, "channel_id");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels_media", "adm_table_pager", sBack, "", "ID", channelMediaId, sBack, "channel_id");
 
         DataRecordOneVideoBrowserField dr_media = new DataRecordOneVideoBrowserField("media", "media_tags", "media_id");
         dr_media.Initialize("The Media", "adm_table_header_nbg", "FormInput", "MEDIA_ID", true);
