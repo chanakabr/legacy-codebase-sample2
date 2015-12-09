@@ -320,13 +320,6 @@ namespace GroupsCacheManager
             if ((group.m_nSubGroup.Contains(channelGroupId) || group.m_nParentGroupID == channelGroupId) &&
                 (isActive == 1) && (status == 1))
             {
-                channel = new Channel();
-
-                if (channel.m_lChannelTags == null)
-                {
-                    channel.m_lChannelTags = new List<ApiObjects.SearchObjects.SearchValue>();
-                }
-
                 channel.m_nIsActive = isActive;
                 channel.m_nStatus = status;
                 channel.m_nGroupID = channelGroupId;
@@ -489,7 +482,7 @@ namespace GroupsCacheManager
                     }
                     case ChannelType.KSQL:
                     {
-                        channel.filterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_QUERY");
+                        channel.filterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
 
                         BooleanPhraseNode node = null;
                         var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref node);
