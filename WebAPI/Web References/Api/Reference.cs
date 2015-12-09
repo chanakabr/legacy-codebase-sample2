@@ -5998,7 +5998,7 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ExternalChannel {
         
-        private ExternalChannelEnrichment[] enrichmentsField;
+        private ExternalRecommendationEngineEnrichment[] enrichmentsField;
         
         private int idField;
         
@@ -6013,7 +6013,7 @@ namespace WebAPI.Api {
         private string filterExpressionField;
         
         /// <remarks/>
-        public ExternalChannelEnrichment[] Enrichments {
+        public ExternalRecommendationEngineEnrichment[] Enrichments {
             get {
                 return this.enrichmentsField;
             }
@@ -6087,7 +6087,7 @@ namespace WebAPI.Api {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum ExternalChannelEnrichment {
+    public enum ExternalRecommendationEngineEnrichment {
         
         /// <remarks/>
         ClientLocation,

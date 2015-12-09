@@ -464,5 +464,37 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// login using request headers.
+        /// </summary>        
+        /// <param name="partnerId">Partner identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>        
+        /// UserNotInHousehold = 1005, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
+        /// </remarks>        
+        [Route("silentLogin"), HttpPost]
+        public KalturaLoginResponse SilentLogin(int partnerId, string udid = null)
+        {
+            KalturaOTTUser response = null;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().Login(partnerId, null, null, udid, System.Web.HttpContext.Current.Request.Headers);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+        }
     }
 }

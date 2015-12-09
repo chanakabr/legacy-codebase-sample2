@@ -61,5 +61,13 @@ namespace WebAPI.Models.Users
         [JsonProperty(PropertyName = "privileges")]
         [XmlElement("privileges")]
         public string privileges { get; set; }
+
+        /// <summary>
+        /// udid
+        /// </summary>
+        [DataMember(Name = "udid")]
+        [JsonProperty(PropertyName = "udid")]
+        [XmlElement("udid")]
+        public string udid { get; set; }
     }
 }

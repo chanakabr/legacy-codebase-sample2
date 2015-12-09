@@ -22,18 +22,18 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Request filter</param>
         /// <param name="coupon_code">Discount coupon code</param>
-        /// <param name="udid">Device UDID</param>
         /// <param name="language">Language code</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null, string language = null, string udid = null)
+        public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null, string language = null)
         {
             List<KalturaProductPrice> productPrices = null;
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();
             List<KalturaItemPrice> ppvPrices = new List<KalturaItemPrice>(); ;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (filter == null)
             {

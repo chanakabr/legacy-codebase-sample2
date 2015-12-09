@@ -36,8 +36,9 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
 
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), language, id);
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
 
                 switch (filter.Type)
                 {
@@ -58,10 +59,11 @@ namespace WebAPI.Controllers
                                     LastPositions = new List<KalturaLastPosition>()
                                 };
 
+
                                 foreach (var id in mediaIds)
                                 {
                                     var res = ClientsManager.CatalogClient().GetDomainLastPosition(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                                    filter.UDID, id, null);
+                                    udid, id, null);
 
                                     response.LastPositions.AddRange(res.LastPositions);
                                     response.TotalCount += res.TotalCount;

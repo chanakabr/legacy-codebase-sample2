@@ -1,18 +1,11 @@
 ﻿using AutoMapper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Http;
-using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.API;
-using WebAPI.Models.Billing;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -151,15 +144,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:         
-        /// Domain not exists = 1006, Payment gateway not exist = 6008, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
-        /// <param name="household_id">Household for which to return the Charge ID</param>        
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
-        public bool SetChargeID(string pg_id, int household_id, string charge_id)
+        public bool SetChargeID(string pg_id, string charge_id)
         {
             bool response = false;
 
@@ -167,8 +159,17 @@ namespace WebAPI.Controllers
 
             try
             {
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, household_id, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domain, charge_id);
             }
             catch (ClientException ex)
             {
@@ -183,13 +184,12 @@ namespace WebAPI.Controllers
         /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Domain not exists = 1006, Payment gateway not exist for group = 6008, Charge id not set to household = 6026
+        /// Possible status codes: Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
-        /// <param name="pg_id">External identifier for the payment gateway  </param>
-        /// <param name="household_id">Household for which to return the Charge ID</param>        
+        /// <param name="pg_id">External identifier for the payment gateway  </param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
-        public string GetChargeID(string pg_id, int household_id)
+        public string GetChargeID(string pg_id)
         {
             string chargeId = string.Empty;
 
@@ -197,8 +197,17 @@ namespace WebAPI.Controllers
 
             try
             {
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, household_id);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domain);
             }
             catch (ClientException ex)
             {

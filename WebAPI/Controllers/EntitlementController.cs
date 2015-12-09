@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -18,29 +16,38 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately cancel a household subscription or PPV or collection 
         /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.        
-        /// </summary>        
-        /// <param name="household_id">Household identifier</param>
+        /// </summary>                
         /// <param name="asset_id">Asset identifier to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
+        /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
-        public bool Cancel(int household_id, int asset_id, KalturaTransactionType transaction_type, bool is_force = false)
+        public bool Cancel(int asset_id, KalturaTransactionType transaction_type, bool is_force = false)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (asset_id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
-            }
             try
             {
+
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
+                if (asset_id == 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                }
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, household_id, asset_id, transaction_type, is_force);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, is_force);
             }
             catch (ClientException ex)
             {
@@ -57,13 +64,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
-        /// <param name="household_id">Household identifier</param>
         /// <param name="subscription_id">Subscription Code</param>
         /// <remarks>Possible status codes: 
-        ///  Household does not exist = 1006, Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
+        /// Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
-        public void CancelRenewal(int household_id, string subscription_id)
+        public void CancelRenewal(string subscription_id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -73,8 +79,16 @@ namespace WebAPI.Controllers
             }
             try
             {
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, household_id, subscription_id);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscription_id);
             }
             catch (ClientException ex)
             {
@@ -112,7 +126,7 @@ namespace WebAPI.Controllers
                         response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
                         break;
                     default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");                        
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
                 }
             }
             catch (ClientException ex)

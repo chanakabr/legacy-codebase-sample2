@@ -22,15 +22,15 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="filter">Filter</param>
-        /// <param name="udid">Device UDID</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("List"), HttpPost]
         [ApiAuthorize]
-        public KalturaGenericRuleListResponse List(KalturaGenericRuleFilter filter, string udid = null)
+        public KalturaGenericRuleListResponse List(KalturaGenericRuleFilter filter)
         {
             List<KalturaGenericRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             // parameters validation
             if (filter == null)

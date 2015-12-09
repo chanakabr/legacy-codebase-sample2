@@ -108,15 +108,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns device registration status to the supplied household
         /// </summary>
-        /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("getStatus"), HttpPost]
         [ApiAuthorize]
-        public KalturaDeviceRegistrationStatusHolder GetStatus(string udid)
+        public KalturaDeviceRegistrationStatusHolder GetStatus()
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (string.IsNullOrEmpty(udid))
             {

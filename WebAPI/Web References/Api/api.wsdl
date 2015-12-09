@@ -3470,7 +3470,7 @@
       </s:element>
       <s:complexType name="ExternalChannel">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Enrichments" type="tns:ArrayOfExternalChannelEnrichment" />
+          <s:element minOccurs="0" maxOccurs="1" name="Enrichments" type="tns:ArrayOfExternalRecommendationEngineEnrichment" />
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
@@ -3479,12 +3479,12 @@
           <s:element minOccurs="0" maxOccurs="1" name="FilterExpression" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ArrayOfExternalChannelEnrichment">
+      <s:complexType name="ArrayOfExternalRecommendationEngineEnrichment">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalChannelEnrichment" type="tns:ExternalChannelEnrichment" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalRecommendationEngineEnrichment" type="tns:ExternalRecommendationEngineEnrichment" />
         </s:sequence>
       </s:complexType>
-      <s:simpleType name="ExternalChannelEnrichment">
+      <s:simpleType name="ExternalRecommendationEngineEnrichment">
         <s:restriction base="s:string">
           <s:enumeration value="ClientLocation" />
           <s:enumeration value="UserId" />

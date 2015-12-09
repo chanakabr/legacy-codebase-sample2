@@ -47,8 +47,9 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
 
-                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language, 0, 0, 
+                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 
                     new List<int>(filter.IDs.Select(x => x.value).ToList()), 
                     SerializationUtils.ConvertFromUnixTimestamp(filter.StartTime),
                     SerializationUtils.ConvertFromUnixTimestamp(filter.EndTime), with.Select(x => x.type).ToList());

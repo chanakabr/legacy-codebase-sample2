@@ -30,7 +30,8 @@ namespace WebAPI.Controllers
                 partnerId = ks.GroupId,
                 privileges = ks.Privilege,
                 sessionType = ks.SessionType,
-                userId = ks.UserId
+                userId = ks.UserId,
+                udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID
             };
         }
     }
