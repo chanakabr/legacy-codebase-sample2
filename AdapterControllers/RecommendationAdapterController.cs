@@ -92,7 +92,7 @@ namespace AdapterControllers
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", externalChannel.RecommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-            
+            engine.AdapterUrl = @"http://localhost:81/readapter/service.svc";
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
@@ -212,7 +212,7 @@ namespace AdapterControllers
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-            
+            engine.AdapterUrl = @"http://localhost:81/readapter/service.svc";
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
@@ -321,7 +321,8 @@ namespace AdapterControllers
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
-            
+            engine.AdapterUrl = @"http://localhost:81/readapter/service.svc";
+
             if (engine == null)
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
