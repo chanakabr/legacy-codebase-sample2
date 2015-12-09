@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 
@@ -22,7 +23,16 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return 0;
 
-            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
+            KalturaHousehold domain = null;
+
+            try
+            {
+                domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
             if (domain == null)
                 return 0;

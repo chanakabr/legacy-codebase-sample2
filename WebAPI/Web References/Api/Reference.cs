@@ -38,6 +38,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback AddPermissionToRoleOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddPermissionItemToPermissionOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -343,6 +345,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event AddPermissionToRoleCompletedEventHandler AddPermissionToRoleCompleted;
+        
+        /// <remarks/>
+        public event AddPermissionItemToPermissionCompletedEventHandler AddPermissionItemToPermissionCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -867,6 +872,41 @@ namespace WebAPI.Api {
             if ((this.AddPermissionToRoleCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.AddPermissionToRoleCompleted(this, new AddPermissionToRoleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddPermissionItemToPermission", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status AddPermissionItemToPermission(string sWSUserName, string sWSPassword, long permissionId, long permissionItemId) {
+            object[] results = this.Invoke("AddPermissionItemToPermission", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        permissionId,
+                        permissionItemId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddPermissionItemToPermissionAsync(string sWSUserName, string sWSPassword, long permissionId, long permissionItemId) {
+            this.AddPermissionItemToPermissionAsync(sWSUserName, sWSPassword, permissionId, permissionItemId, null);
+        }
+        
+        /// <remarks/>
+        public void AddPermissionItemToPermissionAsync(string sWSUserName, string sWSPassword, long permissionId, long permissionItemId, object userState) {
+            if ((this.AddPermissionItemToPermissionOperationCompleted == null)) {
+                this.AddPermissionItemToPermissionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddPermissionItemToPermissionOperationCompleted);
+            }
+            this.InvokeAsync("AddPermissionItemToPermission", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        permissionId,
+                        permissionItemId}, this.AddPermissionItemToPermissionOperationCompleted, userState);
+        }
+        
+        private void OnAddPermissionItemToPermissionOperationCompleted(object arg) {
+            if ((this.AddPermissionItemToPermissionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddPermissionItemToPermissionCompleted(this, new AddPermissionItemToPermissionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -12761,6 +12801,32 @@ namespace WebAPI.Api {
         private object[] results;
         
         internal AddPermissionToRoleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    public delegate void AddPermissionItemToPermissionCompletedEventHandler(object sender, AddPermissionItemToPermissionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.33440")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddPermissionItemToPermissionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddPermissionItemToPermissionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

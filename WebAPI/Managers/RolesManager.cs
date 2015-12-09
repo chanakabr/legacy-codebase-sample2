@@ -87,6 +87,7 @@ namespace WebAPI.Managers
         internal static bool IsActionPermitedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
         {
             usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder(); 
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
@@ -103,7 +104,6 @@ namespace WebAPI.Managers
             var roles = actionPermissionItemsDictionary[serviceActionKey];
             bool isPermitted = false;
 
-            StringBuilder usersGroupStringBuilder = new StringBuilder(); 
 
             foreach (var roleId in roleIds)
             {
@@ -124,6 +124,7 @@ namespace WebAPI.Managers
                 }
             }
 
+            usersGroup = usersGroupStringBuilder.ToString();
             return isPermitted;
         }
     }

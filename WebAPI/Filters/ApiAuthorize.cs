@@ -27,7 +27,9 @@ namespace WebAPI.Controllers
         private bool silent;
         
         // TODO: get from configuration
-        private long anonymousRoleId = 0;
+        private const long ANONYMOUS_ROLE_ID = 0;
+        private const string PARTNER_WILDCARD = "partner*";
+        private const string HOUSEHOLD_WILDCARD = "household*";
 
         public ApiAuthorizeAttribute(bool AllowAnonymous = false, bool Silent = false)
             : base()
@@ -49,7 +51,7 @@ namespace WebAPI.Controllers
             string action = (string)actionContext.ActionArguments["action_name"];
 
             string allowedUsersGroup = null;
-            List<long> roleIds = new List<long>() { anonymousRoleId };
+            List<long> roleIds = new List<long>() { ANONYMOUS_ROLE_ID };
 
             if (ks.UserId != "0")
             {
@@ -74,14 +76,16 @@ namespace WebAPI.Controllers
             var extraUserId = HttpContext.Current.Items["user_id"];
             string userId = extraUserId != null ? extraUserId.ToString() : null;
 
-            // if exists and is in the allowed group users list - override the user id in ks (* = everyone is allowed)
-            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(allowedUsersGroup) && 
-                (allowedUsersGroup.Contains("*") || (allowedUsersGroup.Contains(userId))))
+            // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
+            if ((!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(allowedUsersGroup)) && (
+                allowedUsersGroup.Contains(userId)||
+                allowedUsersGroup.Contains(PARTNER_WILDCARD) ||
+                (allowedUsersGroup.Contains(HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
             {
                 ks.UserId = userId;
                 KS.SaveOnRequest(ks);
             }
-
+            
             return true;
         }
     }

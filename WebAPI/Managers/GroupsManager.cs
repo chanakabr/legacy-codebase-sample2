@@ -127,10 +127,10 @@ namespace WebAPI.ClientManagers
                 group.Languages = Mapper.Map<List<Language>>(languages);
 
             // get group roles
-            group.Roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            var roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
             
             // build dictionary action permission items - roles with groups dictionary, for easy access
-            group.ActionPermissionItemsDictionary = RolesManager.BuildPermissionItemsDictionary(group.Roles);
+            group.ActionPermissionItemsDictionary = RolesManager.BuildPermissionItemsDictionary(roles);
 
             return group;
         }

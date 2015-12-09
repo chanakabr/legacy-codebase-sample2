@@ -162,6 +162,23 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="AddPermissionItemToPermission">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="permissionId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="permissionItemId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddPermissionItemToPermissionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddPermissionItemToPermissionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -3806,6 +3823,12 @@
   <wsdl:message name="AddPermissionToRoleSoapOut">
     <wsdl:part name="parameters" element="tns:AddPermissionToRoleResponse" />
   </wsdl:message>
+  <wsdl:message name="AddPermissionItemToPermissionSoapIn">
+    <wsdl:part name="parameters" element="tns:AddPermissionItemToPermission" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionItemToPermissionSoapOut">
+    <wsdl:part name="parameters" element="tns:AddPermissionItemToPermissionResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -4581,6 +4604,15 @@
     <wsdl:part name="permissionId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddPermissionToRoleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionItemToPermissionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="permissionId" type="s:string" />
+    <wsdl:part name="permissionItemId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddPermissionItemToPermissionHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
@@ -5386,6 +5418,10 @@
       <wsdl:input message="tns:AddPermissionToRoleSoapIn" />
       <wsdl:output message="tns:AddPermissionToRoleSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="AddPermissionItemToPermission">
+      <wsdl:input message="tns:AddPermissionItemToPermissionSoapIn" />
+      <wsdl:output message="tns:AddPermissionItemToPermissionSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -5904,6 +5940,10 @@
       <wsdl:input message="tns:AddPermissionToRoleHttpPostIn" />
       <wsdl:output message="tns:AddPermissionToRoleHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="AddPermissionItemToPermission">
+      <wsdl:input message="tns:AddPermissionItemToPermissionHttpPostIn" />
+      <wsdl:output message="tns:AddPermissionItemToPermissionHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -6284,6 +6324,15 @@
     </wsdl:operation>
     <wsdl:operation name="AddPermissionToRole">
       <soap:operation soapAction="http://api.tvinci.com/AddPermissionToRole" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermissionItemToPermission">
+      <soap:operation soapAction="http://api.tvinci.com/AddPermissionItemToPermission" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7482,6 +7531,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="AddPermissionItemToPermission">
+      <soap12:operation soapAction="http://api.tvinci.com/AddPermissionItemToPermission" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -8639,6 +8697,15 @@
     <http:binding verb="POST" />
     <wsdl:operation name="AddPermissionToRole">
       <http:operation location="/AddPermissionToRole" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPermissionItemToPermission">
+      <http:operation location="/AddPermissionItemToPermission" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
