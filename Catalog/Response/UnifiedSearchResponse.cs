@@ -23,6 +23,9 @@ namespace Catalog.Response
         [DataMember]
         public ApiObjects.Response.Status status;
 
+        [DataMember]
+        public string requestId;
+
         public UnifiedSearchResponse()
         {
             searchResults = new List<UnifiedSearchResult>();

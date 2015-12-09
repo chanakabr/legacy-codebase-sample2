@@ -45,7 +45,7 @@ namespace Catalog.Request
 
         #region Override Methods
 
-        protected override Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        protected override Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
         {
             ExternalChannelRequest externalRequest = request as ExternalChannelRequest;
 
@@ -55,7 +55,7 @@ namespace Catalog.Request
                     this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.deviceId, this.deviceType);
             }
 
-            return Catalog.GetExternalChannelAssets(externalRequest, out totalItems, out searchResults);
+            return Catalog.GetExternalChannelAssets(externalRequest, out totalItems, out searchResults, out requestId);
         }
 
         #endregion

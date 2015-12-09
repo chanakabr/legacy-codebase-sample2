@@ -82,7 +82,7 @@ namespace Catalog.Request
                 int totalItems;
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 
-                response.status = this.GetAssets(request, out totalItems, out searchResults);
+                response.status = this.GetAssets(request, out totalItems, out searchResults, out response.requestId);
 
                 //response.status = Catalog.GetExternalChannelAssets(request, out totalItems, out searchResults);
 
@@ -157,17 +157,18 @@ namespace Catalog.Request
             return response;
         }
 
-        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
         {
             totalItems = 0;
             searchResults = null;
+            requestId = "";
             return new Status()
             {
                 Code = (int)eResponseStatus.Error,
                 Message = "Web service failure"
             };
         }
-
+                
         #endregion
     }
 

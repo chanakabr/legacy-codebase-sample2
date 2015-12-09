@@ -33,9 +33,10 @@ namespace Catalog.Request
 
         #endregion
 
-        protected override ApiObjects.Response.Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults)
+        protected override ApiObjects.Response.Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults, out string requestId)
         {
             InternalChannelRequest internalRequest = request as InternalChannelRequest;
+            requestId = "";
 
             if (internalRequest == null)
             {

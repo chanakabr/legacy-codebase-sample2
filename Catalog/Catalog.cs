@@ -4715,12 +4715,13 @@ namespace Catalog
 
 		#region External Channel Request
 
-		internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList)
+        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
 		{
 			Status status = new Status();
 
 			searchResultsList = new List<UnifiedSearchResult>();
 			totalItems = 0;
+            requestId = "";
 
 			var externalChannelsCache = ExternalChannelCache.Instance();
 
@@ -4772,7 +4773,7 @@ namespace Catalog
 
 			// Adapter will respond with a collection of media assets ID with Kaltura terminology
 			List<RecommendationResult> recommendations =
-				RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
+				RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, out requestId);
 
 			if (recommendations == null)
 			{
@@ -4920,10 +4921,11 @@ namespace Catalog
 			return status;
 		}
 
-        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList)
+        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
 		{
             Status status = new Status();
             totalItems = 0;
+            requestId = "";
             resultsList = new List<RecommendationResult>();
 
             BaseResponse respone = new BaseResponse();
@@ -4981,7 +4983,8 @@ namespace Catalog
                                                                                                 request.m_nMediaTypes,
                                                                                                 request.m_nPageSize,
                                                                                                 request.m_nPageIndex,
-                                                                                                enrichments);
+                                                                                                enrichments,
+                                                                                                out requestId);
                 }
                 catch (KalturaException ex)
                 {
@@ -5021,10 +5024,11 @@ namespace Catalog
             return status;
         }
 
-		internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList)
+		internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
 		{
 			Status status = new Status();
 			totalItems = 0;
+            requestId = "";
 			resultsList = new List<RecommendationResult>();
 
 			BaseResponse respone = new BaseResponse();
@@ -5059,7 +5063,7 @@ namespace Catalog
 
 				try
 				{
-					recommendations =
+                    recommendations =
 						RecommendationAdapterController.GetInstance().GetSearchRecommendations(recommendationEngineId,
 																								request.m_sQuery,
 																								request.m_nGroupID,
@@ -5073,7 +5077,8 @@ namespace Catalog
 																								request.m_nMediaTypes,
 																								request.m_nPageSize,
 																								request.m_nPageIndex,
-																								enrichments);
+																								enrichments,
+                                                                                                out requestId);
 				}
 				catch (KalturaException ex)
 				{

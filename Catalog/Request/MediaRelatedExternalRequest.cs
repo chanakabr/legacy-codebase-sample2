@@ -82,7 +82,7 @@ namespace Catalog.Request
                 int totalItems;
                 List<RecommendationResult> results;
 
-                Status status = Catalog.GetExternalRelatedAssets(mediaRelatedRequest, out totalItems, out results);
+                Status status = Catalog.GetExternalRelatedAssets(mediaRelatedRequest, out totalItems, out results, out mediaResponse.RequestId);
                 if (status.Code != 0)
                 {
                     mediaResponse.Status = status;
@@ -99,9 +99,12 @@ namespace Catalog.Request
 						m_dUpdateDate = DateTime.MinValue
 					}
 					).ToList();
-
-				List<UnifiedSearchResult> searchResultsList = 
-					searcher.FillUpdateDates(mediaRelatedRequest.m_nGroupID, allRecommendations, ref totalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
+                
+                List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+                
+                if (allRecommendations != null && allRecommendations.Count > 0)
+				    searchResultsList = 
+					    searcher.FillUpdateDates(mediaRelatedRequest.m_nGroupID, allRecommendations, ref totalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.m_nMediaIds = searchResultsList.Select(result => new SearchResult() { assetID = int.Parse(result.AssetId), UpdateDate = result.m_dUpdateDate }).ToList();
