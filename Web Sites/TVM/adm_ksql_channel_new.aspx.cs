@@ -38,22 +38,23 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 bool result;
-                int nId = DBManipulator.DoTheWork();
+                int channelId = DBManipulator.DoTheWork();
 
-                if (nId != 0)
+                if (channelId != 0)
                 {
                     int loginGroupID = LoginManager.GetLoginGroupID();
-                    //Update MediaType if its new channel
-                    if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+                    
+                    // Update asset types if it is a new channel
+                    if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
                     {
-                        List<int> updatedMediaType = Session["media_type_ids"] as List<int>;
-                        InsertChannelMediaType(updatedMediaType, nId, loginGroupID);
-                        Session["media_type_ids"] = null;
+                        List<int> updatedAssetTypes = Session["asset_type_ids"] as List<int>;
+                        InsertChannelAssetType(updatedAssetTypes, channelId, loginGroupID);
+                        Session["asset_type_ids"] = null;
                     }
 
                     //Update channel at Lucene/ ES
 
-                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
+                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
                 }
                 return;
             }
@@ -438,34 +439,10 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_bio);
 
-        //DataRecordMultiField dr_channels = new DataRecordMultiField("categories", "id", "id", "categories_channels", "channel_ID", "category_id", false, "ltr", 60, "tags");
-        //dr_channels.Initialize("Categories", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", false);
-        //string sQuery = "select ADMIN_NAME as txt,id as val from categories where status=1 and group_id=" + LoginManager.GetLoginGroupID().ToString();
-        //sQuery += " order by ADMIN_NAME";
-        //dr_channels.SetCollectionQuery(sQuery);
-        //theRecord.AddRecord(dr_channels);
-
-        //DataRecordTimeField dr_relevant_time = new DataRecordTimeField();
-        //dr_relevant_time.Initialize("Linear Start Time", "adm_table_header_nbg", "FormInput", "LINEAR_START_TIME", false);
-        //theRecord.AddRecord(dr_relevant_time);
 
         DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField();
         dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
         theRecord.AddRecord(dr_logo_Pic);
-
-        //string sDefPT = "";
-        //object oDefPT = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PLAYLIST_TEMPLATE_ID", LoginManager.GetLoginGroupID());
-        //if (oDefPT != DBNull.Value && oDefPT != null)
-        //    sDefPT = oDefPT.ToString();
-
-        //DataRecordDropDownField dr_pli_template = new DataRecordDropDownField("play_list_items_templates_types", "NAME", "id", "", null, 60, true);
-        //sQuery = "select name as txt,id as id from play_list_items_templates_types where status=1 and is_active=1 and group_id= " + LoginManager.GetLoginGroupID().ToString();
-        //dr_pli_template.SetSelectsQuery(sQuery);
-        //dr_pli_template.Initialize("Playlist schema", "adm_table_header_nbg", "FormInput", "PLAYLIST_TEMPLATE_ID", false);
-        //dr_pli_template.SetNoSelectStr("---");
-        //dr_pli_template.SetDefaultVal(sDefPT);
-        //theRecord.AddRecord(dr_pli_template);
-
 
         DataRecordBrowserField dr_asset_types = new DataRecordBrowserField("OpenAssetTypeBrowser", "adm_ksql_channel_new.aspx");
         dr_asset_types.Initialize("Asset Type", "adm_table_header_nbg", "FormInput", "ID", false);
@@ -551,9 +528,10 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, new List<int>() { mediaTypeID });
     }
 
-    private void InsertChannelMediaType(List<int> mediaTypeIDs, int channelID, int groupID)
+    private void InsertChannelAssetType(List<int> assetTypeIds, int channelID, int groupID)
     {
-        bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
+        bool inserted = TvmDAL.InsertChannelAssetType(groupID, channelID, assetTypeIds);
+
         if (inserted)
         {
             bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);

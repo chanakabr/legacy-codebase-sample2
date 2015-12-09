@@ -73,14 +73,14 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         }
         else
         {
-            // save media type id values to associate with channel (after get channelId)
+            // save asset type id values to associate with channel (after get channelId)
             List<int> assetTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                assetTypeList = Session["media_type_ids"] as List<int>;
+                assetTypeList = Session["asset_type_ids"] as List<int>;
             }
             assetTypeList.Add(assetTypeID);
-            Session["media_type_ids"] = assetTypeList;
+            Session["asset_type_ids"] = assetTypeList;
 
         }
 
