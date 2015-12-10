@@ -14,6 +14,7 @@ using WebAPI.Models.General;
 using System.Reflection;
 using KLogMonitor;
 using WebAPI.Managers.Models;
+using WebAPI.Managers;
 
 namespace WebAPI.ClientManagers
 {
@@ -45,7 +46,7 @@ namespace WebAPI.ClientManagers
         }
 
         public static Group GetGroup(int groupId)
-        {            
+        {
             if (instance == null)
                 instance = new GroupsManager();
 
@@ -120,11 +121,21 @@ namespace WebAPI.ClientManagers
                 throw new Exception();
             }
 
+            // get group languages
             var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
             if (languages != null)
                 group.Languages = Mapper.Map<List<Language>>(languages);
 
+            // get group roles
+            var roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            
+            // build dictionary action permission items - roles with groups dictionary, for easy access
+            group.ActionPermissionItemsDictionary = RolesManager.BuildPermissionItemsDictionary(roles);
+
             return group;
         }
+
+        
     }
+       
 }

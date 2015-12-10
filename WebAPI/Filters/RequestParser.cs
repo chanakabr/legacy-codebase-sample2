@@ -21,6 +21,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using Couchbase.Extensions;
+using WebAPI.Managers;
 
 namespace WebAPI.Filters
 {
@@ -136,8 +137,13 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
+                            // ks
                             if (reqParams["ks"] != null)
                                 InitKS(actionContext, reqParams["ks"].ToObject<string>());
+
+                            // additional user_id
+                            if (reqParams["user_id"] != null)
+                                HttpContext.Current.Items.Add("user_id", reqParams["user_id"]);
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
