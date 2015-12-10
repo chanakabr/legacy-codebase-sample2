@@ -5337,6 +5337,12 @@ namespace Catalog
 			CatalogCache catalogCache = CatalogCache.Instance();
 
 			int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            if (string.IsNullOrEmpty(request.internalChannelID))
+            {
+                return new Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
+            }
+
 			int channelId = int.Parse(request.internalChannelID);
 
 			groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
