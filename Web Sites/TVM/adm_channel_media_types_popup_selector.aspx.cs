@@ -156,32 +156,32 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
             DataTable channelAssetTypes = ds.Tables[1];
             List<object> assetTypesForDuallist = new List<object>();
 
+            // save asset type id values to associate with channel (after get channelId)
+            List<int> sessionAssetTypeList = new List<int>();
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
+            {
+                sessionAssetTypeList = Session["asset_type_ids"] as List<int>;
+            }
+
             if (availableAssetTypes != null && availableAssetTypes.Rows != null && availableAssetTypes.Rows.Count > 0)
             {
                 foreach (DataRow dr in availableAssetTypes.Rows)
                 {
+                    int id = ODBCWrapper.Utils.ExtractInteger(dr, "ID");
+
+                    // asset typ will be in AVAILABLE list if it doesn't appear in session's saved asset types
+                    // and vice versa: will be in CURRENT list if it does appear in it
+                    bool inList = sessionAssetTypeList.Contains(id);
+
                     var data = new
                     {
-                        ID = ODBCWrapper.Utils.ExtractString(dr, "ID"),
+                        ID = id.ToString(),
                         Title = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
                         Description = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
-                        InList = false
+                        InList = inList
                     };
                     assetTypesForDuallist.Add(data);
                 }
-
-                //if (includeEpg)
-                //{
-                //    var epgData = new
-                //    {
-                //        ID = GroupsCacheManager.Channel.EPG_ASSET_TYPE,
-                //        Title = "EPG",
-                //        Description = "EPG",
-                //        InList = false
-                //    };
-
-                //    mediaTypes.Add(epgData);
-                //}
             }
 
             if (channelAssetTypes != null && channelAssetTypes.Rows != null && channelAssetTypes.Rows.Count > 0)

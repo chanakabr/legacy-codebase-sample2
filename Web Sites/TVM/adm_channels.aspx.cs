@@ -41,6 +41,8 @@ public partial class adm_channels : System.Web.UI.Page
 
 			System.Collections.SortedList sortedMenu = GetSubMenuList();
 			m_sSubSubMenu = TVinciShared.Menu.GetSubMenu(sortedMenu, -1, false);
+
+            Session["asset_type_ids"] = null;
 		}
 	}
 
