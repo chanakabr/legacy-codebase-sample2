@@ -56,8 +56,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Adds a user to household       
-        /// </summary>        
-        /// <param name="household_id">Household identifier</param>
+        /// </summary>                
         /// <param name="user_id">The identifier of the user to add</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: 
@@ -65,14 +64,23 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int household_id, string user_id, bool is_master = false)
+        public bool Add(string user_id, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;
-
+          
             try
             {
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id_to_add, KS.GetFromRequest().UserId, is_master);
             }
             catch (ClientException ex)
             {
