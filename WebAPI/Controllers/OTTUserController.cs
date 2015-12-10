@@ -440,12 +440,12 @@ namespace WebAPI.Controllers
 
         /// <summary>Edit user details.        
         /// </summary>
-        /// <param name="user"> UserData Object (include basic and dynamic data)</param>
-        /// <remarks>         User suspended = 2001, User does not exist = 2000
+        /// <param name="role_id"> The role identifier to add</param>
+        /// <remarks>
         /// </remarks>
         [Route("addRole"), HttpPost]
         [ApiAuthorize]
-        public bool Update(long role_id)
+        public bool AddRole(long role_id)
         {
             bool response = false;
 
