@@ -5452,6 +5452,202 @@ namespace Catalog
 			return status;
 		}
 
+        internal static Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        {
+            // Set default values for out parameters
+            totalItems = 0;
+            searchResults = new List<UnifiedSearchResult>();
+
+            Status status = null;
+
+            Group group = null;
+
+            // Get group and channel objects from cache/DB
+            GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+
+            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            group = groupManager.GetGroup(parentGroupID);
+
+            // Build search object
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildRelatedObject(request, group);
+
+            int pageIndex = request.m_nPageIndex;
+            int pageSize = request.m_nPageSize;
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null)
+            {
+                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+            }
+
+            // Perform initial search of channel
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+
+            if (searchResults == null)
+            {
+                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+            }
+
+            List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
+
+            if (assetIDs == null)
+            {
+                searchResults = null;
+                totalItems = 0;
+                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+            }
+
+            status = new Status((int)eResponseStatus.OK);
+
+            return status;
+        }
+
+        private static UnifiedSearchDefinitions BuildRelatedObject(MediaRelatedRequest request, Group group)
+        {
+            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            definitions.shouldSearchEpg = true;
+            definitions.shouldSearchMedia = true;
+
+            Filter filter = new Filter();
+
+            bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+
+            MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
+
+            #region Basic
+
+            definitions.groupId = request.m_nGroupID;
+            definitions.indexGroupId = group.m_nParentGroupID;
+
+            definitions.pageIndex = request.m_nPageIndex;
+            definitions.pageSize = request.m_nPageSize;
+
+            #endregion
+
+            #region Device Rules
+
+            int[] deviceRules = null;
+
+            if (request.m_oFilter != null)
+            {
+                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+            }
+
+            definitions.deviceRuleId = deviceRules;
+
+            #endregion
+
+            #region Media Types, Permitted Watch Rules, Language
+
+
+            definitions.mediaTypes = request.m_nMediaTypes;
+
+            if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
+            {
+                definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
+            }
+
+            definitions.langauge = group.GetGroupDefaultLanguage();
+
+            #endregion
+
+            #region Request Filter Object
+
+            if (request.m_oFilter != null)
+            {
+                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
+                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
+            }
+
+            #endregion
+
+            #region Tags & Metas
+
+            eCutType cutType = eCutType.Or;
+
+            BooleanPhrase phrase = null;
+
+            List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>();
+
+            if (mediaSearchRequest.m_lTags != null && mediaSearchRequest.m_lTags.Count > 0)
+            {
+                foreach (KeyValue keyValue in mediaSearchRequest.m_lTags)
+                {
+                    if (!string.IsNullOrEmpty(keyValue.m_sKey))
+                    {
+                        string key = keyValue.m_sKey;
+                        string value = keyValue.m_sValue;
+
+                        BooleanLeaf leaf = new BooleanLeaf("media.tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        nodes.Add(leaf);
+                    }
+                }
+            }
+
+            if (mediaSearchRequest.m_lMetas != null && mediaSearchRequest.m_lMetas.Count > 0)
+            {
+                foreach (KeyValue keyValue in mediaSearchRequest.m_lMetas)
+                {
+                    if (!string.IsNullOrEmpty(keyValue.m_sKey))
+                    {
+                        string key = keyValue.m_sKey;
+                        string value = keyValue.m_sValue;
+
+                        BooleanLeaf leaf = new BooleanLeaf("media.metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        nodes.Add(leaf);
+                    }
+                }
+            }
+
+            phrase = new BooleanPhrase(nodes, cutType);
+
+            // Connect the request's filter query with the channel's tags/metas definitions
+
+            BooleanPhraseNode root = null;
+
+            if (!string.IsNullOrEmpty(request.m_sFilter))
+            {
+                string filterExpression = HttpUtility.HtmlDecode(request.m_sFilter);
+
+                // Build boolean phrase tree based on filter expression
+                BooleanPhraseNode filterTree = null;
+                var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(status.Message, status.Code);
+                }
+
+                if (phrase != null)
+                {
+                    List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+
+                    rootNodes.Add(phrase);
+                    rootNodes.Add(filterTree);
+
+                    root = new BooleanPhrase(rootNodes, eCutType.And);
+                }
+                else
+                {
+                    root = filterTree;
+                }
+            }
+            else
+            {
+                root = phrase;
+            }
+
+            definitions.filterPhrase = root;
+
+            #endregion
+
+            return definitions;
+        }
+
 		private static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
 		{
 			UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();

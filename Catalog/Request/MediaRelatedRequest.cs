@@ -27,6 +27,8 @@ namespace Catalog.Request
         public Int32 m_nMediaID;
         [DataMember]
         public List<Int32> m_nMediaTypes;
+        [DataMember]
+        public string m_sFilter;
 
         public MediaRelatedRequest()
             : base()
@@ -52,9 +54,8 @@ namespace Catalog.Request
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
-            MediaSearchRequest oMediaRequest;
-            MediaIdsResponse oMediaResponse = new MediaIdsResponse();
             MediaRelatedRequest request = oBaseRequest as MediaRelatedRequest;
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
             Filter oFilter = new Filter();
             try
@@ -64,41 +65,9 @@ namespace Catalog.Request
                     throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
-
-                bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
-                oMediaRequest = Catalog.BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref oFilter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
-
-                oMediaRequest.m_oFilter = oFilter;
-                oMediaRequest.m_nMediaID = request.m_nMediaID;
-                oMediaRequest.m_sSignString = request.m_sSignString;
-                oMediaRequest.m_sSignature = request.m_sSignature;
-                oMediaRequest.m_nPageSize = request.m_nPageSize;
-                oMediaRequest.m_nPageIndex = request.m_nPageIndex;
-                oMediaRequest.m_sUserIP = request.m_sUserIP;
-                oMediaRequest.m_bAnd = false;
-                oMediaRequest.m_bExact = true;
-
-                //GetMediaIds With Searcher service
-                int nTotalItems = 0;
-                bool isLucene = false;
-                List<SearchResult> lSearchResults = Catalog.GetMediaIdsFromSearcher(oMediaRequest, ref nTotalItems, ref isLucene);
-
-                if (lSearchResults != null)
-                {
-                    oMediaResponse.m_nTotalItems = nTotalItems;
-                    if (isLucene)
-                    {
-                        List<SearchResult> lMediaRes = Utils.GetMediaUpdateDate(lSearchResults);
-                        lMediaRes = Utils.GetMediaForPaging(lMediaRes, request);
-                        oMediaResponse.m_nMediaIds = new List<SearchResult>(lMediaRes);
-                    }
-                    else //ElasticSearch
-                    {
-                        oMediaResponse.m_nMediaIds = lSearchResults;
-                    }
-                }
-
-                return (BaseResponse)oMediaResponse;
+                
+                searchResponse.status = Catalog.GetRelatedAssets(request, out searchResponse.m_nTotalItems, out searchResponse.searchResults);
+                return searchResponse;               
             }
             catch (Exception ex)
             {
