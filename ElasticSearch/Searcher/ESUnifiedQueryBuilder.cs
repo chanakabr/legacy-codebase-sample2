@@ -1428,15 +1428,17 @@ namespace ElasticSearch.Searcher
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
+            if (order.m_eOrderBy != OrderBy.ID &&
+                shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
             {
                 sortBuilder.Append(", \"_score\"");
             }
 
-            sortBuilder.Append(", \"_uid\"");
-
-            // Always add sort by _uid to avoid ES weirdness of same sort-value 
-            sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            if (order.m_eOrderBy != OrderBy.ID)
+            {
+                // Always add sort by _uid to avoid ES weirdness of same sort-value 
+                sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            }
 
             sortBuilder.Append(" ]");
 
