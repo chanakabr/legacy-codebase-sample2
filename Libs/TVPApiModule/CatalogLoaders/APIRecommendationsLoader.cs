@@ -27,7 +27,7 @@ namespace TVPApiModule.CatalogLoaders
 
         public APIRecommendationsLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
             string localeLanguage, List<string> with, string udid, 
-            string deviceType, string externalChannelId, string utcOffset, string filterQuery)
+            string deviceType, string externalChannelId, string utcOffset, string filterQuery, string internalChannelId)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
             this.SiteGuid = siteGuid;
@@ -36,6 +36,7 @@ namespace TVPApiModule.CatalogLoaders
 
             this.deviceType = deviceType;
             this.externalChannelId = externalChannelId;
+            this.internalChannelId = internalChannelId;
             this.utcOffset = utcOffset;
             this.Filter = filterQuery;
         }
