@@ -809,9 +809,9 @@ namespace WebAPI.Clients
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire search request
-            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            UnifiedSearchExternalResponse searchResponse = new UnifiedSearchExternalResponse();
 
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -840,6 +840,8 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
+
+            result.RequestId = searchResponse.requestId;
 
             return result;
         }

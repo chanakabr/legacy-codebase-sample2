@@ -342,6 +342,8 @@ namespace WebAPI.Utils
                 result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
+
+            result.RequestId = mediaIdsResponse.RequestId;
             return result;
         }
 
