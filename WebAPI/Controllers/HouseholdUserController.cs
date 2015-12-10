@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id_to_add, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id, KS.GetFromRequest().UserId, is_master);
             }
             catch (ClientException ex)
             {
