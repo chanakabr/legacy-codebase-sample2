@@ -83,6 +83,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPVR", "..\TVMCore\NPVR\NPV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportHandler", "ExportHandler\ExportHandler.csproj", "{0303BFD2-76FE-4D89-80D6-DC2F202317AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageUploadHandler", "ImageUploadHandler\ImageUploadHandler.csproj", "{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -579,6 +581,18 @@ Global
 		{0303BFD2-76FE-4D89-80D6-DC2F202317AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0303BFD2-76FE-4D89-80D6-DC2F202317AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0303BFD2-76FE-4D89-80D6-DC2F202317AD}.Release|x86.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Basic|x86.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Local|Any CPU.Build.0 = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Local|x86.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCF6860A-AE92-4F4B-8E05-CBA885A959D8}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
