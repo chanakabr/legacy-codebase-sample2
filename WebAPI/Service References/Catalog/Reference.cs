@@ -2106,9 +2106,6 @@ namespace WebAPI.Catalog {
     public partial class MediaRelatedExternalRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nDeviceIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nMediaIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2118,20 +2115,10 @@ namespace WebAPI.Catalog {
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sLanguageField;
+        private string m_sDeviceIDField;
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nDeviceID {
-            get {
-                return this.m_nDeviceIDField;
-            }
-            set {
-                if ((this.m_nDeviceIDField.Equals(value) != true)) {
-                    this.m_nDeviceIDField = value;
-                    this.RaisePropertyChanged("m_nDeviceID");
-                }
-            }
-        }
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int m_nMediaID {
@@ -2173,6 +2160,19 @@ namespace WebAPI.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDeviceID {
+            get {
+                return this.m_sDeviceIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDeviceIDField, value) != true)) {
+                    this.m_sDeviceIDField = value;
+                    this.RaisePropertyChanged("m_sDeviceID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string m_sLanguage {
             get {
                 return this.m_sLanguageField;
@@ -2193,32 +2193,19 @@ namespace WebAPI.Catalog {
     public partial class MediaSearchExternalRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nDeviceIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<int> m_nMediaTypesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int m_nUtcOffsetField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sDeviceIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sLanguageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sQueryField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nDeviceID {
-            get {
-                return this.m_nDeviceIDField;
-            }
-            set {
-                if ((this.m_nDeviceIDField.Equals(value) != true)) {
-                    this.m_nDeviceIDField = value;
-                    this.RaisePropertyChanged("m_nDeviceID");
-                }
-            }
-        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<int> m_nMediaTypes {
@@ -2242,6 +2229,19 @@ namespace WebAPI.Catalog {
                 if ((this.m_nUtcOffsetField.Equals(value) != true)) {
                     this.m_nUtcOffsetField = value;
                     this.RaisePropertyChanged("m_nUtcOffset");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDeviceID {
+            get {
+                return this.m_sDeviceIDField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDeviceIDField, value) != true)) {
+                    this.m_sDeviceIDField = value;
+                    this.RaisePropertyChanged("m_sDeviceID");
                 }
             }
         }
@@ -2650,6 +2650,9 @@ namespace WebAPI.Catalog {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<int> m_nMediaTypesField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sFilterField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int m_nMediaID {
             get {
@@ -2672,6 +2675,19 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
                     this.m_nMediaTypesField = value;
                     this.RaisePropertyChanged("m_nMediaTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sFilter {
+            get {
+                return this.m_sFilterField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sFilterField, value) != true)) {
+                    this.m_sFilterField = value;
+                    this.RaisePropertyChanged("m_sFilter");
                 }
             }
         }
