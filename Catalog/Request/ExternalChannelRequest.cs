@@ -45,7 +45,106 @@ namespace Catalog.Request
 
         #region Override Methods
 
-        protected override Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        public override BaseResponse GetResponse(BaseRequest baseRequest)
+        {
+            UnifiedSearchExternalResponse response = new UnifiedSearchExternalResponse();
+
+            try
+            {
+                UnifiedChannelRequest request = baseRequest as UnifiedChannelRequest;
+
+                if (request == null)
+                {
+                    throw new ArgumentNullException("request object is null or required variable is null");
+                }
+
+                if (request.m_nGroupID == 0)
+                {
+                    response.status.Code = (int)eResponseStatus.BadSearchRequest;
+                    response.status.Message = "No group Id was sent in request";
+
+                    return response;
+                }
+
+                CheckSignature(baseRequest);
+
+                int totalItems;
+                List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
+
+                response.status = this.GetAssets(request, out totalItems, out searchResults, out response.requestId);
+
+                response.searchResults = searchResults;
+                response.m_nTotalItems = totalItems;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - GetResponse - " +
+                    string.Format("Exception: group = {0} siteGuid = {1} message = {2}, ST = {3}",
+                    baseRequest.m_nGroupID, // {0}
+                    baseRequest.m_sSiteGuid, // {1}
+                    ex.Message, // {2}
+                    ex.StackTrace // {3}
+                    ), ex);
+
+                if (ex is HttpException)
+                {
+                    if ((ex as HttpException).GetHttpCode() == 404)
+                    {
+                        response.status.Code = (int)eResponseStatus.IndexMissing;
+                        response.status.Message = "Data is not indexed for this group";
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Got error with Elasticsearch";
+                    }
+                }
+                else if (ex is UriFormatException)
+                {
+                    response.status.Code = (int)eResponseStatus.AdapterUrlRequired;
+                    response.status.Message = "Invalid adapter URL was defined. Correct adapter URL is required";
+                }
+                else if (ex is KalturaException)
+                {
+                    // This is a specific exception we created.
+                    // If this specific KalturaException has StatusCode in its data, use it instead of the general code
+                    if (ex.Data.Contains("StatusCode"))
+                    {
+                        response.status.Code = (int)ex.Data["StatusCode"];
+                        response.status.Message = ex.Message;
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Failed getting assets of channel";
+                    }
+                }
+                else if (ex is ArgumentException)
+                {
+                    // This is a specific exception we created.
+                    // If this specific ArgumentException has StatusCode in its data, use it instead of the general code
+                    if (ex.Data.Contains("StatusCode"))
+                    {
+                        response.status.Code = (int)ex.Data["StatusCode"];
+                        response.status.Message = ex.Message;
+                    }
+                    else
+                    {
+                        response.status.Code = (int)eResponseStatus.Error;
+                        response.status.Message = "Failed getting assets of channel";
+                    }
+                }
+                else
+                {
+                    response.status.Code = (int)eResponseStatus.Error;
+                    response.status.Message = "Failed getting assets of channel";
+                }
+            }
+
+            return response;
+        }
+
+        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
         {
             ExternalChannelRequest externalRequest = request as ExternalChannelRequest;
 
@@ -55,7 +154,7 @@ namespace Catalog.Request
                     this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.deviceId, this.deviceType);
             }
 
-            return Catalog.GetExternalChannelAssets(externalRequest, out totalItems, out searchResults);
+            return Catalog.GetExternalChannelAssets(externalRequest, out totalItems, out searchResults, out requestId);
         }
 
         #endregion

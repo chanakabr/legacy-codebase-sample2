@@ -82,17 +82,17 @@ namespace AdapterControllers
 
         #region Public Methods
         
-        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments)
+        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments, out string requestId)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
-            
+
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             if (engine == null)
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", externalChannel.RecommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-
+            
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
@@ -133,6 +133,8 @@ namespace AdapterControllers
                     System.Convert.ToBase64String(
                         EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
+                requestId = adapterResponse.RequestId;
+
                 LogAdapterResponse(adapterResponse, "GetChannelRecommendation");
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
@@ -158,6 +160,8 @@ namespace AdapterControllers
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+
+                    requestId = adapterResponse.RequestId;
 
                     LogAdapterResponse(adapterResponse, "GetChannelRecommendation"); 
 
@@ -198,12 +202,12 @@ namespace AdapterControllers
 
         public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId, 
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments)
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, out string requestId)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
-            
+
             if (engine == null)
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
@@ -247,6 +251,8 @@ namespace AdapterControllers
                     System.Convert.ToBase64String(
                         EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
+                requestId = adapterResponse.RequestId;
+
                 LogAdapterResponse(adapterResponse, "GetRelatedRecommendation");
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
@@ -272,6 +278,8 @@ namespace AdapterControllers
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+
+                    requestId = adapterResponse.RequestId;
 
                     LogAdapterResponse(adapterResponse, "GetRelatedRecommendation");
 
@@ -308,12 +316,12 @@ namespace AdapterControllers
 
         public List<RecommendationResult> GetSearchRecommendations(int recommendationEngineId, string query, Int32 nGroupID, string siteGuid, string deviceId,
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments)
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, out string requestId)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
-
+            
             if (engine == null)
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
@@ -357,6 +365,8 @@ namespace AdapterControllers
                     System.Convert.ToBase64String(
                         EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
+                requestId = adapterResponse.RequestId;
+
                 LogAdapterResponse(adapterResponse, "GetSearchRecommendation");
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
@@ -382,6 +392,8 @@ namespace AdapterControllers
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+
+                    requestId = adapterResponse.RequestId;
 
                     LogAdapterResponse(adapterResponse, "GetSearchRecommendation");
 

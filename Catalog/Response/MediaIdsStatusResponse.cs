@@ -15,6 +15,9 @@ namespace Catalog.Response
     {
         [DataMember]
         public ApiObjects.Response.Status Status;
+        
+        [DataMember]
+        public string RequestId;
 
         public MediaIdsStatusResponse() : base()
         {
