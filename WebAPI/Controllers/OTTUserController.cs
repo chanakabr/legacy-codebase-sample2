@@ -496,5 +496,40 @@ namespace WebAPI.Controllers
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
         }
+
+        /// <summary>
+        /// Permanently delete a user. User to delete cannot be an exclusive household master, and cannot be default user.
+        /// </summary>        
+        /// <param name="user">The user model to delete</param>        
+        /// <remarks>        
+        /// Possible status codes: 
+        /// </remarks>        
+        [Route("delete"), HttpPost]
+        public bool Delete()
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
+
+            int userId = 0;
+
+            if (!int.TryParse(user, out userId))
+            {
+                throw new ForbiddenException();
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
