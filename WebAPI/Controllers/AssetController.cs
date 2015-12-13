@@ -394,7 +394,7 @@ namespace WebAPI.Controllers
         /// Returns related media by media identifier<br />        
         /// </summary>        
         /// <param name="media_id">Media identifier</param>
-        /// <param name="media_types">Related media types list - possible values:
+        /// <param name="filter_types">Related media types list - possible values:
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>        
         /// <param name="pager">Paging filter</param>
@@ -405,7 +405,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
+        public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
             List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -423,8 +423,8 @@ namespace WebAPI.Controllers
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
-            if (media_types == null)
-                media_types = new List<KalturaIntegerValue>();
+            if (filter_types == null)
+                filter_types = new List<KalturaIntegerValue>();
 
             try
             {
@@ -432,7 +432,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, filter, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                    language, pager.PageIndex, pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
