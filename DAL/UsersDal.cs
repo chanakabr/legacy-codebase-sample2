@@ -28,6 +28,7 @@ namespace DAL
         private const string SP_GENERATE_TOKEN = "GenerateToken";
         private const string SP_GET_USER_TYPE = "Get_UserType";
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
+        private const string DELETE_USER = "Delete_User";
         #endregion
 
 
@@ -2023,6 +2024,7 @@ namespace DAL
             return null;
         }
 
+
         public static List<long> Get_UserRoleIds(int groupId, string userId)
         {
             List<long> roleIds = new List<long>();
@@ -2075,5 +2077,29 @@ namespace DAL
             }
             return rowCount;
         }
+
+        public static bool DeleteUser(int groupId, int userId)
+        {
+            int status = 0;
+            bool ret = false;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure spRemoveDomain = new ODBCWrapper.StoredProcedure(DELETE_USER);
+                spRemoveDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+                spRemoveDomain.AddParameter("@userId", userId);
+                spRemoveDomain.AddParameter("@groupId", groupId);
+                status = spRemoveDomain.ExecuteReturnValue<int>();
+
+                return status == 2;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return ret;
+        }
+
     }
 }

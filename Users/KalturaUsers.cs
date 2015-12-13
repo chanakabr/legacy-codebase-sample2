@@ -1,18 +1,25 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using DAL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ApiObjects;
-using DAL;
-using KLogMonitor;
 
 namespace Users
 {
     public class KalturaUsers : KalturaBaseUsers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private const string DEFAULT_USER_CANNOT_BE_DELETED = "Default user cannot be deleted";
+        private const string MASTER_USER_CANNOT_BE_DELETED = "Master user cannot be deleted";
+        private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
+        private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
+
         public bool ShouldSubscribeNewsLetter { get; set; }
         public bool ShouldCreateDefaultRules { get; set; }
         public bool ShouldSendWelcomeMail { get; set; }
@@ -610,5 +617,88 @@ namespace Users
         }
 
         public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
+
+        public override ApiObjects.Response.Status PreDeleteUser(int siteGuid) 
+        {
+            return new ApiObjects.Response.Status();
+        }
+        internal override ApiObjects.Response.Status MidDeleteUser(int userId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+
+            try
+            {
+                UserResponseObject userResponse = GetUserData(userId.ToString());
+
+                if (userResponse.m_RespStatus != ResponseStatus.OK)
+                {
+                    response = Utils.ConvertResponseStatusToResponseObject(userResponse.m_RespStatus);
+                    return response;
+                }
+
+                // get User's domain 
+                Users.BaseDomain baseDomain = null;
+                Utils.GetBaseDomainsImpl(ref baseDomain, GroupId);
+
+                if (baseDomain == null)
+                {
+                    response.Code = (int)eResponseStatus.DomainNotInitialized;
+                    response.Message = HOUSEHOLD_NOT_INITIALIZED;
+                    return response;
+                }
+
+
+                Domain userDomain = baseDomain.GetDomainInfo(userResponse.m_user.m_domianID, GroupId);
+
+                if (userDomain == null)
+                {
+                    response.Code = (int)eResponseStatus.UserNotExistsInDomain;
+                    response.Message = USER_NOT_EXISTS_IN_DOMAIN;
+                    return response;
+                }
+
+                //Delete is not allowed if the user is in the DefaultUsersIDs list.
+                if (userDomain.m_DefaultUsersIDs.Contains(userId))
+                {
+                    response.Code = (int)eResponseStatus.DefaultUserCannotBeDeleted;
+                    response.Message = DEFAULT_USER_CANNOT_BE_DELETED;
+                    return response;
+                }
+
+                //Delete is not allowed if the user is in the master in the domain and there is only 1 master.
+                if (userDomain.m_masterGUIDs.Contains(userId) && userDomain.m_masterGUIDs.Count == 1)
+                {
+                    response.Code = (int)eResponseStatus.MasterUserCannotBeDeleted;
+                    response.Message = MASTER_USER_CANNOT_BE_DELETED;
+                    return response;
+                }
+
+                //Delete 
+                // in case user in domain ( domain id > 0 ) remove user from domain 
+                if (userResponse.m_user.m_domianID > 0)
+                {
+                    DomainResponseObject domainResponse = baseDomain.RemoveUserFromDomain(GroupId, userResponse.m_user.m_domianID, userId);
+                    if (domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
+                    {
+                        response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponse.m_oDomainResponseStatus);
+                        return response;
+                    }
+                }
+
+                // delete user 
+                if (UsersDal.DeleteUser(GroupId, userId))
+                {
+                    response.Code = (int)eResponseStatus.OK;
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                log.Error("DeleteUser - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, userId, GroupId), ex);
+            }
+            return response;
+        }
+        public override void PostDeleteUser(ref ApiObjects.Response.Status response) { }
     }
 }
