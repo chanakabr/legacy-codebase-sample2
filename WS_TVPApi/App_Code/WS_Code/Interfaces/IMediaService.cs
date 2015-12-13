@@ -252,7 +252,8 @@ namespace TVPApiServices
         List<EPGChannelProgrammeObject> SearchEPGByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int pageSize, int pageIndex);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+        List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, 
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
         bool DoesBundleContainMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, int mediaId, string mediaType);
@@ -294,5 +295,9 @@ namespace TVPApiServices
             string alias,
             string utc_offset,
             List<string> with, int page_index, int? page_size);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleAssets(InitializationObject initObj, eBundleType bundleType, int bundleId,
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
     }
 }
