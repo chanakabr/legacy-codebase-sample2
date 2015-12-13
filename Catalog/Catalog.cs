@@ -5820,7 +5820,8 @@ namespace Catalog
                 definitions.shouldSearchMedia = false;
 
                 // Special case - if no type was specified or "All" is contained, search all types
-                if (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)
+                if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
+                    (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
@@ -5853,8 +5854,9 @@ namespace Catalog
             }
             else
             {
+                definitions.shouldSearchMedia = true;
 
-            #region Channel Tags
+                #region Channel Tags
 
                 eCutType cutType = eCutType.And;
                 switch (channel.m_eCutWith)
@@ -5962,9 +5964,10 @@ namespace Catalog
                 }
 
                 definitions.filterPhrase = root;
+
+                #endregion
             }
 
-			#endregion
 
 			#region Regions and associations
 

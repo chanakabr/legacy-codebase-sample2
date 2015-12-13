@@ -489,7 +489,7 @@ namespace GroupsCacheManager
 
                         if (parseStatus.Code != 0)
                         {
-                            // What do we do in this situtation?
+                            log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.m_nChannelID, channel.filterQuery);
                         }
 
                         break;
