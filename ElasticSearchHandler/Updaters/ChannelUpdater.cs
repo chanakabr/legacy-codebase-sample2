@@ -68,23 +68,39 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        private bool DeleteChannel(List<int> lIDs)
+        private bool DeleteChannel(List<int> ids)
         {
-            bool bRes = false;
-            string sIndex = m_nGroupID.ToString();
+            bool result = false;
+            string mediaIndex = m_nGroupID.ToString();
+            string epgIndex = string.Format("{0}_epg", m_nGroupID);
 
-            List<string> aliases = m_oESApi.GetAliases(sIndex);
-            if (aliases != null && aliases.Count > 0)
+            ESDeleteResult deleteResult;
+
+            bool epgExists = m_oESApi.IndexExists(epgIndex);
+
+            List<string> mediaAliases = m_oESApi.GetAliases(mediaIndex);
+            List<string> epgAliases = null;
+
+            if (epgExists)
             {
-                bRes = true;
+                epgAliases = m_oESApi.GetAliases(epgIndex);
+            }
 
-                ESDeleteResult deleteResult;
-                foreach (int nChannelID in lIDs)
+            // If we found aliases to both, or if we don't have EPG at all
+            if (mediaAliases != null && epgAliases != null &&
+                (!epgExists || (mediaAliases.Count > 0 && epgAliases.Count > 0)))
+            {
+                result = true;
+            }
+
+            if (mediaAliases != null && mediaAliases.Count > 0)
+            {
+                foreach (int nChannelID in ids)
                 {
-                    foreach (string index in aliases)
+                    foreach (string index in mediaAliases)
                     {
                         deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
-                        bRes &= deleteResult.Ok;
+                        result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
                         {
@@ -95,10 +111,31 @@ namespace ElasticSearchHandler.Updaters
             }
             else
             {
-                log.Error("Error - " + string.Concat("Could not find indices for alias ", sIndex));
+                log.Error("Error - " + string.Concat("Could not find indices for alias ", mediaIndex));
             }
 
-            return bRes;
+            if (epgAliases != null && epgAliases.Count > 0)
+            {
+                foreach (int channelId in ids)
+                {
+                    foreach (string index in epgAliases)
+                    {
+                        deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, channelId.ToString());
+                        result &= deleteResult.Ok;
+
+                        if (!deleteResult.Ok)
+                        {
+                            log.Error("Error - " + string.Concat("Could not delete channel from elasticsearch. ID=", channelId));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                log.Error("Error - " + string.Concat("Could not find indices for alias ", epgIndex));
+            }
+
+            return result;
         }
 
         private bool UpdateChannel(List<int> channelIds)
