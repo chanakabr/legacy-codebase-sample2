@@ -5622,7 +5622,7 @@ namespace Catalog
 
             if (!string.IsNullOrEmpty(request.m_sFilter))
             {
-                string filterExpression = HttpUtility.HtmlDecode(request.m_sFilter);
+                string filterExpression = HttpUtility.HtmlDecode(request.m_sFilter).ToLower();
 
                 // Build boolean phrase tree based on filter expression
                 BooleanPhraseNode filterTree = null;
