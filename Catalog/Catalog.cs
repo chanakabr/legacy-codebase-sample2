@@ -5692,7 +5692,7 @@ namespace Catalog
                             BooleanPhrase bPhrase = node as BooleanPhrase;
 
                             // Run on tree - enqueue all child nodes to continue going deeper
-                            foreach (var childNode in phrase.nodes)
+                            foreach (var childNode in bPhrase.nodes)
                             {
                                 nodesQ.Enqueue(childNode);
                                 parentMapping.Add(childNode, bPhrase);
