@@ -21,13 +21,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to get the PIN (if getting by user)</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaPinResponse Get(KalturaEntityReferenceBy by, KalturaPinType type, string household_user_id = null)
+        public KalturaPinResponse Get(KalturaEntityReferenceBy by, KalturaPinType type)
         {
             KalturaPinResponse pinResponse = null;
 
@@ -39,23 +38,17 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, household_user_id, householdId);
+                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, userId, householdId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, household_user_id, householdId); 
+                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, userId, householdId); 
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)
@@ -86,14 +79,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to update the PIN (if updating by user)</param> 
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(string pin, KalturaEntityReferenceBy by, KalturaPinType type, string household_user_id = null)
+        public bool Update(string pin, KalturaEntityReferenceBy by, KalturaPinType type)
         {
             bool success = false;
 
@@ -103,23 +95,17 @@ namespace WebAPI.Controllers
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, household_user_id, pin);
+                        success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, household_user_id, pin);
+                        success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin);
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)

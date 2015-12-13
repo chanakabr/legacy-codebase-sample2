@@ -140,7 +140,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
         /// </summary>
-        /// <param name="user_id">The user id to entitle</param>
         /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
         /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
@@ -152,14 +151,15 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public bool Grant(int user_id, int product_id, KalturaTransactionType product_type, bool history, int content_id = 0)
+        public bool Grant(int product_id, KalturaTransactionType product_type, bool history, int content_id = 0)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             long domainID = 0;
-            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, user_id.ToString());
+            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userId);
 
             if (domain != null)
                 domainID = domain.Id;
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, user_id.ToString(), domainID, content_id, product_id,
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, userId, domainID, content_id, product_id,
                     product_type, history, string.Empty);
             }
             catch (ClientException ex)
