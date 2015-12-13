@@ -1216,6 +1216,22 @@ namespace Catalog
 			}
 		}
 
+        private static void ReplaceLeafWithPhrase(BaseRequest request, ref BooleanPhraseNode filterTree,
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
+        {
+            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+            if (parentMapping.ContainsKey(leaf))
+            {
+                parentMapping[leaf].nodes.Remove(leaf);
+                parentMapping[leaf].nodes.Add(newPhrase);
+            }
+            else
+            // If it doesn't exist in the mapping, it's probably the root
+            {
+                filterTree = newPhrase;
+            }
+        }
+
 		private static void GetParentalRulesTags(int groupId, string siteGuid,
 			out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
 		{
@@ -5633,6 +5649,59 @@ namespace Catalog
                     throw new KalturaException(status.Message, status.Code);
                 }
 
+                // Add prefixes, check if non start/end date exist
+                #region Phrase Tree
+
+                if (group != null)
+                {
+                    Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
+                    int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+                    List<int> geoBlockRules = null;
+                    Dictionary<string, List<string>> mediaParentalRulesTags = null;
+                    Dictionary<string, List<string>> epgParentalRulesTags = null;
+                    HashSet<string> reservedStringFields = new HashSet<string>()
+		            {
+			            "name",
+			            "description",
+			            "epg_channel_id"
+		            };
+
+                    HashSet<string> reservedNumericFields = new HashSet<string>()
+		            {
+			            "like_counter",
+			            "views",
+			            "rating",
+			            "votes"
+		            };
+
+                    Queue<BooleanPhraseNode> nodesQ = new Queue<BooleanPhraseNode>();
+                    nodesQ.Enqueue(filterTree);
+
+                    // BFS
+                    while (nodesQ.Count > 0)
+                    {
+                        BooleanPhraseNode node = nodesQ.Dequeue();
+
+                        // If it is a leaf, just replace the field name
+                        if (node.type == BooleanNodeType.Leaf)
+                        {
+                            TreatLeaf(request, ref filterTree, definitions, ref group, maxNGram, ref geoBlockRules, ref mediaParentalRulesTags, ref epgParentalRulesTags, reservedStringFields, reservedNumericFields, parentMapping, node);
+                        }
+                        else if (node.type == BooleanNodeType.Parent)
+                        {
+                            BooleanPhrase bPhrase = node as BooleanPhrase;
+
+                            // Run on tree - enqueue all child nodes to continue going deeper
+                            foreach (var childNode in phrase.nodes)
+                            {
+                                nodesQ.Enqueue(childNode);
+                                parentMapping.Add(childNode, bPhrase);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
                 if (phrase != null)
                 {
                     List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
@@ -5657,6 +5726,228 @@ namespace Catalog
             #endregion
 
             return definitions;
+        }
+
+        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, ref Group group, int maxNGram, ref List<int> geoBlockRules, ref Dictionary<string, List<string>> mediaParentalRulesTags, ref Dictionary<string, List<string>> epgParentalRulesTags, HashSet<string> reservedStringFields, HashSet<string> reservedNumericFields, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanPhraseNode node)
+        {
+            BooleanLeaf leaf = node as BooleanLeaf;
+            bool isTagOrMeta;
+
+            // Add prefix (meta/tag) e.g. metas.{key}
+
+            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
+
+            if (searchKeys.Count > 1)
+            {
+                if (isTagOrMeta)
+                {
+                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
+
+                    // Split the single leaf into several brothers connected with an "or" operand
+                    foreach (var searchKey in searchKeys)
+                    {
+                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
+                    }
+
+                    BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
+
+                    Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                }
+            }
+            else if (searchKeys.Count == 1)
+            {
+                string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
+                string originalKey = leaf.field;
+
+                // Default - string, until proved otherwise
+                leaf.valueType = typeof(string);
+
+                // If this is a tag or a meta, we can continue happily.
+                // If not, we check if it is one of the "core" fields.
+                // If it is not one of them, an exception will be thrown
+                if (!isTagOrMeta)
+                {
+                    // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                    if (searchKeyLowered == "start_date")
+                    {
+                        definitions.defaultStartDate = false;
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "end_date")
+                    {
+                        definitions.defaultEndDate = false;
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "update_date")
+                    {
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "geo_block")
+                    {
+                        // geo_block is a personal filter that currently will work only with "true".
+                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                        {
+                            if (geoBlockRules == null)
+                            {
+                                geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                            }
+
+                            BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
+                            BooleanLeaf newLeaf =
+                                new BooleanLeaf("geo_block_rule_id",
+                                    geoBlockRules.Select(id => id.ToString()).ToList(),
+                                    typeof(List<string>), ComparisonOperator.In);
+
+                            BooleanPhrase newPhrase = new BooleanPhrase(
+                                new List<BooleanPhraseNode>()
+												{
+													mediaTypeCondition, 
+													newLeaf
+												},
+                                eCutType.And);
+
+                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                        }
+                        else
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+                    else if (searchKeyLowered == "parental_rules")
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                        {
+                            if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
+                            {
+                                Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+                                    out mediaParentalRulesTags, out epgParentalRulesTags);
+                            }
+
+                            List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
+                            List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
+
+                            newMediaNodes.Add(new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix));
+
+                            // Run on all tags and their values
+                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                            {
+                                // Create a Not-in leaf for each of the tags
+                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Value,
+                                    typeof(List<string>),
+                                    ComparisonOperator.NotIn);
+
+                                newMediaNodes.Add(newLeaf);
+                            }
+
+                            newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
+
+                            // Run on all tags and their values
+                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                            {
+                                // Create a Not-in leaf for each of the tags
+                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Value,
+                                    typeof(List<string>),
+                                    ComparisonOperator.NotIn);
+
+                                newEpgNodes.Add(newLeaf);
+                            }
+
+                            // connect all tags with AND
+                            BooleanPhrase newMediaPhrase = new BooleanPhrase(newMediaNodes, eCutType.And);
+                            BooleanPhrase newEpgPhrase = new BooleanPhrase(newEpgNodes, eCutType.And);
+
+                            // connect media and epg with OR
+                            List<BooleanPhraseNode> newOrNodes = new List<BooleanPhraseNode>();
+                            newOrNodes.Add(newMediaPhrase);
+                            newOrNodes.Add(newEpgPhrase);
+
+                            BooleanPhrase orPhrase = new BooleanPhrase(newOrNodes, eCutType.Or);
+
+                            // Replace the original leaf (parental_rules='true') with the new phrase
+                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, orPhrase);
+                        }
+                        else
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+                    else if (reservedNumericFields.Contains(searchKeyLowered))
+                    {
+                        leaf.valueType = typeof(long);
+                    }
+                    else if (!reservedStringFields.Contains(searchKeyLowered))
+                    {
+                        throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
+                    }
+                }
+
+                leaf.field = searchKeys.FirstOrDefault();
+
+                #region IN operator
+
+                // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
+                if (leaf.operand == ComparisonOperator.In || leaf.operand == ComparisonOperator.NotIn &&
+                    leaf.valueType != typeof(List<string>))
+                {
+                    leaf.valueType = typeof(List<string>);
+                    string value = leaf.value.ToString().ToLower();
+
+                    string[] values = value.Split(',');
+
+                    // If there are 
+                    if (values.Length == 0)
+                    {
+                        throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
+                    }
+
+                    foreach (var single in values)
+                    {
+                        int temporaryInteger;
+
+                        if (!int.TryParse(single, out temporaryInteger))
+                        {
+                            throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey),
+                                (int)eResponseStatus.SyntaxError);
+                        }
+                    }
+
+                    // Put new list of strings in boolean leaf
+                    leaf.value = values.ToList();
+                }
+
+                #endregion
+
+            }
+
+            #region Trim search value
+
+            // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
+            // Otherwise the search will not work completely 
+            if (maxNGram > 0 &&
+                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains
+                || leaf.operand == ComparisonOperator.WordStartsWith))
+            {
+                leaf.value = leaf.value.ToString().Truncate(maxNGram);
+            }
+
+            #endregion
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
