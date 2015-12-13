@@ -496,9 +496,9 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool InsertChannelAssetType(int groupID, int channelID, List<int> assetTypeIDs)
+        public static bool Insert_ChannelAssetType(int groupID, int channelID, List<int> assetTypeIDs)
         {
-            StoredProcedure sp = new StoredProcedure("InsertChannelAssetType");
+            StoredProcedure sp = new StoredProcedure("Insert_ChannelAssetType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@ChannelID", channelID);

@@ -14,6 +14,13 @@ namespace GroupsCacheManager
     {
         #region Consts
 
+        /// <summary>
+        /// KSQL channels can hold media types (as defined in media_types table) and EPG.
+        /// EPG is represented by this negative number because:
+        /// 1. "0" is usually refered to as everything or nothing. It is mostly invalid in DB.
+        /// 2. -1 sounds too... generic
+        /// 3. 26 is memorable, unique.
+        /// </summary>
         public const int EPG_ASSET_TYPE = -26;
 
         #endregion
