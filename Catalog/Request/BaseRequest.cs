@@ -28,7 +28,7 @@ namespace Catalog.Request
     [KnownType(typeof(CommentsListRequest))]
     [KnownType(typeof(PWLALProtocolRequest))]
     [KnownType(typeof(UserSocialMediasRequest))]
-    [KnownType(typeof(BundleMediaRequest))]
+    [KnownType(typeof(BundleAssetsRequest))]
     [KnownType(typeof(PicRequest))]
     [KnownType(typeof(MediaMarkRequest))]
     [KnownType(typeof(MediaHitRequest))]

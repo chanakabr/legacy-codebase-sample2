@@ -73,6 +73,10 @@ namespace Catalog
             {
                 return new UserSocialMediasRequest();
             }
+            if (m_oBaseRequest is BundleAssetsRequest)
+            {
+                return new BundleAssetsRequest();
+            }
             if (m_oBaseRequest is BundleMediaRequest)
             {
                 return new BundleMediaRequest();

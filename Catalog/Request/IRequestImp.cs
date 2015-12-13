@@ -23,6 +23,7 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(CommentsListRequest))]
         [ServiceKnownType(typeof(PWLALProtocolRequest))]
         [ServiceKnownType(typeof(UserSocialMediasRequest))]
+        [ServiceKnownType(typeof(BundleAssetsRequest))]
         [ServiceKnownType(typeof(BundleMediaRequest))]
         [ServiceKnownType(typeof(PicRequest))]
         [ServiceKnownType(typeof(BaseRequest))]
