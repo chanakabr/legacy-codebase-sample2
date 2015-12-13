@@ -436,7 +436,33 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
             return response;
+        }
 
+        /// <summary>Edit user details.        
+        /// </summary>
+        /// <param name="role_id"> The role identifier to add</param>
+        /// <remarks>
+        /// </remarks>
+        [Route("addRole"), HttpPost]
+        [ApiAuthorize]
+        public bool AddRole(long role_id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, role_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
 
         /// <summary>

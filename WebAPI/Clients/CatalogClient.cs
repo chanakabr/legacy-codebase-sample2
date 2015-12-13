@@ -318,7 +318,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -340,6 +340,7 @@ namespace WebAPI.Clients
                 m_nMediaTypes = mediaTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
+                m_sFilter = filter
             };
 
             // build failover cache key
@@ -887,9 +888,9 @@ namespace WebAPI.Clients
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire search request
-            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            UnifiedSearchExternalResponse searchResponse = new UnifiedSearchExternalResponse();
 
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -918,6 +919,8 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
+
+            result.RequestId = searchResponse.requestId;
 
             return result;
         }

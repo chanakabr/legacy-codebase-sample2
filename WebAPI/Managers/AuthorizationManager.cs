@@ -148,18 +148,37 @@ namespace WebAPI.Managers
             }
         }
 
-        internal static void CheckAdditionalUserId(string household_user_id, int groupId)
+        internal static void CheckAdditionalUserId(string householdUserId, int groupId)
+        {
+            if (!IsUserInHousehold(householdUserId, groupId))
+            {
+                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "additional user is not in household");
+            }
+        }
+
+        internal static bool IsUserInHousehold(string userId, int groupId)
         {
             KalturaHousehold household = null;
-            household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KS.GetFromRequest().UserId);
+            try
+            {
+                household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KS.GetFromRequest().UserId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
             if (household == null ||
-                (household.Users != null ? household.Users.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true && 
-                household.Users != null ? household.PendingUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true &&
-                household.Users != null ? household.MasterUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true &&
-                household.Users != null ? household.DefaultUsers.Where(u => u.Id == household_user_id).FirstOrDefault() == null : true))
+                (household.Users != null ? household.Users.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
+                household.Users != null ? household.PendingUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
+                household.Users != null ? household.MasterUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
+                household.Users != null ? household.DefaultUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true))
             {
-                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "household_user_id is not in household");
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }

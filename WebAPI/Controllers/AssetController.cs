@@ -398,13 +398,14 @@ namespace WebAPI.Controllers
         /// any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>        
         /// <param name="pager">Paging filter</param>
+        /// <param name="filter">filter for search</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse Related(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
+        public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> media_types = null,
             List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -431,7 +432,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                    language, pager.PageIndex, pager.PageSize, media_id, filter, media_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {

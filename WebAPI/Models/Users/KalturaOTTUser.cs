@@ -150,5 +150,13 @@ namespace WebAPI.Models.Users
         [JsonProperty("user_state")]
         [XmlElement(ElementName = "user_state")]
         public KalturaUserState UserState { get; set; }
+
+        /// <summary>
+        /// User role identifier
+        /// </summary>
+        [DataMember(Name = "user_role_id")]
+        [JsonProperty("user_role_id")]
+        [XmlElement(ElementName = "user_role_id")]
+        public long UserRoleId { get; set; }
     }
 }
