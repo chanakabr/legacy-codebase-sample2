@@ -3323,7 +3323,7 @@ namespace TVPApiServices
                     {
                         order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
-                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NONE,
+                            m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED,
                             m_eOrderDir = OrderDir.DESC
                         };
                     }
