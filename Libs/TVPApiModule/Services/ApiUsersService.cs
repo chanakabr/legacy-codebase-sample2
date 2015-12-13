@@ -1128,5 +1128,37 @@ namespace TVPApiModule.Services
 
             return clientResponse;
         }
+
+        public ClientResponseStatus DeleteUser(string siteGuid)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
+            ClientResponseStatus clientResponse;
+            int userid = 0;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(siteGuid) && int.TryParse(siteGuid, out userid))
+                {
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    {
+                        result = m_Module.DeleteUser(m_wsUserName, m_wsPassword, userid);
+                        clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                    }
+                }
+                else
+                {
+                    logger.ErrorFormat("Error while trying to delete user {0}", siteGuid != null ? siteGuid : "null");
+                    clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    clientResponse.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : DeleteUser, Error Message: {0}, Parameters: siteGuid : {1}", ex.Message, siteGuid);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+            }
+
+            return clientResponse;
+        }
     }
 }

@@ -799,6 +799,36 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "DeleteUser")]
+        [PrivateMethod]
+        public ClientResponseStatus DeleteUser(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "DeleteUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).DeleteUser(initObj.SiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
     }
 }
