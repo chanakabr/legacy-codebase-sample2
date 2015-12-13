@@ -106,7 +106,7 @@
   <ItemGroup>
     <Compile Include="CatalogLoaders\APIAutocompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
-    <Compile Include="CatalogLoaders\APINewBundleMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIUnifiedBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />

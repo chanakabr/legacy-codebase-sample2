@@ -13,7 +13,7 @@ using TVPPro.SiteManager.Helper;
 
 namespace TVPApiModule.CatalogLoaders
 {
-    public class APINewBundleMediaLoader : APIUnifiedSearchLoader
+    public class APIUnifiedBundleMediaLoader : APIUnifiedSearchLoader
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -53,12 +53,8 @@ namespace TVPApiModule.CatalogLoaders
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        //public APIBundleMediaLoader(int bundleId, int groupID, int groupIDParent, string platform, string userIP, string picSize) :
-        //    this(bundleId, groupID, groupIDParent, platform, userIP, picSize)
-        //{
-        //}
-        //int bundleId, string mediaType, OrderObj order, int groupID, string userIP, int pageSize, int pageIndex, string picSize
-        public APINewBundleMediaLoader(int bundleId, string mediaType, OrderObj order, int groupID, int groupIDParent, 
+
+        public APIUnifiedBundleMediaLoader(int bundleId, string mediaType, OrderObj order, int groupID, int groupIDParent, 
             PlatformType platform, string userIP, string picSize, int pageIndex, int pageSize, eBundleType bundleType, int domainId, string localeLanguage) :
             base(groupID, platform, domainId, userIP, pageSize, pageIndex, null, string.Empty, null, null, localeLanguage)
         {
@@ -67,7 +63,6 @@ namespace TVPApiModule.CatalogLoaders
             this.orderObj = order;
             this.bundleType = bundleType;
 
-            //overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
             Platform = platform.ToString();
         }
@@ -122,12 +117,6 @@ namespace TVPApiModule.CatalogLoaders
         }
 
         #endregion
-        //public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
-        //{
-        //    FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
-        //    string fileFormat = techConfigFlashVars.FileFormat;
-        //    string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
-        //    return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
-        //}
+
     }
 }

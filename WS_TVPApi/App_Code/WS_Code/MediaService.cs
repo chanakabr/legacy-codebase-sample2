@@ -3193,8 +3193,8 @@ namespace TVPApiServices
                         m_eOrderDir = orderDir,
                         m_eOrderBy = orderBy
                     };
-                    APINewBundleMediaLoader loader =
-                        new APINewBundleMediaLoader(bundleId, mediaType, orderObj,
+                    APIUnifiedBundleMediaLoader loader =
+                        new APIUnifiedBundleMediaLoader(bundleId, mediaType, orderObj,
                             groupID, groupID, initObj.Platform, clientIp, string.Empty, pageIndex, pageSize, bundleType, initObj.DomainID, initObj.Locale.LocaleLanguage)
                         {
                             Culture = initObj.Locale.LocaleLanguage,
@@ -3718,7 +3718,6 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get assets of a channel - internal or external")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj,
             int kaltura_identifier,
-            string alias,
             string filter,
             string order_by,
             List<string> with, int page_index, int? page_size)
@@ -3731,23 +3730,6 @@ namespace TVPApiServices
             {
                 try
                 {
-                    #region Source
-                    //string upperSource = "INT";
-
-                    //if (!string.IsNullOrEmpty(source))
-                    //{
-                    //    upperSource = source.ToUpper();
-                    //}
-
-                    //if (upperSource != "INT" && upperSource != "EXT")
-                    //{
-                    //    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
-                    //    response.Status = ResponseUtils.ReturnBadRequestStatus("Source can be only EXT or INT");
-                    //    return response;
-                    //}
-
-                    #endregion
-
                     #region Paging
 
                     if (page_size == null)
@@ -3812,54 +3794,11 @@ namespace TVPApiServices
 
                     #endregion
 
-                    //if (upperSource == "EXT")
-                    //{
-                    //    #region External Channel
-
-                    //    #region UTC Offset
-
-                    //    if (!string.IsNullOrEmpty(utc_offset))
-                    //    {
-                    //        double utcOffsetDouble;
-
-                    //        if (!double.TryParse(utc_offset, out utcOffsetDouble))
-                    //        {
-                    //            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
-                    //            response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
-                    //            return response;
-                    //        }
-                    //        else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
-                    //        {
-                    //            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
-                    //            response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
-                    //            return response;
-                    //        }
-                    //    }
-
-                    //    #endregion
-
-                    //    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
-
-                    //    response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                    //        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, 
-                    //        deviceType, string.Empty, utc_offset, filter, kaltura_identifier.ToString())
-                    //    {
-                    //    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
-
-                    //    #endregion
-                    //}
-                    //else if (upperSource == "INT")
+                    response = new APIInternalChannelLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, string.Empty, filter, kaltura_identifier.ToString())
                     {
-                        #region Internal Channel
-
-                        response = new APIInternalChannelLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                            initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, string.Empty, filter, kaltura_identifier.ToString())
-                        {
-                            Order = order
-                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
-
-                        #endregion
-                    }
+                        Order = order
+                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                 }
                 catch (Exception ex)
                 {

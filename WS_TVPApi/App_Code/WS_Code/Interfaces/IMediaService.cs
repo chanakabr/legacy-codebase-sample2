@@ -285,7 +285,6 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetChannelAssets(InitializationObject initObj,
             int kaltura_identifier,
-            string alias,
             string filter,
             string order_by,
             List<string> with, int page_index, int? page_size);
