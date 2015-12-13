@@ -77,15 +77,21 @@ namespace WebAPI.Controllers
             string userId = extraUserId != null ? extraUserId.ToString() : null;
 
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
-            if ((!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(allowedUsersGroup)) && (
-                allowedUsersGroup.Contains(userId)||
-                allowedUsersGroup.Contains(PARTNER_WILDCARD) ||
-                (allowedUsersGroup.Contains(HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
+            if (!string.IsNullOrEmpty(userId))
             {
-                ks.UserId = userId;
-                KS.SaveOnRequest(ks);
+                if (!string.IsNullOrEmpty(allowedUsersGroup) && (
+                    allowedUsersGroup.Contains(userId) ||
+                    allowedUsersGroup.Contains(PARTNER_WILDCARD) ||
+                    (allowedUsersGroup.Contains(HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
+                {
+                    ks.UserId = userId;
+                    KS.SaveOnRequest(ks);
+                }
+                else
+                {
+                    throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service forbidden for additional user");
+                }
             }
-            
             return true;
         }
     }
