@@ -531,7 +531,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
     private void InsertChannelAssetType(List<int> assetTypeIds, int channelID, int groupID)
     {
-        bool inserted = TvmDAL.InsertChannelAssetType(groupID, channelID, assetTypeIds);
+        bool inserted = TvmDAL.Insert_ChannelAssetType(groupID, channelID, assetTypeIds);
 
         if (inserted)
         {
