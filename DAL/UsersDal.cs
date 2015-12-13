@@ -446,10 +446,10 @@ namespace DAL
                     if (count > 0)
                     {
                         nDomainID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "domain_id", 0);
-                        
+
                         nOperatorID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "operator_id", 0);
 
-                        bIsDomainMaster = (ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "is_master", 0) == "1");                        
+                        bIsDomainMaster = (ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "is_master", 0) == "1");
 
                         int suspendInt = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "IS_SUSPENDED", 0);
                         if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendInt))
@@ -490,7 +490,7 @@ namespace DAL
 
             int nCount = ds.Tables[0].DefaultView.Count;
             lDomainIDs = new List<int>(nCount);
-            
+
             for (int i = 0; i < nCount; i++)
             {
                 int tempDomainID = 0;
@@ -1122,7 +1122,7 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemsFromUsersLists");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@userIDs", userIds, "Id"); 
+            sp.AddIDListParameter<int>("@userIDs", userIds, "Id");
             sp.AddParameter("@listType", listType);
             sp.AddParameter("@itemType", itemType);
             sp.AddParameter("@groupID", groupId);
@@ -1175,7 +1175,7 @@ namespace DAL
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@UserName", sUserName);
                 sp.AddParameter("@Id", nUserID);
-                sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");                
+                sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");
                 sp.AddParameter("@ActivationMustHours", nActivationMustHours);
                 int nSPReault = sp.ExecuteReturnValue<int>();
                 if (Enum.IsDefined(typeof(DALUserActivationState), nSPReault))
@@ -1183,7 +1183,7 @@ namespace DAL
                     res = (DALUserActivationState)nSPReault;
                 }
 
-           
+
                 #region OldCode
                 // CHECK ACTIVATION STATUS IN USERS
 
@@ -1292,7 +1292,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                HandleException(ex);              
+                HandleException(ex);
             }
 
             return res;
@@ -1732,14 +1732,14 @@ namespace DAL
             }
             catch (Exception)
             {
-                
+
             }
 
             return retOperatorId;
         }
 
-        public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt , int top , int page)
-        {   
+        public static DataSet Get_UsersListByBulk(int groupId, string sFreeTxt, int top, int page)
+        {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UsersListByBulk");
@@ -1814,14 +1814,14 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Is_PinCodeExsits");  
+                StoredProcedure sp = new StoredProcedure("Is_PinCodeExsits");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@newPIN", newPIN);
                 sp.AddParameter("@expired_date", expired_date);
                 bool res = sp.ExecuteReturnValue<bool>();
                 return res;
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -1867,8 +1867,8 @@ namespace DAL
                     else if (ds.Tables.Count > 3 && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
                     {
                         expiredPIN = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[3].Rows[0], "expired_date");
-                    }  
-                 
+                    }
+
                 }
                 return null;
             }
@@ -1893,7 +1893,7 @@ namespace DAL
                 return false;
             }
         }
-               
+
         public static void Get_LoginSettings(int groupID, out bool security, out bool loginViaPin)
         {
             security = false;
@@ -1961,7 +1961,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");                
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
                 sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");
                 sp.AddParameter("@ActivationMustHours", nActivationMustHours);
@@ -2022,5 +2022,58 @@ namespace DAL
             }
             return null;
         }
-    } 
+
+        public static List<long> Get_UserRoleIds(int groupId, string userId)
+        {
+            List<long> roleIds = new List<long>();
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_UserRoleIds");
+                sp.AddParameter("@user_id", userId);
+                sp.AddParameter("@group_id", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0];
+                    if (dt != null)
+                    {
+                        if (dt.Rows != null && dt.Rows.Count > 0)
+                        {
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                roleIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row["ROLE_ID"]));
+                            }
+                        }
+                    } 
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return roleIds; 
+        }
+
+        public static int Insert_UserRole(int groupId, string userId, long roleId)
+        {
+            int rowCount;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_UserRole");
+                sp.AddParameter("@user_id", userId);
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@role_id", roleId);
+                rowCount = sp.ExecuteReturnValue<int>();
+
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+            return rowCount;
+        }
+    }
 }

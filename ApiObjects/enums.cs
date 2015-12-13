@@ -397,4 +397,18 @@ namespace ApiObjects
         OK = 0,
         NoConfigurationForHousehold = 1
     }
+
+    public enum ePermissionItemType
+    {
+        Action = 1,
+        Parameter = 2
+    }
+
+    public enum ePermissionType
+    {
+        Normal = 1,
+        Group = 2
+    }
+
+    
 }
