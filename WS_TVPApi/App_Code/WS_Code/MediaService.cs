@@ -3076,6 +3076,7 @@ namespace TVPApiServices
                         m_eOrderDir = orderDir,
                         m_eOrderBy = orderBy
                     };
+
                     APIBundleMediaLoader loader = new APIBundleMediaLoader(bundleId, mediaType, orderObj, groupID, groupID, initObj.Platform.ToString(), clientIp, string.Empty, pageIndex, pageSize, bundleType)
                     {
                         Culture = initObj.Locale.LocaleLanguage,

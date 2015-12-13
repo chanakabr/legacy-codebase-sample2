@@ -73,7 +73,7 @@ namespace TVPApiModule.CatalogLoaders
 
         protected override void BuildSpecificRequest()
         {
-            m_oRequest = new BundleMediaRequest()
+            m_oRequest = new BundleAssetsRequest()
             {
                 m_eBundleType = bundleType,
                 m_nBundleID = bundleId,
