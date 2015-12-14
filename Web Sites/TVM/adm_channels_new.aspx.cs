@@ -36,6 +36,11 @@ public partial class adm_channels_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
+                var form = HttpContext.Current.Request.Form;
+                
+                //form["
+                //ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(
+
                 bool result;
                 int nId = DBManipulator.DoTheWork();
 
