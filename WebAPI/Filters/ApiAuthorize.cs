@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
             {
                 if (!string.IsNullOrEmpty(allowedUsersGroup) && (
                     allowedUsersGroup.Contains(userId) ||
-                    allowedUsersGroup.Contains(PARTNER_WILDCARD) ||
+                    (allowedUsersGroup.Contains(PARTNER_WILDCARD) && AuthorizationManager.IsUserInGroup(userId, ks.GroupId)) ||
                     (allowedUsersGroup.Contains(HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
                 {
                     ks.UserId = userId;
