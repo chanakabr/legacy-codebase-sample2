@@ -33,7 +33,7 @@ public partial class adm_edit_group_members : System.Web.UI.Page
                 int selectedIndex;
                 if (int.TryParse(Request.QueryString["selectedIndex"], out selectedIndex))
                 {
-                    Session["selectedGroupName"] = Request.QueryString["groupName"];
+                    Session["selectedGroupToEdit"] = Request.QueryString["groupName"];
                     GetAllGroupsList(selectedIndex);
                 }
             }
@@ -62,14 +62,14 @@ public partial class adm_edit_group_members : System.Web.UI.Page
 
     private void GetAllGroupsList(int selectedIndex = -1)
     {
-        if (Session["allGroupssTable"] != null)
+        if (Session["allGroupsDT"] != null)
         {
-            groups.DataSource = (DataTable)Session["allGroupssTable"];
+            groups.DataSource = (DataTable)Session["allGroupsDT"];
         }
         else
         {
             groups.DataSource = TvmDAL.GetAllGroups();
-            Session["allGroupssTable"] = groups.DataSource;
+            Session["allGroupsDT"] = groups.DataSource;
         }
         groups.DataValueField = "moto_text";
         groups.DataTextField = "moto_text";
@@ -89,9 +89,9 @@ public partial class adm_edit_group_members : System.Web.UI.Page
         object[] resultData = null;
 
         string groupName = null;
-        if (Session["selectedGroupName"] != null)
+        if (Session["selectedGroupToEdit"] != null)
         {
-            groupName = Session["selectedGroupName"].ToString();
+            groupName = Session["selectedGroupToEdit"].ToString();
         }
         List<object> GroupMembersList = new List<object>();
         if (!string.IsNullOrEmpty(groupName))

@@ -62,14 +62,14 @@ public partial class adm_edit_group_permissions : System.Web.UI.Page
 
     private void GetAllGroupsList(int selectedIndex = -1)
     {
-        if (Session["allGroupssTable"] != null)
+        if (Session["allGroupsTable"] != null)
         {
-            groups.DataSource = (DataTable)Session["allGroupssTable"];
+            groups.DataSource = (DataTable)Session["allGroupsTable"];
         }
         else
         {
             groups.DataSource = TvmDAL.GetAllGroups();
-            Session["allGroupssTable"] = groups.DataSource;
+            Session["allGroupsTable"] = groups.DataSource;
         }
         groups.DataValueField = "moto_text";
         groups.DataTextField = "moto_text";
