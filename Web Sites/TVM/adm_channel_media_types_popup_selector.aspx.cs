@@ -34,61 +34,71 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
                 Session["lastPage"] = null;
                 // Session.Remove("lastPage");
             }
+
+            Session["include_epg"] = false;
+
+            if (Request.QueryString["include_epg"] != null && Request.QueryString["include_epg"].ToString().ToLower() == "true")
+            {
+                Session["include_epg"] = true;
+            }
         }
     }
 
     public string changeItemStatus(string sID, string sAction)
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
-        Int32 nStatus = 0;
-        int mediaTypeID = int.Parse(sID);
+        Int32 status = 0;
+        int assetTypeID = int.Parse(sID);
         int channelID = 0;
+        bool includeEpg = false;
 
         if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && int.Parse(Session["channel_id"].ToString()) != 0)
             channelID = int.Parse(Session["channel_id"].ToString());
+
         if (channelID != 0)
         {
-            Int32 channelMediaTypeID = GetChannelMediaType(mediaTypeID, channelID, groupID, ref nStatus);
+            Int32 channelAssetTypeID = GetChannelAssetType(assetTypeID, channelID, groupID, ref status);
 
-            if (channelMediaTypeID != 0)
+            if (channelAssetTypeID != 0)
             {
-                if (nStatus == 0)
-                    UpdateChannelMediaType(channelMediaTypeID, 1, groupID, channelID);
+                if (status == 0)
+                    UpdateChannelAssetType(channelAssetTypeID, 1, groupID, channelID);
                 else
-                    UpdateChannelMediaType(channelMediaTypeID, 0, groupID, channelID);
+                    UpdateChannelAssetType(channelAssetTypeID, 0, groupID, channelID);
             }
             else
             {
-                InsertChannelMediaType(mediaTypeID, channelID, groupID);
+                InsertChannelAssetType(assetTypeID, channelID, groupID);
             }
         }
         else
         {
-            // save media type id values to associate with channel (after get channelId)
-            List<int> mediaTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+            // save asset type id values to associate with channel (after get channelId)
+            List<int> assetTypeList = new List<int>();
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                mediaTypeList = Session["media_type_ids"] as List<int>;
+                assetTypeList = Session["asset_type_ids"] as List<int>;
             }
-            mediaTypeList.Add(mediaTypeID);
-            Session["media_type_ids"] = mediaTypeList;
+            assetTypeList.Add(assetTypeID);
+            Session["asset_type_ids"] = assetTypeList;
 
         }
+
         return "";
     }
 
-    private void InsertChannelMediaType(int mediaTypeID, int channelID, int groupID)
+    private void InsertChannelAssetType(int assetTypeID, int channelID, int groupID)
     {
-        bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, new List<int>() { mediaTypeID });
+        bool inserted = TvmDAL.Insert_ChannelAssetType(groupID, channelID, new List<int>() { assetTypeID });
         if (inserted)
         {
             bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
-    private void UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID, int channelID)
+    private void UpdateChannelAssetType(int channelAssetTypeID, int status, int groupID, int channelID)
     {
-        bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID, channelID);
+        bool updated = TvmDAL.UpdateChannelAssetType(channelAssetTypeID, status, groupID, channelID);
         if (updated)
         {
             bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
@@ -104,14 +114,21 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         }
 
         Dictionary<string, object> dualList = new Dictionary<string, object>();
-        dualList.Add("FirstListTitle", "Media Types included in Channels");
-        dualList.Add("SecondListTitle", "Available Media Types");
+        dualList.Add("FirstListTitle", "Asset Types included in Channels");
+        dualList.Add("SecondListTitle", "Available Asset Types");
 
         int channelID = Convert.ToInt32(Session["channel_id"]);
 
+        bool includeEpg = false;
+
+        if (Session["include_epg"] != null && Convert.ToBoolean(Session["include_epg"]))
+        {
+            includeEpg = true;
+        }
+
         object[] resultData = null;
 
-        BuildMediaTypeObjectArray(channelID, LoginManager.GetLoginGroupID(), ref resultData);
+        BuildAssetTypeObjectArray(channelID, LoginManager.GetLoginGroupID(), ref resultData, includeEpg);
 
         dualList.Add("Data", resultData);
         dualList.Add("pageName", "adm_channel_media_types_popup_selector.aspx");
@@ -120,33 +137,56 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         return dualList.ToJSON();
     }
 
-    private void BuildMediaTypeObjectArray(int channelID, int groupID, ref object[] resultData)
+    private void BuildAssetTypeObjectArray(int channelID, int groupID, ref object[] resultData, bool includeEpg)
     {
-        DataSet ds = TvmDAL.Get_ChannelMediaTypes(groupID, channelID);
+        DataSet ds = null;
+
+        if (includeEpg)
+        {
+            ds = TvmDAL.Get_ChannelAssetTypes(groupID, channelID);
+        }
+        else
+        {
+            ds = TvmDAL.Get_ChannelMediaTypes(groupID, channelID);
+        }
+
         if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
         {
-            DataTable mediaTypeByGroupDT = ds.Tables[0];
-            DataTable mediaTypeByChannelDT = ds.Tables[1];
-            List<object> mediaTypes = new List<object>();
+            DataTable availableAssetTypes = ds.Tables[0];
+            DataTable channelAssetTypes = ds.Tables[1];
+            List<object> assetTypesForDuallist = new List<object>();
 
-            if (mediaTypeByGroupDT != null && mediaTypeByGroupDT.Rows != null && mediaTypeByGroupDT.Rows.Count > 0)
+            // save asset type id values to associate with channel (after get channelId)
+            List<int> sessionAssetTypeList = new List<int>();
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                foreach (DataRow dr in mediaTypeByGroupDT.Rows)
+                sessionAssetTypeList = Session["asset_type_ids"] as List<int>;
+            }
+
+            if (availableAssetTypes != null && availableAssetTypes.Rows != null && availableAssetTypes.Rows.Count > 0)
+            {
+                foreach (DataRow dr in availableAssetTypes.Rows)
                 {
+                    int id = ODBCWrapper.Utils.ExtractInteger(dr, "ID");
+
+                    // asset typ will be in AVAILABLE list if it doesn't appear in session's saved asset types
+                    // and vice versa: will be in CURRENT list if it does appear in it
+                    bool inList = sessionAssetTypeList.Contains(id);
+
                     var data = new
                     {
-                        ID = ODBCWrapper.Utils.ExtractString(dr, "ID"),
+                        ID = id.ToString(),
                         Title = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
                         Description = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
-                        InList = false
+                        InList = inList
                     };
-                    mediaTypes.Add(data);
+                    assetTypesForDuallist.Add(data);
                 }
             }
 
-            if (mediaTypeByChannelDT != null && mediaTypeByChannelDT.Rows != null && mediaTypeByChannelDT.Rows.Count > 0)
+            if (channelAssetTypes != null && channelAssetTypes.Rows != null && channelAssetTypes.Rows.Count > 0)
             {
-                foreach (DataRow dr in mediaTypeByChannelDT.Rows)
+                foreach (DataRow dr in channelAssetTypes.Rows)
                 {
                     var data = new
                     {
@@ -155,25 +195,25 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
                         Description = ODBCWrapper.Utils.ExtractString(dr, "NAME"),
                         InList = true
                     };
-                    mediaTypes.Add(data);
+                    assetTypesForDuallist.Add(data);
                 }
             }
-            resultData = new object[mediaTypes.Count];
-            resultData = mediaTypes.ToArray();
+            resultData = new object[assetTypesForDuallist.Count];
+            resultData = assetTypesForDuallist.ToArray();
 
         }
     }
 
-    private Int32 GetChannelMediaType(Int32 mediaTypeID, Int32 channelID, Int32 groupID, ref int nStatus)
+    private Int32 GetChannelAssetType(Int32 assetTypeID, Int32 channelID, Int32 groupID, ref int status)
     {
-        Int32 nRet = 0;
-        DataTable dt = TvmDAL.GetChannelMediaType(groupID, channelID, mediaTypeID);
+        Int32 result = 0;
+        DataTable dt = TvmDAL.GetChannelMediaType(groupID, channelID, assetTypeID);
         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
         {
             DataRow dr = dt.Rows[0];
-            nRet = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-            nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+            result = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+            status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
         }
-        return nRet;
+        return result;
     }
 }

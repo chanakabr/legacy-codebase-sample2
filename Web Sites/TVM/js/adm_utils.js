@@ -563,6 +563,13 @@ function OpenMediaTypeBrowser(theID, lastPage) {
 
 }
 
+function OpenAssetTypeBrowser(theID, lastPage) {
+    theVal = window.document.getElementsByName(theID)[0].value;
+    theURL = "adm_channel_media_types_popup_selector.aspx?include_epg=true&channel_id=" + theVal + "&lastPage=" + lastPage;
+    popUp(theURL, 'AssetTypeSelector');
+
+
+}
 
 //function OpenPicBrowserEpg(theID, maxPics, lastPage)
 //{
