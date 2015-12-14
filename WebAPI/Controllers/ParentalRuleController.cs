@@ -43,16 +43,10 @@ namespace WebAPI.Controllers
             {
                 if (filter.By == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(filter.HouseholdUserId))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(filter.HouseholdUserId, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    response = ClientsManager.ApiClient().GetUserParentalRules(groupId, filter.HouseholdUserId);
+                    response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
                 else if (filter.By == KalturaEntityReferenceBy.household)
                 {
@@ -75,11 +69,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="rule_id">Rule Identifier</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to enable the rule (if enabling by user)</param> 
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
         [ApiAuthorize]
-        public bool Enable(long rule_id, KalturaEntityReferenceBy by, string household_user_id = null)
+        public bool Enable(long rule_id, KalturaEntityReferenceBy by)
         {
             bool success = false;
             
@@ -89,16 +82,10 @@ namespace WebAPI.Controllers
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, household_user_id, rule_id, 1);
+                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, rule_id, 1);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
@@ -118,14 +105,13 @@ namespace WebAPI.Controllers
         /// Disables a parental rule for a specific user or household     
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to disable the rule (if disabling by user)</param> 
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="rule_id">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
-        public bool Disable(long rule_id, KalturaEntityReferenceBy by, string household_user_id = null)
+        public bool Disable(long rule_id, KalturaEntityReferenceBy by)
         {
             bool success = false;
             
@@ -135,16 +121,10 @@ namespace WebAPI.Controllers
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, household_user_id, rule_id, 0);
+                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, rule_id, 0);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
@@ -169,11 +149,10 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to disable the default rule (if disabling by user)</param> 
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        public bool DisableDefault(KalturaEntityReferenceBy by, string household_user_id = null)
+        public bool DisableDefault(KalturaEntityReferenceBy by)
         {
             bool success = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -187,16 +166,10 @@ namespace WebAPI.Controllers
                 }
                 else if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, household_user_id);
+                    success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, userId);
                 }
             }
             catch (ClientException ex)

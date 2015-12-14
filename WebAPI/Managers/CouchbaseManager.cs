@@ -11,7 +11,7 @@ using WebAPI.Models;
 using System.Reflection;
 using KLogMonitor;
 
-namespace WebAPI.ClientManagers
+namespace WebAPI.Managers
 {
     public enum CouchbaseBucket { Groups = 0, Tokens = 1 }
 

@@ -20,7 +20,6 @@ namespace WebAPI.Controllers
         /// Retrieve the purchase settings that applies for the household or a user        
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to get the setting (if getting by user)</param> 
         /// <remarks>
         /// Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaPurchaseSettingsResponse Get(KalturaEntityReferenceBy by, string household_user_id = null)
+        public KalturaPurchaseSettingsResponse Get(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
 
@@ -40,16 +39,10 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;   
 
                     // call client
-                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, household_user_id, householdId);
+                    purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, userId, householdId);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
@@ -73,11 +66,10 @@ namespace WebAPI.Controllers
         /// purchase settings type invalid = 5015 </remarks>
         /// <param name="setting">New settings to apply</param>
         /// <param name="by">Reference type to filter by</param>
-        /// <param name="household_user_id">The identifier of the household user for whom to update the setting (if updating by user)</param> 
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(int setting, KalturaEntityReferenceBy by, string household_user_id = null)
+        public bool Update(int setting, KalturaEntityReferenceBy by)
         {
             bool success = false;
 
@@ -87,16 +79,10 @@ namespace WebAPI.Controllers
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    if (string.IsNullOrEmpty(household_user_id))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "household_user_id cannot be empty when getting by user");
-                    }
-
-                    // check if the household_user_id belongs to the callers (ks) household 
-                    AuthorizationManager.CheckAdditionalUserId(household_user_id, groupId);
+                    string userId = KS.GetFromRequest().UserId;   
 
                     // call client
-                    success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, household_user_id, setting);
+                    success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, userId, setting);
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {

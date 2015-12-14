@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 
-namespace WebAPI.ClientManagers
+namespace WebAPI.Managers
 {
     public class CatalogCacheManager
     {

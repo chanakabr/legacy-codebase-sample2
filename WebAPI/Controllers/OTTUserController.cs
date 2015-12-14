@@ -436,7 +436,33 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
             return response;
+        }
 
+        /// <summary>Edit user details.        
+        /// </summary>
+        /// <param name="role_id"> The role identifier to add</param>
+        /// <remarks>
+        /// </remarks>
+        [Route("addRole"), HttpPost]
+        [ApiAuthorize]
+        public bool AddRole(long role_id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, role_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -469,6 +495,42 @@ namespace WebAPI.Controllers
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+        }
+
+        /// <summary>
+        /// Permanently delete a user.
+        /// </summary>        
+        /// <param name="user">The user model to delete</param>        
+        /// <remarks>        
+        /// Possible status codes: 
+        /// Household does not exists = 1006, Household suspended = 1009, User not exists in domain = 1020, User does not exist = 2000, Default user cannot be deleted = 2030, Master user cannot be deleted = 2031
+        /// </remarks>        
+        [Route("delete"), HttpPost]
+        public bool Delete()
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
+
+            int userId = 0;
+
+            if (!int.TryParse(user, out userId))
+            {
+                throw new ForbiddenException();
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

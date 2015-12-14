@@ -16,13 +16,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household   
         /// </summary>                
-        /// <param name="user_id">User identifier</param>
+        /// <param name="user_id_to_delete">The identifier of the user to delete</param>
         /// <remarks>Possible status codes: 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(string user_id)
+        public bool Delete(string user_id_to_delete)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string masterUserId = KS.GetFromRequest().UserId;
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, user_id);
+                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, user_id_to_delete);
             }
             catch (ClientException ex)
             {
@@ -57,14 +57,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Adds a user to household       
         /// </summary>                
-        /// <param name="user_id">The identifier of the user to add</param>
+        /// <param name="user_id_to_add">The identifier of the user to add</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(string user_id, bool is_master = false)
+        public bool Add(string user_id_to_add, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;
           
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id_to_add, KS.GetFromRequest().UserId, is_master);
             }
             catch (ClientException ex)
             {

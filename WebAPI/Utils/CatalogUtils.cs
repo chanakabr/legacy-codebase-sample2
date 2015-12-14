@@ -15,6 +15,7 @@ using WebAPI.ObjectsConvertor;
 using WebAPI.Models.General;
 using KLogMonitor;
 using WebAPI.Managers.Models;
+using WebAPI.Managers;
 
 namespace WebAPI.Utils
 {
@@ -294,17 +295,27 @@ namespace WebAPI.Utils
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // fire request
-            MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(client, request, out mediaIdsResponse, true, key))
+            UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)
             {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
 
-                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
+                // get assets from catalog/cache
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+
+                // build AssetInfoWrapper response
+                if (assetsInfo != null)
+                {
+                    result.Objects = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
+                }
+
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;

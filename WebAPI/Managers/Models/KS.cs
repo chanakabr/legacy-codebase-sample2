@@ -56,10 +56,11 @@ namespace WebAPI.Managers.Models
             get { return userId; }
             set
             {
-                if (SessionType == KalturaSessionType.ADMIN)
-                    userId = value;
-                else
-                    throw new Exception("Unable to set userID without Admin KS");
+                userId = value;
+                //if (SessionType == KalturaSessionType.ADMIN)
+                //    userId = value;
+                //else
+                //    throw new Exception("Unable to set userID without Admin KS");
             }
         }
 
@@ -329,6 +330,14 @@ namespace WebAPI.Managers.Models
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items.Add("KS", this);
+        }
+
+        internal static void SaveOnRequest(KS ks)
+        {
+            if (HttpContext.Current.Items.Contains("KS"))
+                HttpContext.Current.Items["KS"] = ks;
+            else
+                HttpContext.Current.Items.Add("KS", ks);
         }
 
         internal static KS GetFromRequest()

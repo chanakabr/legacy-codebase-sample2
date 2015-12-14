@@ -104,25 +104,21 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
-        /// <param name="master_user_id">Identifier of the user that will become the master of the created household</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string name, string description, string master_user_id)
+        public KalturaHousehold Add(string name, string description)
         {
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (string.IsNullOrEmpty(master_user_id))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "master_user_id cannot be empty");
-            }
+            string userId = KS.GetFromRequest().UserId;
+            
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, master_user_id);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId);
             }
             catch (ClientException ex)
             {
