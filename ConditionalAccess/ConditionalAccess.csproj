@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
+    <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
     <Compile Include="Response\BillingResponse.cs" />
