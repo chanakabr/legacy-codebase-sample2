@@ -793,63 +793,9 @@ namespace Catalog
 			GroupManager groupManager = new GroupManager();
 			Group group = groupManager.GetGroup(parentGroupID);
 
-			int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
-
-			List<int> geoBlockRules = null;
-			Dictionary<string, List<string>> mediaParentalRulesTags = null;
-			Dictionary<string, List<string>> epgParentalRulesTags = null;
-
-			if (request.filterTree != null)
+            if (request.filterTree != null)
 			{
-				HashSet<string> reservedStringFields = new HashSet<string>()
-				{
-					"name",
-					"description",
-					"epg_channel_id"
-				};
-
-				HashSet<string> reservedNumericFields = new HashSet<string>()
-				{
-					"like_counter",
-					"views",
-					"rating",
-					"votes"
-				};
-
-				// Add prefixes, check if non start/end date exist
-				#region Phrase Tree
-
-				if (group != null)
-				{
-					Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-
-					Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
-					nodes.Enqueue(request.filterTree);
-
-					// BFS
-					while (nodes.Count > 0)
-					{
-						BooleanPhraseNode node = nodes.Dequeue();
-
-						// If it is a leaf, just replace the field name
-						if (node.type == BooleanNodeType.Leaf)
-						{
-                            TreatLeaf(request, ref request.filterTree, definitions, ref group, maxNGram, ref geoBlockRules, ref mediaParentalRulesTags, ref epgParentalRulesTags, reservedStringFields, reservedNumericFields, parentMapping, node);
-						}
-						else if (node.type == BooleanNodeType.Parent)
-						{
-							BooleanPhrase phrase = node as BooleanPhrase;
-
-							// Run on tree - enqueue all child nodes to continue going deeper
-							foreach (var childNode in phrase.nodes)
-							{
-								nodes.Enqueue(childNode);
-								parentMapping.Add(childNode, phrase);
-							}
-						}
-					}
-				}
-				#endregion
+                UpdateNodeTreeFields(request, ref request.filterTree, definitions, group);				
 			}
 
 			// Get days offset for EPG search from TCM
@@ -944,32 +890,32 @@ namespace Catalog
 
 			#region Personal Filters
 
-			if (request.personalFilters != null)
-			{
-				// Get geo block rules that the user is allowed to watch
-				if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
-				{
-					if (geoBlockRules == null)
-					{
-						geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
-					}
+            //if (request.personalFilters != null)
+            //{
+            //    // Get geo block rules that the user is allowed to watch
+            //    if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
+            //    {
+            //        if (geoBlockRules == null)
+            //        {
+            //            geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+            //        }
 
-					definitions.geoBlockRules = geoBlockRules;
-				}
+            //        definitions.geoBlockRules = geoBlockRules;
+            //    }
 
-				// Get parental rules tags that user is NOT allowed to see
-				if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
-				{
-					if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
-					{
-						Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
-							out mediaParentalRulesTags, out epgParentalRulesTags);
-					}
+            //    // Get parental rules tags that user is NOT allowed to see
+            //    if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
+            //    {
+            //        if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
+            //        {
+            //            Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+            //                out mediaParentalRulesTags, out epgParentalRulesTags);
+            //        }
 
-					definitions.mediaParentalRulesTags = mediaParentalRulesTags;
-					definitions.epgParentalRulesTags = epgParentalRulesTags;
-				}
-			}
+            //        definitions.mediaParentalRulesTags = mediaParentalRulesTags;
+            //        definitions.epgParentalRulesTags = epgParentalRulesTags;
+            //    }
+            //}
 
 			#endregion
 
@@ -1070,37 +1016,45 @@ namespace Catalog
 				{
 					foreach (var tag in serviceResponse.mediaTags)
 					{
-						string tagName = group.m_oGroupTags[tag.id];
+                        // If the tag of the rule exists on this group (might happen if tag is deleted after rule is created)
+                        if (group.m_oGroupTags.ContainsKey(tag.id))
+                        {
+                            string tagName = group.m_oGroupTags[tag.id];
 
-						if (!mediaTags.ContainsKey(tagName))
-						{
-							mediaTags[tagName] = new List<string>();
-						}
+                            if (!mediaTags.ContainsKey(tagName))
+                            {
+                                mediaTags[tagName] = new List<string>();
+                            }
 
-						if (tag.value != null)
-						{
-							mediaTags[tagName].Add(tag.value);
-						}
+                            if (tag.value != null)
+                            {
+                                mediaTags[tagName].Add(tag.value);
+                            }
+                        }
 					}
 				}
 
 				// EPG: Convert TagPair array to our dictionary
 				if (serviceResponse.epgTags != null)
 				{
-					foreach (var tag in serviceResponse.epgTags)
-					{
-						string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
+                    foreach (var tag in serviceResponse.epgTags)
+                    {
+                        // If the tag of the rule exists on this group (might happen if tag is deleted after rule is created)
+                        if (group.m_oGroupTags.ContainsKey(tag.id))
+                        {
+                            string tagName = group.m_oEpgGroupSettings.tags[tag.id].ToString();
 
-						if (!epgTags.ContainsKey(tagName))
-						{
-							epgTags[tagName] = new List<string>();
-						}
+                            if (!epgTags.ContainsKey(tagName))
+                            {
+                                epgTags[tagName] = new List<string>();
+                            }
 
-						if (tag.value != null)
-						{
-							epgTags[tagName].Add(tag.value);
-						}
-					}
+                            if (tag.value != null)
+                            {
+                                epgTags[tagName].Add(tag.value);
+                            }
+                        }
+                    }
 				}
 			}
 		}
@@ -1137,7 +1091,7 @@ namespace Catalog
 		/// <param name="group"></param>
 		/// <param name="isTagOrMeta"></param>
 		/// <returns></returns>
-		private static HashSet<string> GetUnifiedSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+		private static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
 		{
 			isTagOrMeta = false;
 
@@ -5429,57 +5383,7 @@ namespace Catalog
                 }
 
                 // Add prefixes, check if non start/end date exist
-                #region Phrase Tree
-
-                if (group != null)
-                {
-                    Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-                    int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
-                    List<int> geoBlockRules = null;
-                    Dictionary<string, List<string>> mediaParentalRulesTags = null;
-                    Dictionary<string, List<string>> epgParentalRulesTags = null;
-                    HashSet<string> reservedStringFields = new HashSet<string>()
-		            {
-			            "name",
-			            "description",
-			            "epg_channel_id"
-		            };
-
-                    HashSet<string> reservedNumericFields = new HashSet<string>()
-		            {
-			            "like_counter",
-			            "views",
-			            "rating",
-			            "votes"
-		            };
-
-                    Queue<BooleanPhraseNode> nodesQ = new Queue<BooleanPhraseNode>();
-                    nodesQ.Enqueue(filterTree);
-
-                    // BFS
-                    while (nodesQ.Count > 0)
-                    {
-                        BooleanPhraseNode node = nodesQ.Dequeue();
-
-                        // If it is a leaf, just replace the field name
-                        if (node.type == BooleanNodeType.Leaf)
-                        {
-                            TreatLeaf(request, ref filterTree, definitions, ref group, maxNGram, ref geoBlockRules, ref mediaParentalRulesTags, ref epgParentalRulesTags, reservedStringFields, reservedNumericFields, parentMapping, node);
-                        }
-                        else if (node.type == BooleanNodeType.Parent)
-                        {
-                            BooleanPhrase bPhrase = node as BooleanPhrase;
-
-                            // Run on tree - enqueue all child nodes to continue going deeper
-                            foreach (var childNode in bPhrase.nodes)
-                            {
-                                nodesQ.Enqueue(childNode);
-                                parentMapping.Add(childNode, bPhrase);
-                            }
-                        }
-                    }
-                }
-                #endregion
+                UpdateNodeTreeFields(request, ref filterTree, definitions, group);
 
                 if (phrase != null)
                 {
@@ -5507,14 +5411,83 @@ namespace Catalog
             return definitions;
         }
 
-        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, ref Group group, int maxNGram, ref List<int> geoBlockRules, ref Dictionary<string, List<string>> mediaParentalRulesTags, ref Dictionary<string, List<string>> epgParentalRulesTags, HashSet<string> reservedStringFields, HashSet<string> reservedNumericFields, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanPhraseNode node)
+        /// <summary>
+        /// Update filter tree fields for specific fields/values.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="filterTree"></param>
+        /// <param name="definitions"></param>
+        /// <param name="group"></param>
+        private static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
+            if (group != null)
+            {
+                Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
+
+                Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
+                nodes.Enqueue(filterTree);
+
+                // BFS
+                while (nodes.Count > 0)
+                {
+                    BooleanPhraseNode node = nodes.Dequeue();
+
+                    // If it is a leaf, just replace the field name
+                    if (node.type == BooleanNodeType.Leaf)
+                    {
+                        TreatLeaf(request, ref filterTree, definitions, group, node);
+                    }
+                    else if (node.type == BooleanNodeType.Parent)
+                    {
+                        BooleanPhrase phrase = node as BooleanPhrase;
+
+                        // Run on tree - enqueue all child nodes to continue going deeper
+                        foreach (var childNode in phrase.nodes)
+                        {
+                            nodes.Enqueue(childNode);
+                            parentMapping.Add(childNode, phrase);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update filter tree node fields for specific fields/values.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="filterTree"></param>
+        /// <param name="definitions"></param>
+        /// <param name="group"></param>
+        /// <param name="node"></param>
+        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, BooleanPhraseNode node)
+        {
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
+            int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+            List<int> geoBlockRules = null;
+            Dictionary<string, List<string>> mediaParentalRulesTags = null;
+            Dictionary<string, List<string>> epgParentalRulesTags = null;
+            HashSet<string> reservedStringFields = new HashSet<string>()
+		            {
+			            "name",
+			            "description",
+			            "epg_channel_id"
+		            };
+
+            HashSet<string> reservedNumericFields = new HashSet<string>()
+		            {
+			            "like_counter",
+			            "views",
+			            "rating",
+			            "votes"
+		            };
+
             BooleanLeaf leaf = node as BooleanLeaf;
             bool isTagOrMeta;
 
             // Add prefix (meta/tag) e.g. metas.{key}
 
-            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
+            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta);
 
             if (searchKeys.Count > 1)
             {
