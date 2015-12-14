@@ -70,7 +70,7 @@ namespace ApiObjects.Response
         LoginServerDown = 2028,
         RoleAlreadyAssignedToUser = 2029,
         DefaultUserCannotBeDeleted = 2030,
-        MasterUserCannotBeDeleted = 2031,
+        ExclusiveMasterUserCannotBeDeleted = 2031,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
