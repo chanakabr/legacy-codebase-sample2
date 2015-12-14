@@ -23,7 +23,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
-                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio));
+                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio))
+                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.version))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id));
 
             //EPGPicture to Image
             Mapper.CreateMap<EpgPicture, KalturaMediaImage>()
@@ -283,7 +285,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Dictionary<string, KalturaValue> metas = new Dictionary<string, KalturaValue>();
 
             KalturaValue value = null;
-            foreach (var meta in list) 
+            foreach (var meta in list)
             {
                 if (meta.m_oTagMeta.m_sType == typeof(bool).ToString())
                 {
