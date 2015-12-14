@@ -3647,6 +3647,23 @@ namespace Tvinci.Core.DAL
             }
         }
 
-       
+        public static bool UpdateImageState(int groupId, string imageId, int version)
+        {
+            bool result = false;
+
+            log.DebugFormat("UpdateImageState - groupId: {0}, imageId : {1}, version {2}", groupId, imageId, version);
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+            updateQuery += " WHERE ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+            updateQuery += " AND ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", imageId);
+
+            result = updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            return result;
+        }
     }
 }

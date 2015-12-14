@@ -11,13 +11,21 @@ namespace Catalog
     {
         [DataMember]
         public string m_sSize;
+
         [DataMember]
         public string m_sURL;
+
         [DataMember]
         public string ratio;
 
-        public Picture()
-        { }
+        [DataMember]
+        public int version;
+
+        [DataMember]
+        public string id;
+
+        public Picture() { }
+
         public Picture(string sSize, string sURL, string picRatio)
         {
             m_sSize = sSize;

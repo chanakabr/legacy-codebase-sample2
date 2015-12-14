@@ -104,7 +104,7 @@ namespace ApiObjects
 
     [Serializable]
     public enum eAction
-    { 
+    {
         [EnumMember]
         Off,
         [EnumMember]
@@ -339,6 +339,19 @@ namespace ApiObjects
 
     [Serializable]
     public enum eTransactionState
+    {
+        [EnumMember]
+        OK = 0,
+
+        [EnumMember]
+        Pending = 1,
+
+        [EnumMember]
+        Failed = 2
+    }
+
+    [Serializable]
+    public enum eState
     {
         [EnumMember]
         OK = 0,
