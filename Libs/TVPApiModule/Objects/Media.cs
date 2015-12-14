@@ -86,6 +86,9 @@ namespace TVPApi
         {
             public string PicSize;
             public string URL;
+            public string ID;
+            public int Version;
+            public string Ratio;
         }
 
         public List<TagMetaPair> Tags
@@ -456,6 +459,10 @@ namespace TVPApi
                     Picture pic = new Picture();
                     pic.PicSize = rowPicture["PicSize"].ToString();
                     pic.URL = rowPicture["URL"].ToString();
+                    pic.Version = Convert.ToInt32(rowPicture["Version"].ToString());
+                    pic.ID = rowPicture["ImageId"].ToString();
+                    pic.Ratio = rowPicture["Ratio"].ToString();
+                    
                     Pictures.Add(pic);
                 }
             }

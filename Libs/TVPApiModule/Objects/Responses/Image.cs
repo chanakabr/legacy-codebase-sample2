@@ -20,12 +20,21 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "url")]
         public string Url { get; set; }
 
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        [JsonProperty(PropertyName = "version")]
+        public int Version { get; set; }
+
+         
         public Image(Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture picture)
         {
             if (picture != null)
             {
                 Url = picture.m_sURL;
                 Ratio = picture.ratio;
+                Id = picture.id;
+                Version = picture.version;
 
                 // parse from "widthXheight" format
                 string[] sizeArr = picture.m_sSize.ToLower().Split('x');
