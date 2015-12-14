@@ -45,5 +45,21 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "url")]
         [XmlElement(ElementName = "url")]
         public string Url { get; set; }
+
+        /// <summary>
+        /// Image Version
+        /// </summary>
+        [DataMember(Name = "version")]
+        [JsonProperty(PropertyName = "version")]
+        [XmlElement(ElementName = "version")]
+        public int Version { get; set; }
+
+        /// <summary>
+        /// Image ID
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        public string Id { get; set; }
     }
 }
