@@ -37,26 +37,48 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                bool result;
-                int channelId = DBManipulator.DoTheWork();
+                var form = HttpContext.Current.Request.Form;
 
-                if (channelId != 0)
+                string filterExpression = form["9_val"];
+
+                bool validExpression = true;
+
+                if (!string.IsNullOrEmpty(filterExpression))
                 {
-                    int loginGroupID = LoginManager.GetLoginGroupID();
-                    
-                    // Update asset types if it is a new channel
-                    if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
+                    ApiObjects.SearchObjects.BooleanPhraseNode filterTree = null;
+                    var status = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+
+                    if (status == null || status.Code != 0)
                     {
-                        List<int> updatedAssetTypes = Session["asset_type_ids"] as List<int>;
-                        InsertChannelAssetType(updatedAssetTypes, channelId, loginGroupID);
-                        Session["asset_type_ids"] = null;
+                        Session["error_msg"] = string.Format("Invalid KSQL filter: {0}", status.Message);
+                        validExpression = false;
                     }
-
-                    //Update channel at Lucene/ ES
-
-                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
                 }
-                return;
+                
+                // Save only if expression is valid (or empty)
+                if (validExpression)
+                {
+                    bool result;
+                    int channelId = DBManipulator.DoTheWork();
+
+                    if (channelId != 0)
+                    {
+                        int loginGroupID = LoginManager.GetLoginGroupID();
+
+                        // Update asset types if it is a new channel
+                        if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
+                        {
+                            List<int> updatedAssetTypes = Session["asset_type_ids"] as List<int>;
+                            InsertChannelAssetType(updatedAssetTypes, channelId, loginGroupID);
+                            Session["asset_type_ids"] = null;
+                        }
+
+                        //Update channel at Lucene/ ES
+
+                        result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
+                    }
+                    return;
+                }
             }
 
             // if this is a KSQL channel
