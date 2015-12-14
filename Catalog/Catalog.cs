@@ -4254,5 +4254,45 @@ namespace Catalog
 
             searcherEpgSearch.m_oEpgChannelIDs = new List<long>(channelIds);
         }
+
+        public static bool RebuildGroup(int nGroupId, bool rebuild)
+        {
+            bool res = false;
+            try
+            {
+                Logger.Logger.Log("RebuildGroup", string.Format("group:{0}, rebuild:{1}", nGroupId, rebuild), "RebuildGroup");
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                res = groupManager.RemoveGroup(nGroupId);
+                Logger.Logger.Log("RemoveGroup", string.Format("group:{0}, res:{1}", nGroupId, res), "RebuildGroup");
+                if (rebuild)
+                {
+                    Group group = groupManager.GetGroup(nGroupId);
+                    res = group != null;
+                    Logger.Logger.Log("GetGroup", string.Format("group:{0}, res:{1}", nGroupId, res), "RebuildGroup");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Logger.Log("Exception", string.Format("group:{0}, ex:{1}, st:{2}", nGroupId, ex.Message, ex.StackTrace), "RebuildGroup");
+            }
+
+            return res;
+        }
+
+        public static string GetGroup(int nGroupId)
+        {
+            string sGroup = string.Empty;
+            Logger.Logger.Log("GetGroup", string.Format("group:{0}", nGroupId), "GetGroup");
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            Group group = groupManager.GetGroup(nGroupId);
+
+            if (group != null)
+            {
+
+                sGroup = Newtonsoft.Json.JsonConvert.SerializeObject(group);
+            }
+
+            return sGroup;
+        }
     }
 }
