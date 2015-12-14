@@ -6,6 +6,9 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using TVinciShared;
+using ImageUploadHandler.WS_CATALOG;
+using ImageUploadHandler.WS_API;
 
 namespace ImageUploadHandler
 {
@@ -26,17 +29,37 @@ namespace ImageUploadHandler
                 if (request == null)
                     throw new Exception(string.Format("Failed to desterilized image upload request. data = {0}", data != null ? data : string.Empty));
 
-                //get library URL to use.
-                object picsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", request.GroupId);
+                // get image server URL
+                var picsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", request.GroupId);
 
                 if (picsBasePath == null || !string.IsNullOrEmpty(picsBasePath.ToString()))
-                {
                     throw new Exception(string.Format("Failed to get PICS_REMOTE_BASE_URL. groupId = {0}", request.GroupId));
-                }
 
+                // post image
                 result = HttpPost(picsBasePath.ToString(), data);
-            }
 
+                if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                    throw new Exception(string.Format("error inserting image. data: {0}", data));
+                else
+                {
+                    string url = WS_Utils.GetTcmConfigValue("WS_API");
+                    string username = string.Empty;
+                    string password = string.Empty;
+                    TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
+
+                    // update catalog
+                    using (API apiClient = new API())
+                    {
+                        if (!string.IsNullOrEmpty(url))
+                            apiClient.Url = url;
+
+                        bool success = apiClient.UpdateImageState(username, password, request.Id, request.Version, eState.OK);
+
+                        if (!success)
+                            throw new Exception(string.Format("Error while updating image status. data: {0}", data));
+                    }
+                }
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -84,8 +107,5 @@ namespace ImageUploadHandler
             }
             return null;
         }
-
-
-
     }
 }
