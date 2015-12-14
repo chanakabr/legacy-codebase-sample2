@@ -12,6 +12,19 @@ namespace GroupsCacheManager
     [JsonObject(Id = "channel")]
     public class Channel
     {
+        #region Consts
+
+        /// <summary>
+        /// KSQL channels can hold media types (as defined in media_types table) and EPG.
+        /// EPG is represented by this negative number because:
+        /// 1. "0" is usually refered to as everything or nothing. It is mostly invalid in DB.
+        /// 2. -1 sounds too... generic
+        /// 3. 26 is memorable, unique.
+        /// </summary>
+        public const int EPG_ASSET_TYPE = -26;
+
+        #endregion
+
         #region Members
         [DataMember]
         public int m_nChannelID { get; set; }
@@ -48,6 +61,26 @@ namespace GroupsCacheManager
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj m_OrderObject { get; set; }
 
+        /// <summary>
+        /// KSQL filter query - for KSQL channels
+        /// </summary>
+        [DataMember]
+        public string filterQuery
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Based on the KSQL filter query, and assuming it is valid, this is the tree object that represents the filter
+        /// </summary>
+        [DataMember]
+        public ApiObjects.SearchObjects.BooleanPhraseNode filterTree
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region CTOR
@@ -66,8 +99,19 @@ namespace GroupsCacheManager
             m_sMedias = new List<string>();
             m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
             m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
+            filterQuery = string.Empty;
+            filterTree = null;
         }
 
         #endregion
+    }
+
+    public enum ChannelType
+    {
+        None = 0,
+        Automatic = 1,
+        Manual = 2,
+        Watcher = 3,
+        KSQL = 4
     }
 }

@@ -70,11 +70,18 @@ namespace ElasticSearch.Searcher
         /// Regular constructor to initialize with definitions
         /// </summary>
         /// <param name="definitions"></param>
-        public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions)
+        public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions, int groupId = 0)
         {
             this.SearchDefinitions = definitions;
 
-            this.GroupID = definitions.groupId;
+            if (definitions != null)
+            {
+                this.GroupID = definitions.groupId;
+            }
+            else
+            {
+                this.GroupID = groupId;
+            }
         }
 
         #endregion
@@ -121,6 +128,67 @@ namespace ElasticSearch.Searcher
                 return fullQuery;
             }
 
+            BaseFilterCompositeType filterRoot;
+            IESTerm queryTerm;
+
+            BuildInnerFilterAndQuery(out filterRoot, out queryTerm);
+
+            QueryFilter filterPart = new QueryFilter()
+            {
+                FilterSettings = filterRoot
+            };
+
+            if (PageSize <= 0)
+            {
+                PageSize = MAX_RESULTS;
+            }
+
+            int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
+
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+
+            filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
+
+            // TODO - find if the search is exact or not!
+            bool bExact = false;
+
+            // If not exact, order by score, and vice versa
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+
+            // Join return fields with commas
+            if (ReturnFields.Count > 0)
+            {
+                filteredQueryBuilder.Append("\"fields\": [");
+
+                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+
+                filteredQueryBuilder.Append("], ");
+            }
+
+            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
+
+            if (queryTerm != null && !queryTerm.IsEmpty())
+            {
+                string queryPart = queryTerm.ToString();
+
+                if (!string.IsNullOrEmpty(queryPart))
+                {
+                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                }
+            }
+
+            filteredQueryBuilder.Append(filterPart.ToString());
+            filteredQueryBuilder.Append(" } } }");
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
+        }
+
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm)
+        {
             ESPrefix epgPrefixTerm = new ESPrefix()
             {
                 Key = "_type",
@@ -165,9 +233,6 @@ namespace ElasticSearch.Searcher
             {
                 unifiedFilter.AddChild(mediaFilter);
             }
-
-            StringBuilder filteredQueryBuilder = new StringBuilder();
-            string queryPart = string.Empty;
 
             ESTerm groupTerm = new ESTerm(true)
             {
@@ -273,11 +338,11 @@ namespace ElasticSearch.Searcher
                     FilterCompositeType epgParentalRulesTagsComposite = new FilterCompositeType(CutWith.AND);
 
                     // Run on all tags and their values
-                    foreach (KeyValuePair<string,List<string>> tagValues in this.SearchDefinitions.epgParentalRulesTags)
+                    foreach (KeyValuePair<string, List<string>> tagValues in this.SearchDefinitions.epgParentalRulesTags)
                     {
                         // Create a Not-in terms for each of the tags
                         ESTerms currentTag = new ESTerms(false);
-                        
+
                         currentTag.isNot = true;
                         currentTag.Key = string.Concat("tags.", tagValues.Key.ToLower());
 
@@ -514,9 +579,9 @@ namespace ElasticSearch.Searcher
                 #endregion
             }
 
-            QueryFilter filterPart = new QueryFilter();
-
             #region Phrase Tree
+
+            queryTerm = null;
 
             if (this.SearchDefinitions.filterPhrase != null)
             {
@@ -530,7 +595,7 @@ namespace ElasticSearch.Searcher
                     var leaf = root as BooleanLeaf;
 
                     // If it is contains - it is not exact and thus belongs to query
-                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains || 
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                     {
                         queryNode = leaf;
@@ -614,12 +679,7 @@ namespace ElasticSearch.Searcher
 
                 if (queryNode != null)
                 {
-                    var queryTerm = ConvertToQuery(queryNode);
-
-                    if (!queryTerm.IsEmpty())
-                    {
-                        queryPart = queryTerm.ToString();
-                    }
+                    queryTerm = ConvertToQuery(queryNode);
                 }
 
                 if (filterNode != null)
@@ -646,48 +706,7 @@ namespace ElasticSearch.Searcher
             filterParent.AddChild(unifiedFilter);
             filterParent.AddChild(globalFilter);
 
-            filterPart.FilterSettings = filterParent;
-
-            if (PageSize <= 0)
-            {
-                PageSize = MAX_RESULTS;
-            }
-
-            int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
-
-            filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
-            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // TODO - find if the search is exact or not!
-            bool bExact = false;
-
-            // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
-
-            // Join return fields with commas
-            if (ReturnFields.Count > 0)
-            {
-                filteredQueryBuilder.Append("\"fields\": [");
-
-                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
-
-                filteredQueryBuilder.Append("], ");
-            }
-
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
-            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
-
-            if (!string.IsNullOrEmpty(queryPart))
-            {
-                filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
-            }
-
-            filteredQueryBuilder.Append(filterPart.ToString());
-            filteredQueryBuilder.Append(" } } }");
-            fullQuery = filteredQueryBuilder.ToString();
-
-            return fullQuery;
+            filterPart = filterParent;
         }
 
         /// <summary>
@@ -833,6 +852,50 @@ namespace ElasticSearch.Searcher
             return indexes;
         }
 
+        /// <summary>
+        /// Builds a partial string of indexes for the URL of the ES request
+        /// </summary>
+        /// <param name="queryType"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static string GetIndexes(List<UnifiedSearchDefinitions> definitions, int groupId)
+        {
+            string indexes = string.Empty;
+
+            bool shouldSearchEpg = false;
+            bool shouldSearchMedia = true;
+
+            foreach (var definition in definitions)
+            {
+                if (definition.shouldSearchEpg)
+                {
+                    shouldSearchEpg = true;
+                }
+
+                if (definition.shouldSearchMedia)
+                {
+                    shouldSearchMedia = true;
+                }
+            }
+
+            if (shouldSearchEpg)
+            {
+                if (shouldSearchMedia)
+                {
+                    indexes = string.Format("{0},{0}_epg", groupId);
+                }
+                else
+                {
+                    indexes = string.Format("{0}_epg", groupId);
+                }
+            }
+            else
+            {
+                indexes = groupId.ToString();
+            }
+
+            return indexes;
+        }
 
         public static string GetTypes(UnifiedSearchDefinitions definitions)
         {
@@ -887,6 +950,88 @@ namespace ElasticSearch.Searcher
             }
              
             return types;
+        }
+
+        public static string GetTypes(List<UnifiedSearchDefinitions> definitions)
+        {
+            string media = "media";
+            string epg = "epg";
+
+            HashSet<string> typesList = new HashSet<string>();
+            StringBuilder typesString = new StringBuilder();
+
+            foreach (var definition in definitions)
+            {
+                string currentType = string.Empty;
+
+                // If language isn't default
+                if (definition.langauge != null &&
+                    !definition.langauge.IsDefault)
+                {
+                    if (definition.shouldSearchMedia)
+                    {
+                        // If both
+                        if (definition.shouldSearchEpg)
+                        {
+                            currentType = string.Format("{0}_{2},{1}_{2}", media, epg, definition.langauge.Code);
+                        }
+                        // if only media
+                        else
+                        {
+                            currentType = string.Format("{0}_{1}", media, definition.langauge.Code);
+                        }
+                    }
+                    // If only epg
+                    else if (definition.shouldSearchEpg)
+                    {
+                        currentType = string.Format("{0}_{1}", epg, definition.langauge.Code);
+                    }
+                }
+                else
+                {
+                    if (definition.shouldSearchMedia)
+                    {
+                        // If both
+                        if (definition.shouldSearchEpg)
+                        {
+                            currentType = string.Format("{0},{1}", media, epg);
+                        }
+                        // if only media
+                        else
+                        {
+                            currentType = media;
+                        }
+                    }
+                    // If only epg
+                    else if (definition.shouldSearchEpg)
+                    {
+                        currentType = epg;
+                    }
+                }
+
+                // Split by ',' so we can see if any of the new types are included or not
+                string[] currentTypes = currentType.Split(',');
+
+                foreach (var type in currentTypes)
+                {
+                    // append new types if they don't exist yet
+                    if (!typesList.Contains(currentType))
+                    {
+                        typesString.Append(currentType);
+                        typesString.Append(',');
+
+                        typesList.Add(type);
+                    }
+                }
+            }
+
+            // Remove last ','
+            if (typesString.Length > 0)
+            {
+                typesString.Remove(typesString.Length - 1, 1);
+            }
+
+            return typesString.ToString();
         }
 
         #endregion
@@ -1283,15 +1428,17 @@ namespace ElasticSearch.Searcher
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
+            if (order.m_eOrderBy != OrderBy.ID &&
+                shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
             {
                 sortBuilder.Append(", \"_score\"");
             }
 
-            sortBuilder.Append(", \"_uid\"");
-
-            // Always add sort by _uid to avoid ES weirdness of same sort-value 
-            sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            if (order.m_eOrderBy != OrderBy.ID)
+            {
+                // Always add sort by _uid to avoid ES weirdness of same sort-value 
+                sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            }
 
             sortBuilder.Append(" ]");
 
@@ -1300,6 +1447,111 @@ namespace ElasticSearch.Searcher
 
         #endregion
 
+        /// <summary>
+        /// Connects with "OR" several, different queries alltogther.
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
+        {
+            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
+            
+            this.ReturnFields.Add("\"epg_id\"");
+            this.ReturnFields.Add("\"media_id\"");
+
+            // This is a query-filter.
+            // First comes query
+            // Then comes filter
+            // Query is for non-exact phrases
+            // Filter is for exact phrases
+
+            // filtered query :
+            //  {
+            //      { 
+            //          query : {},
+            //          filter : {}
+            //      }
+            // }
+
+            string fullQuery = string.Empty;
+
+            if (this.SearchDefinitions == null)
+            {
+                return fullQuery;
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery(true)
+            {
+                PageIndex = 0,
+                PageSize = 0
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
+
+            BoolQuery boolquery = new BoolQuery();
+
+            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
+
+            foreach (var definition in unifiedSearchDefinitions)
+            {
+                BaseFilterCompositeType filterPart;
+                IESTerm queryTerm;
+            
+                innerQueryBuilder.SearchDefinitions = definition;
+                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
+
+                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
+                boolquery.AddChild(queryTerm, CutWith.OR);
+            }
+
+            filteredQuery.Query = boolquery;
+
+            PageSize = MAX_RESULTS;
+
+            int fromIndex = 0;
+
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+
+            filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
+
+            // TODO - find if the search is exact or not!
+            bool bExact = false;
+
+            // If not exact, order by score, and vice versa
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+
+            // Join return fields with commas
+            if (ReturnFields.Count > 0)
+            {
+                filteredQueryBuilder.Append("\"fields\": [");
+
+                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+
+                filteredQueryBuilder.Append("], ");
+            }
+
+            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
+
+            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
+            {
+                string queryPart = filteredQuery.Query.ToString();
+
+                if (!string.IsNullOrEmpty(queryPart))
+                {
+                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                }
+            }
+
+            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
+            filteredQueryBuilder.Append(" } } }");
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
+        }
     }
 
 }

@@ -23,6 +23,7 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(CommentsListRequest))]
         [ServiceKnownType(typeof(PWLALProtocolRequest))]
         [ServiceKnownType(typeof(UserSocialMediasRequest))]
+        [ServiceKnownType(typeof(BundleAssetsRequest))]
         [ServiceKnownType(typeof(BundleMediaRequest))]
         [ServiceKnownType(typeof(PicRequest))]
         [ServiceKnownType(typeof(BaseRequest))]
@@ -39,7 +40,9 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(ChannelViewsRequest))]
         [ServiceKnownType(typeof(DomainLastPositionRequest))]
         [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
-        
+        [ServiceKnownType(typeof(MediaRelatedExternalRequest))]
+        [ServiceKnownType(typeof(MediaSearchExternalRequest))]
+
         [OperationContract]
         BaseResponse GetResponse(BaseRequest oBaseRequest);
     }

@@ -84,8 +84,10 @@
     <Compile Include="Searcher\BaseFilterCompositeType.cs" />
     <Compile Include="Searcher\BaseFilterCompositeTypeDecorator.cs" />
     <Compile Include="Searcher\BoolQuery.cs" />
+    <Compile Include="Searcher\ESCustomQuery.cs" />
     <Compile Include="Searcher\ESEpgQueryBuilder.cs" />
     <Compile Include="Searcher\ESFacet.cs" />
+    <Compile Include="Searcher\ESFilteredQuery.cs" />
     <Compile Include="Searcher\ESMatchAllQuery.cs" />
     <Compile Include="Searcher\ESMatchQuery.cs" />
     <Compile Include="Searcher\ESMediaQueryBuilder.cs" />

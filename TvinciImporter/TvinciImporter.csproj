@@ -250,8 +250,46 @@
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\WSCatalog\Service10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service19.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\WSCatalog\Service2.wsdl" />
+    <None Include="Service References\WSCatalog\Service20.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\WSCatalog\Service21.wsdl" />
+    <None Include="Service References\WSCatalog\Service21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service3.wsdl" />
+    <None Include="Service References\WSCatalog\Service4.wsdl" />
     <None Include="Service References\WSCatalog\Service6.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -268,6 +306,15 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\Service65.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.BaseResponse.datasource">
@@ -355,6 +402,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Service References\WSCatalog\Service2.disco" />
     <None Include="Service References\Notification_WCF\NotificationService1.disco" />
     <None Include="Service References\WSCatalog\Service1.disco" />
     <None Include="Service References\WSCatalog\Reference.svcmap">

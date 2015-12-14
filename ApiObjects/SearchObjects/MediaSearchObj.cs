@@ -46,7 +46,7 @@ namespace ApiObjects.SearchObjects
     }
 
 
-    public class MediaSearchObj
+    public class MediaSearchObj : BaseSearchObject
     {        
         public OrderObj m_oOrder;
         public CutWith m_eCutWith;

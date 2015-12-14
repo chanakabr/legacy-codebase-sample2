@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects;
+using ApiObjects.Response;
 
 namespace Users
 {
@@ -255,6 +256,32 @@ namespace Users
                 throw ex;
             }
             return userResponses;
+        }
+
+
+        public static ApiObjects.Response.Status DeleteUser(Int32 siteGuid, KalturaBaseUsers user)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            try
+            {
+                // pre
+                response = user.PreDeleteUser(siteGuid);
+
+                if (response.Code == (int)eResponseStatus.OK)
+                {
+                    // mid
+                    response = user.MidDeleteUser(siteGuid);
+
+                    // post
+                    user.PostDeleteUser(ref response);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return response;
         }
     }
 }

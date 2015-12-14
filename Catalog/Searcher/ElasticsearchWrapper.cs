@@ -223,7 +223,8 @@ namespace Catalog
             return false;
         }
 
-        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
+        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, 
+            string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
             SearchResultsObj lSortedMedias = new SearchResultsObj();
 
@@ -342,6 +343,182 @@ namespace Catalog
 
             return lSortedMedias;
         }
+
+        /// <summary>
+        /// Takes several search objects, joins them together and searches the assets in ES indexes.
+        /// </summary>
+        /// <param name="subscriptionGroupId"></param>
+        /// <param name="searchObjects"></param>
+        /// <param name="languageId"></param>
+        /// <param name="useStartDate"></param>
+        /// <param name="mediaTypes"></param>
+        /// <param name="order"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalItems"></param>
+        /// <returns></returns>
+        public List<UnifiedSearchResult> SearchSubscriptionAssets(int subscriptionGroupId, List<BaseSearchObject> searchObjects, int languageId, bool useStartDate,
+            string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems)
+        {
+            List<UnifiedSearchResult> finalSearchResults = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            GroupManager groupManager = new GroupManager();
+
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup(subscriptionGroupId);
+
+            Group group = groupManager.GetGroup(parentGroupId);
+
+            if (group == null)
+                return finalSearchResults;
+
+            int parentGroupID = group.m_nParentGroupID;
+
+            if (searchObjects != null && searchObjects.Count > 0)
+            {
+                List<ElasticSearchApi.ESAssetDocument> searchResults = new List<ElasticSearchApi.ESAssetDocument>();
+
+                #region Build Search Query
+
+                ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
+                ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
+
+                BoolQuery boolQuery = new BoolQuery();
+
+                /*
+                 * Foreach media/unified search object, create filtered query.
+                 * Add the query's filter to the grouped filter so that we can then create a single request
+                 * containing all the channels that we want.
+                 */
+                foreach (BaseSearchObject searchObject in searchObjects)
+                {
+                    if (searchObject == null)
+                        continue;
+
+                    if (searchObject is MediaSearchObj)
+                    {
+                        MediaSearchObj mediaSearchObject = searchObject as MediaSearchObj;
+                        mediaQueryBuilder.m_nGroupID = mediaSearchObject.m_nGroupId;
+                        mediaSearchObject.m_nPageSize = 0;
+                        mediaQueryBuilder.oSearchObject = mediaSearchObject;
+                        mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
+                        FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
+
+                        if (tempQuery != null && tempQuery.Filter != null)
+                        {
+                            ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                            {
+                                Filter = tempQuery.Filter
+                            };
+
+                            boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
+                        }
+                    }
+                    else if (searchObject is UnifiedSearchDefinitions)
+                    {
+                        UnifiedSearchDefinitions definitions = searchObject as UnifiedSearchDefinitions;
+                        unifiedQueryBuilder.SearchDefinitions = definitions;
+                        
+                        BaseFilterCompositeType currentFilter;
+                        IESTerm currentQuery;
+
+                        unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
+
+                        ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                        {
+                            Filter = new QueryFilter()
+                            {
+                                FilterSettings = currentFilter
+                            },
+                            Query = currentQuery
+                        };
+
+                        //groupedFilters.AddChild(currentFilter);
+                        boolQuery.AddChild(currentQuery, CutWith.OR);
+                    }
+                }
+
+                string orderValue = FilteredQuery.GetESSortValue(order);
+
+                FilteredQuery filteredQuery = new FilteredQuery()
+                {
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                };
+                filteredQuery.ESSort.Add(new ESOrderObj()
+                {
+                    m_eOrderDir = order.m_eOrderDir,
+                    m_sOrderValue = orderValue
+                });
+
+                //// Set filter to be grouped filters we created earlier
+                //tempQuery.Filter = new QueryFilter()
+                //{
+                //    FilterSettings = groupedFilters
+                //};
+
+                filteredQuery.Query = boolQuery;
+
+                string searchQuery = filteredQuery.ToString();
+
+                #endregion
+
+                string searchResultString = m_oESApi.Search(group.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref searchQuery);
+
+                int temporaryTotalItems = 0;
+                searchResults = DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
+
+                #region Process results
+
+                if (searchResults != null && searchResults.Count > 0)
+                {
+                    log.Debug("Info - SearchSubscriptionAssets returned search results");
+
+                    totalItems = temporaryTotalItems;
+
+                    // Order by stats
+                    if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
+                        order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                    {
+                        List<int> ids = searchResults.Select(item => item.asset_id).ToList();
+
+                        Utils.OrderMediasByStats(ids, (int)order.m_eOrderBy, (int)order.m_eOrderDir);
+
+                        Dictionary<int, ElasticSearchApi.ESAssetDocument> itemsDictionary = searchResults.ToDictionary(item => item.asset_id);
+
+                        ElasticSearchApi.ESAssetDocument temporaryDocument;
+
+                        foreach (int asset in ids)
+                        {
+                            if (itemsDictionary.TryGetValue(asset, out temporaryDocument))
+                            {
+                                finalSearchResults.Add(new UnifiedSearchResult()
+                                {
+                                    AssetId = temporaryDocument.asset_id.ToString(),
+                                    AssetType = UnifiedSearchResult.ParseType(temporaryDocument.type),
+                                    m_dUpdateDate = temporaryDocument.update_date
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        finalSearchResults = searchResults.Select(item => new UnifiedSearchResult()
+                        {
+                            AssetId = item.asset_id.ToString(),
+                            AssetType = UnifiedSearchResult.ParseType(item.type),
+                            m_dUpdateDate = item.update_date
+                        }).ToList();
+                    }
+                } 
+
+                #endregion
+            }
+
+            return finalSearchResults;
+        }
+
 
         public bool DoesMediaBelongToChannels(int nGroupID, List<int> lChannelIDs, int nMediaID)
         {
@@ -1702,6 +1879,61 @@ namespace Catalog
 
         #endregion
 
+        #region Multiple Unified Search
+
+        public List<UnifiedSearchResult> MultipleUnifiedSearch(int groupId, List<UnifiedSearchDefinitions> unifiedSearchDefinitions, ref int totalItems)
+        {
+            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            string requestBody = new ESUnifiedQueryBuilder(null, groupId).BuildMultiSearchQueryString(unifiedSearchDefinitions);
+
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                int httpStatus = 0;
+
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, groupId);
+                string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+                if (httpStatus == STATUS_OK)
+                {
+                    #region Process ElasticSearch result
+
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        searchResultsList = new List<UnifiedSearchResult>();
+
+                        foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                        {
+                            searchResultsList.Add(new UnifiedSearchResult()
+                            {
+                                AssetId = doc.asset_id.ToString(),
+                                m_dUpdateDate = doc.update_date,
+                                AssetType = UnifiedSearchResult.ParseType(doc.type)
+                            });
+                        }
+                    }
+
+                    #endregion
+                }
+                else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
+                {
+                    throw new System.Web.HttpException(httpStatus, queryResultString);
+                }
+            }
+
+            return searchResultsList;
+        }
+
+        #endregion
         public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
             List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();

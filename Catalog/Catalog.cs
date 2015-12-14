@@ -834,228 +834,7 @@ namespace Catalog
 						// If it is a leaf, just replace the field name
 						if (node.type == BooleanNodeType.Leaf)
 						{
-							#region Leaf Treatment
-
-							BooleanLeaf leaf = node as BooleanLeaf;
-							bool isTagOrMeta;
-
-							// Add prefix (meta/tag) e.g. metas.{key}
-
-							HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
-
-							if (searchKeys.Count > 1)
-							{
-								if (isTagOrMeta)
-								{
-									List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
-
-									// Split the single leaf into several brothers connected with an "or" operand
-									foreach (var searchKey in searchKeys)
-									{
-										newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
-									}
-
-									BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
-
-									Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, newPhrase);
-								}
-							}
-							else if (searchKeys.Count == 1)
-							{
-								string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
-								string originalKey = leaf.field;
-
-								// Default - string, until proved otherwise
-								leaf.valueType = typeof(string);
-
-								// If this is a tag or a meta, we can continue happily.
-								// If not, we check if it is one of the "core" fields.
-								// If it is not one of them, an exception will be thrown
-								if (!isTagOrMeta)
-								{
-									// If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-									if (searchKeyLowered == "start_date")
-									{
-										definitions.defaultStartDate = false;
-										leaf.valueType = typeof(DateTime);
-
-										long epoch = Convert.ToInt64(leaf.value);
-
-										leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-									}
-									else if (searchKeyLowered == "end_date")
-									{
-										definitions.defaultEndDate = false;
-										leaf.valueType = typeof(DateTime);
-
-										long epoch = Convert.ToInt64(leaf.value);
-
-										leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-									}
-									else if (searchKeyLowered == "update_date")
-									{
-										leaf.valueType = typeof(DateTime);
-
-										long epoch = Convert.ToInt64(leaf.value);
-
-										leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
-									}
-									else if (searchKeyLowered == "geo_block")
-									{
-										// geo_block is a personal filter that currently will work only with "true".
-										if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
-										{
-											if (geoBlockRules == null)
-											{
-												geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
-											}
-
-											BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
-											BooleanLeaf newLeaf =
-												new BooleanLeaf("geo_block_rule_id",
-													geoBlockRules.Select(id => id.ToString()).ToList(),
-													typeof(List<string>), ComparisonOperator.In);
-
-											BooleanPhrase newPhrase = new BooleanPhrase(
-												new List<BooleanPhraseNode>()
-												{
-													mediaTypeCondition, 
-													newLeaf
-												},
-												eCutType.And);
-
-											Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, newPhrase);
-										}
-										else
-										{
-											throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
-										}
-									}
-									else if (searchKeyLowered == "parental_rules")
-									{
-										// Same as geo_block: it is a personal filter that currently will work only with "true".
-										if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
-										{
-											if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
-											{
-												Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
-													out mediaParentalRulesTags, out epgParentalRulesTags);
-											}
-
-											List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
-											List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
-
-											newMediaNodes.Add(new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix));
-
-											// Run on all tags and their values
-											foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
-											{
-												// Create a Not-in leaf for each of the tags
-												BooleanLeaf newLeaf = new BooleanLeaf(
-													string.Concat("tags.", tagValues.Key.ToLower()),
-													tagValues.Value,
-													typeof(List<string>),
-													ComparisonOperator.NotIn);
-
-												newMediaNodes.Add(newLeaf);
-											}
-
-											newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
-
-											// Run on all tags and their values
-											foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
-											{
-												// Create a Not-in leaf for each of the tags
-												BooleanLeaf newLeaf = new BooleanLeaf(
-													string.Concat("tags.", tagValues.Key.ToLower()),
-													tagValues.Value,
-													typeof(List<string>),
-													ComparisonOperator.NotIn);
-
-												newEpgNodes.Add(newLeaf);
-											}
-
-											// connect all tags with AND
-											BooleanPhrase newMediaPhrase = new BooleanPhrase(newMediaNodes, eCutType.And);
-											BooleanPhrase newEpgPhrase = new BooleanPhrase(newEpgNodes, eCutType.And);
-
-											// connect media and epg with OR
-											List<BooleanPhraseNode> newOrNodes = new List<BooleanPhraseNode>();
-											newOrNodes.Add(newMediaPhrase);
-											newOrNodes.Add(newEpgPhrase);
-
-											BooleanPhrase orPhrase = new BooleanPhrase(newOrNodes, eCutType.Or);
-
-											// Replace the original leaf (parental_rules='true') with the new phrase
-											Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, orPhrase);
-										}
-										else
-										{
-											throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
-										}
-									}
-									else if (reservedNumericFields.Contains(searchKeyLowered))
-									{
-										leaf.valueType = typeof(long);
-									}
-									else if (!reservedStringFields.Contains(searchKeyLowered))
-									{
-										throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
-									}
-								}
-
-								leaf.field = searchKeys.FirstOrDefault();
-
-								#region IN operator
-
-								// Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
-								if (leaf.operand == ComparisonOperator.In || leaf.operand == ComparisonOperator.NotIn &&
-									leaf.valueType != typeof(List<string>))
-								{
-									leaf.valueType = typeof(List<string>);
-									string value = leaf.value.ToString().ToLower();
-
-									string[] values = value.Split(',');
-
-									// If there are 
-									if (values.Length == 0)
-									{
-										throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
-									}
-
-									foreach (var single in values)
-									{
-										int temporaryInteger;
-
-										if (!int.TryParse(single, out temporaryInteger))
-										{
-											throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), 
-                                                (int)eResponseStatus.SyntaxError);
-										}
-									}
-
-									// Put new list of strings in boolean leaf
-									leaf.value = values.ToList();
-								}
-
-								#endregion
-
-							}
-
-							#region Trim search value
-
-							// If the search is contains or not contains, trim the search value to the size of the maximum NGram.
-							// Otherwise the search will not work completely 
-							if (maxNGram > 0 &&
-								(leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains 
-                                || leaf.operand == ComparisonOperator.WordStartsWith))
-							{
-								leaf.value = leaf.value.ToString().Truncate(maxNGram);
-							}
-
-							#endregion
-
-							#endregion
+                            TreatLeaf(request, ref request.filterTree, definitions, ref group, maxNGram, ref geoBlockRules, ref mediaParentalRulesTags, ref epgParentalRulesTags, reservedStringFields, reservedNumericFields, parentMapping, node);
 						}
 						else if (node.type == BooleanNodeType.Parent)
 						{
@@ -1215,6 +994,22 @@ namespace Catalog
 				request.filterTree = newPhrase;
 			}
 		}
+
+        private static void ReplaceLeafWithPhrase(BaseRequest request, ref BooleanPhraseNode filterTree,
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
+        {
+            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+            if (parentMapping.ContainsKey(leaf))
+            {
+                parentMapping[leaf].nodes.Remove(leaf);
+                parentMapping[leaf].nodes.Add(newPhrase);
+            }
+            else
+            // If it doesn't exist in the mapping, it's probably the root
+            {
+                filterTree = newPhrase;
+            }
+        }
 
 		private static void GetParentalRulesTags(int groupId, string siteGuid,
 			out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
@@ -2177,6 +1972,15 @@ namespace Catalog
 			}
 			return retActionID;
 		}
+
+        internal static int GetMediaTypeID(int nMediaId)
+        {
+            int retTypeID = 0;
+
+            retTypeID = CatalogDAL.Get_MediaTypeIdByMediaId(nMediaId);
+            
+            return retTypeID;
+        }
 
 		internal static string GetMediaPlayResponse(MediaPlayResponse response)
 		{
@@ -4706,12 +4510,13 @@ namespace Catalog
 
 		#region External Channel Request
 
-		internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList)
+        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
 		{
 			Status status = new Status();
 
 			searchResultsList = new List<UnifiedSearchResult>();
 			totalItems = 0;
+            requestId = "";
 
 			var externalChannelsCache = ExternalChannelCache.Instance();
 
@@ -4763,7 +4568,7 @@ namespace Catalog
 
 			// Adapter will respond with a collection of media assets ID with Kaltura terminology
 			List<RecommendationResult> recommendations =
-				RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments);
+				RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, out requestId);
 
 			if (recommendations == null)
 			{
@@ -4911,21 +4716,218 @@ namespace Catalog
 			return status;
 		}
 
+        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+		{
+            Status status = new Status();
+            totalItems = 0;
+            requestId = "";
+            resultsList = new List<RecommendationResult>();
+
+            BaseResponse respone = new BaseResponse();
+
+            GroupManager groupManager = new GroupManager();
+            
+            Group group = groupManager.GetGroup(request.m_nGroupID);
+            if (group != null)
+            {
+                int recommendationEngineId = group.RelatedRecommendationEngine;
+
+                if (recommendationEngineId == 0)
+                {
+                    status.Message = "Recommendation Engine Not Exist";
+                    status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+                    return status;
+                }
+                                
+                int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
+                if (mediaTypeID == 0)
+                {
+                    status.Message = "Media doesn’t exist";
+                    status.Code = (int)eResponseStatus.BadSearchRequest;
+                    return status;
+                }
+                
+                List<ExternalRecommendationEngineEnrichment> enrichmentsToSend = new List<ExternalRecommendationEngineEnrichment>();
+
+                foreach (int currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
+                {
+                    if ((group.RelatedRecommendationEngineEnrichments & currentValue) > 0)
+                    {
+                        enrichmentsToSend.Add((ExternalRecommendationEngineEnrichment)currentValue);
+                    }
+                }
+
+                Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
+
+                List<RecommendationResult> recommendations = null;
+
+                try
+                {
+                    recommendations =
+                        RecommendationAdapterController.GetInstance().GetRelatedRecommendations(recommendationEngineId,
+                                                                                                request.m_nMediaID,
+                                                                                                mediaTypeID,
+                                                                                                request.m_nGroupID,
+                                                                                                request.m_sSiteGuid,
+                                                                                                request.m_oFilter.m_sDeviceId,
+                                                                                                request.m_sLanguage,
+                                                                                                request.m_nUtcOffset,
+                                                                                                request.m_sUserIP,
+                                                                                                request.m_sSignature,
+                                                                                                request.m_sSignString,
+                                                                                                request.m_nMediaTypes,
+                                                                                                request.m_nPageSize,
+                                                                                                request.m_nPageIndex,
+                                                                                                enrichments,
+                                                                                                out requestId);
+                }
+                catch (KalturaException ex)
+                {
+                    if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.RecommendationEngineNotExist)
+                    {
+                        status.Message = "Recommendation Engine Not Exist";
+                        status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+                    }
+                    if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.AdapterUrlRequired)
+                    {
+                        status.Message = "Recommendation engine adapter has no URL";
+                        status.Code = (int)eResponseStatus.AdapterUrlRequired;
+                    }
+                    else
+                    {
+                        status.Message = "Adapter failed completing request";
+                        status.Code = (int)eResponseStatus.AdapterAppFailure;
+                    }
+                    return status;
+                }
+
+                resultsList = recommendations;
+                totalItems = recommendations.Count;
+
+                if (recommendations == null)
+                {
+                    status.Code = (int)(eResponseStatus.AdapterAppFailure);
+                    status.Message = "No recommendations received";
+                    return status;
+                }
+
+                if (recommendations.Count == 0)
+                {
+                    return status;
+                }
+            }
+            return status;
+        }
+
+		internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+		{
+			Status status = new Status();
+			totalItems = 0;
+            requestId = "";
+			resultsList = new List<RecommendationResult>();
+
+			BaseResponse respone = new BaseResponse();
+
+			GroupManager groupManager = new GroupManager();
+
+			Group group = groupManager.GetGroup(request.m_nGroupID);
+			if (group != null)
+			{
+				int recommendationEngineId = group.SearchRecommendationEngine;
+
+				if (recommendationEngineId == 0)
+				{
+					status.Message = "Recommendation Engine Not Exist";
+					status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					return status;
+				}
+
+				List<ExternalRecommendationEngineEnrichment> enrichmentsToSend = new List<ExternalRecommendationEngineEnrichment>();
+
+				foreach (int currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
+				{
+					if ((group.SearchRecommendationEngineEnrichments & currentValue) > 0)
+					{
+						enrichmentsToSend.Add((ExternalRecommendationEngineEnrichment)currentValue);
+					}
+				}
+
+				Dictionary<string, string> enrichments = Catalog.GetEnrichments(request, enrichmentsToSend);
+				
+				List<RecommendationResult> recommendations = null;
+
+				try
+				{
+                    recommendations =
+						RecommendationAdapterController.GetInstance().GetSearchRecommendations(recommendationEngineId,
+																								request.m_sQuery,
+																								request.m_nGroupID,
+                                                                                                request.m_sSiteGuid,
+																								request.m_oFilter.m_sDeviceId,
+                                                                                                request.m_sLanguage,
+																								request.m_nUtcOffset,
+																								request.m_sUserIP,
+																								request.m_sSignature,
+																								request.m_sSignString,
+																								request.m_nMediaTypes,
+																								request.m_nPageSize,
+																								request.m_nPageIndex,
+																								enrichments,
+                                                                                                out requestId);
+				}
+				catch (KalturaException ex)
+				{
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.RecommendationEngineNotExist)
+					{
+						status.Message = "Recommendation Engine Not Exist";
+						status.Code = (int)eResponseStatus.RecommendationEngineNotExist;
+					}
+					if ((int)ex.Data["StatusCode"] == (int)eResponseStatus.AdapterUrlRequired)
+					{
+						status.Message = "Recommendation engine adapter has no URL";
+						status.Code = (int)eResponseStatus.AdapterUrlRequired;
+					}
+					else
+					{
+						status.Message = "Adapter failed completing request";
+						status.Code = (int)eResponseStatus.AdapterAppFailure;
+					}
+					return status;
+				}
+
+				resultsList = recommendations;
+				totalItems = recommendations.Count;
+
+				if (recommendations == null)
+				{
+					status.Code = (int)(eResponseStatus.AdapterAppFailure);
+					status.Message = "No recommendations received";
+					return status;
+				}
+
+				if (recommendations.Count == 0)
+				{
+					return status;
+				}
+			}
+			return status;
+		}
+
 		/// <summary>
 		/// Builds a dictionary of enrichments for recommendation engine adapter
 		/// </summary>
 		/// <param name="request"></param>
 		/// <param name="list"></param>
 		/// <returns></returns>
-		private static Dictionary<string, string> GetEnrichments(ExternalChannelRequest request, List<ExternalChannelEnrichment> list)
+        private static Dictionary<string, string> GetEnrichments(BaseRequest request, List<ExternalRecommendationEngineEnrichment> list)
 		{
 			Dictionary<string, string> dictionary = new Dictionary<string, string>();
 
-			foreach (ExternalChannelEnrichment enrichment in list)
+            foreach (ExternalRecommendationEngineEnrichment enrichment in list)
 			{
 				switch (enrichment)
 				{
-					case ExternalChannelEnrichment.ClientLocation:
+                    case ExternalRecommendationEngineEnrichment.ClientLocation:
 					{
 						try
 						{
@@ -4941,32 +4943,57 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.UserId:
+                    case ExternalRecommendationEngineEnrichment.UserId:
 					{
 						dictionary["user_id"] = request.m_sSiteGuid;
 						break;
 					}
-					case ExternalChannelEnrichment.HouseholdId:
+                    case ExternalRecommendationEngineEnrichment.HouseholdId:
 					{
 						dictionary["household_id"] = request.domainId.ToString();
 						break;
 					}
-					case ExternalChannelEnrichment.DeviceId:
+                    case ExternalRecommendationEngineEnrichment.DeviceId:
 					{
-						dictionary["device_id"] = request.deviceId;
+                        if (request is ExternalChannelRequest)
+                        {
+                            dictionary["device_id"] = (request as ExternalChannelRequest).deviceId;
+                        }
+                        if (request is MediaRelatedExternalRequest)
+                        {
+                            dictionary["device_id"] = (request as MediaRelatedExternalRequest).m_sDeviceID;
+                        }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["device_id"] = (request as MediaSearchExternalRequest).m_sDeviceID;
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.DeviceType:
+                    case ExternalRecommendationEngineEnrichment.DeviceType:
 					{
-						dictionary["device_type"] = request.deviceType;
+                        if (request is ExternalChannelRequest)
+                        {
+                            dictionary["device_type"] = (request as ExternalChannelRequest).deviceType;
+                        }
+                        break;
+					}
+                    case ExternalRecommendationEngineEnrichment.UTCOffset:
+					{
+                        if (request is ExternalChannelRequest)
+                        {
+						    dictionary["utc_offset"] = (request as ExternalChannelRequest).utcOffset;
+                        }
+                        if (request is MediaRelatedExternalRequest)
+                        {
+                            dictionary["utc_offset"] = (request as MediaRelatedExternalRequest).m_nUtcOffset.ToString();
+                        }
+                        if (request is MediaSearchExternalRequest)
+                        {
+                            dictionary["utc_offset"] = (request as MediaSearchExternalRequest).m_nUtcOffset.ToString();
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.UTCOffset:
-					{
-						dictionary["utc_offset"] = request.utcOffset;
-						break;
-					}
-					case ExternalChannelEnrichment.Language:
+                    case ExternalRecommendationEngineEnrichment.Language:
 					{
 						// If requested specific language - use it. Otherwise, group's default
 						LanguageObj objLang = null;
@@ -4987,27 +5014,35 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.NPVRSupport:
+                    case ExternalRecommendationEngineEnrichment.NPVRSupport:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.Catchup:
+                    case ExternalRecommendationEngineEnrichment.Catchup:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
-					case ExternalChannelEnrichment.Parental:
+                    case ExternalRecommendationEngineEnrichment.Parental:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
-
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 						break;
 					}
-					case ExternalChannelEnrichment.DTTRegion:
+                    case ExternalRecommendationEngineEnrichment.DTTRegion:
 					{
 						// External ID of region of current domain
 
@@ -5025,17 +5060,23 @@ namespace Catalog
 
 						break;
 					}
-					case ExternalChannelEnrichment.AtHome:
+                    case ExternalRecommendationEngineEnrichment.AtHome:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
 					default:
 					{
-						log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-							request.internalChannelID, (int)enrichment, enrichment.ToString());
+                        if (request is ExternalChannelRequest)
+                        {
+                            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                        }
 
 						break;
 					}
@@ -5091,6 +5132,12 @@ namespace Catalog
 			CatalogCache catalogCache = CatalogCache.Instance();
 
 			int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            if (string.IsNullOrEmpty(request.internalChannelID))
+            {
+                return new Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
+            }
+
 			int channelId = int.Parse(request.internalChannelID);
 
 			groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
@@ -5101,9 +5148,9 @@ namespace Catalog
 			int pageIndex = 0;
 			int pageSize = 0;
 
-			// If this is an automatic channel, a sliding window or we have an additional filter - 
+			// If this is a manual channel, a sliding window or we have an additional filter - 
 			// the initial search will not be paged. Paging will be done later on
-			if (channel.m_nChannelTypeID == 2 || ChannelRequest.IsSlidingWindow(channel) || !string.IsNullOrEmpty(request.filterQuery))
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel) || !string.IsNullOrEmpty(request.filterQuery))
 			{
 				pageIndex = unifiedSearchDefinitions.pageIndex;
 				pageSize = unifiedSearchDefinitions.pageSize;
@@ -5161,9 +5208,9 @@ namespace Catalog
 
 			#endregion
 
-			#region Channel Type 2
+			#region Channel Type - Manual
 
-			if (channel.m_nChannelTypeID == 2)
+			if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
 			{
 				ChannelRequest.OrderMediasByOrderNum(ref assetIDs, channel, unifiedSearchDefinitions.order);
 
@@ -5211,8 +5258,479 @@ namespace Catalog
 			return status;
 		}
 
-		private static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
-		{
+        internal static Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        {
+            // Set default values for out parameters
+            totalItems = 0;
+            searchResults = new List<UnifiedSearchResult>();
+
+            Status status = null;
+
+            Group group = null;
+
+            // Get group and channel objects from cache/DB
+            GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+
+            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+
+            group = groupManager.GetGroup(parentGroupID);
+
+            // Build search object
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildRelatedObject(request, group);
+
+            int pageIndex = request.m_nPageIndex;
+            int pageSize = request.m_nPageSize;
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher == null)
+            {
+                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+            }
+
+            // Perform initial search of channel
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+
+            if (searchResults == null)
+            {
+                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+            }
+
+            List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
+
+            if (assetIDs == null)
+            {
+                searchResults = null;
+                totalItems = 0;
+                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+            }
+
+            status = new Status((int)eResponseStatus.OK);
+
+            return status;
+        }
+
+        private static UnifiedSearchDefinitions BuildRelatedObject(MediaRelatedRequest request, Group group)
+        {
+            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            definitions.shouldSearchEpg = true;
+            definitions.shouldSearchMedia = true;
+
+            Filter filter = new Filter();
+
+            bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+
+            MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
+
+            #region Basic
+
+            definitions.groupId = request.m_nGroupID;
+            definitions.indexGroupId = group.m_nParentGroupID;
+
+            definitions.pageIndex = request.m_nPageIndex;
+            definitions.pageSize = request.m_nPageSize;
+
+            #endregion
+
+            #region Device Rules
+
+            int[] deviceRules = null;
+
+            if (request.m_oFilter != null)
+            {
+                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+            }
+
+            definitions.deviceRuleId = deviceRules;
+
+            #endregion
+
+            #region Media Types, Permitted Watch Rules, Language
+
+
+            definitions.mediaTypes = request.m_nMediaTypes;
+
+            if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
+            {
+                definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
+            }
+
+            definitions.langauge = group.GetGroupDefaultLanguage();
+
+            #endregion
+
+            #region Request Filter Object
+
+            if (request.m_oFilter != null)
+            {
+                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
+                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
+            }
+
+            #endregion
+
+            #region Tags & Metas
+
+            eCutType cutType = eCutType.Or;
+
+            BooleanPhrase phrase = null;
+
+            List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>();
+
+            if (mediaSearchRequest.m_lTags != null && mediaSearchRequest.m_lTags.Count > 0)
+            {
+                foreach (KeyValue keyValue in mediaSearchRequest.m_lTags)
+                {
+                    if (!string.IsNullOrEmpty(keyValue.m_sKey))
+                    {
+                        string key = keyValue.m_sKey;
+                        string value = keyValue.m_sValue;
+
+                        BooleanLeaf leaf = new BooleanLeaf("media.tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        nodes.Add(leaf);
+                    }
+                }
+            }
+
+            if (mediaSearchRequest.m_lMetas != null && mediaSearchRequest.m_lMetas.Count > 0)
+            {
+                foreach (KeyValue keyValue in mediaSearchRequest.m_lMetas)
+                {
+                    if (!string.IsNullOrEmpty(keyValue.m_sKey))
+                    {
+                        string key = keyValue.m_sKey;
+                        string value = keyValue.m_sValue;
+
+                        BooleanLeaf leaf = new BooleanLeaf("media.metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        nodes.Add(leaf);
+                    }
+                }
+            }
+
+            phrase = new BooleanPhrase(nodes, cutType);
+
+            // Connect the request's filter query with the channel's tags/metas definitions
+
+            BooleanPhraseNode root = null;
+
+            if (!string.IsNullOrEmpty(request.m_sFilter))
+            {
+                string filterExpression = HttpUtility.HtmlDecode(request.m_sFilter).ToLower();
+
+                // Build boolean phrase tree based on filter expression
+                BooleanPhraseNode filterTree = null;
+                var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(status.Message, status.Code);
+                }
+
+                // Add prefixes, check if non start/end date exist
+                #region Phrase Tree
+
+                if (group != null)
+                {
+                    Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
+                    int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+                    List<int> geoBlockRules = null;
+                    Dictionary<string, List<string>> mediaParentalRulesTags = null;
+                    Dictionary<string, List<string>> epgParentalRulesTags = null;
+                    HashSet<string> reservedStringFields = new HashSet<string>()
+		            {
+			            "name",
+			            "description",
+			            "epg_channel_id"
+		            };
+
+                    HashSet<string> reservedNumericFields = new HashSet<string>()
+		            {
+			            "like_counter",
+			            "views",
+			            "rating",
+			            "votes"
+		            };
+
+                    Queue<BooleanPhraseNode> nodesQ = new Queue<BooleanPhraseNode>();
+                    nodesQ.Enqueue(filterTree);
+
+                    // BFS
+                    while (nodesQ.Count > 0)
+                    {
+                        BooleanPhraseNode node = nodesQ.Dequeue();
+
+                        // If it is a leaf, just replace the field name
+                        if (node.type == BooleanNodeType.Leaf)
+                        {
+                            TreatLeaf(request, ref filterTree, definitions, ref group, maxNGram, ref geoBlockRules, ref mediaParentalRulesTags, ref epgParentalRulesTags, reservedStringFields, reservedNumericFields, parentMapping, node);
+                        }
+                        else if (node.type == BooleanNodeType.Parent)
+                        {
+                            BooleanPhrase bPhrase = node as BooleanPhrase;
+
+                            // Run on tree - enqueue all child nodes to continue going deeper
+                            foreach (var childNode in bPhrase.nodes)
+                            {
+                                nodesQ.Enqueue(childNode);
+                                parentMapping.Add(childNode, bPhrase);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                if (phrase != null)
+                {
+                    List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+
+                    rootNodes.Add(phrase);
+                    rootNodes.Add(filterTree);
+
+                    root = new BooleanPhrase(rootNodes, eCutType.And);
+                }
+                else
+                {
+                    root = filterTree;
+                }
+            }
+            else
+            {
+                root = phrase;
+            }
+
+            definitions.filterPhrase = root;
+
+            #endregion
+
+            return definitions;
+        }
+
+        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, ref Group group, int maxNGram, ref List<int> geoBlockRules, ref Dictionary<string, List<string>> mediaParentalRulesTags, ref Dictionary<string, List<string>> epgParentalRulesTags, HashSet<string> reservedStringFields, HashSet<string> reservedNumericFields, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanPhraseNode node)
+        {
+            BooleanLeaf leaf = node as BooleanLeaf;
+            bool isTagOrMeta;
+
+            // Add prefix (meta/tag) e.g. metas.{key}
+
+            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, ref group, out isTagOrMeta);
+
+            if (searchKeys.Count > 1)
+            {
+                if (isTagOrMeta)
+                {
+                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
+
+                    // Split the single leaf into several brothers connected with an "or" operand
+                    foreach (var searchKey in searchKeys)
+                    {
+                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
+                    }
+
+                    BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
+
+                    Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                }
+            }
+            else if (searchKeys.Count == 1)
+            {
+                string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
+                string originalKey = leaf.field;
+
+                // Default - string, until proved otherwise
+                leaf.valueType = typeof(string);
+
+                // If this is a tag or a meta, we can continue happily.
+                // If not, we check if it is one of the "core" fields.
+                // If it is not one of them, an exception will be thrown
+                if (!isTagOrMeta)
+                {
+                    // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
+                    if (searchKeyLowered == "start_date")
+                    {
+                        definitions.defaultStartDate = false;
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "end_date")
+                    {
+                        definitions.defaultEndDate = false;
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "update_date")
+                    {
+                        leaf.valueType = typeof(DateTime);
+
+                        long epoch = Convert.ToInt64(leaf.value);
+
+                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                    }
+                    else if (searchKeyLowered == "geo_block")
+                    {
+                        // geo_block is a personal filter that currently will work only with "true".
+                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                        {
+                            if (geoBlockRules == null)
+                            {
+                                geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
+                            }
+
+                            BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
+                            BooleanLeaf newLeaf =
+                                new BooleanLeaf("geo_block_rule_id",
+                                    geoBlockRules.Select(id => id.ToString()).ToList(),
+                                    typeof(List<string>), ComparisonOperator.In);
+
+                            BooleanPhrase newPhrase = new BooleanPhrase(
+                                new List<BooleanPhraseNode>()
+												{
+													mediaTypeCondition, 
+													newLeaf
+												},
+                                eCutType.And);
+
+                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                        }
+                        else
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+                    else if (searchKeyLowered == "parental_rules")
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                        {
+                            if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
+                            {
+                                Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
+                                    out mediaParentalRulesTags, out epgParentalRulesTags);
+                            }
+
+                            List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
+                            List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
+
+                            newMediaNodes.Add(new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix));
+
+                            // Run on all tags and their values
+                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                            {
+                                // Create a Not-in leaf for each of the tags
+                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Value,
+                                    typeof(List<string>),
+                                    ComparisonOperator.NotIn);
+
+                                newMediaNodes.Add(newLeaf);
+                            }
+
+                            newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
+
+                            // Run on all tags and their values
+                            foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
+                            {
+                                // Create a Not-in leaf for each of the tags
+                                BooleanLeaf newLeaf = new BooleanLeaf(
+                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Value,
+                                    typeof(List<string>),
+                                    ComparisonOperator.NotIn);
+
+                                newEpgNodes.Add(newLeaf);
+                            }
+
+                            // connect all tags with AND
+                            BooleanPhrase newMediaPhrase = new BooleanPhrase(newMediaNodes, eCutType.And);
+                            BooleanPhrase newEpgPhrase = new BooleanPhrase(newEpgNodes, eCutType.And);
+
+                            // connect media and epg with OR
+                            List<BooleanPhraseNode> newOrNodes = new List<BooleanPhraseNode>();
+                            newOrNodes.Add(newMediaPhrase);
+                            newOrNodes.Add(newEpgPhrase);
+
+                            BooleanPhrase orPhrase = new BooleanPhrase(newOrNodes, eCutType.Or);
+
+                            // Replace the original leaf (parental_rules='true') with the new phrase
+                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, orPhrase);
+                        }
+                        else
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+                    else if (reservedNumericFields.Contains(searchKeyLowered))
+                    {
+                        leaf.valueType = typeof(long);
+                    }
+                    else if (!reservedStringFields.Contains(searchKeyLowered))
+                    {
+                        throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
+                    }
+                }
+
+                leaf.field = searchKeys.FirstOrDefault();
+
+                #region IN operator
+
+                // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
+                if (leaf.operand == ComparisonOperator.In || leaf.operand == ComparisonOperator.NotIn &&
+                    leaf.valueType != typeof(List<string>))
+                {
+                    leaf.valueType = typeof(List<string>);
+                    string value = leaf.value.ToString().ToLower();
+
+                    string[] values = value.Split(',');
+
+                    // If there are 
+                    if (values.Length == 0)
+                    {
+                        throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
+                    }
+
+                    foreach (var single in values)
+                    {
+                        int temporaryInteger;
+
+                        if (!int.TryParse(single, out temporaryInteger))
+                        {
+                            throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey),
+                                (int)eResponseStatus.SyntaxError);
+                        }
+                    }
+
+                    // Put new list of strings in boolean leaf
+                    leaf.value = values.ToList();
+                }
+
+                #endregion
+
+            }
+
+            #region Trim search value
+
+            // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
+            // Otherwise the search will not work completely 
+            if (maxNGram > 0 &&
+                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains
+                || leaf.operand == ComparisonOperator.WordStartsWith))
+            {
+                leaf.value = leaf.value.ToString().Truncate(maxNGram);
+            }
+
+            #endregion
+        }
+
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
+        {
 			UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
 			#region Basic
@@ -5239,7 +5757,6 @@ namespace Catalog
 			#endregion
 
 			#region Media Types, Permitted Watch Rules, Language
-
 
 			definitions.mediaTypes = channel.m_nMediaType.ToList();
 
@@ -5282,116 +5799,175 @@ namespace Catalog
 
 			#endregion
 
-			#region Channel Tags
+            // If this is a KSQL channel
+            if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+            {
+                BooleanPhraseNode filterTree = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
 
-			eCutType cutType = eCutType.And;
-			switch (channel.m_eCutWith)
-			{
-				case CutWith.WCF_ONLY_DEFAULT_VALUE:
-				break;
-				case CutWith.OR:
-				{
-					cutType = eCutType.Or;
-					break;
-				}
-				case CutWith.AND:
-				{
-					cutType = eCutType.And;
-					break;
-				}
-				default:
-				break;
-			}
+                if (parseStatus.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
+                }
+                else
+                {
+                    definitions.filterPhrase = filterTree;
+                }
 
-			BooleanPhrase channelTags = null;
+                #region Asset Types
 
-			if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
-			{
-				List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
+                definitions.shouldSearchEpg = false;
+                definitions.shouldSearchMedia = false;
 
-				foreach (SearchValue searchValue in channel.m_lChannelTags)
-				{
-					if (!string.IsNullOrEmpty(searchValue.m_sKey))
-					{
-						eCutType innerCutType = eCutType.And;
-						switch (channel.m_eCutWith)
-						{
-							case CutWith.WCF_ONLY_DEFAULT_VALUE:
-							break;
-							case CutWith.OR:
-							{
-								innerCutType = eCutType.Or;
-								break;
-							}
-							case CutWith.AND:
-							{
-								innerCutType = eCutType.And;
-								break;
-							}
-							default:
-							break;
-						}
+                // Special case - if no type was specified or "All" is contained, search all types
+                if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
+                    (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
+                {
+                    definitions.shouldSearchEpg = true;
+                    definitions.shouldSearchMedia = true;
+                }
+                
+                if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
+                {
+                    definitions.shouldSearchEpg = true;
+                }
 
-						List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
-						string key = searchValue.m_sKey;
+                // If there are items left in media types after removing 0, we are searching for media
+                if (definitions.mediaTypes.Count > 0)
+                {
+                    definitions.shouldSearchMedia = true;
+                }
 
-						if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
-						{
-							key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
-						}
+                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
 
-						foreach (var item in searchValue.m_lValue)
-						{
-							BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
-							innerNodes.Add(leaf);
-						}
+                // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+                foreach (var mediaType in definitions.mediaTypes)
+                {
+                    // If one of them doesn't exist, throw an exception that says the request is bad
+                    if (!mediaTypes.Contains(mediaType))
+                    {
+                        throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
+                    }
+                }
 
-						BooleanPhrase currentPhrase = new BooleanPhrase(innerNodes, innerCutType);
-					}
-				}
+                #endregion
+            }
+            else
+            {
+                definitions.shouldSearchMedia = true;
 
-				channelTags = new BooleanPhrase(channelTagsNodes, cutType);
-			}
+                #region Channel Tags
 
-			// Connect the request's filter query with the channel's tags/metas definitions
+                eCutType cutType = eCutType.And;
+                switch (channel.m_eCutWith)
+                {
+                    case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                    break;
+                    case CutWith.OR:
+                    {
+                        cutType = eCutType.Or;
+                        break;
+                    }
+                    case CutWith.AND:
+                    {
+                        cutType = eCutType.And;
+                        break;
+                    }
+                    default:
+                    break;
+                }
 
-			BooleanPhraseNode root = null;
+                BooleanPhrase channelTags = null;
 
-			if (!string.IsNullOrEmpty(request.filterQuery))
-			{
-				string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
+                if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
+                {
+                    List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
 
-				// Build boolean phrase tree based on filter expression
-				BooleanPhraseNode filterTree = null;
-				var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+                    foreach (SearchValue searchValue in channel.m_lChannelTags)
+                    {
+                        if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                        {
+                            eCutType innerCutType = eCutType.And;
+                            switch (channel.m_eCutWith)
+                            {
+                                case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                                break;
+                                case CutWith.OR:
+                                {
+                                    innerCutType = eCutType.Or;
+                                    break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    innerCutType = eCutType.And;
+                                    break;
+                                }
+                                default:
+                                break;
+                            }
 
-				if (status.Code != (int)eResponseStatus.OK)
-				{
-					throw new KalturaException(status.Message, status.Code);
-				}
+                            List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
+                            string key = searchValue.m_sKey;
 
-				if (channelTags != null)
-				{
-					List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+                            if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
+                            {
+                                key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
+                            }
 
-					rootNodes.Add(channelTags);
-					rootNodes.Add(filterTree);
+                            foreach (var item in searchValue.m_lValue)
+                            {
+                                BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
+                                innerNodes.Add(leaf);
+                            }
 
-					root = new BooleanPhrase(rootNodes, eCutType.And);
-				}
-				else
-				{
-					root = filterTree;
-				}
-			}
-			else
-			{
-				root = channelTags;
-			}
+                            BooleanPhrase currentPhrase = new BooleanPhrase(innerNodes, innerCutType);
+                        }
+                    }
 
-			definitions.filterPhrase = root;
+                    channelTags = new BooleanPhrase(channelTagsNodes, cutType);
+                }
 
-			#endregion
+                // Connect the request's filter query with the channel's tags/metas definitions
+
+                BooleanPhraseNode root = null;
+
+                if (!string.IsNullOrEmpty(request.filterQuery))
+                {
+                    string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
+
+                    // Build boolean phrase tree based on filter expression
+                    BooleanPhraseNode filterTree = null;
+                    var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new KalturaException(status.Message, status.Code);
+                    }
+
+                    if (channelTags != null)
+                    {
+                        List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+
+                        rootNodes.Add(channelTags);
+                        rootNodes.Add(filterTree);
+
+                        root = new BooleanPhrase(rootNodes, eCutType.And);
+                    }
+                    else
+                    {
+                        root = filterTree;
+                    }
+                }
+                else
+                {
+                    root = channelTags;
+                }
+
+                definitions.filterPhrase = root;
+
+                #endregion
+            }
+
 
 			#region Regions and associations
 
@@ -5410,6 +5986,28 @@ namespace Catalog
 
 			return definitions;
 		}
+
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group)
+        {
+            InternalChannelRequest channelRequest = new InternalChannelRequest(
+                channel.m_nChannelID.ToString(),
+                string.Empty,
+                group.m_nParentGroupID,
+                request.m_nPageSize,
+                request.m_nPageIndex,
+                request.m_sUserIP,
+                request.m_sSignature,
+                request.m_sSignString,
+                request.m_oFilter,
+                string.Empty,
+                new OrderObj()
+                {
+                    
+                }
+                );
+
+            return BuildInternalChannelSearchObject(channel, channelRequest, group);
+        }
 
 		private static MediaSearchObj BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, int groupId, LanguageObj languageObj, List<string> lPermittedWatchRules)
 		{

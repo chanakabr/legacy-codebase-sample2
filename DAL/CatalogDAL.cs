@@ -81,7 +81,7 @@ namespace Tvinci.Core.DAL
 
             return ds;
         }
-
+        
         public static DataTable Get_ChannelBaseData(int nGroupID, int nChannelID)
         {
             ODBCWrapper.StoredProcedure spChannelBaseData = new ODBCWrapper.StoredProcedure("Get_ChannelBaseData");
@@ -727,7 +727,6 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetChannelDetails(List<int> nChannelId)
         {
-
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@ChannelsID", nChannelId, "Id");
@@ -1454,7 +1453,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@MediaId", nMediaID);
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
                 DataRow row = ds.Tables[0].Rows[0];
                 result = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TYPE_ID");
@@ -2879,6 +2878,7 @@ namespace Tvinci.Core.DAL
                                 width = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
                                 height = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
                                 ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                                ratioId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ratio_id");
 
                                 EpgPicture picture = new EpgPicture();
                                 picture.Initialize(width, height, ratio, baseUrl);
@@ -3398,13 +3398,13 @@ namespace Tvinci.Core.DAL
                 {
                     result = SetExternalChannel(row);
 
-                    ExternalChannelEnrichment enrichments = (ExternalChannelEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
+                    ExternalRecommendationEngineEnrichment enrichments = (ExternalRecommendationEngineEnrichment)ODBCWrapper.Utils.ExtractInteger(row, "enrichments");
 
-                    foreach (var currentValue in Enum.GetValues(typeof(ExternalChannelEnrichment)))
+                    foreach (var currentValue in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
                     {
-                        if ((enrichments & (ExternalChannelEnrichment)currentValue) > 0)
+                        if ((enrichments & (ExternalRecommendationEngineEnrichment)currentValue) > 0)
                         {
-                            result.Enrichments.Add((ExternalChannelEnrichment)currentValue);
+                            result.Enrichments.Add((ExternalRecommendationEngineEnrichment)currentValue);
                         }
                     }
                 }
@@ -3538,9 +3538,9 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static List<ExternalChannelEnrichment> GetAvailableEnrichments()
+        public static List<ExternalRecommendationEngineEnrichment> GetAvailableEnrichments()
         {
-            List<ExternalChannelEnrichment> result = new List<ExternalChannelEnrichment>();
+            List<ExternalRecommendationEngineEnrichment> result = new List<ExternalRecommendationEngineEnrichment>();
 
             DataTable enrichmentsTable = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -3574,33 +3574,33 @@ namespace Tvinci.Core.DAL
 
                     if (value > 0)
                     {
-                        result.Add((ExternalChannelEnrichment)value);
+                        result.Add((ExternalRecommendationEngineEnrichment)value);
                     }
                 }
             }
 
             return result;
         }
-        private static int GetEnrichments(List<ExternalChannelEnrichment> list)
+        private static int GetEnrichments(List<ExternalRecommendationEngineEnrichment> list)
         {
             int enrichmentListValue = 0;
-            foreach (ExternalChannelEnrichment externalChannelEnrichment in list)
+            foreach (ExternalRecommendationEngineEnrichment ExternalRecommendationEngineEnrichment in list)
             {
-                enrichmentListValue += (int)externalChannelEnrichment;
+                enrichmentListValue += (int)ExternalRecommendationEngineEnrichment;
             }
 
             return enrichmentListValue;
         }
 
-        private static List<ExternalChannelEnrichment> SetEnrichments(int enrichmentListValue)
+        private static List<ExternalRecommendationEngineEnrichment> SetEnrichments(int enrichmentListValue)
         {
-            List<ExternalChannelEnrichment> list = new List<ExternalChannelEnrichment>();
+            List<ExternalRecommendationEngineEnrichment> list = new List<ExternalRecommendationEngineEnrichment>();
 
-            foreach (var value in Enum.GetValues(typeof(ExternalChannelEnrichment)))
+            foreach (var value in Enum.GetValues(typeof(ExternalRecommendationEngineEnrichment)))
             {
                 if (((int)value & enrichmentListValue) == (int)value)
                 {
-                    list.Add((ExternalChannelEnrichment)value);
+                    list.Add((ExternalRecommendationEngineEnrichment)value);
                 }
             }
 
@@ -3608,11 +3608,17 @@ namespace Tvinci.Core.DAL
         }
         #endregion
 
-        public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine)
+        public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine,
+                                                     out int RelatedRecommendationEngine, out int SearchRecommendationEngine, 
+                                                     out int RelatedRecommendationEngineEnrichments, out int SearchRecommendationEngineEnrichments)
         {
             isRegionalizationEnabled = false;
             defaultRegion = 0;
             defaultRecommendationEngine = 0;
+            RelatedRecommendationEngine = 0;
+            RelatedRecommendationEngineEnrichments = 0;
+            SearchRecommendationEngine = 0;
+            SearchRecommendationEngineEnrichments = 0;
 
             // Call stored procedure that checks if this group has regionalization or not
             ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultParameters");
@@ -3632,6 +3638,10 @@ namespace Tvinci.Core.DAL
                     isRegionalizationEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "is_regionalization_enabled");
                     defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
                     defaultRecommendationEngine = ODBCWrapper.Utils.ExtractInteger(groupRow, "SELECTED_RECOMMENDATION_ENGINE");
+                    RelatedRecommendationEngine = ODBCWrapper.Utils.ExtractInteger(groupRow, "RELATED_RECOMMENDATION_ENGINE");
+                    RelatedRecommendationEngineEnrichments = ODBCWrapper.Utils.ExtractInteger(groupRow, "RELATED_RECOMMENDATION_ENGINE_ENRICHMENTS");
+                    SearchRecommendationEngine = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE");
+                    SearchRecommendationEngineEnrichments = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE_ENRICHMENTS");
                 }
             }
         }

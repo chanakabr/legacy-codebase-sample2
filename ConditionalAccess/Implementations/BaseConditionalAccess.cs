@@ -2646,7 +2646,7 @@ namespace ConditionalAccess
 
                             string sReciept = ret.m_oBillingResponse.m_sRecieptCode;
 
-                            if (string.IsNullOrEmpty(sReciept))
+                            if (!string.IsNullOrEmpty(sReciept))
                             {
                                 Int32 nID = int.Parse(sReciept);
                                 updateQuery = new ODBCWrapper.UpdateQuery("billing_transactions");

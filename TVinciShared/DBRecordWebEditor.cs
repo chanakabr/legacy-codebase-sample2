@@ -2276,11 +2276,14 @@ namespace TVinciShared
     {
         private string m_functionName;
         private string m_sFieldType;
+        private string className;
+
         public DataRecordBrowserField(string functionName)
             : base()
         {
             m_functionName = functionName;
             m_sFieldType = "browser";
+            className = "btn_mediaTypes";
         }
 
         public DataRecordBrowserField(string functionName, string lastPage)
@@ -2288,9 +2291,13 @@ namespace TVinciShared
         {
             m_functionName = functionName;
             m_sFieldType = "browser";
+            className = "btn_mediaTypes";
         }
 
-      
+        public void SetClassName(string className)
+        {
+            this.className = className;
+        }
 
         public override string GetFieldHtml(long nID)
         {
@@ -2328,7 +2335,7 @@ namespace TVinciShared
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
 
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_mediaTypes\" onclick=\"" + m_functionName + "('" + nID.ToString() + "_val' , '" + base.getLastPageName() + "');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"" + className + "\" onclick=\"" + m_functionName + "('" + nID.ToString() + "_val' , '" + base.getLastPageName() + "');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='" + m_sFieldType + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";

@@ -103,6 +103,11 @@ namespace Users
         internal abstract void MidGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
         public abstract void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
 
+        // delete user
+        public abstract ApiObjects.Response.Status PreDeleteUser(int siteGuid);
+        internal abstract ApiObjects.Response.Status MidDeleteUser(int siteGuid);
+        public abstract void PostDeleteUser(ref ApiObjects.Response.Status response);
+
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
 

@@ -283,6 +283,7 @@ namespace Catalog
 
         #endregion
 
+        #region ISearcher Methods
 
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems)
         {
@@ -293,5 +294,17 @@ namespace Catalog
         {
             throw new NotImplementedException();
         }
+
+        public List<UnifiedSearchResult> MultipleUnifiedSearch(int groupId, List<UnifiedSearchDefinitions> unifiedSearchDefinitions, ref int totalItems)
+        {
+            throw new NotImplementedException();
+        }
+        public List<UnifiedSearchResult> SearchSubscriptionAssets(int subscriptionGroupId, List<BaseSearchObject> searchObjects, int languageId, bool useStartDate,
+            string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems)
+        {
+            throw new NotImplementedException();
+        } 
+
+        #endregion
     }
 }
