@@ -396,16 +396,22 @@ namespace GroupsCacheManager
 
                     if (temporaryCahnnel != null)
                     {
+                        resultChannel = temporaryCahnnel;
+
                         for (int i = 0; i < 3 && !wasInserted; i++)
                         {
                             //try insert to cache
                             wasInserted = this.groupCacheService.SetJson<Channel>(cacheKey, temporaryCahnnel, dCacheTT);
-
-                            if (wasInserted)
-                            {
-                                resultChannel = temporaryCahnnel;
-                            }
                         }
+
+                        if (!wasInserted)
+                        {
+                            log.DebugFormat("Couldn't set channel in CB channel id = {0}, group = {1}, key = {2}", channelId, group.m_nParentGroupID, cacheKey);
+                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat("channel is null (DB) channel id = {0}, group = {1}", channelId, group.m_nParentGroupID);
                     }
                 }
 
