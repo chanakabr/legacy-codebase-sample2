@@ -44,7 +44,7 @@ namespace TVPPro.SiteManager.Helper
                         oRow.ID = media.AssetId;
                         oRow.Title = media.m_sName;
                         oRow.Name = media.m_sName;
-                        if(!string.IsNullOrEmpty(picSize))
+                        if (!string.IsNullOrEmpty(picSize))
                             oRow.ImageLink = (from pic in media.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
                         oRow.MediaType = media.m_oMediaType.m_sTypeName;
                         oRow.MediaTypeID = media.m_oMediaType.m_nTypeID.ToString();
@@ -61,7 +61,7 @@ namespace TVPPro.SiteManager.Helper
                         oRow.Likes = media.m_nLikeCounter.ToString();
 
                         oRow.CatalogStartDate = media.m_dCatalogStartDate;
-                        
+
                         //EntryId
                         oRow.EntryId = media.EntryId;
 
@@ -203,6 +203,11 @@ namespace TVPPro.SiteManager.Helper
                                 rowPic.ID = media.AssetId;
                                 rowPic.PicSize = pic.m_sSize;
                                 rowPic.URL = pic.m_sURL;
+                                rowPic.ImageId = pic.id;
+                                rowPic.Version = pic.version.ToString();
+                                rowPic.Ratio = pic.ratio;
+                               
+
                                 retVal.Pictures.AddPicturesRow(rowPic);
                             }
                         }
@@ -212,7 +217,7 @@ namespace TVPPro.SiteManager.Helper
             }
             return retVal;
         }
-        
+
         public static OrderDir GetCatalogOrderDirection(TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection orderDir)
         {
             OrderDir retVal;
@@ -341,7 +346,7 @@ namespace TVPPro.SiteManager.Helper
         public static string IDsToString(List<int> ids, string type)
         {
             StringBuilder retVal = new StringBuilder();
-            if (ids != null &&  ids.Count > 0)
+            if (ids != null && ids.Count > 0)
             {
                 retVal.AppendFormat("{0}:", type);
 
