@@ -382,7 +382,6 @@ namespace GroupsCacheManager
             try
             {
                 string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
-                Logger.Logger.Log("GetChannel", string.Format("Channel id = {0}, group = {1}, key = {2}", channelId, group.m_nParentGroupID, cacheKey), "GroupsCacheManager");
 
                 if (!this.channelsCache.GetJsonAsT<Channel>(cacheKey, out resultChannel))
                 {
@@ -398,21 +397,16 @@ namespace GroupsCacheManager
                         {
                             //try insert to cache
                             wasInserted = this.groupCacheService.SetJson<Channel>(cacheKey, temporaryCahnnel, dCacheTT);
-
-                            if (wasInserted)
-                            {
-                                resultChannel = temporaryCahnnel;
-                            }
                         }
 
                         if (!wasInserted)
                         {
-                            Logger.Logger.Log("Couldn't set channel in CB", string.Format("channel id = {0}, group = {1}, key = {2}", channelId, group.m_nParentGroupID, cacheKey), "GroupsCacheManager");
+                            log.DebugFormat("Couldn't set channel in CB channel id = {0}, group = {1}, key = {2}", channelId, group.m_nParentGroupID, cacheKey);
                         }
                     }
                     else
                     {
-                        Logger.Logger.Log("channel is null (DB)", string.Format("channel id = {0}, group = {1}", channelId, group.m_nParentGroupID), "GroupsCacheManager");
+                        log.DebugFormat("channel is null (DB) channel id = {0}, group = {1}", channelId, group.m_nParentGroupID);
                     }
                 }
 
