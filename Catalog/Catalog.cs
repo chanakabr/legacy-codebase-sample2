@@ -5941,6 +5941,8 @@ namespace Catalog
                 #endregion
             }
 
+            // Get days offset for EPG search from TCM
+            definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
 
 			#region Regions and associations
 
