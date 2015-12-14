@@ -431,6 +431,8 @@ namespace TVinciShared
                 bool bFirst = true;
                 while (iter.MoveNext())
                 {
+                    string[] splitted = iter.Value.ToString().Split('|');
+
                     if (bFirst == true)
                         sTemp.Append("<table width=100%><tr><td width=100% nowrap><table width=100% align=right><tr>");
                     bFirst = false;
@@ -458,27 +460,45 @@ namespace TVinciShared
 
                         //sTemp += "').className='subcategorymenu';this.className='categorymenu_outer';\"";
                         sTemp.Append(" onclick=\"location.href='");
-                        sTemp.Append(iter.Value.ToString().Split('|')[1].ToString());
+                        sTemp.Append(splitted[1].ToString());
                         sTemp.Append("';\">");
                         sTemp.Append("&nbsp;&nbsp;");
 
                         sTemp.Append("<a id='submenu_");
                         sTemp.Append(iter.Key.ToString());
-                        if (iter.Value.ToString().Split('|')[0].ToString() == "Add A.Channel")
+
+                        if (splitted[0] == "Add A.Channel")
+                        {
                             sTemp.Append("' class=btn_a_channel href='");
-                        else if (iter.Value.ToString().Split('|')[0].ToString() == "Add M.Channel")
+                        }
+                        else if (splitted[0] == "Add M.Channel")
+                        {
                             sTemp.Append("' class=btn_m_channel href='");
+                        }
+                        else if (splitted[0] == "Add KSQL.Channel")
+                        {
+                            sTemp.Append("' class=btn_ksql_channel href='");
+                        }
                         else
+                        {
                             sTemp.Append("' class=btn href='");
+                        }
                     }
-                    sTemp.Append(iter.Value.ToString().Split('|')[1].ToString());
+                    sTemp.Append(splitted[1].ToString());
+
                     sTemp.Append("'>");
-                    if (iter.Value.ToString().Split('|')[0].ToString() != "Add A.Channel" &&
-                        iter.Value.ToString().Split('|')[0].ToString() != "Add M.Channel")
-                        sTemp.Append(iter.Value.ToString().Split('|')[0].ToString());
+
+                    if (splitted[0] != "Add A.Channel" &&
+                        splitted[0] != "Add M.Channel" &&
+                        splitted[0] != "Add KSQL.Channel")
+                    {
+                        sTemp.Append(splitted[0]);
+                    }
+
                     sTemp.Append("</a>&nbsp;&nbsp;</td>");
                     i++;
                 }
+
                 sTemp.Append("<td width=100% nowrap></td></tr></table></td></tr>");
 
                 if (nCount > 0)

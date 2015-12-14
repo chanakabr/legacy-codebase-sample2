@@ -14,7 +14,7 @@ namespace Catalog.Request
 {
     [Serializable]
     [DataContract]
-    public class ExternalChannelRequest : UnifiedChannelRequest
+    public class ExternalChannelRequest : BaseChannelRequest
     {
         #region Data Members
 
@@ -51,7 +51,7 @@ namespace Catalog.Request
 
             try
             {
-                UnifiedChannelRequest request = baseRequest as UnifiedChannelRequest;
+                BaseChannelRequest request = baseRequest as BaseChannelRequest;
 
                 if (request == null)
                 {
@@ -144,7 +144,7 @@ namespace Catalog.Request
             return response;
         }
 
-        protected virtual Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
+        protected virtual Status GetAssets(BaseChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out string requestId)
         {
             ExternalChannelRequest externalRequest = request as ExternalChannelRequest;
 

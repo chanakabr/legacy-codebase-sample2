@@ -423,7 +423,6 @@ namespace DAL
         }
 
 
-
         public static DataSet Get_ChannelMediaTypes(int groupID, int channelID)
         {
             StoredProcedure sp = new StoredProcedure("Get_ChannelMediaTypes");
@@ -435,6 +434,15 @@ namespace DAL
 
         }
 
+        public static DataSet Get_ChannelAssetTypes(int groupID, int channelID)
+        {
+            StoredProcedure storedProcedure = new StoredProcedure("Get_ChannelAssetTypes");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupID);
+            storedProcedure.AddParameter("@ChannelID", channelID);
+
+            return storedProcedure.ExecuteDataSet();
+        }
 
         public static DataTable GetChannelMediaType(int groupID, int channelID, int mediaTypeID)
         {
@@ -463,6 +471,20 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+        public static bool UpdateChannelAssetType(int channelAssetTypeID, int status, int groupID, int channelID)
+        {
+            return UpdateChannelMediaType(channelAssetTypeID, status, groupID, channelID);
+
+            //StoredProcedure sp = new StoredProcedure("UpdateChannelAssetType");
+            //sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            //sp.AddParameter("@GroupID", groupID);
+            //sp.AddParameter("@Status", status);
+            //sp.AddParameter("@channelAssetTypeID", channelAssetTypeID);
+            //sp.AddParameter("@channelID", channelID);
+
+            //return sp.ExecuteReturnValue<bool>();
+        }
+
         public static bool InsertChannelMediaType(int groupID, int channelID, List<int> mediaTypeIDs)
         {
             StoredProcedure sp = new StoredProcedure("InsertChannelMediaType");
@@ -473,6 +495,18 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
+
+        public static bool Insert_ChannelAssetType(int groupID, int channelID, List<int> assetTypeIDs)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_ChannelAssetType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@ChannelID", channelID);
+            sp.AddIDListParameter<int>("@AssetTypeID", assetTypeIDs, "Id");
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
 
         public static bool insertValueToLookupTable(DataTable dt)
         {

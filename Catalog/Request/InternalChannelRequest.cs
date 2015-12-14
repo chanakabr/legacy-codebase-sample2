@@ -10,7 +10,7 @@ namespace Catalog.Request
 {
     [Serializable]
     [DataContract]
-    public class InternalChannelRequest : UnifiedChannelRequest
+    public class InternalChannelRequest : BaseChannelRequest
     {
         #region Data Members
 
@@ -33,7 +33,7 @@ namespace Catalog.Request
 
         #endregion
 
-        protected override ApiObjects.Response.Status GetAssets(UnifiedChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults)
+        protected override ApiObjects.Response.Status GetAssets(BaseChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults)
         {
             InternalChannelRequest internalRequest = request as InternalChannelRequest;
             

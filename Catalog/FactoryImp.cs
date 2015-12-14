@@ -73,6 +73,10 @@ namespace Catalog
             {
                 return new UserSocialMediasRequest();
             }
+            if (m_oBaseRequest is BundleAssetsRequest)
+            {
+                return new BundleAssetsRequest();
+            }
             if (m_oBaseRequest is BundleMediaRequest)
             {
                 return new BundleMediaRequest();
@@ -217,9 +221,9 @@ namespace Catalog
             {
                 return (ExternalChannelRequest)m_oBaseRequest;
             }
-            if (m_oBaseRequest is UnifiedChannelRequest)
+            if (m_oBaseRequest is BaseChannelRequest)
             {
-                return (UnifiedChannelRequest)m_oBaseRequest;
+                return (BaseChannelRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is InternalChannelRequest)
             {

@@ -137,15 +137,17 @@ namespace Catalog.Request
                             {
                                 if (searcher != null)
                                 {
-
                                     // Getting all medias in Bundle
-                                    SearchResultsObj oSearchResult = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
+                                    SearchResultsObj oSearchResult = null;
+                                        //searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, 
+                                        //request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
+                                        //request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
 
                                     if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
                                     {
+                                        bool exists = oSearchResult.m_resultIDs.Select(searchRes => searchRes.assetID).Any(searchMediaID => searchMediaID == m_nMediaID);
 
-                                        IList<int> mediaIDsInList = oSearchResult.m_resultIDs.Select(searchRes => searchRes.assetID).Where(searchMediaID => searchMediaID == m_nMediaID).ToList();
-                                        if (mediaIDsInList.Count > 0)
+                                        if (exists)
                                         {
                                             response.m_nTotalItems = 1;
                                             response.m_bContainsMedia = true;
@@ -165,6 +167,7 @@ namespace Catalog.Request
                     {
                         List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
                         bool bDoesMediaBelongToBundle = searcher.DoesMediaBelongToChannels(groupInCache.m_nParentGroupID, lChannelIDs, request.m_nMediaID);
+
                         if (bDoesMediaBelongToBundle)
                         {
                             response.m_bContainsMedia = true;

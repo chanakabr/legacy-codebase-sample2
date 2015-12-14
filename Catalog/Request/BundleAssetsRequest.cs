@@ -15,11 +15,12 @@ using GroupsCacheManager;
 using Catalog.Response;
 using KLogMonitor;
 using KlogMonitorHelper;
+using ApiObjects.Response;
 
 namespace Catalog.Request
 {
     [DataContract]
-    public class BundleMediaRequest : BaseRequest, IRequestImp
+    public class BundleAssetsRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -35,7 +36,7 @@ namespace Catalog.Request
         private const string SUB_DATA_TABLE = "subscriptions";
         private const string COL_DATA_TABLE = "collections";
 
-        public BundleMediaRequest()
+        public BundleAssetsRequest()
             : base()
         {
         }
@@ -44,30 +45,17 @@ namespace Catalog.Request
         {
             try
             {
-                BundleMediaRequest request = (BundleMediaRequest)oBaseRequest;
+                BundleAssetsRequest request = (BundleAssetsRequest)oBaseRequest;
                 List<SearchResult> lMedias = new List<SearchResult>();
-                MediaIdsResponse response = new MediaIdsResponse();
+                UnifiedSearchResponse response = new UnifiedSearchResponse();
+                response.status = new ApiObjects.Response.Status();
 
                 if (request == null || request.m_nBundleID == 0)
                     throw new Exception("request object is null or Required variables is null");
 
                 CheckSignature(request);
 
-                string dataTable = string.Empty;
-                switch (request.m_eBundleType)
-                {
-                    case eBundleType.SUBSCRIPTION:
-                    {
-                        dataTable = SUB_DATA_TABLE;
-                        break;
-                    }
-                    case eBundleType.COLLECTION:
-                    {
-                        dataTable = COL_DATA_TABLE;
-                        break;
-                    }
-                }
-
+                // Get group from cache
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
@@ -75,18 +63,20 @@ namespace Catalog.Request
 
                 if (groupInCache != null)
                 {
+                    // Get channel IDs of current bundle
                     List<int> channelIds = Catalog.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
                     List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
-
-
 
                     if (channelIds != null && channelIds.Count > 0)
                     {
                         if (allChannels.Count > 0)
                         {
                             string[] sMediaTypesFromRequest;
+
                             if (string.IsNullOrEmpty(request.m_sMediaType))
+                            {
                                 sMediaTypesFromRequest = new string[1] { "0" };
+                            }
                             else
                             {
                                 if (request.m_sMediaType.EndsWith(";"))
@@ -95,7 +85,6 @@ namespace Catalog.Request
                                 }
 
                                 sMediaTypesFromRequest = request.m_sMediaType.Split(';');
-
                             }
 
                             // save monitor and logs context data
@@ -103,12 +92,17 @@ namespace Catalog.Request
 
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
-                            int[] nDeviceRuleId = null;
+                            int[] deviceRuleIds = null;
+
                             if (request.m_oFilter != null)
-                                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                            {
+                                deviceRuleIds = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                            }
 
-                            MediaSearchObj[] arrChannelSearchObjects = new MediaSearchObj[allChannels.Count];
+                            List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
+                            BaseSearchObject[] searchObjectsArray = new BaseSearchObject[allChannels.Count];
+                            
                             // Building search object for each channel
                             for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
                             {
@@ -120,22 +114,34 @@ namespace Catalog.Request
 
                                          try
                                          {
-                                             int nChannelIndex = (int)obj;
+                                             int channelIndex = (int)obj;
 
                                              if (groupInCache != null)
                                              {
-                                                 GroupsCacheManager.Channel currentChannel = allChannels[nChannelIndex];
+                                                 GroupsCacheManager.Channel currentChannel = allChannels[channelIndex];
 
                                                  if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
                                                  {
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
-
-                                                     if ((currentChannel.m_nMediaType.ToString().Equals("0") || string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) && !(sMediaTypesFromRequest.Contains<string>("0")) && sMediaTypesFromRequest.Length > 0)
+                                                     if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                                                      {
-                                                         channelSearchObject.m_sMediaTypes = sMediaTypesFromRequest[0];
+                                                         UnifiedSearchDefinitions definitions = Catalog.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, this, groupInCache);
+
+                                                         searchObjectsArray[channelIndex] = definitions;
                                                      }
-                                                     channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
-                                                     arrChannelSearchObjects[nChannelIndex] = channelSearchObject;
+                                                     else
+                                                     {
+                                                         MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, 
+                                                             request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, deviceRuleIds, groupInCache.GetGroupDefaultLanguage());
+
+                                                         if ((currentChannel.m_nMediaType.ToString().Equals("0") || 
+                                                             string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) && 
+                                                             !(sMediaTypesFromRequest.Contains<string>("0")) && sMediaTypesFromRequest.Length > 0)
+                                                         {
+                                                             channelSearchObject.m_sMediaTypes = sMediaTypesFromRequest[0];
+                                                         }
+                                                         channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
+                                                         searchObjectsArray[channelIndex] = channelSearchObject;
+                                                     }
                                                  }
                                              }
                                          }
@@ -150,7 +156,7 @@ namespace Catalog.Request
                             //Wait for all parallel tasks to end
                             Task.WaitAll(channelsSearchObjectTasks);
 
-                            List<MediaSearchObj> channelsSearchObjects = arrChannelSearchObjects.ToList();
+                            searchObjectsList = searchObjectsArray.ToList();
 
                             for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
                             {
@@ -160,7 +166,7 @@ namespace Catalog.Request
                                 }
                             }
 
-                            if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
+                            if (searchObjectsList != null && searchObjectsList.Count > 0)
                             {
                                 try
                                 {
@@ -180,29 +186,22 @@ namespace Catalog.Request
                                             oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                                         }
 
+                                        int totalItems = 0;
+                                        var searchResults =
+                                            searcher.SearchSubscriptionAssets(request.m_nGroupID, 
+                                                searchObjectsList, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
+                                                request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize, ref totalItems);
 
-                                        // Getting all medias in bundle   
-                                        List<SearchResult> lMediaRes = null;
-                                        SearchResultsObj oSearchResults = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize);
-
-                                        if (oSearchResults != null)
+                                        if (searchResults != null)
                                         {
-                                            lMediaRes = Utils.GetMediaUpdateDate(oSearchResults.m_resultIDs);
-                                        }
-
-                                        if (lMediaRes != null && lMediaRes.Count > 0)
-                                        {
-                                            response.m_nMediaIds = new List<SearchResult>(lMediaRes);
-                                            response.m_nTotalItems = oSearchResults.n_TotalItems;
-                                        }
-                                        else
-                                        {
-                                            response.m_nMediaIds = null;
+                                            response.m_nTotalItems = totalItems;
+                                            response.searchResults = searchResults;
                                         }
                                     }
                                 }
                                 catch (Exception ex)
                                 {
+                                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Search bundle failed");
                                     log.Error(ex.Message);
                                 }
                             }
