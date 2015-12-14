@@ -885,6 +885,15 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(nDomainID);
             }
+
+            // if user was added successfully as master - set user role to be master
+            long roleId;
+
+            if (eDomainResponseStatus == DomainResponseStatus.OK && DAL.UsersDal.IsUserDomainMaster(nGroupID, nUserID))
+            {
+                long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+            }
+
             return eDomainResponseStatus;
         }
 

@@ -534,6 +534,31 @@ namespace Users
             //the save includes the initialization of  u.m_domianID
             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
 
+            // add role to user
+            if (nUserID > 0)
+            {
+                long roleId;
+
+                if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, nUserID))
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+                }
+                else
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId);
+                }
+
+                if (roleId != 0)
+                {
+                    DAL.UsersDal.Insert_UserRole(m_nGroupID, nUserID.ToString(), roleId);
+                }
+                else
+                {
+                    resp.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
+                    log.Error("User created with no role");
+                }
+            }
+
             if (u.m_domianID <= 0)
             {
                 bool bValidDomainStatus = CheckAddDomain(ref resp, u, oBasicData.m_sUserName, nUserID);

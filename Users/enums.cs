@@ -32,7 +32,8 @@ namespace Users
         UserWithNoDomain = 21,  
         InternalError = 999,
         LoginServerDown = 22,
-        UserSuspended = 23
+        UserSuspended = 23,
+        UserCreatedWithNoRole = 24
     }
 
     public enum UserAction

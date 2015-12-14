@@ -232,10 +232,36 @@ namespace Users
 
             // add domain
             if (newUser.m_domianID <= 0)
+            {
                 FlowManager.AddDomain(ref userResponse, this, newUser, basicData.m_sUserName, nUserID, domainInfo, keyValueList);
+            }
             else
                 userResponse.Initialize(ResponseStatus.OK, newUser);
 
+            // add role to user
+            if (userResponse.m_RespStatus == ResponseStatus.OK)
+            {
+                long roleId;
+
+                if (DAL.UsersDal.IsUserDomainMaster(GroupId, nUserID))
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+                }
+                else
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId);
+                }
+
+                if (roleId != 0)
+                {
+                    DAL.UsersDal.Insert_UserRole(GroupId, nUserID.ToString(), roleId);
+                }
+                else
+                {
+                    userResponse.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
+                    log.Error("User created with no role");
+                }
+            }
             // create default rules
             FlowManager.CreateDefaultRules(ref userResponse, this, newUser, newUser.m_sSiteGUID, GroupId, keyValueList);
 
