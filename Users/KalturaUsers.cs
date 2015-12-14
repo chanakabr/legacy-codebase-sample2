@@ -16,7 +16,7 @@ namespace Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string DEFAULT_USER_CANNOT_BE_DELETED = "Default user cannot be deleted";
-        private const string MASTER_USER_CANNOT_BE_DELETED = "Master user cannot be deleted";
+        private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";        
         private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
         private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
 
@@ -668,8 +668,8 @@ namespace Users
                 //Delete is not allowed if the user is in the master in the domain and there is only 1 master.
                 if (userDomain.m_masterGUIDs.Contains(userId) && userDomain.m_masterGUIDs.Count == 1)
                 {
-                    response.Code = (int)eResponseStatus.MasterUserCannotBeDeleted;
-                    response.Message = MASTER_USER_CANNOT_BE_DELETED;
+                    response.Code = (int)eResponseStatus.ExclusiveMasterUserCannotBeDeleted;
+                    response.Message = EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED;
                     return response;
                 }
 
