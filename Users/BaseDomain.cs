@@ -744,7 +744,7 @@ namespace Users
                 foreach (int userID in domain.m_UsersIDs)
                 {
                     // Remove Users
-                    usersCache.RemoveUser(userID);
+                    usersCache.RemoveUser(userID, m_nGroupID);
                 }
             }
 
@@ -796,7 +796,7 @@ namespace Users
                 foreach (int userID in domain.m_UsersIDs)
                 {
                     // Remove Users
-                    usersCache.RemoveUser(userID);
+                    usersCache.RemoveUser(userID, m_nGroupID);
                 }
             }
 
@@ -1079,7 +1079,7 @@ namespace Users
                     // try getting user from cache
                     User user = null;
                     UsersCache usersCache = UsersCache.Instance();
-                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid));                    
+                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid), m_nGroupID);                    
                     if (user != null)
                     {
                         domainID = user.m_domianID;
@@ -1322,7 +1322,7 @@ namespace Users
                 // try getting user from cache
                 User user = null;
                 UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(int.Parse(siteGuid));
+                user = usersCache.GetUser(int.Parse(siteGuid), groupId);
                 int domainId;
                 if (user != null)
                 {

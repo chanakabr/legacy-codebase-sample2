@@ -144,7 +144,7 @@ namespace DAL
             return updateRes;
         }
 
-        public static DataTable GetUserBasicData(long userID)
+        public static DataTable GetUserBasicData(long userID, int groupID)
         {
             try
             {
@@ -152,6 +152,7 @@ namespace DAL
                 spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 spGetUserBasicData.AddParameter("@userID", userID);
+                spGetUserBasicData.AddParameter("@groupID", groupID);
                 DataSet ds = spGetUserBasicData.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

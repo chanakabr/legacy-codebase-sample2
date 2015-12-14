@@ -43,7 +43,7 @@ namespace Users
         private ICachingService cache = null;
         private readonly double cacheTTL;
         private readonly bool shouldUseCache;
-        private string userKeyCache = "user_";        
+        private string userKeyCache = "user";        
         #endregion
 
         private static UsersCache instance = null;
@@ -88,14 +88,14 @@ namespace Users
         #region Public methods
 
         // try getting the user from the cache
-        internal User GetUser(int userID)
+        internal User GetUser(int userID, int groupID)
         {
             User userObject = null;
             try
             {
                 if (shouldUseCache)
                 {
-                    string sKey = string.Format("{0}{1}", userKeyCache, userID);
+                    string sKey = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
                     // try getting the userID from the cache, the result is not relevant since we return null if no user is found
                     bool isSuccess = this.cache.GetJsonAsT<User>(sKey, out userObject);
                 }
@@ -109,7 +109,7 @@ namespace Users
             }
         }
 
-        internal bool InsertUser(User user)
+        internal bool InsertUser(User user, int groupID)
         {
             bool isInsertSuccess = false;
             try
@@ -121,7 +121,7 @@ namespace Users
                         return false;
                     }
 
-                    string key = string.Format("{0}{1}", userKeyCache, user.m_sSiteGUID);
+                    string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, user.m_sSiteGUID);
 
                     //insert user to cache
                     for (int i = 0; i < 3 && !isInsertSuccess; i++)
@@ -149,14 +149,14 @@ namespace Users
             }
         }
 
-        internal bool RemoveUser(int userID)
+        internal bool RemoveUser(int userID, int groupID)
         {
             bool isRemoveSuccess = false;
             try
             {
                 if (shouldUseCache)
                 {
-                    string key = string.Format("{0}{1}", userKeyCache, userID);
+                    string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
 
                     //remove user from cache
                     for (int i = 0; i < 3 && !isRemoveSuccess; i++)

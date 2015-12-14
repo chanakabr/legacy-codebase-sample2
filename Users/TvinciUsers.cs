@@ -286,7 +286,7 @@ namespace Users
 
         public override UserState GetUserState(int siteGuid)
         {
-            return User.GetCurrentUserState(siteGuid);
+            return User.GetCurrentUserState(siteGuid, m_nGroupID);
         }
 
         public override UserState GetUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
@@ -581,7 +581,7 @@ namespace Users
                     u.m_domianID = dResp.m_oDomain.m_nDomainID;
                     //Remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(nUserID);
+                    usersCache.RemoveUser(nUserID, m_nGroupID);
                 }
 
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)

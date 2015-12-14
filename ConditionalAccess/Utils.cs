@@ -877,7 +877,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
         /// </summary>
-        internal struct UserBundlePurchase
+        public struct UserBundlePurchase
         {
             public string sBundleCode;
             public int nWaiver;
@@ -1701,281 +1701,7 @@ namespace ConditionalAccess
         internal static bool IsAnonymousUser(string siteGuid)
         {
             return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
-        }
-
-        //internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
-        //    string sCouponCode, Int32 nGroupID, bool bIsValidForPurchase, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
-        //    ref TvinciPricing.Collection relevantCol, ref TvinciPricing.PrePaidModule relevantPP, ref string sFirstDeviceNameFound,
-        //    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
-        //    List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
-        //    string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-        //    ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate)
-        //{
-        //    if (ppvModule == null)
-        //    {
-        //        theReason = PriceReason.Free;
-        //        return null;
-        //    }
-
-        //    int nDomainID = 0;
-        //    TvinciUsers.DomainSuspentionStatus suspendStat = TvinciUsers.DomainSuspentionStatus.OK;
-        //    if (IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref suspendStat) && suspendStat == TvinciUsers.DomainSuspentionStatus.Suspended)
-        //    {
-        //        theReason = PriceReason.UserSuspended;
-        //        return null;
-        //    }
-
-        //    theReason = PriceReason.UnKnown;
-        //    TvinciPricing.Price price = null;
-        //    Int32[] nMediaFilesIDs = { nMediaFileID };
-        //    TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFilesIDs, sAPIUsername, sAPIPassword);
-
-        //    if (mapper == null || mapper.Length == 0)
-        //        return null;
-
-        //    int[] fileTypes = new int[1] { nMediaFileTypeID };
-        //    int mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
-
-        //    if (!IsAnonymousUser(sSiteGUID))
-        //    {
-        //        TvinciPricing.mdoule m = null;
-        //        try
-        //        {
-        //            int[] ppvRelatedFileTypes = ppvModule.m_relatedFileTypes;
-        //            bool isMultiMediaTypes = false;
-
-        //            List<int> mediaFilesList = GetMediaTypesOfPPVRelatedFileTypes(nGroupID, ppvRelatedFileTypes, mediaFileTypesMapping, ref isMultiMediaTypes);
-
-        //            List<int> lstFileIDs = GetFileIDs(mediaFilesList, nMediaFileID, isMultiMediaTypes, mediaID);
-        //            relatedMediaFileIDs.AddRange(lstFileIDs);
-
-        //            relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
-        //            price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
-
-        //            bool bEnd = false;
-
-        //            int ppvID = 0;
-        //            string sSubCode = string.Empty;
-        //            string sPPCode = string.Empty;
-        //            int nWaiver = 0;
-        //            DateTime dPurchaseDate = DateTime.MinValue;
-
-        //            if (lstFileIDs.Count > 0 && ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID,
-        //                ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate))
-        //            {
-        //                price.m_dPrice = 0;
-        //                // Cancellation Window check by ppvUsageModule + purchase date
-        //                bCancellationWindow = IsCancellationWindowPerPurchase(ppvModule.m_oUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
-
-        //                if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
-        //                {
-        //                    if (ppvModule.m_bFirstDeviceLimitation && !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
-        //                    {
-        //                        theReason = PriceReason.FirstDeviceLimitation;
-        //                    }
-        //                    else
-        //                    {
-        //                        theReason = PriceReason.PPVPurchased;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    if (sSubCode.Length > 0)
-        //                    {
-        //                        // purchased as part of subscription
-        //                        theReason = PriceReason.SubscriptionPurchased;
-        //                        Subscription[] sub = GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, sPricingUsername, sPricingPassword, nGroupID);
-        //                        if (sub != null && sub.Length > 0)
-        //                        {
-        //                            relevantSub = sub[0];
-        //                        }
-        //                        else
-        //                        {
-        //                            relevantSub = null;
-        //                        }
-
-        //                    }
-        //                    else
-        //                    {
-        //                        if (sPPCode.Length > 0)
-        //                        {
-        //                            // purchased as part of pre paid
-        //                            theReason = PriceReason.PrePaidPurchased;
-        //                            m = new ConditionalAccess.TvinciPricing.mdoule();
-        //                            string pricingUrl = GetWSURL("pricing_ws");
-        //                            if (!string.IsNullOrEmpty(pricingUrl))
-        //                            {
-        //                                m.Url = pricingUrl;
-        //                            }
-        //                            relevantPP = m.GetPrePaidModuleData(sPricingUsername, sPricingPassword, int.Parse(sPPCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-
-        //                        }
-        //                    }
-        //                }
-        //                bEnd = true;
-        //            }
-        //            else if (lstFileIDs.Count > 0 && eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase) // user didn't purchase and mediaFileREson is ValidOnlyIfPurchase
-        //            {
-        //                theReason = PriceReason.NotForPurchase;
-        //            }
-        //            else
-        //            {
-        //                if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
-        //                {
-        //                    theReason = PriceReason.ForPurchaseSubscriptionOnly;
-        //                }
-        //            }
-
-
-        //            if (bEnd || !bIsValidForPurchase)
-        //            {
-        //                return price;
-        //            }
-
-        //            //check here if it is part of a purchased subscription or part of purchased collections
-        //            Subscription[] relevantValidSubscriptions = null;
-        //            Collection[] relevantValidCollections = null;
-        //            // dictionary(subscriptionCode, [nWaiver, dPurchaseDate, dEndDate])
-        //            Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
-        //            Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
-
-        //            GetUserValidBundlesFromListOptimized(sSiteGUID, mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs,
-        //                ref relevantValidSubscriptions, ref relevantValidCollections, ref subsPurchase, ref collPurchase);
-
-        //            if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
-        //            {
-        //                Dictionary<long, List<TvinciPricing.Subscription>> groupedSubs = (from s in relevantValidSubscriptions
-        //                                                                                  group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
-
-        //                if (groupedSubs != null)
-        //                {
-        //                    List<TvinciPricing.Subscription> prioritySubs = groupedSubs.Values.LastOrDefault();
-        //                    for (int i = 0; i < prioritySubs.Count; i++)
-        //                    {
-        //                        TvinciPricing.Subscription s = prioritySubs[i];
-        //                        TvinciPricing.DiscountModule d = (TvinciPricing.DiscountModule)(s.m_oDiscountModule);
-        //                        TvinciPricing.Price subp = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise,
-        //                            s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, sPricingUsername, sPricingPassword)));
-        //                        if (subp != null)
-        //                        {
-        //                            if (IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP, sAPIUsername, sAPIPassword))
-        //                            {
-        //                                price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
-        //                                relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
-        //                                theReason = PriceReason.GeoCommerceBlocked;
-        //                            }
-        //                            else
-        //                            {
-        //                                if (IsItemPurchased(price, subp, ppvModule))
-        //                                {
-        //                                    price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
-        //                                    relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
-        //                                    theReason = PriceReason.SubscriptionPurchased;
-        //                                }
-
-        //                                bEnd = true;
-        //                                break;
-        //                            }
-        //                        }
-        //                    }
-
-        //                    //cancellationWindow by relevantSub
-        //                    if (relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
-        //                    {
-        //                        if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
-        //                        {
-        //                            nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].nWaiver;
-        //                            dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].dtPurchaseDate;
-        //                            p_dtStartDate = dPurchaseDate;
-        //                            p_dtEndDate = subsPurchase[relevantSub.m_SubscriptionCode].dtEndDate;
-        //                            bCancellationWindow = IsCancellationWindowPerPurchase(relevantSub.m_MultiSubscriptionUsageModule[0], bCancellationWindow, nWaiver, dPurchaseDate);
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //            if (bEnd)
-        //            {
-        //                return price;
-        //            }
-
-        //            // check here if its part of a purchased collection                    
-
-        //            if (relevantValidCollections != null)
-        //            {
-        //                for (int i = 0; i < relevantValidCollections.Length; i++)
-        //                {
-        //                    TvinciPricing.Collection collection = (TvinciPricing.Collection)relevantValidCollections[i];
-        //                    TvinciPricing.DiscountModule discount = (TvinciPricing.DiscountModule)(collection.m_oDiscountModule);
-        //                    TvinciPricing.Price collectionsPrice = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, sPricingUsername, sPricingPassword)));
-        //                    if (collectionsPrice != null)
-        //                    {
-        //                        if (IsItemPurchased(price, collectionsPrice, ppvModule))
-        //                        {
-        //                            price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(collectionsPrice));
-        //                            relevantCol = TVinciShared.ObjectCopier.Clone<TvinciPricing.Collection>((TvinciPricing.Collection)(collection));
-        //                            theReason = PriceReason.CollectionPurchased;
-        //                            break;
-        //                        }
-        //                    }
-        //                }
-
-        //                //cancellationWindow by relevantSub
-        //                if (relevantCol.m_oCollectionUsageModule != null)
-        //                {
-        //                    if (subsPurchase.ContainsKey(relevantCol.m_CollectionCode))
-        //                    {
-        //                        nWaiver = subsPurchase[relevantCol.m_CollectionCode].nWaiver;
-        //                        dPurchaseDate = subsPurchase[relevantCol.m_CollectionCode].dtPurchaseDate;
-        //                        p_dtStartDate = dPurchaseDate;
-        //                        p_dtEndDate = subsPurchase[relevantCol.m_CollectionCode].dtEndDate;
-
-        //                        bCancellationWindow = IsCancellationWindowPerPurchase(relevantCol.m_oCollectionUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-        //                price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
-        //                    sPricingUsername, sPricingPassword);
-        //                if (IsFreeMediaFile(theReason, price))
-        //                {
-        //                    theReason = PriceReason.Free;
-        //                }
-        //                else if (theReason != PriceReason.ForPurchaseSubscriptionOnly && theReason != PriceReason.NotForPurchase)
-        //                {
-        //                    theReason = PriceReason.ForPurchase;
-        //                }
-        //            }
-        //        }
-        //        finally
-        //        {
-        //            #region Disposing
-        //            if (m != null)
-        //            {
-        //                m.Dispose();
-        //            }
-        //            #endregion
-        //        }
-        //    } // end if site guid is not null or empty            
-        //    else
-        //    {
-        //        price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
-        //            sPricingUsername, sPricingPassword);
-
-        //        if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
-        //        {
-        //            theReason = PriceReason.ForPurchaseSubscriptionOnly;
-        //        }
-        //        else
-        //        {
-        //            theReason = PriceReason.ForPurchase;
-        //        }
-        //    }
-
-        //    return price;
-        //}
+        }        
 
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, bool bIsValidForPurchase, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
@@ -1983,11 +1709,8 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, Dictionary<string, EntitlementObject> entitlements = null,
-            Dictionary<string, int> mediaIdGroupFileTypeMappings = null, int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended,
-            bool shouldCheckUserStatus = true, Dictionary<string, UserBundlePurchase> entitledSubscriptions = null, Dictionary<string, UserBundlePurchase> entitledCollections = null,
-            Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings = null, Dictionary<int, Subscription> subscriptionsData = null, Dictionary<int, Collection> collectionsData = null,
-            Dictionary<int, List<Subscription>> channelsToSubscriptionMappings = null, Dictionary<int, List<Collection>> channelsToCollectionsMappings = null)
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, UserEntitlementsObject userEntitlements = null, 
+            int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true)
         {
             if (ppvModule == null)
             {
@@ -2033,9 +1756,9 @@ namespace ConditionalAccess
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes;
                     List<int> lstFileIDs;
                     // get list of mediaFileIDs
-                    if (mediaIdGroupFileTypeMappings != null)
+                    if (userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper != null)
                     {
-                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, mediaIdGroupFileTypeMappings);
+                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper);
                     }
                     else
                     {
@@ -2058,10 +1781,10 @@ namespace ConditionalAccess
                     bool isEntitled = false;
                     if (lstFileIDs.Count > 0)
                     {
-                        if (entitlements != null)
+                        if (userEntitlements.userPpvEntitlements.EntitlementsDictionary != null)
                         {
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
-                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, entitlements);
+                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, userEntitlements.userPpvEntitlements.EntitlementsDictionary);
                         }
                         else
                         {
@@ -2151,13 +1874,14 @@ namespace ConditionalAccess
                     Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
                     Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
-                    if (entitledSubscriptions != null && entitledCollections != null)
+                    if (userEntitlements.userBundleEntitlements.EntitledSubscriptions != null && userEntitlements.userBundleEntitlements.EntitledCollections != null)
                     {
-                        subsPurchase = entitledSubscriptions;
-                        collPurchase = entitledCollections;
+                        subsPurchase = userEntitlements.userBundleEntitlements.EntitledSubscriptions;
+                        collPurchase = userEntitlements.userBundleEntitlements.EntitledCollections;
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs, subsPurchase,
-                                            collPurchase, fileTypeIdToSubscriptionMappings, subscriptionsData, collectionsData, channelsToSubscriptionMappings, channelsToCollectionsMappings,
-                                            ref relevantValidSubscriptions, ref relevantValidCollections);
+                                            collPurchase, userEntitlements.userBundleEntitlements.FileTypeIdToSubscriptionMappings, userEntitlements.userBundleEntitlements.SubscriptionsData,
+                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings, 
+                                            userEntitlements.userBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
                     }
                     else
                     {
@@ -3743,14 +3467,12 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUserEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, int[] nMediaFiles, string sAPIUsername, string sAPIPassword,
-                                ref Dictionary<string, EntitlementObject> entitlements, ref TvinciAPI.MeidaMaper[] mapper, ref Dictionary<string, int> mediaIdGroupFileTypeMapper)
+        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, int[] nMediaFiles, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
         {
             // Get all user entitlements
-            entitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
+            userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
             // Get mappings of mediaFileIDs - MediaIDs
-            mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
-            if (mapper != null || mapper.Length > 0)
+            if (mapper != null && mapper.Length > 0)
             {
                 int[] mediaIDsToMap = new int[mapper.Length];
                 for (int i = 0; i < mediaIDsToMap.Length; i++)
@@ -3759,7 +3481,7 @@ namespace ConditionalAccess
                 }
 
                 // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
-                mediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
+                userPpvEntitlements.MediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
             }
         }
 
@@ -3780,13 +3502,13 @@ namespace ConditionalAccess
             return relatedFileTypes;
         }
 
-        internal static void GetAllUserBundles(string sSiteGuid, int nGroupID, int domainID, List<int> lstUserIDs, ref  Dictionary<string, UserBundlePurchase> subsPurchase, ref Dictionary<string, UserBundlePurchase> collPurchase)
+        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
             DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
             if (IsBundlesDataSetValid(dataSet))
             {
-                subsPurchase = new Dictionary<string, UserBundlePurchase>();
-                collPurchase = new Dictionary<string, UserBundlePurchase>();
+                userBundleEntitlements.EntitledSubscriptions = new Dictionary<string, UserBundlePurchase>();
+                userBundleEntitlements.EntitledCollections = new Dictionary<string, UserBundlePurchase>();
                 // iterate over subscriptions
                 DataTable subs = dataSet.Tables[0];
                 int waiver = 0;
@@ -3811,9 +3533,9 @@ namespace ConditionalAccess
                         int subCode = 0;
                         if (Int32.TryParse(bundleCode, out subCode) && subCode > 0)
                         {
-                            if (!subsPurchase.ContainsKey(bundleCode))
+                            if (!userBundleEntitlements.EntitledSubscriptions.ContainsKey(bundleCode))
                             {
-                                subsPurchase.Add(bundleCode, new UserBundlePurchase()
+                                userBundleEntitlements.EntitledSubscriptions.Add(bundleCode, new UserBundlePurchase()
                                 {
                                     sBundleCode = bundleCode,
                                     nWaiver = waiver,
@@ -3845,9 +3567,9 @@ namespace ConditionalAccess
                         int collCode = 0;
                         if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
                         {
-                            if (!collPurchase.ContainsKey(bundleCode))
+                            if (!userBundleEntitlements.EntitledCollections.ContainsKey(bundleCode))
                             {
-                                collPurchase.Add(bundleCode, new UserBundlePurchase()
+                                userBundleEntitlements.EntitledCollections.Add(bundleCode, new UserBundlePurchase()
                                 {
                                     sBundleCode = bundleCode,
                                     nWaiver = waiver,
@@ -3866,9 +3588,7 @@ namespace ConditionalAccess
             else
             {
                 #region Logging
-                StringBuilder sb = new StringBuilder("SP: ConditionalAccessDAL.Get_AllBundlesInfoByUserIDs_NEW returned corrupted data. ");
-                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
-
+                StringBuilder sb = new StringBuilder("SP: ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID returned corrupted data. ");
                 if (lstUserIDs != null && lstUserIDs.Count > 0)
                 {
                     sb.Append(" User IDs: ");
@@ -3890,48 +3610,44 @@ namespace ConditionalAccess
             }
         }
 
-        internal static void InitializeUserBundles(string sUserGUID, int domainID, int m_nGroupID, List<int> allUsersInDomain, ref Dictionary<string, UserBundlePurchase> entitledSubscriptions,
-                                                    ref Dictionary<string, UserBundlePurchase> entitledCollections, string sPricingUsername, string sPricingPassword,
-                                                    ref Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, ref Dictionary<int, Subscription> subscriptionsData,
-                                                    ref Dictionary<int, Collection> collectionData, ref Dictionary<int, List<Subscription>> channelsToSubscriptionMappings,
-                                                    ref Dictionary<int, List<Collection>> channelsToCollectionsMappings)
+        internal static void InitializeUsersBundles(string sUserGUID, int domainID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
-            GetAllUserBundles(sUserGUID, m_nGroupID, domainID, allUsersInDomain, ref entitledSubscriptions, ref entitledCollections);
-            fileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
-            channelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
-            subscriptionsData = new Dictionary<int, Subscription>();
-            collectionData = new Dictionary<int, Collection>();
-            channelsToCollectionsMappings = new Dictionary<int, List<Collection>>();
-            if (entitledSubscriptions != null && entitledSubscriptions.Count > 0)
+            GetAllUserBundles(m_nGroupID, domainID, allUsersInDomain, userBundleEntitlements);
+            userBundleEntitlements.FileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            userBundleEntitlements.ChannelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            userBundleEntitlements.SubscriptionsData = new Dictionary<int, Subscription>();
+            userBundleEntitlements.CollectionsData = new Dictionary<int, Collection>();
+            userBundleEntitlements.ChannelsToCollectionsMappings = new Dictionary<int, List<Collection>>();
+            if (userBundleEntitlements.EntitledSubscriptions != null && userBundleEntitlements.EntitledSubscriptions.Count > 0)
             {
                 TvinciPricing.mdoule pricingModule = new mdoule();
                 string pricingWSURL = Utils.GetWSURL("pricing_ws");
                 if (!string.IsNullOrEmpty(pricingWSURL))
                 {
                     pricingModule.Url = pricingWSURL;
-                    TvinciPricing.SubscriptionsResponse subscriptionsResponse = pricingModule.GetSubscriptionsData(sPricingUsername, sPricingPassword, entitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    TvinciPricing.SubscriptionsResponse subscriptionsResponse = pricingModule.GetSubscriptionsData(sPricingUsername, sPricingPassword, userBundleEntitlements.EntitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
                     {
                         foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
                         {
                             // Insert to subscriptionData if subscriptionCode isn't already contained
                             int subscriptionCode;
-                            if (int.TryParse(subscription.m_sObjectCode, out subscriptionCode) && !subscriptionsData.ContainsKey(subscriptionCode))
+                            if (int.TryParse(subscription.m_sObjectCode, out subscriptionCode) && !userBundleEntitlements.SubscriptionsData.ContainsKey(subscriptionCode))
                             {
-                                subscriptionsData.Add(subscriptionCode, subscription);
+                                userBundleEntitlements.SubscriptionsData.Add(subscriptionCode, subscription);
                             }
 
                             // Insert to channelsToSubscriptionMappings
                             foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
                             {
                                 int channelID;
-                                if (int.TryParse(bundleCode.m_sCode, out channelID) && channelsToSubscriptionMappings.ContainsKey(channelID))
+                                if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToSubscriptionMappings.ContainsKey(channelID))
                                 {
-                                    channelsToSubscriptionMappings[channelID].Add(subscription);
+                                    userBundleEntitlements.ChannelsToSubscriptionMappings[channelID].Add(subscription);
                                 }
                                 else if (channelID > 0)
                                 {
-                                    channelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                    userBundleEntitlements.ChannelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
                                 }
                             }
 
@@ -3940,25 +3656,25 @@ namespace ConditionalAccess
                             {
                                 foreach (int fileTypeID in subscription.m_sFileTypes)
                                 {
-                                    if (fileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID))
+                                    if (userBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID))
                                     {
-                                        fileTypeIdToSubscriptionMappings[fileTypeID].Add(subscription);
+                                        userBundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Add(subscription);
                                     }
                                     else
                                     {
-                                        fileTypeIdToSubscriptionMappings.Add(fileTypeID, new List<Subscription>() { subscription });
+                                        userBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(fileTypeID, new List<Subscription>() { subscription });
                                     }
                                 }
                             }
                             else
                             {
-                                if (fileTypeIdToSubscriptionMappings.ContainsKey(0))
+                                if (userBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0))
                                 {
-                                    fileTypeIdToSubscriptionMappings[0].Add(subscription);
+                                    userBundleEntitlements.FileTypeIdToSubscriptionMappings[0].Add(subscription);
                                 }
                                 else
                                 {
-                                    fileTypeIdToSubscriptionMappings.Add(0, new List<Subscription>() { subscription });
+                                    userBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(0, new List<Subscription>() { subscription });
                                 }
                             }
                         }
@@ -3966,34 +3682,34 @@ namespace ConditionalAccess
                 }
             }
 
-            if (entitledCollections != null && entitledCollections.Count > 0)
+            if (userBundleEntitlements.EntitledCollections != null && userBundleEntitlements.EntitledCollections.Count > 0)
             {
                 TvinciPricing.mdoule pricingModule = new mdoule();
                 string pricingWSURL = Utils.GetWSURL("pricing_ws");
                 if (!string.IsNullOrEmpty(pricingWSURL))
                 {
                     pricingModule.Url = pricingWSURL;
-                    TvinciPricing.Collection[] collectionsArray = pricingModule.GetCollectionsData(sPricingUsername, sPricingPassword, entitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    TvinciPricing.Collection[] collectionsArray = pricingModule.GetCollectionsData(sPricingUsername, sPricingPassword, userBundleEntitlements.EntitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
                     if (collectionsArray != null && collectionsArray.Length > 0)
                     {
                         foreach (Collection collection in collectionsArray)
                         {
                             int collectionCode;
-                            if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !collectionData.ContainsKey(collectionCode))
+                            if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !userBundleEntitlements.CollectionsData.ContainsKey(collectionCode))
                             {
-                                collectionData.Add(collectionCode, collection);
+                                userBundleEntitlements.CollectionsData.Add(collectionCode, collection);
 
                                 // Insert to channelsToSubscriptionMappings
                                 foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
                                 {
                                     int channelID;
-                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && channelsToCollectionsMappings.ContainsKey(channelID))
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToCollectionsMappings.ContainsKey(channelID))
                                     {
-                                        channelsToCollectionsMappings[channelID].Add(collection);
+                                        userBundleEntitlements.ChannelsToCollectionsMappings[channelID].Add(collection);
                                     }
                                     else if (channelID > 0)
                                     {
-                                        channelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
+                                        userBundleEntitlements.ChannelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
                                     }
                                 }
 

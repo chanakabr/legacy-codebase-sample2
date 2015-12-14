@@ -53,7 +53,7 @@ namespace Users
             return user;
         }
 
-        public static UserState DoUserAction(int siteGuid, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
+        public static UserState DoUserAction(int siteGuid, int groupID, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
         {
             UserState retVal = UserState.Unknown;
             switch (currentState)
@@ -127,7 +127,7 @@ namespace Users
 
             // Remove user from cache
             UsersCache usersCache = UsersCache.Instance();
-            usersCache.RemoveUser(siteGuid);
+            usersCache.RemoveUser(siteGuid, groupID);
 
             return retVal;
         }
@@ -143,7 +143,7 @@ namespace Users
             updateQUery = null;
         }
 
-        public static UserState GetCurrentUserState(int siteGuid, bool shouldGetFromCache = true)
+        public static UserState GetCurrentUserState(int siteGuid, int groupID, bool shouldGetFromCache = true)
         {
             UserState retVal = UserState.Unknown;
             int nUserState = 0;
@@ -153,7 +153,7 @@ namespace Users
             {
                 //Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(siteGuid);
+                user = usersCache.GetUser(siteGuid, groupID);
             }
 
             if (user != null)
@@ -262,7 +262,7 @@ namespace Users
                 {
                     // Remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(int.Parse(m_sSiteGUID));
+                    usersCache.RemoveUser(int.Parse(m_sSiteGUID), nGroupID);
                 }
                 catch (Exception ex)
                 {
@@ -328,7 +328,7 @@ namespace Users
             {
                 // Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(int.Parse(m_sSiteGUID));
+                usersCache.RemoveUser(int.Parse(m_sSiteGUID), nGroupID);
             }
             catch (Exception)
             {
@@ -431,7 +431,7 @@ namespace Users
                 User user = null;
                 // Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(nUserID);
+                user = usersCache.GetUser(nUserID, nGroupID);
 
                 if (user != null)
                 {
@@ -457,12 +457,12 @@ namespace Users
                         m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
                     }
 
-                    m_eUserState = GetCurrentUserState(nUserID, false);
+                    m_eUserState = GetCurrentUserState(nUserID, nGroupID, false);
 
                     // Add user to cache only if initialization succeeded
                     if (shouldSaveInCache && res && res2)
                     {
-                        usersCache.InsertUser(this);
+                        usersCache.InsertUser(this, nGroupID);
                     }
                 }
 
@@ -494,7 +494,7 @@ namespace Users
 
                 // Add user to cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.InsertUser(this);
+                usersCache.InsertUser(this, nGroupID);
             }
             catch (Exception ex)
             {
@@ -620,7 +620,7 @@ namespace Users
                 if (isRemoveFromCache)
                 {
                     UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(nID);
+                    usersCache.RemoveUser(nID, nGroupID);
                 }
 
                 nID = int.Parse(m_sSiteGUID);
@@ -779,10 +779,10 @@ namespace Users
             UserResponseObject retVal = new UserResponseObject();
             User u = new User();
             u.Initialize(siteGuid, nGroupID, false);
-            UserState currentState = GetCurrentUserState(siteGuid);
+            UserState currentState = GetCurrentUserState(siteGuid, nGroupID);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
-            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
+            UserState userStats = DoUserAction(siteGuid, nGroupID, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();
@@ -852,7 +852,7 @@ namespace Users
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
                     Int32.TryParse(retObj.m_user.m_sSiteGUID, out nSiteGuid);
-                    UserState currUserState = GetCurrentUserState(nSiteGuid);
+                    UserState currUserState = GetCurrentUserState(nSiteGuid, nGroupID);
 
                     if (retObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
@@ -861,11 +861,11 @@ namespace Users
 
                     if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
                     {
-                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                     }
                     else if (currUserState == UserState.Activated)
                     {
-                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, true, ref instanceID);
+                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, true, ref instanceID);
                     }
                     else if (currUserState == UserState.SingleSignIn || currUserState == UserState.DoubleSignIn)
                     {
@@ -897,7 +897,7 @@ namespace Users
                                     if (dbNow > compDate)
                                     {
                                         UpdateUserSession(lastUserSessionID, true);
-                                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, UserState.LoggedOut, UserAction.SignIn, false, ref instanceID);
+                                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, UserState.LoggedOut, UserAction.SignIn, false, ref instanceID);
                                     }
                                     else
                                     {
@@ -926,16 +926,16 @@ namespace Users
                             }
                             else
                             {
-                                DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                                DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                             }
                         }
 
                         else
                         {
-                            DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                            DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                         }
                     }
-                    retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid);
+                    retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid, nGroupID);
                 }
 
             }

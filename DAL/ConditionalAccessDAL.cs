@@ -2027,7 +2027,7 @@ namespace DAL
         {
             Dictionary<string, int> mappings = new Dictionary<string, int>();
             DataTable dt = null;
-            StoredProcedure spGet_AllMediaFilesMappings = new ODBCWrapper.StoredProcedure("Get_AllMediaFilesMappings");
+            StoredProcedure spGet_AllMediaFilesMappings = new ODBCWrapper.StoredProcedure("Get_AllMediaFilesTypesMappings");
             spGet_AllMediaFilesMappings.AddIDListParameter<int>("@MediaIDs", mediaIDs.ToList(), "ID");
             spGet_AllMediaFilesMappings.SetConnectionKey("MAIN_CONNECTION_STRING");
             dt = spGet_AllMediaFilesMappings.Execute();

@@ -78,7 +78,7 @@ namespace Users
         public bool Initialize(Int32 nUserID, Int32 nGroupID)
         {
             bool res = false;
-            DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID);
+            DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID, nGroupID);
 
             if (dtUserBasicData == null || dtUserBasicData.DefaultView.Count == 0)
             {

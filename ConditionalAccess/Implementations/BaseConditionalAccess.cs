@@ -7782,28 +7782,21 @@ namespace ConditionalAccess
                 if (oModules != null && oModules.Length > 0)
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
-                    Dictionary<string, EntitlementObject> entitlements = null;
-                    Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
                     TvinciAPI.MeidaMaper[] mapper = null;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
                     TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
-                    Dictionary<string, Utils.UserBundlePurchase> entitledSubscriptions = null;
-                    Dictionary<string, Utils.UserBundlePurchase> entitledCollections = null;
-                    Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings = null;
-                    Dictionary<int, List<Subscription>> channelsToSubscriptionMappings = null;
-                    Dictionary<int, List<Collection>> channelsToCollectionsMappings = null;
-                    Dictionary<int, Subscription> subscriptionsData = null;
-                    Dictionary<int, Collection> collectionsData = null;
+                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
                     int domainID = 0;
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
                     {
+                        // create mapper
+                        mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         //Get all user PPV entitlements
-                        Utils.InitializeUserEntitlements(m_nGroupID, domainID, allUsersInDomain, nMediaFiles, sAPIUsername, sAPIPassword, ref entitlements, ref mapper, ref mediaIdGroupFileTypeMapper);
+                        Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, nMediaFiles, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
-                        Utils.InitializeUserBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, ref entitledSubscriptions, ref entitledCollections, sPricingUsername, sPricingPassword,
-                                                    ref fileTypeIdToSubscriptionMappings, ref subscriptionsData, ref collectionsData, ref channelsToSubscriptionMappings, ref channelsToCollectionsMappings);
+                        Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
 
                     // set max amount of concurrent tasks
@@ -7865,9 +7858,7 @@ namespace ConditionalAccess
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
                                     ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
                                     sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
-                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, entitlements, mediaIdGroupFileTypeMapper, mediaID, userSuspendStatus,
-                                    false, entitledSubscriptions, entitledCollections, fileTypeIdToSubscriptionMappings, subscriptionsData, collectionsData, channelsToSubscriptionMappings,
-                                    channelsToCollectionsMappings);
+                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, userEntitlements, mediaID, userSuspendStatus, false);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 

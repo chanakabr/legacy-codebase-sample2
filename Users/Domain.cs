@@ -565,7 +565,7 @@ namespace Users
             // Try to get user from cache
             User user = null;
             UsersCache usersCache = UsersCache.Instance();
-            user = usersCache.GetUser(nUserID);
+            user = usersCache.GetUser(nUserID, nGroupID);
 
             if (user != null)
             {
@@ -635,7 +635,7 @@ namespace Users
                     oDomainCache.RemoveDomain(nDomainID);
 
                     // remove user from cache
-                    usersCache.RemoveUser(nUserID);
+                    usersCache.RemoveUser(nUserID, nGroupID);
 
                 }
                 else
@@ -902,7 +902,7 @@ namespace Users
             {
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nUserID);
+                usersCache.RemoveUser(nUserID, nGroupID);
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(nDomainID);
@@ -950,7 +950,7 @@ namespace Users
             {
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nUserID);
+                usersCache.RemoveUser(nUserID, nGroupID);
 
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
@@ -972,7 +972,7 @@ namespace Users
             {
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nUserID);
+                usersCache.RemoveUser(nUserID, nGroupID);
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRemove = oDomainCache.RemoveDomain(nDomainID);
             }
@@ -1205,8 +1205,8 @@ namespace Users
             {
                 // Remove both users from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nCurrentMasterID);
-                usersCache.RemoveUser(nNewMasterID);
+                usersCache.RemoveUser(nCurrentMasterID, nGroupID);
+                usersCache.RemoveUser(nNewMasterID, nGroupID);
 
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
@@ -2178,7 +2178,7 @@ namespace Users
 
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nUserID);
+                usersCache.RemoveUser(nUserID, nGroupID);
 
                 return eDomainResponseStatus;
             }
@@ -2222,7 +2222,7 @@ namespace Users
 
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(nUserID);
+                usersCache.RemoveUser(nUserID, nGroupID);
             }
             else
             {
@@ -2319,7 +2319,7 @@ namespace Users
             // Try getting user from cache
             User user = null;
             UsersCache usersCache = UsersCache.Instance();
-            user = usersCache.GetUser(nUserID);
+            user = usersCache.GetUser(nUserID, nGroupID);
             
             if(user != null)
             {
@@ -2329,7 +2329,7 @@ namespace Users
             }
             else
             {
-                using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID))
+                using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID, nGroupID))
                 {
                     if (dtUserBasicData != null)
                     {
