@@ -13,8 +13,11 @@ namespace ApiObjects
         private string imageId;
         private int version;
         private string sourcePath;
+        private long rowId;
+        private string imageServerUrl;
+        private eMediaType mediaType;
 
-        public ImageUploadData(int groupId, string imageId, int version, string sourcePath) :
+        public ImageUploadData(int groupId, string imageId, int version, string sourcePath, long rowId, string imageServerUrl, eMediaType mediaType) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -25,13 +28,19 @@ namespace ApiObjects
             this.imageId = imageId;
             this.version = version;
             this.sourcePath = sourcePath;
+            this.rowId = rowId;
+            this.imageServerUrl = imageServerUrl;
+            this.mediaType = mediaType;
 
             this.args = new List<object>()
             {
                 groupId,
                 imageId,
                 version,
-                sourcePath
+                sourcePath,
+                rowId,
+                imageServerUrl,
+                (int)mediaType
             };
         }
     }

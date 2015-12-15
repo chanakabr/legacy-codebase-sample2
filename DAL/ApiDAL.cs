@@ -3102,7 +3102,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static bool UpdateImageState(int groupId, string imageId, int version)
+        public static bool UpdateImageState(int groupId, long picId, int version)
         {
             bool result = false;
             try
@@ -3112,7 +3112,7 @@ namespace DAL
                 updateQuery += " WHERE ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
                 updateQuery += " AND ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", imageId);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", picId);
 
                 result = updateQuery.Execute();
                 updateQuery.Finish();
@@ -3120,10 +3120,15 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to update image state. groupId: {0}, imageId: {1}, version: {2}. ex: {3}", groupId, imageId, version, ex);
+                log.ErrorFormat("Error while trying to update image state. groupId: {0}, picId: {1}, version: {2}. ex: {3}", groupId, picId, version, ex);
             }
 
             return result;
+        }
+
+        public static bool UpdateEpgImageState(int groupId, long rowId, int version)
+        {
+            throw new NotImplementedException();
         }
     }
 }
