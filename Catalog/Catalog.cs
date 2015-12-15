@@ -540,8 +540,9 @@ namespace Catalog
                         // get picture base URL
                         string picBaseUrl = Path.GetFileNameWithoutExtension(picsData[0].BaseUrl);
                         if (string.IsNullOrEmpty(picBaseUrl))
-                            throw new Exception("could not retrieve picture ID");
+                            throw new Exception("could not retrieve picture base URL");
 
+                        // build picture list
                         for (int i = 0; i < dtPic.Rows.Count; i++)
                         {
                             picObj = new Picture();
@@ -552,7 +553,7 @@ namespace Catalog
                             // get ratio string
                             picObj.ratio = Utils.GetStrSafeVal(dtPic.Rows[i], "RATIO");
 
-                            // get picture id: <base_url>_<ratio_id>
+                            // get picture id: <pic_base_url>_<ratio_id>
                             int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
                             picObj.id = string.Format("{0}_{1}", picBaseUrl, ratioId);
 
@@ -565,7 +566,7 @@ namespace Catalog
 
                             // build image URL. 
                             // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
-                            //Example:   http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
                             picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/100",
                                 imageServerUrl,                                // 0 <image_server_url>
                                 groupId,                                       // 1 <partner_id>
