@@ -93,6 +93,14 @@ namespace Catalog.Request
 
                 if (group != null && channel != null)
                 {
+                    // If this is a KSQL channel
+                    if (channel.m_nChannelTypeID == 4)
+                    {
+                        response.m_nTotalItems = 0;
+                        response.m_nMedias = null;
+                        return response;
+                    }
+
                     channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage(), group.m_sPermittedWatchRules);
 
                     List<int> medias = new List<int>();

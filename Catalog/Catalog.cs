@@ -5934,7 +5934,6 @@ namespace Catalog
 
             #region Final Filter Tree
 
-
             // Connect the request's filter query with the channel's tags/metas definitions
 
             BooleanPhraseNode root = null;
