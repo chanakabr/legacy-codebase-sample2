@@ -23,24 +23,31 @@ namespace ImageUploadHandler
             {
                 log.InfoFormat("Export request. data={0}", data);
 
-                ImageUploadRequest request = JsonConvert.DeserializeObject<ImageUploadRequest>(data);
+                RemoteImageUploadRequest request = JsonConvert.DeserializeObject<RemoteImageUploadRequest>(data);
 
                 if (request == null)
                     throw new Exception(string.Format("Failed to desterilized image upload request. data = {0}", data != null ? data : string.Empty));
 
-                // get image server URL
-                var picsBasePath = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", request.GroupId);
-
-                if (picsBasePath == null || !string.IsNullOrEmpty(picsBasePath.ToString()))
-                    throw new Exception(string.Format("Failed to get PICS_REMOTE_BASE_URL. groupId = {0}", request.GroupId));
+                // create post request
+                ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest()
+                {
+                    GroupId = request.GroupId,
+                    Id = request.ImageId,
+                    SourcePath = request.SourcePath,
+                    Version = request.Version
+                };
 
                 // post image
-                result = HttpPost(picsBasePath.ToString(), data);
+                result = HttpPost(request.ImageServerUrl, JsonConvert.SerializeObject(imageServerReq));
 
+                // check result
                 if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                     throw new Exception(string.Format("error inserting image. data: {0}", data));
                 else
                 {
+                    log.DebugFormat("post image success. {0}", data);
+
+                    // post success - update ws_api
                     string url = WS_Utils.GetTcmConfigValue("WS_API");
                     string username = string.Empty;
                     string password = string.Empty;
@@ -52,10 +59,19 @@ namespace ImageUploadHandler
                         if (!string.IsNullOrEmpty(url))
                             apiClient.Url = url;
 
-                        bool success = apiClient.UpdateImageState(username, password, request.Id, request.Version, eState.OK);
+                        bool success = apiClient.UpdateImageState(username, password, request.RowId, request.Version, (eMediaType)request.MediaType, eState.OK);
+                        log.DebugFormat("update image state success. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
+                            request.RowId,                                  // {0}
+                            request.Version,                                // {1}
+                            ((eMediaType)request.MediaType).ToString(),     // {2}
+                            eState.OK.ToString());                          // {3}
 
                         if (!success)
-                            throw new Exception(string.Format("Error while updating image status. data: {0}", data));
+                            throw new Exception(string.Format("Error while updating image status. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
+                            request.RowId,                                  // {0}
+                            request.Version,                                // {1}
+                            ((eMediaType)request.MediaType).ToString(),     // {2}
+                            eState.OK.ToString()));                         // {3}
                     }
                 }
             }

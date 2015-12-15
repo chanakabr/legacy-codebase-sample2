@@ -2404,31 +2404,33 @@ namespace ImageUploadHandler.WS_API {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateImageState", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateImageState(string sWSUserName, string sWSPassword, string imageId, int version, eState state) {
+        public bool UpdateImageState(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state) {
             object[] results = this.Invoke("UpdateImageState", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        imageId,
+                        rowId,
                         version,
+                        mediaType,
                         state});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, string imageId, int version, eState state) {
-            this.UpdateImageStateAsync(sWSUserName, sWSPassword, imageId, version, state, null);
+        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state) {
+            this.UpdateImageStateAsync(sWSUserName, sWSPassword, rowId, version, mediaType, state, null);
         }
         
         /// <remarks/>
-        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, string imageId, int version, eState state, object userState) {
+        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state, object userState) {
             if ((this.UpdateImageStateOperationCompleted == null)) {
                 this.UpdateImageStateOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateImageStateOperationCompleted);
             }
             this.InvokeAsync("UpdateImageState", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        imageId,
+                        rowId,
                         version,
+                        mediaType,
                         state}, this.UpdateImageStateOperationCompleted, userState);
         }
         
@@ -12671,6 +12673,19 @@ namespace ImageUploadHandler.WS_API {
         
         /// <remarks/>
         Group,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eMediaType {
+        
+        /// <remarks/>
+        VOD,
+        
+        /// <remarks/>
+        EPG,
     }
     
     /// <remarks/>
