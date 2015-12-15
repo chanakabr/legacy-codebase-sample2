@@ -404,12 +404,12 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_domain);
 
         DataRecordDropDownField dr_full_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, false);
-        dr_full_lc.Initialize("Full Life Cycle (Subscription - Period length, PPV - not relevant)", "adm_table_header_nbg", "FormInput", "FULL_LIFE_CYCLE_MIN", true);
+        dr_full_lc.Initialize("Full Life Cycle", "adm_table_header_nbg", "FormInput", "FULL_LIFE_CYCLE_MIN", true);
         dr_full_lc.SetDefaultVal("1440");
         theRecord.AddRecord(dr_full_lc);
 
         DataRecordDropDownField dr_view_lc = new DataRecordDropDownField("lu_min_periods", "DESCRIPTION", "id", "", null, 60, false);
-        dr_view_lc.Initialize("View Life Cycle (Period of single watch - Subscription or PPV count)", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
+        dr_view_lc.Initialize("View Life Cycle", "adm_table_header_nbg", "FormInput", "VIEW_LIFE_CYCLE_MIN", true);
         dr_view_lc.SetDefaultVal("1440");
         theRecord.AddRecord(dr_view_lc);
 
