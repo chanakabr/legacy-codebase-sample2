@@ -5951,6 +5951,8 @@ namespace Catalog
                     throw new KalturaException(status.Message, status.Code);
                 }
 
+                Catalog.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
+
                 if (initialTree != null)
                 {
                     List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
@@ -5971,7 +5973,6 @@ namespace Catalog
             }
 
             definitions.filterPhrase = root;
-
 
             #endregion
 
