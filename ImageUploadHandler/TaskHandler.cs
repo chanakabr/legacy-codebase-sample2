@@ -7,7 +7,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using TVinciShared;
-using ImageUploadHandler.WS_CATALOG;
 using ImageUploadHandler.WS_API;
 
 namespace ImageUploadHandler
