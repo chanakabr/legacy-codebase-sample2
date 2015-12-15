@@ -1756,7 +1756,7 @@ namespace ConditionalAccess
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes;
                     List<int> lstFileIDs;
                     // get list of mediaFileIDs
-                    if (userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper != null)
+                    if (userEntitlements != null && userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper != null)
                     {
                         lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper);
                     }
@@ -1781,7 +1781,7 @@ namespace ConditionalAccess
                     bool isEntitled = false;
                     if (lstFileIDs.Count > 0)
                     {
-                        if (userEntitlements.userPpvEntitlements.EntitlementsDictionary != null)
+                        if (userEntitlements != null && userEntitlements.userPpvEntitlements.EntitlementsDictionary != null)
                         {
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
                                                         ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, userEntitlements.userPpvEntitlements.EntitlementsDictionary);
@@ -1874,7 +1874,7 @@ namespace ConditionalAccess
                     Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
                     Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
-                    if (userEntitlements.userBundleEntitlements.EntitledSubscriptions != null && userEntitlements.userBundleEntitlements.EntitledCollections != null)
+                    if (userEntitlements != null && userEntitlements.userBundleEntitlements.EntitledSubscriptions != null && userEntitlements.userBundleEntitlements.EntitledCollections != null)
                     {
                         subsPurchase = userEntitlements.userBundleEntitlements.EntitledSubscriptions;
                         collPurchase = userEntitlements.userBundleEntitlements.EntitledCollections;
