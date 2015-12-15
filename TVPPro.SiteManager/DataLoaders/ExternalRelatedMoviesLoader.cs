@@ -22,7 +22,7 @@ namespace TVPPro.SiteManager.DataLoaders
     public class ExternalRelatedMoviesLoader : RelatedMoviesLoader
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private ExternalRelatedMediaLoader m_oCatalogxternalRelatedLoader;
+        private ExternalRelatedMediaLoader m_oCatalogExternalRelatedLoader;
         private bool m_bShouldUseCache;
 
         #region Properties 
@@ -56,7 +56,7 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogxternalRelatedLoader = new ExternalRelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, FreeParam)
+                m_oCatalogExternalRelatedLoader = new ExternalRelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, FreeParam)
                 {
                     DeviceId = DeviceUDID,
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
@@ -64,7 +64,7 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     SiteGuid = SiteGuid
                 };
-                return m_oCatalogxternalRelatedLoader.Execute() as dsItemInfo;
+                return m_oCatalogExternalRelatedLoader.Execute() as dsItemInfo;
             }
             else
             {

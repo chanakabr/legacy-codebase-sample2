@@ -55,10 +55,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
             if (m_oResponse is UnifiedSearchResponse)
             {
                 UnifiedSearchResponse usr = (m_oResponse as UnifiedSearchResponse);
-                MediaIdsResponse newResp = new MediaIdsResponse()
+                MediaIdsStatusResponse newResp = new MediaIdsStatusResponse()
                 {
                     ExtensionData = usr.ExtensionData,
                     m_lObj = usr.m_lObj,
+                    Status = usr.status,
                     m_nTotalItems = usr.m_nTotalItems,
                     m_nMediaIds = usr.searchResults.Select(x => new SearchResult() { assetID = int.Parse(x.AssetId), ExtensionData = x.ExtensionData, UpdateDate = x.m_dUpdateDate }).ToList()
                 };
