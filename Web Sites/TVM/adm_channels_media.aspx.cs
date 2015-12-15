@@ -36,7 +36,7 @@ public partial class adm_channels_media : System.Web.UI.Page
                 // if this is a KSQL channel - return.
                 if (typeId == 4.ToString())
                 {
-                    Response.Redirect("adm_channels.aspx");
+                    //Response.Redirect("adm_channels.aspx");
                 }
             }
 
@@ -107,42 +107,113 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy, int channelID, int channelType, int orderBy, int orderDir)
     {
-        bool isAutoChannel = channelType == 1 ? true : false; // 1 = Auto channel 2 = maual channel
+        // 1 = Auto channel 2 = manual channel
+        GroupsCacheManager.ChannelType type = (GroupsCacheManager.ChannelType)channelType;
+        
+        string mediaIds;
+        string epgIds;
+        int countMedia;
+        int countEpg;
 
-        theTable += "select m.id as id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date',CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date',CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
-        if (!isAutoChannel)
+        GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
+
+        string mediaQuery = string.Empty;
+        string epgQuery = string.Empty;
+
+        // Build media query - if we have any media IDs
+        if (!string.IsNullOrEmpty(mediaIds))
         {
-            theTable += ",cm.id as cm_id,cm.status,cm.order_num";
-        }
-        theTable += " from ";
-        if (!isAutoChannel)
-        {
-            theTable += "channels_media cm,";
-        }
+            #region Media Query
 
-        theTable += " media m where ";
+            mediaQuery = "select top " + countMedia + " m.id as id,m.name,m.description,CONVERT(VARCHAR(11),m.CREATE_DATE, 105) as 'Create Date', " +
+                "CONVERT(VARCHAR(19),m.START_DATE, 120) as 'Start Date', " +
+                "CONVERT(VARCHAR(19),m.End_DATE, 120) as 'End Date' ";
 
-        string sMediaIDs = GetMediaIdsFromCatalog(channelID);
-        theTable += " m.id in (" + sMediaIDs + ")";
-
-        if (!isAutoChannel)
-        {
-            theTable += " and m.id = cm.MEDIA_ID ";
-            theTable += " and cm.channel_id = " + channelID;
-        }
-
-        string s_orderBy = GetOrderByStr(orderBy);
-        if (!string.IsNullOrEmpty(s_orderBy))
-        {
-            theTable += " order by " + s_orderBy;
-            if (GetChannelOrderDir(orderDir) == TVinciShared.OrderDir.DESC)
+            if (type == GroupsCacheManager.ChannelType.Manual)
             {
-                theTable += " desc";
+                mediaQuery += ",cm.id as cm_id,cm.status,cm.order_num";
+            }
+
+            mediaQuery += " from ";
+            if (type == GroupsCacheManager.ChannelType.Manual)
+            {
+                mediaQuery += "channels_media cm,";
+            }
+
+            mediaQuery += " media m where ";
+
+            mediaQuery += " m.id in (" + mediaIds + ")";
+
+            if (type == GroupsCacheManager.ChannelType.Manual)
+            {
+                mediaQuery += " and m.id = cm.MEDIA_ID ";
+                mediaQuery += " and cm.channel_id = " + channelID;
+            }
+
+            string mediaOrderBy = GetMediaOrderByStr(orderBy);
+
+            if (!string.IsNullOrEmpty(mediaOrderBy))
+            {
+                mediaQuery += " order by " + mediaOrderBy;
+
+                if (GetChannelOrderDir(orderDir) == TVinciShared.OrderDir.DESC)
+                {
+                    mediaQuery += " desc";
+                }
+            }
+            else if (type == GroupsCacheManager.ChannelType.Manual)
+            {
+                mediaQuery += " order by cm.order_num";
+            }
+
+            #endregion
+        }
+
+        // Build epg query - if we have any epg IDs
+        if (!string.IsNullOrEmpty(epgIds))
+        {
+            #region EPG Query
+
+            epgQuery = "select top " + countEpg + " e.id as id,e.name,e.description,CONVERT(VARCHAR(11),e.CREATE_DATE, 105) as 'Create Date', " +
+                "CONVERT(VARCHAR(19),e.START_DATE, 120) as 'Start Date', " +
+                "CONVERT(VARCHAR(19),e.End_DATE, 120) as 'End Date' ";
+
+            epgQuery += " from ";
+
+            epgQuery += " epg_channels_schedule e where ";
+
+            epgQuery += " e.id in (" + epgIds + ")";
+
+            string epgOrderBy = GeEpgOrderByStr(orderBy);
+
+            if (!string.IsNullOrEmpty(epgOrderBy))
+            {
+                epgQuery += " order by " + epgOrderBy;
+
+                if (GetChannelOrderDir(orderDir) == TVinciShared.OrderDir.DESC)
+                {
+                    epgQuery += " desc";
+                }
+            }
+
+            #endregion
+        }
+
+        // Connect with UNION both queries of media and EPG - according to the need
+        if (!string.IsNullOrEmpty(mediaQuery))
+        {
+            if (!string.IsNullOrEmpty(epgQuery))
+            {
+                theTable += "select * from (" + mediaQuery + ") a union select * from (" + epgQuery + ") b";
+            }
+            else
+            {
+                theTable += mediaQuery;
             }
         }
-        else if (!isAutoChannel)
+        else if (!string.IsNullOrEmpty(epgQuery))
         {
-            theTable += " order by cm.order_num";
+            theTable += epgQuery;
         }
 
         if (LoginManager.IsActionPermittedOnPage("adm_channels.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT))
@@ -151,7 +222,8 @@ public partial class adm_channels_media : System.Web.UI.Page
             linkColumn1.AddQueryStringValue("media_id", "field=m_id");
             theTable.AddLinkColumn(linkColumn1);
         }
-        if (!isAutoChannel)
+
+        if (type == GroupsCacheManager.ChannelType.Manual)
         {
             theTable.AddOrderNumField("channels_media", "cm_id", "order_num", "Order Number");
             theTable.AddHiddenField("order_num");
@@ -251,7 +323,9 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
     }
 
-    private string GetOrderByStr(int OrderBy)
+    #region Query Order
+
+    private string GetMediaOrderByStr(int OrderBy)
     {
         string retVal = string.Empty;
         if (OrderBy == -10)
@@ -333,6 +407,36 @@ public partial class adm_channels_media : System.Web.UI.Page
         return retVal;
     }
 
+    private string GeEpgOrderByStr(int orderBy)
+    {
+        string orderString = string.Empty;
+
+        switch (orderBy)
+        {
+            case -10:
+            {
+                orderString = " e.start_date";
+                break;
+            }
+            case -11:
+            {
+                orderString = " e.name";
+                break;
+            }
+            case -12:
+            {
+                orderString = " e.create_date";
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+
+        return orderString;
+    }
+
     private TVinciShared.OrderDir GetChannelOrderDir(int orderDir)
     {
         TVinciShared.OrderDir retVal = TVinciShared.OrderDir.DESC;
@@ -341,9 +445,8 @@ public partial class adm_channels_media : System.Web.UI.Page
             retVal = (TVinciShared.OrderDir)orderDir;
         }
         return retVal;
-    }
-
-
+    } 
+    #endregion
 
     private string GetMediaIdsFromCatalog(int channelID)
     {
@@ -368,6 +471,7 @@ public partial class adm_channels_media : System.Web.UI.Page
             apiWS.API client = new apiWS.API();
             client.Url = sWSURL;
 
+            
             assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, new int[] { channelID }, null, false, string.Empty, false, false);
             if (assetIds != null && assetIds.Length > 0)
             {
@@ -381,5 +485,73 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
 
         return mediaIDs;
+    }
+
+    private void GetAssetIdsFromCatalog(int channelId, out string media, out string epgs, out int countMedia, out int countEpg)
+    {
+        media = string.Empty;
+        epgs = string.Empty;
+        countMedia = 0;
+        countEpg = 0;
+
+        try
+        {
+            int[] assetIds;
+
+
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
+
+            int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+            TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
+            string sWSURL = GetWSURL("api_ws");
+
+            if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
+            {
+                return;
+            }
+
+            apiWS.API client = new apiWS.API();
+            client.Url = sWSURL;
+
+            var response = client.GetChannelAssets(sWSUserName, sWSPass, channelId);
+
+            List<string> mediaIds = new List<string>();
+            List<string> epgIds = new List<string>();
+
+            foreach (var item in response)
+            {
+                switch (item.AssetType)
+                {
+                    case apiWS.eAssetTypes.EPG:
+                    {
+                        epgIds.Add(item.AssetId);
+                        break;
+                    }
+                    case apiWS.eAssetTypes.MEDIA:
+                    {
+                        mediaIds.Add(item.AssetId);
+                        break;
+                    }
+                    case apiWS.eAssetTypes.NPVR:
+                    break;
+                    case apiWS.eAssetTypes.UNKNOWN:
+                    break;
+                    default:
+                    break;
+                }
+            }
+
+            media = string.Join(",", mediaIds);
+            epgs = string.Join(",", epgIds);
+
+            countMedia = mediaIds.Count;
+            countEpg = epgIds.Count;
+        }
+        catch (Exception ex)
+        {
+            log.Error(string.Empty, ex);
+        }
     }
 }

@@ -160,6 +160,10 @@ public partial class adm_channels : System.Web.UI.Page
 
 		Int32 nGroupID = LoginManager.GetLoginGroupID();
 
+
+        // ?
+        // lu_channel_types_NEW
+
         theTable += @"SELECT q.editor_remarks, 
        q.order_num, 
        q.is_active, 
@@ -175,10 +179,7 @@ public partial class adm_channels : System.Web.UI.Page
        s.NAME            AS 'Subscription', 
        q.s_desc          AS 'State', 
        q.channel_type_id AS channel_type 
-FROM   (SELECT CASE c.channel_type 
-                 WHEN 4 THEN 'KSQL' 
-                 ELSE lct.description 
-               END             AS 'channel_type', 
+FROM   (SELECT lct.description AS 'channel_type', 
                c.subscription_id, 
                c.order_num     AS 'order_num', 
                c.is_active     AS 'q_ia', 
@@ -196,12 +197,10 @@ FROM   (SELECT CASE c.channel_type
                c.is_active, 
                c.editor_remarks, 
                c.channel_type  AS channel_type_id 
-        FROM   channels c 
-               LEFT JOIN lu_channel_type lct 
-                      ON(lct.id = c.channel_type) 
+        FROM   lu_channels_types_pyro lct, channels c
                LEFT JOIN lu_content_status lcs 
                       ON lcs.id = c.status 
-        WHERE  c.status <> 2 AND c.channel_type IN (1,2,3,4)";
+        WHERE  c.status <> 2 AND c.channel_type = lct.ID";
 
         if (Session["search_free"] != null && Session["search_free"].ToString() != "")
         {
