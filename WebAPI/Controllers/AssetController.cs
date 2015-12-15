@@ -457,8 +457,8 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("relatedExternal"), HttpPost]
         [ApiAuthorize(true)]
-        public KalturaAssetInfoListResponse relatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
-            List<KalturaCatalogWithHolder> with = null, string language = null)
+        public KalturaAssetInfoListResponse RelatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
+            List<KalturaCatalogWithHolder> with = null, string language = null, string freeParam = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -485,7 +485,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, filter_type_ids.Select(x => x.value).ToList(), utcOffset, with.Select(x => x.type).ToList());
+                    language, pager.PageIndex, pager.PageSize, media_id, filter_type_ids.Select(x => x.value).ToList(), utcOffset, with.Select(x => x.type).ToList(), freeParam);
             }
             catch (ClientException ex)
             {

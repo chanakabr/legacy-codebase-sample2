@@ -353,7 +353,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, int utcOffset, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, 
+                                                                    int mediaId, List<int> mediaTypes, int utcOffset, List<KalturaCatalogWith> with, string freeParam)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -376,7 +377,8 @@ namespace WebAPI.Clients
                 m_nMediaTypes = mediaTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                m_nUtcOffset = utcOffset
+                m_nUtcOffset = utcOffset,
+                m_sFreeParam = freeParam
             };
 
             // build failover cache key
