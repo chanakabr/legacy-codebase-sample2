@@ -417,6 +417,32 @@ namespace TVPApiServices
             return lstMedia;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get external search media info")]
+        public List<Media> GetExternalSearchMedias(InitializationObject initObj, string query, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        {
+            List<Media> lstMedia = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalSearchMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    lstMedia = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return lstMedia;
+        }
+
         //Get related media info
         [WebMethod(EnableSession = true, Description = "Get related media info")]
         public List<Media> GetRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex)

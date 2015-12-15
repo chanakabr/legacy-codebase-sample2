@@ -696,6 +696,15 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.RelatedExternal, OrderBy.None, reqMediaTypes: reqMediaTypes, freeParam: freeParam);
         }
 
+        public static List<Media> GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null)
+        {
+            TVMAccountType account; ;
+
+            account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
+
+            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, picSize, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes);
+        }
+
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
         {
             TVMAccountType account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
@@ -1121,6 +1130,44 @@ namespace TVPApi
         {
             long mediaCount = 0;
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderObj, reqMediaTypes, tagsMetas, cutWith);
+        }
+
+        public static List<Media> GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        {
+            List<Media> retVal = new List<Media>();
+            dsItemInfo mediaInfo;
+
+            APIExternalSearchMediaLoader externalRelatedLoader = new APIExternalSearchMediaLoader(query, user, pass)
+            {
+                GroupID = groupID,
+                Platform = initObj.Platform,
+                PicSize = picSize,
+                WithInfo = true,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                IsPosterPic = false,
+                DeviceUDID = initObj.UDID,
+                MediaTypes = reqMediaTypes,
+                Language = initObj.Locale.LocaleLanguage,
+                SiteGuid = initObj.SiteGuid,
+                DomainID = initObj.DomainID
+            };
+            mediaInfo = externalRelatedLoader.Execute();
+            
+            long mediaCount;
+
+            externalRelatedLoader.TryGetItemsCount(out mediaCount);            
+
+            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            {
+                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
+                {
+                    Media media = new Media(row, initObj, groupID, false, mediaCount);
+                    retVal.Add(media);
+                }
+            }
+            return retVal;
+
         }
 
         //Get User Items (favorites, Purchases, Packages)

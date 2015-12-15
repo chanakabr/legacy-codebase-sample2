@@ -107,6 +107,7 @@
     <Compile Include="CatalogLoaders\APIAutocompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIExternalRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIExternalSearchMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIUnifiedBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="DataLoaders\APIChannelLoader.cs" />
     <Compile Include="DataLoaders\APICustomAutoCompleteLoader.cs" />
     <Compile Include="DataLoaders\APIExternalRelatedMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIExternalSearchMediaLoader.cs" />
     <Compile Include="DataLoaders\ApiLastWatchedLoader.cs" />
     <Compile Include="DataLoaders\APIMediaHit.cs" />
     <Compile Include="DataLoaders\APIMediaLoader.cs" />
