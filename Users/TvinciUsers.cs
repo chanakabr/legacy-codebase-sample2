@@ -525,7 +525,7 @@ namespace Users
             }
 
             Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID);
-            u.Initialize(oBasicData, sDynamicData, m_nGroupID);
+            u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData), true);    //u.Save(m_nGroupID);  
 
