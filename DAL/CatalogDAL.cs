@@ -20,9 +20,7 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-
         private const int RETRY_LIMIT = 5;
-
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -81,7 +79,7 @@ namespace Tvinci.Core.DAL
 
             return ds;
         }
-        
+
         public static DataTable Get_ChannelBaseData(int nGroupID, int nChannelID)
         {
             ODBCWrapper.StoredProcedure spChannelBaseData = new ODBCWrapper.StoredProcedure("Get_ChannelBaseData");
@@ -1661,7 +1659,6 @@ namespace Tvinci.Core.DAL
             return usersWatchHistory;
         }
 
-
         public static List<UserMediaMark> GetMediaMarksLastDateByUsers(List<int> usersList)
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
@@ -1826,7 +1823,6 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-
         public static Dictionary<int, List<EpgPicture>> GetGroupTreePicEpgUrl(int parentGroupID)
         {
             Dictionary<int, List<EpgPicture>> res = null;
@@ -1884,7 +1880,6 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-
 
         public static DataTable GetPicEpgURL(int groupID)
         {
@@ -2298,8 +2293,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-
-
         public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
@@ -2308,7 +2301,6 @@ namespace Tvinci.Core.DAL
 
             DateTime currentDate = DateTime.UtcNow;
 
-            #region add data to domain
             while (limitRetries >= 0)
             {
 
@@ -2358,9 +2350,7 @@ namespace Tvinci.Core.DAL
                 else
                     break;
             }
-            #endregion
 
-            #region storing this by the npvrID
             limitRetries = RETRY_LIMIT;
             string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sNpvrID);
             while (limitRetries >= 0)
@@ -2412,7 +2402,6 @@ namespace Tvinci.Core.DAL
                 else
                     break;
             }
-            #endregion
         }
 
         public static int GetLastPosition(string NpvrID, int userID)
@@ -2929,8 +2918,6 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        #region RecommendationEngine
-
         public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
             RecommendationEngine result = null;
@@ -2989,7 +2976,7 @@ namespace Tvinci.Core.DAL
         public static RecommendationEngine GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
         {
             RecommendationEngine result = null;
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3027,7 +3014,7 @@ namespace Tvinci.Core.DAL
             {
                 result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
             }
-           
+
             return result;
         }
 
@@ -3322,10 +3309,6 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        #endregion
-
-        #region External Channel
-
         public static List<ExternalChannel> GetExternalChannel(int groupID, int status = 1, int isActive = 1)
         {
             List<ExternalChannel> res = new List<ExternalChannel>();
@@ -3357,6 +3340,7 @@ namespace Tvinci.Core.DAL
             }
             return res;
         }
+
         public static ExternalChannel GetExternalChannelById(int groupID, int channelId, int status = 1, int? isActive = null)
         {
             ExternalChannel result = null;
@@ -3380,7 +3364,6 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
-
 
         public static ExternalChannel GetExternalChannel(string channelId)
         {
@@ -3430,7 +3413,7 @@ namespace Tvinci.Core.DAL
         public static ExternalChannel GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
             ExternalChannel result = null;
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3537,7 +3520,6 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-
         public static List<ExternalRecommendationEngineEnrichment> GetAvailableEnrichments()
         {
             List<ExternalRecommendationEngineEnrichment> result = new List<ExternalRecommendationEngineEnrichment>();
@@ -3581,6 +3563,7 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
+
         private static int GetEnrichments(List<ExternalRecommendationEngineEnrichment> list)
         {
             int enrichmentListValue = 0;
@@ -3606,10 +3589,9 @@ namespace Tvinci.Core.DAL
 
             return list;
         }
-        #endregion
 
         public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine,
-                                                     out int RelatedRecommendationEngine, out int SearchRecommendationEngine, 
+                                                     out int RelatedRecommendationEngine, out int SearchRecommendationEngine,
                                                      out int RelatedRecommendationEngineEnrichments, out int SearchRecommendationEngineEnrichments)
         {
             isRegionalizationEnabled = false;
@@ -3644,6 +3626,26 @@ namespace Tvinci.Core.DAL
                     SearchRecommendationEngineEnrichments = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE_ENRICHMENTS");
                 }
             }
+        }
+
+        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PicsData");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@MediaId", mediaId);
+                sp.AddParameter("@RatioId", ratioId);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get pics data", ex);
+            }
+            return null;
         }
     }
 }
