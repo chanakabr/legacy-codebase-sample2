@@ -114,6 +114,7 @@
     <Compile Include="MessageQueue.cs" />
     <Compile Include="ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannelResponseList.cs" />
+    <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngineResponseList.cs" />
