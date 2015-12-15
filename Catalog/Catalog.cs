@@ -5121,7 +5121,7 @@ namespace Catalog
 
 			// If this is a manual channel, a sliding window or we have an additional filter - 
 			// the initial search will not be paged. Paging will be done later on
-            if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel) || !string.IsNullOrEmpty(request.filterQuery))
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel))
 			{
 				pageIndex = unifiedSearchDefinitions.pageIndex;
 				pageSize = unifiedSearchDefinitions.pageSize;
@@ -5781,6 +5781,8 @@ namespace Catalog
 
 			#endregion
 
+            BooleanPhraseNode initialTree = null;
+
             // If this is a KSQL channel
             if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
             {
@@ -5793,7 +5795,7 @@ namespace Catalog
                 }
                 else
                 {
-                    definitions.filterPhrase = filterTree;
+                    initialTree = filterTree;
                 }
 
                 #region Asset Types
@@ -5865,8 +5867,6 @@ namespace Catalog
                     break;
                 }
 
-                BooleanPhrase channelTags = null;
-
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
                     List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
@@ -5925,49 +5925,55 @@ namespace Catalog
                         }
                     }
 
-                    channelTags = new BooleanPhrase(channelTagsNodes, cutType);
+                    initialTree = new BooleanPhrase(channelTagsNodes, cutType);
                 }
-
-                // Connect the request's filter query with the channel's tags/metas definitions
-
-                BooleanPhraseNode root = null;
-
-                if (!string.IsNullOrEmpty(request.filterQuery))
-                {
-                    string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
-
-                    // Build boolean phrase tree based on filter expression
-                    BooleanPhraseNode filterTree = null;
-                    var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
-
-                    if (status.Code != (int)eResponseStatus.OK)
-                    {
-                        throw new KalturaException(status.Message, status.Code);
-                    }
-
-                    if (channelTags != null)
-                    {
-                        List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
-
-                        rootNodes.Add(channelTags);
-                        rootNodes.Add(filterTree);
-
-                        root = new BooleanPhrase(rootNodes, eCutType.And);
-                    }
-                    else
-                    {
-                        root = filterTree;
-                    }
-                }
-                else
-                {
-                    root = channelTags;
-                }
-
-                definitions.filterPhrase = root;
 
                 #endregion
             }
+
+            #region Final Filter Tree
+
+
+            // Connect the request's filter query with the channel's tags/metas definitions
+
+            BooleanPhraseNode root = null;
+
+            if (!string.IsNullOrEmpty(request.filterQuery))
+            {
+                string filterExpression = HttpUtility.HtmlDecode(request.filterQuery);
+
+                // Build boolean phrase tree based on filter expression
+                BooleanPhraseNode requestFilterTree = null;
+                var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref requestFilterTree);
+
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(status.Message, status.Code);
+                }
+
+                if (initialTree != null)
+                {
+                    List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
+
+                    rootNodes.Add(initialTree);
+                    rootNodes.Add(requestFilterTree);
+
+                    root = new BooleanPhrase(rootNodes, eCutType.And);
+                }
+                else
+                {
+                    root = requestFilterTree;
+                }
+            }
+            else
+            {
+                root = initialTree;
+            }
+
+            definitions.filterPhrase = root;
+
+
+            #endregion
 
             // Get days offset for EPG search from TCM
             definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
