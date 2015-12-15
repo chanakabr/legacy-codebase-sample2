@@ -342,8 +342,19 @@ namespace ApiObjects.SearchObjects
                 {
                     isWord = !isOperand; // a word which is not an operand
                     isOperandWord = isOperand; // operand but not space or '('
+
                     buffer[lastBufferIndex++] = chr;
-                    buffer[lastBufferIndex] = '\0';
+
+                    // when the entire expression is invalid (input is a random sentence)
+                    // we will get here and exceed the limit
+                    if (lastBufferIndex < expression.Length)
+                    {
+                        buffer[lastBufferIndex] = '\0';
+                    }
+                    else
+                    {
+                        lastBufferIndex = expression.Length - 1;
+                    }
                 }
             }
 

@@ -339,7 +339,7 @@ namespace Users
             int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, arrGroupIDs);
 
             User masterUser = new User();
-            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID);
+            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID, false);
 
             if (masterUserID <= 0 || !bInit || !masterUser.m_isDomainMaster)
             {
@@ -737,7 +737,16 @@ namespace Users
 
             // remove from cache
             if (SuspendSucceed)
+            {
+                // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (int userID in domain.m_UsersIDs)
+                {
+                    // Remove Users
+                    usersCache.RemoveUser(userID, m_nGroupID);
+                }
+            }
 
             // update result
             if (SuspendSucceed)
@@ -780,7 +789,16 @@ namespace Users
 
             // remove from cache
             if (ResumeSucceed)
+            {
+                // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (int userID in domain.m_UsersIDs)
+                {
+                    // Remove Users
+                    usersCache.RemoveUser(userID, m_nGroupID);
+                }
+            }
 
             // update result
             if (ResumeSucceed)
@@ -1055,7 +1073,29 @@ namespace Users
                 bool tempIsMaster = false;
                 int tempOperatorID = 0;
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
-                int domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
+                int domainID = 0;
+                try 
+	            {
+                    // try getting user from cache
+                    User user = null;
+                    UsersCache usersCache = UsersCache.Instance();
+                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid), m_nGroupID);                    
+                    if (user != null)
+                    {
+                        domainID = user.m_domianID;
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    log.Error("Failed getting user from cache", ex);
+                }
+
+                if(domainID==0)
+                {
+                    domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
+                }
+
                 if (domainID < 1 || domainID == (int)lDomainID)
                     return null;
                 res = oDomainCache.GetDomain(domainID, m_nGroupID);
@@ -1279,7 +1319,20 @@ namespace Users
             Domain domain = null;
             try
             {
-                var domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
+                // try getting user from cache
+                User user = null;
+                UsersCache usersCache = UsersCache.Instance();
+                user = usersCache.GetUser(int.Parse(siteGuid), groupId);
+                int domainId;
+                if (user != null)
+                {
+                    domainId = user.m_domianID;
+                }
+                else
+                {
+                    domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
+                }                
+
                 if (domainId == 0)
                     return null;
 

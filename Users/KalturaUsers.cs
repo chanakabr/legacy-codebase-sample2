@@ -16,7 +16,7 @@ namespace Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string DEFAULT_USER_CANNOT_BE_DELETED = "Default user cannot be deleted";
-        private const string MASTER_USER_CANNOT_BE_DELETED = "Master user cannot be deleted";
+        private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";        
         private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
         private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
 
@@ -232,10 +232,36 @@ namespace Users
 
             // add domain
             if (newUser.m_domianID <= 0)
+            {
                 FlowManager.AddDomain(ref userResponse, this, newUser, basicData.m_sUserName, nUserID, domainInfo, keyValueList);
+            }
             else
                 userResponse.Initialize(ResponseStatus.OK, newUser);
 
+            // add role to user
+            if (userResponse.m_RespStatus == ResponseStatus.OK)
+            {
+                long roleId;
+
+                if (DAL.UsersDal.IsUserDomainMaster(GroupId, nUserID))
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+                }
+                else
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId);
+                }
+
+                if (roleId != 0)
+                {
+                    DAL.UsersDal.Insert_UserRole(GroupId, nUserID.ToString(), roleId);
+                }
+                else
+                {
+                    userResponse.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
+                    log.Error("User created with no role");
+                }
+            }
             // create default rules
             FlowManager.CreateDefaultRules(ref userResponse, this, newUser, newUser.m_sSiteGUID, GroupId, keyValueList);
 
@@ -386,14 +412,14 @@ namespace Users
             return retVal;
         }
 
-        public override UserResponseObject GetUserData(string siteGuid)
+        public override UserResponseObject GetUserData(string siteGuid, bool shouldSaveInCache = true)
         {
             try
             {
                 Int32 userId = int.Parse(siteGuid);
                 User user = new User();
 
-                user.Initialize(userId, GroupId);
+                user.Initialize(userId, GroupId, shouldSaveInCache);
 
                 if (newsLetterImpl != null)
                 {
@@ -668,8 +694,8 @@ namespace Users
                 //Delete is not allowed if the user is in the master in the domain and there is only 1 master.
                 if (userDomain.m_masterGUIDs.Contains(userId) && userDomain.m_masterGUIDs.Count == 1)
                 {
-                    response.Code = (int)eResponseStatus.MasterUserCannotBeDeleted;
-                    response.Message = MASTER_USER_CANNOT_BE_DELETED;
+                    response.Code = (int)eResponseStatus.ExclusiveMasterUserCannotBeDeleted;
+                    response.Message = EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED;
                     return response;
                 }
 

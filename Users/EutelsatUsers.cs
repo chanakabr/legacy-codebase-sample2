@@ -112,7 +112,7 @@ namespace Users
             int nUserID = GetUserIDByUserName(sUN);
 
             User u = new User();
-            bool bInit = u.Initialize(nUserID, m_nGroupID);
+            bool bInit = u.Initialize(nUserID, m_nGroupID, false);
 
             UserResponseObject resp = new UserResponseObject();
             if (nUserID <= 0 || !bInit)

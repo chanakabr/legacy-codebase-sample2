@@ -662,6 +662,7 @@ namespace Users
             switch (status)
             {
                 case ResponseStatus.OK:
+                case ResponseStatus.UserCreatedWithNoRole:
                     result.Code = (int)eResponseStatus.OK;
                     result.Message = "OK";
                     break;

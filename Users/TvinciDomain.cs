@@ -88,6 +88,12 @@ namespace Users
                         case DomainStatus.DomainCreatedWithoutNPVRAccount:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
                             DomainsCache.Instance().InsertDomain(domain);
+
+                            // set user role to master 
+                            long roleId;
+                            if (!long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId))
+                                DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId);
+
                             break;
                         case DomainStatus.UserExistsInOtherDomains:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);

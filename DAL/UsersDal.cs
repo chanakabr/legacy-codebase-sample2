@@ -144,7 +144,7 @@ namespace DAL
             return updateRes;
         }
 
-        public static DataTable GetUserBasicData(long userID)
+        public static DataTable GetUserBasicData(long userID, int groupID = 0)
         {
             try
             {
@@ -152,6 +152,10 @@ namespace DAL
                 spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 spGetUserBasicData.AddParameter("@userID", userID);
+                if (groupID > 0)
+                {
+                    spGetUserBasicData.AddParameter("@groupID", groupID);
+                }
                 DataSet ds = spGetUserBasicData.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -2101,5 +2105,38 @@ namespace DAL
             return ret;
         }
 
+
+        public static bool IsUserDomainMaster(int groupId, int userId)
+        {
+            bool result = false;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("IsUserDomainMaster");
+                sp.AddParameter("@user_id", userId);
+                sp.AddParameter("@group_id", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dt = ds.Tables[0];
+                    if (dt != null)
+                    {
+                        if (dt.Rows != null && dt.Rows.Count > 0)
+                        {
+                            if (ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_master"]) == 1)
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return result; 
+        }
     }
 }

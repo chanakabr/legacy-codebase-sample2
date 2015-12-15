@@ -47,7 +47,7 @@ namespace Users
         }
 
         public abstract UserResponseObject GetUserByCoGuid(string coGuid, int operatorId);
-        public abstract UserResponseObject GetUserData(string sSiteGUID);
+        public abstract UserResponseObject GetUserData(string sSiteGUID, bool sholudSaveInCache = true);
         public abstract void Initialize();
 
         ////Domain
@@ -112,7 +112,7 @@ namespace Users
         {
 
             if (uro == null)
-                uro = GetUserData(sSiteGUID);
+                uro = GetUserData(sSiteGUID, false);
 
             if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null)
                 return false;

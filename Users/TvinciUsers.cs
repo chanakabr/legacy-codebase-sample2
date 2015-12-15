@@ -19,7 +19,7 @@ namespace Users
         private static object lockObj = new object();
 
         private const string DEFAULT_USER_CANNOT_BE_DELETED = "Default user cannot be deleted";
-        private const string MASTER_USER_CANNOT_BE_DELETED = "Master user cannot be deleted";
+        private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";
         private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
         private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
 
@@ -286,7 +286,7 @@ namespace Users
 
         public override UserState GetUserState(int siteGuid)
         {
-            return User.GetCurrentUserState(siteGuid);
+            return User.GetCurrentUserState(siteGuid, m_nGroupID);
         }
 
         public override UserState GetUserInstanceState(int siteGuid, string sessionID, string sIP, string deviceID)
@@ -343,7 +343,7 @@ namespace Users
 
             if (nID != 0)
             {
-                u.Initialize(nID, m_nGroupID);
+                u.Initialize(nID, m_nGroupID, false);
                 resp.m_user = u;
                 resp.m_RespStatus = ResponseStatus.OK;
 
@@ -373,7 +373,7 @@ namespace Users
 
             if (nID != 0 && nID == tokenUserID)
             {
-                u.Initialize(nID, m_nGroupID);
+                u.Initialize(nID, m_nGroupID, false);
 
 
                 List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
@@ -430,7 +430,7 @@ namespace Users
 
             User newUser = new User();
             User masterUser = new User();
-            bool bInit = newUser.Initialize(nUserID, m_nGroupID) && masterUser.Initialize(nMasterUserID, m_nGroupID);
+            bool bInit = newUser.Initialize(nUserID, m_nGroupID, false) && masterUser.Initialize(nMasterUserID, m_nGroupID, false);
 
             if (nUserID <= 0 || nMasterUserID <= 0 || !bInit || !masterUser.m_isDomainMaster)
             {
@@ -516,23 +516,43 @@ namespace Users
             {
                 oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());
             }
-            u.Initialize(oBasicData, sDynamicData, m_nGroupID, sPassword);
-            if (u.m_sSiteGUID != "")
+
+            int userID = GetUserIDByUserName(oBasicData.m_sUserName);
+            if (userID > 0)
             {
                 resp.Initialize(ResponseStatus.UserExists, u);
                 return resp;
             }
-            else
+
+            Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID);
+            u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
+            
+            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData), true);    //u.Save(m_nGroupID);  
+
+            // add role to user
+            if (nUserID > 0)
             {
-                if (u.m_oBasicData != oBasicData)
+                long roleId;
+
+                if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, nUserID))
                 {
-                    resp.Initialize(ResponseStatus.UserExists, u);
-                    return resp;
+                    long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+                }
+                else
+                {
+                    long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId);
+                }
+
+                if (roleId != 0)
+                {
+                    DAL.UsersDal.Insert_UserRole(m_nGroupID, nUserID.ToString(), roleId);
+                }
+                else
+                {
+                    resp.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
+                    log.Error("User created with no role");
                 }
             }
-
-            //the save includes the initialization of  u.m_domianID
-            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
 
             if (u.m_domianID <= 0)
             {
@@ -557,7 +577,7 @@ namespace Users
                 }
             }
 
-            //Send Wellcome Email
+            //Send Welcome Email
             if (m_mailImpl != null)
             {
                 SendMailImpl(resp.m_user);
@@ -582,7 +602,12 @@ namespace Users
                 //add new domain
                 DomainResponseObject dResp = AddNewDomain(sUserName, nUserID, m_nGroupID);
                 if (dResp != null && dResp.m_oDomain != null)
+                {
                     u.m_domianID = dResp.m_oDomain.m_nDomainID;
+                    //Remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(nUserID, m_nGroupID);
+                }
 
                 if (dResp.m_oDomainResponseStatus != DomainResponseStatus.OK)
                 {
@@ -646,7 +671,7 @@ namespace Users
         {
             Int32 nUserID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID);
+            u.Initialize(nUserID, m_nGroupID, false);
             if (u.m_oBasicData.m_sPassword != "")
             {
                 TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
@@ -660,7 +685,7 @@ namespace Users
         {
             Int32 nUserID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID);
+            u.Initialize(nUserID, m_nGroupID, false);
 
             if (u.m_oBasicData.m_sPassword != "")
             {
@@ -729,14 +754,14 @@ namespace Users
 
         }
 
-        public override UserResponseObject GetUserData(string sSiteGUID)
+        public override UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true)
         {
             try
             {
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User();
 
-                u.Initialize(nUserID, m_nGroupID);
+                u.Initialize(nUserID, m_nGroupID, shouldSaveInCache);
 
                 if (m_newsLetterImpl != null)
                 {
@@ -1059,7 +1084,7 @@ namespace Users
                 UserResponseObject resp = new UserResponseObject();
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User();
-                u.Initialize(nUserID, m_nGroupID);
+                u.Initialize(nUserID, m_nGroupID, false);
                 if (u.m_oBasicData.m_sUserName != "")
                 {
                     UserBasicData b = new UserBasicData();
@@ -1193,7 +1218,7 @@ namespace Users
                 return ret;
             }
 
-            uro.m_user.Save(m_nGroupID);
+            uro.m_user.Save(m_nGroupID, false, false);
             ret.m_user = uro.m_user;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
@@ -1204,7 +1229,7 @@ namespace Users
             UserResponseObject ret = new UserResponseObject();
             Int32 nID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nID, m_nGroupID);
+            u.Initialize(nID, m_nGroupID, false);
             if (u.m_oBasicData.m_sPassword == "")
             {
                 ret.m_RespStatus = ResponseStatus.UserDoesNotExist;
@@ -1220,7 +1245,7 @@ namespace Users
                 return ret;
             }
 
-            u.Save(m_nGroupID);
+            u.Save(m_nGroupID, false, false);
             ret.m_user = u;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
@@ -1517,7 +1542,7 @@ namespace Users
         {
             Int32 nUserID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID);
+            u.Initialize(nUserID, m_nGroupID, false);
 
             if (!string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
@@ -1735,7 +1760,7 @@ namespace Users
             Domain domain = new Domain();
 
             //Check if UserGuid is valid
-            if (IsUserIsValid(nGroupID, nUserID) == false)
+            if (IsUserIsValid(nGroupID, nUserID, false) == false)
             {
                 domain.m_DomainStatus = DomainStatus.Error;
                 return domain;
@@ -1751,12 +1776,12 @@ namespace Users
 
         }
 
-        private static bool IsUserIsValid(int nGroupID, int nUserID)
+        private static bool IsUserIsValid(int nGroupID, int nUserID, bool shouldSaveInCache = true)
         {
             //Check if UserID is valid
             User user = new User();
 
-            bool bInit = user.Initialize(nUserID, nGroupID);
+            bool bInit = user.Initialize(nUserID, nGroupID, shouldSaveInCache);
 
             UserResponseObject resp = new UserResponseObject();
 
@@ -1818,8 +1843,8 @@ namespace Users
                 //Delete is not allowed if the user is in the master in the domain and there is only 1 master.
                 if (userDomain.m_masterGUIDs.Contains(userId) && userDomain.m_masterGUIDs.Count == 1)
                 {
-                    response.Code = (int)eResponseStatus.MasterUserCannotBeDeleted;
-                    response.Message = MASTER_USER_CANNOT_BE_DELETED;
+                    response.Code = (int)eResponseStatus.ExclusiveMasterUserCannotBeDeleted;
+                    response.Message = EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED;
                     return response;
                 }
 

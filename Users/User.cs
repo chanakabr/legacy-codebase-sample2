@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
-using DAL;
-using ApiObjects;
-using KLogMonitor;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using ApiObjects;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
 
 namespace Users
 {
+    /// <summary>
+    /// This class represents user object
+    /// </summary>
+    [Serializable]
+    [JsonObject(Id = "User")]
     public class User
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public User()
         {
             m_oBasicData = new UserBasicData();
@@ -22,10 +29,10 @@ namespace Users
             m_eSuspendState = DomainSuspentionStatus.OK;
         }
 
-        public User(int nGroupID, int nUserID)
+        public User(int nGroupID, int nUserID, bool shouldSaveInCache = false)
             : this()
         {
-            Initialize(nUserID, nGroupID);
+            Initialize(nUserID, nGroupID, shouldSaveInCache);
         }
 
         public User Clone()
@@ -46,7 +53,7 @@ namespace Users
             return user;
         }
 
-        public static UserState DoUserAction(int siteGuid, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
+        public static UserState DoUserAction(int siteGuid, int groupID, string sessionID, string sIP, string sIDInDevices, UserState currentState, UserAction action, bool needActivation, ref int instanceID)
         {
             UserState retVal = UserState.Unknown;
             switch (currentState)
@@ -117,6 +124,11 @@ namespace Users
                     }
             }
             UsersDal.Update_UserStateInUsers(siteGuid, (int)retVal);
+
+            // Remove user from cache
+            UsersCache usersCache = UsersCache.Instance();
+            usersCache.RemoveUser(siteGuid, groupID);
+
             return retVal;
         }
 
@@ -131,13 +143,32 @@ namespace Users
             updateQUery = null;
         }
 
-        public static UserState GetCurrentUserState(int siteGuid)
+        public static UserState GetCurrentUserState(int siteGuid, int groupID, bool shouldGetFromCache = true)
         {
             UserState retVal = UserState.Unknown;
             int nUserState = 0;
-            nUserState = UsersDal.Get_UserStateFromUsers(siteGuid);
-            if (Enum.IsDefined(typeof(UserState), nUserState))
-                retVal = (UserState)nUserState;
+            User user = null;
+
+            if (shouldGetFromCache)
+            {
+                //Get user from cache by siteGUID
+                UsersCache usersCache = UsersCache.Instance();
+                user = usersCache.GetUser(siteGuid, groupID);
+            }
+
+            if (user != null)
+            {
+                retVal = user.m_eUserState;
+            }
+            else
+            {
+                nUserState = UsersDal.Get_UserStateFromUsers(siteGuid);
+                if (Enum.IsDefined(typeof(UserState), nUserState))
+                {
+                    retVal = (UserState)nUserState;
+                }
+            }
+
             return retVal;
         }
 
@@ -216,6 +247,7 @@ namespace Users
             }
 
             int userID = Save(nGroupID);
+
             return userID;
         }
 
@@ -225,6 +257,19 @@ namespace Users
             {
                 m_oDynamicData = oDynamicData;
                 SaveDynamicData(nGroupID);
+
+                try
+                {
+                    // Remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(int.Parse(m_sSiteGUID), nGroupID);
+                }
+                catch (Exception ex)
+                {
+
+                    log.Error(string.Format("Failed removing user {0} from cache", m_sSiteGUID), ex);
+                }
+
             }
         }
 
@@ -278,6 +323,20 @@ namespace Users
             {
                 ret = ResponseStatus.ErrorOnUpdatingUserType;
             }
+
+            try
+            {
+                // Remove user from cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(int.Parse(m_sSiteGUID), nGroupID);
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+
+
             return ret;
         }
 
@@ -331,25 +390,55 @@ namespace Users
             return false;
         }
 
-        public bool Initialize(Int32 nUserID, Int32 nGroupID)
+        public void InitializeBasicAndDynamicData(UserBasicData oBasicData, UserDynamicData oDynamicData)
+        {                          
+            m_oBasicData = oBasicData;
+            m_oDynamicData = oDynamicData;
+        }        
+
+        public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldSaveInCache = true)
         {
             bool res = false;
 
             try
-            {
-                res = m_oBasicData.Initialize(nUserID, nGroupID);
-                bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
+            {                
+                User user = null;
+                // Get user from cache by siteGUID
+                UsersCache usersCache = UsersCache.Instance();
+                user = usersCache.GetUser(nUserID, nGroupID);
 
-                m_sSiteGUID = nUserID.ToString();
-
-                m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
-
-                if (m_domianID <= 0)
+                if (user != null)
                 {
-                    m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
+                    m_oBasicData = user.m_oBasicData;
+                    m_oDynamicData = user.m_oDynamicData;
+                    m_sSiteGUID = user.m_sSiteGUID;
+                    m_domianID = user.m_domianID;
+                    m_eUserState = user.m_eUserState;
+                    m_eSuspendState = user.m_eSuspendState;
+                    res = true;
                 }
+                else
+                {
+                    res = m_oBasicData.Initialize(nUserID, nGroupID);
+                    bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
 
-                m_eUserState = GetCurrentUserState(nUserID);
+                    m_sSiteGUID = nUserID.ToString();
+
+                    m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
+
+                    if (m_domianID <= 0)
+                    {
+                        m_domianID = DomainDal.GetDomainIDBySiteGuid(nGroupID, nUserID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
+                    }
+
+                    m_eUserState = GetCurrentUserState(nUserID, nGroupID, false);
+
+                    // Add user to cache only if initialization succeeded
+                    if (shouldSaveInCache && res && res2)
+                    {
+                        usersCache.InsertUser(this, nGroupID);
+                    }
+                }
 
             }
             catch (Exception ex)
@@ -373,9 +462,13 @@ namespace Users
 
             try
             {
-                res = Initialize(nUserID, nGroupID);
+                res = Initialize(nUserID, nGroupID, false);
                 m_domianID = domainID;
                 m_isDomainMaster = isDomainMaster;
+
+                // Add user to cache
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.InsertUser(this, nGroupID);
             }
             catch (Exception ex)
             {
@@ -451,9 +544,9 @@ namespace Users
             return (Save(nGroupID, false));
         }
 
-        public int Save(Int32 nGroupID, bool bIsSetUserActive)
+        public int Save(Int32 nGroupID, bool bIsSetUserActive, bool isRemoveFromCache = true)
         {
-            int nID = (-1);
+            int userID = -1;
 
             try
             {
@@ -466,7 +559,7 @@ namespace Users
 
                     string sActivationToken = bIsSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
 
-                    int userInserted = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName,
+                    userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName,
                                                                m_oBasicData.m_sPassword,
                                                                m_oBasicData.m_sSalt,
                                                                m_oBasicData.m_sFirstName,
@@ -483,58 +576,74 @@ namespace Users
                                                                m_oBasicData.m_UserType.ID,
                                                                nGroupID);
 
-                    bool bInit = Initialize(m_oBasicData, m_oDynamicData, nGroupID, "");
-
-                    if ((!bInit) || (!int.TryParse(m_sSiteGUID, out nID)) || (!m_oBasicData.Save(nID)))
+                    if (userID > 0)
+                    {
+                        m_sSiteGUID = userID.ToString();                        
+                    }
+                    else
                     {
                         return (-1);
                     }
 
-                    if ((m_oDynamicData.m_sUserData != null) && (!m_oDynamicData.Save(nID)))
+                    if (!m_oBasicData.Save(userID))
                     {
                         return (-1);
                     }
 
-                    return userInserted;
-                }
-
-                // Existing user - Update
-                nID = int.Parse(m_sSiteGUID);
-                bool saved = m_oBasicData.Save(nID);
-
-                if (!saved) { return (-1); }
-
-                if (m_oDynamicData.m_sUserData != null)
-                {
-                    saved = m_oDynamicData.Save(nID);
-
-                    if (!saved) { return (-2); }
-                }
-
-
-                try
-                {
-                    Notifiers.BaseUsersNotifier t = null;
-                    Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
-
-                    if (t != null)
+                    else if (m_oDynamicData != null &&  m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
                     {
-                        t.NotifyChange(m_sSiteGUID);
+                        return (-1);
+                    }
+
+                    return userID;
+                }
+
+                // Existing user - Update & Remove from cache
+                if (int.TryParse(m_sSiteGUID, out userID))
+                {
+                    if (isRemoveFromCache)
+                    {
+                        UsersCache usersCache = UsersCache.Instance();
+                        usersCache.RemoveUser(userID, nGroupID);
+                    }
+
+                    bool saved = m_oBasicData.Save(userID);
+
+                    if (!saved) { return (-1); }
+
+                    if (m_oDynamicData.m_sUserData != null)
+                    {
+                        saved = m_oDynamicData.Save(userID);
+
+                        if (!saved) { return (-2); }
+                    }
+
+
+                    try
+                    {
+                        Notifiers.BaseUsersNotifier t = null;
+                        Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
+
+                        if (t != null)
+                        {
+                            t.NotifyChange(m_sSiteGUID);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
 
-                }
+                return userID;
 
             }
             catch
             {
                 return (-1);
             }
-
-            return nID;
+            
         }
 
         public bool SaveDynamicData(int nGroupID)
@@ -654,11 +763,11 @@ namespace Users
         {
             UserResponseObject retVal = new UserResponseObject();
             User u = new User();
-            u.Initialize(siteGuid, nGroupID);
-            UserState currentState = GetCurrentUserState(siteGuid);
+            u.Initialize(siteGuid, nGroupID, false);
+            UserState currentState = GetCurrentUserState(siteGuid, nGroupID);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
-            UserState userStats = DoUserAction(siteGuid, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
+            UserState userStats = DoUserAction(siteGuid, nGroupID, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();
@@ -693,16 +802,16 @@ namespace Users
         }
 
         private void UpdateUserTypeOnBasicData(Int32 nGroupID)
-        {
+        {            
             if (m_oBasicData.m_UserType.ID == null)
             {
-                m_oBasicData.m_UserType = GetDefaultUserType(nGroupID);
+                m_oBasicData.m_UserType = GetDefaultUserType(nGroupID);                
             }
             else //Check if user type id exists at users_types table
             {
                 if (IsUserTypeExist(nGroupID, m_oBasicData.m_UserType.ID.Value) == false)
                 {
-                    m_oBasicData.m_UserType.ID = null;
+                    m_oBasicData.m_UserType.ID = null;                    
                 }
             }
         }
@@ -728,7 +837,7 @@ namespace Users
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
                     Int32.TryParse(retObj.m_user.m_sSiteGUID, out nSiteGuid);
-                    UserState currUserState = GetCurrentUserState(nSiteGuid);
+                    UserState currUserState = GetCurrentUserState(nSiteGuid, nGroupID);
 
                     if (retObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
@@ -737,11 +846,11 @@ namespace Users
 
                     if (currUserState == UserState.Unknown || currUserState == UserState.LoggedOut)
                     {
-                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                     }
                     else if (currUserState == UserState.Activated)
                     {
-                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, true, ref instanceID);
+                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, true, ref instanceID);
                     }
                     else if (currUserState == UserState.SingleSignIn || currUserState == UserState.DoubleSignIn)
                     {
@@ -773,7 +882,7 @@ namespace Users
                                     if (dbNow > compDate)
                                     {
                                         UpdateUserSession(lastUserSessionID, true);
-                                        DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, UserState.LoggedOut, UserAction.SignIn, false, ref instanceID);
+                                        DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, UserState.LoggedOut, UserAction.SignIn, false, ref instanceID);
                                     }
                                     else
                                     {
@@ -802,16 +911,16 @@ namespace Users
                             }
                             else
                             {
-                                DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                                DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                             }
                         }
 
                         else
                         {
-                            DoUserAction(nSiteGuid, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
+                            DoUserAction(nSiteGuid, nGroupID, sessionID, sIP, sDeviceIDToUse, currUserState, UserAction.SignIn, false, ref instanceID);
                         }
                     }
-                    retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid);
+                    retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid, nGroupID);
                 }
 
             }
@@ -824,7 +933,7 @@ namespace Users
         {
             UserResponseObject retObj = new UserResponseObject();
             User u = new User();
-            bool init = u.Initialize(siteGuid, nGroupID);
+            bool init = u.Initialize(siteGuid, nGroupID, false);
 
             if (!init)
             {
@@ -866,7 +975,7 @@ namespace Users
                 if (nID > 0)
                 {
                     User u = new User();
-                    bool bOk = u.Initialize(nID, nGroupID);
+                    bool bOk = u.Initialize(nID, nGroupID, false);
 
                     if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
                     {
@@ -950,7 +1059,7 @@ namespace Users
             //Check if UserGuid is valid
             User user = new User();
 
-            bool init = user.Initialize(userGuid, nGroupID);
+            bool init = user.Initialize(userGuid, nGroupID, false);
 
             UserResponseObject resp = new UserResponseObject();
 
@@ -968,8 +1077,8 @@ namespace Users
 
         public static bool IsUserValid(int nGroupID, int userGuid, ref User user)
         {
-            //Check if UserGuid is valid
-            bool init = user.Initialize(userGuid, nGroupID);
+            // Check if UserGuid is valid
+            bool init = user.Initialize(userGuid, nGroupID, false);
 
             UserResponseObject resp = new UserResponseObject();
 
@@ -986,13 +1095,21 @@ namespace Users
         }
 
 
+        [JsonProperty()]
         public UserBasicData m_oBasicData;
+
+        [JsonProperty()]
         public UserDynamicData m_oDynamicData;
+
+        [JsonProperty()]
+        public UserState m_eUserState;
+
+        [JsonProperty()]
+        public DomainSuspentionStatus m_eSuspendState;
+
         public string m_sSiteGUID;
         public int m_domianID;
         public bool m_isDomainMaster;
-        public UserState m_eUserState;
-        public int m_nSSOOperatorID;
-        public DomainSuspentionStatus m_eSuspendState;
+        public int m_nSSOOperatorID;        
     }
 }
