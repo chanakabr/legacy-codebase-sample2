@@ -176,6 +176,22 @@ namespace Catalog
             }
         }
 
+        static public Int64 GetLongSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToInt64(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         public static int GetIntSafeVal(DataRow dr, string sField)
         {
             try

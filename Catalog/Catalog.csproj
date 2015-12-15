@@ -123,6 +123,7 @@
   <ItemGroup>
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
+    <Compile Include="PicData.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Request\ExternalChannelRequest.cs" />

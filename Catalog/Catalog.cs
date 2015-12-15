@@ -32,6 +32,7 @@ using TVinciShared;
 using CachingHelpers;
 using AdapterControllers;
 using KlogMonitorHelper;
+using System.IO;
 
 namespace Catalog
 {
@@ -473,7 +474,15 @@ namespace Catalog
             return string.Format("{0}||{1}", nMediaID, nMediaFileID);
         }
 
-        /*Insert all Pictures that return from the "CompleteDetailsForMediaResponse" into List<Picture>*/
+        /// <summary>
+        /// in case of old server image: Insert all Pictures that return from the "CompleteDetailsForMediaResponse" into Pictures list
+        /// in case of new server version: rebuild image URL so it will lead to new image server
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="mediaId"></param>
+        /// <param name="dtPic"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         private static List<Picture> GetAllPic(int groupId, int mediaId, DataTable dtPic, ref bool result)
         {
             result = true;
@@ -481,7 +490,6 @@ namespace Catalog
             Picture picObj;
             try
             {
-
                 if (dtPic != null)
                 {
                     // use old/new image server
@@ -499,18 +507,75 @@ namespace Catalog
                     }
                     else
                     {
-                        // new image server -> get version + ration
+                        // new image server - get pictures data
+                        List<PicData> picsData = new List<PicData>();
                         DataRowCollection rows = CatalogDAL.GetPicsData(mediaId);
-                        if (rows != null)
+                        if (rows == null || rows.Count == 0)
+                            throw new Exception(string.Format("pics data were not found. MID: {0}", mediaId));
+                        else
                         {
-                            foreach (var row in rows)
+                            foreach (DataRow row in rows)
                             {
-
-
+                                picsData.Add(new PicData()
+                                {
+                                    RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                    Version = Utils.GetIntSafeVal(row, "VERSION"),
+                                    BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
+                                    PicId = Utils.GetLongSafeVal(row, "ID")
+                                });
                             }
                         }
 
+                        // build image server URL
+                        var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
+                        string imageServerUrl = string.Empty;
+                        if (imageServerUrlObj == null)
+                            throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
+                        else
+                        {
+                            imageServerUrl = imageServerUrlObj.ToString();
+                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                        }
 
+                        // get picture base URL
+                        string picBaseUrl = Path.GetFileNameWithoutExtension(picsData[0].BaseUrl);
+                        if (string.IsNullOrEmpty(picBaseUrl))
+                            throw new Exception("could not retrieve picture ID");
+
+                        for (int i = 0; i < dtPic.Rows.Count; i++)
+                        {
+                            picObj = new Picture();
+
+                            // get size string: <width>X<height>
+                            picObj.m_sSize = Utils.GetStrSafeVal(dtPic.Rows[i], "PICSIZE");
+
+                            // get ratio string
+                            picObj.ratio = Utils.GetStrSafeVal(dtPic.Rows[i], "RATIO");
+
+                            // get picture id: <base_url>_<ratio_id>
+                            int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
+                            picObj.id = string.Format("{0}_{1}", picBaseUrl, ratioId);
+
+                            // get version: if ratio_id exists in pics table => get its version
+                            var picdata = picsData.FirstOrDefault(x => x.RatioId == ratioId);
+                            if (picdata != null)
+                                picObj.version = picdata.Version;
+                            else
+                                picObj.version = 0;
+
+                            // build image URL. 
+                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                            //Example:   http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                            picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/100",
+                                imageServerUrl,                                // 0 <image_server_url>
+                                groupId,                                       // 1 <partner_id>
+                                picObj.id,                                     // 2 <image_id>
+                                picObj.version,                                // 3 <image_version>
+                                Utils.GetStrSafeVal(dtPic.Rows[i], "WIDTH"),   // 4 <image_width>
+                                Utils.GetStrSafeVal(dtPic.Rows[i], "HEIGHT")); // 5 <image_height>
+
+                            lPicObject.Add(picObj);
+                        }
                     }
                 }
             }
@@ -6092,3 +6157,4 @@ namespace Catalog
 
     }
 }
+
