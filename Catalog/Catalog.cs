@@ -62,6 +62,23 @@ namespace Catalog
 		internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
 		internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
 
+        private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
+		            {
+			            "name",
+			            "description",
+			            "epg_channel_id"
+		            };
+
+        private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
+		            {
+			            "like_counter",
+			            "views",
+			            "rating",
+			            "votes"
+		            };
+
+        private static int maxNGram = -1;
+
 		internal static int GetCurrentRequestDaysOffset()
 		{
 			int res = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
@@ -5463,24 +5480,16 @@ namespace Catalog
         private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, BooleanPhraseNode node)
         {
             Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-            int maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+
+            // initialize maximum nGram member only once - when this is negative it is still not set
+            if (maxNGram < 0)
+            {
+                maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+            }
+
             List<int> geoBlockRules = null;
             Dictionary<string, List<string>> mediaParentalRulesTags = null;
             Dictionary<string, List<string>> epgParentalRulesTags = null;
-            HashSet<string> reservedStringFields = new HashSet<string>()
-		            {
-			            "name",
-			            "description",
-			            "epg_channel_id"
-		            };
-
-            HashSet<string> reservedNumericFields = new HashSet<string>()
-		            {
-			            "like_counter",
-			            "views",
-			            "rating",
-			            "votes"
-		            };
 
             BooleanLeaf leaf = node as BooleanLeaf;
             bool isTagOrMeta;
@@ -5640,11 +5649,11 @@ namespace Catalog
                             throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (reservedNumericFields.Contains(searchKeyLowered))
+                    else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.valueType = typeof(long);
                     }
-                    else if (!reservedStringFields.Contains(searchKeyLowered))
+                    else if (!reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
                     {
                         throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
                     }
