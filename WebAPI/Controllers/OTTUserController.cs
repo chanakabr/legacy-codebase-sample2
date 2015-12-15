@@ -498,12 +498,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Permanently delete a user.
+        /// Permanently delete a user. User to delete cannot be an exclusive household master, and cannot be default user.
         /// </summary>        
-        /// <param name="user">The user model to delete</param>        
         /// <remarks>        
         /// Possible status codes: 
-        /// Household does not exists = 1006, Household suspended = 1009, User not exists in domain = 1020, User does not exist = 2000, Default user cannot be deleted = 2030, Master user cannot be deleted = 2031
+        /// Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
         /// </remarks>        
         [Route("delete"), HttpPost]
         public bool Delete()

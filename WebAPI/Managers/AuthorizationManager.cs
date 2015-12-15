@@ -165,7 +165,8 @@ namespace WebAPI.Managers
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                log.Error("IsUserInHousehold: got ClientException for GetDomainByUser", ex);
+                household = null;
             }
 
             if (household == null ||
@@ -173,6 +174,32 @@ namespace WebAPI.Managers
                 household.Users != null ? household.PendingUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
                 household.Users != null ? household.MasterUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
                 household.Users != null ? household.DefaultUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        internal static bool IsUserInGroup(string userId, int groupId)
+        {
+            KalturaOTTUser user = null;
+            try
+            {
+                var users = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { userId });
+                if (users != null && users.Count > 0)
+                {
+                    user = users[0];
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (user == null)
             {
                 return false;
             }

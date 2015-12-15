@@ -1,6 +1,8 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -11,6 +13,8 @@ namespace WebAPI.Utils
 {
     public class HouseholdUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static long GetHouseholdIDByKS(int groupID)
         {
             var ks = KS.GetFromRequest();
@@ -31,7 +35,8 @@ namespace WebAPI.Utils
             }
             catch (ClientException ex)
             {
-                ErrorUtils.HandleClientException(ex);
+                log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
+                domain = null;
             }
 
             if (domain == null)

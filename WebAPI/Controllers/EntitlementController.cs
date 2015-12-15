@@ -158,12 +158,8 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
-            long domainID = 0;
-            var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userId);
-
-            if (domain != null)
-                domainID = domain.Id;
-
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            
             try
             {
                 // call client

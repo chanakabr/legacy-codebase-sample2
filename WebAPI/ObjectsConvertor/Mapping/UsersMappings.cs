@@ -263,6 +263,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case WebAPI.Users.ResponseStatus.UserWithNoDomain:
                     result = KalturaUserState.user_with_no_household;
                     break;
+                case WebAPI.Users.ResponseStatus.UserCreatedWithNoRole:
+                    result = KalturaUserState.user_created_with_no_role;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user state");
             }
