@@ -5836,6 +5836,12 @@ namespace Catalog
             }
             else
             {
+                // if it contains only 0 - it means search all
+                if (definitions.mediaTypes != null && definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                {
+                    definitions.mediaTypes.Remove(0);
+                }
+
                 definitions.shouldSearchMedia = true;
 
                 #region Channel Tags
@@ -5888,21 +5894,34 @@ namespace Catalog
                                 break;
                             }
 
-                            List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
-                            string key = searchValue.m_sKey;
+                            string key = searchValue.m_sKey.ToLower();
 
+                            BooleanPhraseNode newNode = null;
                             if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
                             {
                                 key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
                             }
 
-                            foreach (var item in searchValue.m_lValue)
+                            // If only 1 value, use it as a single node (there's no need to create a phrase with 1 node...)
+                            if (searchValue.m_lValue.Count == 1)
                             {
-                                BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
-                                innerNodes.Add(leaf);
+                                newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals);
+                            }
+                            else
+                            {
+                                // If there are several values, connect all the values with the inner cut type
+                                List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
+
+                                foreach (var item in searchValue.m_lValue)
+                                {
+                                    BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
+                                    innerNodes.Add(leaf);
+                                }
+
+                                newNode = new BooleanPhrase(innerNodes, innerCutType);
                             }
 
-                            BooleanPhrase currentPhrase = new BooleanPhrase(innerNodes, innerCutType);
+                            channelTagsNodes.Add(newNode);
                         }
                     }
 
