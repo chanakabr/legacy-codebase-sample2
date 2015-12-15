@@ -39,6 +39,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
             {
                 var form = HttpContext.Current.Request.Form;
 
+                // the filter expression is the 9th input field
                 string filterExpression = form["9_val"];
 
                 bool validExpression = true;
