@@ -4750,6 +4750,7 @@ namespace Catalog
                                                                                                 request.m_nPageSize,
                                                                                                 request.m_nPageIndex,
                                                                                                 enrichments,
+                                                                                                request.m_sFreeParam,
                                                                                                 out requestId);
                 }
                 catch (KalturaException ex)
