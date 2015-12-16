@@ -3645,5 +3645,125 @@ namespace Tvinci.Core.DAL
                 }
             }
         }
+
+        public static bool DeleteKSQLChannel(int groupID, int channelId)
+        {
+            bool result = false;
+
+            try
+            {
+                UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
+                updateQuery += " WHERE ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", channelId);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 1);
+
+                result = updateQuery.Execute();
+                updateQuery.Finish();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
+            }
+
+            return result;
+        }
+
+        public static List<KSQLChannel> GetKSQLChannels(int groupID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static KSQLChannel GetKSQLChannelById(int groupID, int channelId)
+        {
+            KSQLChannel result = null;
+
+            var dataSet = GetChannelDetails(new List<int>() { channelId });
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
+            {
+                DataTable channelsTable = dataSet.Tables[0];
+                DataTable assetTypesTable = dataSet.Tables[1];
+
+                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0]);
+            }
+
+            return result;
+        }
+
+
+        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData)
+        {
+            KSQLChannel channel = new KSQLChannel();
+
+            channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+
+            int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+            int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+            int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+
+            // If the channel is in correct status
+            if ((isActive == 1) && (status == 1) && (channelType == 4))
+            {
+                channel.IsActive = isActive;
+                channel.Status = status;
+                channel.GroupID = channelGroupId;
+
+                #region Asset Types
+
+                if (assetTypesTable != null)
+                {
+                    List<DataRow> mediaTypes = assetTypesTable.Select("CHANNEL_ID = " + channel.ID).ToList();
+
+                    foreach (DataRow drMediaType in mediaTypes)
+                    {
+                        channel.AssetTypes.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    }
+                }
+
+                #endregion
+
+                #region Order
+
+                int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+
+                channel.OrderDir =
+                    (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
+
+                if (orderBy >= 1 && orderBy <= 30)// all META_STR/META_DOUBLE values
+                {
+                    // get the specific value of the meta
+                    int metaEnum = (orderBy);
+                    string enumName = Enum.GetName(typeof(MetasEnum), metaEnum);
+
+                    channel.OrderBy = enumName;
+                }
+                else
+                {
+                    channel.OrderBy =
+                        ((ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy)).ToString();
+                }
+                #endregion
+
+                channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+
+                BooleanPhraseNode node = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref node);
+
+                if (parseStatus.Code != 0)
+                {
+                    log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.ID, channel.FilterQuery);
+                }
+            }
+            else
+            {
+                channel = null;
+            }
+
+            return channel;
+        }
     }
 }

@@ -349,7 +349,8 @@ namespace GroupsCacheManager
                     }
                 }
 
-                if (channel.m_nMediaType.Count == 0)
+                // The 0 trick is relevant only to older channels
+                if (channelType != ChannelType.KSQL && channel.m_nMediaType.Count == 0)
                 {
                     if (mediaType != -1)
                     {
