@@ -146,9 +146,9 @@ public partial class adm_edit_group_members : System.Web.UI.Page
     public string changeItemStatus(string sUserID, string sAction)
     {
         string selectedGroupName = null;
-        if (Session["selectedGroupName"] != null)
+        if (Session["selectedGroupToEdit"] != null)
         {
-            selectedGroupName = Session["selectedGroupName"].ToString();
+            selectedGroupName = Session["selectedGroupToEdit"].ToString();
             HashSet<string> groupMembersHashSet = new HashSet<string>();
             HashSet<string> otherUsersHashSet = new HashSet<string>();
             if (Session["groupMembers"] != null && Session["otherUsers"] != null)
