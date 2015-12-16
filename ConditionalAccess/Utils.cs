@@ -3499,6 +3499,14 @@ namespace ConditionalAccess
                     }
                 }
             }
+            else
+            {
+                foreach (int fileId in mediaIdGroupFileTypeMappings.Values)
+                {
+                    relatedFileTypes.Add(fileId);
+                }
+                relatedFileTypes = relatedFileTypes.Distinct().ToList();
+            }
             return relatedFileTypes;
         }
 
