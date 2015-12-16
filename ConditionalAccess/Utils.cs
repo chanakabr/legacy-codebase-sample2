@@ -3500,10 +3500,10 @@ namespace ConditionalAccess
                 }
             }
             else
-            {
-                foreach (int fileId in mediaIdGroupFileTypeMappings.Values)
+            {                
+                foreach (int mediaFileID in mediaIdGroupFileTypeMappings.Where(dic => dic.Key.StartsWith(mediaID.ToString())).Select(dic => dic.Value).ToList<int>())
                 {
-                    relatedFileTypes.Add(fileId);
+                    relatedFileTypes.Add(mediaFileID);
                 }
                 relatedFileTypes = relatedFileTypes.Distinct().ToList();
             }
