@@ -606,11 +606,11 @@ namespace Users
             }
 
             // Check master and default users
-            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
-            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
+            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Master).Select( y => y.Key).ToList();
+            List<int> defaultUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Household).Select(y => y.Key).ToList();
 
-            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 ||
-                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
+            //User can be removed in case there is more than 1 master in domain
+            if ((masterUserKV.Contains(nUserID) && masterUserKV.Count == 1) || defaultUserKV.Contains(nUserID))     
             {
                 eRetVal = DomainResponseStatus.UserNotAllowed;
                 return eRetVal;
