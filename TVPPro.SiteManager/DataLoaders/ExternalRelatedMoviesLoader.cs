@@ -15,17 +15,30 @@ using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
 using KLogMonitor;
 using System.Reflection;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
-    public class ExternalRelatedMoviesLoader : RelatedMoviesLoader
+    public class ExternalRelatedMoviesLoader : TVMAdapter<List<BaseObject>>
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private ExternalRelatedMediaLoader m_oCatalogExternalRelatedLoader;
         private bool m_bShouldUseCache;
 
         #region Properties 
+        public long MediaID
+        {
+            get
+            {
+                return Parameters.GetParameter<long>(eParameterType.Retrieve, "MediaID", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<long>(eParameterType.Retrieve, "MediaID", value);
+            }
+        }
+
         public string FreeParam
         {
             get
@@ -37,6 +50,126 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<string>(eParameterType.Retrieve, "FreeParam", value);
             }
         }
+
+        public string SiteGuid
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "SiteGuid", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "SiteGuid", value);
+            }
+        }
+
+        public bool WithInfo
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "WithInfo", false);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "WithInfo", value);
+            }
+        }
+
+        protected string TvmUser
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmUser", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmUser", value);
+            }
+
+        }
+        protected string TvmPass
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "TvmPass", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "TvmPass", value);
+            }
+
+        }
+        public string DeviceUDID
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Filter, "DeviceUDID", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Filter, "DeviceUDID", value);
+            }
+        }
+
+        public Enums.ePlatform Platform
+        {
+            get
+            {
+                return Parameters.GetParameter<Enums.ePlatform>(eParameterType.Retrieve, "Platform", Enums.ePlatform.Unknown);
+            }
+            set
+            {
+                Parameters.SetParameter<Enums.ePlatform>(eParameterType.Retrieve, "Platform", value);
+            }
+        }
+
+        public string PicSize
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "PicSize", string.Empty);
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "PicSize", value);
+            }
+        }
+
+        public bool IsPosterPic
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", true);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
+            }
+        }
+
+        public string RequestId
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "DomainID", "");
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "DomainID", value);
+            }
+        }
+
+        public Status Status
+        {
+            get
+            {
+                return Parameters.GetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", null);
+            }
+            set
+            {
+                Parameters.SetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", value);
+            }
+        }
         #endregion
 
         public ExternalRelatedMoviesLoader(long mediaID, string freeParam = null)
@@ -44,7 +177,7 @@ namespace TVPPro.SiteManager.DataLoaders
         {
         }
 
-        public ExternalRelatedMoviesLoader(long mediaID, string userName, string pass, string freeParam = null) : base(mediaID, userName, pass)
+        public ExternalRelatedMoviesLoader(long mediaID, string userName, string pass, string freeParam = null)
         {
             MediaID = mediaID;
             TvmUser = userName;
@@ -52,7 +185,7 @@ namespace TVPPro.SiteManager.DataLoaders
             FreeParam = freeParam;
         }
 
-        public override dsItemInfo Execute()
+        public override List<BaseObject> Execute()
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
@@ -64,12 +197,85 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     SiteGuid = SiteGuid
                 };
-                return m_oCatalogExternalRelatedLoader.Execute() as dsItemInfo;
+                List<BaseObject> ret = m_oCatalogExternalRelatedLoader.Execute() as List<BaseObject>;
+                                
+                this.RequestId = m_oCatalogExternalRelatedLoader.RequestId;
+                this.Status = m_oCatalogExternalRelatedLoader.Status;
+
+                return ret;
             }
             else
             {
-                return base.Execute();
+                return null;
             }
+        }
+
+        protected override IProtocol CreateProtocol()
+        {
+            Tvinci.Data.TVMDataLoader.Protocols.SearchRelated.SearchRelated protocol = new Tvinci.Data.TVMDataLoader.Protocols.SearchRelated.SearchRelated();
+            protocol.root.request.media.id = MediaID.ToString();
+
+            protocol.root.request.channel.start_index = "0";
+            protocol.root.request.channel.number_of_items = PageSize.ToString();
+            protocol.root.flashvars.pic_size1 = PicSize;
+            protocol.root.request.@params.with_info = "true";
+            protocol.root.flashvars.player_un = TvmUser;
+            protocol.root.flashvars.player_pass = TvmPass;
+            protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
+            protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();
+
+            if (IsPosterPic)
+            {
+                protocol.root.flashvars.pic_size1_format = "POSTER";
+                protocol.root.flashvars.pic_size1_quality = "HIGH";
+            }
+
+            protocol.root.flashvars.device_udid = DeviceUDID;
+            protocol.root.flashvars.platform = (int)Platform;
+
+
+            if (WithInfo)
+            {
+                string[] arrMetas = MediaConfiguration.Instance.Data.TVM.GalleryMediaInfoStruct.Metadata.ToString().Split(new Char[] { ';' });
+                foreach (string metaName in arrMetas)
+                {
+                    protocol.root.request.@params.info_struct.metaCollection.Add(new meta() { name = metaName });
+                }
+
+                string[] arrTags = MediaConfiguration.Instance.Data.TVM.GalleryMediaInfoStruct.Tags.ToString().Split(new Char[] { ';' });
+                foreach (string tagName in arrTags)
+                {
+                    protocol.root.request.@params.info_struct.tags.tag_typeCollection.Add(new tag_type() { name = tagName });
+                }
+            }
+           
+            return protocol;
+        }
+
+        protected override List<BaseObject> PreCacheHandling(object retrievedData)
+        {
+            List<BaseObject> result = new List<BaseObject>();
+
+            SearchRelated data = (SearchRelated)retrievedData;
+            return result;
+        }
+
+        public override bool TryGetItemsCount(out long count)
+        {
+            if (m_bShouldUseCache)
+            {
+                return m_oCatalogExternalRelatedLoader.TryGetItemsCount(out count);
+            }
+            else
+            {
+                count = base.GetItemsInSource();
+                return true;
+            }
+        }
+
+        protected override Guid UniqueIdentifier
+        {
+            get { return new Guid("{7E01D5C6-2A69-4dd6-8415-A49CE3BB4FB0}"); }
         }
     }
 }

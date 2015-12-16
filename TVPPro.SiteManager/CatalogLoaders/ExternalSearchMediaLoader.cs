@@ -17,6 +17,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public string Query { get; set; }
         public List<int> MediaTypes { get; set; }
+        public string RequestId { get; set; }
+        public Status Status { get; set; }
 
         #region Constructors
         public ExternalSearchMediaLoader(string query, List<int> mediaTypes, int groupID, string userIP, int pageSize, int pageIndex, string picSize)
@@ -49,6 +51,29 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_nMediaTypes = MediaTypes,
                 m_sQuery = Query
             };
+        }
+
+        public virtual object Execute()
+        {
+            BuildRequest();
+            Log("TryExecuteGetBaseResponse:", m_oRequest);
+            List<BaseObject> lObj = null;
+
+            m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse);
+            {
+                Log("Got:", m_oResponse);
+                lObj = (List<BaseObject>)Process();
+            }
+
+            MediaIdsStatusResponse response = m_oResponse as MediaIdsStatusResponse;
+
+            if (response != null)
+            {
+                this.RequestId = response.RequestId;
+                this.Status = response.Status;
+            }
+
+            return lObj;
         }
 
         protected override void Log(string message, object obj)

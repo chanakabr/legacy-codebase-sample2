@@ -15,11 +15,12 @@ using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
 using KLogMonitor;
 using System.Reflection;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
-    public class ExternalSearchMoviesLoader : TVMAdapter<dsItemInfo>
+    public class ExternalSearchMoviesLoader : TVMAdapter<List<BaseObject>>
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private ExternalSearchMediaLoader m_oCatalogExternalSearchLoader;
@@ -133,6 +134,30 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsPosterPic", value);
             }
         }
+
+        public string RequestId
+        {
+            get
+            {
+                return Parameters.GetParameter<string>(eParameterType.Retrieve, "DomainID", "");
+            }
+            set
+            {
+                Parameters.SetParameter<string>(eParameterType.Retrieve, "DomainID", value);
+            }
+        }
+
+        public Status Status
+        {
+            get
+            {
+                return Parameters.GetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", null);
+            }
+            set
+            {
+                Parameters.SetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", value);
+            }
+        }
         #endregion
 
         public ExternalSearchMoviesLoader(string query)
@@ -152,7 +177,7 @@ namespace TVPPro.SiteManager.DataLoaders
             return Execute();
         }
 
-        public override dsItemInfo Execute()
+        public override List<BaseObject> Execute()
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
@@ -164,11 +189,16 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     SiteGuid = SiteGuid
                 };
-                return m_oCatalogExternalSearchLoader.Execute() as dsItemInfo;
+                List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
+                                
+                this.RequestId = m_oCatalogExternalSearchLoader.RequestId;
+                this.Status = m_oCatalogExternalSearchLoader.Status;
+
+                return ret;
             }
             else
             {
-                return base.Execute();
+                return null;
             }
         }
 
@@ -218,61 +248,11 @@ namespace TVPPro.SiteManager.DataLoaders
             return protocol;
         }
 
-        protected override dsItemInfo PreCacheHandling(object retrievedData)
+        protected override List<BaseObject> PreCacheHandling(object retrievedData)
         {
-            dsItemInfo result = new dsItemInfo();
+            List<BaseObject> result = new List<BaseObject>();
 
             SearchRelated data = (SearchRelated)retrievedData;
-
-            if (data != null)
-            {
-                if (data.response != null && data.response.channel.mediaCollection.Count > 0)
-                {
-                    foreach (responsechannelmedia media in data.response.channel.mediaCollection)
-                    {
-                        // Info DataTable
-                        dsItemInfo.ItemRow mediasRow = result.Item.NewItemRow();
-
-                        mediasRow.ID = media.id.ToString();
-                        mediasRow.Title = media.title;
-                        mediasRow.ImageLink = media.pic_size1;
-                        mediasRow.MediaType = media.type.value;
-                        mediasRow.MediaTypeID = media.type.id;
-                        mediasRow.DescriptionShort = !string.IsNullOrEmpty(media.description.value) ? media.description.value : string.Empty;
-                        mediasRow.Rate = Convert.ToDouble(media.rating.avg);
-                        mediasRow.ViewCounter = Convert.ToInt32(media.views.count);
-                        mediasRow.URL = media.url;
-                        mediasRow.Duration = media.duration;
-                        mediasRow.FileID = media.file_id;
-                        mediasRow.Likes = media.like_counter.ToString();
-
-                        if (WithInfo)
-                        {
-                            DataHelper.CollectMetasInfo(ref result, media);
-
-                            DataHelper.CollectTagsInfo(ref result, media);
-                        }
-
-                        //Add create date.
-                        try
-                        {
-                            string[] date = media.date.Split('/');
-                            mediasRow.AddedDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.Error("", ex);
-                        }
-                        //if (WithInfo)
-                        //{
-                        //    mediasRow.DescriptionShort = media.META5_STR_NAME.value;
-                        //}
-
-                        result.Item.AddItemRow(mediasRow);
-                    }
-                }
-            }
-
             return result;
         }
 
