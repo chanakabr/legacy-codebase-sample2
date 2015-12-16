@@ -3765,5 +3765,29 @@ namespace Tvinci.Core.DAL
 
             return channel;
         }
+
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0]);
+            }
+
+            return result;
+            
+        }
     }
 }
