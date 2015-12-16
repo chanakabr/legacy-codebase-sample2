@@ -392,9 +392,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public List<Media> GetExternalRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes, string freeParam)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes, string freeParam)
         {
-            List<Media> lstMedia = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalRelatedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -402,7 +402,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetExternalRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam);
                 }
                 catch (Exception ex)
                 {
@@ -414,13 +414,13 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return lstMedia;
+            return ret;
         }
 
         [WebMethod(EnableSession = true, Description = "Get external search media info")]
-        public List<Media> GetExternalSearchMedias(InitializationObject initObj, string query, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
         {
-            List<Media> lstMedia = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalSearchMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -428,7 +428,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    lstMedia = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
                 }
                 catch (Exception ex)
                 {
@@ -440,7 +440,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return lstMedia;
+            return ret;
         }
 
         //Get related media info

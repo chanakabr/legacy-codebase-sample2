@@ -15,6 +15,7 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.CatalogLoaders;
+using TVPApiModule.Objects.Responses;
 
 /// <summary>
 /// Summary description for MediaHelper
@@ -687,16 +688,16 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, OrderBy.None, reqMediaTypes);
         }
 
-        public static List<Media> GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, string freeParam = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, string freeParam = null)
         {
             TVMAccountType account; ;
             
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.RelatedExternal, OrderBy.None, reqMediaTypes: reqMediaTypes, freeParam: freeParam);
+            return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam);
         }
 
-        public static List<Media> GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null)
         {
             TVMAccountType account; ;
 
@@ -938,27 +939,7 @@ namespace TVPApi
                     mediaInfo = relatedLoader.Execute();
                     relatedLoader.TryGetItemsCount(out mediaCount);
                     //isPaged = true;
-                    break;
-                case LoaderType.RelatedExternal:
-                    APIExternalRelatedMediaLoader externalRelatedLoader = new APIExternalRelatedMediaLoader(ID, user, pass, freeParam)
-                    {
-                        GroupID = groupID,
-                        Platform = initObj.Platform,
-                        PicSize = picSize,
-                        WithInfo = true,
-                        PageSize = pageSize,
-                        PageIndex = pageIndex,
-                        IsPosterPic = false,
-                        DeviceUDID = initObj.UDID,
-                        MediaTypes = reqMediaTypes,
-                        Language = initObj.Locale.LocaleLanguage,
-                        SiteGuid = initObj.SiteGuid,
-                        DomainID = initObj.DomainID
-                    };
-                    mediaInfo = externalRelatedLoader.Execute();
-                    externalRelatedLoader.TryGetItemsCount(out mediaCount);
-                    //isPaged = true;
-                    break;
+                    break;                
                 case LoaderType.PeopleWhoWatched:
                     mediaInfo = (new APIPeopleWhoWatchedLoader(user, pass, ID, picSize) { 
                         GroupID = groupID, 
@@ -1132,10 +1113,57 @@ namespace TVPApi
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderObj, reqMediaTypes, tagsMetas, cutWith);
         }
 
-        public static List<Media> GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalRelatedList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, 
+                                                                                int groupID, int[] reqMediaTypes = null, string freeParam = null)
         {
-            List<Media> retVal = new List<Media>();
-            dsItemInfo mediaInfo;
+            List<BaseObject> mediaInfo;
+
+            APIExternalRelatedMediaLoader externalRelatedLoader = new APIExternalRelatedMediaLoader(ID, user, pass, freeParam)
+            {
+                GroupID = groupID,
+                Platform = initObj.Platform,
+                PicSize = picSize,
+                WithInfo = true,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                IsPosterPic = false,
+                DeviceUDID = initObj.UDID,
+                MediaTypes = reqMediaTypes,
+                Language = initObj.Locale.LocaleLanguage,
+                SiteGuid = initObj.SiteGuid,
+                DomainID = initObj.DomainID
+            };
+            mediaInfo = externalRelatedLoader.Execute();
+
+            long mediaCount;
+
+            externalRelatedLoader.TryGetItemsCount(out mediaCount);
+
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+
+            try
+            {
+                List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
+
+                ret.TotalItems = mediaList.Count;
+                ret.Assets = mediaList.Select(m => new AssetInfo(m, false)).ToList();
+                ret.RequestId = externalRelatedLoader.RequestId;
+                ret.Status = new TVPApiModule.Objects.Responses.Status();
+                ret.Status.Code = externalRelatedLoader.Status.Code;
+                ret.Status.Message = externalRelatedLoader.Status.Message;
+
+                return ret;
+            }
+            catch (Exception ex)
+            {
+            }
+            
+            return ret;
+        }
+
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        {
+            List<BaseObject> mediaInfo;
 
             APIExternalSearchMediaLoader externalRelatedLoader = new APIExternalSearchMediaLoader(query, user, pass)
             {
@@ -1153,21 +1181,27 @@ namespace TVPApi
                 DomainID = initObj.DomainID
             };
             mediaInfo = externalRelatedLoader.Execute();
-            
-            long mediaCount;
 
-            externalRelatedLoader.TryGetItemsCount(out mediaCount);            
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
 
-            if (mediaInfo.Item != null && mediaInfo.Item.Count > 0)
+            try
             {
-                foreach (dsItemInfo.ItemRow row in mediaInfo.Item)
-                {
-                    Media media = new Media(row, initObj, groupID, false, mediaCount);
-                    retVal.Add(media);
-                }
-            }
-            return retVal;
+                List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
 
+                ret.TotalItems = mediaList.Count;
+                ret.Assets = mediaList.Select(m => new AssetInfo(m, false)).ToList();
+                ret.RequestId = externalRelatedLoader.RequestId;
+                ret.Status = new TVPApiModule.Objects.Responses.Status();
+                ret.Status.Code = externalRelatedLoader.Status.Code;
+                ret.Status.Message = externalRelatedLoader.Status.Message;
+
+                return ret;
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;            
         }
 
         //Get User Items (favorites, Purchases, Packages)

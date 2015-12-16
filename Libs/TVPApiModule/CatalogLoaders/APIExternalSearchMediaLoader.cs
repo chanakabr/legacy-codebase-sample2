@@ -45,5 +45,20 @@ namespace TVPApiModule.CatalogLoaders
             string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
             return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
         }
+
+        protected override object Process()
+        {
+            // response should be media ids with status, try to save it and override just the obj.
+            MediaIdsStatusResponse response = m_oResponse as MediaIdsStatusResponse;
+            if (response == null)
+                return base.Process();
+            else
+            {
+                response.m_lObj = (List<BaseObject>)base.Process();
+                m_oResponse = response;
+            }
+
+            return m_oResponse != null ? m_oResponse.m_lObj : null;
+        }
     }
 }

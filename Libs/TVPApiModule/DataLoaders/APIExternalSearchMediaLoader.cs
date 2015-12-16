@@ -9,6 +9,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPApi
 {
@@ -28,6 +29,7 @@ namespace TVPApi
 
         }
 
+        #region params
         public override bool ShouldExtractItemsCountInSource
         {
             get
@@ -59,18 +61,7 @@ namespace TVPApi
                 Parameters.SetParameter<PlatformType>(eParameterType.Retrieve, "Platform", value);
             }
         }
-        public string DeviceUDID
-        {
-            get
-            {
-                return Parameters.GetParameter<string>(eParameterType.Filter, "DeviceUDID", string.Empty);
-            }
-            set
-            {
-                Parameters.SetParameter<string>(eParameterType.Filter, "DeviceUDID", value);
-            }
-        }
-
+        
         public int[] MediaTypes
         {
             get
@@ -105,9 +96,10 @@ namespace TVPApi
             {
                 Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
             }
-        }
+        }        
+#endregion
 
-        public override dsItemInfo Execute()
+        public override List<BaseObject> Execute()
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
@@ -129,12 +121,18 @@ namespace TVPApi
                     SiteGuid = SiteGuid,
                     DomainId = DomainID
                 };
-                return m_oCatalogExternalSearchLoader.Execute() as dsItemInfo;
+
+                List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
+
+                this.RequestId = m_oCatalogExternalSearchLoader.RequestId;
+                this.Status = m_oCatalogExternalSearchLoader.Status;
+
+                return ret;
             }
             else
             {
                 return base.Execute();
-            }
+            }            
         }
     }
 }

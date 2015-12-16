@@ -228,6 +228,7 @@
     <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
     <Compile Include="Objects\Responses\Rules\ParentalRulesResponse.cs" />
     <Compile Include="Objects\Responses\Rules\PurchaseSettingsResponse.cs" />
+    <Compile Include="Objects\Responses\UnifiedSearchResponseWithRequestId.cs" />
     <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
