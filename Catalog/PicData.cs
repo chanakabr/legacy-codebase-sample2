@@ -16,5 +16,7 @@ namespace Catalog
         public int RatioId { get; set; }
 
         public string BaseUrl { get; set; }
+
+        public int GroupId { get; set; }
     }
 }

@@ -523,7 +523,8 @@ namespace Catalog
                                 Version = Utils.GetIntSafeVal(row, "VERSION"),
                                 BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
                                 PicId = Utils.GetLongSafeVal(row, "ID"),
-                                Ratio = Utils.GetStrSafeVal(row, "RATIO")
+                                Ratio = Utils.GetStrSafeVal(row, "RATIO"),
+                                GroupId = Utils.GetIntSafeVal(row, "GROUP_ID")
                             });
                         }
                     }
@@ -544,7 +545,9 @@ namespace Catalog
                     if (string.IsNullOrEmpty(picBaseName))
                         throw new Exception("could not retrieve picture base URL");
 
-                    if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
+                    if (dtPic != null &&
+                        dtPic.Rows != null &&
+                        dtPic.Rows.Count > 0)
                     {
                         // new images server, migrated user with picture sizes
 
@@ -563,7 +566,7 @@ namespace Catalog
                             int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
                             picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
 
-                            // get version: if ratio_id exists in pics table => get its version
+                            // get version: if ratio_id exists in pictures table => get its version
                             var picdata = picsData.FirstOrDefault(x => x.RatioId == ratioId);
                             if (picdata != null)
                                 picObj.version = picdata.Version;
@@ -591,21 +594,17 @@ namespace Catalog
 
                         if (picDataZeroRatio != null)
                         {
-                            // new image server, sizes are not defined, migrated media/pic => get group ratios
-                            List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(groupId);
+                            // new image server, sizes are not defined, migrated media/picture => get group ratios
+                            List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
                             if (groupRatios == null || groupRatios.Count == 0)
                             {
-                                log.ErrorFormat("group ratios were not found. GID {0}", groupId);
+                                log.ErrorFormat("group ratios were not found. GID {0}", picDataZeroRatio.GroupId);
                                 return null;
                             }
 
                             // build picture object for each ratio
                             foreach (var ratio in groupRatios)
                             {
-                                var picData = picsData.FirstOrDefault(x => x.RatioId == ratio.Id);
-                                if (picData == null)
-                                    picData = picDataZeroRatio;
-
                                 picObj = new Picture();
 
                                 // get ratio string
@@ -615,7 +614,7 @@ namespace Catalog
                                 picObj.id = string.Format("{0}_{1}", picBaseName, ratio.Id);
 
                                 // get version
-                                picObj.version = picData.Version;
+                                picObj.version = 0;
 
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
@@ -631,7 +630,7 @@ namespace Catalog
                         }
                         else
                         {
-                            // new image server, sizes are not defined, new media/pic
+                            // new image server, sizes are not defined, new media/picture
                             foreach (var picData in picsData)
                             {
                                 picObj = new Picture();

@@ -660,7 +660,7 @@ namespace EpgBL
                     List<EpgPicture> finalEpgPicture = null;
                     foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
                     {
-                        int group = int.Parse(oProgram.GROUP_ID);
+                        int progGroup = int.Parse(oProgram.GROUP_ID);
 
 
                         finalEpgPicture = new List<EpgPicture>();
@@ -671,7 +671,7 @@ namespace EpgBL
                                 // get picture base URL
                                 string picBaseName = Path.GetFileNameWithoutExtension(pict.Url);
 
-                                if (pictures == null || !pictures.ContainsKey(group))
+                                if (pictures == null || !pictures.ContainsKey(progGroup))
                                 {
                                     pictureItem = new EpgPicture();
                                     pictureItem.Ratio = pict.Ratio;
@@ -689,10 +689,10 @@ namespace EpgBL
                                 }
                                 else
                                 {
-                                    if (!pictures.ContainsKey(group))
+                                    if (!pictures.ContainsKey(progGroup))
                                         continue;
 
-                                    List<EpgPicture> ratios = pictures[group].Where(x => x.Ratio == pict.Ratio).ToList();
+                                    List<EpgPicture> ratios = pictures[progGroup].Where(x => x.Ratio == pict.Ratio).ToList();
 
                                     foreach (EpgPicture ratioItem in ratios)
                                     {
@@ -722,9 +722,9 @@ namespace EpgBL
 
                         // complete the picURL for back support                
                         string baseEpgPicUrl = string.Empty;
-                        if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[group] != null)
+                        if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[progGroup] != null)
                         {
-                            EpgPicture pict = pictures[group].First();
+                            EpgPicture pict = pictures[progGroup].First();
                             if (pict != null && !string.IsNullOrEmpty(pict.Url))
                             {
                                 baseEpgPicUrl = pict.Url;
