@@ -224,6 +224,23 @@ namespace Users
         {
             if (m_sSiteGUID != "")
             {
+                //Try Getting user current object so we return the current values on the response
+                int currentUserID;                
+                if (int.TryParse(m_sSiteGUID, out currentUserID))
+                {   
+                    UsersCache usersCache = UsersCache.Instance();
+                    User user = usersCache.GetUser(currentUserID, nGroupID);
+                    if (user != null)
+                    {
+                        m_domianID = user.m_domianID;
+                        m_eSuspendState = user.m_eSuspendState;
+                        m_eUserState = user.m_eUserState;
+                        m_isDomainMaster = user.m_isDomainMaster;
+                        m_nSSOOperatorID = user.m_nSSOOperatorID;                        
+                    }
+                }
+
+                //Update basic and dynamic data
                 if (!string.IsNullOrEmpty(oBasicData.m_sUserName))
                 {
                     m_oBasicData.m_sUserName = oBasicData.m_sUserName;
@@ -598,7 +615,7 @@ namespace Users
                     return userID;
                 }
 
-                // Existing user - Update & Remove from cache
+                // Existing user - Remove & Update from cache
                 if (int.TryParse(m_sSiteGUID, out userID))
                 {
                     if (isRemoveFromCache)
