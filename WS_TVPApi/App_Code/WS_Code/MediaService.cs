@@ -392,7 +392,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes, string freeParam)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, string picSize, int pageSize, int pageIndex, int[] filter_types, string freeParam)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
@@ -402,7 +402,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, mediaID, mediaType, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, picSize, pageSize, pageIndex, groupID, filter_types, freeParam);
                 }
                 catch (Exception ex)
                 {
@@ -418,7 +418,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external search media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int mediaType, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int[] filter_types)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
@@ -428,7 +428,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, reqMediaTypes);
+                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, filter_types);
                 }
                 catch (Exception ex)
                 {
